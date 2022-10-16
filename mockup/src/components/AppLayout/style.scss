@@ -1,0 +1,206 @@
+@import "../../styles/abstracts/variables";
+@import "../../styles/abstracts/mixins";
+@import "../../styles/base/base";
+
+.body {
+  //display: flex;
+  @include respond(phone) {
+    flex-direction: column;
+  }
+}
+
+.sidebar {
+  //width: 180px;
+  height: 80px;
+  background: $sidebar-color;
+  display: flex;
+  justify-content: space-between;
+  //flex-direction: column;
+  @include respond(phone) {
+    height: inherit;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    padding: 1.5rem 2rem;
+  }
+
+  .logo {
+    height: 6.6rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    @include respond(phone) {
+      justify-content: start;
+      grid-column: 1 / span 2;
+    }
+
+    img {
+      width: 13rem;
+    }
+  }
+
+  .menu-item-icon {
+    width: 15px;
+    height: 15px;
+  }
+
+  .menu {
+    @include respond(phone) {
+      grid-column: 1 / span 3;
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+    }
+
+    .item {
+      padding: 1.3rem 0 1.3rem 0;
+      transition: all .2s;
+      list-style-type: none;
+      display: flex;
+      white-space: nowrap;
+
+      @include respond(phone) {
+        padding-left: 0;
+      }
+
+      a {
+        display: inline-block;
+        text-decoration: none;
+        color: $color-white;
+        padding: .5rem 2rem;
+        width: 100%;
+        @include respond(phone) {
+          padding-left: 0;
+        }
+
+        & span:last-child {
+          margin-left: 1rem;
+          font-weight: 500;
+          font-size: 1.6rem;
+        }
+      }
+
+      &.active {
+        a {
+          border-radius: .5rem;
+          position: relative;
+
+          & > span {
+            position: relative;
+            z-index: 2;
+          }
+        }
+      }
+
+      &.active {
+        & > a > span::before {
+          content: '';
+          background: linear-gradient(270deg, #2454cf 10.53%, #2b48a6 100%);
+          position: absolute;
+          height: .8rem;
+          width: 80%;
+          top: .1rem;
+          left: 10%;
+          z-index: -1;
+
+          @include respond(phone) {
+            left: 0;
+            width: 75%;
+          }
+        }
+      }
+    }
+  }
+
+  .menu.sub-menu {
+    background: $color-grey;
+    padding-left: 1rem;
+    display: flex;
+  }
+
+  .connect-wallet {
+    display: flex;
+    height: 4rem;
+    margin-top: 1rem;
+    justify-content: center;
+
+    @include respond(phone) {
+      justify-content: flex-end;
+      grid-column: 3 / span 2;
+    }
+
+    .short-address-box {
+      width: 16rem;
+      background: $color-grey;
+      color: $color-white;
+      border-radius: 1rem;
+      display: flex;
+      justify-content: center;
+      padding: .5rem 1rem;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 1rem;
+      cursor: pointer;
+
+      @include respond(phone) {
+        margin-top: 0;
+      }
+    }
+  }
+}
+
+.layout {
+  min-height: calc(100vh - 80px);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: $layout-background-color;
+  color: $color-text-default;
+}
+
+.header {
+  height: 6.8rem;
+  border-bottom: 1px solid rgba($color-grey-light-1, .2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .page-name {
+    font-weight: bold;
+    font-size: 3.6rem;
+    @include textGradient
+  }
+}
+
+.main {
+  flex: 1;
+  padding-top: 2.8rem;
+}
+
+.switch-label {
+  color: $color-white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  padding: 1rem;
+}
+
+.swith-theme {
+  display: flex;
+  flex: 1;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 1.5rem;
+
+  @include respond(phone) {
+    justify-content: flex-end;
+    grid-column: 4 / span 1;
+  }
+
+  &>span {
+    color: $color-white;
+    @include respond(phone) {
+      display: none;
+    }
+  }
+}

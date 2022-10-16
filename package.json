@@ -1,0 +1,73 @@
+{
+  "name": "derivable-comp",
+  "version": "1.0.0",
+  "author": "LaunchZone",
+  "license": "MIT",
+  "repository": "ezDeFi/lz-comp",
+  "main": "dist/index.js",
+  "module": "dist/index.modern.js",
+  "source": "src/index.tsx",
+  "engines": {
+    "node": ">=10"
+  },
+  "scripts": {
+    "mockup:watch": "cd mockup && run-s watch",
+    "mockup:build": "cd mockup && run-s build",
+    "build:configs": "microbundle-crl --entry src/configs.tsx --output dist/configs.js --format modern,cjs --css-modules false",
+    "build:component": "microbundle-crl --entry src/component.tsx --output dist/component.js --format modern,cjs --css-modules false --no-compress",
+    "build": "yarn build:configs && yarn build:component",
+    "start": "yarn build:configs && microbundle-crl --entry src/component.tsx --output dist/component.js --format modern,cjs --css-modules false --no-compress watch",
+    "watch": "yarn build:configs && microbundle-crl --entry src/component.tsx --output dist/component.js --format modern,cjs --css-modules false --no-compress watch",
+    "prepare": "run-s build",
+    "test": "run-s test:unit test:lint test:build",
+    "test:build": "run-s build",
+    "test:lint": "eslint .",
+    "test:unit": "cross-env CI=1 react-scripts test --env=jsdom",
+    "test:watch": "react-scripts test --env=jsdom",
+    "predeploy": "cd example && yarn install && yarn run build",
+    "deploy": "gh-pages -d example/build"
+  },
+  "peerDependencies": {
+    "react": "^17.0.0",
+    "react-dom": "^17.0.0"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/react": "^9.5.0",
+    "@testing-library/user-event": "^7.2.1",
+    "@types/jest": "^25.1.4",
+    "@types/node": "^12.12.38",
+    "@types/react": "^16.9.27",
+    "@types/react-dom": "^16.9.7",
+    "@typescript-eslint/eslint-plugin": "^2.26.0",
+    "@typescript-eslint/parser": "^2.26.0",
+    "microbundle-crl": "^0.13.10",
+    "babel-eslint": "^10.0.3",
+    "cross-env": "^7.0.2",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.7.0",
+    "eslint-config-standard": "^14.1.0",
+    "eslint-config-standard-react": "^9.2.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-node": "^11.0.0",
+    "eslint-plugin-prettier": "^3.1.1",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-react": "^7.17.0",
+    "eslint-plugin-standard": "^4.0.1",
+    "gh-pages": "^2.2.0",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.0.4",
+    "react-redux": "^7.2.4",
+    "redux": "^4.1.0",
+    "redux-thunk": "^2.3.0",
+    "react-scripts": "^3.4.1",
+    "typescript": "^3.7.5",
+    "@web3-react/core": "^6.1.9",
+    "ethers": "^5.2.0",
+    "sass": "^1.38.2",
+    "sass-loader": "^12.1.0"
+  },
+  "files": [
+    "dist"
+  ]
+}

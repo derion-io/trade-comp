@@ -1,0 +1,35 @@
+@import "../abstracts/variables";
+
+*,
+*::after,
+*::before {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: $layout-background-color;
+}
+
+html {
+    // This defines what 1rem is
+    font-size: 62.5%; //1 rem = 10px; 10px/16px = 62.5%
+
+    @include respond(tablet) { // width < 1200?
+        font-size: 56.25%; //1 rem = 9px, 9/16 = 50%
+    }
+
+    @include respond(phone) { // width < 900?
+        font-size: 50%; //1 rem = 8px, 8/16 = 50%
+    }
+}
+
+.container {
+    padding-left: 10rem;
+    padding-right: 12rem;
+
+    @include respond(phone) {
+        padding: 2.2rem;
+    }
+}

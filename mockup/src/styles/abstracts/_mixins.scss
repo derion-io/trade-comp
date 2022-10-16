@@ -1,0 +1,54 @@
+@mixin clearfix {
+    &::after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+}
+
+@mixin absCenter {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+@mixin textGradient {
+    background: linear-gradient(270deg, #96CF24 10.53%, #5AA62B 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+// MEDIA QUERY MANAGER
+/*
+0 - 600px:      Phone
+600 - 900px:    Tablet portrait
+900 - 1200px:   Tablet landscape
+[1200 - 1800] is where our normal styles apply
+1800px + :      Big desktop
+
+$breakpoint arguement choices:
+- phone
+- tab-port
+- tab-land
+- big-desktop
+
+ORDER: Base + typography > general layout + grid > page layout > components
+
+1em = 16px
+*/
+@mixin respond($breakpoint) {
+    @if $breakpoint == phone {
+        @media only screen and (max-width: 768px) { @content };    // 0 - 768px
+    }
+    @if $breakpoint == tablet {
+        @media only screen and (max-width: 992px) and (min-width: 769px) { @content };     //  769px - 992px
+    }
+    @if $breakpoint == small-desktop {
+        @media only screen and (max-width: 1200px) and (min-width: 993px) { @content };    // 993px - 1200px
+    }
+    @if $breakpoint == desktop {
+        @media only screen and (min-width: 1201px) { @content };    // 1200px
+    }
+}
+

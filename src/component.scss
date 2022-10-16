@@ -1,0 +1,15 @@
+.mockup-dapp {
+    width: 100%;
+    height: 100%;
+    @at-root {
+        .dark & {
+            background: #535353;
+            color: #FFFFFF;
+        }
+        
+        .light & {
+            background: #E5E5E5;
+            color: #1B1D1C;
+        }
+    }
+}
