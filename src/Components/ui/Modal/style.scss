@@ -1,0 +1,63 @@
+@import "../../../styles/abstracts/variables";
+@import "../../../styles/abstracts/mixins";
+
+.swap-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  opacity: 0;
+  visibility: hidden;
+  transition: all .25s ease-out;
+  &.show {
+    visibility: visible;
+    outline: none;
+    text-decoration: none;
+    font-size: 70%;
+    color: #000;
+    opacity: 1;
+  }
+
+  .overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    background: $color-overlay;
+  }
+
+  .modal {
+    background: $color-modal-bg;
+    border-radius: 20px;
+    width: 40rem;
+    max-height: 100%;
+    z-index: 1001;
+    padding: 1rem 1.5rem 2rem 1.5rem;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    margin-top: 12rem;
+    overflow: hidden;
+
+    .btn-close-wrap {
+      margin-bottom: .5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .btn-close {
+        cursor: pointer;
+      }
+      .title {
+        font-size: 2rem;
+        font-weight: bold;
+      }
+    }
+    .modal-content {
+      padding: 1rem 0;
+    }
+  }
+}

@@ -1,0 +1,56 @@
+@import "mixins";
+
+// COLORS
+$color-primary: var(--swap-color-primary, #328B31);
+$color-primary-light: var(--swap-color-primary-light, #96CF24);
+$color-primary-light-1: var(--swap-color-primary-light-1, #5AA62B);
+$color-border-primary: var(--swap-color-border-primary, var(--swap-color-primary-light));
+$color-text-gradient: var(--swap-color-text-gradient, var(--swap-color-primary-light));
+$color-text-gradient-1: var(--swap-color-text-gradient-1, var(--swap-color-primary-light-1));
+
+$color-danger: var(--swap-color-danger);
+$color-sell: var(--swap-color-sell);
+$color-buy: var(--swap-color-buy);
+$color-text-link: var(--swap-color-text-link, #3eb8ff);
+$color-text-link-hover: var(--swap-color-text-link-hover, #11aaff);
+$color-btn-text: var(--swap-color-btn-text, #ffffff);
+
+$color-text-disabled: rgb(102 97 113 / 69%);
+$color-text-grey: var(--swap-color-text-grey, #9CA3AF);
+$color-text-grey-light: var(--swap-color-text-grey-light, rgba(156, 163, 175, 0.64));
+$color-box-border-focus: var(--swap-color-box-border-focus);
+
+$loading-background-color: var(--swap-loading-background-color, var(--swap-default-loading-background-color));
+$layout-background-color: var(--swap-layout-background-color, var(--swap-default-layout-background-color));
+$color-text-default: var(--swap-color-text-default, var(--swap-default-color-text-default));
+$color-box-border: var(--swap-color-box-border, var(--swap-default-color-box-border));
+$color-box-bg: var(--swap-color-box-bg, var(--swap-default-color-box-bg));
+$color-card-bg: var(--swap-color-card-bg, var(--swap-default-color-card-bg));
+$color-overlay: var(--swap-color-overlay, var(--swap-default-color-overlay));
+$color-input-field-bg: var(--swap-color-input-field-bg, var(--swap-default-color-input-field-bg));
+$color-modal-bg: var(--swap-color-modal-bg, var(--swap-default-color-modal-bg));
+$color-select-token-hover: var(--swap-color-select-token-hover, var(--swap-default-color-select-token-hover));
+$color-setting-button-bg: var(--swap-color-toggle-button-bg, var(--swap-default-color-toggle-button-bg));
+
+
+// FONT
+$default-font-size: 1.6rem;
+
+$container-padding: var(--swap-container-padding);
+$container-sm-padding: 1rem;
+
+body {
+  @include respond(desktop) {
+    --swap-container-padding: 7rem;
+  }
+  @include respond(small-desktop) {
+    --swap-container-padding: 7rem;
+  }
+  @include respond(tablet) {
+    --swap-container-padding: 2rem;
+  }
+  @include respond(phone) {
+    --swap-container-padding: 2rem;
+  }
+
+}

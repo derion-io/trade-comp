@@ -1,0 +1,129 @@
+@import "../abstracts/variables";
+
+.swap-page-interface {
+  input[type="color"],
+  input[type="date"],
+  input[type="datetime"],
+  input[type="datetime-local"],
+  input[type="email"],
+  input[type="month"],
+  input[type="number"],
+  input[type="password"],
+  input[type="search"],
+  input[type="tel"],
+  input[type="text"],
+  input[type="time"],
+  input[type="url"],
+  input[type="week"],
+  select:focus,
+  textarea {
+    font-size: 16px !important;
+  }
+
+  th {
+    text-align: left;
+  }
+
+  span, p, div, a {
+    font-size: 1.4rem;
+    color: $color-text-default;
+  }
+
+
+  .text {
+    &-gradient {
+      background: linear-gradient(270deg, $color-text-gradient 10.53%, $color-text-gradient-1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    &-underline {
+      text-decoration: underline;
+    }
+
+    &-light-green {
+      color: #96CF24;
+    }
+
+    &-green-1 {
+      color: #58C27D
+    }
+
+    &-grey {
+      color: $color-text-grey
+    }
+
+    &-default {
+      color: $color-text-default
+    }
+
+    &-white {
+      color: white
+    }
+
+    &-link {
+      color: $color-text-link
+    }
+
+    &-red {
+      color: red;
+    }
+
+    &-warning {
+      color: #ffb500;
+    }
+
+    &-danger {
+      color: #ff7570;
+    }
+
+    &-buy {
+      color: $color-buy;
+    }
+
+    &-sell {
+      color: $color-sell;
+    }
+  }
+
+  .text-weight {
+    font-weight: 700;
+
+    &-5 {
+      font-weight: 500;
+    }
+
+    &-4 {
+      font-weight: 400;
+    }
+
+    &-3 {
+      font-weight: 500;
+    }
+  }
+
+  .font-size {
+    &-12 {
+      font-size: 1.2rem;
+    }
+    &-14 {
+      font-size: 1.4rem;
+    }
+
+    &-18 {
+      font-size: 1.8rem;
+    }
+
+    &-16 {
+      font-size: 1.6rem;
+    }
+
+    &-22 {
+      font-size: 2.2rem;
+    }
+
+    &-30 {
+      font-size: 3rem;
+    }
+  }
+}

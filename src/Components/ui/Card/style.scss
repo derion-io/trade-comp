@@ -1,0 +1,10 @@
+@import "../../../styles/abstracts/variables";
+
+.swap-page-interface {
+  .card {
+    background: $color-card-bg;
+    padding: 1.5rem;
+    border-radius: 2rem;
+    transition: all ease-out 0.25s;
+  }
+}

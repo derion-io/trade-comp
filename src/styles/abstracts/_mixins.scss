@@ -1,0 +1,72 @@
+// MEDIA QUERY MANAGER
+/*
+0 - 768px      : Phone
+769px - 992px  : tablet
+993px - 1200px : small-desktop
+1200px         : desktop
+
+$breakpoint arguement choices:
+- Phone
+- tablet
+- small-desktop
+- desktop
+
+1em = 16px
+*/
+
+@mixin backgroundGradient {
+  background: linear-gradient(270deg, $color-primary-light 10.53%, $color-primary-light-1 100%);
+}
+
+@mixin textGradient {
+  background: linear-gradient(270deg, $color-text-gradient 10.53%, $color-text-gradient-1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@mixin scrollBar {
+  margin-right: -5px;
+  padding: 5px;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: $color-box-bg;
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $color-box-border;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: $color-select-token-hover;
+  }
+}
+
+@mixin respond($breakpoint) {
+  @if $breakpoint == normal-phone {
+    @media only screen and (max-width: 768px) {
+      @content
+    }; // 0 - 768px
+  }
+  @if $breakpoint == phone {
+    @media only screen and (max-width: 992px) {
+      @content
+    }; // 0 - 768px
+  }
+  @if $breakpoint == small-desktop {
+    @media only screen and (max-width: 1400px) {
+      @content
+    };
+  }
+  @if $breakpoint == desktop {
+    @media only screen and (min-width: 1401px) {
+      @content
+    }; // 1200px
+  }
+}
+

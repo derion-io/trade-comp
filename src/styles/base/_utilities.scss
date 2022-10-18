@@ -1,0 +1,261 @@
+@import "../abstracts/mixins";
+@import "../abstracts/variables";
+
+.swap-page-interface {
+  .text-center {
+    text-align: center
+  }
+
+  .text-right {
+    text-align: right
+  }
+
+  .text-left {
+    text-align: left
+  }
+
+  .d-inline-block {
+    display: inline-block;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  .hidden-on-desktop {
+    display: none !important;
+  }
+
+  @include respond(phone) {
+    .hidden-on-desktop {
+      display: revert !important;
+    }
+    .hidden-on-phone {
+      display: none !important;;
+    }
+  }
+
+  .jc-space-between {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .align-item-center {
+    display: flex;
+    align-items: center;
+  }
+
+  .cursor-pointer {
+    cursor: pointer;
+  }
+
+  .margin-right-child {
+    @for $i from 0 through 10 {
+      &-#{$i} > *:not(:last-child) {
+        margin-right: #{$i}rem;
+      }
+    }
+    &-05 > *:not(:last-child) {
+      margin-right: 0.5rem;
+    }
+  }
+
+  .m-0 {
+    margin: 0 !important;
+  }
+
+  .m {
+    @for $i from 0 through 10 {
+      &-#{$i} {
+        margin: #{$i}rem;
+      }
+      &y-#{$i} {
+        margin-top: #{$i}rem;
+        margin-bottom: #{$i}rem;
+      }
+      &t-#{$i} {
+        margin-top: #{$i}rem;
+      }
+      &b-#{$i} {
+        margin-bottom: #{$i}rem;
+      }
+      &l-#{$i} {
+        margin-left: #{$i}rem;
+      }
+      &r-#{$i} {
+        margin-right: #{$i}rem;
+      }
+    }
+
+    &r-05 {
+      margin-right: 0.5rem;
+    }
+
+    &l-05 {
+      margin-left: 0.5rem;
+    }
+
+    &t-05 {
+      margin-top: 0.5rem;
+    }
+
+    &b-05 {
+      margin-bottom: 0.5rem;
+    }
+  }
+
+
+  .p {
+    @for $i from 0 through 10 {
+      &-#{$i} {
+        padding: #{$i}rem;
+      }
+      &y-#{$i} {
+        padding-top: #{$i}rem;
+        padding-bottom: #{$i}rem;
+      }
+      &t-#{$i} {
+        padding-top: #{$i}rem;
+      }
+      &b-#{$i} {
+        padding-bottom: #{$i}rem;
+      }
+      &l-#{$i} {
+        padding-left: #{$i}rem;
+      }
+      &r-#{$i} {
+        padding-right: #{$i}rem;
+      }
+    }
+
+    &r-05 {
+      padding-right: 0.5rem;
+    }
+
+    &l-05 {
+      padding-left: 0.5rem;
+    }
+
+    &t-05 {
+      padding-top: 0.5rem;
+    }
+
+    &b-05 {
+      padding-bottom: 0.5rem;
+    }
+  }
+
+  .fw {
+    @for $i from 3 through 7 {
+      &-#{$i}00 {
+        font-weight: #{$i}00;
+      }
+    }
+  }
+
+  .container {
+    &-pl {
+      padding-left: $container-padding;
+      //@include respond(phone) {
+      //  padding-left: $container-sm-padding;
+      //}
+    }
+
+    &-pr {
+      padding-right: $container-padding;
+      //@include respond(phone) {
+      //  padding-right: $container-sm-padding;
+      //}
+    }
+  }
+
+  .bsc-link {
+    font-weight: 300;
+    color: #3eb8ff;
+    text-decoration: none;
+  }
+
+  .skeleton-loader__bone {
+    height: 18px;
+    position: relative;
+    background: $loading-background-color;
+    border-radius: 10px;
+    overflow: hidden;
+
+    &:after {
+      @at-root {
+        .dark & {
+          background: linear-gradient(
+              90deg, hsla(0, 0%, 100%, 0), hsla(0, 0%, 100%, .1), hsla(0, 0%, 100%, 0));
+        }
+      }
+      background: linear-gradient(
+          90deg, hsla(0, 0%, 100%, 0), hsla(0, 0%, 100%, .5), hsla(0, 0%, 100%, 0));
+
+      -webkit-animation: loading 1.5s infinite;
+      animation: loading 1.5s infinite;
+      content: "";
+      height: 100%;
+      left: 0;
+      position: absolute;
+      right: 0;
+      top: 0;
+      transform: translateX(-100%);
+      z-index: 1;
+    }
+  }
+
+  .d-flex {
+    display: flex;
+  }
+
+  .justify-content-center {
+    justify-content: center;
+  }
+  .justify-content-between {
+    justify-content: space-between;
+  }
+
+  .cursor-pointer {
+    cursor: pointer;
+  }
+
+  .justify-content-between {
+    justify-content: space-between;
+  }
+
+  .justify-content-end {
+    justify-content: flex-end;
+  }
+
+  .align-items-center {
+    align-items: center;
+  }
+
+  .token-icon-and-name {
+    display: flex;
+    flex-direction: column;
+
+    .token-icon {
+      width: 50px;
+    }
+  }
+
+  .upper-case {
+    text-transform: uppercase;
+  }
+}
+
+@keyframes loading {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  80% {
+    transform: translateX(70%);
+  }
+
+  100% {
+    transform: translate(100%);
+  }
+}

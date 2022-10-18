@@ -1,0 +1,16 @@
+.blur-background {
+  position: relative;
+  overflow: hidden;
+
+  &__content {
+    position: relative;
+    z-index: 10;
+  }
+
+  .blur-point {
+    position: absolute;
+    display: block;
+    border-radius: 50%;
+    z-index: 1;
+  }
+}
