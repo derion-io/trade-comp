@@ -16,14 +16,12 @@ import { BlurBackground } from '../BlurBackground'
 const CrossStorageClient = require('cross-storage').CrossStorageClient
 
 const LS_CONNECTOR = 'web3connector'
-const LS_THEME = 'theme'
 
 export const AppLayout = (props: any) => {
   const { activate, active, account, deactivate, chainId, library } = useWeb3React()
   const [balance, setBalance] = useState<any>()
   const [visibleWalletModal, setVisibleWalletModal] = useState<any>()
   const [visibleUserWalletModal, setVisibleUserWalletModal] = useState<any>()
-  const [theme, setTheme] = useState<any>('dark')
   const location = useLocation()
   const { configs, Component } = props
   const [xStorageClient, setXStorageClient] = useState<typeof CrossStorageClient>(undefined)
@@ -52,10 +50,6 @@ export const AppLayout = (props: any) => {
       .catch(console.error)
   }, [location.search])
 
-  useEffect(() => {
-    const initTheme = localStorage.getItem(LS_THEME)
-    setTheme(initTheme ? initTheme : 'light')
-  }, [])
 
   useEffect(() => {
     const initConnector = localStorage.getItem(LS_CONNECTOR)
@@ -84,7 +78,7 @@ export const AppLayout = (props: any) => {
     }
   }, [account, library, chainId])
 
-  return <div className={`body ${theme ? theme : 'light'}`}>
+  return <div className={`body dark'}`}>
     <aside className='sidebar'>
       <Menu menuConfig={[configs]} />
       <div className='select-chain-box'>
@@ -124,7 +118,6 @@ export const AppLayout = (props: any) => {
         <Suspense fallback={null}>
           <Component
             chainId={Number(chainIdToDisPlay)}
-            theme={theme}
             useHistory={useHistory}
             useLocation={useLocation}
             useWeb3React={useWeb3React}

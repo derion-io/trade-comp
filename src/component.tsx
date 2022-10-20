@@ -3,6 +3,7 @@ import { Provider } from 'react-redux'
 import { store } from './state'
 import { InitConfig } from './InitConfig'
 import { App } from './Components/App'
+import './styles/main.scss'
 
 export default ({
   chainId,

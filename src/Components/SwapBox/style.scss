@@ -1,0 +1,53 @@
+.swap-box {
+  width: 400px;
+
+  .info-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem;
+    margin-top: 2rem;
+
+    &__row {
+      text-align: center;
+      & > *:not(:last-child) {
+        display: block;
+        margin-bottom: 0.5rem;
+      }
+    }
+  }
+
+  .add-and-remove-box {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+
+    & > *:not(:last-child) {
+      margin-right: 2rem;
+    }
+
+    & > * {
+      flex: 1;
+    }
+  }
+
+  .execute-button {
+    margin-top: 2rem;
+    width: 100%;
+  }
+
+  .info-box1 {
+    padding: 1rem;
+
+    &>*:not(:last-child) {
+      margin-bottom: 1rem;
+    }
+  }
+
+  .info-row {
+    font-size: 12px;
+    &  * {
+      font-size: 12px;
+    }
+  }
+}

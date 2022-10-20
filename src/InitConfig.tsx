@@ -4,7 +4,6 @@ import { useInitConfig } from './state/config/useInitConfig'
 
 export const InitConfig = ({
   chainId,
-  theme,
   useWeb3React,
   useSubPage,
   xStorageClient,
@@ -19,7 +18,6 @@ export const InitConfig = ({
   useInitConfig({
     chainId,
     env,
-    theme,
     language,
     useSubPage,
     useHistory,

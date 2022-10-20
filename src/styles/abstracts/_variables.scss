@@ -9,9 +9,10 @@ $color-text-gradient: var(--swap-color-text-gradient, var(--swap-color-primary-l
 $color-text-gradient-1: var(--swap-color-text-gradient-1, var(--swap-color-primary-light-1));
 
 $color-danger: var(--swap-color-danger);
-$color-sell: var(--swap-color-sell);
-$color-buy: var(--swap-color-buy);
-$color-text-link: var(--swap-color-text-link, #3eb8ff);
+$color-sell:#FF7A68;
+$color-buy: #3DBAA2;
+$color-grey: #303236;
+$color-execute: #01A7FA;
 $color-text-link-hover: var(--swap-color-text-link-hover, #11aaff);
 $color-btn-text: var(--swap-color-btn-text, #ffffff);
 
@@ -25,7 +26,7 @@ $layout-background-color: var(--swap-layout-background-color, var(--swap-default
 $color-text-default: var(--swap-color-text-default, var(--swap-default-color-text-default));
 $color-box-border: var(--swap-color-box-border, var(--swap-default-color-box-border));
 $color-box-bg: var(--swap-color-box-bg, var(--swap-default-color-box-bg));
-$color-card-bg: var(--swap-color-card-bg, var(--swap-default-color-card-bg));
+$color-card-bg: #1B1D21;
 $color-overlay: var(--swap-color-overlay, var(--swap-default-color-overlay));
 $color-input-field-bg: var(--swap-color-input-field-bg, var(--swap-default-color-input-field-bg));
 $color-modal-bg: var(--swap-color-modal-bg, var(--swap-default-color-modal-bg));
@@ -36,7 +37,7 @@ $color-setting-button-bg: var(--swap-color-toggle-button-bg, var(--swap-default-
 // FONT
 $default-font-size: 1.6rem;
 
-$container-padding: var(--swap-container-padding);
+$container-padding: 2rem;
 $container-sm-padding: 1rem;
 
 body {

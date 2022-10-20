@@ -1,0 +1,17 @@
+.derivable-text {
+  font-size: 14px;
+  color: white;
+
+  &.text-buy {
+    color: #3DBAA2
+  }
+  &.text-sell {
+    color: #FF7A68
+  }
+  &.text-grey {
+    color: #a5a5a5;
+  }
+  &.text-green {
+    color: #4FBF67
+  }
+}
