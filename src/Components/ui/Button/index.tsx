@@ -22,6 +22,22 @@ export const ButtonBuy = (props: ButtonType) => {
   )
 }
 
+export const ButtonBorder = (props: ButtonType & { fill?: string }) => {
+  return (
+    <Button
+      {...props}
+      style={{
+        borderColor: props.fill ? props.fill : '#01A7FA',
+        color: props.fill ? props.fill : '#01A7FA',
+        ...props.style
+      }}
+      className={'border ' + props.className}
+    >
+      {props.children}
+    </Button>
+  )
+}
+
 export const ButtonSell = (props: ButtonType) => {
   return (
     <Button {...props} className={'sell ' + props.className}>

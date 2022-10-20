@@ -7,6 +7,7 @@ import { Label } from '../ui/Label'
 import { ButtonBuy, ButtonExecute, ButtonGrey } from '../ui/Button'
 import 'rc-slider/assets/index.css'
 import Slider from 'rc-slider'
+import { IconArrowDown, IconArrowLeft } from '../ui/Icon'
 
 const marks = {
   0: '-x8',
@@ -28,7 +29,9 @@ export const SwapBox = () => {
           <Label background='#3DBAA250'>
             <TextBuy>Long x25</TextBuy>
           </Label>
-          <span>arrow</span>
+          <span>
+            <IconArrowDown />
+          </span>
 
           <Label background='#FF7A6850'>
             <TextSell>Short x -1.5</TextSell>
@@ -38,7 +41,9 @@ export const SwapBox = () => {
           <Label background='#3DBAA250'>
             <TextBuy>Long x25</TextBuy>
           </Label>
-          <span>arrow</span>
+          <span>
+            <IconArrowDown />
+          </span>
           <Label background='#FF7A6850'>
             <TextSell>Short x -1.5</TextSell>
           </Label>
@@ -47,7 +52,9 @@ export const SwapBox = () => {
           <Label background='#3DBAA250'>
             <TextBuy>Long x25</TextBuy>
           </Label>
-          <span>arrow</span>
+          <span>
+            <IconArrowDown />
+          </span>
 
           <Label background='#FF7A6850'>
             <TextSell>Short x -1.5</TextSell>
@@ -74,71 +81,56 @@ export const SwapBox = () => {
       </div>
 
       <Box borderColor='#3a3a3a' className='info-box1 mb-2'>
-        <InfoRow
-          label='Leverage'
-          value={
-            <span>
-              <TextBuy className='mr-05'>x2.5</TextBuy>
-              <Text className='mr-05'> &gt; </Text>
-              <TextSell>x0</TextSell>
-            </span>
-          }
-        />
-        <InfoRow
-          label='DDL fees'
-          value={
-            <span>
-              <Text className='mr-05'>x2.5</Text>
-              <TextGrey>USD</TextGrey>
-            </span>
-          }
-        />
-        <InfoRow
-          label='TX fees'
-          value={
-            <span>
-              <Text className='mr-05'>0.01</Text>
-              <Text className='mr-05'> BNB </Text>
-              <Text className='mr-05'>= 0.1</Text>
-              <Text className='mr-05'>USDT</Text>
-              <Text>(0.05%)</Text>
-            </span>
-          }
-        />
+        <InfoRow>
+          <Text>Leverage</Text>
+          <span>
+            <TextBuy className='mr-05'>x2.5</TextBuy>
+            <Text className='mr-05'> &gt; </Text>
+            <TextSell>x0</TextSell>
+          </span>
+        </InfoRow>
+        <InfoRow>
+          <Text>DDL fees</Text>
+          <span>
+            <Text className='mr-05'>x2.5</Text>
+            <TextGrey>USD</TextGrey>
+          </span>
+        </InfoRow>
+        <InfoRow>
+          <Text>fees</Text>
+          <span>
+            <Text className='mr-05'>0.01</Text>
+            <Text className='mr-05'> BNB </Text>
+            <Text className='mr-05'>= 0.1</Text>
+            <Text className='mr-05'>USDT</Text>
+            <Text>(0.05%)</Text>
+          </span>
+        </InfoRow>
       </Box>
 
       <Box borderColor='#3a3a3a' className='info-box1 '>
-        <InfoRow
-          label='Leverage'
-          value={
-            <span>
-              <TextBuy className='mr-05'>x2.5</TextBuy>
-              <Text className='mr-05'> &gt; </Text>
-              <TextSell>x0</TextSell>
-            </span>
-          }
-        />
-        <InfoRow
-          label='DDL fees'
-          value={
-            <span>
-              <Text className='mr-05'>x2.5</Text>
-              <TextGrey>USD</TextGrey>
-            </span>
-          }
-        />
-        <InfoRow
-          label='TX fees'
-          value={
-            <span>
-              <Text className='mr-05'>0.01</Text>
-              <TextGrey className='mr-05'> BNB </TextGrey>
-              <Text className='mr-05'>= 0.1</Text>
-              <TextGrey className='mr-05'>USDT</TextGrey>
-              <TextBuy>(0.05%)</TextBuy>
-            </span>
-          }
-        />
+        <InfoRow>
+          <span>
+            <Text>0.3 </Text>
+            <TextGrey>Eth^3</TextGrey>
+          </span>
+          <IconArrowLeft />
+          <span>
+            <Text>0.5 </Text>
+            <TextGrey>Eth^-3</TextGrey>
+          </span>
+        </InfoRow>
+        <InfoRow>
+          <span>
+            <Text>100 </Text>
+            <TextGrey>BNB</TextGrey>
+          </span>
+          <IconArrowLeft />
+          <span>
+            <Text>900 </Text>
+            <TextGrey>USDT</TextGrey>
+          </span>
+        </InfoRow>
       </Box>
 
       <div>
@@ -150,9 +142,12 @@ export const SwapBox = () => {
 
 const InfoRow = (props: any) => {
   return (
-    <div className={'d-flex jc-space-between info-row font-size-12 ' + props.className}>
-      {props.label}
-      {props.value}
+    <div
+      className={
+        'd-flex jc-space-between info-row font-size-12 ' + props.className
+      }
+    >
+      {props.children}
     </div>
   )
 }

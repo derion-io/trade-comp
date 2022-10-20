@@ -7,6 +7,17 @@
   color: #FFFFFF;
   border-radius: 16px;
   border: none;
+  cursor: pointer;
+  transition: all 0.25s ease-out;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.33);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
 
   &.buy {
     background: $color-buy;
@@ -22,5 +33,12 @@
 
   &.execute {
     background: $color-execute;
+  }
+
+  &.border {
+    background: transparent;
+    border-radius: 2rem;
+    border-style: solid;
+    border-width: 1px;
   }
 }

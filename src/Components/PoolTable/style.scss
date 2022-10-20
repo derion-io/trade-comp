@@ -1,0 +1,23 @@
+@import "../../styles/abstracts/variables";
+
+.pool-table-wrap {
+  background: $color-card-bg;
+  border-radius: 20px;
+  padding: 1rem 0 2rem 0;
+}
+
+.pool-table {
+  width: 800px;
+  border-collapse: collapse;
+  tr.is-long-pool td {
+    background: rgba(61, 186, 162, 0.1);
+  }
+
+  tr.is-short-pool td {
+    background: rgba(255, 122, 104, 0.1);
+  }
+
+  td,th {
+    padding: 1rem;
+  }
+}
