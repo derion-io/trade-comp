@@ -1,13 +1,14 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Card } from '../ui/Card'
-import { Text, TextBuy, TextGrey, TextSell } from '../ui/Text'
+import { Text, TextBuy, TextGreen, TextGrey, TextSell } from '../ui/Text'
 import './style.scss'
 import { Box } from '../ui/Box'
-import { Label } from '../ui/Label'
-import { ButtonBuy, ButtonExecute, ButtonGrey } from '../ui/Button'
+import { LabelBuy, LabelGreen, LabelSell } from '../ui/Label'
+import { ButtonBuy, ButtonExecute, ButtonGrey, ButtonReset } from '../ui/Button'
 import 'rc-slider/assets/index.css'
 import Slider from 'rc-slider'
 import { IconArrowDown, IconArrowLeft } from '../ui/Icon'
+import { Input } from '../ui/Input'
 
 const marks = {
   0: '-x8',
@@ -18,69 +19,68 @@ const marks = {
 }
 
 export const SwapBox = () => {
+  const oldLeverage = 50
+  const [formAddOrRemove, setFormAddOrRemove] = useState<'add' | 'remove' | undefined>(undefined)
+  const [newLeverage, setNewLeverage] = useState<number>(oldLeverage)
+
+  const resetFormHandle = () => {
+    setFormAddOrRemove(undefined)
+    setNewLeverage(oldLeverage)
+  }
+
   return (
     <Card className='swap-box'>
       <div className='text-center'>
         <Text>ETH/USDT</Text>
         <TextBuy>(+32 USDT) (+5%)</TextBuy>
       </div>
-      <Box borderColor='#4FBF67' className='info-box'>
-        <div className='info-box__row'>
-          <Label background='#3DBAA250'>
-            <TextBuy>Long x25</TextBuy>
-          </Label>
-          <span>
-            <IconArrowDown />
-          </span>
+      <LeverageChangedInfoBox oldLeverage={oldLeverage} newLeverage={newLeverage} />
 
-          <Label background='#FF7A6850'>
-            <TextSell>Short x -1.5</TextSell>
-          </Label>
+      {formAddOrRemove && (
+        <div className='amount-input-box'>
+          <div className='amount-input-box__head'>
+            <span>BNB</span>
+            <Text>Balance: 1234</Text>
+          </div>
+          <Input placeholder='0.0' suffix='$0' className='fs-24' />
         </div>
-        <div className='info-box__row'>
-          <Label background='#3DBAA250'>
-            <TextBuy>Long x25</TextBuy>
-          </Label>
-          <span>
-            <IconArrowDown />
-          </span>
-          <Label background='#FF7A6850'>
-            <TextSell>Short x -1.5</TextSell>
-          </Label>
-        </div>
-        <div className='info-box__row'>
-          <Label background='#3DBAA250'>
-            <TextBuy>Long x25</TextBuy>
-          </Label>
-          <span>
-            <IconArrowDown />
-          </span>
+      )}
 
-          <Label background='#FF7A6850'>
-            <TextSell>Short x -1.5</TextSell>
-          </Label>
+      {
+        !formAddOrRemove &&
+        <div className='add-and-remove-box'>
+          <ButtonBuy onClick={() => {
+            setFormAddOrRemove('add')
+          }}>
+            Add
+          </ButtonBuy>
+          <ButtonGrey onClick={() => {
+            setFormAddOrRemove('remove')
+          }}>
+            Remove
+          </ButtonGrey>
         </div>
-      </Box>
-
-      <div className='add-and-remove-box'>
-        <ButtonBuy>Add</ButtonBuy>
-        <ButtonGrey>Remove</ButtonGrey>
-      </div>
+      }
 
       <div className='mt-2 mb-4 p-1'>
         <Slider
           range
-          defaultValue={[0, 50, 75]}
+          defaultValue={[0, oldLeverage, newLeverage]}
+          value={[0, oldLeverage, newLeverage]}
           marks={marks}
           trackStyle={[
-            { backgroundColor: '#FF7A68' },
-            { backgroundColor: '#4FBF67' }
+            { backgroundColor: '#FF7A68', height: '2px' },
+            { backgroundColor: '#4FBF67', height: '2px', color: '#303236', border: '1px dashed' }
           ]}
           railStyle={{ backgroundColor: '#303236' }}
+          onChange={(e) => {
+            // @ts-ignore
+            setNewLeverage(e[e.length - 1])
+          }}
         />
       </div>
 
-      <Box borderColor='#3a3a3a' className='info-box1 mb-2'>
+      <Box borderColor='#3a3a3a' className='info-box1 mb-2' title='Swaps'>
         <InfoRow>
           <Text>Leverage</Text>
           <span>
@@ -108,7 +108,7 @@ export const SwapBox = () => {
         </InfoRow>
       </Box>
 
-      <Box borderColor='#3a3a3a' className='info-box1 '>
+      <Box borderColor='#3a3a3a' className='info-box1 ' title='Transactions Info'>
         <InfoRow>
           <span>
             <Text>0.3 </Text>
@@ -133,8 +133,9 @@ export const SwapBox = () => {
         </InfoRow>
       </Box>
 
-      <div>
-        <ButtonExecute className='execute-button'>Execute</ButtonExecute>
+      <div className='jc-space-between'>
+        <ButtonExecute className='execute-button mr-1'>Execute</ButtonExecute>
+        <ButtonReset className='execute-button' onClick={resetFormHandle}>Reset</ButtonReset>
       </div>
     </Card>
   )
@@ -150,4 +151,66 @@ const InfoRow = (props: any) => {
       {props.children}
     </div>
   )
+}
+
+const LeverageChangedInfoBox = ({ oldLeverage, newLeverage }: any) => {
+  const OldLabel = oldLeverage < 50 ? LabelSell : LabelBuy
+  const OldText = oldLeverage < 50 ? TextSell : TextBuy
+  const NewLabel = newLeverage < 50 ? LabelSell : LabelBuy
+  const NewText = newLeverage < 50 ? TextSell : TextBuy
+
+  return <Box borderColor='#4FBF67' className='leverage-changed-box'>
+    <div className={`leverage-changed-box__row ${oldLeverage !== newLeverage && 'is-changed'}`}>
+      <OldLabel>
+        <OldText>Long x25</OldText>
+      </OldLabel>
+      {
+        oldLeverage !== newLeverage &&
+        <React.Fragment>
+          <span>
+            <IconArrowDown />
+          </span>
+
+          <NewLabel >
+            <NewText>Short x -1.5</NewText>
+          </NewLabel>
+        </React.Fragment>
+      }
+
+    </div>
+    <div className={`leverage-changed-box__row ${oldLeverage !== newLeverage && 'is-changed'}`}>
+      <LabelGreen>
+        <TextGreen>17290 USDT</TextGreen>
+      </LabelGreen>
+      {
+        oldLeverage !== newLeverage &&
+        <React.Fragment>
+          <span>
+            <IconArrowDown />
+          </span>
+
+          <LabelGreen >
+            <TextGreen>17290 USDT</TextGreen>
+          </LabelGreen>
+        </React.Fragment>
+      }
+    </div>
+    <div className={`leverage-changed-box__row ${oldLeverage !== newLeverage && 'is-changed'}`}>
+      <OldLabel>
+        <OldText>Long x25</OldText>
+      </OldLabel>
+      {
+        oldLeverage !== newLeverage &&
+        <React.Fragment>
+          <span>
+            <IconArrowDown />
+          </span>
+
+          <NewLabel>
+            <NewText>Short x -1.5</NewText>
+          </NewLabel>
+        </React.Fragment>
+      }
+    </div>
+  </Box>
 }

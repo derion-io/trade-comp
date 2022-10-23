@@ -1,0 +1,27 @@
+@import "../../../styles/abstracts/variables";
+
+.derivable-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  &:focus {
+    outline: none;
+  }
+
+  &-wrap {
+    background: $color-input-bg;
+    display: flex;
+    align-items: center;
+    padding: 1.5rem;
+    border-radius: 2rem;
+    border: 1px solid;
+  }
+
+  &::placeholder {
+    color: $color-input-placeholder;
+  }
+
+  &__suffix, &__prefix {
+    color: $color-input-placeholder;
+  }
+}

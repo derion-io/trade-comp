@@ -20,4 +20,10 @@
   td,th {
     padding: 1rem;
   }
+
+  .pool-tr {
+    & * {
+      cursor: pointer;
+    }
+  }
 }

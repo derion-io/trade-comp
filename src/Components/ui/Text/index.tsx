@@ -1,11 +1,17 @@
 import React from 'react'
 import './style.scss'
 
-type TextType = React.HTMLAttributes<HTMLSpanElement> & { children: any }
+type TextType = React.HTMLAttributes<HTMLSpanElement> & { children: any, fontSize?: number }
 
 export const Text = (props: TextType) => {
   return (
-    <span {...props} className={'derivable-text ' + props.className}>
+    <span
+      {...props}
+      className={'derivable-text ' + props.className}
+      style={{
+        fontSize: props.fontSize
+      }}
+    >
       {props.children}
     </span>
   )
@@ -38,6 +44,39 @@ export const TextGrey = (props: TextType) => {
 export const TextGreen = (props: TextType) => {
   return (
     <Text {...props} className={'text-green ' + props.className}>
+      {props.children}
+    </Text>
+  )
+}
+
+export const TextPink = (props: TextType) => {
+  return (
+    <Text {...props} className={'text-pink ' + props.className}>
+      {props.children}
+    </Text>
+  )
+}
+
+export const TextBlue = (props: TextType) => {
+  return (
+    <Text {...props} className={'text-blue ' + props.className}>
+      {props.children}
+    </Text>
+  )
+}
+
+export const TextLink = (props: TextType & { href?: string }) => {
+  return (
+    <Text
+      {...props}
+      className={'text-link ' + props.className}
+      onClick={(e) => {
+        window.open(props.href)
+        if (props.onClick) {
+          props.onClick(e)
+        }
+      }}
+    >
       {props.children}
     </Text>
   )

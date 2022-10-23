@@ -1,4 +1,19 @@
+@import "../../../styles/abstracts/variables";
+
 .derivable-label {
   padding: 0.5rem;
   border-radius: 10px;
+
+  &.label-buy {
+    background: rgba(61, 186, 162, 0.3)
+  }
+  &.label-sell {
+    background: rgba(255, 122, 104, 0.3)
+  }
+  &.label-grey {
+    background: rgba(48, 50, 54, 0.3);
+  }
+  &.label-green {
+    background: rgba(79, 191, 103, 0.3)
+  }
 }

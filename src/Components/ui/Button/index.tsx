@@ -61,3 +61,11 @@ export const ButtonExecute = (props: ButtonType) => {
     </Button>
   )
 }
+
+export const ButtonReset = (props: ButtonType) => {
+  return (
+    <Button {...props} className={'reset ' + props.className}>
+      {props.children}
+    </Button>
+  )
+}

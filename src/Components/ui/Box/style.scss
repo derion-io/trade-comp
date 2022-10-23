@@ -2,4 +2,15 @@
   padding: 0.5rem;
   width: 100%;
   border-radius: 12px;
+
+  &__wrap {
+
+  }
+
+  &__title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    padding-left: 1px;
+  }
 }

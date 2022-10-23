@@ -1,7 +1,7 @@
 .swap-box {
   width: 400px;
 
-  .info-box {
+  .leverage-changed-box {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -10,6 +10,13 @@
 
     &__row {
       text-align: center;
+      transition: all .25s ease-out;
+      height: 30px;
+
+      &.is-changed {
+        height: 95px;
+      }
+
       & > *:not(:last-child) {
         display: block;
         margin-bottom: 0.5rem;
@@ -48,6 +55,14 @@
     font-size: 12px;
     &  * {
       font-size: 12px;
+    }
+  }
+
+  .amount-input-box {
+    &__head {
+      display: flex;
+      justify-content: space-between;
+      margin: 1.5rem 0;
     }
   }
 }

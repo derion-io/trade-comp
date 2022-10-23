@@ -1,0 +1,42 @@
+@import "../../../styles/abstracts/variables";
+
+.pool-expand {
+  border: 1px solid $color-box-border;
+  padding: 2rem;
+  border-radius: 2rem;
+
+  &__wrap {
+    padding: 2rem;
+  }
+
+  &__top {
+    border-bottom: 1px solid $color-box-border;
+    padding-bottom: 2rem;
+
+    &--left,&--mid,&--right {
+      & >*:not(:last-child) {
+        margin-bottom: 1.5rem !important;
+      }
+    }
+  }
+
+  &__bottom {
+    padding-top: 2rem;
+  }
+
+  &__top,&__bottom {
+    display: flex;
+
+    &--left {
+      flex: 2
+    }
+
+    &--mid {
+      flex: 1
+    }
+
+    &--right {
+      flex: 1
+    }
+  }
+}

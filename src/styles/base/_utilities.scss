@@ -49,6 +49,14 @@
     cursor: pointer;
   }
 
+  .fs {
+    @for $i from 12 through 32 {
+      &-#{$i} {
+        font-size: #{$i}px;
+      }
+    }
+  }
+
   .margin-right-child {
     @for $i from 0 through 10 {
       &-#{$i} > *:not(:last-child) {

@@ -35,6 +35,10 @@
     background: $color-execute;
   }
 
+  &.reset {
+    background: $color-reset-btn;
+  }
+
   &.border {
     background: transparent;
     border-radius: 2rem;

@@ -9,16 +9,23 @@ export const Box = (
   }
 ) => {
   return (
-    <div
-      {...props}
-      className={'derivable-box ' + props.className}
-      style={{
-        ...props.style,
-        background: props.background || 'transparent',
-        border: `1px solid ${props.borderColor || 'transparent'}`
-      }}
-    >
-      {props.children}
+    <div className='derivable-box__wrap'>
+      {
+        props.title &&
+        <div className='derivable-box__title'>{props.title}</div>
+      }
+
+      <div
+        {...props}
+        className={'derivable-box ' + props.className}
+        style={{
+          ...props.style,
+          background: props.background || 'transparent',
+          border: `1px solid ${props.borderColor || 'transparent'}`
+        }}
+      >
+        {props.children}
+      </div>
     </div>
   )
 }

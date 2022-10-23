@@ -1,17 +1,29 @@
+@import "../../../styles/abstracts/variables";
+
 .derivable-text {
   font-size: 14px;
   color: white;
 
   &.text-buy {
-    color: #3DBAA2
+    color: $color-buy
   }
   &.text-sell {
-    color: #FF7A68
+    color: $color-sell
   }
   &.text-grey {
-    color: #a5a5a5;
+    color: $color-grey;
   }
   &.text-green {
-    color: #4FBF67
+    color: $color-green
+  }
+  &.text-blue {
+    color: $color-blue
+  }
+  &.text-pink {
+    color: $color-pink
+  }
+  &.text-link {
+    color: $color-execute;
+    text-decoration: underline;
   }
 }
