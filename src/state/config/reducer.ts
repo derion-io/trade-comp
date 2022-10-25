@@ -8,6 +8,7 @@ export const tokens = createSlice({
     setConfigs: (
       state,
       action: PayloadAction<{
+        configs: any
         chainId: number
         useSubPage: any
         language: string
@@ -22,6 +23,7 @@ export const tokens = createSlice({
       state.useSubPage = action.payload.useSubPage
       state.location = action.payload.location
       state.useHistory = action.payload.useHistory
+      state.configs = action.payload.configs
     }
   }
 })

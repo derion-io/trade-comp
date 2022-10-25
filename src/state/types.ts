@@ -1,5 +1,8 @@
+// eslint-disable-next-line no-unused-vars
 import { web3ReactState } from './customWeb3React/type'
+// eslint-disable-next-line no-unused-vars
 import { configsState } from './config/type'
+// eslint-disable-next-line no-unused-vars
 import { BigNumber } from 'ethers'
 
 export enum FetchStatus {

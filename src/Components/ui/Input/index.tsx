@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import './style.scss'
 
 type InputType = React.HTMLAttributes<HTMLInputElement> & {
@@ -8,10 +8,11 @@ type InputType = React.HTMLAttributes<HTMLInputElement> & {
 }
 
 export const Input = (props: InputType) => {
+  const [isFocusing, setIsFocusing] = useState<boolean>(false)
   return (
     <div
       {...props.inputWrapProps}
-      className={`derivable-input-wrap ${props.inputWrapProps?.className} `}
+      className={`derivable-input-wrap ${isFocusing && 'focus'} ${props.inputWrapProps?.className} `}
     >
       {props.prefix && (
         <div className='derivable-input__prefix'>{props.prefix}</div>
@@ -19,6 +20,18 @@ export const Input = (props: InputType) => {
       <input
         type='text'
         {...props}
+        onFocus={(e) => {
+          setIsFocusing(true)
+          if (props.onFocus) {
+            props.onFocus(e)
+          }
+        }}
+        onBlur={(e) => {
+          setIsFocusing(false)
+          if (props.onBlur) {
+            props.onBlur(e)
+          }
+        }}
         className={`derivable-input ${props.className} `}
       />
       {props.suffix && (

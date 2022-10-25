@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react'
+import React, { Fragment, useEffect } from 'react'
 import { useInitWeb3React } from './state/customWeb3React/hook'
 import { useInitConfig } from './state/config/useInitConfig'
 

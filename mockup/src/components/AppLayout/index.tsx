@@ -25,9 +25,7 @@ export const AppLayout = (props: any) => {
   const location = useLocation()
   const { configs, Component } = props
   const [xStorageClient, setXStorageClient] = useState<typeof CrossStorageClient>(undefined)
-  const [chainIdToDisPlay, setChainIdToDisPlay] = useState<number>(Number(new URLSearchParams(location.search).get('chainId')) ||
-    (Number(localStorage.getItem('chainId')) || 42161)
-  );
+  const [chainIdToDisPlay, setChainIdToDisPlay] = useState<number>(56);
   useEffect(() => {
     if (!process.env.REACT_APP_X_STORAGE_URL) {
       return

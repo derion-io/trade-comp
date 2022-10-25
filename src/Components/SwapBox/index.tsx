@@ -1,141 +1,98 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Card } from '../ui/Card'
-import { Text, TextBuy, TextGreen, TextGrey, TextSell } from '../ui/Text'
+import { Text, TextGrey } from '../ui/Text'
 import './style.scss'
 import { Box } from '../ui/Box'
-import { LabelBuy, LabelGreen, LabelSell } from '../ui/Label'
-import { ButtonBuy, ButtonExecute, ButtonGrey, ButtonReset } from '../ui/Button'
+import { ButtonExecute } from '../ui/Button'
 import 'rc-slider/assets/index.css'
-import Slider from 'rc-slider'
-import { IconArrowDown, IconArrowLeft } from '../ui/Icon'
+import { IconArrowDown, IconArrowLeft, IconOptionLeft } from '../ui/Icon'
 import { Input } from '../ui/Input'
-
-const marks = {
-  0: '-x8',
-  25: '-x4',
-  50: '0',
-  75: 'x4',
-  100: 'x8'
-}
+import { TokenIcon } from '../ui/TokenIcon'
 
 export const SwapBox = () => {
-  const oldLeverage = 50
-  const [formAddOrRemove, setFormAddOrRemove] = useState<'add' | 'remove' | undefined>(undefined)
-  const [newLeverage, setNewLeverage] = useState<number>(oldLeverage)
-
-  const resetFormHandle = () => {
-    setFormAddOrRemove(undefined)
-    setNewLeverage(oldLeverage)
-  }
-
   return (
     <Card className='swap-box'>
-      <div className='text-center'>
-        <Text>ETH/USDT</Text>
-        <TextBuy>(+32 USDT) (+5%)</TextBuy>
-      </div>
-      <LeverageChangedInfoBox oldLeverage={oldLeverage} newLeverage={newLeverage} />
-
-      {formAddOrRemove && (
-        <div className='amount-input-box'>
-          <div className='amount-input-box__head'>
-            <span>BNB</span>
-            <Text>Balance: 1234</Text>
-          </div>
-          <Input placeholder='0.0' suffix='$0' className='fs-24' />
-        </div>
-      )}
-
-      {
-        !formAddOrRemove &&
-        <div className='add-and-remove-box'>
-          <ButtonBuy onClick={() => {
-            setFormAddOrRemove('add')
-          }}>
-            Add
-          </ButtonBuy>
-          <ButtonGrey onClick={() => {
-            setFormAddOrRemove('remove')
-          }}>
-            Remove
-          </ButtonGrey>
-        </div>
-      }
-
-      <div className='mt-2 mb-4 p-1'>
-        <Slider
-          range
-          defaultValue={[0, oldLeverage, newLeverage]}
-          value={[0, oldLeverage, newLeverage]}
-          marks={marks}
-          trackStyle={[
-            { backgroundColor: '#FF7A68', height: '2px' },
-            { backgroundColor: '#4FBF67', height: '2px', color: '#303236', border: '1px dashed' }
-          ]}
-          railStyle={{ backgroundColor: '#303236' }}
-          onChange={(e) => {
-            // @ts-ignore
-            setNewLeverage(e[e.length - 1])
-          }}
-        />
+      <div className='d-flex jc-space-between'>
+        <Text>Swap</Text>
+        <span><IconOptionLeft /></span>
       </div>
 
-      <Box borderColor='#3a3a3a' className='info-box1 mb-2' title='Swaps'>
-        <InfoRow>
-          <Text>Leverage</Text>
-          <span>
-            <TextBuy className='mr-05'>x2.5</TextBuy>
-            <Text className='mr-05'> &gt; </Text>
-            <TextSell>x0</TextSell>
+      <div className='amount-input-box'>
+        <div className='amount-input-box__head'>
+          <span className='current-token'>
+            <TokenIcon size={24} tokenAddress='0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c' />
+            <Text>BNB</Text>
           </span>
-        </InfoRow>
-        <InfoRow>
-          <Text>DDL fees</Text>
-          <span>
-            <Text className='mr-05'>x2.5</Text>
-            <TextGrey>USD</TextGrey>
+          <Text>Balance: 1234</Text>
+        </div>
+        <Input placeholder='0.0' suffix='$0' className='fs-24' />
+      </div>
+
+      <div className='text-center mt-2 mb-1'>
+        <span className='arrow-down'>
+          <IconArrowDown fill='#01A7FA' />
+        </span>
+      </div>
+
+      <div className='amount-input-box'>
+        <div className='amount-input-box__head'>
+          <span className='current-token'>
+            <TokenIcon size={24} tokenAddress='0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c' />
+            <Text>BNB</Text>
           </span>
-        </InfoRow>
-        <InfoRow>
-          <Text>fees</Text>
-          <span>
-            <Text className='mr-05'>0.01</Text>
-            <Text className='mr-05'> BNB </Text>
-            <Text className='mr-05'>= 0.1</Text>
-            <Text className='mr-05'>USDT</Text>
-            <Text>(0.05%)</Text>
-          </span>
-        </InfoRow>
+          <Text>Balance: 1234</Text>
+        </div>
+        <Input placeholder='0.0' suffix='$0' className='fs-24' />
+      </div>
+
+      <Box borderColor='#3a3a3a' className='swap-info-box mt-2 mb-2'>
+        <Box
+          borderColor='#3a3a3a'
+          borderRadius='0'
+          disableBorderLeft
+          disableBorderRight
+          disableBorderTop
+        >
+          <InfoRow className='mb-2'>
+            <span>
+              <Text>Est fees</Text>
+            </span>
+            <span>
+              <Text>32 </Text>
+              <TextGrey>USDT</TextGrey>
+            </span>
+          </InfoRow>
+          <InfoRow className='mb-2'>
+            <span>
+              <Text>Slippage</Text>
+            </span>
+            <span>
+              <TextGrey>0.5%</TextGrey>
+            </span>
+          </InfoRow>
+          <InfoRow className='mb-1'>
+            <span>
+              <Text>Price Impact</Text>
+            </span>
+            <span>
+              <TextGrey>-0.01%</TextGrey>
+            </span>
+          </InfoRow>
+        </Box>
+        <Box>
+          <InfoRow className='mt-1'>
+            <span>
+              <TextGrey>Minimum received</TextGrey>
+            </span>
+            <span>
+              <Text>14.2815 ETH</Text>
+            </span>
+          </InfoRow>
+        </Box>
       </Box>
 
-      <Box borderColor='#3a3a3a' className='info-box1 ' title='Transactions Info'>
-        <InfoRow>
-          <span>
-            <Text>0.3 </Text>
-            <TextGrey>Eth^3</TextGrey>
-          </span>
-          <IconArrowLeft />
-          <span>
-            <Text>0.5 </Text>
-            <TextGrey>Eth^-3</TextGrey>
-          </span>
-        </InfoRow>
-        <InfoRow>
-          <span>
-            <Text>100 </Text>
-            <TextGrey>BNB</TextGrey>
-          </span>
-          <IconArrowLeft />
-          <span>
-            <Text>900 </Text>
-            <TextGrey>USDT</TextGrey>
-          </span>
-        </InfoRow>
-      </Box>
-
-      <div className='jc-space-between'>
-        <ButtonExecute className='execute-button mr-1'>Execute</ButtonExecute>
-        <ButtonReset className='execute-button' onClick={resetFormHandle}>Reset</ButtonReset>
+      <div>
+        <ButtonExecute className='swap-button'>Swap</ButtonExecute>
       </div>
     </Card>
   )
@@ -151,66 +108,4 @@ const InfoRow = (props: any) => {
       {props.children}
     </div>
   )
-}
-
-const LeverageChangedInfoBox = ({ oldLeverage, newLeverage }: any) => {
-  const OldLabel = oldLeverage < 50 ? LabelSell : LabelBuy
-  const OldText = oldLeverage < 50 ? TextSell : TextBuy
-  const NewLabel = newLeverage < 50 ? LabelSell : LabelBuy
-  const NewText = newLeverage < 50 ? TextSell : TextBuy
-
-  return <Box borderColor='#4FBF67' className='leverage-changed-box'>
-    <div className={`leverage-changed-box__row ${oldLeverage !== newLeverage && 'is-changed'}`}>
-      <OldLabel>
-        <OldText>Long x25</OldText>
-      </OldLabel>
-      {
-        oldLeverage !== newLeverage &&
-        <React.Fragment>
-          <span>
-            <IconArrowDown />
-          </span>
-
-          <NewLabel >
-            <NewText>Short x -1.5</NewText>
-          </NewLabel>
-        </React.Fragment>
-      }
-
-    </div>
-    <div className={`leverage-changed-box__row ${oldLeverage !== newLeverage && 'is-changed'}`}>
-      <LabelGreen>
-        <TextGreen>17290 USDT</TextGreen>
-      </LabelGreen>
-      {
-        oldLeverage !== newLeverage &&
-        <React.Fragment>
-          <span>
-            <IconArrowDown />
-          </span>
-
-          <LabelGreen >
-            <TextGreen>17290 USDT</TextGreen>
-          </LabelGreen>
-        </React.Fragment>
-      }
-    </div>
-    <div className={`leverage-changed-box__row ${oldLeverage !== newLeverage && 'is-changed'}`}>
-      <OldLabel>
-        <OldText>Long x25</OldText>
-      </OldLabel>
-      {
-        oldLeverage !== newLeverage &&
-        <React.Fragment>
-          <span>
-            <IconArrowDown />
-          </span>
-
-          <NewLabel>
-            <NewText>Short x -1.5</NewText>
-          </NewLabel>
-        </React.Fragment>
-      }
-    </div>
-  </Box>
 }

@@ -4,7 +4,10 @@ export interface configsState {
   language: string
   location: any
   useHistory: any
-  env: 'development' | 'production'
+  env: 'development' | 'production',
+  configs: {
+    addresses: {[key: string]: string}
+  }
 }
 
 export const initialState: configsState = {
@@ -13,5 +16,8 @@ export const initialState: configsState = {
   language: 'en',
   env: 'production',
   location: {},
-  useHistory: () => {}
+  useHistory: () => {},
+  configs: {
+    addresses: {}
+  }
 }

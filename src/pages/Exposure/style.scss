@@ -1,0 +1,10 @@
+.exposure-interface .exposure-page {
+  padding: 2rem;
+  display: flex;
+  align-items: start;
+  justify-content: center;
+
+  & > *:not(:last-child) {
+    margin-right: 2rem;
+  }
+}

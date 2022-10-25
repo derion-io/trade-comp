@@ -4,6 +4,7 @@
   flex: 1;
   background: transparent;
   border: none;
+  color: $color-text-default;
   &:focus {
     outline: none;
   }
@@ -15,6 +16,10 @@
     padding: 1.5rem;
     border-radius: 2rem;
     border: 1px solid transparent;
+
+    &.focus {
+      border-color: $color-blue;
+    }
   }
 
   &::placeholder {

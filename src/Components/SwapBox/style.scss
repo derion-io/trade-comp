@@ -1,53 +1,21 @@
+@import "../../styles/abstracts/variables";
+
 .swap-box {
   width: 400px;
 
-  .leverage-changed-box {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1.5rem;
-    margin-top: 2rem;
+  .amount-input-box {
+    &__head {
+      display: flex;
+      justify-content: space-between;
+      margin: 1.5rem 0;
 
-    &__row {
-      text-align: center;
-      transition: all .25s ease-out;
-      height: 30px;
-
-      &.is-changed {
-        height: 95px;
+      .current-token {
+        display: flex;
+        align-items: center;
+        & > *:not(:last-child) {
+          margin-right: 0.75rem;
+        }
       }
-
-      & > *:not(:last-child) {
-        display: block;
-        margin-bottom: 0.5rem;
-      }
-    }
-  }
-
-  .add-and-remove-box {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 2rem;
-
-    & > *:not(:last-child) {
-      margin-right: 2rem;
-    }
-
-    & > * {
-      flex: 1;
-    }
-  }
-
-  .execute-button {
-    margin-top: 2rem;
-    width: 100%;
-  }
-
-  .info-box1 {
-    padding: 1rem;
-
-    &>*:not(:last-child) {
-      margin-bottom: 1rem;
     }
   }
 
@@ -58,11 +26,26 @@
     }
   }
 
-  .amount-input-box {
-    &__head {
-      display: flex;
-      justify-content: space-between;
-      margin: 1.5rem 0;
+  .arrow-down {
+    display: flex;
+    border-radius: 50%;
+    border: 1px solid $color-blue;
+    margin: 0 auto;
+    width: 30px;
+    height: 30px;
+    align-items: center;
+    justify-content: center;
+
+    &__wrap {
+      text-align: center;
     }
+  }
+
+  .swap-info-box {
+    padding: 1rem;
+  }
+
+  .swap-button {
+    width: 100%;
   }
 }

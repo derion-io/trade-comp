@@ -39,6 +39,7 @@
     "rc-slider": "^10.0.1",
     "react-collapse": "^5.1.1",
     "react-redux": "^7.2.5",
+    "react-router": "^6.4.2",
     "redux": "^4.1.1",
     "redux-localstorage-simple": "^2.4.1",
     "redux-thunk": "^2.3.0"

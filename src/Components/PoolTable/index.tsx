@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { TextBuy, TextSell } from '../ui/Text'
+import { TextBuy } from '../ui/Text'
 import './style.scss'
 import { ButtonBorder } from '../ui/Button'
 import { Collapse } from 'react-collapse'

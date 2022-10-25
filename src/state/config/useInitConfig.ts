@@ -1,6 +1,7 @@
 import { useDispatch } from 'react-redux'
 import { useEffect } from 'react'
 import { setConfigs } from './reducer'
+import configs from './configs'
 
 export const useInitConfig = ({
   chainId,
@@ -19,11 +20,11 @@ export const useInitConfig = ({
 }) => {
   const dispatch = useDispatch()
   const location = useLocation()
-  // const history = useHistory()
 
   useEffect(() => {
     dispatch(
       setConfigs({
+        configs: configs[chainId],
         chainId,
         useSubPage,
         language,
