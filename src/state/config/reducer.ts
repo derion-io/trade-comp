@@ -24,6 +24,7 @@ export const tokens = createSlice({
       state.location = action.payload.location
       state.useHistory = action.payload.useHistory
       state.configs = action.payload.configs
+      state.initialledConfig = true
     }
   }
 })

@@ -2,9 +2,10 @@ import { useSelector } from 'react-redux'
 import { State } from '../types'
 
 export const useConfigs = () => {
-  const { configs, location, useHistory, chainId, useSubPage, language, env } = useSelector(
+  const { initialledConfig, configs, location, useHistory, chainId, useSubPage, language, env } = useSelector(
     (state: State) => {
       return {
+        initialledConfig: state.configs.initialledConfig,
         chainId: state.configs.chainId,
         useSubPage: state.configs.useSubPage,
         language: state.configs.language,
@@ -16,5 +17,5 @@ export const useConfigs = () => {
     }
   )
 
-  return { chainId, useSubPage, language, env, location, useHistory, configs }
+  return { initialledConfig, chainId, useSubPage, language, env, location, useHistory, configs }
 }

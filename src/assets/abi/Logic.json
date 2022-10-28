@@ -1,0 +1,522 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "proxy",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "poolFactory",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "tokenFactory",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "cToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "baseToken",
+        "type": "address"
+      },
+      {
+        "internalType": "uint224",
+        "name": "priceToleranceRatio",
+        "type": "uint224"
+      },
+      {
+        "internalType": "uint224",
+        "name": "rentRate",
+        "type": "uint224"
+      },
+      {
+        "internalType": "uint224",
+        "name": "deleverageRate",
+        "type": "uint224"
+      },
+      {
+        "internalType": "bytes32[]",
+        "name": "names",
+        "type": "bytes32[]"
+      },
+      {
+        "internalType": "bytes32[]",
+        "name": "symbols",
+        "type": "bytes32[]"
+      },
+      {
+        "internalType": "int256[]",
+        "name": "powers",
+        "type": "int256[]"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "origin",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "app",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "scaleLong",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "scaleShort",
+        "type": "uint256"
+      }
+    ],
+    "name": "Deleverage",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "baseToken",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "app",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "cToken",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "baseSymbol",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "quoteSymbol",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint224",
+        "name": "priceToleranceRatio",
+        "type": "uint224"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint224",
+        "name": "rentRate",
+        "type": "uint224"
+      },
+      {
+        "indexed": false,
+        "internalType": "int256[]",
+        "name": "powers",
+        "type": "int256[]"
+      }
+    ],
+    "name": "LogicCreated",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "BASE_TOKEN_0",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "COLLATERAL_TOKEN",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "DELEVERAGE_RATE",
+    "outputs": [
+      {
+        "internalType": "uint224",
+        "name": "",
+        "type": "uint224"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "N_TOKENS",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "POOL",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "POOL_FACTORY",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "POWER_0",
+    "outputs": [
+      {
+        "internalType": "int256",
+        "name": "",
+        "type": "int256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "POWER_1",
+    "outputs": [
+      {
+        "internalType": "int256",
+        "name": "",
+        "type": "int256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "POWER_2",
+    "outputs": [
+      {
+        "internalType": "int256",
+        "name": "",
+        "type": "int256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "POWER_3",
+    "outputs": [
+      {
+        "internalType": "int256",
+        "name": "",
+        "type": "int256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "PRICE_ORACLE",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "PTR",
+    "outputs": [
+      {
+        "internalType": "uint224",
+        "name": "",
+        "type": "uint224"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "RENT_RATE",
+    "outputs": [
+      {
+        "internalType": "uint224",
+        "name": "",
+        "type": "uint224"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "TOKEN_0",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "TOKEN_1",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "TOKEN_2",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "TOKEN_3",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "TOKEN_FACTORY",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint224",
+        "name": "start",
+        "type": "uint224"
+      },
+      {
+        "internalType": "uint224",
+        "name": "end",
+        "type": "uint224"
+      }
+    ],
+    "name": "deleverage",
+    "outputs": [
+      {
+        "internalType": "uint224",
+        "name": "mid",
+        "type": "uint224"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "idx",
+        "type": "uint256"
+      }
+    ],
+    "name": "getDTokenInfo",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getStates",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "Rc",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "basePriceCumulative",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint32",
+        "name": "blockTimestamp",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint224",
+        "name": "baseTWAP",
+        "type": "uint224"
+      },
+      {
+        "internalType": "uint32",
+        "name": "priceScaleTimestamp",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint224",
+        "name": "priceScaleLong",
+        "type": "uint224"
+      },
+      {
+        "internalType": "uint224",
+        "name": "priceScaleShort",
+        "type": "uint224"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "onceUpgraded",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "tokenIn",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "tokenOut",
+        "type": "address"
+      }
+    ],
+    "name": "swap",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "amountOut",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "needVerifying",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "verify",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

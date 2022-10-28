@@ -1,6 +1,7 @@
 import React, { Fragment, useEffect } from 'react'
 import { useInitWeb3React } from './state/customWeb3React/hook'
 import { useInitConfig } from './state/config/useInitConfig'
+import { useConfigs } from './state/config/useConfigs'
 
 export const InitConfig = ({
   chainId,
@@ -14,6 +15,7 @@ export const InitConfig = ({
   useHistory,
   useLocation
 }: any) => {
+  const { initialledConfig } = useConfigs()
   useInitWeb3React(useWeb3React, showConnectWalletModal)
   useInitConfig({
     chainId,
@@ -23,5 +25,8 @@ export const InitConfig = ({
     useHistory,
     useLocation
   })
-  return <Fragment>{children}</Fragment>
+  if (initialledConfig) {
+    return <Fragment>{children}</Fragment>
+  }
+  return 'loading'
 }

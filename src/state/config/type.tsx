@@ -7,7 +7,9 @@ export interface configsState {
   env: 'development' | 'production',
   configs: {
     addresses: {[key: string]: string}
-  }
+    rpcUrl: string
+  },
+  initialledConfig: boolean
 }
 
 export const initialState: configsState = {
@@ -18,6 +20,8 @@ export const initialState: configsState = {
   location: {},
   useHistory: () => {},
   configs: {
-    addresses: {}
-  }
+    addresses: {},
+    rpcUrl: ''
+  },
+  initialledConfig: false
 }

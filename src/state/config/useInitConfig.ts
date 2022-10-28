@@ -22,6 +22,7 @@ export const useInitConfig = ({
   const location = useLocation()
 
   useEffect(() => {
+    console.log('configs[chainId]', configs, chainId, configs[chainId])
     dispatch(
       setConfigs({
         configs: configs[chainId],

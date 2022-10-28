@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Card } from '../ui/Card'
 import { Text, TextBuy, TextGreen, TextGrey, TextSell } from '../ui/Text'
 import './style.scss'
@@ -9,6 +9,7 @@ import 'rc-slider/assets/index.css'
 import Slider from 'rc-slider'
 import { IconArrowDown, IconArrowLeft } from '../ui/Icon'
 import { Input } from '../ui/Input'
+import { useCurrentPool } from '../../state/pool/hooks/useCurrentPool'
 
 const marks = {
   0: '-x8',
@@ -22,6 +23,11 @@ export const ExposureBox = () => {
   const oldLeverage = 50
   const [formAddOrRemove, setFormAddOrRemove] = useState<'add' | 'remove' | undefined>(undefined)
   const [newLeverage, setNewLeverage] = useState<number>(oldLeverage)
+  const { updateCurrentPool } = useCurrentPool()
+  useEffect(() => {
+    console.log('updateCurrentPool')
+    updateCurrentPool('0xdf82efea82eb11f9f254e4b4d3f6691b0dbfb314')
+  }, [])
 
   const resetFormHandle = () => {
     setFormAddOrRemove(undefined)
