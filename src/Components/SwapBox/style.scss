@@ -12,9 +12,14 @@
       .current-token {
         display: flex;
         align-items: center;
+        cursor: pointer;
         & > *:not(:last-child) {
           margin-right: 0.75rem;
         }
+      }
+
+      &--balance {
+        cursor: pointer;
       }
     }
   }
@@ -27,14 +32,28 @@
   }
 
   .arrow-down {
-    display: flex;
+    display: block;
     border-radius: 50%;
     border: 1px solid $color-blue;
+    cursor: pointer;
     margin: 0 auto;
     width: 30px;
     height: 30px;
     align-items: center;
     justify-content: center;
+    transition: all 0.25s ease-out;
+    position: relative;
+
+    &>* {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-47%, -50%);
+    }
+
+    &:hover {
+      transform: scale(1.1);
+    }
 
     &__wrap {
       text-align: center;

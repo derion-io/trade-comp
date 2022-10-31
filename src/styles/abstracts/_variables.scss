@@ -16,6 +16,8 @@ $color-green: #4FBF67;
 $color-blue: #01A7FA;
 $color-pink: #FF98E5;
 $color-execute: #01A7FA;
+$color-disable-bg: #565656;
+$color-disable-text: #ffffff;
 $color-reset-btn: rgba(1, 82, 122, 0.57);
 $color-text-link-hover: var(--swap-color-text-link-hover, #11aaff);
 $color-btn-text: var(--swap-color-btn-text, #ffffff);
@@ -31,10 +33,10 @@ $color-text-default: var(--swap-color-text-default, var(--swap-default-color-tex
 $color-box-border: #6e6e6e;
 $color-box-bg: var(--swap-color-box-bg, var(--swap-default-color-box-bg));
 $color-card-bg: #1B1D21;
-$color-overlay: var(--swap-color-overlay, var(--swap-default-color-overlay));
+$color-overlay: rgba(31, 31, 31, 0.4);
 $color-input-bg: #242731;
 $color-input-placeholder: #808191;
-$color-modal-bg: var(--swap-color-modal-bg, var(--swap-default-color-modal-bg));
+$color-modal-bg: #1B1D21;
 $color-select-token-hover: var(--swap-color-select-token-hover, var(--swap-default-color-select-token-hover));
 $color-setting-button-bg: var(--swap-color-toggle-button-bg, var(--swap-default-color-toggle-button-bg));
 

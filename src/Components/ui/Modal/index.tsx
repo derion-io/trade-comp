@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react'
 import './style.scss'
-import { useDisableScroll } from '../../../hooks/useDisableScroll'
 
 export interface modalInterface {
   setVisible: any
@@ -11,7 +10,7 @@ export interface modalInterface {
   title?: any
 }
 
-export default ({
+export const Modal = ({
   width,
   minWidth,
   setVisible,
@@ -19,7 +18,7 @@ export default ({
   children,
   title
 }: modalInterface) => {
-  const { enableScroll, disableScroll } = useDisableScroll()
+  // const { enableScroll, disableScroll } = useDisableScroll()
   useEffect(() => {
     window.addEventListener('keyup', (e: any) => {
       if (e.which === 27) {
@@ -28,13 +27,13 @@ export default ({
     })
   }, [])
 
-  useEffect(() => {
-    if (visible) {
-      disableScroll()
-    } else {
-      enableScroll()
-    }
-  }, [visible])
+  // useEffect(() => {
+  //   if (visible) {
+  //     disableScroll()
+  //   } else {
+  //     enableScroll()
+  //   }
+  // }, [visible])
 
   return (
     <div className={`swap-modal  ${visible ? 'show' : ''}`}>

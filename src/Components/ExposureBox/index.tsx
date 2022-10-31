@@ -9,30 +9,46 @@ import 'rc-slider/assets/index.css'
 import Slider from 'rc-slider'
 import { IconArrowDown, IconArrowLeft } from '../ui/Icon'
 import { Input } from '../ui/Input'
-import { useCurrentPool } from '../../state/pool/hooks/useCurrentPool'
+import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
+import { PowerState } from '../../utils/powerLib'
+import { bn, numberToWei } from '../../utils/helpers'
+import { useWeb3React } from '../../state/customWeb3React/hook'
+import { utils } from 'ethers'
 
 const marks = {
-  0: '-x8',
-  25: '-x4',
-  50: '0',
-  75: 'x4',
-  100: 'x8'
+  0: '-32',
+  28: '-4',
+  32: '0',
+  36: '4',
+  64: '32'
 }
 
 export const ExposureBox = () => {
   const oldLeverage = 50
   const [formAddOrRemove, setFormAddOrRemove] = useState<'add' | 'remove' | undefined>(undefined)
   const [newLeverage, setNewLeverage] = useState<number>(oldLeverage)
-  const { updateCurrentPool } = useCurrentPool()
-  useEffect(() => {
-    console.log('updateCurrentPool')
-    updateCurrentPool('0xdf82efea82eb11f9f254e4b4d3f6691b0dbfb314')
-  }, [])
+  const { dTokens, states } = useCurrentPool()
 
   const resetFormHandle = () => {
     setFormAddOrRemove(undefined)
     setNewLeverage(oldLeverage)
   }
+
+  useEffect(() => {
+    const id = utils.id('LogicCreated(address,bytes32,address,bytes32,bytes32,uint224,uint224,int256[])')
+    console.log('topic', id)
+
+    if (states.baseTWAP) {
+      const powerState = new PowerState({})
+      powerState.loadStates(states)
+      console.log(states)
+      const balances = powerState.getOptimalBalances(bn(numberToWei('100')), 3.14159)
+      // const a = powerState.calculateExposure(8)/
+      const E = powerState.calculateCompExposure(balances)
+      console.log(E)
+      console.log(balances)
+    }
+  }, [newLeverage, states])
 
   return (
     <Card className='exposure-box'>
@@ -71,6 +87,8 @@ export const ExposureBox = () => {
       <div className='mt-2 mb-4 p-1'>
         <Slider
           range
+          min={0}
+          max={64}
           defaultValue={[0, oldLeverage, newLeverage]}
           value={[0,
             newLeverage <= oldLeverage ? newLeverage : oldLeverage,
@@ -180,7 +198,7 @@ const LeverageChangedInfoBox = ({ oldLeverage, newLeverage }: any) => {
             <IconArrowDown />
           </span>
 
-          <NewLabel >
+          <NewLabel>
             <NewText>Short x -1.5</NewText>
           </NewLabel>
         </React.Fragment>
@@ -198,7 +216,7 @@ const LeverageChangedInfoBox = ({ oldLeverage, newLeverage }: any) => {
             <IconArrowDown />
           </span>
 
-          <LabelGreen >
+          <LabelGreen>
             <TextGreen>17290 USDT</TextGreen>
           </LabelGreen>
         </React.Fragment>

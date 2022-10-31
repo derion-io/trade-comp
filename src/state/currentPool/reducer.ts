@@ -11,11 +11,15 @@ export const tokens = createSlice({
         cToken: string
         dTokens: string[]
         logicAddress?: string
+        states: any,
+        powers: number[]
       }>
     ) => {
       state.cToken = action.payload.cToken
       state.dTokens = action.payload.dTokens
       state.logicAddress = action.payload.logicAddress
+      state.states = action.payload.states
+      state.powers = action.payload.powers
     }
   }
 })

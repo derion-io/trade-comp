@@ -5,17 +5,17 @@ export const useDisableScroll = () => {
   const disableScroll = () => {
     if (width && width < 768) {
       // @ts-ignore
-      document.getElementById('swap-page-interface').style.height = '1px'
+      document.getElementById('exposure-interface').style.height = '1px'
     }
     // @ts-ignore
-    document.getElementById('swap-page-interface').style.overflow = 'hidden'
+    document.getElementById('exposure-interface').style.overflow = 'hidden'
   }
 
   const enableScroll = () => {
     // @ts-ignore
-    document.getElementById('swap-page-interface').style.height = 'inherit'
+    document.getElementById('exposure-interface').style.height = 'inherit'
     // @ts-ignore
-    document.getElementById('swap-page-interface').style.overflow = 'auto'
+    document.getElementById('exposure-interface').style.overflow = 'auto'
   }
 
   return {

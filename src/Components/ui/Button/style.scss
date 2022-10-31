@@ -10,6 +10,12 @@
   cursor: pointer;
   transition: all 0.25s ease-out;
 
+  &:disabled {
+    background: $color-disable-bg !important;
+    color: $color-disable-text !important;
+    cursor: not-allowed;
+  }
+
   &:hover {
     transform: translateY(-1px);
     box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.33);
