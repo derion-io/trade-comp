@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import { bn } from './helpers'
+import { BigNumber } from 'ethers'
 const { floor, abs } = Math
 
 const BN_0 = bn(0)
@@ -18,6 +19,19 @@ export class PowerState {
     this.states = { ...states }
   }
 
+  getMarks() {
+    const result = { 0: 0 }
+    const exposures = this.getExposures()
+    exposures.forEach((exposure) => {
+      result[exposure] = exposure
+    })
+    return result
+  }
+
+  getExposures() {
+    return this.powers.map(power => this.calculateExposure(power))
+  }
+
   calculatePrice(power: any, states:any = this.states) {
     const { baseTWAP, priceScaleLong, priceScaleShort } = states
     let price = bn(this.unit)
@@ -33,14 +47,14 @@ export class PowerState {
     return price.toNumber() / this.unit
   }
 
-  calculateExposure(power: any) {
+  calculateExposure(power: any): any {
     const current = this.calculatePrice(power)
     const projectedStates = {
       ...this.states,
       baseTWAP: this.states.baseTWAP.mul(101).div(100)
     }
     const projection = this.calculatePrice(power, projectedStates)
-    return (projection - current) / current / 0.01
+    return Math.floor((projection - current) / current / 0.01 * 10) / 10
   }
 
   calculateCompExposure(balances: any) {
@@ -56,7 +70,18 @@ export class PowerState {
     return totalExposure.mul(this.unit).div(totalValue).toNumber() / this.unit
   }
 
+  calculateCompValue(balances: any) {
+    let totalValue = BN_0
+    for (const power in balances) {
+      const balance = balances[power]
+      const price = this.calculatePrice(power)
+      totalValue = totalValue.add(balance.mul(floor(this.unit * price)))
+    }
+    return totalValue.div(this.unit)
+  }
+
   _searchForExposures(es: any, e: any, tolerance: any) {
+    es = _.sortBy(es)
     if (e < es[0]) {
       throw new Error('target lower than min exposure: ' + _.min(es))
     }
@@ -99,6 +124,66 @@ export class PowerState {
       [this.powers[i]]: bi,
       [this.powers[j]]: bj
     }
+  }
+
+  getSwapSteps(oldBalances: {[key: number]: BigNumber}, newBalances: {[key: number]: BigNumber}) {
+    const steps = []
+    const froms = {}
+    const tos = {}
+    this.powers.forEach((power) => {
+      const oldBalance = oldBalances[power] || bn(0)
+      const newBalance = newBalances[power] || bn(0)
+      const oldValue = this.calculateCompValue({ [power]: oldBalance })
+      const newValue = this.calculateCompValue({ [power]: newBalance })
+      if (oldValue.gt(newValue) && !oldValue.isZero()) {
+        froms[power] = {
+          amount: oldBalance.sub(newBalance),
+          value: oldValue.sub(newValue),
+          valueString: oldValue.sub(newValue).toString()
+        }
+      } else if (!newValue.isZero()) {
+        tos[power] = {
+          amount: newBalance.sub(oldBalance),
+          value: newValue.sub(oldValue),
+          valueString: newValue.sub(oldValue).toString()
+        }
+      }
+    })
+
+    for (const i in froms) {
+      let fromValue = froms[i].value
+      let fromAmount = froms[i].amount
+      for (const j in tos) {
+        let step = {}
+        const toValue = tos[j].value
+        const toAmount = tos[j].amount
+        if (toAmount.lte(0) || fromAmount.lte(0)) {
+          continue
+        }
+
+        if (fromValue.eq(toValue)) {
+          step = { from: { [i]: fromAmount }, to: { [j]: toAmount } }
+          steps.push(step)
+          break
+        } else if (fromValue.lt(toValue)) {
+          step = { from: { [i]: fromAmount }, to: { [j]: toAmount } }
+          tos[j].value = toValue.sub(fromValue)
+          tos[j].amount = toAmount.mul(toValue.sub(fromValue)).div(toValue)
+          steps.push(step)
+
+          break
+        } else {
+          const fAmount = fromAmount.mul(toValue).div(fromValue)
+          step = { from: { [i]: fAmount }, to: { [j]: toAmount } }
+          fromValue = fromValue.sub(toValue)
+          fromAmount = fromAmount.sub(fAmount)
+          steps.push(step)
+        }
+      }
+    }
+    console.log({ tos, froms, steps })
+
+    return steps
   }
 }
 

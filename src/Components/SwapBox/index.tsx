@@ -14,11 +14,11 @@ import ERC20Abi from '../../assets/abi/IERC20.json'
 import { useWeb3React } from '../../state/customWeb3React/hook'
 import { useConfigs } from '../../state/config/useConfigs'
 import { LARGE_VALUE } from '../../utils/constant'
-import { ethers } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
 import { SelectTokenModal } from '../SelectTokenModal'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../state/token/hook'
-import { numberToWei, weiToNumber } from '../../utils/helpers'
+import { bn, numberToWei, weiToNumber } from '../../utils/helpers'
 
 export const SwapBox = () => {
   const { getRouterContract } = useContract()
@@ -32,6 +32,7 @@ export const SwapBox = () => {
   const [amountOut, setAmountOut] = useState<string>('')
   const [amountIn, setAmountIn] = useState<string>('')
   const { balances, routerAllowances } = useWalletBalance()
+  const [txFee, setTxFee] = useState<string>('')
   const { tokens } = useListTokens()
 
   useEffect(() => {
@@ -49,27 +50,27 @@ export const SwapBox = () => {
     const signer = library.getSigner()
     const contract = getRouterContract(signer)
     try {
-      console.log(inputTokenAddress,
-        numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18),
-        outputTokenAddress,
-        0,
-        account,
-        new Date().getTime() + 3600000)
-
-      const aOut = await contract.callStatic.deleverageAndSwap(
-        0,0,
-        inputTokenAddress,
-        numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18),
-        outputTokenAddress,
-        0,
+      const res = await contract.callStatic.multiSwap(
+        configs.addresses.pool,
+        [{
+          tokenIn: inputTokenAddress,
+          tokenOut: outputTokenAddress,
+          amountIn: numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18),
+          amountOutMin: 0
+        }],
         account,
         new Date().getTime() + 3600000
       )
-      setAmountOut(weiToNumber(aOut, tokens[outputTokenAddress].decimal || 18))
+      console.log('aOut', res)
+      setAmountOut(weiToNumber(res.amountOuts[0], tokens[outputTokenAddress].decimal || 18))
+      setTxFee(weiToNumber(detextTxFee(bn(res.gasLeft))).toString())
     } catch (e) {
-      // setAmountOut()
       console.log(e)
     }
+  }
+
+  const detextTxFee = (gasLeft: BigNumber) => {
+    return gasLeft.mul(2).div(3).mul(5 * 10 ** 9).mul(400)
   }
 
   const revertPairAddress = () => {
@@ -98,14 +99,28 @@ export const SwapBox = () => {
           const signer = library.getSigner()
           const contract = getRouterContract(signer)
           try {
-            await contract.callStatic.swap(inputTokenAddress,
-              numberToWei(amountIn, tokens[inputTokenAddress].decimal),
-              outputTokenAddress,
-              0,
+            await contract.callStatic.multiSwap(
+              configs.addresses.pool,
+              [{
+                tokenIn: inputTokenAddress,
+                tokenOut: outputTokenAddress,
+                amountIn: numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18),
+                amountOutMin: 0
+              }],
               account,
               new Date().getTime() + 3600000
             )
-            await contract.swap(inputTokenAddress, numberToWei(amountIn, tokens[inputTokenAddress].decimal), outputTokenAddress, 0, account, new Date().getTime() + 3600000)
+            await contract.multiSwap(
+              configs.addresses.pool,
+              [{
+                tokenIn: inputTokenAddress,
+                tokenOut: outputTokenAddress,
+                amountIn: numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18),
+                amountOutMin: 0
+              }],
+              account,
+              new Date().getTime() + 3600000
+            )
           } catch (e) {
             console.log(e)
           }
@@ -220,6 +235,15 @@ export const SwapBox = () => {
             <span>
               <Text>32 </Text>
               <TextGrey>USDT</TextGrey>
+            </span>
+          </InfoRow>
+          <InfoRow className='mb-2'>
+            <span>
+              <Text>Tx fee</Text>
+            </span>
+            <span>
+              <Text>{txFee}</Text>
+              <TextGrey>USD</TextGrey>
             </span>
           </InfoRow>
           <InfoRow className='mb-2'>

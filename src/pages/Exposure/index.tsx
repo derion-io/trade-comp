@@ -9,7 +9,7 @@ export const Exposure = () => {
   const { account } = useWeb3React()
   const { updateCurrentPool } = useCurrentPool()
   useEffect(() => {
-    updateCurrentPool('0xdf82efea82eb11f9f254e4b4d3f6691b0dbfb314')
+    updateCurrentPool('0x2449bc7351976601814cf95595F3C8046Bf41e25')
   }, [account])
 
   return (

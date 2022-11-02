@@ -1,5 +1,7 @@
 export interface currentPoolState {
-  cToken?: string
+  baseToken: string
+  quoteToken: string
+  cToken: string
   dTokens: string[]
   logicAddress?: string
   states: any
@@ -7,7 +9,9 @@ export interface currentPoolState {
 }
 
 export const initialState: currentPoolState = {
-  cToken: undefined,
+  baseToken: '',
+  quoteToken: '',
+  cToken: '',
   dTokens: [],
   logicAddress: undefined,
   states: {},

@@ -1,6 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { initialState } from './type'
+
 export const tokens = createSlice({
   name: 'pool',
   initialState,
@@ -8,6 +9,8 @@ export const tokens = createSlice({
     setCurrentPoolInfo: (
       state,
       action: PayloadAction<{
+        baseToken: string
+        quoteToken: string
         cToken: string
         dTokens: string[]
         logicAddress?: string
@@ -20,6 +23,8 @@ export const tokens = createSlice({
       state.logicAddress = action.payload.logicAddress
       state.states = action.payload.states
       state.powers = action.payload.powers
+      state.baseToken = action.payload.baseToken
+      state.quoteToken = action.payload.quoteToken
     }
   }
 })
