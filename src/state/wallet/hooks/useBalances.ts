@@ -6,6 +6,12 @@ import { AllowancesType, BalancesType } from '../type'
 import { useWeb3React } from '../../customWeb3React/hook'
 import { useContract } from '../../../hooks/useContract'
 import { useConfigs } from '../../config/useConfigs'
+import { ethers } from 'ethers'
+import ERC20Abi from '../../../assets/abi/IERC20.json'
+import { LARGE_VALUE } from '../../../utils/constant'
+import { toast } from 'react-toastify'
+import { bn, parseCallStaticError } from '../../../utils/helpers'
+import { messageAndViewOnBsc } from '../../../Components/MessageAndViewOnBsc'
 
 export const useWalletBalance = () => {
   const { balances, accFetchBalance, routerAllowances } = useSelector((state: any) => {
@@ -16,12 +22,12 @@ export const useWalletBalance = () => {
     }
   })
   const { configs } = useConfigs()
-  const { account } = useWeb3React()
+  const { library, account } = useWeb3React()
   const { getBnAContract } = useContract()
 
   const dispatch = useDispatch()
 
-  const updateBalanceAndAllowances = async ({
+  const updateBalanceAndAllowances = ({
     balances,
     routerAllowances
   }: {
@@ -35,6 +41,30 @@ export const useWalletBalance = () => {
         routerAllowances
       })
     )
+  }
+
+  const approveRouter = async ({
+    tokenAddress
+  }: {tokenAddress: string}) => {
+    if (account && library) {
+      try {
+        const signer = library.getSigner()
+        const contract = new ethers.Contract(tokenAddress, ERC20Abi, signer)
+        const txRes = await contract.approve(configs.addresses.router, LARGE_VALUE)
+        await txRes.wait(1)
+        updateBalanceAndAllowances({ balances: {}, routerAllowances: { [tokenAddress]: bn(LARGE_VALUE) } })
+        toast.success(
+          messageAndViewOnBsc({
+            title: 'Approve success',
+            hash: txRes.hash
+          })
+        )
+      } catch (e) {
+        toast.error(parseCallStaticError(e))
+      }
+    } else {
+      toast.error('Please connect the wallet')
+    }
   }
 
   const fetchBalanceAndAllowance = async (tokensArr: string[]) => {
@@ -65,5 +95,6 @@ export const useWalletBalance = () => {
     routerAllowances,
     balances,
     fetchBalanceAndAllowance,
+    approveRouter
   }
 }

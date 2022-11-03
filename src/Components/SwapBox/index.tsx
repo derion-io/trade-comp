@@ -10,11 +10,9 @@ import { Input } from '../ui/Input'
 import { TokenIcon } from '../ui/TokenIcon'
 import { useContract } from '../../hooks/useContract'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
-import ERC20Abi from '../../assets/abi/IERC20.json'
 import { useWeb3React } from '../../state/customWeb3React/hook'
 import { useConfigs } from '../../state/config/useConfigs'
-import { LARGE_VALUE } from '../../utils/constant'
-import { BigNumber, ethers } from 'ethers'
+import { BigNumber } from 'ethers'
 import { SelectTokenModal } from '../SelectTokenModal'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../state/token/hook'
@@ -31,7 +29,7 @@ export const SwapBox = () => {
   const [tokenTypeToSelect, setTokenTypeToSelect] = useState<'input' | 'output'>('input')
   const [amountOut, setAmountOut] = useState<string>('')
   const [amountIn, setAmountIn] = useState<string>('')
-  const { balances, routerAllowances } = useWalletBalance()
+  const { balances, routerAllowances, approveRouter } = useWalletBalance()
   const [txFee, setTxFee] = useState<string>('')
   const { tokens } = useListTokens()
 
@@ -130,9 +128,10 @@ export const SwapBox = () => {
       return <ButtonExecute
         className='swap-button'
         onClick={async () => {
-          const signer = library.getSigner()
-          const contract = new ethers.Contract(inputTokenAddress, ERC20Abi, signer)
-          await contract.approve(configs.addresses.router, LARGE_VALUE)
+          approveRouter({ tokenAddress: inputTokenAddress })
+          // const signer = library.getSigner()
+          // const contract = new ethers.Contract(inputTokenAddress, ERC20Abi, signer)
+          // await contract.approve(configs.addresses.router, LARGE_VALUE)
         }}
       >approve</ButtonExecute>
     }

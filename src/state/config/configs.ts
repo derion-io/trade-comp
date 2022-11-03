@@ -1,6 +1,8 @@
 export default {
   56: {
     rpcUrl: 'https://bsc-dataseed.binance.org/',
+    explorer: 'https://arbiscan.io',
+    scanName: 'BscScan',
     addresses: {
       tokensInfo: '0x6B451b1bdaa7088467961FC0370d4049DF1C2E4d',
       bnA: '0xA0c0Da3e41c401A601c7c93C4036773B5Ac47be2',

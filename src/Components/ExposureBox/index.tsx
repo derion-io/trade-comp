@@ -11,11 +11,10 @@ import { IconArrowDown, IconArrowLeft } from '../ui/Icon'
 import { Input } from '../ui/Input'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { PowerState } from '../../utils/powerLib'
-import { bn, numberToWei, weiToNumber } from '../../utils/helpers'
+import { bn, weiToNumber } from '../../utils/helpers'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../state/token/hook'
 import { BigNumber, ethers } from 'ethers'
-import { lowerFirst } from 'lodash'
 import ERC20Abi from '../../assets/abi/IERC20.json'
 import { LARGE_VALUE } from '../../utils/constant'
 import { useWeb3React } from '../../state/customWeb3React/hook'
@@ -84,7 +83,9 @@ export const ExposureBox = () => {
         const value = powerState.calculateCompValue(balanceInPool)
         setNewValue(value)
         const newBalancesInPool = powerState.getOptimalBalances(bn(value), newLeverage)
-        console.log(newLeverage, newBalancesInPool)
+
+        console.log(bn(value).toString(), newLeverage, balanceInPool, newBalancesInPool)
+
         setNewBalancesInPool(newBalancesInPool)
         const steps = powerState.getSwapSteps(balanceInPool, newBalancesInPool)
         setSwapsteps(steps)
@@ -253,7 +254,6 @@ export const ExposureBox = () => {
                     amountOutMin: 0
                   })
                 }
-                console.log(steps)
                 const res = await contract.callStatic.multiSwap(
                   configs.addresses.pool,
                   steps,
@@ -261,6 +261,13 @@ export const ExposureBox = () => {
                   new Date().getTime() + 3600000
                 )
                 console.log(res)
+
+                await contract.multiSwap(
+                  configs.addresses.pool,
+                  steps,
+                  account,
+                  new Date().getTime() + 3600000
+                )
               }}
               className='execute-button mr-1'
             >Execute</ButtonExecute>

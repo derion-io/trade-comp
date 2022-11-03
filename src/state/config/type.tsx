@@ -8,6 +8,8 @@ export interface configsState {
   configs: {
     addresses: {[key: string]: string}
     rpcUrl: string
+    explorer: string
+    scanName: string
   },
   initialledConfig: boolean
 }
@@ -21,7 +23,9 @@ export const initialState: configsState = {
   useHistory: () => {},
   configs: {
     addresses: {},
-    rpcUrl: ''
+    rpcUrl: '',
+    explorer: '',
+    scanName: ''
   },
   initialledConfig: false
 }

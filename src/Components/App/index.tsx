@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
 import './style.scss'
+import 'react-toastify/dist/ReactToastify.css'
 import { matchPath } from 'react-router'
 import { Exposure } from '../../pages/Exposure'
 import { Swap } from '../../pages/Swap'
@@ -8,6 +9,7 @@ import { Swap } from '../../pages/Swap'
 import { useListTokens } from '../../state/token/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useWeb3React } from '../../state/customWeb3React/hook'
+import { ToastContainer } from 'react-toastify'
 
 export const App = () => {
   // const { getLogicContract } = useContract()
@@ -59,6 +61,14 @@ export const App = () => {
   return (
     <div className='exposure-interface app'>
       {renderAppContent()}
+      <ToastContainer
+        position='top-right'
+        autoClose={5000}
+        rtl={false}
+        closeOnClick={false}
+        draggable
+        theme='dark'
+      />
     </div>
   )
 }

@@ -26,7 +26,7 @@ export const tokens = createSlice({
           ...state.balances,
           ...action.payload.balances
         }
-        state.balances = {
+        state.routerAllowances = {
           ...state.routerAllowances,
           ...action.payload.routerAllowances
         }

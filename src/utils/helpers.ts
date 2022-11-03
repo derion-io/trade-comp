@@ -55,3 +55,18 @@ export function overrideContract(provider: any, deployedBytecode: string) {
   })
   return address
 }
+
+export const parseCallStaticError = (error: any) => {
+  const message = error.data?.message
+    ? error.data?.message?.replace('check error: ', '') || 'Error'
+    : error.message
+  if (message.includes('reason="')) {
+    const arr = message.split('reason="')
+    const m = arr[1]
+    return m?.split('"')[0]
+  }
+  if (message.includes('insufficient funds for gas * price + value')) {
+    return 'insufficient funds for gas * price + value'
+  }
+  return message
+}
