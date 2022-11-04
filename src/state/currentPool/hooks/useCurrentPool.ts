@@ -75,7 +75,10 @@ export const useCurrentPool = () => {
     }))
   }
 
-  const getTokenByPower = (power: number) => {
+  const getTokenByPower = (power: number | string) => {
+    if (power === 'C') {
+      return cToken
+    }
     const index = powers.findIndex((p) => p === power)
     return dTokens[index]
   }

@@ -10,8 +10,8 @@ import Slider from 'rc-slider'
 import { IconArrowDown, IconArrowLeft } from '../ui/Icon'
 import { Input } from '../ui/Input'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
-import { PowerState } from '../../utils/powerLib'
-import { bn, weiToNumber } from '../../utils/helpers'
+import { PowerState, StepType } from '../../utils/powerLib'
+import { bn, numberToWei, weiToNumber } from '../../utils/helpers'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../state/token/hook'
 import { BigNumber, ethers } from 'ethers'
@@ -20,22 +20,24 @@ import { LARGE_VALUE } from '../../utils/constant'
 import { useWeb3React } from '../../state/customWeb3React/hook'
 import { useConfigs } from '../../state/config/useConfigs'
 import { useContract } from '../../hooks/useContract'
+import { UseExposureAction } from '../../hooks/useExposureAction'
 
 export const ExposureBox = () => {
   const [formAddOrRemove, setFormAddOrRemove] = useState<'add' | 'remove' | undefined>(undefined)
   const [newLeverage, setNewLeverage] = useState<number>(0)
   const [newValue, setNewValue] = useState<BigNumber>()
   const { account, library } = useWeb3React()
-  const { configs } = useConfigs()
+  const [loading, setLoading] = useState<boolean>(false)
   const { dTokens, cToken, states, powers, baseToken, quoteToken, getTokenByPower } = useCurrentPool()
-  const { balances, routerAllowances } = useWalletBalance()
+  const { balances, routerAllowances, approveRouter, fetchBalanceAndAllowance } = useWalletBalance()
   const [balanceInPool, setBalancesInPool] = useState<any>({})
   const [newBalancesInPool, setNewBalancesInPool] = useState<any>({})
   const [cAmountToChange, setCAmountToChange] = useState<string>('')
   const [swapSteps, setSwapsteps] = useState<any>([])
-  const { getRouterContract } = useContract()
   const changedIn24h = -5
   const { tokens } = useListTokens()
+  const { calculateAmountOuts, updateLeverageAndSize } = UseExposureAction()
+  const [stepsWithAmounts, setStepsWithAmounts] = useState<(StepType & {amountOut: BigNumber})[]>([])
 
   const resetFormHandle = () => {
     setFormAddOrRemove(undefined)
@@ -69,13 +71,13 @@ export const ExposureBox = () => {
   const tokenNeedApprove = useMemo(() => {
     const result: string[] = []
     for (const i in swapSteps) {
-      const stepToToken = getTokenByPower(Number(Object.keys(swapSteps[i].from)[0]))
+      const stepToToken = getTokenByPower(Number(swapSteps[i].tokenIn))
       if ((!routerAllowances[stepToToken] || routerAllowances[stepToToken].isZero()) && !result.includes(stepToToken)) {
         result.push(stepToToken)
       }
     }
     return result
-  }, [swapSteps])
+  }, [swapSteps, routerAllowances])
 
   useEffect(() => {
     try {
@@ -84,16 +86,54 @@ export const ExposureBox = () => {
         setNewValue(value)
         const newBalancesInPool = powerState.getOptimalBalances(bn(value), newLeverage)
 
-        console.log(bn(value).toString(), newLeverage, balanceInPool, newBalancesInPool)
-
         setNewBalancesInPool(newBalancesInPool)
         const steps = powerState.getSwapSteps(balanceInPool, newBalancesInPool)
-        setSwapsteps(steps)
+        setSwapsteps(steps.filter((step) => step.amountIn.gt(0)))
       }
     } catch (e) {
       console.log(e)
     }
-  }, [newLeverage, powerState, cAmountToChange])
+  }, [oldLeverage, newLeverage, powerState, cAmountToChange])
+
+  useEffect(() => {
+    // const delayDebounceFn = setTimeout(() => {
+    calculateAmountOuts(swapSteps, setStepsWithAmounts)
+    // console.log('res')
+    // setStepsWithAmounts(res)
+    // }, 3000)
+    // return () => {
+    //   clearTimeout(delayDebounceFn)
+    // }
+  }, [swapSteps])
+
+  const renderExecuteButton = () => {
+    if (!tokens[cToken] || loading) {
+      // @ts-ignore
+      return <ButtonExecute className='execute-button mr-1' disabled>Loading...</ButtonExecute>
+    } else if (!account) {
+      // @ts-ignore
+      return <ButtonExecute className='execute-button mr-1' disabled>Connect wallet</ButtonExecute>
+    } else if (tokenNeedApprove.length > 0) {
+      return <ButtonExecute
+        onClick={async () => {
+          for (const i in tokenNeedApprove) {
+            approveRouter({ tokenAddress: tokenNeedApprove[i] })
+          }
+        }}
+        className='execute-button mr-1'
+      >Approve</ButtonExecute>
+    } else {
+      return <ButtonExecute
+        onClick={async () => {
+          setLoading(true)
+          await updateLeverageAndSize(swapSteps)
+          await fetchBalanceAndAllowance(Object.keys(tokens))
+          setLoading(true)
+        }}
+        className='execute-button mr-1'
+      >Execute</ButtonExecute>
+    }
+  }
 
   return (
     <Card className='exposure-box'>
@@ -200,20 +240,24 @@ export const ExposureBox = () => {
         swapSteps.length > 0 &&
         <Box borderColor='#3a3a3a' className='info-box1 ' title='Transactions Info'>
           {swapSteps.map((step: any, key: any) => {
-            const stepFromToken = getTokenByPower(Number(Object.keys(step.from)[0]))
-            const stepToToken = getTokenByPower(Number(Object.keys(step.to)[0]))
-            const stepFromAmount = Object.values(step.from)
-            const stepToAmount = Object.values(step.to)
+            const stepFromToken = getTokenByPower(Number(step.tokenIn))
+            const stepToToken = getTokenByPower(Number(step.tokenOut))
+            const amountIn = step.amountIn
+            console.log('stepsWithAmounts', stepsWithAmounts)
+            const amountOut = stepsWithAmounts && stepsWithAmounts[key]?.amountOut ? stepsWithAmounts[key].amountOut : '...'
+            if (amountIn.lte(1000)) {
+              return ''
+            }
             return <InfoRow key={key}>
               <span>
-                {/* <Text>{weiToNumber(stepFromAmount, tokens[stepFromToken]?.decimal || 18, 4)}</Text> */}
-                <Text>{stepFromAmount.toString()}</Text>
+                {/* <Text>{weiToNumber(amountIn, tokens[stepFromToken]?.decimal || 18, 4)}</Text> */}
+                <Text>{amountIn.toString()}</Text>
                 <TextGrey>{tokens[stepFromToken]?.symbol}</TextGrey>
               </span>
               <IconArrowLeft />
               <span>
-                {/* <Text>{weiToNumber(stepToAmount, tokens[stepToToken]?.decimal || 18, 4)}</Text> */}
-                <Text>{stepToAmount.toString()}</Text>
+                {/* <Text>{weiToNumber(amountOut, tokens[stepToToken]?.decimal || 18, 4)}</Text> */}
+                <Text>{amountOut.toString()}</Text>
                 <TextGrey>{tokens[stepToToken]?.symbol}</TextGrey>
               </span>
             </InfoRow>
@@ -223,56 +267,7 @@ export const ExposureBox = () => {
       }
 
       <div className='jc-space-between'>
-        {
-          tokenNeedApprove.length > 0
-            ? <ButtonExecute
-              onClick={async () => {
-                const signer = library.getSigner()
-
-                for (const i in tokenNeedApprove) {
-                  console.log(tokenNeedApprove[i])
-                  const contract = new ethers.Contract(tokenNeedApprove[i], ERC20Abi, signer)
-                  await contract.approve(configs.addresses.router, LARGE_VALUE)
-                }
-              }}
-              className='execute-button mr-1'
-            >Approve</ButtonExecute>
-
-            : <ButtonExecute
-              onClick={async () => {
-                const signer = library.getSigner()
-                const contract = getRouterContract(signer)
-                const steps = []
-                for (const i in swapSteps) {
-                  const swapStep = swapSteps[i]
-                  const tokenOut = getTokenByPower(Number(Object.keys(swapStep.to)[0]))
-                  const tokenIn = getTokenByPower(Number(Object.keys(swapStep.from)[0]))
-                  steps.push({
-                    tokenIn,
-                    tokenOut,
-                    amountIn: Object.values(swapStep.from)[0],
-                    amountOutMin: 0
-                  })
-                }
-                const res = await contract.callStatic.multiSwap(
-                  configs.addresses.pool,
-                  steps,
-                  account,
-                  new Date().getTime() + 3600000
-                )
-                console.log(res)
-
-                await contract.multiSwap(
-                  configs.addresses.pool,
-                  steps,
-                  account,
-                  new Date().getTime() + 3600000
-                )
-              }}
-              className='execute-button mr-1'
-            >Execute</ButtonExecute>
-        }
-
+        {renderExecuteButton()}
         <ButtonReset className='execute-button' onClick={resetFormHandle}>Reset</ButtonReset>
       </div>
     </Card>

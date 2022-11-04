@@ -9,6 +9,12 @@ const pe = (x: any) => ethers.utils.parseEther(String(x))
 
 const BN_0 = bn(0)
 
+export type StepType = {
+  tokenIn: string,
+  tokenOut: string,
+  amountIn: BigNumber
+}
+
 export class PowerState {
   powers = [2, -2, 8, -8]
   unit = 1000000
@@ -132,7 +138,7 @@ export class PowerState {
 
   valuesFromBalances(balances: {[key: number]: BigNumber}): {[key: number]: BigNumber} {
     return _.transform(balances, (r: {}, v: BigNumber, k: number) => {
-      r[k] = v.mul(floor(this.unit * this.calculatePrice(k)))//.div(this.unit)
+      r[k] = v.mul(floor(this.unit * this.calculatePrice(k)))// .div(this.unit)
     })
   }
 
@@ -140,25 +146,25 @@ export class PowerState {
     return 18.110770276
   }
 
-  getSwapSteps(oldBalances: {[key: number]: BigNumber}, newBalances: {[key: number]: BigNumber}) {
+  getSwapSteps(oldBalances: {[key: number]: BigNumber}, newBalances: {[key: number]: BigNumber}) : StepType[] {
     const oldValues = this.valuesFromBalances(oldBalances)
     const newValues = this.valuesFromBalances(newBalances)
     const changes: {[key: number]: BigNumber} = {}
     for (const power of this.powers) {
-      const change = (newValues[power]??bn(0)).sub(oldValues[power] ?? bn(0))
+      const change = (newValues[power] ?? bn(0)).sub(oldValues[power] ?? bn(0))
       if (!change.isZero()) {
         changes[power] = change
       }
     }
     const steps: any[] = []
-    while(Object.keys(changes).length > 0) {
+    while (Object.keys(changes).length > 0) {
       const from = _firstKey(changes, true)
       const to = _firstKey(changes, false)
       if (from == null) {
         steps.push({
           tokenIn: 'C',
           tokenOut: to,
-          amountIn: changes[to].div(floor(this.unit * this.getCPrice())),
+          amountIn: changes[to].div(floor(this.unit * this.getCPrice()))
         })
         delete changes[to]
         continue
@@ -167,7 +173,7 @@ export class PowerState {
         steps.push({
           tokenIn: from,
           tokenOut: 'C',
-          amountIn: changes[from].div(floor(-this.unit * this.calculatePrice(from))),
+          amountIn: changes[from].div(floor(-this.unit * this.calculatePrice(from)))
         })
         delete changes[from]
         continue
@@ -177,7 +183,7 @@ export class PowerState {
         steps.push({
           tokenIn: from,
           tokenOut: to,
-          amountIn: changes[to].div(floor(this.unit * this.calculatePrice(from))),
+          amountIn: changes[to].div(floor(this.unit * this.calculatePrice(from)))
         })
         if (changes[from].isZero()) delete changes[from]
         delete changes[to]
@@ -186,7 +192,7 @@ export class PowerState {
         steps.push({
           tokenIn: from,
           tokenOut: to,
-          amountIn: changes[from].div(floor(-this.unit * this.calculatePrice(from))),
+          amountIn: changes[from].div(floor(-this.unit * this.calculatePrice(from)))
         })
         delete changes[from]
       }
@@ -215,7 +221,7 @@ if (require.main === module) {
   powerState.loadStates({
     baseTWAP: bn('7788445287819172527008699396495269118'),
     priceScaleLong: bn('7788445287819172527008699396495269118'),
-    priceScaleShort: bn('7788445287819172527008699396495269118'),
+    priceScaleShort: bn('7788445287819172527008699396495269118')
   })
 
   const balances = powerState.getOptimalBalances(pe('100'), 3.14159)
@@ -229,8 +235,9 @@ if (require.main === module) {
   const steps: any = powerState.getSwapSteps({
     '-2': pe(3),
     2: pe(1),
-    8: pe(2),
+    8: pe(2)
   }, powerState.getOptimalBalances(pe(123), -3.14159))
+  console.log(steps)
 
   steps.forEach(step => console.log(step.tokenIn, '->', step.tokenOut, fe(step.amountIn)))
 }
