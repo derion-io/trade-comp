@@ -22,7 +22,7 @@ export class PowerState {
   states: any = {}
   constructor(config: any) {
     this.powers = config?.powers ?? [2, -2, 8, -8]
-    this.powers = this.powers.sort(Number)
+    this.powers = _.orderBy(this.powers.map(Number), Number)
     this.unit = config?.unit ?? 1000000
   }
 
