@@ -11,24 +11,21 @@ import { IconArrowDown, IconArrowLeft } from '../ui/Icon'
 import { Input } from '../ui/Input'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { PowerState, StepType } from '../../utils/powerLib'
-import { bn, numberToWei, weiToNumber } from '../../utils/helpers'
+import { bn, formatFloat, numberToWei, parseCallStaticError, weiToNumber } from '../../utils/helpers'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../state/token/hook'
-import { BigNumber, ethers } from 'ethers'
-import ERC20Abi from '../../assets/abi/IERC20.json'
-import { LARGE_VALUE } from '../../utils/constant'
+import { BigNumber } from 'ethers'
 import { useWeb3React } from '../../state/customWeb3React/hook'
-import { useConfigs } from '../../state/config/useConfigs'
-import { useContract } from '../../hooks/useContract'
 import { UseExposureAction } from '../../hooks/useExposureAction'
+import { toast } from 'react-toastify'
 
 export const ExposureBox = () => {
   const [formAddOrRemove, setFormAddOrRemove] = useState<'add' | 'remove' | undefined>(undefined)
   const [newLeverage, setNewLeverage] = useState<number>(0)
   const [newValue, setNewValue] = useState<BigNumber>()
-  const { account, library } = useWeb3React()
+  const { account } = useWeb3React()
   const [loading, setLoading] = useState<boolean>(false)
-  const { dTokens, cToken, states, powers, baseToken, quoteToken, getTokenByPower } = useCurrentPool()
+  const { dTokens, cToken, states, powers, baseToken, quoteToken, cTokenPrice, getTokenByPower } = useCurrentPool()
   const { balances, routerAllowances, approveRouter, fetchBalanceAndAllowance } = useWalletBalance()
   const [balanceInPool, setBalancesInPool] = useState<any>({})
   const [newBalancesInPool, setNewBalancesInPool] = useState<any>({})
@@ -37,9 +34,10 @@ export const ExposureBox = () => {
   const changedIn24h = -5
   const { tokens } = useListTokens()
   const { calculateAmountOuts, updateLeverageAndSize } = UseExposureAction()
-  const [stepsWithAmounts, setStepsWithAmounts] = useState<(StepType & {amountOut: BigNumber})[]>([])
+  const [stepsWithAmounts, setStepsWithAmounts] = useState<(StepType & { amountOut: BigNumber })[]>([])
 
   const resetFormHandle = () => {
+    setCAmountToChange('')
     setFormAddOrRemove(undefined)
     setNewLeverage(oldLeverage)
   }
@@ -49,7 +47,7 @@ export const ExposureBox = () => {
     let oldValue = bn(0)
     const p = new PowerState({ powers: [...powers] })
     if (powers && states.baseTWAP) {
-      p.loadStates(states)
+      p.loadStates(states, cTokenPrice)
       const currentBalances = {}
       powers.forEach((power, key) => {
         if (balances[dTokens[key]]) {
@@ -58,12 +56,13 @@ export const ExposureBox = () => {
       })
       setBalancesInPool(currentBalances)
       if (Object.keys(currentBalances).length > 0) {
-        oldLeverage = Math.floor(p.calculateCompExposure(currentBalances) * 10) / 10
+        oldLeverage = p.calculateCompExposure(currentBalances)
         oldValue = p.calculateCompValue(currentBalances)
       }
 
       setNewLeverage(oldLeverage)
-      return [p, oldLeverage, oldValue, p.getMarks(), p.getExposures()]
+      const exposure = p.getExposures()
+      return [p, oldLeverage, oldValue, p.getMarks(), exposure]
     }
     return [null, 0, oldValue, {}, []]
   }, [powers, states, balances])
@@ -71,7 +70,7 @@ export const ExposureBox = () => {
   const tokenNeedApprove = useMemo(() => {
     const result: string[] = []
     for (const i in swapSteps) {
-      const stepToToken = getTokenByPower(Number(swapSteps[i].tokenIn))
+      const stepToToken = getTokenByPower(swapSteps[i].tokenIn)
       if ((!routerAllowances[stepToToken] || routerAllowances[stepToToken].isZero()) && !result.includes(stepToToken)) {
         result.push(stepToToken)
       }
@@ -79,10 +78,24 @@ export const ExposureBox = () => {
     return result
   }, [swapSteps, routerAllowances])
 
+  /**
+   * calculate raw steps to change leverage and size
+   */
   useEffect(() => {
     try {
+      console.log('cAmountToChange', cAmountToChange)
       if (powerState) {
-        const value = powerState.calculateCompValue(balanceInPool)
+        let value = powerState.calculateCompValue(balanceInPool)
+        if (cAmountToChange) {
+          const cPrice = powerState.getCPrice()
+          const cTokenValue = bn(numberToWei(cAmountToChange, tokens[cToken]?.decimal || 18)).mul(numberToWei(cPrice)).div(numberToWei(1))
+          if (formAddOrRemove === 'add') {
+            value = value.add(cTokenValue)
+          } else if (formAddOrRemove === 'remove') {
+            value = value.sub(cTokenValue)
+          }
+        }
+
         setNewValue(value)
         const newBalancesInPool = powerState.getOptimalBalances(bn(value), newLeverage)
 
@@ -126,8 +139,13 @@ export const ExposureBox = () => {
       return <ButtonExecute
         onClick={async () => {
           setLoading(true)
-          await updateLeverageAndSize(swapSteps)
-          await fetchBalanceAndAllowance(Object.keys(tokens))
+          try {
+            await updateLeverageAndSize(swapSteps)
+            await fetchBalanceAndAllowance(Object.keys(tokens))
+          } catch (e) {
+            toast(parseCallStaticError(e))
+          }
+
           setLoading(true)
         }}
         className='execute-button mr-1'
@@ -201,9 +219,11 @@ export const ExposureBox = () => {
             { backgroundColor: '#4FBF67', height: '2px', color: '#303236', border: '1px dashed' }
           ]}
           railStyle={{ backgroundColor: '#303236' }}
-          onChange={(e) => {
-            // @ts-ignore
-            setNewLeverage(e[e.length - 1] === oldLeverage ? e[e.length - 2] : e[e.length - 1])
+          onChange={(e:number[]) => {
+            setNewLeverage(formatFloat(e[e.length - 1], 1) === formatFloat(oldLeverage, 1)
+              ? formatFloat(e[e.length - 2], 1)
+              : formatFloat(e[e.length - 1], 1)
+            )
           }}
         />
       </div>
@@ -212,9 +232,9 @@ export const ExposureBox = () => {
         <InfoRow>
           <Text>Leverage</Text>
           <span>
-            <TextBuy className='mr-05'>x2.5</TextBuy>
+            <TextBuy className='mr-05'>x{formatFloat(oldLeverage)}</TextBuy>
             <Text className='mr-05'> &gt; </Text>
-            <TextSell>x0</TextSell>
+            <TextSell>x{formatFloat(newLeverage)}</TextSell>
           </span>
         </InfoRow>
         <InfoRow>
@@ -237,13 +257,12 @@ export const ExposureBox = () => {
       </Box>
 
       {
-        swapSteps.length > 0 &&
+        swapSteps.length > 0 && (newLeverage !== oldLeverage || cAmountToChange) &&
         <Box borderColor='#3a3a3a' className='info-box1 ' title='Transactions Info'>
           {swapSteps.map((step: any, key: any) => {
-            const stepFromToken = getTokenByPower(Number(step.tokenIn))
-            const stepToToken = getTokenByPower(Number(step.tokenOut))
+            const stepFromToken = getTokenByPower(step.tokenIn)
+            const stepToToken = getTokenByPower(step.tokenOut)
             const amountIn = step.amountIn
-            console.log('stepsWithAmounts', stepsWithAmounts)
             const amountOut = stepsWithAmounts && stepsWithAmounts[key]?.amountOut ? stepsWithAmounts[key].amountOut : '...'
             if (amountIn.lte(1000)) {
               return ''
@@ -307,7 +326,7 @@ const LeverageChangedInfoBox = ({
   return <Box borderColor='#4FBF67' className='leverage-changed-box'>
     <div className={`leverage-changed-box__row ${oldLeverage !== newLeverage && 'is-changed'}`}>
       <OldLabel>
-        <OldText>{oldLeverage > 0 ? 'Long' : 'Short'} x{Math.abs(oldLeverage)}</OldText>
+        <OldText>{oldLeverage > 0 ? 'Long' : 'Short'} x{Math.abs(formatFloat(oldLeverage))}</OldText>
       </OldLabel>
       {
         oldLeverage !== newLeverage &&
@@ -342,7 +361,7 @@ const LeverageChangedInfoBox = ({
     </div>
     <div className={`leverage-changed-box__row ${oldLeverage !== newLeverage && 'is-changed'}`}>
       <OldChangedIn24hLabel>
-        <OldChangedIn24hText>{changedIn24h * oldLeverage}%</OldChangedIn24hText>
+        <OldChangedIn24hText>{changedIn24h * formatFloat(oldLeverage)}%</OldChangedIn24hText>
       </OldChangedIn24hLabel>
       {
         oldLeverage !== newLeverage &&

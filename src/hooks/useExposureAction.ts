@@ -39,8 +39,8 @@ export const UseExposureAction = () => {
     const stepsToSwap = []
     for (const i in steps) {
       const step = steps[i]
-      const tokenIn = getTokenByPower(Number(step.tokenIn))
-      const tokenOut = getTokenByPower(Number(step.tokenOut))
+      const tokenIn = getTokenByPower(step.tokenIn)
+      const tokenOut = getTokenByPower(step.tokenOut)
       if (step.amountIn.isZero() || !tokenIn || !tokenOut) {
         continue
       }

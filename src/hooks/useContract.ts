@@ -4,6 +4,7 @@ import IERC20ABI from '../assets/abi/IERC20.json'
 import BnAAbi from '../assets/abi/BnA.json'
 import LogicAbi from '../assets/abi/Logic.json'
 import TokensInfoAbi from '../assets/abi/TokensInfo.json'
+import PairDetailAbi from '../assets/abi/PairDetail.json'
 import RouterAbi from '../assets/abi/Router.json'
 import TokenFactoryAbi from '../assets/abi/TokenFactory.json'
 import PoolFactoryAbi from '../assets/abi/PoolFactory.json'
@@ -42,6 +43,10 @@ export const useContract = () => {
 
   const getTokenInfoContract = () => {
     return getContract(TokensInfoAbi, configs.addresses.tokensInfo)
+  }
+
+  const getPairInfoContract = () => {
+    return getContract(PairDetailAbi, configs.addresses.pairsInfo)
   }
 
   const getRouterContract = (
@@ -85,6 +90,7 @@ export const useContract = () => {
     getRouterContract,
     getTokenFactoryContract,
     getPoolFactoryContract,
-    getPoolContract
+    getPoolContract,
+    getPairInfoContract
   }
 }

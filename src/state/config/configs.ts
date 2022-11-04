@@ -5,6 +5,7 @@ export default {
     scanName: 'BscScan',
     addresses: {
       tokensInfo: '0x6B451b1bdaa7088467961FC0370d4049DF1C2E4d',
+      pairsInfo: '0xf7Eb29dFfcDb11BC82D094e3bffA3E5764117A22',
       bnA: '0xA0c0Da3e41c401A601c7c93C4036773B5Ac47be2',
       wrapToken: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
       nativeToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',

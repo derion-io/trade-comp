@@ -1,6 +1,6 @@
 // @ts-nocheck
 import _ from 'lodash'
-import { bn } from './helpers'
+import { bn, formatFloat } from './helpers'
 import { BigNumber, ethers } from 'ethers'
 const { floor, abs } = Math
 
@@ -18,6 +18,7 @@ export type StepType = {
 export class PowerState {
   powers = [2, -2, 8, -8]
   unit = 1000000
+  cPrice = 0
   states: any = {}
   constructor(config: any) {
     this.powers = config?.powers ?? [2, -2, 8, -8]
@@ -25,13 +26,14 @@ export class PowerState {
     this.unit = config?.unit ?? 1000000
   }
 
-  loadStates(states: any) {
+  loadStates(states: any, cPrice: string) {
     this.states = { ...states }
+    this.cPrice = formatFloat(cPrice, this.unit.toString().length - 1)
   }
 
   getMarks() {
     const result = { 0: 0 }
-    const exposures = this.getExposures()
+    const exposures = this.getExposures().map(e => Math.floor(e * 10) / 10)
     exposures.forEach((exposure) => {
       result[exposure] = exposure
     })
@@ -143,7 +145,7 @@ export class PowerState {
   }
 
   getCPrice() {
-    return 18.110770276
+    return this.cPrice
   }
 
   getSwapSteps(oldBalances: {[key: number]: BigNumber}, newBalances: {[key: number]: BigNumber}) : StepType[] {
@@ -152,7 +154,7 @@ export class PowerState {
     const changes: {[key: number]: BigNumber} = {}
     for (const power of this.powers) {
       const oldValue = oldValues[power] ?? bn(0)
-      const newValue = newValues[power] ?? bn(0) 
+      const newValue = newValues[power] ?? bn(0)
       const change = newValue.sub(oldValue)
       const changeRate = change.abs().mul(this.unit)
       if (!change.isZero() && (changeRate.gte(newValue) || changeRate.gte(oldValue))) {
@@ -246,7 +248,7 @@ if (require.main === module) {
 
   const optimal = powerState.getOptimalBalances(
     powerState.calculateCompValue(current),
-    powerState.calculateCompExposure(current),
+    powerState.calculateCompExposure(current)
   )
 
   Object.entries(optimal).map(([power, balance]) => `${power}: ${fe(balance)}`)

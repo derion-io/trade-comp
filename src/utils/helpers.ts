@@ -70,3 +70,12 @@ export const parseCallStaticError = (error: any) => {
   }
   return message
 }
+
+export const formatFloat = (number: number | string, decimal = 1) => {
+  number = number.toString()
+  const arr = number.split('.')
+  if (arr.length > 1) {
+    arr[1] = arr[1].slice(0, decimal)
+  }
+  return Number(arr.join('.'))
+}

@@ -4,15 +4,18 @@ import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../types'
 import { useWeb3React } from '../../customWeb3React/hook'
 import { useListTokens } from '../../token/hook'
-import { bn } from '../../../utils/helpers'
+import { bn, numberToWei, weiToNumber } from '../../../utils/helpers'
+import { usePairInfo } from '../../../hooks/usePairInfo'
 
 export const useCurrentPool = () => {
   const { getTokenFactoryContract, getLogicContract, getPoolContract } = useContract()
   const { account } = useWeb3React()
   const { addTokens } = useListTokens()
+  const { getPairInfo } = usePairInfo()
   const dispatch = useDispatch()
 
   const {
+    cTokenPrice,
     cToken,
     logicAddress,
     dTokens,
@@ -22,6 +25,7 @@ export const useCurrentPool = () => {
     quoteToken
   } = useSelector((state: State) => {
     return {
+      cTokenPrice: state.currentPool.cTokenPrice,
       cToken: state.currentPool.cToken,
       logicAddress: state.currentPool.logicAddress,
       dTokens: state.currentPool.dTokens,
@@ -40,14 +44,15 @@ export const useCurrentPool = () => {
 
     const states = await logicContract.getStates()
     console.log('stats', states)
-    // const states = {
-    //   baseTWAP: bn('10384592715470340267662384400637883679'),
-    //   priceScaleLong: bn('7788445287819172527008699396495269118'),
-    //   priceScaleShort: bn('7788445287819172527008699396495269118')
-    // }
     const cToken = await poolContract.COLLATERAL_TOKEN()
-    console.log(cToken)
     const [baseToken, quoteToken] = ['0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c', '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56']
+
+    const a = await getPairInfo(cToken)
+    console.log('ctoken info', a)
+    console.log(cToken)
+    const cPrice = getLpPrice(a, baseToken)
+    console.log(cPrice)
+
     // const dTokens = await Promise.all([
     //   poolFactoryContract.computeTokenAddress(logicAddress, 0),
     //   poolFactoryContract.computeTokenAddress(logicAddress, 1),
@@ -65,6 +70,7 @@ export const useCurrentPool = () => {
     addTokens([...dTokens, cToken, baseToken, quoteToken])
 
     dispatch(setCurrentPoolInfo({
+      cTokenPrice: cPrice,
       cToken,
       logicAddress,
       dTokens,
@@ -75,17 +81,26 @@ export const useCurrentPool = () => {
     }))
   }
 
+  const getLpPrice = (lpTokenDetail: any, baseToken: string) => {
+    const totalSupply = lpTokenDetail.totalSupply
+    const r0 = lpTokenDetail.token0.reserve
+    const r1 = lpTokenDetail.token1.reserve
+    const rq = lpTokenDetail.token0.address === baseToken ? r1 : r0
+    return weiToNumber(bn(2).mul(rq).mul(numberToWei(1)).div(totalSupply))
+  }
+
   const getTokenByPower = (power: number | string) => {
     if (power === 'C') {
       return cToken
     }
-    const index = powers.findIndex((p) => p === power)
+    const index = powers.findIndex((p) => p === Number(power))
     return dTokens[index]
   }
 
   return {
     getTokenByPower,
     updateCurrentPool,
+    cTokenPrice,
     baseToken,
     quoteToken,
     powers,
