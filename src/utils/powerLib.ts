@@ -64,7 +64,7 @@ export class PowerState {
       baseTWAP: this.states.baseTWAP.mul(101).div(100)
     }
     const projection = this.calculatePrice(power, projectedStates)
-    return Math.floor((projection - current) / current / 0.01 * 10) / 10
+    return (projection - current) / current / 0.01
   }
 
   calculateCompExposure(balances: any) {
@@ -151,8 +151,11 @@ export class PowerState {
     const newValues = this.valuesFromBalances(newBalances)
     const changes: {[key: number]: BigNumber} = {}
     for (const power of this.powers) {
-      const change = (newValues[power] ?? bn(0)).sub(oldValues[power] ?? bn(0))
-      if (!change.isZero()) {
+      const oldValue = oldValues[power] ?? bn(0)
+      const newValue = newValues[power] ?? bn(0) 
+      const change = newValue.sub(oldValue)
+      const changeRate = change.abs().mul(this.unit)
+      if (!change.isZero() && (changeRate.gte(newValue) || changeRate.gte(oldValue))) {
         changes[power] = change
       }
     }
@@ -219,7 +222,7 @@ function _firstKey(values: {[key: number]: BigNumber}, negative: boolean = false
 if (require.main === module) {
   const powerState = new PowerState({})
   powerState.loadStates({
-    baseTWAP: bn('7788445287819172527008699396495269118'),
+    baseTWAP: bn('8788445287819172527008699396495269118'),
     priceScaleLong: bn('7788445287819172527008699396495269118'),
     priceScaleShort: bn('7788445287819172527008699396495269118')
   })
@@ -232,11 +235,26 @@ if (require.main === module) {
   const E = powerState.calculateCompExposure(balances)
   console.log(E)
 
-  const steps: any = powerState.getSwapSteps({
-    '-2': pe(3),
+  const current = {
+    // '-2': pe(3),
     2: pe(1),
     8: pe(2)
-  }, powerState.getOptimalBalances(pe(123), -3.14159))
+  }
+
+  Object.entries(current).map(([power, balance]) => `${power}: ${fe(balance)}`)
+    .forEach(console.log)
+
+  const optimal = powerState.getOptimalBalances(
+    powerState.calculateCompValue(current),
+    powerState.calculateCompExposure(current),
+  )
+
+  Object.entries(optimal).map(([power, balance]) => `${power}: ${fe(balance)}`)
+    .forEach(console.log)
+
+  console.log('should be empty', powerState.getSwapSteps(current, optimal))
+
+  const steps: any = powerState.getSwapSteps(current, powerState.getOptimalBalances(pe(123), -3.14159))
   console.log(steps)
 
   steps.forEach(step => console.log(step.tokenIn, '->', step.tokenOut, fe(step.amountIn)))
