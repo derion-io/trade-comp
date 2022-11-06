@@ -13,12 +13,12 @@ export default {
   path: '/swap',
   children: [
     {
-      name: 'Swap',
-      path: '/swap'
-    },
-    {
       name: 'Exposure',
       path: '/exposure'
+    },
+    {
+      name: 'Swap',
+      path: '/swap'
     }
   ]
 }

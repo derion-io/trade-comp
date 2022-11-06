@@ -1,6 +1,6 @@
 @import "../abstracts/variables";
 
-.swap-page-interface {
+.exposure-interface {
   input[type="color"],
   input[type="date"],
   input[type="datetime"],
@@ -121,5 +121,9 @@
     &-30 {
       font-size: 3rem;
     }
+  }
+
+  .upper-case {
+    text-transform: uppercase;
   }
 }

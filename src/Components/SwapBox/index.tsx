@@ -16,7 +16,9 @@ import { BigNumber } from 'ethers'
 import { SelectTokenModal } from '../SelectTokenModal'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../state/token/hook'
-import { bn, numberToWei, weiToNumber } from '../../utils/helpers'
+import { bn, numberToWei, parseCallStaticError, weiToNumber } from '../../utils/helpers'
+import { ZERO_ADDRESS } from '../../utils/constant'
+import { TokenSymbol } from '../ui/TokenSymbol'
 
 export const SwapBox = () => {
   const { getRouterContract } = useContract()
@@ -31,6 +33,7 @@ export const SwapBox = () => {
   const [amountIn, setAmountIn] = useState<string>('')
   const { balances, routerAllowances, approveRouter } = useWalletBalance()
   const [txFee, setTxFee] = useState<string>('')
+  const [isdeleverage, setIsdeleverage] = useState<boolean>(false)
   const { tokens } = useListTokens()
 
   useEffect(() => {
@@ -63,6 +66,11 @@ export const SwapBox = () => {
       setAmountOut(weiToNumber(res.amountOuts[0], tokens[outputTokenAddress].decimal || 18))
       setTxFee(weiToNumber(detextTxFee(bn(res.gasLeft))).toString())
     } catch (e) {
+      const error = parseCallStaticError(e)
+      if (error === 'deleverage') {
+        setIsdeleverage(true)
+      }
+      console.log(error)
       console.log(e)
     }
   }
@@ -83,10 +91,44 @@ export const SwapBox = () => {
       return <ButtonExecute className='swap-button' disabled>Loading...</ButtonExecute>
     } else if (!account) {
       // @ts-ignore
-      return <ButtonExecute className='swap-button' disabled>Connect wallet</ButtonExecute>
+      return <ButtonExecute className='swap-button'>Connect wallet</ButtonExecute>
     } else if (Number(amountIn) === 0) {
       // @ts-ignore
       return <ButtonExecute className='swap-button' disabled>Enter Amount</ButtonExecute>
+    } else if (isdeleverage) {
+      return <ButtonExecute
+        className='swap-button'
+        onClick={async () => {
+          const signer = library.getSigner()
+          const contract = getRouterContract(signer)
+          try {
+            await contract.callStatic.multiSwap(
+              configs.addresses.pool,
+              [{
+                tokenIn: ZERO_ADDRESS,
+                tokenOut: ZERO_ADDRESS,
+                amountIn: bn(0),
+                amountOutMin: 0
+              }],
+              account,
+              new Date().getTime() + 3600000
+            )
+            await contract.multiSwap(
+              configs.addresses.pool,
+              [{
+                tokenIn: ZERO_ADDRESS,
+                tokenOut: ZERO_ADDRESS,
+                amountIn: bn(0),
+                amountOutMin: 0
+              }],
+              account,
+              new Date().getTime() + 3600000
+            )
+          } catch (e) {
+            console.log(e)
+          }
+        }}
+      >deleverage</ButtonExecute>
     } else if (!balances[inputTokenAddress] || balances[inputTokenAddress].lt(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))) {
       // @ts-ignore
       return <ButtonExecute className='swap-button' disabled> Insufficient {tokens[inputTokenAddress].symbol} Amount </ButtonExecute>
@@ -190,7 +232,7 @@ export const SwapBox = () => {
             setTokenTypeToSelect('output')
           }}>
             <TokenIcon size={24} tokenAddress={outputTokenAddress} />
-            <Text>{tokens[outputTokenAddress]?.symbol}</Text>
+            <Text><TokenSymbol token={tokens[outputTokenAddress]}/></Text>
           </span>
           <Text>Balance: {weiToNumber(balances[outputTokenAddress], tokens[outputTokenAddress]?.decimal || 18)}</Text>
         </div>
@@ -272,6 +314,18 @@ export const SwapBox = () => {
             </span>
           </InfoRow>
         </Box>
+      </Box>
+
+      <Box>
+        <label htmlFor='is-deleverage'>
+          deleverage
+          <input
+            type='checkbox'
+            checked={isdeleverage}
+            id='is-deleverage' onChange={(e) => {
+              setIsdeleverage(e.target.checked)
+            }} />
+        </label>
       </Box>
 
       <div className='actions'>

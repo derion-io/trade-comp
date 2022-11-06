@@ -18,6 +18,7 @@ import { BigNumber } from 'ethers'
 import { useWeb3React } from '../../state/customWeb3React/hook'
 import { UseExposureAction } from '../../hooks/useExposureAction'
 import { toast } from 'react-toastify'
+import { TokenSymbol } from '../ui/TokenSymbol'
 
 export const ExposureBox = () => {
   const [formAddOrRemove, setFormAddOrRemove] = useState<'add' | 'remove' | undefined>(undefined)
@@ -228,6 +229,33 @@ export const ExposureBox = () => {
         />
       </div>
 
+      {
+        swapSteps.length > 0 && (newLeverage !== oldLeverage || cAmountToChange) &&
+        <Box borderColor='#3a3a3a' className='info-box1 ' title='Transactions Info'>
+          {swapSteps.map((step: any, key: any) => {
+            const stepFromToken = getTokenByPower(step.tokenIn)
+            const stepToToken = getTokenByPower(step.tokenOut)
+            const amountIn = step.amountIn
+            const amountOut = stepsWithAmounts && stepsWithAmounts[key]?.amountOut ? stepsWithAmounts[key].amountOut : '...'
+            if (amountIn.lte(1000)) {
+              return ''
+            }
+            return <InfoRow key={key}>
+              <span>
+                <Text>{weiToNumber(amountIn, tokens[stepFromToken]?.decimal || 18, 4)}</Text>
+                <TextGrey> <TokenSymbol token={tokens[stepFromToken]}/></TextGrey>
+              </span>
+              <IconArrowLeft />
+              <span>
+                <Text>{weiToNumber(amountOut, tokens[stepToToken]?.decimal || 18, 4)} </Text>
+                <TextGrey> <TokenSymbol token={tokens[stepToToken]}/></TextGrey>
+              </span>
+            </InfoRow>
+          })
+          }
+        </Box>
+      }
+
       <Box borderColor='#3a3a3a' className='info-box1 mb-2' title='Swaps'>
         <InfoRow>
           <Text>Leverage</Text>
@@ -255,35 +283,6 @@ export const ExposureBox = () => {
           </span>
         </InfoRow>
       </Box>
-
-      {
-        swapSteps.length > 0 && (newLeverage !== oldLeverage || cAmountToChange) &&
-        <Box borderColor='#3a3a3a' className='info-box1 ' title='Transactions Info'>
-          {swapSteps.map((step: any, key: any) => {
-            const stepFromToken = getTokenByPower(step.tokenIn)
-            const stepToToken = getTokenByPower(step.tokenOut)
-            const amountIn = step.amountIn
-            const amountOut = stepsWithAmounts && stepsWithAmounts[key]?.amountOut ? stepsWithAmounts[key].amountOut : '...'
-            if (amountIn.lte(1000)) {
-              return ''
-            }
-            return <InfoRow key={key}>
-              <span>
-                {/* <Text>{weiToNumber(amountIn, tokens[stepFromToken]?.decimal || 18, 4)}</Text> */}
-                <Text>{amountIn.toString()}</Text>
-                <TextGrey>{tokens[stepFromToken]?.symbol}</TextGrey>
-              </span>
-              <IconArrowLeft />
-              <span>
-                {/* <Text>{weiToNumber(amountOut, tokens[stepToToken]?.decimal || 18, 4)}</Text> */}
-                <Text>{amountOut.toString()}</Text>
-                <TextGrey>{tokens[stepToToken]?.symbol}</TextGrey>
-              </span>
-            </InfoRow>
-          })
-          }
-        </Box>
-      }
 
       <div className='jc-space-between'>
         {renderExecuteButton()}
