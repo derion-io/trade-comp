@@ -1,5 +1,11 @@
+@import "../../styles/abstracts/mixins";
+
 .exposure-box {
   width: 400px;
+
+  @include respond(phone) {
+    width: 100%;
+  }
 
   .leverage-changed-box {
     display: flex;

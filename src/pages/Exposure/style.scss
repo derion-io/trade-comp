@@ -1,10 +1,23 @@
+@import "../../styles/abstracts/mixins";
+
 .exposure-interface .exposure-page {
   padding: 2rem;
   display: flex;
   align-items: start;
   justify-content: center;
 
+  @include respond(phone) {
+    flex-direction: column;
+    max-width: 100%;
+    padding: 0;
+  }
+
   & > *:not(:last-child) {
     margin-right: 2rem;
+
+    @include respond(phone) {
+      margin-bottom: 2rem;
+      margin-right: 0;
+    }
   }
 }

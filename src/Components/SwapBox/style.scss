@@ -1,7 +1,12 @@
 @import "../../styles/abstracts/variables";
+@import "../../styles/abstracts/mixins";
 
 .swap-box {
   width: 400px;
+
+  @include respond(phone) {
+    width:100%;
+  }
 
   .amount-input-box {
     &__head {
