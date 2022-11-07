@@ -26,9 +26,9 @@ export class PowerState {
     this.unit = config?.unit ?? 1000000
   }
 
-  loadStates(states: any, cPrice: string) {
+  loadStates(states: any, cPrice: number) {
     this.states = { ...states }
-    this.cPrice = formatFloat(cPrice, this.unit.toString().length - 1)
+    this.cPrice = cPrice
   }
 
   getMarks() {

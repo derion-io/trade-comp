@@ -4,8 +4,10 @@ import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../types'
 import { useWeb3React } from '../../customWeb3React/hook'
 import { useListTokens } from '../../token/hook'
-import { bn, numberToWei, weiToNumber } from '../../../utils/helpers'
+import { bn, div, formatPercent, numberToWei, sub, weiToNumber } from '../../../utils/helpers'
 import { usePairInfo } from '../../../hooks/usePairInfo'
+
+const CHART_API_ENDPOINT = 'https://api.lz.finance/56/chart/'
 
 export const useCurrentPool = () => {
   const { getTokenFactoryContract, getLogicContract, getPoolContract } = useContract()
@@ -22,7 +24,9 @@ export const useCurrentPool = () => {
     powers,
     states,
     baseToken,
-    quoteToken
+    quoteToken,
+    basePrice,
+    changedIn24h
   } = useSelector((state: State) => {
     return {
       cTokenPrice: state.currentPool.cTokenPrice,
@@ -32,7 +36,9 @@ export const useCurrentPool = () => {
       powers: state.currentPool.powers,
       states: state.currentPool.states,
       baseToken: state.currentPool.baseToken,
-      quoteToken: state.currentPool.quoteToken
+      quoteToken: state.currentPool.quoteToken,
+      basePrice: state.currentPool.basePrice,
+      changedIn24h: state.currentPool.changedIn24h
     }
   })
 
@@ -43,15 +49,15 @@ export const useCurrentPool = () => {
     const logicContract = getLogicContract(logicAddress)
 
     const states = await logicContract.getStates()
-    console.log('stats', states)
     const cToken = await poolContract.COLLATERAL_TOKEN()
     const [baseToken, quoteToken] = ['0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c', '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56']
 
-    const a = await getPairInfo(cToken)
-    console.log('ctoken info', a)
-    console.log(cToken)
-    const cPrice = getLpPrice(a, baseToken)
-    console.log(cPrice)
+    const [pairInfo, changedIn24h] = await Promise.all([
+      getPairInfo(cToken),
+      get24hChange(baseToken, cToken, quoteToken)
+    ])
+    const cPrice = getLpPrice(pairInfo, baseToken)
+    const basePrice = getBasePrice(pairInfo, baseToken)
 
     // const dTokens = await Promise.all([
     //   poolFactoryContract.computeTokenAddress(logicAddress, 0),
@@ -65,19 +71,20 @@ export const useCurrentPool = () => {
       '0xFFE34937F4486DdEa901e332f720523ddb307d37',
       '0xbbDF7765d0Fe3DCe6CA07664505662e3D772Cd8B'
     ]
-    console.log(cToken)
 
     addTokens([...dTokens, cToken, baseToken, quoteToken])
 
     dispatch(setCurrentPoolInfo({
       cTokenPrice: cPrice,
+      basePrice,
       cToken,
       logicAddress,
       dTokens,
       powers: [-32, -4, 4, 32],
       states,
       baseToken,
-      quoteToken
+      quoteToken,
+      changedIn24h
     }))
   }
 
@@ -89,6 +96,14 @@ export const useCurrentPool = () => {
     return weiToNumber(bn(2).mul(rq).mul(numberToWei(1)).div(totalSupply))
   }
 
+  const getBasePrice = (pairInfo: any, baseToken: string) => {
+    const token0 = pairInfo.token0.adr
+    const r0 = pairInfo.token0.reserve
+    const r1 = pairInfo.token1.reserve
+    const [rb, rq] = token0 === baseToken ? [r0, r1] : [r1, r0]
+    return weiToNumber(rq.mul(numberToWei(1)).div(rb))
+  }
+
   const getTokenByPower = (power: number | string) => {
     if (power === 'C') {
       return cToken
@@ -97,9 +112,37 @@ export const useCurrentPool = () => {
     return dTokens[index]
   }
 
+  const get24hChange = async (baseToken: string, cToken:string, quoteToken: string) => {
+    const toTime = Math.floor(new Date().getTime() / 1000)
+    const query = `${baseToken},${cToken},${quoteToken}`
+    const result = await fetch(`${CHART_API_ENDPOINT}candleline4?q=${query}&r=1H&l=24&t=${toTime}`)
+      .then((r) => r.json())
+      .then((res: any) => {
+        const open = res.o[0]
+        const close = res.c[res.o?.length - 1]
+        console.log({
+          open, close
+        })
+        return formatPercent(
+          div(
+            sub(close, open),
+            open
+          )
+        )
+      })
+      .catch((err: any) => {
+        console.error(err)
+        return 0
+      })
+
+    return Number(result)
+  }
+
   return {
     getTokenByPower,
     updateCurrentPool,
+    basePrice,
+    changedIn24h,
     cTokenPrice,
     baseToken,
     quoteToken,

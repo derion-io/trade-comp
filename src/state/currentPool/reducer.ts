@@ -13,10 +13,12 @@ export const tokens = createSlice({
         quoteToken: string
         cToken: string
         cTokenPrice: string
+        basePrice: string
         dTokens: string[]
         logicAddress?: string
         states: any,
         powers: number[]
+        changedIn24h: number
       }>
     ) => {
       state.cTokenPrice = action.payload.cTokenPrice
@@ -27,6 +29,8 @@ export const tokens = createSlice({
       state.powers = action.payload.powers
       state.baseToken = action.payload.baseToken
       state.quoteToken = action.payload.quoteToken
+      state.basePrice = action.payload.basePrice
+      state.changedIn24h = action.payload.changedIn24h
     }
   }
 })

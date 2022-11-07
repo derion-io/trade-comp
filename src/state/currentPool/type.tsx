@@ -7,6 +7,8 @@ export interface currentPoolState {
   cTokenPrice: string
   states: any
   powers: number[]
+  basePrice: string
+  changedIn24h: number
 }
 
 export const initialState: currentPoolState = {
@@ -17,5 +19,7 @@ export const initialState: currentPoolState = {
   logicAddress: undefined,
   cTokenPrice: '0',
   states: {},
-  powers: []
+  powers: [],
+  basePrice: '0',
+  changedIn24h: 0
 }

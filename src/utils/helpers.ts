@@ -6,7 +6,7 @@ export const shortenAddressString = (address: string) => {
   return address.slice?.(0, 6) + '...' + address.slice?.(address.length - 4, address.length)
 }
 
-export const weiToNumber = (wei: any, decimal: number = 18, decimalToDisplay?: number) => {
+export const weiToNumber = (wei: any, decimal: number = 18, decimalToDisplay?: number): string => {
   if (!wei || !Number(wei)) return '0'
   wei = wei.toString()
   const result = utils.formatUnits(wei, decimal)
@@ -78,4 +78,35 @@ export const formatFloat = (number: number | string, decimal = 1) => {
     arr[1] = arr[1].slice(0, decimal)
   }
   return Number(arr.join('.'))
+}
+
+export const mul = (a: any, b: any) => {
+  const result = weiToNumber(
+    BigNumber.from(numberToWei(a)).mul(numberToWei(b)),
+    36
+  )
+  const arr = result.split('.')
+  arr[1] = arr[1]?.slice(0, 18)
+  return arr[1] ? arr.join('.') : arr.join('')
+}
+
+
+export const sub = (a: any, b: any) => {
+  return weiToNumber(BigNumber.from(numberToWei(a)).sub(numberToWei(b)))
+}
+
+export const div = (a: any, b: any) => {
+  if (!b || b.toString() === '0') {
+    return '0'
+  }
+  return weiToNumber(BigNumber.from(numberToWei(a, 36)).div(numberToWei(b)))
+}
+
+export const add = (a: any, b: any) => {
+  return weiToNumber(BigNumber.from(numberToWei(a)).add(numberToWei(b)))
+}
+
+export const formatPercent = (floatNumber: any, decimal: number = 2) => {
+  floatNumber = floatNumber.toString()
+  return formatFloat(weiToNumber(numberToWei(floatNumber), 16), decimal)
 }

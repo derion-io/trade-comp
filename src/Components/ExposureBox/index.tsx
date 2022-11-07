@@ -11,7 +11,7 @@ import { IconArrowDown, IconArrowLeft } from '../ui/Icon'
 import { Input } from '../ui/Input'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { PowerState, StepType } from '../../utils/powerLib'
-import { bn, formatFloat, numberToWei, parseCallStaticError, weiToNumber } from '../../utils/helpers'
+import { bn, formatFloat, mul, numberToWei, parseCallStaticError, weiToNumber } from '../../utils/helpers'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../state/token/hook'
 import { BigNumber } from 'ethers'
@@ -19,20 +19,22 @@ import { useWeb3React } from '../../state/customWeb3React/hook'
 import { UseExposureAction } from '../../hooks/useExposureAction'
 import { toast } from 'react-toastify'
 import { TokenSymbol } from '../ui/TokenSymbol'
+import { multiply } from 'lodash'
+import { useConfigs } from '../../state/config/useConfigs'
 
 export const ExposureBox = () => {
   const [formAddOrRemove, setFormAddOrRemove] = useState<'add' | 'remove' | undefined>(undefined)
   const [newLeverage, setNewLeverage] = useState<number>(0)
   const [newValue, setNewValue] = useState<BigNumber>()
   const { account } = useWeb3React()
+  const { configs } = useConfigs()
   const [loading, setLoading] = useState<boolean>(false)
-  const { dTokens, cToken, states, powers, baseToken, quoteToken, cTokenPrice, getTokenByPower } = useCurrentPool()
+  const { dTokens, cToken, states, powers, baseToken, quoteToken, cTokenPrice, basePrice, changedIn24h, getTokenByPower } = useCurrentPool()
   const { balances, routerAllowances, approveRouter, fetchBalanceAndAllowance } = useWalletBalance()
   const [balanceInPool, setBalancesInPool] = useState<any>({})
   const [newBalancesInPool, setNewBalancesInPool] = useState<any>({})
   const [cAmountToChange, setCAmountToChange] = useState<string>('')
   const [swapSteps, setSwapsteps] = useState<any>([])
-  const changedIn24h = -5
   const { tokens } = useListTokens()
   const { calculateAmountOuts, updateLeverageAndSize } = UseExposureAction()
   const [stepsWithAmounts, setStepsWithAmounts] = useState<(StepType & { amountOut: BigNumber })[]>([])
@@ -48,7 +50,7 @@ export const ExposureBox = () => {
     let oldValue = bn(0)
     const p = new PowerState({ powers: [...powers] })
     if (powers && states.baseTWAP) {
-      p.loadStates(states, cTokenPrice)
+      p.loadStates(states, Number(cTokenPrice))
       const currentBalances = {}
       powers.forEach((power, key) => {
         if (balances[dTokens[key]]) {
@@ -157,8 +159,12 @@ export const ExposureBox = () => {
   return (
     <Card className='exposure-box'>
       <div className='text-center'>
-        <Text>{tokens[baseToken]?.symbol}/{tokens[quoteToken]?.symbol}</Text>
-        <TextBuy>(+32 {tokens[quoteToken]?.symbol}) (+5%)</TextBuy>
+        <Text>{tokens[baseToken]?.symbol}/{tokens[quoteToken]?.symbol} </Text>
+        {
+          changedIn24h >= 0
+            ? <TextBuy>({formatFloat(basePrice, 2)} {tokens[quoteToken]?.symbol}) (+{changedIn24h}%)</TextBuy>
+            : <TextSell>({formatFloat(basePrice, 2)} {tokens[quoteToken]?.symbol}) ({changedIn24h}%)</TextSell>
+        }
       </div>
       <LeverageChangedInfoBox
         oldLeverage={oldLeverage}
@@ -171,8 +177,17 @@ export const ExposureBox = () => {
       {formAddOrRemove && (
         <div className='amount-input-box'>
           <div className='amount-input-box__head'>
-            <span>{tokens[cToken]?.symbol}_{tokens[baseToken]?.symbol}_{tokens[quoteToken]?.symbol}</span>
-            <Text>Balance: {weiToNumber(balances[cToken], tokens[cToken]?.decimal || 18, 4)}</Text>
+            <a
+              href={`${configs.explorer}/address/${cToken}`}
+              className='cursor-pointer text-decoration-none'
+              target='_blank' rel='noreferrer'
+            >{tokens[cToken]?.symbol}_{tokens[baseToken]?.symbol}_{tokens[quoteToken]?.symbol}</a>
+            <Text
+              className='cursor-pointer'
+              onClick={() => {
+                setCAmountToChange(weiToNumber(balances[cToken], tokens[cToken]?.decimal || 18))
+              }}
+            >Balance: {weiToNumber(balances[cToken], tokens[cToken]?.decimal || 18, 4)}</Text>
           </div>
           <Input
             // @ts-ignore
@@ -181,7 +196,7 @@ export const ExposureBox = () => {
               setCAmountToChange((e.target as HTMLInputElement).value)
             }}
             placeholder='0.0'
-            suffix='$0'
+            suffix={<TextGrey>${formatFloat(mul(cTokenPrice || 0, cAmountToChange || 0), 4)}</TextGrey>}
             className='fs-24'
           />
         </div>
@@ -360,7 +375,7 @@ const LeverageChangedInfoBox = ({
     </div>
     <div className={`leverage-changed-box__row ${oldLeverage !== newLeverage && 'is-changed'}`}>
       <OldChangedIn24hLabel>
-        <OldChangedIn24hText>{changedIn24h * formatFloat(oldLeverage)}%</OldChangedIn24hText>
+        <OldChangedIn24hText>{formatFloat(changedIn24h * oldLeverage, 2)}%</OldChangedIn24hText>
       </OldChangedIn24hLabel>
       {
         oldLeverage !== newLeverage &&
@@ -369,7 +384,7 @@ const LeverageChangedInfoBox = ({
             <IconArrowDown />
           </span>
           <NewChangedIn24hLabel>
-            <NewChangedIn24hText>{changedIn24h * newLeverage}%</NewChangedIn24hText>
+            <NewChangedIn24hText>{formatFloat(changedIn24h * newLeverage, 2)}%</NewChangedIn24hText>
           </NewChangedIn24hLabel>
         </React.Fragment>
       }
