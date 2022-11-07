@@ -19,6 +19,7 @@ import { useListTokens } from '../../state/token/hook'
 import { bn, numberToWei, parseCallStaticError, weiToNumber } from '../../utils/helpers'
 import { ZERO_ADDRESS } from '../../utils/constant'
 import { TokenSymbol } from '../ui/TokenSymbol'
+import { UseExposureAction } from '../../hooks/useExposureAction'
 
 export const SwapBox = () => {
   const { getRouterContract } = useContract()
@@ -35,6 +36,7 @@ export const SwapBox = () => {
   const [txFee, setTxFee] = useState<string>('')
   const [isdeleverage, setIsdeleverage] = useState<boolean>(false)
   const { tokens } = useListTokens()
+  const {deleverage} = UseExposureAction()
 
   useEffect(() => {
     setInputTokenAddress(cToken || '')
@@ -98,36 +100,7 @@ export const SwapBox = () => {
     } else if (isdeleverage) {
       return <ButtonExecute
         className='swap-button'
-        onClick={async () => {
-          const signer = library.getSigner()
-          const contract = getRouterContract(signer)
-          try {
-            await contract.callStatic.multiSwap(
-              configs.addresses.pool,
-              [{
-                tokenIn: ZERO_ADDRESS,
-                tokenOut: ZERO_ADDRESS,
-                amountIn: bn(0),
-                amountOutMin: 0
-              }],
-              account,
-              new Date().getTime() + 3600000
-            )
-            await contract.multiSwap(
-              configs.addresses.pool,
-              [{
-                tokenIn: ZERO_ADDRESS,
-                tokenOut: ZERO_ADDRESS,
-                amountIn: bn(0),
-                amountOutMin: 0
-              }],
-              account,
-              new Date().getTime() + 3600000
-            )
-          } catch (e) {
-            console.log(e)
-          }
-        }}
+        onClick={deleverage}
       >deleverage</ButtonExecute>
     } else if (!balances[inputTokenAddress] || balances[inputTokenAddress].lt(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))) {
       // @ts-ignore

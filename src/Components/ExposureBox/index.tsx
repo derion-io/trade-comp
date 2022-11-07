@@ -35,8 +35,9 @@ export const ExposureBox = () => {
   const [newBalancesInPool, setNewBalancesInPool] = useState<any>({})
   const [cAmountToChange, setCAmountToChange] = useState<string>('')
   const [swapSteps, setSwapsteps] = useState<any>([])
+  const [isdeleverage, setIsdeleverage] = useState<boolean>(false)
   const { tokens } = useListTokens()
-  const { calculateAmountOuts, updateLeverageAndSize } = UseExposureAction()
+  const { calculateAmountOuts, updateLeverageAndSize, deleverage } = UseExposureAction()
   const [stepsWithAmounts, setStepsWithAmounts] = useState<(StepType & { amountOut: BigNumber })[]>([])
 
   const resetFormHandle = () => {
@@ -113,7 +114,13 @@ export const ExposureBox = () => {
 
   useEffect(() => {
     // const delayDebounceFn = setTimeout(() => {
-    calculateAmountOuts(swapSteps, setStepsWithAmounts)
+    calculateAmountOuts(swapSteps, setStepsWithAmounts).catch((e) => {
+      setStepsWithAmounts([])
+      const error = parseCallStaticError(e)
+      if (error === 'deleverage') {
+        setIsdeleverage(true)
+      }
+    })
     // console.log('res')
     // setStepsWithAmounts(res)
     // }, 3000)
@@ -129,6 +136,11 @@ export const ExposureBox = () => {
     } else if (!account) {
       // @ts-ignore
       return <ButtonExecute className='execute-button mr-1' disabled>Connect wallet</ButtonExecute>
+    } else if (isdeleverage) {
+      return <ButtonExecute
+        className='execute-button mr-1'
+        onClick={deleverage}
+      >deleverage</ButtonExecute>
     } else if (tokenNeedApprove.length > 0) {
       return <ButtonExecute
         onClick={async () => {
@@ -297,6 +309,18 @@ export const ExposureBox = () => {
             <Text>(0.05%)</Text>
           </span>
         </InfoRow>
+      </Box>
+
+      <Box>
+        <label htmlFor='is-deleverage'>
+          deleverage
+          <input
+            type='checkbox'
+            checked={isdeleverage}
+            id='is-deleverage' onChange={(e) => {
+              setIsdeleverage(e.target.checked)
+            }} />
+        </label>
       </Box>
 
       <div className='jc-space-between'>
