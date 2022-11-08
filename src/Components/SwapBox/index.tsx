@@ -62,7 +62,8 @@ export const SwapBox = () => {
           amountOutMin: 0
         }],
         account,
-        new Date().getTime() + 3600000
+        new Date().getTime() + 3600000,
+        0,
       )
       console.log('aOut', res)
       setAmountOut(weiToNumber(res.amountOuts[0], tokens[outputTokenAddress].decimal || 18))
@@ -121,7 +122,8 @@ export const SwapBox = () => {
                 amountOutMin: 0
               }],
               account,
-              new Date().getTime() + 3600000
+              new Date().getTime() + 3600000,
+              0,
             )
             await contract.multiSwap(
               configs.addresses.pool,
@@ -132,7 +134,8 @@ export const SwapBox = () => {
                 amountOutMin: 0
               }],
               account,
-              new Date().getTime() + 3600000
+              new Date().getTime() + 3600000,
+              0,
             )
           } catch (e) {
             console.log(e)

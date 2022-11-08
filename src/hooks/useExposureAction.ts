@@ -26,7 +26,8 @@ export const UseExposureAction = () => {
           amountOutMin: 0
         }],
         account,
-        new Date().getTime() + 3600000
+        new Date().getTime() + 3600000,
+        0,
       )
       await contract.multiSwap(
         configs.addresses.pool,
@@ -37,7 +38,8 @@ export const UseExposureAction = () => {
           amountOutMin: 0
         }],
         account,
-        new Date().getTime() + 3600000
+        new Date().getTime() + 3600000,
+        0,
       )
     } catch (e) {
       console.log(e)
@@ -53,7 +55,8 @@ export const UseExposureAction = () => {
       configs.addresses.pool,
       stepsToSwap,
       account,
-      new Date().getTime() + 3600000
+      new Date().getTime() + 3600000,
+      0,
     )
 
     const result = []
@@ -91,7 +94,8 @@ export const UseExposureAction = () => {
         configs.addresses.pool,
         steps,
         account,
-        new Date().getTime() + 3600000
+        new Date().getTime() + 3600000,
+        0,
       )
       await tx.wait(1)
       return tx
