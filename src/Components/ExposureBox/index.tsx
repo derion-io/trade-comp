@@ -174,8 +174,8 @@ export const ExposureBox = () => {
         <Text>{tokens[baseToken]?.symbol}/{tokens[quoteToken]?.symbol} </Text>
         {
           changedIn24h >= 0
-            ? <TextBuy>({formatFloat(basePrice, 2)} {tokens[quoteToken]?.symbol}) (+{changedIn24h}%)</TextBuy>
-            : <TextSell>({formatFloat(basePrice, 2)} {tokens[quoteToken]?.symbol}) ({changedIn24h}%)</TextSell>
+            ? <TextBuy>({formatFloat(basePrice, 2)} +{changedIn24h}%)</TextBuy>
+            : <TextSell>({formatFloat(basePrice, 2)} {changedIn24h}%)</TextSell>
         }
       </div>
       <LeverageChangedInfoBox
@@ -190,7 +190,7 @@ export const ExposureBox = () => {
         <div className='amount-input-box'>
           <div className='amount-input-box__head'>
             <a
-              href={`${configs.explorer}/address/${cToken}`}
+              href={`https://pancakeswap.finance/add/${baseToken}/${quoteToken}`}
               className='cursor-pointer text-decoration-none'
               target='_blank' rel='noreferrer'
             >{tokens[cToken]?.symbol}_{tokens[baseToken]?.symbol}_{tokens[quoteToken]?.symbol}</a>
@@ -236,8 +236,8 @@ export const ExposureBox = () => {
           min={Math.min(...exposures)}
           max={Math.max(...exposures)}
           step={0.1}
-          defaultValue={[Math.min(...exposures), oldLeverage, newLeverage]}
-          value={[Math.min(...exposures),
+          defaultValue={[oldLeverage, newLeverage]}
+          value={[
             newLeverage <= oldLeverage ? newLeverage : oldLeverage,
             newLeverage <= oldLeverage ? oldLeverage : newLeverage
           ]}
@@ -248,17 +248,19 @@ export const ExposureBox = () => {
           ]}
           railStyle={{ backgroundColor: '#303236' }}
           onChange={(e:number[]) => {
-            setNewLeverage(formatFloat(e[e.length - 1], 1) === formatFloat(oldLeverage, 1)
-              ? formatFloat(e[e.length - 2], 1)
-              : formatFloat(e[e.length - 1], 1)
+            const newValue = e.find(e =>
+              Math.abs(e-oldLeverage) > 0.1 && Math.abs(e-newLeverage) > 0.1
             )
+            if (newValue != null) {
+              setNewLeverage(Math.round(newValue * 10)/10)
+            }
           }}
         />
       </div>
 
       {
         swapSteps.length > 0 && (newLeverage !== oldLeverage || cAmountToChange) &&
-        <Box borderColor='#3a3a3a' className='info-box1 ' title='Transactions Info'>
+        <Box borderColor='#3a3a3a' className='info-box1 ' title='Swaps'>
           {swapSteps.map((step: any, key: any) => {
             const stepFromToken = getTokenByPower(step.tokenIn)
             const stepToToken = getTokenByPower(step.tokenOut)
@@ -283,7 +285,7 @@ export const ExposureBox = () => {
         </Box>
       }
 
-      <Box borderColor='#3a3a3a' className='info-box1 mb-2' title='Swaps'>
+      <Box borderColor='#3a3a3a' className='info-box1 mb-2' title='Transactions Info'>
         <InfoRow>
           <Text>Leverage</Text>
           <span>
@@ -293,14 +295,14 @@ export const ExposureBox = () => {
           </span>
         </InfoRow>
         <InfoRow>
-          <Text>DDL fees</Text>
+          <Text>Conversion Fee</Text>
           <span>
             <Text className='mr-05'>x2.5</Text>
             <TextGrey>USD</TextGrey>
           </span>
         </InfoRow>
         <InfoRow>
-          <Text>fees</Text>
+          <Text>Transaction Fee</Text>
           <span>
             <Text className='mr-05'>0.01</Text>
             <Text className='mr-05'> BNB </Text>
