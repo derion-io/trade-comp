@@ -24,7 +24,7 @@ export const SwapBox = () => {
   const { getRouterContract } = useContract()
   const { account, library, showConnectModal } = useWeb3React()
   const { configs } = useConfigs()
-  const { dTokens, cToken, logicAddress } = useCurrentPool()
+  const { dTokens, cToken, logicAddress, poolAddress } = useCurrentPool()
   const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
@@ -36,7 +36,7 @@ export const SwapBox = () => {
   const [loading, setLoading] = useState<boolean>(false)
   const [isDeleverage, setIsDeleverage] = useState<boolean>(false)
   const { tokens } = useListTokens()
-  const { deleverage, multiSwap } = useMultiSwapAction()
+  const { multiSwap } = useMultiSwapAction()
 
   useEffect(() => {
     setInputTokenAddress(cToken || '')
@@ -202,7 +202,7 @@ export const SwapBox = () => {
       <SelectTokenModal
         visible={visibleSelectTokenModal}
         setVisible={setVisibleSelectTokenModal}
-        tokens={[...dTokens, cToken]}
+        tokens={[...dTokens, cToken, poolAddress]}
         onSelectToken={(address: string) => {
           if ((tokenTypeToSelect === 'input' && address === inputTokenAddress) ||
             (tokenTypeToSelect === 'output' && address === outputTokenAddress)

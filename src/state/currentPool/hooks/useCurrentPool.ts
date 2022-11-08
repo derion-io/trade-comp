@@ -26,7 +26,8 @@ export const useCurrentPool = () => {
     baseToken,
     quoteToken,
     basePrice,
-    changedIn24h
+    changedIn24h,
+    poolAddress,
   } = useSelector((state: State) => {
     return {
       cTokenPrice: state.currentPool.cTokenPrice,
@@ -38,7 +39,8 @@ export const useCurrentPool = () => {
       baseToken: state.currentPool.baseToken,
       quoteToken: state.currentPool.quoteToken,
       basePrice: state.currentPool.basePrice,
-      changedIn24h: state.currentPool.changedIn24h
+      changedIn24h: state.currentPool.changedIn24h,
+      poolAddress: state.currentPool.poolAddress,
     }
   })
 
@@ -72,7 +74,7 @@ export const useCurrentPool = () => {
       '0xbbDF7765d0Fe3DCe6CA07664505662e3D772Cd8B'
     ]
 
-    addTokens([...dTokens, cToken, baseToken, quoteToken])
+    addTokens([...dTokens, cToken, baseToken, quoteToken, poolAddress])
 
     dispatch(setCurrentPoolInfo({
       cTokenPrice: cPrice,
@@ -84,7 +86,8 @@ export const useCurrentPool = () => {
       states,
       baseToken,
       quoteToken,
-      changedIn24h
+      changedIn24h,
+      poolAddress,
     }))
   }
 
@@ -150,6 +153,7 @@ export const useCurrentPool = () => {
     cToken,
     logicAddress,
     dTokens,
-    states
+    states,
+    poolAddress,
   }
 }

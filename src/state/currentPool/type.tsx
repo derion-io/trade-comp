@@ -9,6 +9,7 @@ export interface currentPoolState {
   powers: number[]
   basePrice: string
   changedIn24h: number
+  poolAddress: string
 }
 
 export const initialState: currentPoolState = {
@@ -21,5 +22,6 @@ export const initialState: currentPoolState = {
   states: {},
   powers: [],
   basePrice: '0',
-  changedIn24h: 0
+  changedIn24h: 0,
+  poolAddress: '',
 }
