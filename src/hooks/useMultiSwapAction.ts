@@ -5,46 +5,21 @@ import { useContract } from './useContract'
 import { StepType } from '../utils/powerLib'
 import { SwapStepType } from '../utils/type'
 import { ZERO_ADDRESS } from '../utils/constant'
-import { bn } from '../utils/helpers'
+import { bn, parseCallStaticError } from '../utils/helpers'
+import { toast } from 'react-toastify'
 
-export const UseExposureAction = () => {
+const DELEVERAGE_STEP: SwapStepType = {
+  tokenIn: ZERO_ADDRESS,
+  tokenOut: ZERO_ADDRESS,
+  amountIn: bn(0),
+  amountOutMin: bn(0)
+}
+
+export const useMultiSwapAction = () => {
   const { getRouterContract } = useContract()
   const { configs } = useConfigs()
   const { library, account } = useWeb3React()
   const { getTokenByPower } = useCurrentPool()
-
-  const deleverage = async () => {
-    const signer = library.getSigner()
-    const contract = getRouterContract(signer)
-    try {
-      await contract.callStatic.multiSwap(
-        configs.addresses.pool,
-        [{
-          tokenIn: ZERO_ADDRESS,
-          tokenOut: ZERO_ADDRESS,
-          amountIn: bn(0),
-          amountOutMin: 0
-        }],
-        account,
-        new Date().getTime() + 3600000,
-        0,
-      )
-      await contract.multiSwap(
-        configs.addresses.pool,
-        [{
-          tokenIn: ZERO_ADDRESS,
-          tokenOut: ZERO_ADDRESS,
-          amountIn: bn(0),
-          amountOutMin: 0
-        }],
-        account,
-        new Date().getTime() + 3600000,
-        0,
-      )
-    } catch (e) {
-      console.log(e)
-    }
-  }
 
   const calculateAmountOuts = async (steps: StepType[], callback: any) => {
     if (!library) return
@@ -56,7 +31,7 @@ export const UseExposureAction = () => {
       stepsToSwap,
       account,
       new Date().getTime() + 3600000,
-      0,
+      0
     )
 
     const result = []
@@ -86,34 +61,67 @@ export const UseExposureAction = () => {
     return stepsToSwap
   }
 
-  const multiSwap = async (steps: SwapStepType[]) => {
+  const checkMultiSwapError = async (steps: SwapStepType[]) => {
     try {
       const signer = library.getSigner()
       const contract = getRouterContract(signer)
-      const tx = await contract.multiSwap(
+      await contract.callStatic.multiSwap(
         configs.addresses.pool,
         steps,
         account,
         new Date().getTime() + 3600000,
-        0,
+        0
       )
-      await tx.wait(1)
-      return tx
+      return null
+    } catch (e) {
+      return parseCallStaticError(e)
+    }
+  }
+
+  const multiSwap = async (steps: SwapStepType[], isDeleverage = false) => {
+    try {
+      const stepsToSwap = [...steps]
+      if (isDeleverage) {
+        stepsToSwap.unshift(DELEVERAGE_STEP)
+      }
+      const error = await checkMultiSwapError(stepsToSwap)
+      if (error) {
+        toast.error(error)
+      } else {
+        const signer = library.getSigner()
+        const contract = getRouterContract(signer)
+        const tx = await contract.multiSwap(
+          configs.addresses.pool,
+          steps,
+          account,
+          new Date().getTime() + 3600000,
+          0
+        )
+        await tx.wait(1)
+        toast.error('Swap success')
+        return tx
+      }
     } catch (e) {
       console.error(e)
+      const error = parseCallStaticError(e)
+      toast.error(error)
       return null
     }
   }
 
-  const updateLeverageAndSize = async (rawStep: StepType[]) => {
+  const updateLeverageAndSize = async (rawStep: StepType[], isDeleverage = false) => {
     try {
       const steps = formatSwapSteps(rawStep)
-      return await multiSwap(steps)
+      return await multiSwap(steps, isDeleverage)
     } catch (e) {
       console.error(e)
       return e
     }
   }
 
-  return { deleverage, calculateAmountOuts, updateLeverageAndSize }
+  return {
+    multiSwap,
+    calculateAmountOuts,
+    updateLeverageAndSize
+  }
 }

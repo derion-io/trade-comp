@@ -17,13 +17,12 @@ import { SelectTokenModal } from '../SelectTokenModal'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../state/token/hook'
 import { bn, numberToWei, parseCallStaticError, weiToNumber } from '../../utils/helpers'
-import { ZERO_ADDRESS } from '../../utils/constant'
 import { TokenSymbol } from '../ui/TokenSymbol'
-import { UseExposureAction } from '../../hooks/useExposureAction'
+import { useMultiSwapAction } from '../../hooks/useMultiSwapAction'
 
 export const SwapBox = () => {
   const { getRouterContract } = useContract()
-  const { account, library } = useWeb3React()
+  const { account, library, showConnectModal } = useWeb3React()
   const { configs } = useConfigs()
   const { dTokens, cToken, logicAddress } = useCurrentPool()
   const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
@@ -34,9 +33,10 @@ export const SwapBox = () => {
   const [amountIn, setAmountIn] = useState<string>('')
   const { balances, routerAllowances, approveRouter } = useWalletBalance()
   const [txFee, setTxFee] = useState<string>('')
-  const [isdeleverage, setIsdeleverage] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(false)
+  const [isDeleverage, setIsDeleverage] = useState<boolean>(false)
   const { tokens } = useListTokens()
-  const {deleverage} = UseExposureAction()
+  const { deleverage, multiSwap } = useMultiSwapAction()
 
   useEffect(() => {
     setInputTokenAddress(cToken || '')
@@ -63,7 +63,7 @@ export const SwapBox = () => {
         }],
         account,
         new Date().getTime() + 3600000,
-        0,
+        0
       )
       console.log('aOut', res)
       setAmountOut(weiToNumber(res.amountOuts[0], tokens[outputTokenAddress].decimal || 18))
@@ -71,7 +71,7 @@ export const SwapBox = () => {
     } catch (e) {
       const error = parseCallStaticError(e)
       if (error === 'deleverage') {
-        setIsdeleverage(true)
+        setIsDeleverage(true)
       }
       console.log(error)
       console.log(e)
@@ -89,20 +89,20 @@ export const SwapBox = () => {
   }
 
   const renderExecuteButton = () => {
-    if (!tokens[inputTokenAddress]) {
+    if (!tokens[inputTokenAddress] || loading) {
       // @ts-ignore
       return <ButtonExecute className='swap-button' disabled>Loading...</ButtonExecute>
     } else if (!account) {
       // @ts-ignore
-      return <ButtonExecute className='swap-button'>Connect wallet</ButtonExecute>
+      return <ButtonExecute
+        onClick={() => {
+          showConnectModal()
+        }}
+        className='swap-button'
+      >Connect wallet</ButtonExecute>
     } else if (Number(amountIn) === 0) {
       // @ts-ignore
       return <ButtonExecute className='swap-button' disabled>Enter Amount</ButtonExecute>
-    } else if (isdeleverage) {
-      return <ButtonExecute
-        className='swap-button'
-        onClick={deleverage}
-      >deleverage</ButtonExecute>
     } else if (!balances[inputTokenAddress] || balances[inputTokenAddress].lt(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))) {
       // @ts-ignore
       return <ButtonExecute className='swap-button' disabled> Insufficient {tokens[inputTokenAddress].symbol} Amount </ButtonExecute>
@@ -110,43 +110,24 @@ export const SwapBox = () => {
       return <ButtonExecute
         className='swap-button'
         onClick={async () => {
-          const signer = library.getSigner()
-          const contract = getRouterContract(signer)
-          try {
-            await contract.callStatic.multiSwap(
-              configs.addresses.pool,
-              [{
-                tokenIn: inputTokenAddress,
-                tokenOut: outputTokenAddress,
-                amountIn: numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18),
-                amountOutMin: 0
-              }],
-              account,
-              new Date().getTime() + 3600000,
-              0,
-            )
-            await contract.multiSwap(
-              configs.addresses.pool,
-              [{
-                tokenIn: inputTokenAddress,
-                tokenOut: outputTokenAddress,
-                amountIn: numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18),
-                amountOutMin: 0
-              }],
-              account,
-              new Date().getTime() + 3600000,
-              0,
-            )
-          } catch (e) {
-            console.log(e)
-          }
+          setLoading(true)
+          await multiSwap([{
+            tokenIn: inputTokenAddress,
+            tokenOut: outputTokenAddress,
+            amountIn: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18)),
+            amountOutMin: 0
+          }], isDeleverage)
+          setLoading(false)
         }}
       >Swap</ButtonExecute>
     } else {
       return <ButtonExecute
         className='swap-button'
         onClick={async () => {
-          approveRouter({ tokenAddress: inputTokenAddress })
+          setLoading(true)
+          await approveRouter({ tokenAddress: inputTokenAddress })
+          setLoading(false)
+
           // const signer = library.getSigner()
           // const contract = new ethers.Contract(inputTokenAddress, ERC20Abi, signer)
           // await contract.approve(configs.addresses.router, LARGE_VALUE)
@@ -297,9 +278,9 @@ export const SwapBox = () => {
           deleverage
           <input
             type='checkbox'
-            checked={isdeleverage}
+            checked={isDeleverage}
             id='is-deleverage' onChange={(e) => {
-              setIsdeleverage(e.target.checked)
+              setIsDeleverage(e.target.checked)
             }} />
         </label>
       </Box>

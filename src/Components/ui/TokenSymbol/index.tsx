@@ -12,7 +12,7 @@ export const TokenSymbol = ({ token }: {token: TokenType}) => {
       const arr = symbol.split('^')
       return <React.Fragment><span className='font-size-14 upper-case'>{tokens[baseToken]?.symbol}</span><sup className='font-size-12'>{arr[1]}</sup></React.Fragment>
     }
-    return <span className='font-size-18'>{symbol}</span>
+    return <span className='font-size-14'>{symbol}</span>
   }, [token])
 
   return <React.Fragment>{result}</React.Fragment>

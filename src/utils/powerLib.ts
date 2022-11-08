@@ -13,6 +13,7 @@ export type StepType = {
   tokenIn: string,
   tokenOut: string,
   amountIn: BigNumber
+  amountOutMin?: BigNumber
 }
 
 export class PowerState {

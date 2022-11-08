@@ -16,28 +16,26 @@ import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../state/token/hook'
 import { BigNumber } from 'ethers'
 import { useWeb3React } from '../../state/customWeb3React/hook'
-import { UseExposureAction } from '../../hooks/useExposureAction'
+import { useMultiSwapAction } from '../../hooks/useMultiSwapAction'
 import { toast } from 'react-toastify'
 import { TokenSymbol } from '../ui/TokenSymbol'
-import { multiply } from 'lodash'
 import { useConfigs } from '../../state/config/useConfigs'
 
 export const ExposureBox = () => {
   const [formAddOrRemove, setFormAddOrRemove] = useState<'add' | 'remove' | undefined>(undefined)
   const [newLeverage, setNewLeverage] = useState<number>(0)
   const [newValue, setNewValue] = useState<BigNumber>()
-  const { account } = useWeb3React()
+  const { account, showConnectModal } = useWeb3React()
   const { configs } = useConfigs()
   const [loading, setLoading] = useState<boolean>(false)
   const { dTokens, cToken, states, powers, baseToken, quoteToken, cTokenPrice, basePrice, changedIn24h, getTokenByPower } = useCurrentPool()
   const { balances, routerAllowances, approveRouter, fetchBalanceAndAllowance } = useWalletBalance()
   const [balanceInPool, setBalancesInPool] = useState<any>({})
-  const [newBalancesInPool, setNewBalancesInPool] = useState<any>({})
   const [cAmountToChange, setCAmountToChange] = useState<string>('')
   const [swapSteps, setSwapsteps] = useState<any>([])
-  const [isdeleverage, setIsdeleverage] = useState<boolean>(false)
+  const [isDeleverage, setIsDeleverage] = useState<boolean>(false)
   const { tokens } = useListTokens()
-  const { calculateAmountOuts, updateLeverageAndSize, deleverage } = UseExposureAction()
+  const { calculateAmountOuts, updateLeverageAndSize } = useMultiSwapAction()
   const [stepsWithAmounts, setStepsWithAmounts] = useState<(StepType & { amountOut: BigNumber })[]>([])
 
   const resetFormHandle = () => {
@@ -103,7 +101,6 @@ export const ExposureBox = () => {
         setNewValue(value)
         const newBalancesInPool = powerState.getOptimalBalances(bn(value), newLeverage)
 
-        setNewBalancesInPool(newBalancesInPool)
         const steps = powerState.getSwapSteps(balanceInPool, newBalancesInPool)
         setSwapsteps(steps.filter((step) => step.amountIn.gt(0)))
       }
@@ -118,7 +115,7 @@ export const ExposureBox = () => {
       setStepsWithAmounts([])
       const error = parseCallStaticError(e)
       if (error === 'deleverage') {
-        setIsdeleverage(true)
+        setIsDeleverage(true)
       }
     })
     // console.log('res')
@@ -135,12 +132,12 @@ export const ExposureBox = () => {
       return <ButtonExecute className='execute-button mr-1' disabled>Loading...</ButtonExecute>
     } else if (!account) {
       // @ts-ignore
-      return <ButtonExecute className='execute-button mr-1' disabled>Connect wallet</ButtonExecute>
-    } else if (isdeleverage) {
       return <ButtonExecute
         className='execute-button mr-1'
-        onClick={deleverage}
-      >deleverage</ButtonExecute>
+        onClick={() => {
+          showConnectModal()
+        }}
+      >Connect wallet</ButtonExecute>
     } else if (tokenNeedApprove.length > 0) {
       return <ButtonExecute
         onClick={async () => {
@@ -155,7 +152,7 @@ export const ExposureBox = () => {
         onClick={async () => {
           setLoading(true)
           try {
-            await updateLeverageAndSize(swapSteps)
+            await updateLeverageAndSize(swapSteps, isDeleverage)
             await fetchBalanceAndAllowance(Object.keys(tokens))
           } catch (e) {
             toast(parseCallStaticError(e))
@@ -167,6 +164,10 @@ export const ExposureBox = () => {
       >Execute</ButtonExecute>
     }
   }
+  console.log({
+    oldLeverage,
+    newLeverage
+  })
 
   return (
     <Card className='exposure-box'>
@@ -318,9 +319,9 @@ export const ExposureBox = () => {
           deleverage
           <input
             type='checkbox'
-            checked={isdeleverage}
+            checked={isDeleverage}
             id='is-deleverage' onChange={(e) => {
-              setIsdeleverage(e.target.checked)
+              setIsDeleverage(e.target.checked)
             }} />
         </label>
       </Box>
