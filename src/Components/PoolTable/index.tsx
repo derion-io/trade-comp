@@ -42,7 +42,7 @@ export const PoolTable = () => {
 }
 
 export const PoolRow = () => {
-  const [isExpand, setIsExpand] = useState<boolean>(false)
+  const [isExpand, setIsExpand] = useState<boolean>(true)
 
   return <React.Fragment>
     <tr className='is-long-pool pool-tr' onClick={() => setIsExpand(!isExpand)}>
