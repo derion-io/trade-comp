@@ -62,7 +62,9 @@ export const ExposureBox = () => {
         oldValue = p.calculateCompValue(currentBalances)
       }
 
-      setNewLeverage(oldLeverage)
+      if (newLeverage == 0 && oldLeverage != 0) {
+        setNewLeverage(oldLeverage)
+      }
       const exposure = p.getExposures()
       return [p, oldLeverage, oldValue, p.getMarks(), exposure]
     }
