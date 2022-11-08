@@ -140,7 +140,7 @@ export const ExposureBox = () => {
       return <ButtonExecute
         className='execute-button mr-1'
         onClick={deleverage}
-      >deleverage</ButtonExecute>
+      >Deleverage & Execute</ButtonExecute>
     } else if (tokenNeedApprove.length > 0) {
       return <ButtonExecute
         onClick={async () => {
@@ -315,7 +315,7 @@ export const ExposureBox = () => {
 
       <Box>
         <label htmlFor='is-deleverage'>
-          deleverage
+          Deleverage
           <input
             type='checkbox'
             checked={isdeleverage}

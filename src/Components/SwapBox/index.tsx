@@ -102,7 +102,7 @@ export const SwapBox = () => {
       return <ButtonExecute
         className='swap-button'
         onClick={deleverage}
-      >deleverage</ButtonExecute>
+      >Deleverage & Swap</ButtonExecute>
     } else if (!balances[inputTokenAddress] || balances[inputTokenAddress].lt(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))) {
       // @ts-ignore
       return <ButtonExecute className='swap-button' disabled> Insufficient {tokens[inputTokenAddress].symbol} Amount </ButtonExecute>
@@ -151,7 +151,7 @@ export const SwapBox = () => {
           // const contract = new ethers.Contract(inputTokenAddress, ERC20Abi, signer)
           // await contract.approve(configs.addresses.router, LARGE_VALUE)
         }}
-      >approve</ButtonExecute>
+      >Approve</ButtonExecute>
     }
   }
 
@@ -294,7 +294,7 @@ export const SwapBox = () => {
 
       <Box>
         <label htmlFor='is-deleverage'>
-          deleverage
+          Deleverage
           <input
             type='checkbox'
             checked={isdeleverage}
