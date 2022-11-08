@@ -119,7 +119,7 @@ export const SwapBox = () => {
           }], isDeleverage)
           setLoading(false)
         }}
-      >Swap</ButtonExecute>
+      >{isDeleverage && 'Deleverage & '} Swap</ButtonExecute>
     } else {
       return <ButtonExecute
         className='swap-button'
@@ -132,7 +132,7 @@ export const SwapBox = () => {
           // const contract = new ethers.Contract(inputTokenAddress, ERC20Abi, signer)
           // await contract.approve(configs.addresses.router, LARGE_VALUE)
         }}
-      >approve</ButtonExecute>
+      >Approve</ButtonExecute>
     }
   }
 
@@ -275,7 +275,7 @@ export const SwapBox = () => {
 
       <Box>
         <label htmlFor='is-deleverage'>
-          deleverage
+          Deleverage
           <input
             type='checkbox'
             checked={isDeleverage}

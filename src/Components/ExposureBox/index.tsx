@@ -161,13 +161,9 @@ export const ExposureBox = () => {
           setLoading(true)
         }}
         className='execute-button mr-1'
-      >Execute</ButtonExecute>
+      >{isDeleverage && 'Deleverage & '} Execute</ButtonExecute>
     }
   }
-  console.log({
-    oldLeverage,
-    newLeverage
-  })
 
   return (
     <Card className='exposure-box'>
@@ -250,10 +246,10 @@ export const ExposureBox = () => {
           railStyle={{ backgroundColor: '#303236' }}
           onChange={(e:number[]) => {
             const newValue = e.find(e =>
-              Math.abs(e-oldLeverage) > 0.1 && Math.abs(e-newLeverage) > 0.1
+              Math.abs(e - oldLeverage) > 0.1 && Math.abs(e - newLeverage) > 0.1
             )
             if (newValue != null) {
-              setNewLeverage(Math.round(newValue * 10)/10)
+              setNewLeverage(Math.round(newValue * 10) / 10)
             }
           }}
         />
@@ -283,40 +279,32 @@ export const ExposureBox = () => {
             </InfoRow>
           })
           }
+          <Box
+            borderColor='#3a3a3a'
+            borderRadius='0'
+            disableBorderLeft
+            disableBorderRight
+            disableBorderBottom
+          >
+            <InfoRow>
+              <Text>Conversion Fee</Text>
+              <span>
+                <Text>0.3% ($1.23)</Text>
+              </span>
+            </InfoRow>
+            <InfoRow>
+              <Text>Transaction Fee</Text>
+              <span>
+                <Text>0.01 BNB ($0.02)</Text>
+              </span>
+            </InfoRow>
+          </Box>
         </Box>
       }
 
-      <Box borderColor='#3a3a3a' className='info-box1 mb-2' title='Transactions Info'>
-        <InfoRow>
-          <Text>Leverage</Text>
-          <span>
-            <TextBuy className='mr-05'>x{formatFloat(oldLeverage)}</TextBuy>
-            <Text className='mr-05'> &gt; </Text>
-            <TextSell>x{formatFloat(newLeverage)}</TextSell>
-          </span>
-        </InfoRow>
-        <InfoRow>
-          <Text>Conversion Fee</Text>
-          <span>
-            <Text className='mr-05'>x2.5</Text>
-            <TextGrey>USD</TextGrey>
-          </span>
-        </InfoRow>
-        <InfoRow>
-          <Text>Transaction Fee</Text>
-          <span>
-            <Text className='mr-05'>0.01</Text>
-            <Text className='mr-05'> BNB </Text>
-            <Text className='mr-05'>= 0.1</Text>
-            <Text className='mr-05'>USDT</Text>
-            <Text>(0.05%)</Text>
-          </span>
-        </InfoRow>
-      </Box>
-
       <Box>
         <label htmlFor='is-deleverage'>
-          deleverage
+          Deleverage
           <input
             type='checkbox'
             checked={isDeleverage}
