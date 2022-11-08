@@ -42,6 +42,7 @@ export const ExposureBox = () => {
     setCAmountToChange('')
     setFormAddOrRemove(undefined)
     setNewLeverage(oldLeverage)
+    setLoading(false)
   }
 
   const [powerState, oldLeverage, oldValue, marks, exposures] = useMemo(() => {
