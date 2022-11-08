@@ -282,25 +282,28 @@ export const ExposureBox = () => {
             </InfoRow>
           })
           }
+          <Box
+            borderColor='#3a3a3a'
+            borderRadius='0'
+            disableBorderLeft
+            disableBorderRight
+            disableBorderBottom
+          >          
+            <InfoRow>
+              <Text>Conversion Fee</Text>
+              <span>
+                <Text>0.3% ($1.23)</Text>
+              </span>
+            </InfoRow>
+            <InfoRow>
+              <Text>Transaction Fee</Text>
+              <span>
+                <Text>0.01 BNB ($0.02)</Text>
+              </span>
+            </InfoRow>
+          </Box>
         </Box>
       }
-
-      <Box borderColor='#3a3a3a' className='info-box1 mb-2' title='Transactions Info'>
-        <InfoRow>
-          <Text>Conversion Fee</Text>
-          <span>
-            <Text>0.3% ($1.23)</Text>
-          </span>
-        </InfoRow>
-        <InfoRow>
-          <Text>Transaction Fee</Text>
-          <span>
-            <Text className='mr-05'>0.01</Text>
-            <Text className='mr-05'> BNB</Text>
-            <Text className='mr-05'>($0.02)</Text>
-          </span>
-        </InfoRow>
-      </Box>
 
       <Box>
         <label htmlFor='is-deleverage'>
