@@ -10,7 +10,7 @@ import { usePairInfo } from '../../../hooks/usePairInfo'
 const CHART_API_ENDPOINT = 'https://api.lz.finance/56/chart/'
 
 export const useCurrentPool = () => {
-  const { getTokenFactoryContract, getLogicContract, getPoolContract } = useContract()
+  const { getTokenFactoryContract, getLogicContract, getPoolContract, getRouterContract } = useContract()
   const { account } = useWeb3React()
   const { addTokens } = useListTokens()
   const { getPairInfo } = usePairInfo()
@@ -49,8 +49,16 @@ export const useCurrentPool = () => {
     const poolContract = getPoolContract(poolAddress)
     const logicAddress = await poolContract.LOGIC()
     const logicContract = getLogicContract(logicAddress)
+    const routerContract = getRouterContract()
 
-    const states = await logicContract.getStates()
+    const routerStates = await routerContract.getStates(logicAddress)
+    const states = {
+      ...routerStates,
+      twapBase: routerStates.twap.base._x,
+      twapLP: routerStates.twap.LP._x,
+      spotBse: routerStates.spot.base._x,
+      spotLP: routerStates.spot.LP._x,
+    }
     const cToken = await poolContract.COLLATERAL_TOKEN()
     const [baseToken, quoteToken] = ['0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c', '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56']
 

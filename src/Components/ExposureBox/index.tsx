@@ -49,8 +49,8 @@ export const ExposureBox = () => {
     let oldLeverage = 0
     let oldValue = bn(0)
     const p = new PowerState({ powers: [...powers] })
-    if (powers && states.baseTWAP) {
-      p.loadStates(states, Number(cTokenPrice))
+    if (powers && states.twapBase) {
+      p.loadStates(states)
       const currentBalances = {}
       powers.forEach((power, key) => {
         if (balances[dTokens[key]]) {

@@ -19,7 +19,6 @@ export type StepType = {
 export class PowerState {
   powers = [2, -2, 8, -8]
   unit = 1000000
-  cPrice = 0
   states: any = {}
   constructor(config: any) {
     this.powers = config?.powers ?? [2, -2, 8, -8]
@@ -27,9 +26,8 @@ export class PowerState {
     this.unit = config?.unit ?? 1000000
   }
 
-  loadStates(states: any, cPrice: number) {
+  loadStates(states: any) {
     this.states = { ...states }
-    this.cPrice = cPrice
   }
 
   getMarks() {
@@ -46,10 +44,10 @@ export class PowerState {
   }
 
   calculatePrice(power: any, states:any = this.states) {
-    const { baseTWAP, priceScaleLong, priceScaleShort } = states
+    const { twapBase, priceScaleLong, priceScaleShort } = states
     let price = bn(this.unit)
     for (let i = 0; i < abs(power); ++i) {
-      price = price.mul(baseTWAP)
+      price = price.mul(twapBase)
     }
     for (let i = 0; i < abs(power); ++i) {
       price = price.div(power > 0 ? priceScaleLong : priceScaleShort)
@@ -64,7 +62,7 @@ export class PowerState {
     const current = this.calculatePrice(power)
     const projectedStates = {
       ...this.states,
-      baseTWAP: this.states.baseTWAP.mul(101).div(100)
+      twapBase: this.states.twapBase.mul(101).div(100)
     }
     const projection = this.calculatePrice(power, projectedStates)
     return (projection - current) / current / 0.01
@@ -146,7 +144,7 @@ export class PowerState {
   }
 
   getCPrice() {
-    return this.cPrice
+    return this.states.twapLP.mul(this.unit).shr(112).toNumber() / this.unit
   }
 
   getSwapSteps(oldBalances: {[key: number]: BigNumber}, newBalances: {[key: number]: BigNumber}) : StepType[] {
@@ -225,7 +223,7 @@ function _firstKey(values: {[key: number]: BigNumber}, negative: boolean = false
 if (require.main === module) {
   const powerState = new PowerState({})
   powerState.loadStates({
-    baseTWAP: bn('8788445287819172527008699396495269118'),
+    twapBase: bn('8788445287819172527008699396495269118'),
     priceScaleLong: bn('7788445287819172527008699396495269118'),
     priceScaleShort: bn('7788445287819172527008699396495269118')
   })
