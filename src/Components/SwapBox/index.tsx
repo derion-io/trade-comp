@@ -24,7 +24,7 @@ export const SwapBox = () => {
   const { getRouterContract } = useContract()
   const { account, library, showConnectModal } = useWeb3React()
   const { configs } = useConfigs()
-  const { dTokens, cToken, logicAddress, poolAddress } = useCurrentPool()
+  const { dTokens, cToken, logicAddress, poolAddress, baseToken, quoteToken } = useCurrentPool()
   const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
@@ -63,7 +63,7 @@ export const SwapBox = () => {
         }],
         account,
         new Date().getTime() + 3600000,
-        0
+        [baseToken, quoteToken].includes(inputTokenAddress) ? 30 : 0,
       )
       console.log('aOut', res)
       setAmountOut(weiToNumber(res.amountOuts[0], tokens[outputTokenAddress].decimal || 18))
@@ -202,7 +202,7 @@ export const SwapBox = () => {
       <SelectTokenModal
         visible={visibleSelectTokenModal}
         setVisible={setVisibleSelectTokenModal}
-        tokens={[...dTokens, cToken, poolAddress]}
+        tokens={[...dTokens, cToken, poolAddress, baseToken, quoteToken]}
         onSelectToken={(address: string) => {
           if ((tokenTypeToSelect === 'input' && address === inputTokenAddress) ||
             (tokenTypeToSelect === 'output' && address === outputTokenAddress)

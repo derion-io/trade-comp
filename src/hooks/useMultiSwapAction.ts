@@ -8,6 +8,9 @@ import { ZERO_ADDRESS } from '../utils/constant'
 import { bn, parseCallStaticError } from '../utils/helpers'
 import { toast } from 'react-toastify'
 
+// TODO: don't hardcode these
+const fee10000 = 30
+
 const DELEVERAGE_STEP: SwapStepType = {
   tokenIn: ZERO_ADDRESS,
   tokenOut: ZERO_ADDRESS,
@@ -19,7 +22,11 @@ export const useMultiSwapAction = () => {
   const { getRouterContract } = useContract()
   const { configs } = useConfigs()
   const { library, account } = useWeb3React()
-  const { getTokenByPower } = useCurrentPool()
+  const { getTokenByPower, baseToken, quoteToken } = useCurrentPool()
+
+  const getFee10000 = (steps: any[]) => {
+    return steps.some(step => [baseToken, quoteToken].includes(step.tokenIn)) ? fee10000 : 0
+  }
 
   const calculateAmountOuts = async (steps: StepType[], callback: any) => {
     if (!library) return
@@ -31,7 +38,7 @@ export const useMultiSwapAction = () => {
       stepsToSwap,
       account,
       new Date().getTime() + 3600000,
-      0
+      getFee10000(stepsToSwap),
     )
 
     const result = []
@@ -70,7 +77,7 @@ export const useMultiSwapAction = () => {
         steps,
         account,
         new Date().getTime() + 3600000,
-        0
+        getFee10000(steps),
       )
       return null
     } catch (e) {
@@ -95,7 +102,7 @@ export const useMultiSwapAction = () => {
           steps,
           account,
           new Date().getTime() + 3600000,
-          0
+          getFee10000(steps),
         )
         await tx.wait(1)
         toast.error('Swap success')
