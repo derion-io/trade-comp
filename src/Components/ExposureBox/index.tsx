@@ -75,9 +75,9 @@ export const ExposureBox = () => {
   const tokenNeedApprove = useMemo(() => {
     const result: string[] = []
     for (const i in swapSteps) {
-      const stepToToken = getTokenByPower(swapSteps[i].tokenIn)
-      if ((!routerAllowances[stepToToken] || routerAllowances[stepToToken].isZero()) && !result.includes(stepToToken)) {
-        result.push(stepToToken)
+      const tokenIn = getTokenByPower(swapSteps[i].tokenIn)
+      if ((!routerAllowances[tokenIn] || routerAllowances[tokenIn].isZero()) && !result.includes(tokenIn)) {
+        result.push(tokenIn)
       }
     }
     return result
@@ -145,7 +145,7 @@ export const ExposureBox = () => {
       return <ButtonExecute
         onClick={async () => {
           for (const i in tokenNeedApprove) {
-            approveRouter({ tokenAddress: tokenNeedApprove[i] })
+            await approveRouter({ tokenAddress: tokenNeedApprove[i] })
           }
         }}
         className='execute-button mr-1'
