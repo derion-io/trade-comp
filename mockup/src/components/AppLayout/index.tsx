@@ -25,7 +25,7 @@ export const AppLayout = (props: any) => {
   const location = useLocation()
   const { configs, Component } = props
   const [xStorageClient, setXStorageClient] = useState<typeof CrossStorageClient>(undefined)
-  const [chainIdToDisPlay, setChainIdToDisPlay] = useState<number>(56);
+  const [chainIdToDisPlay, setChainIdToDisPlay] = useState<number>(31337);
   useEffect(() => {
     if (!process.env.REACT_APP_X_STORAGE_URL) {
       return
@@ -86,6 +86,7 @@ export const AppLayout = (props: any) => {
         }}>
           <option value="56">BSC</option>
           <option value="42161">Arbitrum</option>
+          <option value="31337">Local</option>
         </select>
       </div>
       <div className='connect-wallet '>

@@ -6,10 +6,12 @@ import { useWeb3React } from '../../customWeb3React/hook'
 import { useListTokens } from '../../token/hook'
 import { bn, div, formatPercent, numberToWei, sub, weiToNumber } from '../../../utils/helpers'
 import { usePairInfo } from '../../../hooks/usePairInfo'
+import { useConfigs } from '../../../state/config/useConfigs'
 
 const CHART_API_ENDPOINT = 'https://api.lz.finance/56/chart/'
 
 export const useCurrentPool = () => {
+  const { configs } = useConfigs()
   const { getTokenFactoryContract, getLogicContract, getPoolContract, getRouterContract } = useContract()
   const { account } = useWeb3React()
   const { addTokens } = useListTokens()
@@ -60,7 +62,7 @@ export const useCurrentPool = () => {
       spotLP: routerStates.spot.LP._x,
     }
     const cToken = await poolContract.COLLATERAL_TOKEN()
-    const [baseToken, quoteToken] = ['0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c', '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56']
+    const [baseToken, quoteToken] = [configs.addresses.wrapToken, configs.addresses.busd]
 
     const [pairInfo, changedIn24h] = await Promise.all([
       getPairInfo(cToken),
@@ -76,10 +78,10 @@ export const useCurrentPool = () => {
     //   poolFactoryContract.computeTokenAddress(logicAddress, 3)
     // ])
     const dTokens = [
-      '0xcD70A9269907f69870264a94CDb834cF6dAfb8b8',
-      '0xfC4a7B7Bb09bD5C950E1d0D5c3266CA285b5ba7b',
-      '0xFFE34937F4486DdEa901e332f720523ddb307d37',
-      '0xbbDF7765d0Fe3DCe6CA07664505662e3D772Cd8B'
+      configs.addresses.dtoken0,
+      configs.addresses.dtoken1,
+      configs.addresses.dtoken2,
+      configs.addresses.dtoken3
     ]
 
     addTokens([...dTokens, cToken, baseToken, quoteToken, poolAddress])
