@@ -274,16 +274,14 @@ export const SwapBox = () => {
         </Box>
       </Box>
 
-      <Box>
-        <label htmlFor='is-deleverage'>
-          Deleverage
-          <input
-            type='checkbox'
-            checked={isDeleverage}
-            id='is-deleverage' onChange={(e) => {
-              setIsDeleverage(e.target.checked)
-            }} />
-        </label>
+      <Box className='deleverage-checkbox'>
+        <input
+          type='checkbox'
+          checked={isDeleverage}
+          id='is-deleverage' onChange={(e) => {
+            setIsDeleverage(e.target.checked)
+          }} />
+        <label htmlFor='is-deleverage'> Deleverage</label>
       </Box>
 
       <div className='actions'>
