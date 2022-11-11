@@ -6,6 +6,7 @@ import { TokenIcon } from '../ui/TokenIcon'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { weiToNumber } from '../../utils/helpers'
 import { TokenSymbol } from '../ui/TokenSymbol'
+import './style.scss'
 
 export const SelectTokenModal = ({
   visible,
@@ -18,25 +19,30 @@ export const SelectTokenModal = ({
   return <Modal
     setVisible={setVisible}
     visible={visible}
+    title='Select token'
   >
-    {
-      tokensToSelect.map((address: any, key: number) => {
-        return <Box key={key} onClick={() => {
-          onSelectToken(address)
-          setVisible(false)
-        }}
-        >
-          <div className='jc-space-between align-item-center'>
-            <div>
-              <TokenIcon size={24} tokenAddress={address} />
-              <TokenSymbol token={tokens[address]}/>
+    <div className='select-token-modal'>
+      {
+        tokensToSelect.map((address: any, key: number) => {
+          return <Box
+            key={key}
+            className='option'
+            onClick={() => {
+              onSelectToken(address)
+              setVisible(false)
+            }}
+          >
+            <div className='jc-space-between align-item-center'>
+              <div className='option__icon-and-name'>
+                <TokenIcon size={24} tokenAddress={address} />
+                <TokenSymbol token={tokens[address]} />
+              </div>
+              <span>{weiToNumber(balances[address], tokens[address]?.decimal || 18)}</span>
             </div>
-            <span>{weiToNumber(balances[address], tokens[address]?.decimal || 18)}</span>
-          </div>
 
-        </Box>
-      })
-    }
-
+          </Box>
+        })
+      }
+    </div>
   </Modal>
 }

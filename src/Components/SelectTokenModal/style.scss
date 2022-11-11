@@ -1,0 +1,20 @@
+@import "../../styles/abstracts/variables";
+
+.select-token-modal {
+  .option {
+    transition: all 0.1s ease-out;
+
+    &:hover {
+      background: $color-select-token-hover !important;
+    }
+
+    &__icon-and-name {
+      display: flex;
+      align-items: center;
+
+      &>*:not(:last-child) {
+        margin-right: 0.5rem;
+      }
+    }
+  }
+}
