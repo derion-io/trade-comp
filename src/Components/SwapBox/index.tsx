@@ -153,7 +153,7 @@ export const SwapBox = () => {
             }}
           >
             <TokenIcon size={24} tokenAddress={inputTokenAddress} />
-            <Text>{tokens[inputTokenAddress]?.symbol}</Text>
+            <Text><TokenSymbol token={tokens[inputTokenAddress]}/></Text>
           </span>
           <Text
             className='amount-input-box__head--balance'

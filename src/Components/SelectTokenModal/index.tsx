@@ -5,6 +5,7 @@ import { useListTokens } from '../../state/token/hook'
 import { TokenIcon } from '../ui/TokenIcon'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { weiToNumber } from '../../utils/helpers'
+import { TokenSymbol } from '../ui/TokenSymbol'
 
 export const SelectTokenModal = ({
   visible,
@@ -28,7 +29,7 @@ export const SelectTokenModal = ({
           <div className='jc-space-between align-item-center'>
             <div>
               <TokenIcon size={24} tokenAddress={address} />
-              <span>{tokens[address]?.symbol}</span>
+              <TokenSymbol token={tokens[address]}/>
             </div>
             <span>{weiToNumber(balances[address], tokens[address]?.decimal || 18)}</span>
           </div>
