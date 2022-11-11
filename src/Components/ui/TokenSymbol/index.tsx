@@ -10,7 +10,12 @@ export const TokenSymbol = ({ token }: {token: TokenType}) => {
     const symbol = token?.symbol
     if (symbol && symbol.includes('^') && symbol.split('^').length === 2) {
       const arr = symbol.split('^')
-      return <React.Fragment><span className='font-size-14 upper-case'>{tokens[baseToken]?.symbol}</span><sup className='font-size-12'>{arr[1]}</sup></React.Fragment>
+      const power = arr[1]
+      let baseSymbol = tokens[baseToken]?.symbol ?? 'BNB'
+      if (baseSymbol.startsWith('W')) {
+        baseSymbol = baseSymbol.substring(1)
+      }
+      return <React.Fragment><span className='font-size-14 upper-case'>{baseSymbol}</span><sup className='font-size-12'>{power}</sup></React.Fragment>
     }
     return <span className='font-size-14'>{symbol}</span>
   }, [token])
