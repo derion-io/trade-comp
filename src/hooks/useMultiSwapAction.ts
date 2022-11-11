@@ -28,8 +28,8 @@ export const useMultiSwapAction = () => {
     return steps.some(step => [baseToken, quoteToken].includes(step.tokenIn)) ? fee10000 : 0
   }
 
-  const calculateAmountOuts = async (steps: StepType[], callback: any) => {
-    if (!library) return
+  const calculateAmountOuts = async (steps: StepType[], callback?: any) => {
+    if (!library) return [[bn(0)], bn(0)]
     const signer = library.getSigner()
     const contract = getRouterContract(signer)
     const stepsToSwap = formatSwapSteps(steps)
@@ -38,23 +38,22 @@ export const useMultiSwapAction = () => {
       stepsToSwap,
       account,
       new Date().getTime() + 3600000,
-      getFee10000(stepsToSwap),
+      getFee10000(stepsToSwap)
     )
 
     const result = []
     for (const i in steps) {
       result.push({ ...steps[i], amountOut: res[0][i] })
     }
-
-    callback(result)
+    return [result, res.gasLeft]
   }
 
   const formatSwapSteps = (steps: StepType[]): SwapStepType[] => {
     const stepsToSwap = []
     for (const i in steps) {
       const step = steps[i]
-      const tokenIn = getTokenByPower(step.tokenIn)
-      const tokenOut = getTokenByPower(step.tokenOut)
+      const tokenIn = getTokenByPower(step.tokenIn) || step.tokenIn
+      const tokenOut = getTokenByPower(step.tokenOut) || step.tokenOut
       if (step.amountIn.isZero() || !tokenIn || !tokenOut) {
         continue
       }
@@ -77,7 +76,7 @@ export const useMultiSwapAction = () => {
         steps,
         account,
         new Date().getTime() + 3600000,
-        getFee10000(steps),
+        getFee10000(steps)
       )
       return null
     } catch (e) {
@@ -102,7 +101,7 @@ export const useMultiSwapAction = () => {
           steps,
           account,
           new Date().getTime() + 3600000,
-          getFee10000(steps),
+          getFee10000(steps)
         )
         await tx.wait(1)
         toast.error('Swap success')

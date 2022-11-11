@@ -37,7 +37,7 @@ export const SwapBox = () => {
   const [loading, setLoading] = useState<boolean>(false)
   const [isDeleverage, setIsDeleverage] = useState<boolean>(false)
   const { tokens } = useListTokens()
-  const { multiSwap } = useMultiSwapAction()
+  const { multiSwap, calculateAmountOuts } = useMultiSwapAction()
 
   useEffect(() => {
     setInputTokenAddress(cToken || '')
@@ -47,38 +47,32 @@ export const SwapBox = () => {
   useEffect(() => {
     if (tokens[inputTokenAddress] && tokens[outputTokenAddress] && amountIn && Number(amountIn)) {
       calcAmountOut()
+    } else if (Number(amountIn) === 0) {
+      setAmountOut('')
     }
   }, [tokens[inputTokenAddress] && tokens[outputTokenAddress], amountIn])
 
   const calcAmountOut = async () => {
     setCallError('Calculating...')
-    const signer = library.getSigner()
-    const contract = getRouterContract(signer)
-    try {
-      const res = await contract.callStatic.multiSwap(
-        configs.addresses.pool,
-        [{
-          tokenIn: inputTokenAddress,
-          tokenOut: outputTokenAddress,
-          amountIn: numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18),
-          amountOutMin: 0
-        }],
-        account,
-        new Date().getTime() + 3600000,
-        [baseToken, quoteToken].includes(inputTokenAddress) ? 30 : 0,
-      )
-      console.log('aOut', res)
-      setAmountOut(weiToNumber(res.amountOuts[0], tokens[outputTokenAddress].decimal || 18))
-      setTxFee(weiToNumber(detextTxFee(bn(res.gasLeft))).toString())
+    calculateAmountOuts([{
+      tokenIn: inputTokenAddress,
+      tokenOut: outputTokenAddress,
+      amountIn: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))
+    }]).then((res) => {
+      const [aOuts, gasLeft] = res
+      setAmountOut(weiToNumber(aOuts[0]?.amountOut || 0, tokens[outputTokenAddress].decimal || 18))
+      setTxFee(weiToNumber(detextTxFee(gasLeft)).toString())
       setCallError('')
-    } catch (e) {
+    }).catch((e) => {
       const error = parseCallStaticError(e)
       if (error === 'deleverage') {
         setIsDeleverage(true)
       }
+      setAmountOut('0')
+      setTxFee('0')
       setCallError(error ?? e)
       console.log(e)
-    }
+    })
   }
 
   const detextTxFee = (gasLeft: BigNumber) => {
@@ -106,7 +100,8 @@ export const SwapBox = () => {
     } else if (Number(amountIn) === 0) {
       return <ButtonExecute className='swap-button' disabled>Enter Amount</ButtonExecute>
     } else if (!balances[inputTokenAddress] || balances[inputTokenAddress].lt(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))) {
-      return <ButtonExecute className='swap-button' disabled> Insufficient {tokens[inputTokenAddress].symbol} Amount </ButtonExecute>
+      return <ButtonExecute className='swap-button'
+        disabled> Insufficient {tokens[inputTokenAddress].symbol} Amount </ButtonExecute>
     } else if (routerAllowances[inputTokenAddress] && routerAllowances[inputTokenAddress].gt(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))) {
       return <ButtonExecute
         className='swap-button'
@@ -154,7 +149,7 @@ export const SwapBox = () => {
             }}
           >
             <TokenIcon size={24} tokenAddress={inputTokenAddress} />
-            <Text><TokenSymbol token={tokens[inputTokenAddress]}/></Text>
+            <Text><TokenSymbol token={tokens[inputTokenAddress]} /></Text>
           </span>
           <Text
             className='amount-input-box__head--balance'
@@ -190,14 +185,15 @@ export const SwapBox = () => {
             setTokenTypeToSelect('output')
           }}>
             <TokenIcon size={24} tokenAddress={outputTokenAddress} />
-            <Text><TokenSymbol token={tokens[outputTokenAddress]}/></Text>
+            <Text><TokenSymbol token={tokens[outputTokenAddress]} /></Text>
           </span>
           <Text>Balance: {weiToNumber(balances[outputTokenAddress], tokens[outputTokenAddress]?.decimal || 18)}</Text>
         </div>
         <Input
           // @ts-ignore
           value={amountOut}
-          placeholder='0.0' suffix='$0' className='fs-24' />
+          placeholder='0.0' suffix='$0' className='fs-24'
+        />
       </div>
 
       <SelectTokenModal
@@ -274,7 +270,7 @@ export const SwapBox = () => {
         </Box>
       </Box>
 
-      <Box className='deleverage-checkbox'>
+      <Box className='text-center'>
         <input
           type='checkbox'
           checked={isDeleverage}

@@ -26,7 +26,6 @@ export const ExposureBox = () => {
   const [newLeverage, setNewLeverage] = useState<number>(0)
   const [newValue, setNewValue] = useState<BigNumber>()
   const { account, showConnectModal } = useWeb3React()
-  const { configs } = useConfigs()
   const [loading, setLoading] = useState<boolean>(false)
   const { dTokens, cToken, states, powers, baseToken, quoteToken, cTokenPrice, basePrice, changedIn24h, getTokenByPower } = useCurrentPool()
   const { balances, routerAllowances, approveRouter, fetchBalanceAndAllowance } = useWalletBalance()
@@ -64,7 +63,7 @@ export const ExposureBox = () => {
         oldValue = p.calculateCompValue(currentBalances)
       }
 
-      if (newLeverage == 0 && oldLeverage != 0) {
+      if (newLeverage === 0 && oldLeverage !== 0) {
         setNewLeverage(oldLeverage)
       }
       const exposure = p.getExposures()
@@ -116,16 +115,19 @@ export const ExposureBox = () => {
   useEffect(() => {
     // const delayDebounceFn = setTimeout(() => {
     setCallError('Calculating...')
-    calculateAmountOuts(swapSteps, setStepsWithAmounts)
-    .then(() => { setCallError('') })
-    .catch((e) => {
-      setStepsWithAmounts([])
-      const error = parseCallStaticError(e)
-      if (error === 'deleverage') {
-        setIsDeleverage(true)
-      }
-      setCallError(error ?? e)
-    })
+    calculateAmountOuts(swapSteps)
+      .then(([aOuts]) => {
+        setStepsWithAmounts(aOuts)
+        setCallError('')
+      })
+      .catch((e) => {
+        setStepsWithAmounts([])
+        const error = parseCallStaticError(e)
+        if (error === 'deleverage') {
+          setIsDeleverage(true)
+        }
+        setCallError(error ?? e)
+      })
     // console.log('res')
     // setStepsWithAmounts(res)
     // }, 3000)
@@ -137,8 +139,6 @@ export const ExposureBox = () => {
   const renderExecuteButton = () => {
     if (!tokens[cToken] || loading) {
       return <ButtonExecute className='execute-button mr-1' disabled>Loading...</ButtonExecute>
-    } else if (callError) {
-      return <ButtonExecute className='execute-button mr-1' disabled>{callError}</ButtonExecute>
     } else if (!account) {
       return <ButtonExecute
         className='execute-button mr-1'
@@ -155,6 +155,8 @@ export const ExposureBox = () => {
         }}
         className='execute-button mr-1'
       >Approve</ButtonExecute>
+    } else if (callError) {
+      return <ButtonExecute className='execute-button mr-1' disabled>{callError}</ButtonExecute>
     } else {
       return <ButtonExecute
         onClick={async () => {
@@ -270,7 +272,7 @@ export const ExposureBox = () => {
             const stepToToken = getTokenByPower(step.tokenOut)
             const amountIn = step.amountIn
             const amountOut = stepsWithAmounts && stepsWithAmounts[key]?.amountOut ? stepsWithAmounts[key].amountOut : '...'
-            if (amountIn.lte(1000)) {
+            if (amountIn.lte(bn(numberToWei(1)).div(powerState?.unit || 1000000))) {
               return ''
             }
             return <InfoRow key={key}>
@@ -309,7 +311,7 @@ export const ExposureBox = () => {
         </Box>
       }
 
-      <Box className='deleverage-checkbox'>
+      <Box className='text-center'>
         <input
           type='checkbox'
           checked={isDeleverage}
