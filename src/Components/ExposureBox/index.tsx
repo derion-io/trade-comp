@@ -37,6 +37,7 @@ export const ExposureBox = () => {
   const { tokens } = useListTokens()
   const { calculateAmountOuts, updateLeverageAndSize } = useMultiSwapAction()
   const [stepsWithAmounts, setStepsWithAmounts] = useState<(StepType & { amountOut: BigNumber })[]>([])
+  const [callError, setCallError] = useState<string>('')
 
   const resetFormHandle = () => {
     setCAmountToChange('')
@@ -114,12 +115,16 @@ export const ExposureBox = () => {
 
   useEffect(() => {
     // const delayDebounceFn = setTimeout(() => {
-    calculateAmountOuts(swapSteps, setStepsWithAmounts).catch((e) => {
+    setCallError('Calculating...')
+    calculateAmountOuts(swapSteps, setStepsWithAmounts)
+    .then(() => { setCallError('') })
+    .catch((e) => {
       setStepsWithAmounts([])
       const error = parseCallStaticError(e)
       if (error === 'deleverage') {
         setIsDeleverage(true)
       }
+      setCallError(error ?? e)
     })
     // console.log('res')
     // setStepsWithAmounts(res)
@@ -131,10 +136,10 @@ export const ExposureBox = () => {
 
   const renderExecuteButton = () => {
     if (!tokens[cToken] || loading) {
-      // @ts-ignore
       return <ButtonExecute className='execute-button mr-1' disabled>Loading...</ButtonExecute>
+    } else if (callError) {
+      return <ButtonExecute className='execute-button mr-1' disabled>{callError}</ButtonExecute>
     } else if (!account) {
-      // @ts-ignore
       return <ButtonExecute
         className='execute-button mr-1'
         onClick={() => {
@@ -160,11 +165,10 @@ export const ExposureBox = () => {
           } catch (e) {
             toast(parseCallStaticError(e))
           }
-
-          setLoading(true)
+          setLoading(false)
         }}
         className='execute-button mr-1'
-      >{isDeleverage && 'Deleverage & '} Execute</ButtonExecute>
+      >{isDeleverage && 'Deleverage & '}Execute</ButtonExecute>
     }
   }
 

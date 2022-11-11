@@ -29,6 +29,7 @@ export const SwapBox = () => {
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
   const [tokenTypeToSelect, setTokenTypeToSelect] = useState<'input' | 'output'>('input')
+  const [callError, setCallError] = useState<string>('')
   const [amountOut, setAmountOut] = useState<string>('')
   const [amountIn, setAmountIn] = useState<string>('')
   const { balances, routerAllowances, approveRouter } = useWalletBalance()
@@ -50,6 +51,7 @@ export const SwapBox = () => {
   }, [tokens[inputTokenAddress] && tokens[outputTokenAddress], amountIn])
 
   const calcAmountOut = async () => {
+    setCallError('Calculating...')
     const signer = library.getSigner()
     const contract = getRouterContract(signer)
     try {
@@ -68,12 +70,13 @@ export const SwapBox = () => {
       console.log('aOut', res)
       setAmountOut(weiToNumber(res.amountOuts[0], tokens[outputTokenAddress].decimal || 18))
       setTxFee(weiToNumber(detextTxFee(bn(res.gasLeft))).toString())
+      setCallError('')
     } catch (e) {
       const error = parseCallStaticError(e)
       if (error === 'deleverage') {
         setIsDeleverage(true)
       }
-      console.log(error)
+      setCallError(error ?? e)
       console.log(e)
     }
   }
@@ -90,10 +93,10 @@ export const SwapBox = () => {
 
   const renderExecuteButton = () => {
     if (!tokens[inputTokenAddress] || loading) {
-      // @ts-ignore
       return <ButtonExecute className='swap-button' disabled>Loading...</ButtonExecute>
+    } else if (callError) {
+      return <ButtonExecute className='swap-button' disabled>{callError}</ButtonExecute>
     } else if (!account) {
-      // @ts-ignore
       return <ButtonExecute
         onClick={() => {
           showConnectModal()
@@ -101,10 +104,8 @@ export const SwapBox = () => {
         className='swap-button'
       >Connect wallet</ButtonExecute>
     } else if (Number(amountIn) === 0) {
-      // @ts-ignore
       return <ButtonExecute className='swap-button' disabled>Enter Amount</ButtonExecute>
     } else if (!balances[inputTokenAddress] || balances[inputTokenAddress].lt(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))) {
-      // @ts-ignore
       return <ButtonExecute className='swap-button' disabled> Insufficient {tokens[inputTokenAddress].symbol} Amount </ButtonExecute>
     } else if (routerAllowances[inputTokenAddress] && routerAllowances[inputTokenAddress].gt(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))) {
       return <ButtonExecute

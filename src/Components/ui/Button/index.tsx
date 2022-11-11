@@ -4,6 +4,7 @@ import './style.scss'
 type ButtonType = React.HTMLAttributes<HTMLButtonElement> & {
   children: any
   background?: string
+  disabled?: boolean
 }
 
 export const Button = (props: ButtonType) => {
