@@ -104,7 +104,7 @@ export const useMultiSwapAction = () => {
           getFee10000(steps)
         )
         await tx.wait(1)
-        toast.error('Swap success')
+        toast.success('Swap success')
         return tx
       }
     } catch (e) {

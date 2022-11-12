@@ -21,9 +21,7 @@ import { TokenSymbol } from '../ui/TokenSymbol'
 import { useMultiSwapAction } from '../../hooks/useMultiSwapAction'
 
 export const SwapBox = () => {
-  const { getRouterContract } = useContract()
-  const { account, library, showConnectModal } = useWeb3React()
-  const { configs } = useConfigs()
+  const { account, showConnectModal } = useWeb3React()
   const { dTokens, cToken, logicAddress, poolAddress, baseToken, quoteToken } = useCurrentPool()
   const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')

@@ -6,14 +6,15 @@ import { useWeb3React } from '../../customWeb3React/hook'
 import { useListTokens } from '../../token/hook'
 import { bn, div, formatPercent, numberToWei, sub, weiToNumber } from '../../../utils/helpers'
 import { usePairInfo } from '../../../hooks/usePairInfo'
+import { useConfigs } from '../../config/useConfigs'
 
 const CHART_API_ENDPOINT = 'https://api.lz.finance/56/chart/'
 
 export const useCurrentPool = () => {
-  const { getTokenFactoryContract, getLogicContract, getPoolContract, getRouterContract } = useContract()
-  const { account } = useWeb3React()
+  const { getPoolContract, getRouterContract } = useContract()
   const { addTokens } = useListTokens()
   const { getPairInfo } = usePairInfo()
+  const { configs } = useConfigs()
   const dispatch = useDispatch()
 
   const {
@@ -27,7 +28,7 @@ export const useCurrentPool = () => {
     quoteToken,
     basePrice,
     changedIn24h,
-    poolAddress,
+    poolAddress
   } = useSelector((state: State) => {
     return {
       cTokenPrice: state.currentPool.cTokenPrice,
@@ -40,15 +41,13 @@ export const useCurrentPool = () => {
       quoteToken: state.currentPool.quoteToken,
       basePrice: state.currentPool.basePrice,
       changedIn24h: state.currentPool.changedIn24h,
-      poolAddress: state.currentPool.poolAddress,
+      poolAddress: state.currentPool.poolAddress
     }
   })
 
   const updateCurrentPool = async (poolAddress: string) => {
-    const poolFactoryContract = getTokenFactoryContract()
     const poolContract = getPoolContract(poolAddress)
     const logicAddress = await poolContract.LOGIC()
-    const logicContract = getLogicContract(logicAddress)
     const routerContract = getRouterContract()
 
     const routerStates = await routerContract.getStates(logicAddress)
@@ -57,16 +56,15 @@ export const useCurrentPool = () => {
       twapBase: routerStates.twap.base._x,
       twapLP: routerStates.twap.LP._x,
       spotBse: routerStates.spot.base._x,
-      spotLP: routerStates.spot.LP._x,
+      spotLP: routerStates.spot.LP._x
     }
-    const cToken = await poolContract.COLLATERAL_TOKEN()
-    const [baseToken, quoteToken] = ['0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c', '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56']
+    const { baseToken, quoteToken, tokenC: cToken } = configs.addresses
 
     const [pairInfo, changedIn24h] = await Promise.all([
       getPairInfo(cToken),
       get24hChange(baseToken, cToken, quoteToken)
     ])
-    const cPrice = getLpPrice(pairInfo, baseToken)
+    const cPrice = states.twapLP
     const basePrice = getBasePrice(pairInfo, baseToken)
 
     // const dTokens = await Promise.all([
@@ -76,10 +74,10 @@ export const useCurrentPool = () => {
     //   poolFactoryContract.computeTokenAddress(logicAddress, 3)
     // ])
     const dTokens = [
-      '0xcD70A9269907f69870264a94CDb834cF6dAfb8b8',
-      '0xfC4a7B7Bb09bD5C950E1d0D5c3266CA285b5ba7b',
-      '0xFFE34937F4486DdEa901e332f720523ddb307d37',
-      '0xbbDF7765d0Fe3DCe6CA07664505662e3D772Cd8B'
+      configs.addresses.dToken1,
+      configs.addresses.dToken2,
+      configs.addresses.dToken3,
+      configs.addresses.dToken4
     ]
 
     addTokens([...dTokens, cToken, baseToken, quoteToken, poolAddress])
@@ -90,22 +88,22 @@ export const useCurrentPool = () => {
       cToken,
       logicAddress,
       dTokens,
-      powers: [-32, -4, 4, 32],
+      powers: configs.powers,
       states,
       baseToken,
       quoteToken,
       changedIn24h,
-      poolAddress,
+      poolAddress
     }))
   }
 
-  const getLpPrice = (lpTokenDetail: any, baseToken: string) => {
-    const totalSupply = lpTokenDetail.totalSupply
-    const r0 = lpTokenDetail.token0.reserve
-    const r1 = lpTokenDetail.token1.reserve
-    const rq = lpTokenDetail.token0.address === baseToken ? r1 : r0
-    return weiToNumber(bn(2).mul(rq).mul(numberToWei(1)).div(totalSupply))
-  }
+  // const getLpPrice = (lpTokenDetail: any, baseToken: string) => {
+  //   const totalSupply = lpTokenDetail.totalSupply
+  //   const r0 = lpTokenDetail.token0.reserve
+  //   const r1 = lpTokenDetail.token1.reserve
+  //   const rq = lpTokenDetail.token0.address === baseToken ? r1 : r0
+  //   return weiToNumber(bn(2).mul(rq).mul(numberToWei(1)).div(totalSupply))
+  // }
 
   const getBasePrice = (pairInfo: any, baseToken: string) => {
     const token0 = pairInfo.token0.adr
@@ -162,6 +160,6 @@ export const useCurrentPool = () => {
     logicAddress,
     dTokens,
     states,
-    poolAddress,
+    poolAddress
   }
 }

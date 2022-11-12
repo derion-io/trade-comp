@@ -10,6 +10,8 @@ export interface configsState {
     rpcUrl: string
     explorer: string
     scanName: string
+    dTokens: string[]
+    powers: number[]
   },
   initialledConfig: boolean
 }
@@ -25,7 +27,9 @@ export const initialState: configsState = {
     addresses: {},
     rpcUrl: '',
     explorer: '',
-    scanName: ''
+    scanName: '',
+    dTokens: [],
+    powers: []
   },
   initialledConfig: false
 }

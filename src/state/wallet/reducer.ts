@@ -10,6 +10,10 @@ export const tokens = createSlice({
   name: 'wallet',
   initialState,
   reducers: {
+    resetBnA: (state) => {
+      state.balances = {}
+      state.routerAllowances = {}
+    },
     updateBalanceAndAllowancesReduce: (
       state,
       action: PayloadAction<{
@@ -37,6 +41,7 @@ export const tokens = createSlice({
 
 // Actions
 export const {
+  resetBnA,
   updateBalanceAndAllowancesReduce
 } = tokens.actions
 

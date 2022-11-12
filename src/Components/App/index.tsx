@@ -10,16 +10,18 @@ import { useListTokens } from '../../state/token/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useWeb3React } from '../../state/customWeb3React/hook'
 import { ToastContainer } from 'react-toastify'
+import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
+import { useConfigs } from '../../state/config/useConfigs'
 
 export const App = () => {
-  // const { getLogicContract } = useContract()
-  // const { configs } = useConfigs()
+  const { updateCurrentPool } = useCurrentPool()
   const { tokens } = useListTokens()
   const { fetchBalanceAndAllowance } = useWalletBalance()
   const { account } = useWeb3React()
+  const { configs, chainId } = useConfigs()
 
   useEffect(() => {
-    if (account) {
+    if (account && Object.keys(tokens).length > 0) {
       fetchBalanceAndAllowance(Object.keys(tokens))
     }
   }, [account, tokens])
@@ -36,6 +38,13 @@ export const App = () => {
   //   }
   //   fetchData()
   // }, [])
+
+  useEffect(() => {
+    if (configs?.addresses.pool) {
+      console.log('configs?.addresses.pool', configs?.addresses.pool)
+      updateCurrentPool(configs.addresses.pool)
+    }
+  }, [chainId])
 
   const renderAppContent = () => {
     switch (true) {

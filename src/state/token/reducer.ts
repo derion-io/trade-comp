@@ -5,6 +5,9 @@ export const tokens = createSlice({
   name: 'tokens',
   initialState,
   reducers: {
+    resetListTokens: (state) => {
+      state.tokens = {}
+    },
     addTokensReduce: (state, action: PayloadAction<{ tokens: TokenType[] }>) => {
       const newToken = {}
       const tokens = action.payload.tokens
@@ -21,6 +24,7 @@ export const tokens = createSlice({
 
 // Actions
 export const {
+  resetListTokens,
   addTokensReduce
 } = tokens.actions
 

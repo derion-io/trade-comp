@@ -4,7 +4,6 @@ import { useInitConfig } from './state/config/useInitConfig'
 import { useConfigs } from './state/config/useConfigs'
 
 export const InitConfig = ({
-  chainId,
   useWeb3React,
   useSubPage,
   xStorageClient,
@@ -16,6 +15,7 @@ export const InitConfig = ({
   useLocation
 }: any) => {
   const { initialledConfig } = useConfigs()
+  const { chainId } = useWeb3React()
   useInitWeb3React(useWeb3React, showConnectWalletModal)
   useInitConfig({
     chainId,
