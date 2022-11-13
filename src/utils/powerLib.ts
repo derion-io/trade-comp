@@ -23,6 +23,7 @@ export class PowerState {
   constructor(config: any) {
     this.powers = config?.powers ?? [2, -2, 8, -8]
     this.powers = _.orderBy(this.powers.map(Number), Number)
+    console.log(this.powers)
     this.unit = config?.unit ?? 1000000
   }
 
@@ -221,14 +222,21 @@ function _firstKey(values: {[key: number]: BigNumber}, negative: boolean = false
 
 // entry point testing
 if (require.main === module) {
-  const powerState = new PowerState({})
+  const powerState = new PowerState({ powers: [4, -4, 32, -32]})
+  const price = 1500
+  const lpPrice = Math.sqrt(price)*2
   powerState.loadStates({
-    twapBase: bn('8788445287819172527008699396495269118'),
-    priceScaleLong: bn('7788445287819172527008699396495269118'),
-    priceScaleShort: bn('7788445287819172527008699396495269118')
+    twapBase: bn(price).shl(112),
+    twapLP: bn(Math.round(lpPrice*1000000)).shl(112).div(1000000),
+    priceScaleLong: bn(1500).shl(112),
+    priceScaleShort: bn(1500).shl(112)
   })
 
-  const balances = powerState.getOptimalBalances(pe('100'), 3.14159)
+  const balances = powerState.getOptimalBalances(pe('123'), 0)
+
+  console.log(balances)
+
+  return
 
   Object.entries(balances).map(([power, balance]) => `${power}: ${fe(balance)}`)
     .forEach(console.log)
