@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import './style.scss'
 import 'react-toastify/dist/ReactToastify.css'
 import { matchPath } from 'react-router'
@@ -12,6 +12,9 @@ import { useWeb3React } from '../../state/customWeb3React/hook'
 import { ToastContainer } from 'react-toastify'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { useConfigs } from '../../state/config/useConfigs'
+import { useDispatch } from 'react-redux'
+import { addTokensReduce } from '../../state/token/reducer'
+import { setCurrentPoolInfo } from '../../state/currentPool/reducer'
 
 export const App = () => {
   const { updateCurrentPool } = useCurrentPool()
@@ -19,6 +22,8 @@ export const App = () => {
   const { fetchBalanceAndAllowance } = useWalletBalance()
   const { account } = useWeb3React()
   const { configs, chainId } = useConfigs()
+  const dispatch = useDispatch()
+  const chainIdRef = useRef(null)
 
   useEffect(() => {
     if (account && Object.keys(tokens).length > 0) {
@@ -26,23 +31,17 @@ export const App = () => {
     }
   }, [account, tokens])
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     const res = await fetch('https://api.bscscan.com/api?module=logs&action=getLogs&fromBlock=0&toBlock=5993899932&topic0=0xdfd6ea2aba98c248e9cabe20a983b833e1993ae11d836f1f016e407ba46e06ea')
-  //       .then((r) => r.json())
-  //     const data = res.result || []
-  //     const logicContract = getLogicContract(configs.addresses.logic)
-  //     for (let i = 0; i < data.length; i++) {
-  //       console.log(logicContract.interface.parseLog(data[0]))
-  //     }
-  //   }
-  //   fetchData()
-  // }, [])
-
   useEffect(() => {
     if (configs?.addresses.pool) {
       console.log('configs?.addresses.pool', configs?.addresses.pool)
       updateCurrentPool(configs.addresses.pool)
+        .then((data) => {
+          // @ts-ignore
+          if (Number(chainIdRef.current.value) === chainId) {
+            dispatch(addTokensReduce({ tokens: data.tokens }))
+            dispatch(setCurrentPoolInfo(data))
+          }
+        })
     }
   }, [chainId])
 
@@ -69,6 +68,7 @@ export const App = () => {
 
   return (
     <div className='exposure-interface app'>
+      <input type='hidden' value={chainId} ref={chainIdRef} />
       {renderAppContent()}
       <ToastContainer
         position='top-right'

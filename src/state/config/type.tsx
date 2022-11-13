@@ -17,7 +17,7 @@ export interface configsState {
 }
 
 export const initialState: configsState = {
-  chainId: 42161,
+  chainId: 0,
   useSubPage: () => {},
   language: 'en',
   env: 'production',

@@ -13,10 +13,9 @@ const LP_PRICE_UNIT = 10000
 
 export const useCurrentPool = () => {
   const { getPoolContract, getRouterContract } = useContract()
-  const { addTokens } = useListTokens()
+  const { getTokens } = useListTokens()
   const { getPairInfo } = usePairInfo()
   const { configs } = useConfigs()
-  const dispatch = useDispatch()
 
   const {
     cTokenPrice,
@@ -81,9 +80,10 @@ export const useCurrentPool = () => {
       configs.addresses.dToken4
     ]
 
-    addTokens([...dTokens, cToken, baseToken, quoteToken, poolAddress])
+    const tokens = await getTokens([...dTokens, cToken, baseToken, quoteToken, poolAddress])
 
-    dispatch(setCurrentPoolInfo({
+    return {
+      tokens,
       cTokenPrice: cPrice,
       basePrice,
       cToken,
@@ -95,7 +95,7 @@ export const useCurrentPool = () => {
       quoteToken,
       changedIn24h,
       poolAddress
-    }))
+    }
   }
 
   // const getLpPrice = (lpTokenDetail: any, baseToken: string) => {

@@ -38,8 +38,26 @@ export const useListTokens = () => {
     }
   }
 
+  const getTokens = async (
+    addresses: string[]
+  ): Promise<TokenType[]> => {
+    const addressesToFetch = addresses
+      .filter((a: string) => utils.isAddress(a) && !tokens[utils.getAddress(a)])
+      .map((a: string) => utils.getAddress(a))
+
+    const tokenInfo = await getTokenFromAddresses(
+      addressesToFetch
+    )
+    if (tokenInfo.length > 0) {
+      return tokenInfo
+    } else {
+      return []
+    }
+  }
+
   return {
     tokens,
+    getTokens,
     addTokens
   }
 }
