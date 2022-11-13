@@ -28,11 +28,14 @@ export const useMultiSwapAction = () => {
     return steps.some(step => [baseToken, quoteToken].includes(step.tokenIn)) ? fee10000 : 0
   }
 
-  const calculateAmountOuts = async (steps: StepType[], callback?: any) => {
+  const calculateAmountOuts = async (steps: StepType[], isDeleverage: boolean = false) => {
     if (!library) return [[bn(0)], bn(0)]
     const signer = library.getSigner()
     const contract = getRouterContract(signer)
     const stepsToSwap = formatSwapSteps(steps)
+    if (isDeleverage) {
+      stepsToSwap.unshift(DELEVERAGE_STEP)
+    }
     const res = await contract.callStatic.multiSwap(
       configs.addresses.pool,
       stepsToSwap,

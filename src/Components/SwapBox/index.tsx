@@ -46,19 +46,19 @@ export const SwapBox = () => {
 
   useEffect(() => {
     if (tokens[inputTokenAddress] && tokens[outputTokenAddress] && amountIn && Number(amountIn)) {
-      calcAmountOut()
+      calcAmountOut(isDeleverage)
     } else if (Number(amountIn) === 0) {
       setAmountOut('')
     }
-  }, [tokens[inputTokenAddress] && tokens[outputTokenAddress], amountIn])
+  }, [tokens[inputTokenAddress] && tokens[outputTokenAddress], amountIn, isDeleverage])
 
-  const calcAmountOut = async () => {
+  const calcAmountOut = async (isDeleverage: boolean) => {
     setCallError('Calculating...')
     calculateAmountOuts([{
       tokenIn: inputTokenAddress,
       tokenOut: outputTokenAddress,
       amountIn: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))
-    }]).then((res) => {
+    }], isDeleverage).then((res) => {
       const [aOuts, gasLeft] = res
       setAmountOut(weiToNumber(aOuts[0]?.amountOut || 0, tokens[outputTokenAddress].decimal || 18))
       setTxFee(weiToNumber(detextTxFee(gasLeft)).toString())
@@ -67,6 +67,8 @@ export const SwapBox = () => {
       const error = parseCallStaticError(e)
       if (error === 'deleverage') {
         setIsDeleverage(true)
+      } else if (error == '!deleverage') {
+        setIsDeleverage(false)
       }
       setAmountOut('0')
       setTxFee('0')

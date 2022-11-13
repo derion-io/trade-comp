@@ -115,7 +115,7 @@ export const ExposureBox = () => {
   useEffect(() => {
     // const delayDebounceFn = setTimeout(() => {
     setCallError('Calculating...')
-    calculateAmountOuts(swapSteps)
+    calculateAmountOuts(swapSteps, isDeleverage)
       .then(([aOuts]) => {
         setStepsWithAmounts(aOuts)
         setCallError('')
@@ -125,6 +125,8 @@ export const ExposureBox = () => {
         const error = parseCallStaticError(e)
         if (error === 'deleverage') {
           setIsDeleverage(true)
+        } else if (error == '!deleverage') {
+          setIsDeleverage(false)
         }
         setCallError(error ?? e)
       })
@@ -134,7 +136,7 @@ export const ExposureBox = () => {
     // return () => {
     //   clearTimeout(delayDebounceFn)
     // }
-  }, [swapSteps])
+  }, [swapSteps, isDeleverage])
 
   const renderExecuteButton = () => {
     if (!tokens[cToken] || loading) {
