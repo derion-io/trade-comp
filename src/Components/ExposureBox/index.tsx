@@ -216,7 +216,7 @@ export const ExposureBox = () => {
               setCAmountToChange((e.target as HTMLInputElement).value)
             }}
             placeholder='0.0'
-            suffix={<TextGrey>${formatFloat(mul(cTokenPrice || 0, cAmountToChange || 0), 4)}</TextGrey>}
+            suffix={<TextGrey>${formatFloat(mul(cTokenPrice || 0, cAmountToChange || 0), 2)}</TextGrey>}
             className='fs-24'
           />
         </div>

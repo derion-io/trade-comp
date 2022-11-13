@@ -12,7 +12,7 @@ export const tokens = createSlice({
         baseToken: string
         quoteToken: string
         cToken: string
-        cTokenPrice: string
+        cTokenPrice: number
         basePrice: string
         dTokens: string[]
         logicAddress?: string

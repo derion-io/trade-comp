@@ -9,6 +9,7 @@ import { usePairInfo } from '../../../hooks/usePairInfo'
 import { useConfigs } from '../../config/useConfigs'
 
 const CHART_API_ENDPOINT = 'https://api.lz.finance/56/chart/'
+const LP_PRICE_UNIT = 10000
 
 export const useCurrentPool = () => {
   const { getPoolContract, getRouterContract } = useContract()
@@ -64,7 +65,7 @@ export const useCurrentPool = () => {
       getPairInfo(cToken),
       get24hChange(baseToken, cToken, quoteToken)
     ])
-    const cPrice = states.twapLP
+    const cPrice = bn(states.twapLP).mul(LP_PRICE_UNIT).shr(112).toNumber() / LP_PRICE_UNIT
     const basePrice = getBasePrice(pairInfo, baseToken)
 
     // const dTokens = await Promise.all([
