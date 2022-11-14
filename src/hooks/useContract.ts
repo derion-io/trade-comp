@@ -9,9 +9,9 @@ import RouterAbi from '../assets/abi/Router.json'
 import TokenFactoryAbi from '../assets/abi/TokenFactory.json'
 import PoolFactoryAbi from '../assets/abi/PoolFactory.json'
 import PoolAbi from '../assets/abi/Pool.json'
+import EventsAbi from '../assets/abi/Events.json'
 import { useConfigs } from '../state/config/useConfigs'
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { overrideContract } from '../utils/helpers'
 
 export const useContract = () => {
   const { configs } = useConfigs()
@@ -81,6 +81,10 @@ export const useContract = () => {
     return getContract(LogicAbi, logicAddress, signer)
   }
 
+  const getEventInterface = () => {
+    return new ethers.utils.Interface(EventsAbi)
+  }
+
   return {
     getTokenInfoContract,
     getBnAContract,
@@ -91,6 +95,7 @@ export const useContract = () => {
     getTokenFactoryContract,
     getPoolFactoryContract,
     getPoolContract,
-    getPairInfoContract
+    getPairInfoContract,
+    getEventInterface
   }
 }

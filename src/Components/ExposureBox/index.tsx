@@ -20,6 +20,7 @@ import { useMultiSwapAction } from '../../hooks/useMultiSwapAction'
 import { toast } from 'react-toastify'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { useConfigs } from '../../state/config/useConfigs'
+import { SkeletonLoader } from '../ui/SkeletonLoader'
 
 export const ExposureBox = () => {
   const [formAddOrRemove, setFormAddOrRemove] = useState<'add' | 'remove' | undefined>(undefined)
@@ -179,12 +180,14 @@ export const ExposureBox = () => {
   return (
     <Card className='exposure-box'>
       <div className='text-center'>
-        <Text>{tokens[baseToken]?.symbol}/{tokens[quoteToken]?.symbol} </Text>
-        {
-          changedIn24h >= 0
-            ? <TextBuy>({formatFloat(basePrice, 2)} +{changedIn24h}%)</TextBuy>
-            : <TextSell>({formatFloat(basePrice, 2)} {changedIn24h}%)</TextSell>
-        }
+        <SkeletonLoader loading={!tokens[baseToken] || !basePrice}>
+          <Text>{tokens[baseToken]?.symbol}/{tokens[quoteToken]?.symbol} </Text>
+          {
+            changedIn24h >= 0
+              ? <TextBuy>({formatFloat(basePrice, 2)} +{changedIn24h}%)</TextBuy>
+              : <TextSell>({formatFloat(basePrice, 2)} {changedIn24h}%)</TextSell>
+          }
+        </SkeletonLoader>
       </div>
       <LeverageChangedInfoBox
         oldLeverage={oldLeverage}
@@ -192,6 +195,7 @@ export const ExposureBox = () => {
         newLeverage={newLeverage}
         newValue={newValue}
         changedIn24h={changedIn24h}
+        loading={!states.twapBase}
       />
 
       {formAddOrRemove && (
@@ -255,7 +259,7 @@ export const ExposureBox = () => {
             { backgroundColor: '#4FBF67', height: '2px', color: '#303236', border: '1px dashed' }
           ]}
           railStyle={{ backgroundColor: '#303236' }}
-          onChange={(e:number[]) => {
+          onChange={(e: number[]) => {
             const newValue = e.find(e =>
               Math.abs(e - oldLeverage) > 0.1 && Math.abs(e - newLeverage) > 0.1
             )
@@ -280,12 +284,12 @@ export const ExposureBox = () => {
             return <InfoRow key={key}>
               <span>
                 <Text>{weiToNumber(amountIn, tokens[stepFromToken]?.decimal || 18, 4)}</Text>
-                <TextGrey> <TokenSymbol token={tokens[stepFromToken]}/></TextGrey>
+                <TextGrey> <TokenSymbol token={tokens[stepFromToken]} /></TextGrey>
               </span>
               <IconArrowLeft />
               <span>
                 <Text>{weiToNumber(amountOut, tokens[stepToToken]?.decimal || 18, 4)} </Text>
-                <TextGrey> <TokenSymbol token={tokens[stepToToken]}/></TextGrey>
+                <TextGrey> <TokenSymbol token={tokens[stepToToken]} /></TextGrey>
               </span>
             </InfoRow>
           })
@@ -348,6 +352,7 @@ const LeverageChangedInfoBox = ({
   newLeverage,
   oldValue,
   newValue,
+  loading,
   changedIn24h
 }: any) => {
   const { quoteToken } = useCurrentPool()
@@ -368,17 +373,16 @@ const LeverageChangedInfoBox = ({
       </OldLabel>
       {
         oldLeverage !== newLeverage &&
-        <React.Fragment>
-          <span>
-            <IconArrowDown />
-          </span>
+          <React.Fragment>
+            <span>
+              <IconArrowDown />
+            </span>
 
-          <NewLabel>
-            <NewText>{newLeverage > 0 ? 'Long' : 'Short'} x{Math.abs(newLeverage)}</NewText>
-          </NewLabel>
-        </React.Fragment>
+            <NewLabel>
+              <NewText>{newLeverage > 0 ? 'Long' : 'Short'} x{Math.abs(newLeverage)}</NewText>
+            </NewLabel>
+          </React.Fragment>
       }
-
     </div>
     <div className={`leverage-changed-box__row ${oldLeverage !== newLeverage && 'is-changed'}`}>
       <LabelGreen>
@@ -386,31 +390,32 @@ const LeverageChangedInfoBox = ({
       </LabelGreen>
       {
         oldLeverage !== newLeverage &&
-        <React.Fragment>
-          <span>
-            <IconArrowDown />
-          </span>
+          <React.Fragment>
+            <span>
+              <IconArrowDown />
+            </span>
 
-          <LabelGreen>
-            <TextGreen>{weiToNumber(newValue, tokens[quoteToken]?.decimal || 18, 4)} {tokens[quoteToken]?.symbol}</TextGreen>
-          </LabelGreen>
-        </React.Fragment>
+            <LabelGreen>
+              <TextGreen>{weiToNumber(newValue, tokens[quoteToken]?.decimal || 18, 4)} {tokens[quoteToken]?.symbol}</TextGreen>
+            </LabelGreen>
+          </React.Fragment>
       }
     </div>
     <div className={`leverage-changed-box__row ${oldLeverage !== newLeverage && 'is-changed'}`}>
+
       <OldChangedIn24hLabel>
         <OldChangedIn24hText>{formatFloat(changedIn24h * oldLeverage, 2)}%</OldChangedIn24hText>
       </OldChangedIn24hLabel>
       {
         oldLeverage !== newLeverage &&
-        <React.Fragment>
-          <span>
-            <IconArrowDown />
-          </span>
-          <NewChangedIn24hLabel>
-            <NewChangedIn24hText>{formatFloat(changedIn24h * newLeverage, 2)}%</NewChangedIn24hText>
-          </NewChangedIn24hLabel>
-        </React.Fragment>
+          <React.Fragment>
+            <span>
+              <IconArrowDown />
+            </span>
+            <NewChangedIn24hLabel>
+              <NewChangedIn24hText>{formatFloat(changedIn24h * newLeverage, 2)}%</NewChangedIn24hText>
+            </NewChangedIn24hLabel>
+          </React.Fragment>
       }
     </div>
   </Box>

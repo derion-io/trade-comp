@@ -19,6 +19,7 @@ import { useListTokens } from '../../state/token/hook'
 import { bn, numberToWei, parseCallStaticError, weiToNumber } from '../../utils/helpers'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { useMultiSwapAction } from '../../hooks/useMultiSwapAction'
+import { SkeletonLoader } from '../ui/SkeletonLoader'
 
 export const SwapBox = () => {
   const { account, showConnectModal } = useWeb3React()
@@ -141,22 +142,26 @@ export const SwapBox = () => {
 
       <div className='amount-input-box'>
         <div className='amount-input-box__head'>
-          <span
-            className='current-token'
-            onClick={(address) => {
-              setVisibleSelectTokenModal(true)
-              setTokenTypeToSelect('input')
-            }}
-          >
-            <TokenIcon size={24} tokenAddress={inputTokenAddress} />
-            <Text><TokenSymbol token={tokens[inputTokenAddress]} /></Text>
-          </span>
-          <Text
-            className='amount-input-box__head--balance'
-            onClick={() => {
-              setAmountIn(weiToNumber(balances[inputTokenAddress], tokens[inputTokenAddress]?.decimal || 18))
-            }}
-          >Balance: {weiToNumber(balances[inputTokenAddress], tokens[inputTokenAddress]?.decimal || 18)}</Text>
+          <SkeletonLoader loading={!tokens[inputTokenAddress]}>
+            <span
+              className='current-token'
+              onClick={(address) => {
+                setVisibleSelectTokenModal(true)
+                setTokenTypeToSelect('input')
+              }}
+            >
+              <TokenIcon size={24} tokenAddress={inputTokenAddress} />
+              <Text><TokenSymbol token={tokens[inputTokenAddress]} /></Text>
+            </span>
+          </SkeletonLoader>
+          <SkeletonLoader loading={!balances[inputTokenAddress]}>
+            <Text
+              className='amount-input-box__head--balance'
+              onClick={() => {
+                setAmountIn(weiToNumber(balances[inputTokenAddress], tokens[inputTokenAddress]?.decimal || 18))
+              }}
+            >Balance: {weiToNumber(balances[inputTokenAddress], tokens[inputTokenAddress]?.decimal || 18)}</Text>
+          </SkeletonLoader>
         </div>
         <Input
           placeholder='0.0'
@@ -180,14 +185,18 @@ export const SwapBox = () => {
 
       <div className='amount-input-box'>
         <div className='amount-input-box__head'>
-          <span className='current-token' onClick={() => {
-            setVisibleSelectTokenModal(true)
-            setTokenTypeToSelect('output')
-          }}>
-            <TokenIcon size={24} tokenAddress={outputTokenAddress} />
-            <Text><TokenSymbol token={tokens[outputTokenAddress]} /></Text>
-          </span>
-          <Text>Balance: {weiToNumber(balances[outputTokenAddress], tokens[outputTokenAddress]?.decimal || 18)}</Text>
+          <SkeletonLoader loading={!tokens[inputTokenAddress]}>
+            <span className='current-token' onClick={() => {
+              setVisibleSelectTokenModal(true)
+              setTokenTypeToSelect('output')
+            }}>
+              <TokenIcon size={24} tokenAddress={outputTokenAddress} />
+              <Text><TokenSymbol token={tokens[outputTokenAddress]} /></Text>
+            </span>
+          </SkeletonLoader>
+          <SkeletonLoader loading={!balances[inputTokenAddress]}>
+            <Text>Balance: {weiToNumber(balances[outputTokenAddress], tokens[outputTokenAddress]?.decimal || 18)}</Text>
+          </SkeletonLoader>
         </div>
         <Input
           // @ts-ignore

@@ -1,8 +1,6 @@
 import { useContract } from '../../../hooks/useContract'
-import { setCurrentPoolInfo } from '../reducer'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { State } from '../../types'
-import { useWeb3React } from '../../customWeb3React/hook'
 import { useListTokens } from '../../token/hook'
 import { bn, div, formatPercent, numberToWei, sub, weiToNumber } from '../../../utils/helpers'
 import { usePairInfo } from '../../../hooks/usePairInfo'
@@ -59,20 +57,6 @@ export const useCurrentPool = () => {
       spotLP: routerStates.spot.LP._x
     }
     const { baseToken, quoteToken, tokenC: cToken } = configs.addresses
-
-    const [pairInfo, changedIn24h] = await Promise.all([
-      getPairInfo(cToken),
-      get24hChange(baseToken, cToken, quoteToken)
-    ])
-    const cPrice = bn(states.twapLP).mul(LP_PRICE_UNIT).shr(112).toNumber() / LP_PRICE_UNIT
-    const basePrice = getBasePrice(pairInfo, baseToken)
-
-    // const dTokens = await Promise.all([
-    //   poolFactoryContract.computeTokenAddress(logicAddress, 0),
-    //   poolFactoryContract.computeTokenAddress(logicAddress, 1),
-    //   poolFactoryContract.computeTokenAddress(logicAddress, 2),
-    //   poolFactoryContract.computeTokenAddress(logicAddress, 3)
-    // ])
     const dTokens = [
       configs.addresses.dToken1,
       configs.addresses.dToken2,
@@ -80,7 +64,13 @@ export const useCurrentPool = () => {
       configs.addresses.dToken4
     ]
 
-    const tokens = await getTokens([...dTokens, cToken, baseToken, quoteToken, poolAddress])
+    const [pairInfo, changedIn24h, tokens] = await Promise.all([
+      getPairInfo(cToken),
+      get24hChange(baseToken, cToken, quoteToken),
+      getTokens([...dTokens, cToken, baseToken, quoteToken, poolAddress])
+    ])
+    const cPrice = bn(states.twapLP).mul(LP_PRICE_UNIT).shr(112).toNumber() / LP_PRICE_UNIT
+    const basePrice = getBasePrice(pairInfo, baseToken)
 
     return {
       tokens,

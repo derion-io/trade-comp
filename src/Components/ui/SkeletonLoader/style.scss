@@ -1,0 +1,37 @@
+@import "../../../styles/abstracts/variables";
+
+.skeleton-loader {
+  &__bone {
+    height: 18px;
+    position: relative;
+    background: $loading-background-color;
+    border-radius: 5px;
+    overflow: hidden;
+
+    &:after {
+      @at-root {
+        .dark & {
+          background: linear-gradient(
+              90deg, hsla(0, 0%, 100%, 0), hsla(0, 0%, 100%, .1), hsla(0, 0%, 100%, 0));
+        }
+      }
+      background: linear-gradient(
+          90deg, hsla(0, 0%, 100%, 0), hsla(0, 0%, 100%, .1), hsla(0, 0%, 100%, 0));
+
+      -webkit-animation: loading 1.5s infinite;
+      animation: loading 1.5s infinite;
+      content: "";
+      height: 100%;
+      left: 0;
+      position: absolute;
+      right: 0;
+      top: 0;
+      transform: translateX(-100%);
+      z-index: 1;
+    }
+  }
+
+  .content-hidden {
+    visibility: hidden;
+  }
+}

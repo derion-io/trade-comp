@@ -28,9 +28,9 @@ export const useWalletBalance = () => {
   const dispatch = useDispatch()
 
   const updateBalanceAndAllowances = ({
-    balances,
-    routerAllowances
-  }: {
+                                        balances,
+                                        routerAllowances
+                                      }: {
     balances: BalancesType,
     routerAllowances: AllowancesType
   }) => {
@@ -44,8 +44,8 @@ export const useWalletBalance = () => {
   }
 
   const approveRouter = async ({
-    tokenAddress
-  }: {tokenAddress: string}) => {
+                                 tokenAddress
+                               }: { tokenAddress: string }) => {
     if (account && library) {
       try {
         const signer = library.getSigner()
@@ -76,12 +76,8 @@ export const useWalletBalance = () => {
       const res = r[0]
       for (let i = 0; i < tokensArr.length; i++) {
         const address = tokensArr[i]
-        if (res[i * 2].gt(0)) {
-          newBalances[address] = res[i * 2]
-        }
-        if (res[i * 2 + 1].gt(0)) {
-          routerAllowance[address] = res[i * 2 + 1]
-        }
+        newBalances[address] = res[i * 2]
+        routerAllowance[address] = res[i * 2 + 1]
       }
       updateBalanceAndAllowances({
         balances: newBalances,
