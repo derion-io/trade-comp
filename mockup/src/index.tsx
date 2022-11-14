@@ -16,6 +16,7 @@ function getLibrary(provider: any) {
 ReactDOM.render(
   <React.StrictMode>
     <Web3ReactProvider getLibrary={getLibrary}>
+      {/*@ts-ignore*/}
       <Router>
         <AppLayout
           configs={configs}

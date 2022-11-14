@@ -3,7 +3,6 @@ import { NetworkConnector } from '@web3-react/network-connector'
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { WalletLinkConnector } from '@web3-react/walletlink-connector'
 import { AuthereumConnector } from '@web3-react/authereum-connector'
-import { TorusConnector } from '@web3-react/torus-connector'
 
 const POLLING_INTERVAL = 12000
 const RPC_URLS: { [chainId: number]: string } = {
@@ -59,16 +58,9 @@ const authereum = {
     desc: 'Connect with your Authereum account'
 }
 
-const torus = {
-    connector: new TorusConnector({ chainId: 56 }),
-    image: '/images/torus.svg',
-    title: 'Torus',
-    desc: 'Connect with your Torus account'
-}
 
 export default {
     injected,
-    torus,
     network,
     authereum,
     walletlink,

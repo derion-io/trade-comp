@@ -13,8 +13,6 @@ import { useHistory, useLocation } from 'react-router-dom'
 import { ethers } from 'ethers'
 import { BlurBackground } from '../BlurBackground'
 
-const CrossStorageClient = require('cross-storage').CrossStorageClient
-
 const LS_CONNECTOR = 'web3connector'
 
 export const AppLayout = (props: any) => {
@@ -24,30 +22,7 @@ export const AppLayout = (props: any) => {
   const [visibleUserWalletModal, setVisibleUserWalletModal] = useState<any>()
   const location = useLocation()
   const { configs, Component } = props
-  const [xStorageClient, setXStorageClient] = useState<typeof CrossStorageClient>(undefined)
   const [chainIdToDisPlay, setChainIdToDisPlay] = useState<number>(56);
-  useEffect(() => {
-    if (!process.env.REACT_APP_X_STORAGE_URL) {
-      return
-    }
-    const storage = new CrossStorageClient(process.env.REACT_APP_X_STORAGE_URL)
-    storage
-      .onConnect()
-      .then(() => {
-        setXStorageClient(storage)
-      })
-      .then(() => {
-        console.log('x-storage', 'connected', process.env.REACT_APP_X_STORAGE_URL)
-        const refAddress = (new URLSearchParams(location.search)).get('r')
-        if (refAddress) {
-          const formalizedAddress = ethers.utils.getAddress(refAddress)
-          return storage.set('LZ_REFERRAL', formalizedAddress)
-            .then(() => console.log('x-storage', 'LZ_REFERRAL', formalizedAddress))
-        }
-      })
-      .catch(console.error)
-  }, [location.search])
-
 
   useEffect(() => {
     const initConnector = localStorage.getItem(LS_CONNECTOR)
@@ -123,7 +98,6 @@ export const AppLayout = (props: any) => {
             language="en"
             useSubPage={() => location.pathname}
             env={process.env.REACT_APP_NODE_ENV || "production"}
-            xStorageClient={xStorageClient}
             showConnectWalletModal={() => setVisibleWalletModal(true)}
           />
         </Suspense>
