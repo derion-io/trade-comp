@@ -8,6 +8,8 @@ export interface configsState {
   configs: {
     addresses: {[key: string]: string}
     rpcUrl: string
+    scanApi: string
+    ddlGenesisBlock: number
     explorer: string
     scanName: string
     dTokens: string[]
@@ -26,6 +28,8 @@ export const initialState: configsState = {
   configs: {
     addresses: {},
     rpcUrl: '',
+    ddlGenesisBlock: 0,
+    scanApi: '',
     explorer: '',
     scanName: '',
     dTokens: [],

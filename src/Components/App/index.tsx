@@ -13,8 +13,13 @@ import { useConfigs } from '../../state/config/useConfigs'
 import { useDispatch } from 'react-redux'
 import { addTokensReduce } from '../../state/token/reducer'
 import { setCurrentPoolInfo } from '../../state/currentPool/reducer'
+import { ethers } from 'ethers'
+import { useContract } from '../../hooks/useContract'
+
+const { AssistedJsonRpcProvider } = require('assisted-json-rpc-provider')
 
 export const App = () => {
+  const { getEventInterface } = useContract()
   const { updateCurrentPool } = useCurrentPool()
   const { tokens } = useListTokens()
   const { fetchBalanceAndAllowance } = useWalletBalance()
@@ -28,6 +33,40 @@ export const App = () => {
       fetchBalanceAndAllowance(Object.keys(tokens))
     }
   }, [account, tokens])
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const etherProvider = new ethers.providers.StaticJsonRpcProvider(configs.rpcUrl)
+      let provider = etherProvider
+      if (configs.scanApi) {
+        provider = new AssistedJsonRpcProvider(
+          etherProvider,
+          {
+            url: 'https://api.bscscan1.com/api',
+            maxResults: 1000,
+            rangeThreshold: 1000,
+            rateLimitCount: 1,
+            rateLimitDuration: 5000,
+            apiKeys: ['']
+          }
+        )
+      }
+      const headBlock = await provider.getBlockNumber()
+
+      console.log(ethers.utils.formatBytes32String('DDL'))
+      provider.getLogs({
+        fromBlock: headBlock,
+        toBlock: configs.ddlGenesisBlock,
+        topics: [null, null, ethers.utils.formatBytes32String('DDL')]
+      }).then((logs: any) => {
+        const eventInterface = getEventInterface()
+        for (let i = 0; i < logs.length; i++) {
+          console.log(eventInterface.parseLog(logs[i]))
+        }
+      })
+    }
+    fetchData()
+  }, [chainId])
 
   // useEffect(() => {
   //   const fetchData = async () => {
