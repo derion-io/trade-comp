@@ -26,4 +26,10 @@
       cursor: pointer;
     }
   }
+
+  .search-pool-input {
+    border: 1px solid $color-grey;
+    background: transparent;
+    padding: 1rem 1.5rem;
+  }
 }

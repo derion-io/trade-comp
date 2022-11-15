@@ -28,6 +28,8 @@
   }
 
   &__suffix, &__prefix {
+    display: flex;
+    align-items: center;
     color: $color-input-placeholder;
   }
 }

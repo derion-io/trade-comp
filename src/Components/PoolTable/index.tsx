@@ -4,6 +4,8 @@ import './style.scss'
 import { ButtonBorder } from '../ui/Button'
 import { Collapse } from 'react-collapse'
 import { ExpandPool } from './ExpandPool'
+import { Input } from '../ui/Input'
+import { SearchIcon } from '../ui/Icon'
 
 export const PoolTable = () => {
   return (
@@ -34,6 +36,17 @@ export const PoolTable = () => {
           </tr>
         </thead>
         <tbody>
+          <tr>
+            <td colSpan={7}>
+              <Input
+                placeholder='Search token or address'
+                inputWrapProps={{
+                  className: 'search-pool-input'
+                }}
+                suffix={<SearchIcon />}
+              />
+            </td>
+          </tr>
           <PoolRow />
         </tbody>
       </table>
