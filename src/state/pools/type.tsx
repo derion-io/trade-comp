@@ -3,21 +3,36 @@ import { BigNumber } from 'ethers'
 export type BalancesType = { [key: string]: BigNumber }
 export type AllowancesType = { [key: string]: BigNumber }
 
+export type ParseLogType = {
+  address: string
+  name: string
+  topic: string
+  args: any
+}
+export type PoolType = {
+  pool: string,
+  logic: string,
+  baseSymbol: string
+  states: any
+  baseToken: string,
+  cToken: string,
+  powers: number[]
+  dTokens: string[]
+  priceToleranceRatio: BigNumber
+  quoteSymbol: string
+  rentRate: BigNumber
+  poolAddress: string
+}
+
 export interface poolsState {
-  logics: {
-    [key: string]: {
-      pool: string,
-      baseSymbol: string
-      baseToken: string,
-      cToken: string,
-      powers: number[]
-      priceToleranceRatio: BigNumber
-      quoteSymbol: string
-      rentRate: BigNumber
-    }
+  pools: {
+    [key: number]: {[key: string]: PoolType}
   }
 }
 
 export const initialState: poolsState = {
-  logics: {}
+  pools: {
+    56: {},
+    31337: {}
+  }
 }

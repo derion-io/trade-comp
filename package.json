@@ -38,6 +38,7 @@
     "@uniswap/v3-core": "^1.0.1",
     "@uniswap/v3-sdk": "^3.9.0",
     "assisted-json-rpc-provider": "^1.0.0",
+    "ethereum-multicall": "^2.15.0",
     "ethers": "^5.4.6",
     "lodash": "^4.17.21",
     "rc-slider": "^10.0.1",

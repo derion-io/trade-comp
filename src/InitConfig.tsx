@@ -2,6 +2,7 @@ import React, { Fragment } from 'react'
 import { useInitWeb3React } from './state/customWeb3React/hook'
 import { useInitConfig } from './state/config/useInitConfig'
 import { useConfigs } from './state/config/useConfigs'
+import { useListPool } from './state/pools/hooks/useListPool'
 
 export const InitConfig = ({
   useWeb3React,

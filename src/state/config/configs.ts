@@ -1,7 +1,7 @@
 export default {
   56: {
     rpcUrl: 'https://bsc-dataseed.binance.org/',
-    // scanApi: 'https://api.bscscan1.com/api',
+    scanApi: 'https://api.bscscan.com/api',
     explorer: 'https://bscscan.com',
     scanName: 'BscScan',
     ddlGenesisBlock: 22683582,

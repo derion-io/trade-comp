@@ -5,9 +5,11 @@ import configReduce from './config/reducer'
 import currentPoolReduce from './currentPool/reducer'
 import walletReduce from './wallet/reducer'
 import tokenReduce from './token/reducer'
+import poolsReduce from './pools/reducer'
 
 export const store = createStore(
   combineReducers({
+    pools: poolsReduce,
     web3React: customWeb3ReactReduce,
     configs: configReduce,
     currentPool: currentPoolReduce,

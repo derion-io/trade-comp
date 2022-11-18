@@ -6,9 +6,11 @@ import { useDispatch, useSelector } from 'react-redux'
 import { TokenType } from './type'
 import { useTokenHelper } from './hooks/useTokenHelper'
 import { State } from '../types'
+import { useConfigs } from '../config/useConfigs'
 
 export const useListTokens = () => {
   const { getTokenFromAddresses } = useTokenHelper()
+  const { chainId } = useConfigs()
   const { tokens } = useSelector(
     (state: State) => {
       return {
@@ -25,13 +27,11 @@ export const useListTokens = () => {
       .filter((a: string) => utils.isAddress(a) && !tokens[utils.getAddress(a)])
       .map((a: string) => utils.getAddress(a))
 
-    console.log(addressesToFetch)
     const tokenInfo = await getTokenFromAddresses(
       addressesToFetch
     )
-    console.log(tokenInfo)
     if (tokenInfo.length > 0) {
-      dispatch(addTokensReduce({ tokens: tokenInfo }))
+      dispatch(addTokensReduce({ tokens: tokenInfo, chainId }))
       return tokenInfo
     } else {
       return []
@@ -56,7 +56,7 @@ export const useListTokens = () => {
   }
 
   return {
-    tokens,
+    tokens: tokens[chainId],
     getTokens,
     addTokens
   }

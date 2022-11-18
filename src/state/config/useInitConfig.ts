@@ -2,8 +2,6 @@ import { useDispatch } from 'react-redux'
 import { useEffect } from 'react'
 import { setConfigs } from './reducer'
 import configs from './configs'
-import { resetListTokens } from '../token/reducer'
-import { resetBnA } from '../wallet/reducer'
 
 export const useInitConfig = ({
   chainId,
@@ -24,8 +22,8 @@ export const useInitConfig = ({
   const location = useLocation()
 
   useEffect(() => {
-    dispatch(resetListTokens())
-    dispatch(resetBnA())
+    // dispatch(resetListTokens())
+    // dispatch(resetBnA())
   }, [chainId])
 
   useEffect(() => {
@@ -33,7 +31,7 @@ export const useInitConfig = ({
     dispatch(
       setConfigs({
         configs: configs[chainId || 56],
-        chainId,
+        chainId: chainId || 56,
         useSubPage,
         language,
         env,

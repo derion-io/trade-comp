@@ -15,6 +15,7 @@ import { addTokensReduce } from '../../state/token/reducer'
 import { setCurrentPoolInfo } from '../../state/currentPool/reducer'
 import { ethers } from 'ethers'
 import { useContract } from '../../hooks/useContract'
+import { useListPool } from '../../state/pools/hooks/useListPool'
 
 const { AssistedJsonRpcProvider } = require('assisted-json-rpc-provider')
 
@@ -27,6 +28,11 @@ export const App = () => {
   const { configs, chainId } = useConfigs()
   const dispatch = useDispatch()
   const chainIdRef = useRef(null)
+  const { initListPool } = useListPool()
+
+  useEffect(() => {
+    initListPool()
+  }, [chainId])
 
   useEffect(() => {
     if (account && Object.keys(tokens).length > 0) {
@@ -34,39 +40,65 @@ export const App = () => {
     }
   }, [account, tokens])
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const etherProvider = new ethers.providers.StaticJsonRpcProvider(configs.rpcUrl)
-      let provider = etherProvider
-      if (configs.scanApi) {
-        provider = new AssistedJsonRpcProvider(
-          etherProvider,
-          {
-            url: 'https://api.bscscan1.com/api',
-            maxResults: 1000,
-            rangeThreshold: 1000,
-            rateLimitCount: 1,
-            rateLimitDuration: 5000,
-            apiKeys: ['']
-          }
-        )
-      }
-      const headBlock = await provider.getBlockNumber()
-
-      console.log(ethers.utils.formatBytes32String('DDL'))
-      provider.getLogs({
-        fromBlock: headBlock,
-        toBlock: configs.ddlGenesisBlock,
-        topics: [null, null, ethers.utils.formatBytes32String('DDL')]
-      }).then((logs: any) => {
-        const eventInterface = getEventInterface()
-        for (let i = 0; i < logs.length; i++) {
-          console.log(eventInterface.parseLog(logs[i]))
-        }
-      })
-    }
-    fetchData()
-  }, [chainId])
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     const etherProvider = new ethers.providers.StaticJsonRpcProvider(configs.rpcUrl)
+  //     let provider = etherProvider
+  //     const headBlock = await provider.getBlockNumber()
+  //     if (configs.scanApi) {
+  //       provider = new AssistedJsonRpcProvider(
+  //         etherProvider,
+  //         {
+  //           url: 'https://api.bscscan1.com/api',
+  //           maxResults: 1000,
+  //           rangeThreshold: 1000,
+  //           rateLimitCount: 1,
+  //           rateLimitDuration: 5000,
+  //           apiKeys: ['']
+  //         }
+  //       )
+  //       provider.getLogs({
+  //         fromBlock: configs.ddlGenesisBlock,
+  //         toBlock: headBlock,
+  //         topics: [null, null, ethers.utils.formatBytes32String('DDL')]
+  //       }).then((logs: any) => {
+  //         const eventInterface = getEventInterface()
+  //         for (let i = 0; i < logs.length; i++) {
+  //           console.log(eventInterface.parseLog(logs[i]))
+  //         }
+  //       })
+  //     } else {
+  //       Promise.all(splitRange(configs.ddlGenesisBlock, configs.ddlGenesisBlock + 2000).map((range) => {
+  //         console.log({
+  //           fromBlock: range.from,
+  //           toBlock: range.to,
+  //           topics: [null, null, ethers.utils.formatBytes32String('DDL')]
+  //         })
+  //         return provider.getLogs({
+  //           fromBlock: range.from,
+  //           toBlock: range.to,
+  //           topics: [null, null, ethers.utils.formatBytes32String('DDL')]
+  //         })
+  //       })).then((data) => {
+  //         console.log(data)
+  //       })
+  //     }
+  //   }
+  //   fetchData()
+  // }, [chainId])
+  //
+  // const splitRange = (from: number, to: number, range = 3000) => {
+  //   const result = []
+  //   const length = Math.ceil((to - from) / range)
+  //   for (let i = 0; i < length; i++) {
+  //     result.push({
+  //       from: from,
+  //       to: from + range < to ? from + range - 1 : to
+  //     })
+  //     from = from + range
+  //   }
+  //   return result
+  // }
 
   // useEffect(() => {
   //   const fetchData = async () => {
@@ -88,8 +120,8 @@ export const App = () => {
       updateCurrentPool(configs.addresses.pool)
         .then((data) => {
           // @ts-ignore
-          if (Number(chainIdRef.current.value) === chainId) {
-            dispatch(addTokensReduce({ tokens: data.tokens }))
+          if (Number(chainIdRef?.current?.value) === chainId) {
+            dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
             dispatch(setCurrentPoolInfo(data))
           }
         })

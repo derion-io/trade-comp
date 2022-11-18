@@ -9,9 +9,12 @@ import { walletState } from './wallet/type'
 // eslint-disable-next-line no-unused-vars
 import { tokensState } from './token/type'
 // eslint-disable-next-line no-unused-vars
+import { poolsState } from './pools/type'
+// eslint-disable-next-line no-unused-vars
 import { BigNumber } from 'ethers'
 
 export interface State {
+  pools: poolsState,
   configs: configsState,
   web3react: web3ReactState,
   currentPool: currentPoolState,

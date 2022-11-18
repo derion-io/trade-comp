@@ -5,17 +5,17 @@ export const tokens = createSlice({
   name: 'tokens',
   initialState,
   reducers: {
-    resetListTokens: (state) => {
-      state.tokens = {}
-    },
-    addTokensReduce: (state, action: PayloadAction<{ tokens: TokenType[] }>) => {
+    addTokensReduce: (state, action: PayloadAction<{
+      tokens: TokenType[],
+      chainId: number
+    }>) => {
       const newToken = {}
       const tokens = action.payload.tokens
       for (let i = 0; i < tokens.length; i++) {
         newToken[tokens[i].address] = tokens[i]
       }
-      state.tokens = {
-        ...state.tokens,
+      state.tokens[action.payload.chainId] = {
+        ...state.tokens[action.payload.chainId],
         ...newToken
       }
     }
@@ -24,7 +24,6 @@ export const tokens = createSlice({
 
 // Actions
 export const {
-  resetListTokens,
   addTokensReduce
 } = tokens.actions
 

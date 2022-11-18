@@ -56,6 +56,7 @@ export const useCurrentPool = () => {
       spotBse: routerStates.spot.base._x,
       spotLP: routerStates.spot.LP._x
     }
+    console.log('states', states)
     const { baseToken, quoteToken, tokenC: cToken } = configs.addresses
     const dTokens = [
       configs.addresses.dToken1,

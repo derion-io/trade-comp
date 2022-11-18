@@ -1,13 +1,22 @@
-import React, { useState } from 'react'
-import { TextBuy } from '../ui/Text'
+import React, { useEffect, useMemo, useState } from 'react'
+import { Text, TextBuy, TextSell } from '../ui/Text'
 import './style.scss'
 import { ButtonBorder } from '../ui/Button'
 import { Collapse } from 'react-collapse'
 import { ExpandPool } from './ExpandPool'
 import { Input } from '../ui/Input'
 import { SearchIcon } from '../ui/Icon'
+import { useListPool } from '../../state/pools/hooks/useListPool'
+import { PoolType } from '../../state/pools/type'
+import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
+import { PowerState } from '../../utils/powerLib'
+import { bn, formatFloat, shortenAddressString, weiToNumber } from '../../utils/helpers'
+import { useListTokens } from '../../state/token/hook'
+import { TokenSymbol } from '../ui/TokenSymbol'
 
 export const PoolTable = () => {
+  const { pools } = useListPool()
+
   return (
     <div className='pool-table-wrap'>
       {/* <Box> */}
@@ -28,7 +37,6 @@ export const PoolTable = () => {
             <th className='text-left'>Asset</th>
             <th className='text-left'>Size</th>
             <th className='text-left'>Net val</th>
-            <th className='text-left'>Average</th>
             <th className='text-left'>Leverage</th>
             <th className='text-right'>
               <ButtonBorder className='pt-05 pb-05'>Add</ButtonBorder>
@@ -47,35 +55,80 @@ export const PoolTable = () => {
               />
             </td>
           </tr>
-          <PoolRow />
+          {
+            Object.values(pools).map((pool, key) => {
+              return <PoolRow pool={pool} key={key} />
+            })
+          }
         </tbody>
       </table>
     </div>
   )
 }
 
-export const PoolRow = () => {
+export const PoolRow = ({ pool }: { pool: PoolType }) => {
+  const { balances } = useWalletBalance()
+  const { tokens } = useListTokens()
   const [isExpand, setIsExpand] = useState<boolean>(true)
+  const { dTokens, powers } = pool
+
+  const [powerState, leverage, value] = useMemo(() => {
+    console.log('tokens', tokens)
+    let leverage = 0
+    const value = bn(0)
+    const { powers, states, dTokens } = pool
+    const p = new PowerState({ powers: powers })
+    p.loadStates(states)
+
+    const currentBalances = {}
+    powers.forEach((power, key) => {
+      if (balances[dTokens[key]]) {
+        currentBalances[power] = bn(balances[dTokens[key]])
+        // value = p.calculateCompValue(currentBalances)
+      }
+    })
+
+    if (Object.keys(currentBalances).length > 0) {
+      leverage = p.calculateCompExposure(currentBalances)
+    }
+
+    return [p, leverage, value]
+  }, [pool, balances])
+
+  useEffect(() => {
+    console.log(pool)
+  }, [pool])
+  const TdText = leverage >= 0 ? TextBuy : TextSell
 
   return <React.Fragment>
-    <tr className='is-long-pool pool-tr' onClick={() => setIsExpand(!isExpand)}>
+    <tr className={`${leverage >= 0 ? 'is-long-pool' : 'is-short-pool'} pool-tr`}
+      onClick={() => setIsExpand(!isExpand)}>
       <td className='text-left'>
-        <TextBuy>0x8233...234</TextBuy>
+        <TdText>{shortenAddressString(pool.poolAddress)}</TdText>
       </td>
       <td className='text-left'>
-        <TextBuy>ETH (Long)</TextBuy>
+        <TdText>{pool.baseSymbol} ({leverage >= 0 ? 'Long' : 'Short'})</TdText>
       </td>
       <td className='text-left'>
-        <TextBuy>ETH (Long)</TextBuy>
+        {
+          dTokens.map((dToken, key) => {
+            const SymBolText = powers[key] >= 0 ? TextBuy : TextSell
+            if (balances[dToken] && balances[dToken].gt(0)) {
+              return <div key={key}>
+                <Text>{weiToNumber(balances[dToken], tokens[dToken]?.decimal || 18, 4)} </Text>
+                <SymBolText><TokenSymbol token={tokens[dToken]} /></SymBolText>
+              </div>
+            }
+            return ''
+          })
+        }
       </td>
       <td className='text-left'>
-        <TextBuy>100$</TextBuy>
+        {/* TODO: display as decimal and symbol of quote Token */}
+        <TdText>{weiToNumber(value, 18, 4)} BUSD</TdText>
       </td>
       <td className='text-left'>
-        <TextBuy>100$</TextBuy>
-      </td>
-      <td className='text-left'>
-        <TextBuy>x5</TextBuy>
+        <TdText>{formatFloat(leverage, 1)}x</TdText>
       </td>
       <td className='text-right'>
         <svg
@@ -94,7 +147,7 @@ export const PoolRow = () => {
         </svg>
       </td>
     </tr>
-    <td colSpan={7} className='p-0'>
+    <td colSpan={6} className='p-0'>
       <Collapse isOpened={isExpand} initialStyle={{ height: 0, overflow: 'hidden' }}>
         <ExpandPool visible={isExpand} />
       </Collapse>

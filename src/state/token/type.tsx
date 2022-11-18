@@ -2,7 +2,7 @@ export interface TokenType {
   decimal: number
   name: string
   symbol: string
-  icon: string
+  icon?: string
   logo?: string
   address: string
   isWhiteList?: boolean
@@ -20,10 +20,15 @@ type ListTokensType = { [key: string]: TokenType }
 
 export interface tokensState {
   chainTokens: { [key: number]: ListTokensType }
-  tokens: ListTokensType
+  tokens: {
+    [key: number]: ListTokensType
+  }
 }
 
 export const initialState: tokensState = {
   chainTokens: {},
-  tokens: {}
+  tokens: {
+    56: {},
+    42161: {}
+  }
 }
