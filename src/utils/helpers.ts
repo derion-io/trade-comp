@@ -90,7 +90,6 @@ export const mul = (a: any, b: any) => {
   return arr[1] ? arr.join('.') : arr.join('')
 }
 
-
 export const sub = (a: any, b: any) => {
   return weiToNumber(BigNumber.from(numberToWei(a)).sub(numberToWei(b)))
 }
@@ -109,4 +108,29 @@ export const add = (a: any, b: any) => {
 export const formatPercent = (floatNumber: any, decimal: number = 2) => {
   floatNumber = floatNumber.toString()
   return formatFloat(weiToNumber(numberToWei(floatNumber), 16), decimal)
+}
+
+export const getNormalAddress = (addresses: string[]) => {
+  return addresses.filter((adr: string) => /^0x[0-9,a-f,A-Z]{40}$/g.test(adr))
+}
+
+/**
+ *
+ * @param addresses address with format 0x...-id
+ * example 0x72bB2D0F05D6b0c346023f978F6fA19e9e3c353c-0
+ */
+export const getErc1155Token = (addresses: string[]) => {
+  const erc1155Addresses = addresses
+    .filter((adr: string) => /^0x[0-9,a-f,A-Z]{40}-[0-9]{1,}$/g.test(adr))
+  const result = {}
+  for (let i = 0; i < erc1155Addresses.length; i++) {
+    const address = erc1155Addresses[i].split('-')[0]
+    const id = erc1155Addresses[i].split('-')[1]
+    if (!result[address]) {
+      result[address] = [bn(id)]
+    } else {
+      result[address].push(bn(id))
+    }
+  }
+  return result
 }

@@ -5,6 +5,7 @@ import { useListTokens } from '../../token/hook'
 import { bn, div, formatPercent, numberToWei, sub, weiToNumber } from '../../../utils/helpers'
 import { usePairInfo } from '../../../hooks/usePairInfo'
 import { useConfigs } from '../../config/useConfigs'
+import { useListPool } from '../../pools/hooks/useListPool'
 
 const CHART_API_ENDPOINT = 'https://api.lz.finance/56/chart/'
 const LP_PRICE_UNIT = 10000
@@ -14,6 +15,7 @@ export const useCurrentPool = () => {
   const { getTokens } = useListTokens()
   const { getPairInfo } = usePairInfo()
   const { configs } = useConfigs()
+  const { pools } = useListPool()
 
   const {
     cTokenPrice,
@@ -44,6 +46,8 @@ export const useCurrentPool = () => {
   })
 
   const updateCurrentPool = async (poolAddress: string) => {
+    const pool = pools[poolAddress]
+    console.log(pool)
     const poolContract = getPoolContract(poolAddress)
     const logicAddress = await poolContract.LOGIC()
     const routerContract = getRouterContract()

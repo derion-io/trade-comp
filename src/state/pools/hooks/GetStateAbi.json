@@ -1,122 +1,177 @@
 {
-  "inputs": [
-    {
-      "internalType": "address",
-      "name": "logic",
-      "type": "address"
-    }
-  ],
+  "inputs": [],
   "name": "getStates",
   "outputs": [
-    {
-      "internalType": "uint256",
-      "name": "Rc",
-      "type": "uint256"
-    },
-    {
-      "internalType": "uint32",
-      "name": "priceScaleTimestamp",
-      "type": "uint32"
-    },
-    {
-      "internalType": "uint224",
-      "name": "priceScaleLong",
-      "type": "uint224"
-    },
-    {
-      "internalType": "uint224",
-      "name": "priceScaleShort",
-      "type": "uint224"
-    },
     {
       "components": [
         {
           "internalType": "uint256",
-          "name": "basePriceCumulative",
+          "name": "Rc",
           "type": "uint256"
         },
         {
           "internalType": "uint32",
-          "name": "blockTimestamp",
+          "name": "priceScaleTimestamp",
           "type": "uint32"
         },
         {
-          "components": [
-            {
-              "internalType": "uint224",
-              "name": "_x",
-              "type": "uint224"
-            }
-          ],
-          "internalType": "struct FixedPoint.uq112x112",
-          "name": "baseTWAP",
-          "type": "tuple"
-        }
-      ],
-      "internalType": "struct OracleStore",
-      "name": "oracleStore",
-      "type": "tuple"
-    },
-    {
-      "components": [
+          "internalType": "uint224",
+          "name": "priceScaleLong",
+          "type": "uint224"
+        },
+        {
+          "internalType": "uint224",
+          "name": "priceScaleShort",
+          "type": "uint224"
+        },
         {
           "components": [
             {
-              "internalType": "uint224",
-              "name": "_x",
-              "type": "uint224"
+              "internalType": "uint256",
+              "name": "basePriceCumulative",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint32",
+              "name": "blockTimestamp",
+              "type": "uint32"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint224",
+                  "name": "_x",
+                  "type": "uint224"
+                }
+              ],
+              "internalType": "struct FixedPoint.uq112x112",
+              "name": "baseTWAP",
+              "type": "tuple"
             }
           ],
-          "internalType": "struct FixedPoint.uq112x112",
-          "name": "base",
+          "internalType": "struct OracleStore",
+          "name": "oracleStore",
           "type": "tuple"
         },
         {
           "components": [
             {
-              "internalType": "uint224",
-              "name": "_x",
-              "type": "uint224"
-            }
-          ],
-          "internalType": "struct FixedPoint.uq112x112",
-          "name": "LP",
-          "type": "tuple"
-        }
-      ],
-      "internalType": "struct OraclePrice",
-      "name": "twap",
-      "type": "tuple"
-    },
-    {
-      "components": [
-        {
-          "components": [
+              "internalType": "uint256",
+              "name": "basePriceCumulative",
+              "type": "uint256"
+            },
             {
-              "internalType": "uint224",
-              "name": "_x",
-              "type": "uint224"
+              "internalType": "uint32",
+              "name": "blockTimestamp",
+              "type": "uint32"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint224",
+                  "name": "_x",
+                  "type": "uint224"
+                }
+              ],
+              "internalType": "struct FixedPoint.uq112x112",
+              "name": "baseTWAP",
+              "type": "tuple"
             }
           ],
-          "internalType": "struct FixedPoint.uq112x112",
-          "name": "base",
+          "internalType": "struct OracleStore",
+          "name": "oracleStoreUpdated",
           "type": "tuple"
         },
         {
           "components": [
             {
-              "internalType": "uint224",
-              "name": "_x",
-              "type": "uint224"
+              "components": [
+                {
+                  "internalType": "uint224",
+                  "name": "_x",
+                  "type": "uint224"
+                }
+              ],
+              "internalType": "struct FixedPoint.uq112x112",
+              "name": "base",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint224",
+                  "name": "_x",
+                  "type": "uint224"
+                }
+              ],
+              "internalType": "struct FixedPoint.uq112x112",
+              "name": "LP",
+              "type": "tuple"
             }
           ],
-          "internalType": "struct FixedPoint.uq112x112",
-          "name": "LP",
+          "internalType": "struct OraclePrice",
+          "name": "twap",
           "type": "tuple"
+        },
+        {
+          "components": [
+            {
+              "components": [
+                {
+                  "internalType": "uint224",
+                  "name": "_x",
+                  "type": "uint224"
+                }
+              ],
+              "internalType": "struct FixedPoint.uq112x112",
+              "name": "base",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint224",
+                  "name": "_x",
+                  "type": "uint224"
+                }
+              ],
+              "internalType": "struct FixedPoint.uq112x112",
+              "name": "LP",
+              "type": "tuple"
+            }
+          ],
+          "internalType": "struct OraclePrice",
+          "name": "spot",
+          "type": "tuple"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "totalSupplies",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "uint256",
+          "name": "rDcLong",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "rDcShort",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint224",
+          "name": "rentRateLong",
+          "type": "uint224"
+        },
+        {
+          "internalType": "uint224",
+          "name": "rentRateShort",
+          "type": "uint224"
         }
       ],
-      "internalType": "struct OraclePrice",
-      "name": "spot",
+      "internalType": "struct PowerPerpetual.StateView",
+      "name": "states",
       "type": "tuple"
     }
   ],

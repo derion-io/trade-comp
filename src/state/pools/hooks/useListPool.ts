@@ -10,7 +10,8 @@ import TokensInfoAbi from '../../../assets/abi/TokensInfo.json'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { ContractCallContext, Multicall } from 'ethereum-multicall'
 import { addTokensReduce } from '../../token/reducer'
-import { bn } from '../../../utils/helpers'
+import { bn, getNormalAddress } from '../../../utils/helpers'
+import { decodePowers } from 'powerLib'
 
 const { AssistedJsonRpcProvider } = require('assisted-json-rpc-provider')
 
@@ -28,21 +29,23 @@ export const useListPool = () => {
     let provider = etherProvider
     const headBlock = await provider.getBlockNumber()
     provider = new AssistedJsonRpcProvider(
-      etherProvider,
-      {
-        url: configs.scanApi,
-        maxResults: 1000,
-        rangeThreshold: 1000,
-        rateLimitCount: 1,
-        rateLimitDuration: 5000,
-        apiKeys: ['']
-      }
+      etherProvider
+      // {
+      //   url: configs.scanApi,
+      //   maxResults: 1000,
+      //   rangeThreshold: 1000,
+      //   rateLimitCount: 1,
+      //   rateLimitDuration: 5000,
+      //   apiKeys: ['']
+      // }
     )
+    console.log(configs.ddlGenesisBlock, headBlock, ethers.utils.formatBytes32String('DDL'))
     const ddlLogs = await provider.getLogs({
       fromBlock: configs.ddlGenesisBlock,
       toBlock: headBlock,
       topics: [null, null, ethers.utils.formatBytes32String('DDL')]
     }).then((logs: any) => {
+      console.log('ddl logs', logs)
       const eventInterface = getEventInterface()
       return logs.map((log: any) => {
         return { address: log.address, ...eventInterface.parseLog(log) }
@@ -67,50 +70,56 @@ export const useListPool = () => {
     const logicData = {}
     logs.forEach((log) => {
       if (log.name === 'LogicCreated') {
+        console.log('log', log)
+        const powers = decodePowers(log.args.powers)
         logicData[log.address] = {
           logic: log.address,
-          dTokens: [log.args.powers.map(() => null)],
+          dTokens: powers.map((value, key) => key),
           baseToken: log.args.baseToken,
           baseSymbol: ethers.utils.parseBytes32String(log.args.baseSymbol),
           quoteSymbol: ethers.utils.parseBytes32String(log.args.quoteSymbol),
           cToken: log.args.cToken,
           priceToleranceRatio: log.args.priceToleranceRatio,
           rentRate: log.args.rentRates,
-          powers: log.args.powers.map((p: BigNumber) => p.toNumber())
+          powers
         }
       }
     })
 
-    logs.forEach((log) => {
-      if (log.name === 'DTokenCreated') {
-        if (logicData[log.args.logic] && logicData[log.args.logic].dTokens) {
-          const index = log.args.index.toNumber()
-          console.log('DTokenCreated', log.args)
-          logicData[log.args.logic].dTokens[index] = {
-            address: log.args.token,
-            power: logicData[log.args.logic].powers[index]
-          }
-        }
-      }
-    })
+    // logs.forEach((log) => {
+    //   if (log.name === 'DTokenCreated') {
+    //     if (logicData[log.args.logic] && logicData[log.args.logic].dTokens) {
+    //       const index = log.args.index.toNumber()
+    //       console.log('DTokenCreated', log.args)
+    //       logicData[log.args.logic].dTokens[index] = {
+    //         address: log.args.token,
+    //         power: logicData[log.args.logic].powers[index]
+    //       }
+    //     }
+    //   }
+    // })
 
     logs.forEach((log) => {
       if (log.name === 'PoolCreated') {
+        console.log('PoolCreated', log)
         const logic = log.args.logic
         const data = logicData[logic]
 
+        // sort powers and dToken
         data.powers = data.powers.sort((a: number, b: number) => a - b)
         data.dTokens = (data.dTokens as { address: string, power: number }[])
           .sort((a, b) => a.power - b.power)
-          .map((token) => token.address)
+          .map((token) => `${log.args.pool}-${token}`)
 
         poolData[log.args.pool] = {
           poolAddress: log.args.pool,
           ...data
         }
-        allTokens.push(...data.dTokens, data.cToken, data.baseToken, log.args.pool)
+        allTokens.push(...data.dTokens, data.cToken, data.baseToken)
       }
     })
+
+    console.log('poolData', poolData)
 
     return loadStatesData(allTokens, poolData)
   }
@@ -123,18 +132,16 @@ export const useListPool = () => {
   const loadStatesData = async (listTokens: string[], listPools: { [key: string]: PoolType }) => {
     const provider = new JsonRpcProvider(configs.rpcUrl)
     const multicall = new Multicall({
+      multicallCustomContractAddress: configs.addresses.multiCall,
       ethersProvider: provider,
       tryAggregate: true
     })
+    const normalTokens = getNormalAddress(listTokens)
+
     // @ts-ignore
-    const context: ContractCallContext[] = getMultiCallRequest(listTokens, listPools)
+    const context: ContractCallContext[] = getMultiCallRequest(normalTokens, listPools)
     const { results } = await multicall.call(context)
     const { tokens: tokensArr, poolsState } = parseMultiCallResponse(results)
-
-    const pools = { ...listPools }
-    for (const i in pools) {
-      pools[i].states = poolsState[i]
-    }
 
     const tokens = []
     for (let i = 0; i < tokensArr.length; i++) {
@@ -143,7 +150,22 @@ export const useListPool = () => {
         name: tokensArr[i][1],
         decimal: tokensArr[i][2],
         totalSupply: tokensArr[i][3],
-        address: listTokens[i]
+        address: normalTokens[i]
+      })
+    }
+
+    const pools = { ...listPools }
+    for (const i in pools) {
+      pools[i].states = poolsState[i]
+      const powers = pools[i].powers
+      powers.forEach((power, key) => {
+        tokens.push({
+          symbol: pools[i].baseSymbol + '^' + power,
+          name: pools[i].baseSymbol + '^' + power,
+          decimal: 18,
+          totalSupply: 0,
+          address: i + '-' + key
+        })
       })
     }
 
@@ -151,25 +173,25 @@ export const useListPool = () => {
   }
 
   const parseMultiCallResponse = (data: any) => {
+    console.log('data', data)
     const poolStateData = data.pools.callsReturnContext
     const tokens = data.tokens.callsReturnContext[0].returnValues
     const pools = {}
-    console.log('poolStateData', poolStateData)
     for (let i = 0; i < poolStateData.length; i++) {
       const twap = {
-        LP: {
-          _x: bn(poolStateData[i].returnValues[5][1][0])
-        },
-        base: {
-          _x: bn(poolStateData[i].returnValues[5][0][0])
-        }
-      }
-      const spot = {
         LP: {
           _x: bn(poolStateData[i].returnValues[6][1][0])
         },
         base: {
           _x: bn(poolStateData[i].returnValues[6][0][0])
+        }
+      }
+      const spot = {
+        LP: {
+          _x: bn(poolStateData[i].returnValues[7][1][0])
+        },
+        base: {
+          _x: bn(poolStateData[i].returnValues[7][0][0])
         }
       }
       pools[poolStateData[i].reference] = {
@@ -185,7 +207,6 @@ export const useListPool = () => {
         spotBse: spot.base._x,
         spotLP: spot.LP._x
       }
-      console.log('pools[poolStateData[i]', pools[poolStateData[i].reference])
     }
 
     return { tokens, poolsState: pools }
@@ -196,26 +217,26 @@ export const useListPool = () => {
    * @param listTokens
    * @param listPools
    */
-  const getMultiCallRequest = (listTokens: string[], listPools: { [key: string]: PoolType }) => {
-    return [
+  const getMultiCallRequest = (normalTokens: string[], listPools: { [key: string]: PoolType }) => {
+    const request = [
       {
         reference: 'tokens',
         contractAddress: configs.addresses.tokensInfo,
         abi: TokensInfoAbi,
-        calls: [{ reference: 'tokenInfos', methodName: 'getTokenInfo', methodParameters: [listTokens] }]
-      },
-      {
-        reference: 'pools',
-        contractAddress: configs.addresses.router,
-        abi: [...Object.values(listPools).map(() => GetStateAbi)],
-        calls: [
-          ...Object.values(listPools).map((pool) => {
-            return { reference: pool.poolAddress, methodName: 'getStates', methodParameters: [pool.logic] }
-          })
-
-        ]
+        calls: [{ reference: 'tokenInfos', methodName: 'getTokenInfo', methodParameters: [normalTokens] }]
       }
     ]
+
+    for (const i in listPools) {
+      request.push({
+        reference: 'pools',
+        contractAddress: listPools[i].logic,
+        abi: [GetStateAbi],
+        calls: [{ reference: i, methodName: 'getStates', methodParameters: [] }]
+      })
+    }
+
+    return request
   }
 
   return { initListPool, pools: pools[chainId] }

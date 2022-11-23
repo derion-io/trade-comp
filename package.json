@@ -80,7 +80,8 @@
     "react-scripts": "^3.4.1",
     "sass": "^1.38.2",
     "sass-loader": "^12.1.0",
-    "typescript": "^3.7.5"
+    "typescript": "^3.7.5",
+    "powerLib": "git+ssh://git@github.com:derivable-io/power-lib.git#cd6f0ba1baa1843a5f053e8a98583d4f7d4b2dad"
   },
   "files": [
     "dist"

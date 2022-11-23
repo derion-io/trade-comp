@@ -6,6 +6,7 @@ export default {
     scanName: 'BscScan',
     ddlGenesisBlock: 22683582,
     addresses: {
+      multiCall: '0xC50F4c1E81c873B2204D7eFf7069Ffec6Fbe136D',
       tokensInfo: '0x6B451b1bdaa7088467961FC0370d4049DF1C2E4d',
       pairsInfo: '0xf7Eb29dFfcDb11BC82D094e3bffA3E5764117A22',
       bnA: '0xA0c0Da3e41c401A601c7c93C4036773B5Ac47be2',
@@ -31,12 +32,14 @@ export default {
   31337: {
     rpcUrl: 'http://localhost:8545/',
     explorer: 'https://bscscan.com',
+    scanApi: 'https://api.bscscan.com/api',
     scanName: 'Localhost Scan',
     ddlGenesisBlock: 0,
     addresses: {
-      tokensInfo: '0x82fcaa6c2C9D103b916d4E3bfbDc8DCD8637875E',
-      pairsInfo: '0x66c409EB2937C9627Db0622D48DC8B4982fC58D6',
-      bnA: '0x3bc605DBD3f9d8e9B6FACdfc6548f8BD3b0f0Af5',
+      multiCall: '0x3bc605DBD3f9d8e9B6FACdfc6548f8BD3b0f0Af5',
+      tokensInfo: '0xD633ee476cfD10B300F20ae23ABAebf4B35BE18F',
+      pairsInfo: '0x82fcaa6c2C9D103b916d4E3bfbDc8DCD8637875E',
+      bnA: '0x66c409EB2937C9627Db0622D48DC8B4982fC58D6',
       wrapToken: '0xB29439A682eBa17df241944D5eFAE0f44fcf431B',
       nativeToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
       tokenC: '0x40f6d9AE858E7556De3524CbeeD443b0219d7eCC',

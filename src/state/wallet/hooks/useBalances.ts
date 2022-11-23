@@ -4,14 +4,17 @@ import {
 } from '../reducer'
 import { AllowancesType, BalancesType } from '../type'
 import { useWeb3React } from '../../customWeb3React/hook'
-import { useContract } from '../../../hooks/useContract'
 import { useConfigs } from '../../config/useConfigs'
 import { ethers } from 'ethers'
 import ERC20Abi from '../../../assets/abi/IERC20.json'
 import { LARGE_VALUE } from '../../../utils/constant'
 import { toast } from 'react-toastify'
-import { bn, parseCallStaticError } from '../../../utils/helpers'
+import { bn, getErc1155Token, getNormalAddress, parseCallStaticError } from '../../../utils/helpers'
 import { messageAndViewOnBsc } from '../../../Components/MessageAndViewOnBsc'
+import BnAAbi from '../../../assets/abi/BnA.json'
+import { Multicall } from 'ethereum-multicall'
+import { JsonRpcProvider } from '@ethersproject/providers'
+import PoolAbi from '../../../assets/abi/Pool.json'
 
 export const useWalletBalance = () => {
   const { balances, accFetchBalance, routerAllowances } = useSelector((state: any) => {
@@ -23,14 +26,13 @@ export const useWalletBalance = () => {
   })
   const { configs } = useConfigs()
   const { library, account } = useWeb3React()
-  const { getBnAContract } = useContract()
 
   const dispatch = useDispatch()
 
   const updateBalanceAndAllowances = ({
-                                        balances,
-                                        routerAllowances
-                                      }: {
+    balances,
+    routerAllowances
+  }: {
     balances: BalancesType,
     routerAllowances: AllowancesType
   }) => {
@@ -44,8 +46,8 @@ export const useWalletBalance = () => {
   }
 
   const approveRouter = async ({
-                                 tokenAddress
-                               }: { tokenAddress: string }) => {
+    tokenAddress
+  }: { tokenAddress: string }) => {
     if (account && library) {
       try {
         const signer = library.getSigner()
@@ -69,21 +71,85 @@ export const useWalletBalance = () => {
 
   const fetchBalanceAndAllowance = async (tokensArr: string[]) => {
     if (account) {
-      const bnAContract = getBnAContract()
-      const newBalances: BalancesType = {}
-      const routerAllowance = {}
-      const r = await bnAContract.getBnA(tokensArr, [account], [configs.addresses.router])
-      const res = r[0]
-      for (let i = 0; i < tokensArr.length; i++) {
-        const address = tokensArr[i]
-        newBalances[address] = res[i * 2]
-        routerAllowance[address] = res[i * 2 + 1]
-      }
+      const provider = new JsonRpcProvider(configs.rpcUrl)
+      const multicall = new Multicall({
+        multicallCustomContractAddress: configs.addresses.multiCall,
+        ethersProvider: provider,
+        tryAggregate: true
+      })
+      const erc20Tokens = getNormalAddress(tokensArr)
+      const erc1155Tokens = getErc1155Token(tokensArr)
+      const multiCallRequest = getBnAMulticallRequest(erc20Tokens, erc1155Tokens)
+      const { results } = await multicall.call(multiCallRequest)
+      const { balances, allowances } = parseBnAMultiRes(erc20Tokens, erc1155Tokens, results)
+
       updateBalanceAndAllowances({
-        balances: newBalances,
-        routerAllowances: routerAllowance
+        balances,
+        routerAllowances: allowances
       })
     }
+  }
+
+  const parseBnAMultiRes = (erc20Address: any, erc1155Tokens: any, data: any) => {
+    const balances = {}
+    const allowances = {}
+    const erc20Info = data.erc20.callsReturnContext[0].returnValues[0]
+    const erc1155Info = data.erc1155.callsReturnContext
+    for (let i = 0; i < erc20Address.length; i++) {
+      const address = erc20Address[i]
+      balances[address] = erc20Info[i * 2]
+      allowances[address] = erc20Info[i * 2 + 1]
+    }
+
+    const approveData = erc1155Info.filter((e: any) => e.methodName === 'isApprovedForAll')
+    const balanceData = erc1155Info.filter((e: any) => e.methodName === 'balanceOfBatch')
+
+    for (let i = 0; i < approveData.length; i++) {
+      const callsReturnContext = approveData[i]
+      allowances[callsReturnContext.reference] = callsReturnContext.returnValues[0] ? bn(LARGE_VALUE) : bn(0)
+    }
+
+    for (let i = 0; i < balanceData.length; i++) {
+      const returnValues = balanceData[i].returnValues
+      for (let j = 0; j < returnValues.length; j++) {
+        balances[balanceData[i].reference + '-' + j] = bn(returnValues[j])
+      }
+    }
+
+    return {
+      balances,
+      allowances
+    }
+  }
+
+  const getBnAMulticallRequest = (erc20Tokens: string[], erc1155Tokens: { [key: string]: string[] }) => {
+    const request: any = [
+      {
+        reference: 'erc20',
+        contractAddress: configs.addresses.bnA,
+        abi: BnAAbi,
+        calls: [{ reference: 'bna', methodName: 'getBnA', methodParameters: [erc20Tokens, [account], [configs.addresses.router]] }]
+      }
+    ]
+
+    for (const erc1155Address in erc1155Tokens) {
+      const accounts = erc1155Tokens[erc1155Address].map(() => {
+        return account
+      })
+      request.push(
+        {
+          reference: 'erc1155',
+          contractAddress: erc1155Address,
+          abi: PoolAbi,
+          calls: [
+            { reference: erc1155Address, methodName: 'isApprovedForAll', methodParameters: [account, configs.addresses.router] },
+            { reference: erc1155Address, methodName: 'balanceOfBatch', methodParameters: [accounts, erc1155Tokens[erc1155Address]] }
+          ]
+        }
+      )
+    }
+
+    return request
   }
 
   return {
