@@ -158,7 +158,7 @@ export const useListPool = () => {
         name: 'DDL-POOL',
         decimal: 18,
         totalSupply: 0,
-        address: i + '-' + POOL_IDS.pool
+        address: i + '-' + POOL_IDS.cp
       })
       tokens.push({
         symbol: 'Uni_LP',

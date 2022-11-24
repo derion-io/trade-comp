@@ -1,11 +1,9 @@
-import { useContract } from '../../../hooks/useContract'
 import { useSelector } from 'react-redux'
 import { State } from '../../types'
-import { useListTokens } from '../../token/hook'
 import { bn, div, formatPercent, numberToWei, sub, weiToNumber } from '../../../utils/helpers'
 import { usePairInfo } from '../../../hooks/usePairInfo'
-import { useConfigs } from '../../config/useConfigs'
 import { useListPool } from '../../pools/hooks/useListPool'
+import { POOL_IDS } from '../../../utils/constant'
 
 const CHART_API_ENDPOINT = 'https://api.lz.finance/56/chart/'
 const LP_PRICE_UNIT = 10000
@@ -21,6 +19,8 @@ export const useCurrentPool = () => {
     dTokens,
     powers,
     states,
+    baseId,
+    quoteId,
     baseToken,
     quoteToken,
     basePrice,
@@ -37,6 +37,8 @@ export const useCurrentPool = () => {
       baseToken: state.currentPool.baseToken,
       quoteToken: state.currentPool.quoteToken,
       basePrice: state.currentPool.basePrice,
+      baseId: state.currentPool.baseId,
+      quoteId: state.currentPool.quoteId,
       changedIn24h: state.currentPool.changedIn24h,
       poolAddress: state.currentPool.poolAddress
     }
@@ -44,13 +46,18 @@ export const useCurrentPool = () => {
 
   const updateCurrentPool = async (poolAddress: string) => {
     const pool = pools[poolAddress]
+    console.log(pool)
     const { logic, states, dTokens, baseToken, cToken } = pool
     const pairInfo = await getPairInfo(pool.cToken)
+    const [baseId, quoteId] = pairInfo.token0.adr === baseToken
+      ? [POOL_IDS.token0, POOL_IDS.token1]
+      : [POOL_IDS.token1, POOL_IDS.token0]
+    console.log('pairInfo', pairInfo)
     const quoteToken = pairInfo.token0.adr === baseToken ? pairInfo.token1.adr : pairInfo.token0.adr
     const tokens = [
       {
         address: pairInfo.token0.adr,
-        decimal: pairInfo.token0.decimal,
+        decimal: pairInfo.token0.decimals,
         name: pairInfo.token0.name,
         symbol: pairInfo.token0.symbol,
         totalSupply: pairInfo.token0.totalSupply
@@ -74,6 +81,8 @@ export const useCurrentPool = () => {
       basePrice,
       cToken,
       logicAddress: logic,
+      baseId,
+      quoteId,
       dTokens,
       powers,
       states,
@@ -100,7 +109,7 @@ export const useCurrentPool = () => {
     return dTokens[index]
   }
 
-  const get24hChange = async (baseToken: string, cToken:string, quoteToken: string) => {
+  const get24hChange = async (baseToken: string, cToken: string, quoteToken: string) => {
     const toTime = Math.floor(new Date().getTime() / 1000)
     const query = `${baseToken},${cToken},${quoteToken}`
     const result = await fetch(`${CHART_API_ENDPOINT}candleline4?q=${query}&r=1H&l=24&t=${toTime}`)
@@ -136,6 +145,8 @@ export const useCurrentPool = () => {
     quoteToken,
     powers,
     cToken,
+    baseId,
+    quoteId,
     logicAddress,
     dTokens,
     states,

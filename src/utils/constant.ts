@@ -4,15 +4,7 @@ export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
 export const POOL_IDS = {
   cToken: 0x20000,
-  pool: 0x10000,
-  dtoken0: 0,
-  dtoken1: 1,
-  dtoken2: 2,
-  dtoken3: 3
+  cp: 0x10000,
+  token0: 0x40000,
+  token1: 0x40001
 }
-
-
-
-
-
-

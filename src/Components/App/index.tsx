@@ -117,7 +117,7 @@ export const App = () => {
 
   useEffect(() => {
     console.log('configs?.addresses.pool', configs?.addresses.pool)
-    updateCurrentPool(configs.addresses.pool)
+    updateCurrentPool(Object.keys(pools)[0])
       .then((data) => {
         // @ts-ignore
         if (Number(chainIdRef?.current?.value) === chainId) {

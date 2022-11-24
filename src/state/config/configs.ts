@@ -46,7 +46,7 @@ export default {
       poolFactory: '0x40f6d9AE858E7556De3524CbeeD443b0219d7eCC',
       tokenFactory: '0xfBD6F7Af174A316104Df529D1ca5D508Fb081b7F',
       logic: '0xdBa9451aC3f3a4a5171715EB5B776316aA474E62',
-      router: '0x329AC0E65141453BB9735EDC9ee3A7515735f4F3',
+      router: '0xdBa9451aC3f3a4a5171715EB5B776316aA474E62',
       pool: '0xEB622c077C62aab627f852cb6B26D624560Cf8ca',
 
       // hardcode, this config will load by contract later

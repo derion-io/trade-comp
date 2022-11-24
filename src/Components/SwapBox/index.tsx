@@ -18,6 +18,7 @@ import { bn, numberToWei, parseCallStaticError, weiToNumber } from '../../utils/
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { useMultiSwapAction } from '../../hooks/useMultiSwapAction'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
+import { POOL_IDS } from '../../utils/constant'
 
 export const SwapBox = () => {
   const { account, showConnectModal } = useWeb3React()
@@ -206,7 +207,13 @@ export const SwapBox = () => {
       <SelectTokenModal
         visible={visibleSelectTokenModal}
         setVisible={setVisibleSelectTokenModal}
-        tokens={[...dTokens, cToken, poolAddress, baseToken, quoteToken]}
+        tokens={[
+          ...dTokens,
+          cToken,
+          poolAddress + '-' + POOL_IDS.cp,
+          baseToken,
+          quoteToken
+        ]}
         onSelectToken={(address: string) => {
           if ((tokenTypeToSelect === 'input' && address === inputTokenAddress) ||
             (tokenTypeToSelect === 'output' && address === outputTokenAddress)

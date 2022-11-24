@@ -13,3 +13,10 @@ export type SwapStepType = {
   amountIn: BigNumber
   amountOutMin: BigNumber | string | number
 }
+
+export type PoolErc1155StepType = {
+  idIn: BigNumber,
+  idOut: BigNumber,
+  amountIn: BigNumber
+  amountOutMin: BigNumber | string | number
+}

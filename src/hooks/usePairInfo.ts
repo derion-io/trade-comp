@@ -8,7 +8,7 @@ export const usePairInfo = () => {
       const tokenContract = getPairInfoContract()
       const res = await tokenContract.functions.query(
         [pairAddress],
-        '0x0000110000000000000000000000000000000000000000000000000000000100'
+        '0x0000110000000000000000000000000000000000000000000000000000000111'
       )
       console.log(res)
       return res.details[0]

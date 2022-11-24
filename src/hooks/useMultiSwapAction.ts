@@ -3,17 +3,18 @@ import { useWeb3React } from '../state/customWeb3React/hook'
 import { useConfigs } from '../state/config/useConfigs'
 import { useContract } from './useContract'
 import { StepType } from '../utils/powerLib'
-import { SwapStepType } from '../utils/type'
-import { ZERO_ADDRESS } from '../utils/constant'
+import { PoolErc1155StepType, SwapStepType } from '../utils/type'
+import { POOL_IDS, ZERO_ADDRESS } from '../utils/constant'
 import { bn, parseCallStaticError } from '../utils/helpers'
 import { toast } from 'react-toastify'
+import { ethers } from 'ethers'
 
 // TODO: don't hardcode these
 const fee10000 = 30
 
-const DELEVERAGE_STEP: SwapStepType = {
-  tokenIn: ZERO_ADDRESS,
-  tokenOut: ZERO_ADDRESS,
+const DELEVERAGE_STEP = {
+  idIn: bn(0),
+  idOut: bn(0),
   amountIn: bn(0),
   amountOutMin: bn(0)
 }
@@ -22,7 +23,7 @@ export const useMultiSwapAction = () => {
   const { getRouterContract } = useContract()
   const { configs } = useConfigs()
   const { library, account } = useWeb3React()
-  const { getTokenByPower, baseToken, quoteToken } = useCurrentPool()
+  const { getTokenByPower, baseToken, poolAddress, quoteToken, cToken, baseId, quoteId } = useCurrentPool()
 
   const getFee10000 = (steps: any[]) => {
     return steps.some(step => [baseToken, quoteToken].includes(step.tokenIn)) ? fee10000 : 0
@@ -32,22 +33,26 @@ export const useMultiSwapAction = () => {
     if (!library) return [[bn(0)], bn(0)]
     const signer = library.getSigner()
     const contract = getRouterContract(signer)
-    const stepsToSwap = formatSwapSteps(steps)
+    const stepsToSwap = convertStepForPoolErc1155(formatSwapSteps(steps))
     if (isDeleverage) {
       stepsToSwap.unshift(DELEVERAGE_STEP)
     }
     const res = await contract.callStatic.multiSwap(
-      configs.addresses.pool,
-      stepsToSwap,
-      account,
-      new Date().getTime() + 3600000,
-      getFee10000(stepsToSwap)
+      {
+        pool: poolAddress,
+        to: account,
+        deadline: new Date().getTime() + 3600000,
+        fee10000: getFee10000(stepsToSwap),
+        referrer: ethers.utils.hexZeroPad('0x00', 32)
+      },
+      stepsToSwap
     )
 
     const result = []
     for (const i in steps) {
       result.push({ ...steps[i], amountOut: res[0][i] })
     }
+    console.log(res)
     return [result, res.gasLeft]
   }
 
@@ -70,7 +75,7 @@ export const useMultiSwapAction = () => {
     return stepsToSwap
   }
 
-  const checkMultiSwapError = async (steps: SwapStepType[]) => {
+  const checkMultiSwapError = async (steps: PoolErc1155StepType[]) => {
     try {
       const signer = library.getSigner()
       const contract = getRouterContract(signer)
@@ -87,9 +92,30 @@ export const useMultiSwapAction = () => {
     }
   }
 
+  const convertStepForPoolErc1155 = (steps: SwapStepType[]): PoolErc1155StepType[] => {
+    return steps.map((step) => {
+      return {
+        idIn: getIdByAddress(step.tokenIn),
+        idOut: getIdByAddress(step.tokenOut),
+        amountIn: step.amountIn,
+        amountOutMin: step.amountOutMin
+      }
+    })
+  }
+  const getIdByAddress = (address: string) => {
+    try {
+      if (address === baseToken) return bn(baseId)
+      if (address === quoteToken) return bn(quoteId)
+      if (address === cToken) return bn(POOL_IDS.cToken)
+      return bn(address.split('-')[1])
+    } catch (e) {
+      throw new Error('Token id not found')
+    }
+  }
+
   const multiSwap = async (steps: SwapStepType[], isDeleverage = false) => {
     try {
-      const stepsToSwap = [...steps]
+      const stepsToSwap = convertStepForPoolErc1155([...steps])
       if (isDeleverage) {
         stepsToSwap.unshift(DELEVERAGE_STEP)
       }
