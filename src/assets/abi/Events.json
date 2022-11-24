@@ -145,6 +145,12 @@
       },
       {
         "indexed": false,
+        "internalType": "uint224",
+        "name": "deleverageRate",
+        "type": "uint224"
+      },
+      {
+        "indexed": false,
         "internalType": "bytes32",
         "name": "powers",
         "type": "bytes32"

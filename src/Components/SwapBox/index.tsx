@@ -123,10 +123,6 @@ export const SwapBox = () => {
           setLoading(true)
           await approveRouter({ tokenAddress: inputTokenAddress })
           setLoading(false)
-
-          // const signer = library.getSigner()
-          // const contract = new ethers.Contract(inputTokenAddress, ERC20Abi, signer)
-          // await contract.approve(configs.addresses.router, LARGE_VALUE)
         }}
       >Approve</ButtonExecute>
     }

@@ -120,8 +120,7 @@ export const getNormalAddress = (addresses: string[]) => {
  * example 0x72bB2D0F05D6b0c346023f978F6fA19e9e3c353c-0
  */
 export const getErc1155Token = (addresses: string[]) => {
-  const erc1155Addresses = addresses
-    .filter((adr: string) => /^0x[0-9,a-f,A-Z]{40}-[0-9]{1,}$/g.test(adr))
+  const erc1155Addresses = addresses.filter(isErc1155Address)
   const result = {}
   for (let i = 0; i < erc1155Addresses.length; i++) {
     const address = erc1155Addresses[i].split('-')[0]
@@ -133,4 +132,15 @@ export const getErc1155Token = (addresses: string[]) => {
     }
   }
   return result
+}
+
+export const isErc1155Address = (address: string) => {
+  return /^0x[0-9,a-f,A-Z]{40}-[0-9]{1,}$/g.test(address)
+}
+
+export const decodeErc1155Address = (address: string) => {
+  return {
+    address: address.split('-')[0],
+    id: address.split('-')[1],
+  }
 }

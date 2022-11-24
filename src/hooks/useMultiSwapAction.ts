@@ -80,11 +80,14 @@ export const useMultiSwapAction = () => {
       const signer = library.getSigner()
       const contract = getRouterContract(signer)
       await contract.callStatic.multiSwap(
-        configs.addresses.pool,
-        steps,
-        account,
-        new Date().getTime() + 3600000,
-        getFee10000(steps)
+        {
+          pool: poolAddress,
+          to: account,
+          deadline: new Date().getTime() + 3600000,
+          fee10000: getFee10000(steps),
+          referrer: ethers.utils.hexZeroPad('0x00', 32)
+        },
+        steps
       )
       return null
     } catch (e) {
@@ -119,19 +122,32 @@ export const useMultiSwapAction = () => {
       if (isDeleverage) {
         stepsToSwap.unshift(DELEVERAGE_STEP)
       }
+      console.log(stepsToSwap)
       const error = await checkMultiSwapError(stepsToSwap)
+      console.log('khanh', error)
       if (error) {
         toast.error(error)
       } else {
         const signer = library.getSigner()
         const contract = getRouterContract(signer)
+        console.log({
+          pool: poolAddress,
+          to: account,
+          deadline: new Date().getTime() + 3600000,
+          fee10000: getFee10000(steps),
+          referrer: ethers.utils.hexZeroPad('0x00', 32)
+        })
         const tx = await contract.multiSwap(
-          configs.addresses.pool,
-          steps,
-          account,
-          new Date().getTime() + 3600000,
-          getFee10000(steps)
+          {
+            pool: poolAddress,
+            to: account,
+            deadline: new Date().getTime() + 3600000,
+            fee10000: getFee10000(steps),
+            referrer: ethers.utils.hexZeroPad('0x00', 32)
+          },
+          stepsToSwap
         )
+        console.log('tx', tx)
         await tx.wait(1)
         toast.success('Swap success')
         return tx
