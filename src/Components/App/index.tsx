@@ -23,6 +23,7 @@ export const App = () => {
   const { getEventInterface } = useContract()
   const { updateCurrentPool } = useCurrentPool()
   const { tokens } = useListTokens()
+  const {pools} = useListPool()
   const { fetchBalanceAndAllowance } = useWalletBalance()
   const { account } = useWeb3React()
   const { configs, chainId } = useConfigs()
@@ -115,18 +116,16 @@ export const App = () => {
   // }, [])
 
   useEffect(() => {
-    if (configs?.addresses.pool) {
-      console.log('configs?.addresses.pool', configs?.addresses.pool)
-      updateCurrentPool(configs.addresses.pool)
-        .then((data) => {
-          // @ts-ignore
-          if (Number(chainIdRef?.current?.value) === chainId) {
-            dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
-            dispatch(setCurrentPoolInfo(data))
-          }
-        })
-    }
-  }, [chainId])
+    console.log('configs?.addresses.pool', configs?.addresses.pool)
+    updateCurrentPool(configs.addresses.pool)
+      .then((data) => {
+        // @ts-ignore
+        if (Number(chainIdRef?.current?.value) === chainId) {
+          dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
+          dispatch(setCurrentPoolInfo(data))
+        }
+      })
+  }, [chainId, pools])
 
   const renderAppContent = () => {
     switch (true) {

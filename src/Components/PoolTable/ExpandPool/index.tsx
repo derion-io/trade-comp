@@ -1,8 +1,12 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import './style.scss'
 import { Text, TextBlue, TextGreen, TextLink, TextPink } from '../../ui/Text'
 
 export const ExpandPool = ({ visible }: any) => {
+  useEffect(() => {
+
+  }, [])
+
   return <div className='pool-expand__wrap'>
     <div className='pool-expand'>
       <div className='pool-expand__top'>

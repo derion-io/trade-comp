@@ -11,10 +11,7 @@ const CHART_API_ENDPOINT = 'https://api.lz.finance/56/chart/'
 const LP_PRICE_UNIT = 10000
 
 export const useCurrentPool = () => {
-  const { getPoolContract, getRouterContract } = useContract()
-  const { getTokens } = useListTokens()
   const { getPairInfo } = usePairInfo()
-  const { configs } = useConfigs()
   const { pools } = useListPool()
 
   const {
@@ -47,33 +44,27 @@ export const useCurrentPool = () => {
 
   const updateCurrentPool = async (poolAddress: string) => {
     const pool = pools[poolAddress]
-    console.log(pool)
-    const poolContract = getPoolContract(poolAddress)
-    const logicAddress = await poolContract.LOGIC()
-    const routerContract = getRouterContract()
-
-    const routerStates = await routerContract.getStates(logicAddress)
-    const states = {
-      ...routerStates,
-      twapBase: routerStates.twap.base._x,
-      twapLP: routerStates.twap.LP._x,
-      spotBse: routerStates.spot.base._x,
-      spotLP: routerStates.spot.LP._x
-    }
-    console.log('states', states)
-    const { baseToken, quoteToken, tokenC: cToken } = configs.addresses
-    const dTokens = [
-      configs.addresses.dToken1,
-      configs.addresses.dToken2,
-      configs.addresses.dToken3,
-      configs.addresses.dToken4
+    const { logic, states, dTokens, baseToken, cToken } = pool
+    const pairInfo = await getPairInfo(pool.cToken)
+    const quoteToken = pairInfo.token0.adr === baseToken ? pairInfo.token1.adr : pairInfo.token0.adr
+    const tokens = [
+      {
+        address: pairInfo.token0.adr,
+        decimal: pairInfo.token0.decimal,
+        name: pairInfo.token0.name,
+        symbol: pairInfo.token0.symbol,
+        totalSupply: pairInfo.token0.totalSupply
+      },
+      {
+        address: pairInfo.token1.adr,
+        decimal: pairInfo.token1.decimal,
+        name: pairInfo.token1.name,
+        symbol: pairInfo.token1.symbol,
+        totalSupply: pairInfo.token1.totalSupply
+      }
     ]
 
-    const [pairInfo, changedIn24h, tokens] = await Promise.all([
-      getPairInfo(cToken),
-      get24hChange(baseToken, cToken, quoteToken),
-      getTokens([...dTokens, cToken, baseToken, quoteToken, poolAddress])
-    ])
+    const changedIn24h = await get24hChange(baseToken, cToken, quoteToken)
     const cPrice = bn(states.twapLP).mul(LP_PRICE_UNIT).shr(112).toNumber() / LP_PRICE_UNIT
     const basePrice = getBasePrice(pairInfo, baseToken)
 
@@ -82,9 +73,9 @@ export const useCurrentPool = () => {
       cTokenPrice: cPrice,
       basePrice,
       cToken,
-      logicAddress,
+      logicAddress: logic,
       dTokens,
-      powers: configs.powers,
+      powers,
       states,
       baseToken,
       quoteToken,
@@ -92,14 +83,6 @@ export const useCurrentPool = () => {
       poolAddress
     }
   }
-
-  // const getLpPrice = (lpTokenDetail: any, baseToken: string) => {
-  //   const totalSupply = lpTokenDetail.totalSupply
-  //   const r0 = lpTokenDetail.token0.reserve
-  //   const r1 = lpTokenDetail.token1.reserve
-  //   const rq = lpTokenDetail.token0.address === baseToken ? r1 : r0
-  //   return weiToNumber(bn(2).mul(rq).mul(numberToWei(1)).div(totalSupply))
-  // }
 
   const getBasePrice = (pairInfo: any, baseToken: string) => {
     const token0 = pairInfo.token0.adr

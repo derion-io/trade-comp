@@ -12,6 +12,7 @@ import { ContractCallContext, Multicall } from 'ethereum-multicall'
 import { addTokensReduce } from '../../token/reducer'
 import { bn, getNormalAddress } from '../../../utils/helpers'
 import { decodePowers } from 'powerLib'
+import { POOL_IDS } from '../../../utils/constant'
 
 const { AssistedJsonRpcProvider } = require('assisted-json-rpc-provider')
 
@@ -86,19 +87,6 @@ export const useListPool = () => {
       }
     })
 
-    // logs.forEach((log) => {
-    //   if (log.name === 'DTokenCreated') {
-    //     if (logicData[log.args.logic] && logicData[log.args.logic].dTokens) {
-    //       const index = log.args.index.toNumber()
-    //       console.log('DTokenCreated', log.args)
-    //       logicData[log.args.logic].dTokens[index] = {
-    //         address: log.args.token,
-    //         power: logicData[log.args.logic].powers[index]
-    //       }
-    //     }
-    //   }
-    // })
-
     logs.forEach((log) => {
       if (log.name === 'PoolCreated') {
         console.log('PoolCreated', log)
@@ -118,8 +106,6 @@ export const useListPool = () => {
         allTokens.push(...data.dTokens, data.cToken, data.baseToken)
       }
     })
-
-    console.log('poolData', poolData)
 
     return loadStatesData(allTokens, poolData)
   }
@@ -166,6 +152,20 @@ export const useListPool = () => {
           totalSupply: 0,
           address: i + '-' + key
         })
+      })
+      tokens.push({
+        symbol: 'DDL-POOL',
+        name: 'DDL-POOL',
+        decimal: 18,
+        totalSupply: 0,
+        address: i + '-' + POOL_IDS.pool
+      })
+      tokens.push({
+        symbol: 'Uni_LP',
+        name: 'Uniswap LPs',
+        decimal: 18,
+        totalSupply: 0,
+        address: pools[i].cToken
       })
     }
 
