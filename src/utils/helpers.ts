@@ -141,6 +141,6 @@ export const isErc1155Address = (address: string) => {
 export const decodeErc1155Address = (address: string) => {
   return {
     address: address.split('-')[0],
-    id: address.split('-')[1],
+    id: address.split('-')[1]
   }
 }

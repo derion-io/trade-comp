@@ -11,7 +11,15 @@ import { IconArrowDown, IconArrowLeft } from '../ui/Icon'
 import { Input } from '../ui/Input'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { PowerState, StepType } from 'powerLib'
-import { bn, formatFloat, mul, numberToWei, parseCallStaticError, weiToNumber } from '../../utils/helpers'
+import {
+  bn,
+  decodeErc1155Address,
+  formatFloat,
+  mul,
+  numberToWei,
+  parseCallStaticError,
+  weiToNumber
+} from '../../utils/helpers'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../state/token/hook'
 import { BigNumber } from 'ethers'
@@ -67,6 +75,7 @@ export const ExposureBox = () => {
         setNewLeverage(oldLeverage)
       }
       const exposure = p.getExposures()
+      console.log('exposure', exposure)
       return [p, oldLeverage, oldValue, p.getMarks(), exposure]
     }
     return [null, 0, oldValue, {}, []]
@@ -75,7 +84,7 @@ export const ExposureBox = () => {
   const tokenNeedApprove = useMemo(() => {
     const result: string[] = []
     for (const i in swapSteps) {
-      const tokenIn = getTokenByPower(swapSteps[i].tokenIn)
+      const tokenIn = decodeErc1155Address(getTokenByPower(swapSteps[i].tokenIn)).address
       if ((!routerAllowances[tokenIn] || routerAllowances[tokenIn].isZero()) && !result.includes(tokenIn)) {
         result.push(tokenIn)
       }
@@ -113,29 +122,27 @@ export const ExposureBox = () => {
   }, [oldLeverage, newLeverage, powerState, cAmountToChange])
 
   useEffect(() => {
-    // const delayDebounceFn = setTimeout(() => {
-    setCallError('Calculating...')
-    calculateAmountOuts(swapSteps, isDeleverage)
-      .then(([aOuts]) => {
-        setStepsWithAmounts(aOuts)
-        setCallError('')
-      })
-      .catch((e) => {
-        setStepsWithAmounts([])
-        const error = parseCallStaticError(e)
-        if (error === 'deleverage') {
-          setIsDeleverage(true)
-        } else if (error == '!deleverage') {
-          setIsDeleverage(false)
-        }
-        setCallError(error ?? e)
-      })
-    // console.log('res')
-    // setStepsWithAmounts(res)
-    // }, 3000)
-    // return () => {
-    //   clearTimeout(delayDebounceFn)
-    // }
+    const delayDebounceFn = setTimeout(() => {
+      setCallError('Calculating...')
+      calculateAmountOuts(swapSteps, isDeleverage)
+        .then(([aOuts]) => {
+          setStepsWithAmounts(aOuts)
+          setCallError('')
+        })
+        .catch((e) => {
+          setStepsWithAmounts([])
+          const error = parseCallStaticError(e)
+          if (error === 'deleverage') {
+            setIsDeleverage(true)
+          } else if (error === '!deleverage') {
+            setIsDeleverage(false)
+          }
+          setCallError(error ?? e)
+        })
+    }, 3000)
+    return () => {
+      clearTimeout(delayDebounceFn)
+    }
   }, [swapSteps, isDeleverage])
 
   const renderExecuteButton = () => {

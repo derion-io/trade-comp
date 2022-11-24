@@ -46,8 +46,7 @@ export const useCurrentPool = () => {
 
   const updateCurrentPool = async (poolAddress: string) => {
     const pool = pools[poolAddress]
-    console.log(pool)
-    const { logic, states, dTokens, baseToken, cToken } = pool
+    const { logic, states, powers, dTokens, baseToken, cToken } = pool
     const pairInfo = await getPairInfo(pool.cToken)
     const [baseId, quoteId] = pairInfo.token0.adr === baseToken
       ? [POOL_IDS.token0, POOL_IDS.token1]

@@ -8,6 +8,8 @@ import { POOL_IDS, ZERO_ADDRESS } from '../utils/constant'
 import { bn, parseCallStaticError } from '../utils/helpers'
 import { toast } from 'react-toastify'
 import { ethers } from 'ethers'
+import { useWalletBalance } from '../state/wallet/hooks/useBalances'
+import { useListTokens } from '../state/token/hook'
 
 // TODO: don't hardcode these
 const fee10000 = 30
@@ -21,9 +23,10 @@ const DELEVERAGE_STEP = {
 
 export const useMultiSwapAction = () => {
   const { getRouterContract } = useContract()
-  const { configs } = useConfigs()
   const { library, account } = useWeb3React()
   const { getTokenByPower, baseToken, poolAddress, quoteToken, cToken, baseId, quoteId } = useCurrentPool()
+  const {tokens} = useListTokens()
+  const {fetchBalanceAndAllowance} = useWalletBalance()
 
   const getFee10000 = (steps: any[]) => {
     return steps.some(step => [baseToken, quoteToken].includes(step.tokenIn)) ? fee10000 : 0
@@ -150,6 +153,7 @@ export const useMultiSwapAction = () => {
         console.log('tx', tx)
         await tx.wait(1)
         toast.success('Swap success')
+        fetchBalanceAndAllowance(Object.keys(tokens))
         return tx
       }
     } catch (e) {

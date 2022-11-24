@@ -141,6 +141,8 @@ export const useWalletBalance = () => {
     const approveData = erc1155Info.filter((e: any) => e.methodName === 'isApprovedForAll')
     const balanceData = erc1155Info.filter((e: any) => e.methodName === 'balanceOfBatch')
 
+    console.log(approveData)
+
     for (let i = 0; i < approveData.length; i++) {
       const callsReturnContext = approveData[i]
       allowances[callsReturnContext.reference] = callsReturnContext.returnValues[0] ? bn(LARGE_VALUE) : bn(0)

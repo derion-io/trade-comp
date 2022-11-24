@@ -14,7 +14,7 @@ import { BigNumber } from 'ethers'
 import { SelectTokenModal } from '../SelectTokenModal'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../state/token/hook'
-import { bn, numberToWei, parseCallStaticError, weiToNumber } from '../../utils/helpers'
+import { bn, decodeErc1155Address, numberToWei, parseCallStaticError, weiToNumber } from '../../utils/helpers'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { useMultiSwapAction } from '../../hooks/useMultiSwapAction'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
@@ -86,6 +86,7 @@ export const SwapBox = () => {
   }
 
   const renderExecuteButton = () => {
+    const address = decodeErc1155Address(inputTokenAddress).address
     if (!tokens[inputTokenAddress] || loading) {
       return <ButtonExecute className='swap-button' disabled>Loading...</ButtonExecute>
     } else if (callError) {
@@ -102,7 +103,7 @@ export const SwapBox = () => {
     } else if (!balances[inputTokenAddress] || balances[inputTokenAddress].lt(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))) {
       return <ButtonExecute className='swap-button'
         disabled> Insufficient {tokens[inputTokenAddress].symbol} Amount </ButtonExecute>
-    } else if (routerAllowances[inputTokenAddress] && routerAllowances[inputTokenAddress].gt(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))) {
+    } else if (routerAllowances[address] && routerAllowances[address].gt(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))) {
       return <ButtonExecute
         className='swap-button'
         onClick={async () => {
@@ -113,6 +114,8 @@ export const SwapBox = () => {
             amountIn: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18)),
             amountOutMin: 0
           }], isDeleverage)
+          setAmountIn('')
+          setAmountIn('')
           setLoading(false)
         }}
       >{isDeleverage && 'Deleverage & '} Swap</ButtonExecute>
