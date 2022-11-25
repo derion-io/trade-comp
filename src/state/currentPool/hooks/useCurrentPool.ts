@@ -51,7 +51,6 @@ export const useCurrentPool = () => {
     const [baseId, quoteId] = pairInfo.token0.adr === baseToken
       ? [POOL_IDS.token0, POOL_IDS.token1]
       : [POOL_IDS.token1, POOL_IDS.token0]
-    console.log('pairInfo', pairInfo)
     const quoteToken = pairInfo.token0.adr === baseToken ? pairInfo.token1.adr : pairInfo.token0.adr
     const tokens = [
       {

@@ -81,7 +81,8 @@ export const useListPool = () => {
           quoteSymbol: ethers.utils.parseBytes32String(log.args.quoteSymbol),
           cToken: log.args.cToken,
           priceToleranceRatio: log.args.priceToleranceRatio,
-          rentRate: log.args.rentRates,
+          rentRate: log.args.rentRate,
+          deleverageRate: log.args.deleverageRate,
           powers
         }
       }
@@ -205,7 +206,10 @@ export const useListPool = () => {
         twapBase: twap.base._x,
         twapLP: twap.LP._x,
         spotBse: spot.base._x,
-        spotLP: spot.LP._x
+        spotLP: spot.LP._x,
+        totalSupplies: poolStateData[i].returnValues[8].map((v: any) => bn(v)),
+        rDcLong: bn(poolStateData[i].returnValues[9]),
+        rDcShort: bn(poolStateData[i].returnValues[10])
       }
     }
 

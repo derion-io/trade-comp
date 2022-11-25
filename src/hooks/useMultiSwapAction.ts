@@ -125,9 +125,7 @@ export const useMultiSwapAction = () => {
       if (isDeleverage) {
         stepsToSwap.unshift(DELEVERAGE_STEP)
       }
-      console.log(stepsToSwap)
       const error = await checkMultiSwapError(stepsToSwap)
-      console.log('khanh', error)
       if (error) {
         toast.error(error)
       } else {

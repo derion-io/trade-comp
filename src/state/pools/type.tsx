@@ -21,6 +21,7 @@ export type PoolType = {
   priceToleranceRatio: BigNumber
   quoteSymbol: string
   rentRate: BigNumber
+  deleverageRate: BigNumber
   poolAddress: string
 }
 

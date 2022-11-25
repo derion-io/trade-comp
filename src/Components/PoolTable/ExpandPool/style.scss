@@ -10,7 +10,6 @@
   }
 
   &__top {
-    border-bottom: 1px solid $color-box-border;
     padding-bottom: 2rem;
 
     &--left,&--mid,&--right {
@@ -28,7 +27,7 @@
     display: flex;
 
     &--left {
-      flex: 2
+      flex: 1
     }
 
     &--mid {
@@ -37,6 +36,26 @@
 
     &--right {
       flex: 1
+    }
+  }
+
+  &__configs, &__total-supplies {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &__box {
+    position: relative;
+    border-top: 1px solid $color-box-border;
+    padding-top: 1.5rem;
+
+    &--title {
+      position: absolute;
+      top: -1.1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: $color-card-bg;
+      padding: 0 1rem;
     }
   }
 }

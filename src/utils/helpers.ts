@@ -144,3 +144,7 @@ export const decodeErc1155Address = (address: string) => {
     id: address.split('-')[1]
   }
 }
+
+export const parseUq112x112 = (value: BigNumber, unit = 1000) => {
+  return value.mul(unit).shr(112).toNumber() / unit
+}
