@@ -1,4 +1,5 @@
 @import "../../styles/abstracts/mixins";
+@import "../../styles/abstracts/variables";
 
 .exposure-box {
   width: 400px;
@@ -8,20 +9,11 @@
   }
 
   .leverage-changed-box {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1.5rem;
-    margin-top: 2rem;
-
     &__row {
       text-align: center;
       transition: all .25s ease-out;
-      height: 30px;
-
-      &.is-changed {
-        height: 95px;
-      }
+      display: flex;
+      justify-content: space-between;
 
       & > *:not(:last-child) {
         display: block;
@@ -41,6 +33,13 @@
 
     & > * {
       flex: 1;
+    }
+
+    & .btn-add:hover {
+      background: $color-buy
+    }
+    & .btn-remove:hover {
+      background: $color-sell
     }
   }
 
@@ -75,5 +74,32 @@
   .deleverage-checkbox {
     margin-left: 30px;
     margin-bottom: -20px;
+  }
+
+  .exposure-change-info {
+    display: flex;
+    justify-content: space-between;
+
+    &__left {
+      white-space: nowrap;
+    }
+  }
+
+  .leverage-info-box {
+    margin-top: 1rem;
+    padding: 1rem 0;
+    border-top: 1px solid $color-box-border-grey;
+  }
+  .leverage-input-box {
+    display: flex;
+    align-items: center;
+
+    &__left {
+      flex: 1;
+      padding-right: 1.5rem;
+    }
+  }
+  .leverage-and-add-remove {
+    padding: 1.5rem;
   }
 }

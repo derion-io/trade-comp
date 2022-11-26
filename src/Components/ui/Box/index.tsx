@@ -42,7 +42,7 @@ export const Box = (
           borderLeft: propsWithDefault.disableBorderLeft ? 'none' : `${propsWithDefault.borderWidth} solid ${propsWithDefault.borderColor || 'transparent'}`,
           borderRight: propsWithDefault.disableBorderRight ? 'none' : `${propsWithDefault.borderWidth} solid ${propsWithDefault.borderColor || 'transparent'}`,
           borderTop: propsWithDefault.disableBorderTop ? 'none' : `${propsWithDefault.borderWidth} solid ${propsWithDefault.borderColor || 'transparent'}`,
-          borderBottom: propsWithDefault.disableBorderBottom ? 'none' : `${propsWithDefault.borderWidth} solid ${propsWithDefault.borderColor || 'transparent'}`
+          borderBottom: propsWithDefault.disableBorderBottom ? 'none' : `${propsWithDefault.borderWidth} solid ${propsWithDefault.borderColor || 'transparent'}`,
         }}
       >
         {props.children}

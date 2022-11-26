@@ -1,13 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Card } from '../ui/Card'
-import { Text, TextBuy, TextGreen, TextGrey, TextSell } from '../ui/Text'
+import { Text, TextBlue, TextBuy, TextGreen, TextGrey, TextPink, TextSell } from '../ui/Text'
 import './style.scss'
 import { Box } from '../ui/Box'
 import { LabelBuy, LabelGreen, LabelSell } from '../ui/Label'
-import { ButtonBuy, ButtonExecute, ButtonGrey, ButtonReset } from '../ui/Button'
+import { Button, ButtonBuy, ButtonExecute, ButtonGrey, ButtonReset } from '../ui/Button'
 import 'rc-slider/assets/index.css'
 import Slider from 'rc-slider'
-import { IconArrowDown, IconArrowLeft } from '../ui/Icon'
+import { IconArrowDown, IconArrowLeft, IconArrowRight } from '../ui/Icon'
 import { Input } from '../ui/Input'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { PowerState, StepType } from 'powerLib'
@@ -45,6 +45,7 @@ export const ExposureBox = () => {
   const { calculateAmountOuts, updateLeverageAndSize } = useMultiSwapAction()
   const [stepsWithAmounts, setStepsWithAmounts] = useState<(StepType & { amountOut: BigNumber })[]>([])
   const [callError, setCallError] = useState<string>('')
+  const [leverageManual, setLeverageManual] = useState<boolean>(false)
 
   const resetFormHandle = () => {
     setCAmountToChange('')
@@ -188,94 +189,142 @@ export const ExposureBox = () => {
       <div className='text-center'>
         <SkeletonLoader loading={!tokens[baseToken] || !basePrice}>
           <Text>{tokens[baseToken]?.symbol}/{tokens[quoteToken]?.symbol} </Text>
+          <TextBlue>({formatFloat(basePrice, 2)} {tokens[quoteToken]?.symbol}</TextBlue>
           {
             changedIn24h >= 0
-              ? <TextBuy>({formatFloat(basePrice, 2)} +{changedIn24h}%)</TextBuy>
-              : <TextSell>({formatFloat(basePrice, 2)} {changedIn24h}%)</TextSell>
+              ? <TextBuy>+{changedIn24h}%</TextBuy>
+              : <TextSell>{changedIn24h}%</TextSell>
           }
+          <TextBlue>)</TextBlue>
         </SkeletonLoader>
       </div>
-      <LeverageChangedInfoBox
-        oldLeverage={oldLeverage}
-        oldValue={oldValue}
-        newLeverage={newLeverage}
-        newValue={newValue}
-        changedIn24h={changedIn24h}
-        loading={!states.twapBase}
-      />
-
-      {formAddOrRemove && (
-        <div className='amount-input-box'>
-          <div className='amount-input-box__head'>
-            <a
-              href={`https://pancakeswap.finance/add/${baseToken}/${quoteToken}`}
-              className='cursor-pointer text-decoration-none'
-              target='_blank' rel='noreferrer'
-            >{tokens[cToken]?.symbol}_{tokens[baseToken]?.symbol}_{tokens[quoteToken]?.symbol}</a>
-            <Text
-              className='cursor-pointer'
-              onClick={() => {
-                setCAmountToChange(weiToNumber(balances[cToken], tokens[cToken]?.decimal || 18))
-              }}
-            >Balance: {weiToNumber(balances[cToken], tokens[cToken]?.decimal || 18, 4)}</Text>
-          </div>
-          <Input
-            // @ts-ignore
-            value={cAmountToChange}
-            onChange={(e) => {
-              setCAmountToChange((e.target as HTMLInputElement).value)
-            }}
-            placeholder='0.0'
-            suffix={<TextGrey>${formatFloat(mul(cTokenPrice || 0, cAmountToChange || 0), 2)}</TextGrey>}
-            className='fs-24'
-          />
-        </div>
-      )}
-
-      {
-        !formAddOrRemove &&
-        <div className='add-and-remove-box'>
-          <ButtonBuy onClick={() => {
-            setFormAddOrRemove('add')
-          }}>
-            Add
-          </ButtonBuy>
-          <ButtonGrey onClick={() => {
-            setFormAddOrRemove('remove')
-          }}>
-            Remove
-          </ButtonGrey>
-        </div>
-      }
-
-      <div className='mt-2 mb-4 p-1'>
-        <Slider
-          range
-          min={Math.min(...exposures)}
-          max={Math.max(...exposures)}
-          step={0.1}
-          defaultValue={[oldLeverage, newLeverage]}
-          value={[
-            newLeverage <= oldLeverage ? newLeverage : oldLeverage,
-            newLeverage <= oldLeverage ? oldLeverage : newLeverage
-          ]}
-          marks={marks}
-          trackStyle={[
-            { backgroundColor: '#FF7A68', height: '2px' },
-            { backgroundColor: '#4FBF67', height: '2px', color: '#303236', border: '1px dashed' }
-          ]}
-          railStyle={{ backgroundColor: '#303236' }}
-          onChange={(e: number[]) => {
-            const newValue = e.find(e =>
-              Math.abs(e - oldLeverage) > 0.1 && Math.abs(e - newLeverage) > 0.1
-            )
-            if (newValue != null) {
-              setNewLeverage(Math.round(newValue * 10) / 10)
-            }
-          }}
+      <Box borderColor='#01A7FA' className='leverage-and-add-remove mb-1 mt-1'>
+        <LeverageChangedInfoBox
+          oldLeverage={oldLeverage}
+          oldValue={oldValue}
+          newLeverage={newLeverage}
+          newValue={newValue}
+          changedIn24h={changedIn24h}
+          loading={!states.twapBase}
         />
-      </div>
 
+        {formAddOrRemove && (
+          <div className='amount-input-box'>
+            <div className='amount-input-box__head'>
+              <TextPink>
+                <a
+                  href={`https://pancakeswap.finance/add/${baseToken}/${quoteToken}`}
+                  className='cursor-pointer text-decoration-none'
+                  target='_blank' rel='noreferrer'
+                >{tokens[cToken]?.symbol}_{tokens[baseToken]?.symbol}_{tokens[quoteToken]?.symbol}</a>
+              </TextPink>
+              <Text
+                className='cursor-pointer'
+                onClick={() => {
+                  setCAmountToChange(weiToNumber(balances[cToken], tokens[cToken]?.decimal || 18))
+                }}
+              >Balance: {weiToNumber(balances[cToken], tokens[cToken]?.decimal || 18, 4)}</Text>
+            </div>
+            <Input
+              // @ts-ignore
+              value={cAmountToChange}
+              onChange={(e) => {
+                setCAmountToChange((e.target as HTMLInputElement).value)
+              }}
+              placeholder='0.0'
+              suffix={<TextGrey>${formatFloat(mul(cTokenPrice || 0, cAmountToChange || 0), 2)}</TextGrey>}
+              className='fs-24'
+            />
+          </div>
+        )}
+
+        {
+          !formAddOrRemove &&
+          <div className='add-and-remove-box'>
+            <ButtonGrey className='btn-add' onClick={() => {
+              setFormAddOrRemove('add')
+            }}>
+              Add
+            </ButtonGrey>
+            <ButtonGrey className='btn-remove' onClick={() => {
+              setFormAddOrRemove('remove')
+            }}>
+              Remove
+            </ButtonGrey>
+          </div>
+        }
+
+        <Box
+          className='leverage-info-box'
+        >
+          <div className='exposure-change-info'>
+            <div className='exposure-change-info__left'>
+              <Text>Exposure </Text>
+              <LeverageValue leverage={oldLeverage} />
+            </div>
+            {
+              oldLeverage !== newLeverage &&
+              <React.Fragment>
+                <IconArrowRight />
+                <LeverageValue leverage={newLeverage} />
+              </React.Fragment>
+            }
+          </div>
+
+          <div className='leverage-input-box mt-1'>
+            <div className='leverage-input-box__left'>
+              {
+                leverageManual
+                  ? <Input
+                    inputWrapProps={{
+                      className: 'p-1'
+                    }}
+                    placeholder='Manual input exposure'
+                    // @ts-ignore
+                    value={newLeverage}
+                    onChange={(e) => {
+                      const max = Object.values(marks)[Object.values(marks).length - 1]
+                      const min = Object.values(marks)[0]
+                      // @ts-ignore
+                      const newValue = e.target.value
+                      if (newValue >= min && newValue <= max) {
+                        setNewLeverage(newValue)
+                      }
+                    }}
+                  />
+                  : <Slider
+                    range
+                    min={Math.min(...exposures)}
+                    max={Math.max(...exposures)}
+                    step={0.1}
+                    defaultValue={[oldLeverage, newLeverage]}
+                    value={[
+                      newLeverage <= oldLeverage ? newLeverage : oldLeverage,
+                      newLeverage <= oldLeverage ? oldLeverage : newLeverage
+                    ]}
+                    marks={marks}
+                    trackStyle={[
+                      { backgroundColor: '#FF7A68', height: '2px' },
+                      { backgroundColor: '#4FBF67', height: '2px', color: '#303236', border: '1px dashed' }
+                    ]}
+                    railStyle={{ backgroundColor: '#303236' }}
+                    onChange={(e: number[]) => {
+                      const newValue = e.find(e =>
+                        Math.abs(e - oldLeverage) > 0.1 && Math.abs(e - newLeverage) > 0.1
+                      )
+                      if (newValue != null) {
+                        setNewLeverage(Math.round(newValue * 10) / 10)
+                      }
+                    }}
+                  />
+              }
+            </div>
+            <ButtonGrey onClick={() => {
+              setLeverageManual(!leverageManual)
+            }}>{leverageManual ? 'Slider' : 'Manual'}</ButtonGrey>
+          </div>
+        </Box>
+      </Box>
       {
         swapSteps.length > 0 && (newLeverage !== oldLeverage || cAmountToChange) &&
         <Box borderColor='#3a3a3a' className='info-box1 ' title='Swaps'>
@@ -306,8 +355,9 @@ export const ExposureBox = () => {
             disableBorderLeft
             disableBorderRight
             disableBorderBottom
+            style={{ padding: '0.5rem 0' }}
           >
-            <InfoRow>
+            <InfoRow className='mb-1'>
               <Text>Conversion Fee</Text>
               <span>
                 <Text>0.3% ($1.23)</Text>
@@ -328,8 +378,8 @@ export const ExposureBox = () => {
           type='checkbox'
           checked={isDeleverage}
           id='is-deleverage' onChange={(e) => {
-            setIsDeleverage(e.target.checked)
-          }} />
+          setIsDeleverage(e.target.checked)
+        }} />
         <label htmlFor='is-deleverage'> Deleverage</label>
       </Box>
 
@@ -353,76 +403,46 @@ const InfoRow = (props: any) => {
   )
 }
 
+const LeverageValue = ({ leverage }: { leverage: number }) => {
+  const LeverageLabel = leverage < 0 ? LabelSell : LabelBuy
+  const LeverageText = leverage < 0 ? TextSell : TextBuy
+  return <LeverageLabel
+    className='d-inline-block'><LeverageText>{leverage >= 0 ? 'Long' : 'Short'} {formatFloat(leverage, 1)}</LeverageText></LeverageLabel>
+}
+
 const LeverageChangedInfoBox = ({
-  oldLeverage,
-  newLeverage,
-  oldValue,
-  newValue,
-  loading,
-  changedIn24h
-}: any) => {
+                                  oldLeverage,
+                                  newLeverage,
+                                  oldValue,
+                                  newValue,
+                                  loading,
+                                  changedIn24h
+                                }: any) => {
   const { quoteToken } = useCurrentPool()
   const { tokens } = useListTokens()
-  const OldLabel = oldLeverage < 0 ? LabelSell : LabelBuy
-  const OldText = oldLeverage < 0 ? TextSell : TextBuy
-  const NewLabel = newLeverage < 0 ? LabelSell : LabelBuy
-  const NewText = newLeverage < 0 ? TextSell : TextBuy
-  const OldChangedIn24hLabel = changedIn24h * oldLeverage < 0 ? LabelSell : LabelBuy
   const OldChangedIn24hText = changedIn24h * oldLeverage < 0 ? TextSell : TextBuy
-  const NewChangedIn24hLabel = changedIn24h * newLeverage < 0 ? LabelSell : LabelBuy
   const NewChangedIn24hText = changedIn24h * newLeverage < 0 ? TextSell : TextBuy
 
-  return <Box borderColor='#4FBF67' className='leverage-changed-box'>
+  return <div className='leverage-changed-box'>
     <div className={`leverage-changed-box__row ${oldLeverage !== newLeverage && 'is-changed'}`}>
-      <OldLabel>
-        <OldText>{oldLeverage > 0 ? 'Long' : 'Short'} x{Math.abs(formatFloat(oldLeverage))}</OldText>
-      </OldLabel>
+      <div>
+        <Text>Value </Text>
+        <TextBlue>{weiToNumber(oldValue, tokens[quoteToken]?.decimal || 18, 3)} {tokens[quoteToken]?.symbol}</TextBlue>
+        <sup><OldChangedIn24hText
+          fontSize={12}>{changedIn24h >= 0 && '+'}{formatFloat(changedIn24h * oldLeverage, 2)}%</OldChangedIn24hText></sup>
+      </div>
       {
         oldLeverage !== newLeverage &&
-          <React.Fragment>
-            <span>
-              <IconArrowDown />
-            </span>
-
-            <NewLabel>
-              <NewText>{newLeverage > 0 ? 'Long' : 'Short'} x{Math.abs(newLeverage)}</NewText>
-            </NewLabel>
-          </React.Fragment>
+        <React.Fragment>
+          <span>
+            <IconArrowRight />
+          </span>
+          <div>
+            <TextBlue>{weiToNumber(newValue, tokens[quoteToken]?.decimal || 18, 3)} {tokens[quoteToken]?.symbol}</TextBlue>
+            <sup><NewChangedIn24hText>{formatFloat(changedIn24h * newLeverage, 2)}%</NewChangedIn24hText></sup>
+          </div>
+        </React.Fragment>
       }
     </div>
-    <div className={`leverage-changed-box__row ${oldLeverage !== newLeverage && 'is-changed'}`}>
-      <LabelGreen>
-        <TextGreen>{weiToNumber(oldValue, tokens[quoteToken]?.decimal || 18, 4)} {tokens[quoteToken]?.symbol}</TextGreen>
-      </LabelGreen>
-      {
-        oldLeverage !== newLeverage &&
-          <React.Fragment>
-            <span>
-              <IconArrowDown />
-            </span>
-
-            <LabelGreen>
-              <TextGreen>{weiToNumber(newValue, tokens[quoteToken]?.decimal || 18, 4)} {tokens[quoteToken]?.symbol}</TextGreen>
-            </LabelGreen>
-          </React.Fragment>
-      }
-    </div>
-    <div className={`leverage-changed-box__row ${oldLeverage !== newLeverage && 'is-changed'}`}>
-
-      <OldChangedIn24hLabel>
-        <OldChangedIn24hText>{formatFloat(changedIn24h * oldLeverage, 2)}%</OldChangedIn24hText>
-      </OldChangedIn24hLabel>
-      {
-        oldLeverage !== newLeverage &&
-          <React.Fragment>
-            <span>
-              <IconArrowDown />
-            </span>
-            <NewChangedIn24hLabel>
-              <NewChangedIn24hText>{formatFloat(changedIn24h * newLeverage, 2)}%</NewChangedIn24hText>
-            </NewChangedIn24hLabel>
-          </React.Fragment>
-      }
-    </div>
-  </Box>
+  </div>
 }
