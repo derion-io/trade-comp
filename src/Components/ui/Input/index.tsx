@@ -9,7 +9,6 @@ type InputType = React.HTMLAttributes<HTMLInputElement> & {
 
 export const Input = (props: InputType) => {
   const [isFocusing, setIsFocusing] = useState<boolean>(false)
-  console.log('khanh', props.inputWrapProps)
   return (
     <div
       {...props.inputWrapProps}

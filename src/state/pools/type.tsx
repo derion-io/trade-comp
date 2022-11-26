@@ -12,6 +12,7 @@ export type ParseLogType = {
 export type PoolType = {
   pool: string,
   logic: string,
+  cTokenPrice: number,
   baseSymbol: string
   states: any
   baseToken: string,

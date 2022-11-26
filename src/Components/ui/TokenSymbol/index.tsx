@@ -18,7 +18,7 @@ export const TokenSymbol = ({ token }: {token: TokenType}) => {
       return <React.Fragment><span className='font-size-14 upper-case'>{baseSymbol}</span><sup className='font-size-12'>{power}</sup></React.Fragment>
     }
     return <span className='font-size-14'>{symbol}</span>
-  }, [token])
+  }, [token, baseToken])
 
   return <React.Fragment>{result}</React.Fragment>
 }

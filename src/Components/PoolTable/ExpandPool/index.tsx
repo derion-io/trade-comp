@@ -11,7 +11,7 @@ export const ExpandPool = ({ visible, pool }: {
   pool: PoolType
 }) => {
   const { tokens } = useListTokens()
-  const { states, baseToken, powers } = pool
+  const { states, powers, dTokens } = pool
   const { Rc, rDcLong, rDcShort, totalSupplies } = states
 
   const [totalLockedValue, rDcLongValue, rDcShortValue, collateralRatio] = useMemo(() => {
@@ -36,9 +36,14 @@ export const ExpandPool = ({ visible, pool }: {
           {
             powers.map((power, key) => {
               const TextComp = power > 0 ? TextBuy : TextSell
-              return <div key={key}><TextComp>
-                <TokenSymbol token={tokens[baseToken]} />: {formatFloat(weiToNumber(totalSupplies[key]), 2)}
-              </TextComp>
+              const cTokenPrice = bn(states.twapLP).mul(10000).shr(112).toNumber() / 10000
+              console.log('cTokenPrice', cTokenPrice)
+              const value = totalSupplies[key]?.mul(numberToWei(cTokenPrice || 0))
+              return <div key={key}>
+                <TextComp>
+                  <TokenSymbol token={tokens[dTokens[key]]} />
+                </TextComp>
+                <Text>: ${formatFloat(weiToNumber(value, 36), 2)}</Text>
               </div>
             })
           }

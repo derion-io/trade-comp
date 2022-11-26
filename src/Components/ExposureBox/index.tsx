@@ -319,9 +319,11 @@ export const ExposureBox = () => {
                   />
               }
             </div>
-            <ButtonGrey onClick={() => {
-              setLeverageManual(!leverageManual)
-            }}>{leverageManual ? 'Slider' : 'Manual'}</ButtonGrey>
+            <ButtonGrey
+              className='btn-switch-leverage-and-manual'
+              onClick={() => {
+                setLeverageManual(!leverageManual)
+              }}>{leverageManual ? 'Slider' : 'Manual'}</ButtonGrey>
           </div>
         </Box>
       </Box>
@@ -378,8 +380,8 @@ export const ExposureBox = () => {
           type='checkbox'
           checked={isDeleverage}
           id='is-deleverage' onChange={(e) => {
-          setIsDeleverage(e.target.checked)
-        }} />
+            setIsDeleverage(e.target.checked)
+          }} />
         <label htmlFor='is-deleverage'> Deleverage</label>
       </Box>
 
@@ -411,13 +413,13 @@ const LeverageValue = ({ leverage }: { leverage: number }) => {
 }
 
 const LeverageChangedInfoBox = ({
-                                  oldLeverage,
-                                  newLeverage,
-                                  oldValue,
-                                  newValue,
-                                  loading,
-                                  changedIn24h
-                                }: any) => {
+  oldLeverage,
+  newLeverage,
+  oldValue,
+  newValue,
+  loading,
+  changedIn24h
+}: any) => {
   const { quoteToken } = useCurrentPool()
   const { tokens } = useListTokens()
   const OldChangedIn24hText = changedIn24h * oldLeverage < 0 ? TextSell : TextBuy
