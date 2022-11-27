@@ -2,22 +2,38 @@
 
 .exposure-interface .swap-page {
   padding: 2rem;
-  display: flex;
-  align-items: start;
-  justify-content: center;
 
-  @include respond(phone) {
-    flex-direction: column;
-    max-width: 100%;
-    padding: 0;
+  &__head {
+    margin-bottom: 1.5rem;
+    display: flex;
+
+    &--back-btn {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      justify-content: start;
+    }
   }
 
-  & > *:not(:last-child) {
-    margin-right: 2rem;
+
+  &__content {
+    display: flex;
+    align-items: start;
+    justify-content: center;
 
     @include respond(phone) {
-      margin-bottom: 2rem;
-      margin-right: 0;
+      flex-direction: column;
+      max-width: 100%;
+      padding: 0;
+    }
+
+    & > *:not(:last-child) {
+      margin-right: 2rem;
+
+      @include respond(phone) {
+        margin-bottom: 2rem;
+        margin-right: 0;
+      }
     }
   }
 }

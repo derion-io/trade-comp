@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Text, TextBuy, TextSell } from '../ui/Text'
 import './style.scss'
-import { ButtonBorder, ButtonExecute } from '../ui/Button'
+import { ButtonExecute } from '../ui/Button'
 import { Collapse } from 'react-collapse'
 import { ExpandPool } from './ExpandPool'
 import { Input } from '../ui/Input'
@@ -14,6 +14,8 @@ import { bn, formatFloat, numberToWei, parseUq112x112, shortenAddressString, wei
 import { useListTokens } from '../../state/token/hook'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { useMultiSwapAction } from '../../hooks/useMultiSwapAction'
+import { useConfigs } from '../../state/config/useConfigs'
+import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 
 export const PoolTable = () => {
   const { pools } = useListPool()
@@ -75,9 +77,11 @@ export const PoolRow = ({ pool }: { pool: PoolType }) => {
   const { Rc, rDcLong, rDcShort } = states
   const { multiSwap } = useMultiSwapAction()
   const [deleverageLoading, setDeleverageLoading] = useState(false)
-  const deleverageRef = useRef<any>(null)
+  const { useHistory } = useConfigs()
+  const history = useHistory()
+  const { updateCurrentPool } = useCurrentPool()
 
-  const [powerState, leverage, value] = useMemo(() => {
+  const [leverage, value] = useMemo(() => {
     let leverage = 0
     const value = bn(0)
     const { powers, states, dTokens } = pool
@@ -96,7 +100,7 @@ export const PoolRow = ({ pool }: { pool: PoolType }) => {
       leverage = p.calculateCompExposure(currentBalances)
     }
 
-    return [p, leverage, value]
+    return [leverage, value]
   }, [pool, balances])
 
   useEffect(() => {
@@ -149,7 +153,20 @@ export const PoolRow = ({ pool }: { pool: PoolType }) => {
       <td className='text-left'>
         <TdText>{formatFloat(leverage, 1)}x</TdText>
       </td>
-      <td className='text-right'>
+      <td className='text-right pool-actions'>
+        <ButtonExecute
+          onClick={async () => {
+            updateCurrentPool(pool.poolAddress)
+            history.push('swap')
+          }}>Swap</ButtonExecute>
+        <ButtonExecute
+          onClick={async () => {
+            updateCurrentPool(pool.poolAddress)
+            history.push('exposure')
+          }}
+        >
+          Exposure
+        </ButtonExecute>
         {
           isDeleverage && <ButtonExecute
             onClick={async () => {

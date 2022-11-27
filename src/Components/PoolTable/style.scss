@@ -32,4 +32,10 @@
     background: transparent;
     padding: 1rem 1.5rem;
   }
+
+  .pool-actions {
+    &>*:not(:last-child) {
+      margin-right: 1rem;
+    }
+  }
 }

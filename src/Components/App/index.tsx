@@ -16,6 +16,7 @@ import { setCurrentPoolInfo } from '../../state/currentPool/reducer'
 import { ethers } from 'ethers'
 import { useContract } from '../../hooks/useContract'
 import { useListPool } from '../../state/pools/hooks/useListPool'
+import { Pools } from '../../pages/Pools'
 
 const { AssistedJsonRpcProvider } = require('assisted-json-rpc-provider')
 
@@ -23,7 +24,7 @@ export const App = () => {
   const { getEventInterface } = useContract()
   const { updateCurrentPool } = useCurrentPool()
   const { tokens } = useListTokens()
-  const {pools} = useListPool()
+  const { pools } = useListPool()
   const { fetchBalanceAndAllowance } = useWalletBalance()
   const { account } = useWeb3React()
   const { configs, chainId } = useConfigs()
@@ -133,6 +134,8 @@ export const App = () => {
         return <Exposure />
       case isMatchWithPath('swap'):
         return <Swap />
+      case isMatchWithPath('pools'):
+        return <Pools />
       default:
         return <Exposure />
     }
