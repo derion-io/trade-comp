@@ -29,17 +29,24 @@ export const useListPool = () => {
     const etherProvider = new ethers.providers.StaticJsonRpcProvider(configs.rpcUrl)
     let provider = etherProvider
     const headBlock = await provider.getBlockNumber()
-    provider = new AssistedJsonRpcProvider(
-      etherProvider
-      // {
-      //   url: configs.scanApi,
-      //   maxResults: 1000,
-      //   rangeThreshold: 1000,
-      //   rateLimitCount: 1,
-      //   rateLimitDuration: 5000,
-      //   apiKeys: ['']
-      // }
-    )
+    if (configs.scanApi) {
+      provider = new AssistedJsonRpcProvider(
+        etherProvider,
+        {
+          url: configs.scanApi,
+          maxResults: 1000,
+          rangeThreshold: 1000,
+          rateLimitCount: 1,
+          rateLimitDuration: 5000,
+          apiKeys: ['']
+        }
+      )
+    } else {
+      provider = new AssistedJsonRpcProvider(
+        etherProvider
+      )
+    }
+
     console.log(configs.ddlGenesisBlock, headBlock, ethers.utils.formatBytes32String('DDL'))
     const ddlLogs = await provider.getLogs({
       fromBlock: configs.ddlGenesisBlock,
@@ -49,7 +56,11 @@ export const useListPool = () => {
       console.log('ddl logs', logs)
       const eventInterface = getEventInterface()
       return logs.map((log: any) => {
-        return { address: log.address, ...eventInterface.parseLog(log) }
+        try {
+          return { address: log.address, ...eventInterface.parseLog(log) }
+        } catch (e) {
+          return {}
+        }
       })
     })
     const { tokens, pools } = await generatePoolData(ddlLogs)
@@ -169,6 +180,8 @@ export const useListPool = () => {
         address: pools[i].cToken
       })
     }
+
+    console.log('pools', pools)
 
     return { tokens, pools }
   }
