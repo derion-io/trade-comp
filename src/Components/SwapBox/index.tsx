@@ -27,6 +27,8 @@ import { useMultiSwapAction } from '../../hooks/useMultiSwapAction'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { POOL_IDS } from '../../utils/constant'
 
+const nativePrice = 300
+
 export const SwapBox = () => {
   const { account, showConnectModal } = useWeb3React()
   const { states, dTokens, cToken, logicAddress, poolAddress, baseToken, quoteToken } = useCurrentPool()
@@ -39,7 +41,8 @@ export const SwapBox = () => {
   const [amountOutWei, setAmountOutWei] = useState<BigNumber>(bn(0))
   const [amountIn, setAmountIn] = useState<string>('')
   const { balances, routerAllowances, approveRouter } = useWalletBalance()
-  const [txFee, setTxFee] = useState<string>('')
+  const [txFee, setTxFee] = useState<BigNumber>(bn(0))
+  const [gasUsed, setGasUsed] = useState<BigNumber>(bn(0))
   const [loading, setLoading] = useState<boolean>(false)
   const [isDeleverage, setIsDeleverage] = useState<boolean>(false)
   const { tokens } = useListTokens()
@@ -55,6 +58,9 @@ export const SwapBox = () => {
       calcAmountOut(isDeleverage)
     } else if (Number(amountIn) === 0) {
       setAmountOut('')
+      setTxFee(bn(0))
+      setGasUsed(bn(0))
+      setAmountOutWei(bn(0))
     }
   }, [tokens[inputTokenAddress] && tokens[outputTokenAddress], amountIn, isDeleverage])
 
@@ -68,25 +74,26 @@ export const SwapBox = () => {
       const [aOuts, gasLeft] = res
       setAmountOutWei(aOuts[0]?.amountOut || bn(0))
       setAmountOut(weiToNumber(aOuts[0]?.amountOut || 0, tokens[outputTokenAddress].decimal || 18))
-      // setTxFee(weiToNumber(detextTxFee(gasLeft)).toString())
-      setTxFee(gasLeft.toString())
+      setTxFee(detectTxFee(gasLeft))
+      setGasUsed(gasLeft)
       setCallError('')
     }).catch((e) => {
       const error = parseCallStaticError(e)
       if (error === 'deleverage') {
         setIsDeleverage(true)
-      } else if (error == '!deleverage') {
+      } else if (error === '!deleverage') {
         setIsDeleverage(false)
       }
       setAmountOut('0')
-      setTxFee('0')
+      setTxFee(bn(0))
+      setGasUsed(bn(0))
       setCallError(error ?? e)
       console.log(e)
     })
   }
 
-  const detextTxFee = (gasLeft: BigNumber) => {
-    return gasLeft.mul(2).div(3).mul(5 * 10 ** 9).mul(400)
+  const detectTxFee = (gasLeft: BigNumber) => {
+    return gasLeft.mul(2).div(3).mul(5 * 10 ** 9)
   }
 
   const revertPairAddress = () => {
@@ -255,22 +262,31 @@ export const SwapBox = () => {
       />
 
       <Box borderColor='#3a3a3a' className='swap-info-box mt-2 mb-2'>
-        <InfoRow className='mb-2'>
+        { protocolFee && protocolFee > 0 &&
+          <InfoRow className='mb-1'>
+            <span>
+              <Text>Conversion Fee</Text>
+            </span>
+            <span>
+              <Text>{protocolFee}</Text>
+              <TextGrey> USD</TextGrey>
+            </span>
+          </InfoRow>
+        }
+        <InfoRow className='mb-1'>
+          <Text>Gas Used</Text>
           <span>
-            <Text>Conversion Fee</Text>
-          </span>
-          <span>
-            <Text>{protocolFee}</Text>
-            <TextGrey> USD</TextGrey>
+            <Text>{gasUsed.toString()} Gas</Text>
           </span>
         </InfoRow>
-        <InfoRow className=''>
+        <InfoRow>
+          <Text>Transaction Fee</Text>
           <span>
-            <Text>Tx fee</Text>
-          </span>
-          <span>
-            <Text>{txFee || 0}</Text>
-            <TextGrey> Wei</TextGrey>
+            <Text>
+              {weiToNumber(txFee, 18, 4)}
+              <TextGrey> BNB </TextGrey>
+              (<TextGrey>$</TextGrey>{weiToNumber(txFee.mul(nativePrice), 18, 2)})
+            </Text>
           </span>
         </InfoRow>
         {/*  <InfoRow className='mb-2'> */}

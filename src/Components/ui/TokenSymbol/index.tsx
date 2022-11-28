@@ -2,6 +2,7 @@ import React, { useMemo } from 'react'
 import { TokenType } from '../../../state/token/type'
 import { useCurrentPool } from '../../../state/currentPool/hooks/useCurrentPool'
 import { useListTokens } from '../../../state/token/hook'
+import { TextBuy, TextSell } from '../Text'
 
 export const TokenSymbol = ({ token }: {token: TokenType}) => {
   const { baseToken } = useCurrentPool()
@@ -15,7 +16,11 @@ export const TokenSymbol = ({ token }: {token: TokenType}) => {
       if (baseSymbol.startsWith('W')) {
         baseSymbol = baseSymbol.substring(1)
       }
-      return <React.Fragment><span className='font-size-14 upper-case'>{baseSymbol}</span><sup className='font-size-12'>{power}</sup></React.Fragment>
+      const TextSymbol = Number(power) > 0 ? TextBuy : TextSell
+      return <React.Fragment>
+        <span className='font-size-14 upper-case'>{baseSymbol}</span>
+        <sup><TextSymbol className='font-size-12'>{power}</TextSymbol></sup>
+      </React.Fragment>
     }
     return <span className='font-size-14'>{symbol}</span>
   }, [token, baseToken])

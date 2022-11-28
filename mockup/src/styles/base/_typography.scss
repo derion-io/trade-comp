@@ -1,20 +1,50 @@
 /* cyrillic-ext */
 @font-face {
-  font-family: 'UniviaPro-Medium';
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 300;
+  src: url('../../assets/fonts/Inter-Light.ttf');
+
+}
+@font-face {
+  font-family: 'Space Grotesk';
   font-style: normal;
   font-weight: 400;
-  src: url('../../assets/fonts/UniviaPro-Medium.otf') format('opentype');
+  src: url('../../assets/fonts/Inter-Regular.ttf');
+}
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 500;
+  src: url('../../assets/fonts/Inter-Medium.ttf');
+}
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 700;
+  src: url('../../assets/fonts/Inter-Bold.ttf');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  src: url('../../assets/fonts/Inter-Regular.ttf');
 }
 
 body {
-  font-family: "UniviaPro-Medium", sans-serif;
+  font-family: 'Inter', sans-serif;
   font-weight: 400;
   /*font-size: 16px;*/
   //line-height: 1.7;
-  color: $color-text-default;
+  color: white;
 }
 
 * {
   font-size: $default-font-size;
-  font-family: "UniviaPro-Medium", sans-serif;
+  font-family: 'Inter', sans-serif;
+}
+
+body * {
+  color: white;
 }

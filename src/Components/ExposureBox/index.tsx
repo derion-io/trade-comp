@@ -30,6 +30,8 @@ import { TokenSymbol } from '../ui/TokenSymbol'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { POOL_IDS } from '../../utils/constant'
 
+const nativePrice = 300
+
 export const ExposureBox = () => {
   const [formAddOrRemove, setFormAddOrRemove] = useState<'add' | 'remove' | undefined>(undefined)
   const [newLeverage, setNewLeverage] = useState<number>(0)
@@ -47,7 +49,8 @@ export const ExposureBox = () => {
   const [stepsWithAmounts, setStepsWithAmounts] = useState<(StepType & { amountOut: BigNumber })[]>([])
   const [callError, setCallError] = useState<string>('')
   const [leverageManual, setLeverageManual] = useState<boolean>(false)
-  const [txFee, setTxFee] = useState<boolean>(false)
+  const [txFee, setTxFee] = useState<BigNumber>(bn(0))
+  const [gasUsed, setGasUsed] = useState<BigNumber>(bn(0))
 
   const resetFormHandle = () => {
     setCAmountToChange('')
@@ -131,12 +134,15 @@ export const ExposureBox = () => {
       setCallError('Calculating...')
       calculateAmountOuts(swapSteps, isDeleverage)
         .then(([aOuts, gasLeft]) => {
-          setTxFee(gasLeft.toString())
+          setTxFee(detectTxFee(gasLeft))
+          setGasUsed(gasLeft)
           setStepsWithAmounts(aOuts)
           setCallError('')
         })
         .catch((e) => {
           setStepsWithAmounts([])
+          setTxFee(bn(0))
+          setGasUsed(bn(0))
           const error = parseCallStaticError(e)
           if (error === 'deleverage') {
             setIsDeleverage(true)
@@ -150,6 +156,10 @@ export const ExposureBox = () => {
       clearTimeout(delayDebounceFn)
     }
   }, [swapSteps, isDeleverage])
+
+  const detectTxFee = (gasLeft: BigNumber) => {
+    return gasLeft.mul(2).div(3).mul(5 * 10 ** 9)
+  }
 
   const renderExecuteButton = () => {
     if (!tokens[cToken] || loading) {
@@ -313,7 +323,7 @@ export const ExposureBox = () => {
                       }
                     }}
                   />
-                  : <Slider
+                  : <div className='pl-1'><Slider
                     range
                     min={Math.min(...exposures)}
                     max={Math.max(...exposures)}
@@ -338,6 +348,7 @@ export const ExposureBox = () => {
                       }
                     }}
                   />
+                  </div>
               }
             </div>
             <ButtonGrey
@@ -364,7 +375,7 @@ export const ExposureBox = () => {
                 <Text>{weiToNumber(amountIn, tokens[stepFromToken]?.decimal || 18, 4)}</Text>
                 <TextGrey> <TokenSymbol token={tokens[stepFromToken]} /></TextGrey>
               </span>
-              <IconArrowLeft />
+              <IconArrowRight />
               <span>
                 <Text>{weiToNumber(amountOut, tokens[stepToToken]?.decimal || 18, 4)} </Text>
                 <TextGrey> <TokenSymbol token={tokens[stepToToken]} /></TextGrey>
@@ -381,15 +392,15 @@ export const ExposureBox = () => {
             style={{ padding: '0.5rem 0' }}
           >
             <InfoRow className='mb-1'>
-              <Text>Conversion Fee</Text>
+              <Text>Gas Used</Text>
               <span>
-                <Text>{percent}% (${protocolFee})</Text>
+                <Text>{gasUsed.toString()} Gas</Text>
               </span>
             </InfoRow>
             <InfoRow>
               <Text>Transaction Fee</Text>
               <span>
-                <Text>{txFee} Wei</Text>
+                <Text>{weiToNumber(txFee, 18 ,4)} BNB (${weiToNumber(txFee.mul(nativePrice), 18, 2)})</Text>
               </span>
             </InfoRow>
           </Box>
@@ -451,7 +462,7 @@ const LeverageChangedInfoBox = ({
       <div>
         <Text>Value </Text>
         <TextBlue>{weiToNumber(oldValue, tokens[quoteToken]?.decimal || 18, 3)} {tokens[quoteToken]?.symbol}</TextBlue>
-        <sup><OldChangedIn24hText
+        <sup> <OldChangedIn24hText
           fontSize={12}>{changedIn24h >= 0 && '+'}{formatFloat(changedIn24h * oldLeverage, 2)}%</OldChangedIn24hText></sup>
       </div>
       {
@@ -462,7 +473,7 @@ const LeverageChangedInfoBox = ({
           </span>
           <div>
             <TextBlue>{weiToNumber(newValue, tokens[quoteToken]?.decimal || 18, 3)} {tokens[quoteToken]?.symbol}</TextBlue>
-            <sup><NewChangedIn24hText>{formatFloat(changedIn24h * newLeverage, 2)}%</NewChangedIn24hText></sup>
+            <sup> <NewChangedIn24hText>{formatFloat(changedIn24h * newLeverage, 2)}%</NewChangedIn24hText></sup>
           </div>
         </React.Fragment>
       }
