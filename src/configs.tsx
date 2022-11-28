@@ -10,7 +10,7 @@ export default {
     <img src={`data:image/svg+xml;base64,${btoa(svgText)}`} {...props} />
   ),
   name: 'Dapp',
-  path: '/swap',
+  path: '/exposure',
   children: [
     {
       name: 'Exposure',
@@ -19,6 +19,10 @@ export default {
     {
       name: 'Swap',
       path: '/swap'
+    },
+    {
+      name: 'Pools',
+      path: '/pools'
     }
   ]
 }
