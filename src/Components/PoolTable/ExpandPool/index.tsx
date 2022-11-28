@@ -24,7 +24,7 @@ export const ExpandPool = ({ visible, pool }: {
     const unit = 100000
     const cPrice = bn(states.twapLP).mul(unit).shr(112)
     const rDc = rDcLong.add(rDcShort)
-    const collateralRatio = Rc.mul(unit).div(rDc).toNumber() / unit
+    const collateralRatio = rDc.gt(0) ? Rc.mul(unit).div(rDc).toNumber() / unit : 0
 
     return [Rc.mul(cPrice).div(unit), rDcLong.mul(cPrice).div(unit), rDcShort.mul(cPrice).div(unit), collateralRatio]
   }, [])
@@ -32,9 +32,9 @@ export const ExpandPool = ({ visible, pool }: {
   const isDeleverage = useMemo(() => {
     const rDc = rDcLong.add(rDcShort)
     const deleverageRate = parseUq112x112(pool.deleverageRate)
-    const cr = Rc.mul(numberToWei(1)).div(rDc)
+    const cr = rDc.gt(0) ? Rc.mul(numberToWei(1)).div(rDc) : bn(0)
     const rate = bn(numberToWei(1, 36)).div(numberToWei(deleverageRate, 18))
-    return cr.lt(rate)
+    return cr.gt(0) && cr.lt(rate)
   }, [])
 
   return <div className='pool-expand__wrap'>

@@ -64,11 +64,12 @@ export const ExposureBox = () => {
       p.loadStates(states)
       const currentBalances = {}
       powers.forEach((power, key) => {
-        if (balances[dTokens[key]]) {
+        if (balances[dTokens[key]] && balances[dTokens[key]].gt(0)) {
           currentBalances[power] = bn(balances[dTokens[key]])
         }
       })
       setBalancesInPool(currentBalances)
+      console.log('currentBalances', currentBalances)
       if (Object.keys(currentBalances).length > 0) {
         oldLeverage = p.calculateCompExposure(currentBalances)
         oldValue = p.calculateCompValue(currentBalances)

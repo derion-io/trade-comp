@@ -87,9 +87,8 @@ export const PoolRow = ({ pool }: { pool: PoolType }) => {
 
     const currentBalances = {}
     powers.forEach((power, key) => {
-      if (balances[dTokens[key]]) {
+      if (balances[dTokens[key]] && balances[dTokens[key]].gt(0)) {
         currentBalances[power] = bn(balances[dTokens[key]])
-        // value = p.calculateCompValue(currentBalances)
       }
     })
 

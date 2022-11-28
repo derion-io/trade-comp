@@ -4,7 +4,7 @@ export default {
     scanApi: 'https://api.bscscan.com/api',
     explorer: 'https://bscscan.com',
     scanName: 'BscScan',
-    ddlGenesisBlock: 22683582,
+    ddlGenesisBlock: 23439272,
     addresses: {
       multiCall: '0xC50F4c1E81c873B2204D7eFf7069Ffec6Fbe136D',
       tokensInfo: '0x6B451b1bdaa7088467961FC0370d4049DF1C2E4d',
@@ -13,11 +13,11 @@ export default {
       wrapToken: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
       nativeToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
       tokenC: '0x58F876857a02D6762E0101bb5C46A8c1ED44Dc16',
-      poolFactory: '0x693Fde587B7Bc021EEE2f589e9Cd51bA16e2571c',
+      poolFactory: '0x0772BD1981f6092329F12FC041B83b2faBBB1A25',
       tokenFactory: '0xB5075BD30C1596eBA35347397F5747258770DdB4',
-      logic: '0x555712f659587a47267028656DEa18D26aDf06b3',
-      router: '0xa5C829195b3614185D9DC1001D6651E9a82c4aad',
-      pool: '0x2449bc7351976601814cf95595F3C8046Bf41e25',
+      logic: '0xf44C174c8A260CeCACe49DC3e33de57De99924d6',
+      router: '0xa06581516e8B9F1B1f43329427d04528D3bDc534',
+      pool: '0x58474Df78eAdF46378BAa74dC3d2B592B9d6225a',
 
       // hardcode, this config will load by contract later
       dToken1: '0xcD70A9269907f69870264a94CDb834cF6dAfb8b8',
@@ -43,9 +43,9 @@ export default {
       wrapToken: '0xB29439A682eBa17df241944D5eFAE0f44fcf431B',
       nativeToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
       tokenC: '0x40f6d9AE858E7556De3524CbeeD443b0219d7eCC',
-      poolFactory: '0x40f6d9AE858E7556De3524CbeeD443b0219d7eCC',
+      poolFactory: '0x2A539728626a96a800833B4133Da061c637CCA5B',
       tokenFactory: '0xfBD6F7Af174A316104Df529D1ca5D508Fb081b7F',
-      logic: '0xdBa9451aC3f3a4a5171715EB5B776316aA474E62',
+      logic: '0xfBD6F7Af174A316104Df529D1ca5D508Fb081b7F',
       router: '0xdBa9451aC3f3a4a5171715EB5B776316aA474E62',
       pool: '0xEB622c077C62aab627f852cb6B26D624560Cf8ca',
 
