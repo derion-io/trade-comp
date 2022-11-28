@@ -17,5 +17,26 @@ export const usePairInfo = () => {
       return {}
     }
   }
-  return { getPairInfo }
+
+  const getPairsInfo = async (pairAddresses: any) => {
+    try {
+      const tokenContract = getPairInfoContract()
+      const { details } = await tokenContract.functions.query(
+        pairAddresses,
+        '0x0000110000000000000000000000000000000000000000000000000000000111'
+      )
+      console.log(details, pairAddresses)
+      const result = {}
+      for (let i = 0; i < pairAddresses.length; i++) {
+        result[pairAddresses[i]] = details[i]
+      }
+      console.log(result)
+      return result
+    } catch (e) {
+      // console.error(e)
+      return {}
+    }
+  }
+
+  return { getPairInfo, getPairsInfo }
 }

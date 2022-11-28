@@ -31,7 +31,7 @@ export class PowerState {
   }
 
   getMarks() {
-    const result = { 0: 0 }
+    const result = {}
     const exposures = this.getExposures().map(e => Math.floor(e * 10) / 10)
     exposures.forEach((exposure) => {
       result[exposure] = exposure

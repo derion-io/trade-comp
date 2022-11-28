@@ -76,8 +76,9 @@ export const ExposureBox = () => {
         setNewLeverage(oldLeverage)
       }
       const exposure = p.getExposures()
-      console.log('exposure', exposure)
-      return [p, oldLeverage, oldValue, p.getMarks(), exposure]
+      const marks = p.getMarks()
+      delete marks[0]
+      return [p, oldLeverage, oldValue, marks, exposure]
     }
     return [null, 0, oldValue, {}, []]
   }, [powers, states, balances])

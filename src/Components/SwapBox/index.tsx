@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Card } from '../ui/Card'
 import { Text, TextGrey } from '../ui/Text'
 import './style.scss'
@@ -14,7 +14,14 @@ import { BigNumber } from 'ethers'
 import { SelectTokenModal } from '../SelectTokenModal'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../state/token/hook'
-import { bn, decodeErc1155Address, numberToWei, parseCallStaticError, weiToNumber } from '../../utils/helpers'
+import {
+  bn,
+  decodeErc1155Address,
+  numberToWei,
+  parseCallStaticError,
+  parseUq112x112,
+  weiToNumber
+} from '../../utils/helpers'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { useMultiSwapAction } from '../../hooks/useMultiSwapAction'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
@@ -22,13 +29,14 @@ import { POOL_IDS } from '../../utils/constant'
 
 export const SwapBox = () => {
   const { account, showConnectModal } = useWeb3React()
-  const { dTokens, cToken, logicAddress, poolAddress, baseToken, quoteToken } = useCurrentPool()
+  const { states, dTokens, cToken, logicAddress, poolAddress, baseToken, quoteToken } = useCurrentPool()
   const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
   const [tokenTypeToSelect, setTokenTypeToSelect] = useState<'input' | 'output'>('input')
   const [callError, setCallError] = useState<string>('')
   const [amountOut, setAmountOut] = useState<string>('')
+  const [amountOutWei, setAmountOutWei] = useState<BigNumber>(bn(0))
   const [amountIn, setAmountIn] = useState<string>('')
   const { balances, routerAllowances, approveRouter } = useWalletBalance()
   const [txFee, setTxFee] = useState<string>('')
@@ -58,8 +66,10 @@ export const SwapBox = () => {
       amountIn: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))
     }], isDeleverage).then((res) => {
       const [aOuts, gasLeft] = res
+      setAmountOutWei(aOuts)
       setAmountOut(weiToNumber(aOuts[0]?.amountOut || 0, tokens[outputTokenAddress].decimal || 18))
-      setTxFee(weiToNumber(detextTxFee(gasLeft)).toString())
+      // setTxFee(weiToNumber(detextTxFee(gasLeft)).toString())
+      setTxFee(gasLeft.toString())
       setCallError('')
     }).catch((e) => {
       const error = parseCallStaticError(e)
@@ -131,6 +141,14 @@ export const SwapBox = () => {
     }
   }
 
+  const protocolFee = useMemo(() => {
+    if (states?.twapLP && inputTokenAddress === poolAddress && outputTokenAddress === cToken) {
+      const cPrice = parseUq112x112(states.twapLP, 1000)
+      return weiToNumber(amountOutWei.mul(3).mul(cPrice * 1000).div(100 * 1000), tokens[cToken]?.decimal || 18)
+    }
+    return 0
+  }, [states, amountOutWei, inputTokenAddress, outputTokenAddress])
+
   return (
     <Card className='swap-box'>
       <div className='d-flex jc-space-between'>
@@ -168,7 +186,10 @@ export const SwapBox = () => {
           // @ts-ignore
           value={amountIn}
           onChange={(e) => {
-            setAmountIn((e.target as HTMLInputElement).value)
+            // @ts-ignore
+            if (Number(e.target.value) >= 0) {
+              setAmountIn((e.target as HTMLInputElement).value)
+            }
           }}
         />
       </div>
@@ -241,8 +262,8 @@ export const SwapBox = () => {
               <Text>Est fees</Text>
             </span>
             <span>
-              <Text>32 </Text>
-              <TextGrey>USDT</TextGrey>
+              <Text>{protocolFee}</Text>
+              <TextGrey> USD</TextGrey>
             </span>
           </InfoRow>
           <InfoRow className='mb-2'>
@@ -251,35 +272,35 @@ export const SwapBox = () => {
             </span>
             <span>
               <Text>{txFee}</Text>
-              <TextGrey>USD</TextGrey>
+              <TextGrey> Wei</TextGrey>
             </span>
           </InfoRow>
-          <InfoRow className='mb-2'>
-            <span>
-              <Text>Slippage</Text>
-            </span>
-            <span>
-              <TextGrey>0.5%</TextGrey>
-            </span>
-          </InfoRow>
-          <InfoRow className='mb-1'>
-            <span>
-              <Text>Price Impact</Text>
-            </span>
-            <span>
-              <TextGrey>-0.01%</TextGrey>
-            </span>
-          </InfoRow>
-        </Box>
-        <Box>
-          <InfoRow className='mt-1'>
-            <span>
-              <TextGrey>Minimum received</TextGrey>
-            </span>
-            <span>
-              <Text>14.2815 ETH</Text>
-            </span>
-          </InfoRow>
+          {/*  <InfoRow className='mb-2'> */}
+          {/*    <span> */}
+          {/*      <Text>Slippage</Text> */}
+          {/*    </span> */}
+          {/*    <span> */}
+          {/*      <TextGrey>0.5%</TextGrey> */}
+          {/*    </span> */}
+          {/*  </InfoRow> */}
+          {/*  <InfoRow className='mb-1'> */}
+          {/*    <span> */}
+          {/*      <Text>Price Impact</Text> */}
+          {/*    </span> */}
+          {/*    <span> */}
+          {/*      <TextGrey>-0.01%</TextGrey> */}
+          {/*    </span> */}
+          {/*  </InfoRow> */}
+          {/* </Box> */}
+          {/* <Box> */}
+          {/*  <InfoRow className='mt-1'> */}
+          {/*    <span> */}
+          {/*      <TextGrey>Minimum received</TextGrey> */}
+          {/*    </span> */}
+          {/*    <span> */}
+          {/*      <Text>14.2815 ETH</Text> */}
+          {/*    </span> */}
+          {/*  </InfoRow> */}
         </Box>
       </Box>
 

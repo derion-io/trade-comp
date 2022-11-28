@@ -24,6 +24,7 @@
   }
   &.text-link {
     color: $color-execute;
+    cursor: pointer;
     text-decoration: underline;
   }
 }

@@ -1,5 +1,5 @@
 import { useConfigs } from '../../config/useConfigs'
-import { BigNumber, ethers } from 'ethers'
+import { ethers } from 'ethers'
 import { useContract } from '../../../hooks/useContract'
 import { ParseLogType, PoolType } from '../type'
 import { addPoolsWithChain } from '../reducer'
@@ -13,6 +13,7 @@ import { addTokensReduce } from '../../token/reducer'
 import { bn, getNormalAddress } from '../../../utils/helpers'
 import { decodePowers } from 'powerLib'
 import { POOL_IDS } from '../../../utils/constant'
+import { usePairInfo } from '../../../hooks/usePairInfo'
 
 const { AssistedJsonRpcProvider } = require('assisted-json-rpc-provider')
 
@@ -23,6 +24,7 @@ export const useListPool = () => {
   const { configs, chainId } = useConfigs()
   const { getEventInterface } = useContract()
   const dispatch = useDispatch()
+  const { getPairsInfo } = usePairInfo()
 
   const initListPool = async () => {
     if (!chainId || !configs.scanApi) return
@@ -78,6 +80,7 @@ export const useListPool = () => {
    */
   const generatePoolData = (logs: ParseLogType[]) => {
     const allTokens: string[] = []
+    const allUniPools: string[] = []
     const poolData = {}
     const logicData = {}
     logs.forEach((log) => {
@@ -115,11 +118,12 @@ export const useListPool = () => {
           poolAddress: log.args.pool,
           ...data
         }
+        allUniPools.push(data.cToken)
         allTokens.push(...data.dTokens, data.cToken, data.baseToken)
       }
     })
 
-    return loadStatesData(allTokens, poolData)
+    return loadStatesData(allTokens, poolData, allUniPools)
   }
 
   /**
@@ -127,7 +131,7 @@ export const useListPool = () => {
    * @param listTokens
    * @param listPools
    */
-  const loadStatesData = async (listTokens: string[], listPools: { [key: string]: PoolType }) => {
+  const loadStatesData = async (listTokens: string[], listPools: { [key: string]: PoolType }, uniPools: string[]) => {
     const provider = new JsonRpcProvider(configs.rpcUrl)
     const multicall = new Multicall({
       multicallCustomContractAddress: configs.addresses.multiCall,
@@ -139,6 +143,8 @@ export const useListPool = () => {
     // @ts-ignore
     const context: ContractCallContext[] = getMultiCallRequest(normalTokens, listPools)
     const { results } = await multicall.call(context)
+    const pairsInfo = await getPairsInfo(uniPools)
+    console.log('pairsInfo', pairsInfo)
     const { tokens: tokensArr, poolsState } = parseMultiCallResponse(results)
 
     const tokens = []
@@ -154,8 +160,12 @@ export const useListPool = () => {
 
     const pools = { ...listPools }
     for (const i in pools) {
+      const { baseToken, powers } = pools[i]
+      const pairInfo = pairsInfo[pools[i].cToken]
+      const quoteToken = pairInfo.token0.adr === baseToken ? pairInfo.token1.adr : pairInfo.token0.adr
+
       pools[i].states = poolsState[i]
-      const powers = pools[i].powers
+      pools[i].quoteToken = quoteToken
       powers.forEach((power, key) => {
         tokens.push({
           symbol: pools[i].baseSymbol + '^' + power,
@@ -165,23 +175,30 @@ export const useListPool = () => {
           address: i + '-' + key
         })
       })
-      tokens.push({
-        symbol: 'DDL-POOL',
-        name: 'DDL-POOL',
-        decimal: 18,
-        totalSupply: 0,
-        address: i + '-' + POOL_IDS.cp
-      })
-      tokens.push({
-        symbol: 'Uni_LP',
-        name: 'Uniswap LPs',
-        decimal: 18,
-        totalSupply: 0,
-        address: pools[i].cToken
-      })
+      tokens.push(
+        {
+          symbol: 'CP',
+          name: 'CP',
+          decimal: 18,
+          totalSupply: 0,
+          address: i + '-' + POOL_IDS.cp
+        },
+        {
+          address: pairInfo.token0.adr,
+          decimal: pairInfo.token0.decimals,
+          name: pairInfo.token0.name,
+          symbol: pairInfo.token0.symbol,
+          totalSupply: pairInfo.token0.totalSupply
+        },
+        {
+          address: pairInfo.token1.adr,
+          decimal: pairInfo.token1.decimal,
+          name: pairInfo.token1.name,
+          symbol: pairInfo.token1.symbol,
+          totalSupply: pairInfo.token1.totalSupply
+        }
+      )
     }
-
-    console.log('pools', pools)
 
     return { tokens, pools }
   }

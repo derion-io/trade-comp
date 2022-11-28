@@ -16,6 +16,7 @@ export type PoolType = {
   baseSymbol: string
   states: any
   baseToken: string,
+  quoteToken: string,
   cToken: string,
   powers: number[]
   dTokens: string[]

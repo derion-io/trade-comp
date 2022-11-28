@@ -73,10 +73,7 @@ export const PoolRow = ({ pool }: { pool: PoolType }) => {
   const { balances } = useWalletBalance()
   const { tokens } = useListTokens()
   const [isExpand, setIsExpand] = useState<boolean>(true)
-  const { dTokens, states, powers } = pool
-  const { Rc, rDcLong, rDcShort } = states
-  const { multiSwap } = useMultiSwapAction()
-  const [deleverageLoading, setDeleverageLoading] = useState(false)
+  const { dTokens, powers } = pool
   const { useHistory } = useConfigs()
   const history = useHistory()
   const { updateCurrentPool } = useCurrentPool()
@@ -106,14 +103,6 @@ export const PoolRow = ({ pool }: { pool: PoolType }) => {
   useEffect(() => {
     console.log(pool)
   }, [pool])
-
-  const isDeleverage = useMemo(() => {
-    const rDc = rDcLong.add(rDcShort)
-    const deleverageRate = parseUq112x112(pool.deleverageRate)
-    const cr = Rc.mul(numberToWei(1)).div(rDc)
-    const rate = bn(numberToWei(1, 36)).div(numberToWei(deleverageRate, 18))
-    return cr.lt(rate)
-  }, [])
 
   const TdText = leverage >= 0 ? TextBuy : TextSell
 
@@ -167,15 +156,6 @@ export const PoolRow = ({ pool }: { pool: PoolType }) => {
         >
           Exposure
         </ButtonExecute>
-        {
-          isDeleverage && <ButtonExecute
-            onClick={async () => {
-              setDeleverageLoading(true)
-              await multiSwap([], true)
-              setDeleverageLoading(false)
-            }}
-          >{deleverageLoading ? 'Loading...' : 'Deleverage'}</ButtonExecute>
-        }
       </td>
     </tr>
     <td colSpan={6} className='p-0'>
