@@ -17,7 +17,7 @@ import {
   formatFloat,
   mul,
   numberToWei,
-  parseCallStaticError,
+  parseCallStaticError, parseUq112x112,
   weiToNumber
 } from '../../utils/helpers'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
@@ -28,6 +28,7 @@ import { useMultiSwapAction } from '../../hooks/useMultiSwapAction'
 import { toast } from 'react-toastify'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
+import { POOL_IDS } from '../../utils/constant'
 
 export const ExposureBox = () => {
   const [formAddOrRemove, setFormAddOrRemove] = useState<'add' | 'remove' | undefined>(undefined)
@@ -35,7 +36,7 @@ export const ExposureBox = () => {
   const [newValue, setNewValue] = useState<BigNumber>()
   const { account, showConnectModal } = useWeb3React()
   const [loading, setLoading] = useState<boolean>(false)
-  const { dTokens, cToken, states, powers, baseToken, quoteToken, cTokenPrice, basePrice, changedIn24h, getTokenByPower } = useCurrentPool()
+  const { dTokens, cToken, poolAddress, states, powers, baseToken, quoteToken, cTokenPrice, basePrice, changedIn24h, getTokenByPower } = useCurrentPool()
   const { balances, routerAllowances, approveRouter, fetchBalanceAndAllowance } = useWalletBalance()
   const [balanceInPool, setBalancesInPool] = useState<any>({})
   const [cAmountToChange, setCAmountToChange] = useState<string>('')
@@ -46,6 +47,7 @@ export const ExposureBox = () => {
   const [stepsWithAmounts, setStepsWithAmounts] = useState<(StepType & { amountOut: BigNumber })[]>([])
   const [callError, setCallError] = useState<string>('')
   const [leverageManual, setLeverageManual] = useState<boolean>(false)
+  const [txFee, setTxFee] = useState<boolean>(false)
 
   const resetFormHandle = () => {
     setCAmountToChange('')
@@ -127,7 +129,8 @@ export const ExposureBox = () => {
     const delayDebounceFn = setTimeout(() => {
       setCallError('Calculating...')
       calculateAmountOuts(swapSteps, isDeleverage)
-        .then(([aOuts]) => {
+        .then(([aOuts, gasLeft]) => {
+          setTxFee(gasLeft.toString())
           setStepsWithAmounts(aOuts)
           setCallError('')
         })
@@ -184,6 +187,22 @@ export const ExposureBox = () => {
       >{isDeleverage && 'Deleverage & '}Execute</ButtonExecute>
     }
   }
+  const [protocolFee, percent] = useMemo(() => {
+    const fee = bn(0)
+    let percent = 0
+    for (const i in stepsWithAmounts) {
+      const step = stepsWithAmounts[i]
+      if (step.tokenIn === poolAddress + '-' + POOL_IDS.cp && step.tokenOut === cToken) {
+        const cPrice = parseUq112x112(states.twapLP, 1000)
+        fee.add(step.amountOut
+          .mul(3)
+          .mul(cPrice * 1000)
+          .div(1000 * 1000))
+        percent = 0.3
+      }
+    }
+    return [formatFloat(weiToNumber(fee, tokens[cToken]?.decimal || 18), 2), percent]
+  }, [stepsWithAmounts])
 
   return (
     <Card className='exposure-box'>
@@ -363,13 +382,13 @@ export const ExposureBox = () => {
             <InfoRow className='mb-1'>
               <Text>Conversion Fee</Text>
               <span>
-                <Text>0.3% ($1.23)</Text>
+                <Text>{percent}% (${protocolFee})</Text>
               </span>
             </InfoRow>
             <InfoRow>
               <Text>Transaction Fee</Text>
               <span>
-                <Text>0.01 BNB ($0.02)</Text>
+                <Text>{txFee} Wei</Text>
               </span>
             </InfoRow>
           </Box>

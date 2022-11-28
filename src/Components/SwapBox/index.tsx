@@ -16,7 +16,7 @@ import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../state/token/hook'
 import {
   bn,
-  decodeErc1155Address,
+  decodeErc1155Address, formatFloat,
   numberToWei,
   parseCallStaticError,
   parseUq112x112,
@@ -66,7 +66,7 @@ export const SwapBox = () => {
       amountIn: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))
     }], isDeleverage).then((res) => {
       const [aOuts, gasLeft] = res
-      setAmountOutWei(aOuts)
+      setAmountOutWei(aOuts[0]?.amountOut || bn(0))
       setAmountOut(weiToNumber(aOuts[0]?.amountOut || 0, tokens[outputTokenAddress].decimal || 18))
       // setTxFee(weiToNumber(detextTxFee(gasLeft)).toString())
       setTxFee(gasLeft.toString())
@@ -142,9 +142,14 @@ export const SwapBox = () => {
   }
 
   const protocolFee = useMemo(() => {
-    if (states?.twapLP && inputTokenAddress === poolAddress && outputTokenAddress === cToken) {
+    if (states?.twapLP && inputTokenAddress === poolAddress + '-' + POOL_IDS.cp && outputTokenAddress === cToken) {
       const cPrice = parseUq112x112(states.twapLP, 1000)
-      return weiToNumber(amountOutWei.mul(3).mul(cPrice * 1000).div(100 * 1000), tokens[cToken]?.decimal || 18)
+      return formatFloat(weiToNumber(amountOutWei
+        .mul(3)
+        .mul(cPrice * 1000)
+        .div(1000 * 1000)
+      , tokens[cToken]?.decimal || 18)
+      , 2)
     }
     return 0
   }, [states, amountOutWei, inputTokenAddress, outputTokenAddress])
@@ -250,58 +255,50 @@ export const SwapBox = () => {
       />
 
       <Box borderColor='#3a3a3a' className='swap-info-box mt-2 mb-2'>
-        <Box
-          borderColor='#3a3a3a'
-          borderRadius='0'
-          disableBorderLeft
-          disableBorderRight
-          disableBorderTop
-        >
-          <InfoRow className='mb-2'>
-            <span>
-              <Text>Est fees</Text>
-            </span>
-            <span>
-              <Text>{protocolFee}</Text>
-              <TextGrey> USD</TextGrey>
-            </span>
-          </InfoRow>
-          <InfoRow className='mb-2'>
-            <span>
-              <Text>Tx fee</Text>
-            </span>
-            <span>
-              <Text>{txFee}</Text>
-              <TextGrey> Wei</TextGrey>
-            </span>
-          </InfoRow>
-          {/*  <InfoRow className='mb-2'> */}
-          {/*    <span> */}
-          {/*      <Text>Slippage</Text> */}
-          {/*    </span> */}
-          {/*    <span> */}
-          {/*      <TextGrey>0.5%</TextGrey> */}
-          {/*    </span> */}
-          {/*  </InfoRow> */}
-          {/*  <InfoRow className='mb-1'> */}
-          {/*    <span> */}
-          {/*      <Text>Price Impact</Text> */}
-          {/*    </span> */}
-          {/*    <span> */}
-          {/*      <TextGrey>-0.01%</TextGrey> */}
-          {/*    </span> */}
-          {/*  </InfoRow> */}
-          {/* </Box> */}
-          {/* <Box> */}
-          {/*  <InfoRow className='mt-1'> */}
-          {/*    <span> */}
-          {/*      <TextGrey>Minimum received</TextGrey> */}
-          {/*    </span> */}
-          {/*    <span> */}
-          {/*      <Text>14.2815 ETH</Text> */}
-          {/*    </span> */}
-          {/*  </InfoRow> */}
-        </Box>
+        <InfoRow className='mb-2'>
+          <span>
+            <Text>Conversion Fee</Text>
+          </span>
+          <span>
+            <Text>{protocolFee}</Text>
+            <TextGrey> USD</TextGrey>
+          </span>
+        </InfoRow>
+        <InfoRow className=''>
+          <span>
+            <Text>Tx fee</Text>
+          </span>
+          <span>
+            <Text>{txFee || 0}</Text>
+            <TextGrey> Wei</TextGrey>
+          </span>
+        </InfoRow>
+        {/*  <InfoRow className='mb-2'> */}
+        {/*    <span> */}
+        {/*      <Text>Slippage</Text> */}
+        {/*    </span> */}
+        {/*    <span> */}
+        {/*      <TextGrey>0.5%</TextGrey> */}
+        {/*    </span> */}
+        {/*  </InfoRow> */}
+        {/*  <InfoRow className='mb-1'> */}
+        {/*    <span> */}
+        {/*      <Text>Price Impact</Text> */}
+        {/*    </span> */}
+        {/*    <span> */}
+        {/*      <TextGrey>-0.01%</TextGrey> */}
+        {/*    </span> */}
+        {/*  </InfoRow> */}
+        {/* </Box> */}
+        {/* <Box> */}
+        {/*  <InfoRow className='mt-1'> */}
+        {/*    <span> */}
+        {/*      <TextGrey>Minimum received</TextGrey> */}
+        {/*    </span> */}
+        {/*    <span> */}
+        {/*      <Text>14.2815 ETH</Text> */}
+        {/*    </span> */}
+        {/*  </InfoRow> */}
       </Box>
 
       <Box className='text-center'>

@@ -3,8 +3,8 @@ export const LARGE_VALUE =
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
 export const POOL_IDS = {
-  cToken: 0x20000,
-  cp: 0x10000,
-  token0: 0x40000,
-  token1: 0x40001
+  cToken: 131072,
+  cp: 65536,
+  token0: 262144,
+  token1: 262145
 }

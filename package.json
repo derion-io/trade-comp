@@ -81,7 +81,7 @@
     "sass": "^1.38.2",
     "sass-loader": "^12.1.0",
     "typescript": "^3.7.5",
-    "powerLib": "git+ssh://git@github.com:derivable-io/power-lib.git#cd6f0ba1baa1843a5f053e8a98583d4f7d4b2dad"
+    "powerLib": "git+ssh://git@github.com:derivable-io/power-lib.git#43924a45ed83d7bb728bf7be4e1712c42b3974f1"
   },
   "files": [
     "dist"
