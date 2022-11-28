@@ -5,10 +5,17 @@
   color: white;
 
   &.text-buy {
-    color: $color-buy
+    color: $color-buy;
+    & sup {
+      color: $color-sell
+    }
   }
   &.text-sell {
-    color: $color-sell
+    color: $color-sell;
+
+    & sup {
+      color: $color-sell
+    }
   }
   &.text-grey {
     color: $color-grey;
