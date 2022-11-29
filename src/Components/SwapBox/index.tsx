@@ -106,7 +106,6 @@ export const SwapBox = () => {
 
   const renderExecuteButton = () => {
     const address = decodeErc1155Address(inputTokenAddress).address
-    console.log('routerAllowances', routerAllowances, address)
 
     if (!tokens[inputTokenAddress] || loading) {
       return <ButtonExecute className='swap-button' disabled>Loading...</ButtonExecute>
@@ -274,7 +273,7 @@ export const SwapBox = () => {
             </span>
             <span>
               <Text>{protocolFee}</Text>
-              <TextGrey> USD</TextGrey>
+              <TextGrey> USD (3%)</TextGrey>
             </span>
           </InfoRow>
           : ''
@@ -291,7 +290,7 @@ export const SwapBox = () => {
             <Text>
               {weiToNumber(txFee, 18, 4)}
               <TextGrey> BNB </TextGrey>
-              (<TextGrey>$</TextGrey>{weiToNumber(txFee.mul(nativePrice), 18, 2)})
+              (${weiToNumber(txFee.mul(nativePrice), 18, 2)})
             </Text>
           </span>
         </InfoRow>
