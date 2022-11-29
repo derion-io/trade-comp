@@ -1,19 +1,16 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Text, TextBuy, TextSell } from '../ui/Text'
 import './style.scss'
-import { ButtonExecute } from '../ui/Button'
+import { ButtonGrey } from '../ui/Button'
 import { Collapse } from 'react-collapse'
 import { ExpandPool } from './ExpandPool'
-import { Input } from '../ui/Input'
-import { SearchIcon } from '../ui/Icon'
 import { useListPool } from '../../state/pools/hooks/useListPool'
 import { PoolType } from '../../state/pools/type'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { PowerState } from '../../utils/powerLib'
-import { bn, formatFloat, numberToWei, parseUq112x112, shortenAddressString, weiToNumber } from '../../utils/helpers'
+import { bn, formatFloat, shortenAddressString, weiToNumber } from '../../utils/helpers'
 import { useListTokens } from '../../state/token/hook'
 import { TokenSymbol } from '../ui/TokenSymbol'
-import { useMultiSwapAction } from '../../hooks/useMultiSwapAction'
 import { useConfigs } from '../../state/config/useConfigs'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 
@@ -39,7 +36,7 @@ export const PoolTable = () => {
             <th className='text-left'>Pool</th>
             <th className='text-left'>Asset</th>
             <th className='text-left'>Size</th>
-            <th className='text-left'>Net val</th>
+            <th className='text-left'>Value</th>
             <th className='text-left'>Leverage</th>
             <th className='text-right'>
               {/* <ButtonBorder className='pt-05 pb-05'>Add</ButtonBorder> */}
@@ -47,7 +44,7 @@ export const PoolTable = () => {
           </tr>
         </thead>
         <tbody>
-          <tr>
+          {/* <tr>
             <td colSpan={7}>
               <Input
                 placeholder='Search token or address'
@@ -57,7 +54,7 @@ export const PoolTable = () => {
                 suffix={<SearchIcon />}
               />
             </td>
-          </tr>
+          </tr> */}
           {
             Object.values(pools).map((pool, key) => {
               return <PoolRow pool={pool} key={key} />
@@ -139,19 +136,19 @@ export const PoolRow = ({ pool }: { pool: PoolType }) => {
         <TdText>{formatFloat(leverage, 1)}x</TdText>
       </td>
       <td className='text-right pool-actions'>
-        <ButtonExecute
+        <ButtonGrey
           onClick={async () => {
             updateCurrentPool(pool.poolAddress)
             history.push('swap')
-          }}>Swap</ButtonExecute>
-        <ButtonExecute
+          }}>Swap</ButtonGrey>
+        <ButtonGrey
           onClick={async () => {
             updateCurrentPool(pool.poolAddress)
             history.push('exposure')
           }}
         >
           Exposure
-        </ButtonExecute>
+        </ButtonGrey>
       </td>
     </tr>
     <td colSpan={6} className='p-0'>

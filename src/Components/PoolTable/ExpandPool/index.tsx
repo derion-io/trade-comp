@@ -9,6 +9,8 @@ import { useConfigs } from '../../../state/config/useConfigs'
 import { ButtonExecute } from '../../ui/Button'
 import { useMultiSwapAction } from '../../../hooks/useMultiSwapAction'
 
+export const SECONDS_PER_YEAR = 31536000
+
 export const ExpandPool = ({ visible, pool, powerState }: {
   visible: boolean,
   pool: PoolType
@@ -42,14 +44,12 @@ export const ExpandPool = ({ visible, pool, powerState }: {
     <div className='pool-expand'>
       <div className='pool-expand__top'>
         <div className='pool-expand__top--left'>
-          <div className=''><TextPink>DDL Pool</TextPink></div>
           <div className='mb-1'><TextLink
             href={`${configs.explorer}/address/${poolAddress}`}
-          >View Contract</TextLink></div>
-          <div className=''><TextPink>Get ETH-USDT LP</TextPink></div>
+          >DDL Pool Contract</TextLink></div>
           <div className='mb-1'><TextLink
             href={`https://pancakeswap.finance/add/${baseToken}/${quoteToken}`}
-          >View Contract</TextLink></div>
+          >Get C-Token</TextLink></div>
 
           {
             isDeleverage && <div>
@@ -65,32 +65,38 @@ export const ExpandPool = ({ visible, pool, powerState }: {
         </div>
 
         <div className='pool-expand__top--mid'>
-          <p className='mb-1'><TextPink>Total supplies</TextPink></p>
+          <p className='mb-1'><TextPink>Derivatives</TextPink></p>
           {
             powers
               .map((power:number, index:number) => { return { power, index } })
-              .sort((a:any, b: any) => a.power - b.power)
+              .sort((a:any, b: any) => b.power - a.power)
               .map(({ power, index }: {power: number, index: number}) => {
-                const TextComp = power > 0 ? TextBuy : TextSell
                 const price = powerState.calculatePrice(power)
                 const value = totalSupplies[index]?.mul(numberToWei(price || 0))
+                return { index, power, value }
+              })
+              .filter(({ value }: { value: number }) => {
+                return value > 0
+              })
+              .map(({ index, power, value }: {index: number, power: number, value: number}) => {
+                const TextComp = power > 0 ? TextBuy : TextSell
                 return <div key={index}>
                   <TextComp>
                     <TokenSymbol token={tokens[dTokens[index]]} />
                   </TextComp>
-                  <Text>: ${formatFloat(weiToNumber(value, 36), 2)}</Text>
+                  <Text> ${formatFloat(weiToNumber(value, 36), 2)}</Text>
                 </div>
               })
           }
         </div>
         <div className='pool-expand__top--right'>
           <p className='mb-1'><TextPink>States</TextPink></p>
-          <div><Text>Locked value:</Text><TextGreen> ${formatFloat(weiToNumber(totalLockedValue), 2)}</TextGreen></div>
-          <div><Text>Long derivative value:</Text><TextGreen> ${formatFloat(weiToNumber(rDcLongValue), 2)}</TextGreen>
+          <div><Text>Total Locked Value:</Text><TextGreen> ${formatFloat(weiToNumber(totalLockedValue), 2)}</TextGreen></div>
+          <div><Text>Long Derivatives Value:</Text><TextGreen> ${formatFloat(weiToNumber(rDcLongValue), 2)}</TextGreen>
           </div>
-          <div><Text>Short derivative value:</Text><TextGreen> ${formatFloat(weiToNumber(rDcShortValue), 2)}</TextGreen>
+          <div><Text>Short Derivatives Value:</Text><TextGreen> ${formatFloat(weiToNumber(rDcShortValue), 2)}</TextGreen>
           </div>
-          <div><Text>Collateral ratio :</Text><TextGreen> {formatFloat(collateralRatio, 2)}</TextGreen></div>
+          <div><Text>Collateral Ratio:</Text><TextGreen> {formatFloat(collateralRatio, 2)}</TextGreen></div>
         </div>
       </div>
       <div className='pool-expand__box'>
@@ -100,11 +106,10 @@ export const ExpandPool = ({ visible, pool, powerState }: {
             <Text>Price Tolenrance Ratio: </Text><TextGreen> {parseUq112x112(pool.priceToleranceRatio)}</TextGreen>
           </div>
           <div>
-            <Text>Funding rate: </Text><TextGreen>{parseUq112x112(pool.rentRate)}</TextGreen>
+            <Text>Funding Rate (APR): </Text><TextGreen>{formatFloat(parseUq112x112(pool.rentRate.mul(SECONDS_PER_YEAR).mul(100)), 2)}%</TextGreen>
           </div>
           <div>
-            <Text>Deleverage
-              Rate: </Text><TextGreen>{formatFloat(parseUq112x112(pool.deleverageRate) * 100, 2)}%</TextGreen>
+            <Text>Deleverage Rate: </Text><TextGreen>{formatFloat(parseUq112x112(pool.deleverageRate) * 100, 2)}%</TextGreen>
           </div>
         </div>
       </div>

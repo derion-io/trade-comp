@@ -13,7 +13,7 @@ import {
   bn,
   decodeErc1155Address,
   getErc1155Token,
-  getNormalAddress, isErc1155Address,
+  getNormalAddress,
   parseCallStaticError
 } from '../../../utils/helpers'
 import { messageAndViewOnBsc } from '../../../Components/MessageAndViewOnBsc'
@@ -26,7 +26,7 @@ import { useCurrentPool } from '../../currentPool/hooks/useCurrentPool'
 
 export const useWalletBalance = () => {
   const { getPoolContract } = useContract()
-  const { powers } = useCurrentPool()
+  const { powers, poolAddress } = useCurrentPool()
   const { balances, accFetchBalance, routerAllowances } = useSelector((state: any) => {
     return {
       balances: state.wallet.balances,
@@ -62,7 +62,7 @@ export const useWalletBalance = () => {
       try {
         const signer = library.getSigner()
         let hash = ''
-        if (isErc1155Address(tokenAddress)) {
+        if (tokenAddress == poolAddress) {
           const poolAddress = decodeErc1155Address(tokenAddress).address
           const contract = getPoolContract(poolAddress, signer)
           const txRes = await contract.setApprovalForAll(configs.addresses.router, true)
