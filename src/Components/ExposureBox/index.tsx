@@ -410,15 +410,17 @@ export const ExposureBox = () => {
         </Box>
       }
 
-      <Box className='text-center'>
-        <input
-          type='checkbox'
-          checked={isDeleverage}
-          id='is-deleverage' onChange={(e) => {
-            setIsDeleverage(e.target.checked)
-          }} />
-        <label htmlFor='is-deleverage'> Deleverage</label>
-      </Box>
+      { isDeleverage &&
+        <Box className='text-center'>
+          <input
+            type='checkbox'
+            checked={isDeleverage}
+            id='is-deleverage' onChange={(e) => {
+              setIsDeleverage(e.target.checked)
+            }} />
+          <label htmlFor='is-deleverage'> Deleverage</label>
+        </Box>
+      }
 
       <div className='jc-space-between'>
         {renderExecuteButton()}
