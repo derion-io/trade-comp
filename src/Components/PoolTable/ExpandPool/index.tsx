@@ -44,14 +44,12 @@ export const ExpandPool = ({ visible, pool, powerState }: {
     <div className='pool-expand'>
       <div className='pool-expand__top'>
         <div className='pool-expand__top--left'>
-          <div className=''><TextPink>DDL Pool</TextPink></div>
           <div className='mb-1'><TextLink
             href={`${configs.explorer}/address/${poolAddress}`}
-          >View Contract</TextLink></div>
-          <div className=''><TextPink>Get ETH-USDT LP</TextPink></div>
+          >DDL Pool Contract</TextLink></div>
           <div className='mb-1'><TextLink
             href={`https://pancakeswap.finance/add/${baseToken}/${quoteToken}`}
-          >View Contract</TextLink></div>
+          >Get C-Token</TextLink></div>
 
           {
             isDeleverage && <div>
@@ -67,7 +65,7 @@ export const ExpandPool = ({ visible, pool, powerState }: {
         </div>
 
         <div className='pool-expand__top--mid'>
-          <p className='mb-1'><TextPink>Total supplies</TextPink></p>
+          <p className='mb-1'><TextPink>Derivatives</TextPink></p>
           {
             powers.map((power, key) => {
               const TextComp = power > 0 ? TextBuy : TextSell
@@ -77,19 +75,19 @@ export const ExpandPool = ({ visible, pool, powerState }: {
                 <TextComp>
                   <TokenSymbol token={tokens[dTokens[key]]} />
                 </TextComp>
-                <Text>: ${formatFloat(weiToNumber(value, 36), 2)}</Text>
+                <Text> ${formatFloat(weiToNumber(value, 36), 2)}</Text>
               </div>
             })
           }
         </div>
         <div className='pool-expand__top--right'>
           <p className='mb-1'><TextPink>States</TextPink></p>
-          <div><Text>Locked value:</Text><TextGreen> ${formatFloat(weiToNumber(totalLockedValue), 2)}</TextGreen></div>
-          <div><Text>Long derivative value:</Text><TextGreen> ${formatFloat(weiToNumber(rDcLongValue), 2)}</TextGreen>
+          <div><Text>Total Locked Value:</Text><TextGreen> ${formatFloat(weiToNumber(totalLockedValue), 2)}</TextGreen></div>
+          <div><Text>Long Derivatives Value:</Text><TextGreen> ${formatFloat(weiToNumber(rDcLongValue), 2)}</TextGreen>
           </div>
-          <div><Text>Short derivative value:</Text><TextGreen> ${formatFloat(weiToNumber(rDcShortValue), 2)}</TextGreen>
+          <div><Text>Short Derivatives Value:</Text><TextGreen> ${formatFloat(weiToNumber(rDcShortValue), 2)}</TextGreen>
           </div>
-          <div><Text>Collateral ratio :</Text><TextGreen> {formatFloat(collateralRatio, 2)}</TextGreen></div>
+          <div><Text>Collateral Ratio:</Text><TextGreen> {formatFloat(collateralRatio, 2)}</TextGreen></div>
         </div>
       </div>
       <div className='pool-expand__box'>
@@ -102,8 +100,7 @@ export const ExpandPool = ({ visible, pool, powerState }: {
             <Text>Funding Rate (APR): </Text><TextGreen>{formatFloat(parseUq112x112(pool.rentRate.mul(SECONDS_PER_YEAR).mul(100)), 2)}%</TextGreen>
           </div>
           <div>
-            <Text>Deleverage
-              Rate: </Text><TextGreen>{formatFloat(parseUq112x112(pool.deleverageRate) * 100, 2)}%</TextGreen>
+            <Text>Deleverage Rate: </Text><TextGreen>{formatFloat(parseUq112x112(pool.deleverageRate) * 100, 2)}%</TextGreen>
           </div>
         </div>
       </div>
