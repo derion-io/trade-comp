@@ -78,9 +78,9 @@ export const PoolRow = ({ pool }: { pool: PoolType }) => {
   const history = useHistory()
   const { updateCurrentPool } = useCurrentPool()
 
-  const [leverage, value] = useMemo(() => {
+  const [powerState, leverage, value] = useMemo(() => {
     let leverage = 0
-    const value = bn(0)
+    let value = bn(0)
     const { powers, states, dTokens } = pool
     const p = new PowerState({ powers: powers })
     p.loadStates(states)
@@ -94,14 +94,11 @@ export const PoolRow = ({ pool }: { pool: PoolType }) => {
 
     if (Object.keys(currentBalances).length > 0) {
       leverage = p.calculateCompExposure(currentBalances)
+      value = p.calculateCompValue(currentBalances)
     }
 
-    return [leverage, value]
+    return [p, leverage, value]
   }, [pool, balances])
-
-  useEffect(() => {
-    console.log(pool)
-  }, [pool])
 
   const TdText = leverage >= 0 ? TextBuy : TextSell
 
@@ -159,7 +156,7 @@ export const PoolRow = ({ pool }: { pool: PoolType }) => {
     </tr>
     <td colSpan={6} className='p-0'>
       <Collapse isOpened={isExpand} initialStyle={{ height: 0, overflow: 'hidden' }}>
-        <ExpandPool visible={isExpand} pool={pool} />
+        <ExpandPool visible={isExpand} pool={pool} powerState={powerState}/>
       </Collapse>
     </td>
   </React.Fragment>

@@ -9,9 +9,10 @@ import { useConfigs } from '../../../state/config/useConfigs'
 import { ButtonExecute } from '../../ui/Button'
 import { useMultiSwapAction } from '../../../hooks/useMultiSwapAction'
 
-export const ExpandPool = ({ visible, pool }: {
+export const ExpandPool = ({ visible, pool, powerState }: {
   visible: boolean,
   pool: PoolType
+  powerState: any
 }) => {
   const { configs } = useConfigs()
   const { tokens } = useListTokens()
@@ -68,8 +69,8 @@ export const ExpandPool = ({ visible, pool }: {
           {
             powers.map((power, key) => {
               const TextComp = power > 0 ? TextBuy : TextSell
-              const cTokenPrice = bn(states.twapLP).mul(10000).shr(112).toNumber() / 10000
-              const value = totalSupplies[key]?.mul(numberToWei(cTokenPrice || 0))
+              const price = powerState.calculatePrice(power)
+              const value = totalSupplies[key]?.mul(numberToWei(price || 0))
               return <div key={key}>
                 <TextComp>
                   <TokenSymbol token={tokens[dTokens[key]]} />
