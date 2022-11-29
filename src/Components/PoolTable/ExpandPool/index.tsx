@@ -67,17 +67,20 @@ export const ExpandPool = ({ visible, pool, powerState }: {
         <div className='pool-expand__top--mid'>
           <p className='mb-1'><TextPink>Total supplies</TextPink></p>
           {
-            powers.map((power, key) => {
-              const TextComp = power > 0 ? TextBuy : TextSell
-              const price = powerState.calculatePrice(power)
-              const value = totalSupplies[key]?.mul(numberToWei(price || 0))
-              return <div key={key}>
-                <TextComp>
-                  <TokenSymbol token={tokens[dTokens[key]]} />
-                </TextComp>
-                <Text>: ${formatFloat(weiToNumber(value, 36), 2)}</Text>
-              </div>
-            })
+            powers
+              .map((power:number, index:number) => { return { power, index } })
+              .sort((a:any, b: any) => a.power - b.power)
+              .map(({ power, index }: {power: number, index: number}) => {
+                const TextComp = power > 0 ? TextBuy : TextSell
+                const price = powerState.calculatePrice(power)
+                const value = totalSupplies[index]?.mul(numberToWei(price || 0))
+                return <div key={index}>
+                  <TextComp>
+                    <TokenSymbol token={tokens[dTokens[index]]} />
+                  </TextComp>
+                  <Text>: ${formatFloat(weiToNumber(value, 36), 2)}</Text>
+                </div>
+              })
           }
         </div>
         <div className='pool-expand__top--right'>
