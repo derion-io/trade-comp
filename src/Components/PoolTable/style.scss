@@ -1,9 +1,15 @@
 @import "../../styles/abstracts/variables";
+@import "../../styles/abstracts/mixins";
 
 .pool-table-wrap {
   background: $color-card-bg;
   border-radius: 20px;
   padding: 1rem 0 2rem 0;
+
+  @include respond(phone) {
+    max-width: calc(100vw - 20px);
+    overflow: auto;
+  }
 }
 
 .pool-table {

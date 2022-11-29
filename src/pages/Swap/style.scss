@@ -22,8 +22,8 @@
     justify-content: center;
 
     @include respond(phone) {
+      max-width: calc(100vh - 20px);
       flex-direction: column;
-      max-width: 100%;
       padding: 0;
     }
 
