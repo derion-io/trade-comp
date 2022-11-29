@@ -72,7 +72,6 @@ export const ExposureBox = () => {
         }
       })
       setBalancesInPool(currentBalances)
-      console.log('currentBalances', currentBalances)
       if (Object.keys(currentBalances).length > 0) {
         oldLeverage = p.calculateCompExposure(currentBalances)
         oldValue = p.calculateCompValue(currentBalances)

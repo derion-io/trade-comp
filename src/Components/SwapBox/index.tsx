@@ -16,7 +16,7 @@ import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../state/token/hook'
 import {
   bn,
-  decodeErc1155Address, formatFloat,
+  decodeErc1155Address, formatFloat, isErc1155Address,
   numberToWei,
   parseCallStaticError,
   parseUq112x112,
@@ -26,12 +26,13 @@ import { TokenSymbol } from '../ui/TokenSymbol'
 import { useMultiSwapAction } from '../../hooks/useMultiSwapAction'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { POOL_IDS } from '../../utils/constant'
+import { PowerState } from 'powerLib/lib/index'
 
 const nativePrice = 300
 
 export const SwapBox = () => {
   const { account, showConnectModal } = useWeb3React()
-  const { states, dTokens, cToken, logicAddress, poolAddress, baseToken, quoteToken } = useCurrentPool()
+  const { cTokenPrice, states, dTokens, cToken, logicAddress, poolAddress, powers, baseToken, quoteToken } = useCurrentPool()
   const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
@@ -165,6 +166,39 @@ export const SwapBox = () => {
     return 0
   }, [states, amountOutWei, inputTokenAddress, outputTokenAddress])
 
+  const getTokenPrice = (address: string, powerState: any) => {
+    if (address === cToken) {
+      return cTokenPrice
+    }
+    if (powerState && isErc1155Address(address)) {
+      const { id } = decodeErc1155Address(address)
+      const power = powers[id]
+      return powerState.calculatePrice(power)
+    }
+    return 0
+  }
+
+  const valueIn = useMemo(() => {
+    if (powers && states.twapBase && Number(amountIn) > 0) {
+      const powerState = new PowerState({ powers: [...powers] })
+      powerState.loadStates(states)
+      const price = getTokenPrice(inputTokenAddress, powerState)
+      return formatFloat(weiToNumber(bn(numberToWei(amountIn)).mul(numberToWei(price || 0)), 36), 2)
+    }
+    return 0
+  }, [powers, states, amountIn, inputTokenAddress])
+
+  const valueOut = useMemo(() => {
+    if (powers && states.twapBase && Number(amountOut) > 0) {
+      const powerState = new PowerState({ powers: [...powers] })
+      powerState.loadStates(states)
+      const price = getTokenPrice(outputTokenAddress, powerState)
+      return formatFloat(weiToNumber(bn(numberToWei(amountOut)).mul(numberToWei(price || 0)), 36), 2)
+    }
+    return 0
+  }, [powers, states, amountOut, outputTokenAddress])
+
+
   return (
     <Card className='swap-box'>
       <div className='d-flex jc-space-between'>
@@ -197,7 +231,7 @@ export const SwapBox = () => {
         </div>
         <Input
           placeholder='0.0'
-          suffix='$0'
+          suffix={valueIn > 0 ? <TextGrey>${valueIn}</TextGrey> : ''}
           className='fs-24'
           // @ts-ignore
           value={amountIn}
@@ -235,8 +269,10 @@ export const SwapBox = () => {
         </div>
         <Input
           // @ts-ignore
-          value={amountOut}
-          placeholder='0.0' suffix='$0' className='fs-24'
+          value={Number(amountOut) > 0 ? amountOut : ''}
+          placeholder='0.0'
+          suffix={valueOut > 0 ? <TextGrey>${valueOut}</TextGrey> : ''}
+          className='fs-24'
         />
       </div>
 
@@ -266,7 +302,7 @@ export const SwapBox = () => {
       />
 
       <Box borderColor='#3a3a3a' className='swap-info-box mt-2 mb-2'>
-        { protocolFee && protocolFee > 0
+        {protocolFee && protocolFee > 0
           ? <InfoRow className='mb-1'>
             <span>
               <Text>Conversion Fee</Text>
