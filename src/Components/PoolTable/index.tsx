@@ -39,7 +39,7 @@ export const PoolTable = () => {
             <th className='text-left'>Pool</th>
             <th className='text-left'>Asset</th>
             <th className='text-left'>Size</th>
-            <th className='text-left'>Net val</th>
+            <th className='text-left'>Value</th>
             <th className='text-left'>Leverage</th>
             <th className='text-right'>
               {/* <ButtonBorder className='pt-05 pb-05'>Add</ButtonBorder> */}
@@ -47,7 +47,7 @@ export const PoolTable = () => {
           </tr>
         </thead>
         <tbody>
-          <tr>
+          {/* <tr>
             <td colSpan={7}>
               <Input
                 placeholder='Search token or address'
@@ -57,7 +57,7 @@ export const PoolTable = () => {
                 suffix={<SearchIcon />}
               />
             </td>
-          </tr>
+          </tr> */}
           {
             Object.values(pools).map((pool, key) => {
               return <PoolRow pool={pool} key={key} />
