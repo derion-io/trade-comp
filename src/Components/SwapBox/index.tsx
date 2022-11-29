@@ -104,10 +104,10 @@ export const SwapBox = () => {
 
   const renderExecuteButton = () => {
     const address = decodeErc1155Address(inputTokenAddress).address
+    console.log('routerAllowances', routerAllowances, address)
+
     if (!tokens[inputTokenAddress] || loading) {
       return <ButtonExecute className='swap-button' disabled>Loading...</ButtonExecute>
-    } else if (callError) {
-      return <ButtonExecute className='swap-button' disabled>{callError}</ButtonExecute>
     } else if (!account) {
       return <ButtonExecute
         onClick={() => {
@@ -120,7 +120,19 @@ export const SwapBox = () => {
     } else if (!balances[inputTokenAddress] || balances[inputTokenAddress].lt(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))) {
       return <ButtonExecute className='swap-button'
         disabled> Insufficient {tokens[inputTokenAddress].symbol} Amount </ButtonExecute>
-    } else if (routerAllowances[address] && routerAllowances[address].gt(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))) {
+    } else if (!routerAllowances[address] || routerAllowances[address].lt(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))) {
+      return <ButtonExecute
+        className='swap-button'
+        onClick={async () => {
+          setLoading(true)
+          await approveRouter({ tokenAddress: inputTokenAddress })
+          calcAmountOut(isDeleverage)
+          setLoading(false)
+        }}
+      >Approve</ButtonExecute>
+    } else if (callError) {
+      return <ButtonExecute className='swap-button' disabled>{callError}</ButtonExecute>
+    } else {
       return <ButtonExecute
         className='swap-button'
         onClick={async () => {
@@ -136,15 +148,6 @@ export const SwapBox = () => {
           setLoading(false)
         }}
       >{isDeleverage && 'Deleverage & '} Swap</ButtonExecute>
-    } else {
-      return <ButtonExecute
-        className='swap-button'
-        onClick={async () => {
-          setLoading(true)
-          await approveRouter({ tokenAddress: inputTokenAddress })
-          setLoading(false)
-        }}
-      >Approve</ButtonExecute>
     }
   }
 

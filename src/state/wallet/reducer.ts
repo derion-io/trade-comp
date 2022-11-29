@@ -13,6 +13,7 @@ export const tokens = createSlice({
     resetBnA: (state) => {
       state.balances = {}
       state.routerAllowances = {}
+      state.account = ''
     },
     updateBalanceAndAllowancesReduce: (
       state,
@@ -25,6 +26,7 @@ export const tokens = createSlice({
       if (action.payload.account !== state.account) {
         state.balances = action.payload.balances
         state.routerAllowances = action.payload.routerAllowances
+        state.account = action.payload.account
       } else {
         state.balances = {
           ...state.balances,
