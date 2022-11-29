@@ -9,6 +9,8 @@ import { useConfigs } from '../../../state/config/useConfigs'
 import { ButtonExecute } from '../../ui/Button'
 import { useMultiSwapAction } from '../../../hooks/useMultiSwapAction'
 
+export const SECONDS_PER_YEAR = 31536000
+
 export const ExpandPool = ({ visible, pool, powerState }: {
   visible: boolean,
   pool: PoolType
@@ -97,7 +99,7 @@ export const ExpandPool = ({ visible, pool, powerState }: {
             <Text>Price Tolenrance Ratio: </Text><TextGreen> {parseUq112x112(pool.priceToleranceRatio)}</TextGreen>
           </div>
           <div>
-            <Text>Funding rate: </Text><TextGreen>{parseUq112x112(pool.rentRate)}</TextGreen>
+            <Text>Funding Rate (APR): </Text><TextGreen>{formatFloat(parseUq112x112(pool.rentRate.mul(SECONDS_PER_YEAR).mul(100)), 2)}%</TextGreen>
           </div>
           <div>
             <Text>Deleverage
