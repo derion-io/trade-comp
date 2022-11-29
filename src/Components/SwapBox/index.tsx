@@ -74,7 +74,9 @@ export const SwapBox = () => {
       const [aOuts, gasLeft] = res
       setAmountOutWei(aOuts[0]?.amountOut || bn(0))
       setAmountOut(weiToNumber(aOuts[0]?.amountOut || 0, tokens[outputTokenAddress].decimal || 18))
+      // @ts-ignore
       setTxFee(detectTxFee(gasLeft))
+      // @ts-ignore
       setGasUsed(gasLeft)
       setCallError('')
     }).catch((e) => {
@@ -92,8 +94,8 @@ export const SwapBox = () => {
     })
   }
 
-  const detectTxFee = (gasLeft: BigNumber) => {
-    return gasLeft.mul(2).div(3).mul(5 * 10 ** 9)
+  const detectTxFee = (gasUsed: BigNumber) => {
+    return gasUsed.mul(2).div(3).mul(5 * 10 ** 9)
   }
 
   const revertPairAddress = () => {
@@ -265,8 +267,8 @@ export const SwapBox = () => {
       />
 
       <Box borderColor='#3a3a3a' className='swap-info-box mt-2 mb-2'>
-        { protocolFee && protocolFee > 0 &&
-          <InfoRow className='mb-1'>
+        { protocolFee && protocolFee > 0
+          ? <InfoRow className='mb-1'>
             <span>
               <Text>Conversion Fee</Text>
             </span>
@@ -275,6 +277,7 @@ export const SwapBox = () => {
               <TextGrey> USD</TextGrey>
             </span>
           </InfoRow>
+          : ''
         }
         <InfoRow className='mb-1'>
           <Text>Gas Used</Text>

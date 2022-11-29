@@ -133,9 +133,12 @@ export const ExposureBox = () => {
     const delayDebounceFn = setTimeout(() => {
       setCallError('Calculating...')
       calculateAmountOuts(swapSteps, isDeleverage)
-        .then(([aOuts, gasLeft]) => {
-          setTxFee(detectTxFee(gasLeft))
-          setGasUsed(gasLeft)
+        .then(([aOuts, gasUsed]) => {
+          // @ts-ignore
+          setTxFee(detectTxFee(gasUsed))
+          // @ts-ignore
+          setGasUsed(gasUsed)
+          // @ts-ignore
           setStepsWithAmounts(aOuts)
           setCallError('')
         })
@@ -157,8 +160,8 @@ export const ExposureBox = () => {
     }
   }, [swapSteps, isDeleverage])
 
-  const detectTxFee = (gasLeft: BigNumber) => {
-    return gasLeft.mul(2).div(3).mul(5 * 10 ** 9)
+  const detectTxFee = (gasUsed: BigNumber) => {
+    return gasUsed.mul(2).div(3).mul(5 * 10 ** 9)
   }
 
   const renderExecuteButton = () => {
@@ -318,7 +321,6 @@ export const ExposureBox = () => {
                       const min = Math.min(...Object.values(marks))
                       // @ts-ignore
                       const newValue = e.target.value
-                      console.log(newValue, min, max, marks)
                       if (newValue >= min && newValue <= max) {
                         setNewLeverage(newValue)
                       }

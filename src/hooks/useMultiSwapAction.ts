@@ -5,7 +5,7 @@ import { useContract } from './useContract'
 import { StepType } from '../utils/powerLib'
 import { PoolErc1155StepType, SwapStepType } from '../utils/type'
 import { POOL_IDS, ZERO_ADDRESS } from '../utils/constant'
-import { bn, parseCallStaticError } from '../utils/helpers'
+import { bn, numberToWei, parseCallStaticError } from '../utils/helpers'
 import { toast } from 'react-toastify'
 import { ethers } from 'ethers'
 import { useWalletBalance } from '../state/wallet/hooks/useBalances'
@@ -21,12 +21,14 @@ const DELEVERAGE_STEP = {
   amountOutMin: bn(0)
 }
 
+const gasLimit = 3000000
+
 export const useMultiSwapAction = () => {
   const { getRouterContract } = useContract()
   const { library, account } = useWeb3React()
   const { getTokenByPower, baseToken, poolAddress, quoteToken, cToken, baseId, quoteId } = useCurrentPool()
-  const {tokens} = useListTokens()
-  const {fetchBalanceAndAllowance} = useWalletBalance()
+  const { tokens } = useListTokens()
+  const { fetchBalanceAndAllowance } = useWalletBalance()
 
   const getFee10000 = (steps: any[]) => {
     return steps.some(step => [baseToken, quoteToken].includes(step.tokenIn)) ? fee10000 : 0
@@ -48,15 +50,17 @@ export const useMultiSwapAction = () => {
         fee10000: getFee10000(stepsToSwap),
         referrer: ethers.utils.hexZeroPad('0x00', 32)
       },
-      stepsToSwap
+      stepsToSwap,
+      {
+        gasLimit
+      }
     )
 
     const result = []
     for (const i in steps) {
       result.push({ ...steps[i], amountOut: res[0][i] })
     }
-    console.log(res)
-    return [result, res.gasLeft]
+    return [result, bn(gasLimit).sub(res.gasLeft)]
   }
 
   const formatSwapSteps = (steps: StepType[]): SwapStepType[] => {
