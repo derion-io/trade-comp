@@ -368,7 +368,7 @@ export const ExposureBox = () => {
             const stepFromToken = getTokenByPower(step.tokenIn)
             const stepToToken = getTokenByPower(step.tokenOut)
             const amountIn = step.amountIn
-            const amountOut = stepsWithAmounts && stepsWithAmounts[key]?.amountOut ? stepsWithAmounts[key].amountOut : '...'
+            const amountOut = stepsWithAmounts && stepsWithAmounts[key]?.amountOut ? stepsWithAmounts[key].amountOut : bn(0)
             if (amountIn.lte(bn(numberToWei(1)).div(powerState?.unit || 1000000))) {
               return ''
             }
@@ -379,7 +379,12 @@ export const ExposureBox = () => {
               </span>
               <IconArrowRight />
               <span>
-                <Text>{weiToNumber(amountOut, tokens[stepToToken]?.decimal || 18, 4)} </Text>
+                {
+                  amountOut.gt(0) ?
+                    <Text>{weiToNumber(amountOut, tokens[stepToToken]?.decimal || 18, 4)} </Text>
+                    : '...'
+                }
+                {/*<Text>{weiToNumber(amountOut, tokens[stepToToken]?.decimal || 18, 4)} </Text>*/}
                 <TextGrey> <TokenSymbol token={tokens[stepToToken]} /></TextGrey>
               </span>
             </InfoRow>
@@ -409,16 +414,16 @@ export const ExposureBox = () => {
         </Box>
       }
 
-      { isDeleverage &&
-        <Box className='text-center'>
-          <input
-            type='checkbox'
-            checked={isDeleverage}
-            id='is-deleverage' onChange={(e) => {
-              setIsDeleverage(e.target.checked)
-            }} />
-          <label htmlFor='is-deleverage'> Deleverage</label>
-        </Box>
+      {isDeleverage &&
+      <Box className='text-center'>
+        <input
+          type='checkbox'
+          checked={isDeleverage}
+          id='is-deleverage' onChange={(e) => {
+          setIsDeleverage(e.target.checked)
+        }} />
+        <label htmlFor='is-deleverage'> Deleverage</label>
+      </Box>
       }
 
       <div className='jc-space-between'>
@@ -449,13 +454,13 @@ const LeverageValue = ({ leverage }: { leverage: number }) => {
 }
 
 const LeverageChangedInfoBox = ({
-  oldLeverage,
-  newLeverage,
-  oldValue,
-  newValue,
-  loading,
-  changedIn24h
-}: any) => {
+                                  oldLeverage,
+                                  newLeverage,
+                                  oldValue,
+                                  newValue,
+                                  loading,
+                                  changedIn24h
+                                }: any) => {
   const { quoteToken } = useCurrentPool()
   const { tokens } = useListTokens()
   const OldChangedIn24hText = changedIn24h * oldLeverage < 0 ? TextSell : TextBuy
