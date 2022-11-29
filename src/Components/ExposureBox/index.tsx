@@ -314,10 +314,11 @@ export const ExposureBox = () => {
                     // @ts-ignore
                     value={newLeverage}
                     onChange={(e) => {
-                      const max = Object.values(marks)[Object.values(marks).length - 1]
-                      const min = Object.values(marks)[0]
+                      const max = Math.max(...Object.values(marks))
+                      const min = Math.min(...Object.values(marks))
                       // @ts-ignore
                       const newValue = e.target.value
+                      console.log(newValue, min, max, marks)
                       if (newValue >= min && newValue <= max) {
                         setNewLeverage(newValue)
                       }
@@ -400,7 +401,7 @@ export const ExposureBox = () => {
             <InfoRow>
               <Text>Transaction Fee</Text>
               <span>
-                <Text>{weiToNumber(txFee, 18 ,4)} BNB (${weiToNumber(txFee.mul(nativePrice), 18, 2)})</Text>
+                <Text>{weiToNumber(txFee, 18, 4)} BNB (${weiToNumber(txFee.mul(nativePrice), 18, 2)})</Text>
               </span>
             </InfoRow>
           </Box>
