@@ -89,7 +89,7 @@ export const useListPool = () => {
         const powers = decodePowers(log.args.powers)
         logicData[log.address] = {
           logic: log.address,
-          dTokens: powers.map((value, key) => key),
+          dTokens: powers.map((value, key) => { return { power: value, index: key } }),
           baseToken: log.args.baseToken,
           baseSymbol: ethers.utils.parseBytes32String(log.args.baseSymbol),
           quoteSymbol: ethers.utils.parseBytes32String(log.args.quoteSymbol),
@@ -109,10 +109,11 @@ export const useListPool = () => {
         const data = logicData[logic]
 
         // sort powers and dToken
-        data.powers = data.powers.sort((a: number, b: number) => a - b)
-        data.dTokens = (data.dTokens as { address: string, power: number }[])
-          .sort((a, b) => a.power - b.power)
-          .map((token) => `${log.args.pool}-${token}`)
+        // data.powers = data.powers.sort((a: number, b: number) => a - b)
+        data.dTokens = (data.dTokens as { index: number, power: number }[])
+          // .sort((a, b) => a.power - b.power)
+          .map((data) => `${log.args.pool}-${data.index}`)
+
 
         poolData[log.args.pool] = {
           poolAddress: log.args.pool,

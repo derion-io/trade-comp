@@ -77,7 +77,7 @@ export const ExpandPool = ({ visible, pool, powerState }: {
                 </TextComp>
                 <Text>: ${formatFloat(weiToNumber(value, 36), 2)}</Text>
               </div>
-            }).reverse()
+            })
           }
         </div>
         <div className='pool-expand__top--right'>
