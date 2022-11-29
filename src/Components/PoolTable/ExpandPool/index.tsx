@@ -69,11 +69,17 @@ export const ExpandPool = ({ visible, pool, powerState }: {
           {
             powers
               .map((power:number, index:number) => { return { power, index } })
-              .sort((a:any, b: any) => a.power - b.power)
+              .sort((a:any, b: any) => b.power - a.power)
               .map(({ power, index }: {power: number, index: number}) => {
-                const TextComp = power > 0 ? TextBuy : TextSell
                 const price = powerState.calculatePrice(power)
                 const value = totalSupplies[index]?.mul(numberToWei(price || 0))
+                return { index, power, value}
+              })
+              .filter(({ value }: { value: number }) => {
+                return value > 0
+              })
+              .map(({ index, power, value }: {index: number, power: number, value: number}) => {
+                const TextComp = power > 0 ? TextBuy : TextSell
                 return <div key={index}>
                   <TextComp>
                     <TokenSymbol token={tokens[dTokens[index]]} />
