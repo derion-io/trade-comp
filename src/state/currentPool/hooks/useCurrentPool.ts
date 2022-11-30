@@ -46,23 +46,14 @@ export const useCurrentPool = () => {
 
   const updateCurrentPool = async (poolAddress: string) => {
     const pool = pools[poolAddress]
-    const { cPrice, baseId, quoteId, logic, states, powers, dTokens, baseToken, cToken } = pool
+    const { cPrice, baseToken, cToken } = pool
     const changedIn24h = await get24hChange(baseToken, cToken, quoteToken)
 
     return {
+      ...pool,
       cTokenPrice: cPrice,
-      basePrice,
-      cToken,
-      logicAddress: logic,
-      baseId,
-      quoteId,
-      dTokens,
-      powers,
-      states,
-      baseToken,
-      quoteToken,
-      changedIn24h,
-      poolAddress
+      logicAddress: pool.logic,
+      changedIn24h
     }
   }
 

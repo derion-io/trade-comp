@@ -445,4 +445,3 @@ const LeverageValue = ({ leverage }: { leverage: number }) => {
   return <LeverageLabel
     className='d-inline-block'><LeverageText>{leverage >= 0 ? 'Long' : 'Short'} {formatFloat(leverage, 1)}</LeverageText></LeverageLabel>
 }
-
