@@ -10098,9 +10098,9 @@ postcss@^7, postcss@^7.0.0, postcss@^7.0.1, postcss@^7.0.14, postcss@^7.0.17, po
     source-map "^0.6.1"
     supports-color "^6.1.0"
 
-"powerLib@git+ssh://git@github.com:derivable-io/power-lib.git#5724e0c6d619c614b8b569927f3a88c7e2b3a400":
+"powerLib@git+ssh://git@github.com:derivable-io/power-lib.git#190e9fb243197285edca95ebe3ef3d29fe4708f1":
   version "1.0.0"
-  resolved "git+ssh://git@github.com:derivable-io/power-lib.git#5724e0c6d619c614b8b569927f3a88c7e2b3a400"
+  resolved "git+ssh://git@github.com:derivable-io/power-lib.git#190e9fb243197285edca95ebe3ef3d29fe4708f1"
   dependencies:
     ethers "^5.4.6"
     lodash "^4.17.21"
