@@ -10,9 +10,9 @@ import TokensInfoAbi from '../../../assets/abi/TokensInfo.json'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { ContractCallContext, Multicall } from 'ethereum-multicall'
 import { addTokensReduce } from '../../token/reducer'
-import { bn, getNormalAddress } from '../../../utils/helpers'
+import { bn, getNormalAddress, numberToWei, weiToNumber } from '../../../utils/helpers'
 import { decodePowers } from 'powerLib'
-import { POOL_IDS } from '../../../utils/constant'
+import { LP_PRICE_UNIT, POOL_IDS } from '../../../utils/constant'
 import { usePairInfo } from '../../../hooks/usePairInfo'
 
 const { AssistedJsonRpcProvider } = require('assisted-json-rpc-provider')
@@ -114,7 +114,6 @@ export const useListPool = () => {
           // .sort((a, b) => a.power - b.power)
           .map((data) => `${log.args.pool}-${data.index}`)
 
-
         poolData[log.args.pool] = {
           poolAddress: log.args.pool,
           ...data
@@ -143,8 +142,10 @@ export const useListPool = () => {
 
     // @ts-ignore
     const context: ContractCallContext[] = getMultiCallRequest(normalTokens, listPools)
-    const { results } = await multicall.call(context)
-    const pairsInfo = await getPairsInfo(uniPools)
+    const [{ results }, pairsInfo] = await Promise.all([
+      multicall.call(context),
+      getPairsInfo(uniPools)
+    ])
     console.log('pairsInfo', pairsInfo)
     const { tokens: tokensArr, poolsState } = parseMultiCallResponse(results)
 
@@ -164,9 +165,17 @@ export const useListPool = () => {
       const { baseToken, powers } = pools[i]
       const pairInfo = pairsInfo[pools[i].cToken]
       const quoteToken = pairInfo.token0.adr === baseToken ? pairInfo.token1.adr : pairInfo.token0.adr
+      const [baseId, quoteId] = pairInfo.token0.adr === baseToken
+        ? [POOL_IDS.token0, POOL_IDS.token1]
+        : [POOL_IDS.token1, POOL_IDS.token0]
 
       pools[i].states = poolsState[i]
       pools[i].quoteToken = quoteToken
+      pools[i].baseId = baseId
+      pools[i].quoteId = quoteId
+      pools[i].basePrice = getBasePrice(pairInfo, baseToken)
+      pools[i].cPrice = bn(pools[i].states.twapLP).mul(LP_PRICE_UNIT).shr(112).toNumber() / LP_PRICE_UNIT
+
       powers.forEach((power, key) => {
         tokens.push({
           symbol: pools[i].baseSymbol + '^' + power,
@@ -272,6 +281,14 @@ export const useListPool = () => {
     }
 
     return request
+  }
+
+  const getBasePrice = (pairInfo: any, baseToken: string) => {
+    const token0 = pairInfo.token0.adr
+    const r0 = pairInfo.token0.reserve
+    const r1 = pairInfo.token1.reserve
+    const [rb, rq] = token0 === baseToken ? [r0, r1] : [r1, r0]
+    return weiToNumber(rq.mul(numberToWei(1)).div(rb))
   }
 
   return { initListPool, pools: pools[chainId] }

@@ -122,7 +122,6 @@ export const App = () => {
       .then((data) => {
         // @ts-ignore
         if (Number(chainIdRef?.current?.value) === chainId) {
-          dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
           dispatch(setCurrentPoolInfo(data))
         }
       })

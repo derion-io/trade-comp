@@ -25,6 +25,10 @@ export type PoolType = {
   rentRate: BigNumber
   deleverageRate: BigNumber
   poolAddress: string
+  quoteId: number,
+  baseId: number,
+  basePrice: string
+  cPrice: number
 }
 
 export interface poolsState {

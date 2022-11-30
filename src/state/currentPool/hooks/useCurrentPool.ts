@@ -46,35 +46,10 @@ export const useCurrentPool = () => {
 
   const updateCurrentPool = async (poolAddress: string) => {
     const pool = pools[poolAddress]
-    const { logic, states, powers, dTokens, baseToken, cToken } = pool
-    const pairInfo = await getPairInfo(pool.cToken)
-    const [baseId, quoteId] = pairInfo.token0.adr === baseToken
-      ? [POOL_IDS.token0, POOL_IDS.token1]
-      : [POOL_IDS.token1, POOL_IDS.token0]
-    const quoteToken = pairInfo.token0.adr === baseToken ? pairInfo.token1.adr : pairInfo.token0.adr
-    const tokens = [
-      {
-        address: pairInfo.token0.adr,
-        decimal: pairInfo.token0.decimals,
-        name: pairInfo.token0.name,
-        symbol: pairInfo.token0.symbol,
-        totalSupply: pairInfo.token0.totalSupply
-      },
-      {
-        address: pairInfo.token1.adr,
-        decimal: pairInfo.token1.decimal,
-        name: pairInfo.token1.name,
-        symbol: pairInfo.token1.symbol,
-        totalSupply: pairInfo.token1.totalSupply
-      }
-    ]
-
+    const { cPrice, baseId, quoteId, logic, states, powers, dTokens, baseToken, cToken } = pool
     const changedIn24h = await get24hChange(baseToken, cToken, quoteToken)
-    const cPrice = bn(states.twapLP).mul(LP_PRICE_UNIT).shr(112).toNumber() / LP_PRICE_UNIT
-    const basePrice = getBasePrice(pairInfo, baseToken)
 
     return {
-      tokens,
       cTokenPrice: cPrice,
       basePrice,
       cToken,
@@ -89,14 +64,6 @@ export const useCurrentPool = () => {
       changedIn24h,
       poolAddress
     }
-  }
-
-  const getBasePrice = (pairInfo: any, baseToken: string) => {
-    const token0 = pairInfo.token0.adr
-    const r0 = pairInfo.token0.reserve
-    const r1 = pairInfo.token1.reserve
-    const [rb, rq] = token0 === baseToken ? [r0, r1] : [r1, r0]
-    return weiToNumber(rq.mul(numberToWei(1)).div(rb))
   }
 
   const getTokenByPower = (power: number | string) => {
