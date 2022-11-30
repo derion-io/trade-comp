@@ -49,13 +49,11 @@ export const useListPool = () => {
       )
     }
 
-    console.log(configs.ddlGenesisBlock, headBlock, ethers.utils.formatBytes32String('DDL'))
     const ddlLogs = await provider.getLogs({
       fromBlock: configs.ddlGenesisBlock,
       toBlock: headBlock,
       topics: [null, null, ethers.utils.formatBytes32String('DDL')]
     }).then((logs: any) => {
-      console.log('ddl logs', logs)
       const eventInterface = getEventInterface()
       return logs.map((log: any) => {
         try {
@@ -65,10 +63,10 @@ export const useListPool = () => {
         }
       })
     })
+    const ddlLogsCached = JSON.parse(localStorage.getItem('ddlLogs' + chainId) || '[]')
+    localStorage.setItem('ddlLogs' + chainId, JSON.stringify([...ddlLogs, ...ddlLogsCached]))
+
     const { tokens, pools } = await generatePoolData(ddlLogs)
-    console.log({
-      tokens, pools
-    })
 
     dispatch(addTokensReduce({ tokens, chainId }))
     dispatch(addPoolsWithChain({ pools, chainId }))
@@ -209,6 +207,8 @@ export const useListPool = () => {
         }
       )
     }
+
+    console.log('pools', pools)
 
     return { tokens, pools }
   }
