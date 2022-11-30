@@ -30,10 +30,6 @@ export const useMultiSwapAction = () => {
   const { tokens } = useListTokens()
   const { fetchBalanceAndAllowance } = useWalletBalance()
 
-  const getFee10000 = (steps: any[]) => {
-    return steps.some(step => [baseToken, quoteToken].includes(step.tokenIn)) ? fee10000 : 0
-  }
-
   const calculateAmountOuts = async (steps: StepType[], isDeleverage: boolean = false) => {
     if (!library) return [[bn(0)], bn(0)]
     const signer = library.getSigner()
@@ -49,7 +45,7 @@ export const useMultiSwapAction = () => {
         pool: poolAddress,
         to: account,
         deadline: new Date().getTime() + 3600000,
-        fee10000: getFee10000(stepsToSwap),
+        fee10000,
         referrer: ethers.utils.hexZeroPad('0x00', 32)
       },
       stepsToSwap,
@@ -93,7 +89,7 @@ export const useMultiSwapAction = () => {
           pool: poolAddress,
           to: account,
           deadline: new Date().getTime() + 3600000,
-          fee10000: getFee10000(steps),
+          fee10000,
           referrer: ethers.utils.hexZeroPad('0x00', 32)
         },
         steps
@@ -141,7 +137,7 @@ export const useMultiSwapAction = () => {
           pool: poolAddress,
           to: account,
           deadline: new Date().getTime() + 3600000,
-          fee10000: getFee10000(steps),
+          fee10000,
           referrer: ethers.utils.hexZeroPad('0x00', 32)
         })
         const tx = await contract.multiSwap(
@@ -149,7 +145,7 @@ export const useMultiSwapAction = () => {
             pool: poolAddress,
             to: account,
             deadline: new Date().getTime() + 3600000,
-            fee10000: getFee10000(steps),
+            fee10000,
             referrer: ethers.utils.hexZeroPad('0x00', 32)
           },
           stepsToSwap
