@@ -23,8 +23,10 @@ export const LeverageChangedInfoBox = ({
       <div>
         <Text>Value </Text>
         <TextBlue>{weiToNumber(oldValue, tokens[quoteToken]?.decimal || 18, 3)} {tokens[quoteToken]?.symbol}</TextBlue>
-        <sup> <OldChangedIn24hText
-          fontSize={12}>{changedIn24h >= 0 && '+'}{formatFloat(changedIn24h * oldLeverage, 2)}%</OldChangedIn24hText></sup>
+        <sup> <OldChangedIn24hText fontSize={12}>
+          {changedIn24h * oldLeverage >= 0 && '+'}{formatFloat(changedIn24h * oldLeverage, 2)}%
+        </OldChangedIn24hText>
+        </sup>
       </div>
       {
         oldLeverage !== newLeverage &&
@@ -34,7 +36,10 @@ export const LeverageChangedInfoBox = ({
           </span>
           <div>
             <TextBlue>{weiToNumber(newValue, tokens[quoteToken]?.decimal || 18, 3)} {tokens[quoteToken]?.symbol}</TextBlue>
-            <sup> <NewChangedIn24hText>{formatFloat(changedIn24h * newLeverage, 2)}%</NewChangedIn24hText></sup>
+            <sup> <NewChangedIn24hText fontSize={12}>
+              {changedIn24h * newLeverage >= 0 && '+'}{formatFloat(changedIn24h * newLeverage, 2)}%
+            </NewChangedIn24hText>
+            </sup>
           </div>
         </React.Fragment>
       }

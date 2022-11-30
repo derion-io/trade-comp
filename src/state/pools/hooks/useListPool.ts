@@ -178,8 +178,8 @@ export const useListPool = () => {
       })
       tokens.push(
         {
-          symbol: 'CP',
-          name: 'CP',
+          symbol: 'DDL-CP',
+          name: 'DDL-CP',
           decimal: 18,
           totalSupply: 0,
           address: i + '-' + POOL_IDS.cp
