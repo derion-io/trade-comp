@@ -22,7 +22,7 @@ import {
 } from '../../utils/helpers'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../state/token/hook'
-import { BigNumber } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
 import { useWeb3React } from '../../state/customWeb3React/hook'
 import { useMultiSwapAction } from '../../hooks/useMultiSwapAction'
 import { toast } from 'react-toastify'
@@ -106,23 +106,24 @@ export const ExposureBox = () => {
    */
   useEffect(() => {
     try {
-      console.log('cAmountToChange', cAmountToChange)
       if (powerState) {
         let value = powerState.calculateCompValue(balanceInPool)
+        let cAmount
         if (cAmountToChange) {
           const cPrice = powerState.getCPrice()
-          const cTokenValue = bn(numberToWei(cAmountToChange, tokens[cToken]?.decimal || 18)).mul(numberToWei(cPrice)).div(numberToWei(1))
-          if (formAddOrRemove === 'add') {
-            value = value.add(cTokenValue)
-          } else if (formAddOrRemove === 'remove') {
-            value = value.sub(cTokenValue)
+          cAmount = bn(numberToWei(cAmountToChange, tokens[cToken]?.decimal || 18))
+          console.log('cAmountToChange', cAmountToChange, ethers.utils.formatEther(cAmount))
+          if (formAddOrRemove === 'remove') {
+            cAmount = bn(0).sub(cAmount)
           }
+          const cTokenValue = cAmount.mul(numberToWei(cPrice)).div(numberToWei(1))
+          value = value.add(cTokenValue)
         }
 
         setNewValue(value)
         const newBalancesInPool = powerState.getOptimalBalances(bn(value), newLeverage)
 
-        const steps = powerState.getSwapSteps(balanceInPool, newBalancesInPool)
+        const steps = powerState.getSwapSteps(balanceInPool, newBalancesInPool, cAmount)
         setSwapsteps(steps.filter((step) => step.amountIn.gt(0)))
       }
     } catch (e) {
