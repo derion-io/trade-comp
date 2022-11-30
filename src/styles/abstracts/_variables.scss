@@ -1,14 +1,6 @@
 @import "mixins";
 
 // COLORS
-$color-primary: var(--swap-color-primary, #328B31);
-$color-primary-light: var(--swap-color-primary-light, #96CF24);
-$color-primary-light-1: var(--swap-color-primary-light-1, #5AA62B);
-$color-border-primary: var(--swap-color-border-primary, var(--swap-color-primary-light));
-$color-text-gradient: var(--swap-color-text-gradient, var(--swap-color-primary-light));
-$color-text-gradient-1: var(--swap-color-text-gradient-1, var(--swap-color-primary-light-1));
-
-$color-danger: var(--swap-color-danger);
 $color-sell:#FF7A68;
 $color-buy: #3DBAA2;
 $color-grey: rgba(242, 242, 242, 0.1);
@@ -20,19 +12,13 @@ $color-execute: #01A7FA;
 $color-disable-bg: #565656;
 $color-disable-text: #ffffff;
 $color-reset-btn: rgba(1, 82, 122, 0.57);
-$color-text-link-hover: var(--swap-color-text-link-hover, #11aaff);
-$color-btn-text: var(--swap-color-btn-text, #ffffff);
 
 $color-text-disabled: rgb(102 97 113 / 69%);
-$color-text-grey: var(--swap-color-text-grey, #9CA3AF);
-$color-text-grey-light: var(--swap-color-text-grey-light, rgba(156, 163, 175, 0.64));
-$color-box-border-focus: var(--swap-color-box-border-focus);
+$color-text-grey: #9CA3AF;
 
 $loading-background-color: var(--swap-loading-background-color, var(--swap-default-loading-background-color));
-$layout-background-color: var(--swap-layout-background-color, var(--swap-default-layout-background-color));
-$color-text-default: var(--swap-color-text-default, var(--swap-default-color-text-default));
+$color-text-default: #ffffff;
 $color-box-border: #6e6e6e;
-$color-box-bg: var(--swap-color-box-bg, var(--swap-default-color-box-bg));
 $color-box-border-grey: #3a3a3a;
 $color-card-bg: #1B1D21;
 $color-overlay: rgba(31, 31, 31, 0.4);
@@ -40,7 +26,6 @@ $color-input-bg: #242731;
 $color-input-placeholder: #808191;
 $color-modal-bg: #1B1D21;
 $color-select-token-hover: #6e6e6e;
-$color-setting-button-bg: var(--swap-color-toggle-button-bg, var(--swap-default-color-toggle-button-bg));
 
 
 // FONT

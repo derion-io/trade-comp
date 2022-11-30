@@ -32,7 +32,7 @@
 
   .text {
     &-gradient {
-      background: linear-gradient(270deg, $color-text-gradient 10.53%, $color-text-gradient-1 100%);
+      //background: linear-gradient(270deg, $color-text-gradient 10.53%, $color-text-gradient-1 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }

@@ -2,6 +2,8 @@
 @import "../abstracts/variables";
 
 .exposure-interface {
+  color-scheme: only dark;
+
   * {
     box-sizing: border-box;
   }

@@ -14,15 +14,15 @@ $breakpoint arguement choices:
 1em = 16px
 */
 
-@mixin backgroundGradient {
-  background: linear-gradient(270deg, $color-primary-light 10.53%, $color-primary-light-1 100%);
-}
-
-@mixin textGradient {
-  background: linear-gradient(270deg, $color-text-gradient 10.53%, $color-text-gradient-1 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
+//@mixin backgroundGradient {
+//  background: linear-gradient(270deg, $color-primary-light 10.53%, $color-primary-light-1 100%);
+//}
+//
+//@mixin textGradient {
+//  background: linear-gradient(270deg, $color-text-gradient 10.53%, $color-text-gradient-1 100%);
+//  -webkit-background-clip: text;
+//  -webkit-text-fill-color: transparent;
+//}
 
 @mixin scrollBar {
   margin-right: -5px;
