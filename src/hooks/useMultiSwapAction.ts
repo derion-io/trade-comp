@@ -42,6 +42,8 @@ export const useMultiSwapAction = () => {
     if (isDeleverage) {
       stepsToSwap.unshift(DELEVERAGE_STEP)
     }
+
+    console.log('stepsToSwap', stepsToSwap)
     const res = await contract.callStatic.multiSwap(
       {
         pool: poolAddress,

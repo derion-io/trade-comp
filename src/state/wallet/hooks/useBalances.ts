@@ -161,7 +161,6 @@ export const useWalletBalance = () => {
   }
 
   const getBnAMulticallRequest = (erc20Tokens: string[], erc1155Tokens: { [key: string]: string[] }) => {
-    console.log(erc20Tokens)
     const request: any = [
       {
         reference: 'erc20',

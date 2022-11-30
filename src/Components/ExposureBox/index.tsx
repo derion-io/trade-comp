@@ -29,6 +29,8 @@ import { toast } from 'react-toastify'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { POOL_IDS } from '../../utils/constant'
+import { LeverageChangedInfoBox } from './LeverageChangedInfoBox'
+import { CustomSlider } from './CustomSlider'
 
 const nativePrice = 300
 
@@ -325,31 +327,21 @@ export const ExposureBox = () => {
                       }
                     }}
                   />
-                  : <div className='pl-1'><Slider
-                    range
-                    min={Math.min(...exposures)}
-                    max={Math.max(...exposures)}
-                    step={0.1}
-                    defaultValue={[oldLeverage, newLeverage]}
-                    value={[
-                      newLeverage <= oldLeverage ? newLeverage : oldLeverage,
-                      newLeverage <= oldLeverage ? oldLeverage : newLeverage
-                    ]}
-                    marks={marks}
-                    trackStyle={[
-                      { backgroundColor: '#FF7A68', height: '2px' },
-                      { backgroundColor: '#4FBF67', height: '2px', color: '#303236', border: '1px dashed' }
-                    ]}
-                    railStyle={{ backgroundColor: '#303236' }}
-                    onChange={(e: number[]) => {
-                      const newValue = e.find(e =>
-                        Math.abs(e - oldLeverage) > 0.1 && Math.abs(e - newLeverage) > 0.1
-                      )
-                      if (newValue != null) {
-                        setNewLeverage(Math.round(newValue * 10) / 10)
-                      }
-                    }}
-                  />
+                  : <div className='pl-1'>
+                    <CustomSlider
+                      exposures={exposures}
+                      oldLeverage={oldLeverage}
+                      newLeverage={newLeverage}
+                      marks={marks}
+                      onChange={(e: number[]) => {
+                        const newValue = e.find(e =>
+                          Math.abs(e - oldLeverage) > 0.1 && Math.abs(e - newLeverage) > 0.1
+                        )
+                        if (newValue != null) {
+                          setNewLeverage(Math.round(newValue * 10) / 10)
+                        }
+                      }}
+                    />
                   </div>
               }
             </div>
@@ -380,11 +372,11 @@ export const ExposureBox = () => {
               <IconArrowRight />
               <span>
                 {
-                  amountOut.gt(0) ?
-                    <Text>{weiToNumber(amountOut, tokens[stepToToken]?.decimal || 18, 4)} </Text>
+                  amountOut.gt(0)
+                    ? <Text>{weiToNumber(amountOut, tokens[stepToToken]?.decimal || 18, 4)} </Text>
                     : '...'
                 }
-                {/*<Text>{weiToNumber(amountOut, tokens[stepToToken]?.decimal || 18, 4)} </Text>*/}
+                {/* <Text>{weiToNumber(amountOut, tokens[stepToToken]?.decimal || 18, 4)} </Text> */}
                 <TextGrey> <TokenSymbol token={tokens[stepToToken]} /></TextGrey>
               </span>
             </InfoRow>
@@ -420,8 +412,8 @@ export const ExposureBox = () => {
           type='checkbox'
           checked={isDeleverage}
           id='is-deleverage' onChange={(e) => {
-          setIsDeleverage(e.target.checked)
-        }} />
+            setIsDeleverage(e.target.checked)
+          }} />
         <label htmlFor='is-deleverage'> Deleverage</label>
       </Box>
       }
@@ -453,39 +445,3 @@ const LeverageValue = ({ leverage }: { leverage: number }) => {
     className='d-inline-block'><LeverageText>{leverage >= 0 ? 'Long' : 'Short'} {formatFloat(leverage, 1)}</LeverageText></LeverageLabel>
 }
 
-const LeverageChangedInfoBox = ({
-                                  oldLeverage,
-                                  newLeverage,
-                                  oldValue,
-                                  newValue,
-                                  loading,
-                                  changedIn24h
-                                }: any) => {
-  const { quoteToken } = useCurrentPool()
-  const { tokens } = useListTokens()
-  const OldChangedIn24hText = changedIn24h * oldLeverage < 0 ? TextSell : TextBuy
-  const NewChangedIn24hText = changedIn24h * newLeverage < 0 ? TextSell : TextBuy
-
-  return <div className='leverage-changed-box'>
-    <div className={`leverage-changed-box__row ${oldLeverage !== newLeverage && 'is-changed'}`}>
-      <div>
-        <Text>Value </Text>
-        <TextBlue>{weiToNumber(oldValue, tokens[quoteToken]?.decimal || 18, 3)} {tokens[quoteToken]?.symbol}</TextBlue>
-        <sup> <OldChangedIn24hText
-          fontSize={12}>{changedIn24h >= 0 && '+'}{formatFloat(changedIn24h * oldLeverage, 2)}%</OldChangedIn24hText></sup>
-      </div>
-      {
-        oldLeverage !== newLeverage &&
-        <React.Fragment>
-          <span>
-            <IconArrowRight />
-          </span>
-          <div>
-            <TextBlue>{weiToNumber(newValue, tokens[quoteToken]?.decimal || 18, 3)} {tokens[quoteToken]?.symbol}</TextBlue>
-            <sup> <NewChangedIn24hText>{formatFloat(changedIn24h * newLeverage, 2)}%</NewChangedIn24hText></sup>
-          </div>
-        </React.Fragment>
-      }
-    </div>
-  </div>
-}
