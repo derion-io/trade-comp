@@ -4,7 +4,6 @@ import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { WalletLinkConnector } from '@web3-react/walletlink-connector'
 import { AuthereumConnector } from '@web3-react/authereum-connector'
 
-const POLLING_INTERVAL = 12000
 const RPC_URLS: { [chainId: number]: string } = {
     1: 'https://mainnet.infura.io/v3/84842078b09946638c03157f83405213' as string,
     4: 'https://mainnet.infura.io/v3/84842078b09946638c03157f83405213' as string
@@ -31,9 +30,8 @@ const network = {
 
 const walletconnect = {
     connector: new WalletConnectConnector({
-        rpc: { 1: RPC_URLS[1] },
+        rpc: RPC_URLS,
         qrcode: true,
-        pollingInterval: POLLING_INTERVAL
     }),
     image: '/images/walletconnect.svg',
     title: 'WalletConnect',

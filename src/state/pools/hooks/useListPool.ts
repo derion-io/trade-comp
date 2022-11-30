@@ -236,7 +236,7 @@ export const useListPool = () => {
         spot,
         twapBase: twap.base._x,
         twapLP: twap.LP._x,
-        spotBse: spot.base._x,
+        spotBase: spot.base._x,
         spotLP: spot.LP._x,
         totalSupplies: poolStateData[i].returnValues[8].map((v: any) => bn(v)),
         rDcLong: bn(poolStateData[i].returnValues[9]),

@@ -3762,12 +3762,7 @@ caniuse-api@^3.0.0:
     lodash.memoize "^4.1.2"
     lodash.uniq "^4.5.0"
 
-caniuse-lite@^1.0.0, caniuse-lite@^1.0.30000981, caniuse-lite@^1.0.30001035, caniuse-lite@^1.0.30001109, caniuse-lite@^1.0.30001251:
-  version "1.0.30001434"
-  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001434.tgz"
-  integrity sha512-aOBHrLmTQw//WFa2rcF1If9fa3ypkC1wzqqiKHgfdrXTWcU8C4gKVZT77eQAPWN1APys3+uQ0Df07rKauXGEYA==
-
-caniuse-lite@^1.0.30001434:
+caniuse-lite@^1.0.0, caniuse-lite@^1.0.30000981, caniuse-lite@^1.0.30001035, caniuse-lite@^1.0.30001109, caniuse-lite@^1.0.30001251, caniuse-lite@^1.0.30001434:
   version "1.0.30001434"
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001434.tgz#ec1ec1cfb0a93a34a0600d37903853030520a4e5"
   integrity sha512-aOBHrLmTQw//WFa2rcF1If9fa3ypkC1wzqqiKHgfdrXTWcU8C4gKVZT77eQAPWN1APys3+uQ0Df07rKauXGEYA==
@@ -10103,9 +10098,9 @@ postcss@^7, postcss@^7.0.0, postcss@^7.0.1, postcss@^7.0.14, postcss@^7.0.17, po
     source-map "^0.6.1"
     supports-color "^6.1.0"
 
-"powerLib@git+ssh://git@github.com:derivable-io/power-lib.git#43924a45ed83d7bb728bf7be4e1712c42b3974f1":
+"powerLib@git+ssh://git@github.com:derivable-io/power-lib.git#9a512eb0b31a446a66d9195542fb1cf9c655a4d3":
   version "1.0.0"
-  resolved "git+ssh://git@github.com:derivable-io/power-lib.git#43924a45ed83d7bb728bf7be4e1712c42b3974f1"
+  resolved "git+ssh://git@github.com:derivable-io/power-lib.git#9a512eb0b31a446a66d9195542fb1cf9c655a4d3"
   dependencies:
     ethers "^5.4.6"
     lodash "^4.17.21"
