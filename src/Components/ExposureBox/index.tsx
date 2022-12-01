@@ -34,13 +34,15 @@ import { CustomSlider } from './CustomSlider'
 
 const nativePrice = 300
 
-export const ExposureBox = () => {
+export const ExposureBox = ({changedIn24h}: {
+  changedIn24h: number
+}) => {
   const [formAddOrRemove, setFormAddOrRemove] = useState<'add' | 'remove' | undefined>(undefined)
   const [newLeverage, setNewLeverage] = useState<number>(0)
   const [newValue, setNewValue] = useState<BigNumber>()
   const { account, showConnectModal } = useWeb3React()
   const [loading, setLoading] = useState<boolean>(false)
-  const { dTokens, cToken, poolAddress, states, powers, baseToken, quoteToken, cTokenPrice, basePrice, changedIn24h, getTokenByPower } = useCurrentPool()
+  const { dTokens, cToken, poolAddress, states, powers, baseToken, quoteToken, cTokenPrice, basePrice, getTokenByPower } = useCurrentPool()
   const { balances, routerAllowances, approveRouter, fetchBalanceAndAllowance } = useWalletBalance()
   const [balanceInPool, setBalancesInPool] = useState<any>({})
   const [cAmountToChange, setCAmountToChange] = useState<string>('')

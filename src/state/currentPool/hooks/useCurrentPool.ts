@@ -1,15 +1,9 @@
 import { useSelector } from 'react-redux'
 import { State } from '../../types'
-import { bn, div, formatPercent, numberToWei, sub, weiToNumber } from '../../../utils/helpers'
-import { usePairInfo } from '../../../hooks/usePairInfo'
+import { div, formatPercent, sub } from '../../../utils/helpers'
 import { useListPool } from '../../pools/hooks/useListPool'
-import { POOL_IDS } from '../../../utils/constant'
-
-const CHART_API_ENDPOINT = 'https://api.lz.finance/56/chart/'
-const LP_PRICE_UNIT = 10000
 
 export const useCurrentPool = () => {
-  const { getPairInfo } = usePairInfo()
   const { pools } = useListPool()
 
   const {
@@ -46,14 +40,12 @@ export const useCurrentPool = () => {
 
   const updateCurrentPool = async (poolAddress: string) => {
     const pool = pools[poolAddress]
-    const { cPrice, baseToken, cToken } = pool
-    const changedIn24h = await get24hChange(baseToken, cToken, quoteToken)
+    const { cPrice } = pool
 
     return {
       ...pool,
       cTokenPrice: cPrice,
-      logicAddress: pool.logic,
-      changedIn24h
+      logicAddress: pool.logic
     }
   }
 
@@ -63,32 +55,6 @@ export const useCurrentPool = () => {
     }
     const index = powers.findIndex((p) => p === Number(power))
     return dTokens[index]
-  }
-
-  const get24hChange = async (baseToken: string, cToken: string, quoteToken: string) => {
-    const toTime = Math.floor(new Date().getTime() / 1000)
-    const query = `${baseToken},${cToken},${quoteToken}`
-    const result = await fetch(`${CHART_API_ENDPOINT}candleline4?q=${query}&r=1H&l=24&t=${toTime}`)
-      .then((r) => r.json())
-      .then((res: any) => {
-        const open = res.o[0]
-        const close = res.c[res.o?.length - 1]
-        console.log({
-          open, close
-        })
-        return formatPercent(
-          div(
-            sub(close, open),
-            open
-          )
-        )
-      })
-      .catch((err: any) => {
-        console.error(err)
-        return 0
-      })
-
-    return Number(result)
   }
 
   return {
