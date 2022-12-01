@@ -7,9 +7,12 @@ import { IconArrowLeft } from '../../Components/ui/Icon'
 import { useConfigs } from '../../state/config/useConfigs'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { useHelper } from '../../state/config/useHelper'
+import { ExpandPool } from '../../Components/PoolTable/ExpandPool'
+import { useListPool } from '../../state/pools/hooks/useListPool'
 
 export const Exposure = () => {
-  const { cToken, quoteToken, baseToken } = useCurrentPool()
+  const { cToken, quoteToken, baseToken, poolAddress } = useCurrentPool()
+  const { pools } = useListPool()
   const { useHistory } = useConfigs()
   const history = useHistory()
   const { get24hChange } = useHelper()
@@ -37,8 +40,9 @@ export const Exposure = () => {
         </div>
       </div>
       <div className='exposure-page__content'>
+        {/*<PoolTable />*/}
+        <ExpandPool visible pool={pools[poolAddress] || {}} />
         <ExposureBox changedIn24h={changedIn24h}/>
-        <PoolTable />
       </div>
     </div>
   )
