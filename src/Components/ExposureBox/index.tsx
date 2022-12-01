@@ -123,9 +123,8 @@ export const ExposureBox = ({changedIn24h}: {
         }
 
         setNewValue(value)
-        const newBalancesInPool = powerState.getOptimalBalances(bn(value), newLeverage)
 
-        const steps = powerState.getSwapSteps(balanceInPool, newBalancesInPool, cAmount)
+        const steps = powerState.getSwapSteps(balanceInPool, newLeverage, cAmount)
         setSwapsteps(steps.filter((step) => step.amountIn.gt(0)))
       }
     } catch (e) {
