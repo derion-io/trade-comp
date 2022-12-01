@@ -12,7 +12,7 @@ import { ContractCallContext, Multicall } from 'ethereum-multicall'
 import { addTokensReduce } from '../../token/reducer'
 import { bn, getNormalAddress, numberToWei, weiToNumber } from '../../../utils/helpers'
 import { decodePowers } from 'powerLib'
-import { LP_PRICE_UNIT, POOL_IDS } from '../../../utils/constant'
+import { LOCALSTORAGE_KEY, LP_PRICE_UNIT, POOL_IDS } from '../../../utils/constant'
 import { usePairInfo } from '../../../hooks/usePairInfo'
 
 const { AssistedJsonRpcProvider } = require('assisted-json-rpc-provider')
@@ -49,27 +49,65 @@ export const useListPool = () => {
       )
     }
 
-    const ddlLogs = await provider.getLogs({
-      fromBlock: configs.ddlGenesisBlock,
+    const lastHeadBlockCached = Number(localStorage.getItem(chainId + '-' + LOCALSTORAGE_KEY.LAST_BLOCK_DDL_LOGS)) || configs.ddlGenesisBlock
+    initListPoolCached()
+    provider.getLogs({
+      fromBlock: lastHeadBlockCached,
       toBlock: headBlock,
       topics: [null, null, ethers.utils.formatBytes32String('DDL')]
     }).then((logs: any) => {
-      const eventInterface = getEventInterface()
-      return logs.map((log: any) => {
-        try {
-          return { address: log.address, ...eventInterface.parseLog(log) }
-        } catch (e) {
-          return {}
-        }
+      const result = parseDdlLogs(logs)
+      const ddlLogs = logs.filter((log: any) => {
+        return log.address
       })
+      cacheDdlLog(ddlLogs, headBlock)
+
+      return result
+    }).then(async (logs:any) => {
+      if (logs && logs.length > 0) {
+        const { tokens, pools } = await generatePoolData(logs)
+
+        dispatch(addTokensReduce({ tokens, chainId }))
+        dispatch(addPoolsWithChain({ pools, chainId }))
+      }
     })
-    const ddlLogsCached = JSON.parse(localStorage.getItem('ddlLogs' + chainId) || '[]')
-    localStorage.setItem('ddlLogs' + chainId, JSON.stringify([...ddlLogs, ...ddlLogsCached]))
+  }
+
+  const initListPoolCached = async () => {
+    const logs = JSON.parse(localStorage.getItem(chainId + '-' + LOCALSTORAGE_KEY.DDL_LOGS) || '[]')
+    const ddlLogs = parseDdlLogs(logs)
 
     const { tokens, pools } = await generatePoolData(ddlLogs)
 
     dispatch(addTokensReduce({ tokens, chainId }))
     dispatch(addPoolsWithChain({ pools, chainId }))
+  }
+
+  const cacheDdlLog = (ddlLogs: any, headBlock: number) => {
+    const cachedDdlLogs = JSON.parse(localStorage.getItem(chainId + '-' + LOCALSTORAGE_KEY.DDL_LOGS) || '[]')
+    const newCachedDdlLogs = [...ddlLogs, ...cachedDdlLogs].filter((log, index, self) => {
+      return index === self.findIndex((t) => (
+        t.logIndex === log.logIndex
+      ))
+    })
+    localStorage.setItem(chainId + '-' + LOCALSTORAGE_KEY.LAST_BLOCK_DDL_LOGS, headBlock.toString())
+    localStorage.setItem(chainId + '-' + LOCALSTORAGE_KEY.DDL_LOGS, JSON.stringify(newCachedDdlLogs))
+  }
+
+  const parseDdlLogs = (ddlLogs: any) => {
+    const eventInterface = getEventInterface()
+
+    return ddlLogs.map((log: any) => {
+      try {
+        return {
+          address: log.address,
+          logIndex: log.transactionHash + '-' + log.logIndex,
+          ...eventInterface.parseLog(log)
+        }
+      } catch (e) {
+        return {}
+      }
+    })
   }
 
   /**
@@ -252,7 +290,7 @@ export const useListPool = () => {
         rDcLong: bn(poolStateData[i].returnValues[9]),
         rDcShort: bn(poolStateData[i].returnValues[10]),
         rentRateLong: bn(poolStateData[i].returnValues[11]),
-        rentRateShort: bn(poolStateData[i].returnValues[12]),
+        rentRateShort: bn(poolStateData[i].returnValues[12])
       }
     }
 

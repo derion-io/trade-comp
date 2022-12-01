@@ -4,6 +4,11 @@ export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
 export const LP_PRICE_UNIT = 10000
 
+export const LOCALSTORAGE_KEY = {
+  DDL_LOGS: 'ddl-log',
+  LAST_BLOCK_DDL_LOGS: 'last-block-ddl-log'
+}
+
 export const POOL_IDS = {
   cToken: 131072,
   cp: 65536,
