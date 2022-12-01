@@ -241,6 +241,7 @@ export const useListPool = () => {
         priceScaleLong: bn(poolStateData[i].returnValues[2]),
         priceScaleShort: bn(poolStateData[i].returnValues[3]),
         oracleStore: poolStateData[i].returnValues[4],
+        oracleStoreUpdated: poolStateData[i].returnValues[5],
         twap,
         spot,
         twapBase: twap.base._x,
@@ -249,7 +250,9 @@ export const useListPool = () => {
         spotLP: spot.LP._x,
         totalSupplies: poolStateData[i].returnValues[8].map((v: any) => bn(v)),
         rDcLong: bn(poolStateData[i].returnValues[9]),
-        rDcShort: bn(poolStateData[i].returnValues[10])
+        rDcShort: bn(poolStateData[i].returnValues[10]),
+        rentRateLong: bn(poolStateData[i].returnValues[11]),
+        rentRateShort: bn(poolStateData[i].returnValues[12]),
       }
     }
 
