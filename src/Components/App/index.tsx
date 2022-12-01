@@ -21,7 +21,7 @@ import { Pools } from '../../pages/Pools'
 const { AssistedJsonRpcProvider } = require('assisted-json-rpc-provider')
 
 export const App = () => {
-  const { updateCurrentPool, get24hChange, cToken, quoteToken, baseToken } = useCurrentPool()
+  const { updateCurrentPool } = useCurrentPool()
   const { tokens } = useListTokens()
   const { pools } = useListPool()
   const { fetchBalanceAndAllowance } = useWalletBalance()
