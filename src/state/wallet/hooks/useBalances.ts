@@ -13,7 +13,7 @@ import {
   bn,
   decodeErc1155Address,
   getErc1155Token,
-  getNormalAddress,
+  getNormalAddress, isErc1155Address,
   parseCallStaticError
 } from '../../../utils/helpers'
 import { messageAndViewOnBsc } from '../../../Components/MessageAndViewOnBsc'
@@ -62,7 +62,7 @@ export const useWalletBalance = () => {
       try {
         const signer = library.getSigner()
         let hash = ''
-        if (tokenAddress == poolAddress) {
+        if (tokenAddress == poolAddress || isErc1155Address(tokenAddress)) {
           const poolAddress = decodeErc1155Address(tokenAddress).address
           const contract = getPoolContract(poolAddress, signer)
           const txRes = await contract.setApprovalForAll(configs.addresses.router, true)
