@@ -1,0 +1,27 @@
+:root {
+    --tv-color-platform-background: transparent;
+    --tv-color-pane-background: #ffffff;
+    --tv-color-pane-background-secondary: #2A2C32;
+    --tv-color-toolbar-button-background-hover: rgba(128, 128, 128, 0.2);
+    --tv-color-toolbar-button-background-secondary-hover: #9CA3AF;
+    --tv-color-toolbar-button-background-expanded: #f0f3fa;
+    --tv-color-toolbar-button-text: #000000;
+    --tv-color-toolbar-button-text-hover: rgba(90, 94, 103, 0.64);
+    --tv-color-toolbar-button-text-active: #2196f3;
+    --tv-color-toolbar-button-text-active-hover: #9CA3AF;
+
+    --tv-color-toolbar-toggle-button-background-active: #2196f3;
+    --tv-color-toolbar-toggle-button-background-active-hover: #1e88e5;
+}
+
+.tv-chart-events-source__tooltip__item {
+    color: #000000;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.bar-mark-tooltip {
+    color: #000000;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+    background: rgba(255, 255, 255, 0.8);
+}

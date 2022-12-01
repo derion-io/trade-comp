@@ -9,6 +9,7 @@ import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { useHelper } from '../../state/config/useHelper'
 import { ExpandPool } from '../../Components/PoolTable/ExpandPool'
 import { useListPool } from '../../state/pools/hooks/useListPool'
+import { Chart } from '../../Components/Chart'
 
 export const Exposure = () => {
   const { cToken, quoteToken, baseToken, poolAddress } = useCurrentPool()
@@ -40,8 +41,10 @@ export const Exposure = () => {
         </div>
       </div>
       <div className='exposure-page__content'>
-        {/*<PoolTable />*/}
-        <ExpandPool visible pool={pools[poolAddress] || {}} />
+        <div className='exposure-page__content--left'>
+          <Chart />
+          <ExpandPool visible pool={pools[poolAddress] || {}} />
+        </div>
         <ExposureBox changedIn24h={changedIn24h}/>
       </div>
     </div>
