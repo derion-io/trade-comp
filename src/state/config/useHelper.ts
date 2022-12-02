@@ -1,7 +1,6 @@
 import { useConfigs } from './useConfigs'
 import { div, formatPercent, sub } from '../../utils/helpers'
-
-const CHART_API_ENDPOINT = 'https://api.lz.finance/56/chart/'
+import { CHART_API_ENDPOINT } from '../../utils/constant'
 
 export const useHelper = () => {
   const { configs, chainId } = useConfigs()

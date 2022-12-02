@@ -34,7 +34,7 @@ import { CustomSlider } from './CustomSlider'
 
 const nativePrice = 300
 
-export const ExposureBox = ({changedIn24h}: {
+export const ExposureBox = ({ changedIn24h }: {
   changedIn24h: number
 }) => {
   const [formAddOrRemove, setFormAddOrRemove] = useState<'add' | 'remove' | undefined>(undefined)

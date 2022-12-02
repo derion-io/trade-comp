@@ -9,6 +9,14 @@ export const LOCALSTORAGE_KEY = {
   LAST_BLOCK_DDL_LOGS: 'last-block-ddl-log'
 }
 
+export const SWAP_TAB = {
+  EXPOSURE: Symbol('exposure'),
+  SWAP: Symbol('swap')
+}
+
+export const CHART_API_ENDPOINT = 'https://api.lz.finance/56/chart/'
+
+
 export const POOL_IDS = {
   cToken: 131072,
   cp: 65536,
