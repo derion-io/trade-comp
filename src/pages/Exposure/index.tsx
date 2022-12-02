@@ -10,8 +10,12 @@ import { useHelper } from '../../state/config/useHelper'
 import { ExpandPool } from '../../Components/PoolTable/ExpandPool'
 import { useListPool } from '../../state/pools/hooks/useListPool'
 import { Chart } from '../../Components/Chart'
+import { SWAP_TAB } from '../../utils/constant'
+import { SwapBox } from '../../Components/SwapBox'
 
-export const Exposure = () => {
+export const Exposure = ({ tab }: {
+  tab: Symbol
+}) => {
   const { cToken, quoteToken, baseToken, poolAddress } = useCurrentPool()
   const { pools } = useListPool()
   const { useHistory } = useConfigs()
@@ -45,7 +49,11 @@ export const Exposure = () => {
           <ExpandPool visible pool={pools[poolAddress] || {}} />
         </div>
         <div className='exposure-page__content--right'>
-          <ExposureBox changedIn24h={changedIn24h}/>
+          {
+            tab === SWAP_TAB.EXPOSURE
+              ? <ExposureBox changedIn24h={changedIn24h}/>
+              : <SwapBox />
+          }
           <PoolTableCompact />
         </div>
       </div>
