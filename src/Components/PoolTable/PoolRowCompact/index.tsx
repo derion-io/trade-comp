@@ -1,16 +1,11 @@
 import { PoolType } from '../../../state/pools/type'
 import { useWalletBalance } from '../../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../../state/token/hook'
-import React, { useMemo, useState } from 'react'
-import { useConfigs } from '../../../state/config/useConfigs'
+import React, { useMemo } from 'react'
 import { useCurrentPool } from '../../../state/currentPool/hooks/useCurrentPool'
-import { bn, formatFloat, shortenAddressString, weiToNumber } from '../../../utils/helpers'
+import { bn, formatFloat, weiToNumber } from '../../../utils/helpers'
 import { PowerState } from 'powerLib'
 import { Text, TextBlue, TextBuy, TextSell } from '../../ui/Text'
-import { TokenSymbol } from '../../ui/TokenSymbol'
-import { ButtonGrey } from '../../ui/Button'
-import { Collapse } from 'react-collapse'
-import { ExpandPool } from '../ExpandPool'
 import { TokenIcon } from '../../ui/TokenIcon'
 
 export const PoolRowCompact = ({ pool }: { pool: PoolType }) => {
@@ -61,7 +56,7 @@ export const PoolRowCompact = ({ pool }: { pool: PoolType }) => {
         <TextBlue>{weiToNumber(value, 18, 4)} {tokens[quoteToken]?.symbol}</TextBlue>
       </td>
       <td className='text-left'>
-        <TdText>{leverage >= 0 ? 'Long' : 'Short'} x{formatFloat(leverage, 1)}</TdText>
+        <TdText>{leverage >= 0 ? 'Long' : 'Short'} {formatFloat(leverage, 1)}</TdText>
       </td>
     </tr>
   </React.Fragment>

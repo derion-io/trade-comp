@@ -31,7 +31,6 @@ export const Datafeed = {
   realTimeCandle: {},
   onReady: (callback: any) => {
     console.log('=====onReady running====')
-
     const config = {
       ...configDefault
     }
@@ -47,7 +46,6 @@ export const Datafeed = {
   ) {
     console.log('======resolveSymbol running====')
     const [,,, name] = symbolInfo.split('-')
-    console.log(symbolInfo)
     var symbolStub = {
       name: name,
       description: '',
@@ -56,7 +54,7 @@ export const Datafeed = {
       session: '24x7',
       exchange: '',
       minmov: 1,
-      pricescale: 10000,
+      pricescale: 100,
       has_intraday: true,
       supported_resolution: supportedResolutions,
       volume_precision: 8,
@@ -64,7 +62,6 @@ export const Datafeed = {
       currency_code: extension.currencyCode || 'USD',
       original_currency_code: 'USD'
     }
-    console.log(symbolStub, extension)
     onSymbolResolvedCallback(symbolStub)
   },
 

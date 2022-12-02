@@ -1,4 +1,5 @@
 @import "../../styles/abstracts/variables";
+@import "../../styles/abstracts/mixins";
 
 .exposure-interface .chart-wrap {
   background: $color-card-bg;
@@ -7,5 +8,9 @@
   .chart-box {
     width: 100%;
     height: 400px;
+
+    @include respond(phone) {
+      height: 320px;
+    }
   }
 }

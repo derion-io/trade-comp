@@ -12,6 +12,7 @@ import { useListPool } from '../../state/pools/hooks/useListPool'
 import { Chart } from '../../Components/Chart'
 import { SWAP_TAB } from '../../utils/constant'
 import { SwapBox } from '../../Components/SwapBox'
+import { useWindowSize } from '../../hooks/useWindowSize'
 
 export const Exposure = ({ tab }: {
   tab: Symbol
@@ -22,6 +23,8 @@ export const Exposure = ({ tab }: {
   const history = useHistory()
   const { get24hChange } = useHelper()
   const [changedIn24h, setChangedIn24h] = useState<number>(0)
+  const { width } = useWindowSize()
+  const isPhone = width && width < 992
 
   useEffect(() => {
     if (baseToken && quoteToken && cToken) {
@@ -46,7 +49,12 @@ export const Exposure = ({ tab }: {
       <div className='exposure-page__content'>
         <div className='exposure-page__content--left'>
           <Chart />
-          <ExpandPool visible pool={pools[poolAddress] || {}} />
+          {
+            !isPhone &&
+            <div className='hidden-on-phone'>
+              <ExpandPool visible pool={pools[poolAddress] || {}} />
+            </div>
+          }
         </div>
         <div className='exposure-page__content--right'>
           {
@@ -55,6 +63,9 @@ export const Exposure = ({ tab }: {
               : <SwapBox />
           }
           <PoolTableCompact />
+          {
+            isPhone && <div className='hidden-on-desktop'><ExpandPool visible pool={pools[poolAddress] || {}} /></div>
+          }
         </div>
       </div>
     </div>

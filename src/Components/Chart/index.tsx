@@ -108,7 +108,7 @@ export const Chart = ({
           className='TVChartContainer'
           style={{
             width: '100%',
-            height: width && width < 992 ? '450px' : '100%'
+            height: '100%'
           }}
         />
       </div>
