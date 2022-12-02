@@ -86,7 +86,6 @@ export const ExposureBox = ({changedIn24h}: {
       }
       const exposure = p.getExposures()
       const marks = p.getMarks()
-      delete marks[0]
       return [p, oldLeverage, oldValue, marks, exposure]
     }
     return [null, 0, oldValue, {}, []]
@@ -123,9 +122,8 @@ export const ExposureBox = ({changedIn24h}: {
         }
 
         setNewValue(value)
-        const newBalancesInPool = powerState.getOptimalBalances(bn(value), newLeverage)
 
-        const steps = powerState.getSwapSteps(balanceInPool, newBalancesInPool, cAmount)
+        const steps = powerState.getSwapSteps(balanceInPool, newLeverage, cAmount)
         setSwapsteps(steps.filter((step) => step.amountIn.gt(0)))
       }
     } catch (e) {
