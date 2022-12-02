@@ -86,7 +86,6 @@ export const ExposureBox = ({changedIn24h}: {
       }
       const exposure = p.getExposures()
       const marks = p.getMarks()
-      delete marks[0]
       return [p, oldLeverage, oldValue, marks, exposure]
     }
     return [null, 0, oldValue, {}, []]
