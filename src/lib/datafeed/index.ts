@@ -1,4 +1,5 @@
 import historyProvider from './historyProvider'
+import { LASTEST_BLOCK_NUMBER } from '../../utils/constant'
 
 const supportedResolutions = ['1', '5', '15', '60', '240', '1D', '1W', '1M']
 const configDefault = {
@@ -88,7 +89,6 @@ export const Datafeed = {
         limit: calcLimitCandle(periodParams.from, periodParams.to, interval)
       })
       .then((bars: any) => {
-        console.log('bar', bars)
         if (bars.length > 0) {
           // const lastCandle = this.lastCandle[symbol + '-' + interval] || {}
           // console.log('last candle', bars[bars.length - 1].time, lastCandle.time, bars[bars.length - 1].time > lastCandle.time)
@@ -105,64 +105,71 @@ export const Datafeed = {
       .catch((err: any) => {
         onErrorCallback(err)
       })
-  }
+  },
 
-  // subscribeBars: function (
-  //   symbolInfo: any,
-  //   resolution: any,
-  //   onRealtimeCallback: any,
-  //   subscriberUID: any,
-  //   _onResetCacheNeededCallback: any
-  // ) {
-  //   console.log('===========subscribeBars==========')
-  //   this.subscribeBarsInterval[subscriberUID] = setInterval(() => {
-  //     const ticker = symbolInfo.ticker
-  //     const [symbol, chainId] = ticker.split('-')
-  //     const now = new Date().getTime() / 1000
-  //     historyProvider
-  //       .getCurrentPriceBySymbol({
-  //         symbol: symbol,
-  //         chainId: chainId
-  //       })
-  //       .then((data: any) => {
-  //         const now = new Date().getTime()
-  //         const lastCandle = this.lastCandle[symbol + '-' + resolution]
-  //         const realtimeCandle = this.realTimeCandle[symbol + '-' + resolution]
-  //         const nextCandleTime = realtimeCandle.time + TIME_IN_RESOLUTION[resolution] * 1000
-  //
-  //         const tradePrice = Number(data)
-  //         let bar
-  //         if (now >= nextCandleTime) {
-  //           bar = {
-  //             time: nextCandleTime,
-  //             open: realtimeCandle.close,
-  //             high: tradePrice,
-  //             low: tradePrice,
-  //             close: tradePrice
-  //           }
-  //           console.log('Generate new bar', bar)
-  //         } else {
-  //           bar = {
-  //             ...realtimeCandle,
-  //             high: Math.max(realtimeCandle.high, tradePrice),
-  //             low: Math.min(realtimeCandle.low, tradePrice),
-  //             close: tradePrice
-  //           }
-  //           console.log('Update the latest bar by price', tradePrice, bar)
-  //         }
-  //         this.realTimeCandle[symbol + '-' + resolution] = bar
-  //         onRealtimeCallback(bar)
-  //       })
-  //       .catch((e) => {
-  //         console.error(e)
-  //       })
-  //   }, TIME_TO_UPDATE_CHART)
-  // },
-  // unsubscribeBars: function (subscriberUID: string) {
-  //   if (this.subscribeBarsInterval[subscriberUID]) {
-  //     clearInterval(this.subscribeBarsInterval[subscriberUID])
-  //   }
-  // }
+  // TODO: api is being paused, need to test later
+  subscribeBars: function (
+    symbolInfo: any,
+    resolution: any,
+    onRealtimeCallback: any,
+    subscriberUID: any,
+    _onResetCacheNeededCallback: any
+  ) {
+    console.log('===========subscribeBars==========')
+    this.subscribeBarsInterval[subscriberUID] = setInterval(() => {
+      const ticker = symbolInfo.ticker
+      const [baseAddress, cAddress, quoteAddress] = ticker.split('-')
+      historyProvider
+        .getBars({
+          route: [baseAddress, cAddress, quoteAddress].join(','),
+          chainId: 56,
+          resolution,
+          limit: 2,
+          to: LASTEST_BLOCK_NUMBER
+        })
+        .then((data: any) => {
+          if (data.length > 0) {
+            const candle = data[data.length - 1]
+            const lastCandle = { ...this.lastCandle[baseAddress + '-' + quoteAddress + '-' + resolution] }
+
+            if (candle.time > lastCandle.time) {
+              if (data[data.length - 2]) {
+                onRealtimeCallback({
+                  time: data[data.length - 2].time,
+                  open: data[data.length - 2].open,
+                  close: data[data.length - 2].close,
+                  low: data[data.length - 2].low,
+                  high: data[data.length - 2].high,
+                  volume: data[data.length - 2].volume
+                })
+              }
+
+              this.lastCandle[baseAddress + '-' + quoteAddress + '-' + resolution] = { ...candle }
+            }
+
+            const dataToUpdate = {
+              time: candle.time,
+              open: candle.open,
+              close: candle.close,
+              low: candle.low,
+              high: candle.high,
+              volume: candle.volume
+            }
+
+            onRealtimeCallback(dataToUpdate)
+          }
+        })
+        .catch((e) => {
+          console.error(e)
+        })
+    }, TIME_TO_UPDATE_CHART)
+  },
+
+  unsubscribeBars: function (subscriberUID: string) {
+    if (this.subscribeBarsInterval[subscriberUID]) {
+      clearInterval(this.subscribeBarsInterval[subscriberUID])
+    }
+  }
 }
 
 const calcLimitCandle = (

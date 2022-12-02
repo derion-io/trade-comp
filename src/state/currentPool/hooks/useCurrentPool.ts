@@ -19,7 +19,8 @@ export const useCurrentPool = () => {
     quoteToken,
     basePrice,
     changedIn24h,
-    poolAddress
+    poolAddress,
+    chartIsOutDate
   } = useSelector((state: State) => {
     return {
       cTokenPrice: state.currentPool.cTokenPrice,
@@ -34,7 +35,8 @@ export const useCurrentPool = () => {
       baseId: state.currentPool.baseId,
       quoteId: state.currentPool.quoteId,
       changedIn24h: state.currentPool.changedIn24h,
-      poolAddress: state.currentPool.poolAddress
+      poolAddress: state.currentPool.poolAddress,
+      chartIsOutDate: state.currentPool.chartIsOutDate
     }
   })
 

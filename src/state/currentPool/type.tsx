@@ -12,6 +12,7 @@ export interface currentPoolState {
   poolAddress: string
   baseId: number,
   quoteId: number,
+  chartIsOutDate: boolean
 }
 
 export const initialState: currentPoolState = {
@@ -28,4 +29,5 @@ export const initialState: currentPoolState = {
   basePrice: '0',
   changedIn24h: 0,
   poolAddress: '',
+  chartIsOutDate: false
 }
