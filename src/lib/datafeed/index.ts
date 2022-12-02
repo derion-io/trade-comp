@@ -1,6 +1,6 @@
 import historyProvider from './historyProvider'
 
-const supportedResolutions = ['5', '15', '60', '240', '1D', '1W']
+const supportedResolutions = ['1', '5', '15', '60', '240', '1D', '1W', '1M']
 const configDefault = {
   supported_resolutions: supportedResolutions,
   supports_search: false,
