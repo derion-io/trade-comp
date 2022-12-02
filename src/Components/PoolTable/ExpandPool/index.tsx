@@ -8,7 +8,7 @@ import { TokenSymbol } from '../../ui/TokenSymbol'
 import { useConfigs } from '../../../state/config/useConfigs'
 import { ButtonExecute } from '../../ui/Button'
 import { useMultiSwapAction } from '../../../hooks/useMultiSwapAction'
-import { PowerState } from 'powerLib/lib/index'
+import { PowerState } from 'powerLib'
 import { SkeletonLoader } from '../../ui/SkeletonLoader'
 
 export const SECONDS_PER_YEAR = 31536000

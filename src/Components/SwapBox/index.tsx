@@ -26,7 +26,7 @@ import { TokenSymbol } from '../ui/TokenSymbol'
 import { useMultiSwapAction } from '../../hooks/useMultiSwapAction'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { POOL_IDS } from '../../utils/constant'
-import { PowerState } from 'powerLib/lib/index'
+import { PowerState } from 'powerLib'
 
 const nativePrice = 300
 
