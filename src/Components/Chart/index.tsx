@@ -101,7 +101,7 @@ export const Chart = ({
   }
 
   return (
-    <div className='chart'>
+    <div className='chart-wrap'>
       <div className='chart-box'>
         <div
           id={containerId}

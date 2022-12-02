@@ -1,20 +1,21 @@
 @import "../../styles/abstracts/variables";
 @import "../../styles/abstracts/mixins";
 
-.pool-table-wrap {
-  background: $color-card-bg;
-  border-radius: 20px;
-  padding: 1rem 0 2rem 0;
-
-  @include respond(phone) {
-    max-width: calc(100vw - 20px);
-    overflow: auto;
-  }
-}
-
 .pool-table {
   width: 800px;
   border-collapse: collapse;
+
+  &-wrap {
+    background: $color-card-bg;
+    border-radius: 20px;
+    padding: 1rem 0 2rem 0;
+
+    @include respond(phone) {
+      max-width: calc(100vw - 20px);
+      overflow: auto;
+    }
+  }
+
   tr.is-long-pool td {
     background: rgba(61, 186, 162, 0.1);
   }
@@ -42,6 +43,51 @@
   .pool-actions {
     &>*:not(:last-child) {
       margin-right: 1rem;
+    }
+  }
+}
+
+.pool-table-compact {
+  //width: 800px;
+  border-collapse: collapse;
+  width: 100%;
+
+  &-wrap {
+    background: $color-card-bg;
+    border-radius: 20px;
+    padding: 1rem 0 2rem 0;
+
+    @include respond(phone) {
+      max-width: calc(100vw - 20px);
+      overflow: auto;
+    }
+  }
+
+  td,th {
+    font-size: 1.4rem;
+    padding: 1rem;
+  }
+
+  .pool-tr {
+    & * {
+      cursor: pointer;
+    }
+  }
+
+  .pair-name {
+    display: flex;
+    align-items: center;
+    font-weight: 700;
+  }
+  .pair-logo {
+    *:first-child {
+      position: relative;
+      z-index: 2;
+    }
+    *:last-child {
+      transform: translate(-50%, -2px);
+      position: relative;
+      z-index: 1;
     }
   }
 }

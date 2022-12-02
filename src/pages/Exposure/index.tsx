@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import './style.scss'
 import { ExposureBox } from '../../Components/ExposureBox'
-import { PoolTable } from '../../Components/PoolTable'
+import { PoolTable, PoolTableCompact } from '../../Components/PoolTable'
 import { TextBlue } from '../../Components/ui/Text'
 import { IconArrowLeft } from '../../Components/ui/Icon'
 import { useConfigs } from '../../state/config/useConfigs'
@@ -22,7 +22,6 @@ export const Exposure = () => {
   useEffect(() => {
     if (baseToken && quoteToken && cToken) {
       get24hChange(baseToken, cToken, quoteToken).then((value) => {
-        console.log('khanh', value)
         setChangedIn24h(value)
       })
     }
@@ -45,7 +44,10 @@ export const Exposure = () => {
           <Chart />
           <ExpandPool visible pool={pools[poolAddress] || {}} />
         </div>
-        <ExposureBox changedIn24h={changedIn24h}/>
+        <div className='exposure-page__content--right'>
+          <ExposureBox changedIn24h={changedIn24h}/>
+          <PoolTableCompact />
+        </div>
       </div>
     </div>
   )
