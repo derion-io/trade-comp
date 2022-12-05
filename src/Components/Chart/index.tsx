@@ -36,7 +36,6 @@ export const Chart = ({
   autosize,
   studiesOverrides
 }: ChartContainerProps) => {
-  const { width } = useWindowSize()
   const [tradingviewWidget, setTradingviewWidget] = useState<any>(null)
   const { tokens } = useListTokens()
   const { cToken, baseToken, quoteToken, chartIsOutDate } = useCurrentPool()
@@ -70,15 +69,6 @@ export const Chart = ({
         'header_undo_redo',
         'header_symbol_search'
       ],
-      overrides: {
-        'paneProperties.backgroundType': 'solid',
-        'paneProperties.background': '#1E2026',
-        'paneProperties.backgroundGradientEndColor': '#1E2026',
-        'paneProperties.backgroundGradientStartColor': '#1E2026',
-        'paneProperties.vertGridProperties.color': 'rgba(128,128,128,0.2)',
-        'paneProperties.horzGridProperties.color': 'rgba(128,128,128,0.2)',
-        'scalesProperties.textColor': '#ffffff'
-      },
       theme: 'Dark',
       favorites: {
         intervals: ['1', '5', '15', '60', '240', '1D', '1W', '1M']
@@ -97,6 +87,15 @@ export const Chart = ({
     const tvWidget: IChartingLibraryWidget = new widget(widgetOptions)
     tvWidget.onChartReady(() => {
       setTradingviewWidget(tvWidget)
+      // tvWidget.addCustomCSSFile('/darkTheme.css')
+      tvWidget.applyOverrides({
+        'paneProperties.backgroundType': 'solid',
+        'paneProperties.background': '#1E2026',
+        'paneProperties.backgroundGradientEndColor': '#1E2026',
+        'paneProperties.backgroundGradientStartColor': '#1E2026',
+        'paneProperties.vertGridProperties.color': 'rgba(128,128,128,0.2)',
+        'paneProperties.horzGridProperties.color': 'rgba(128,128,128,0.2)',
+      })
     })
   }
 
@@ -114,7 +113,7 @@ export const Chart = ({
       </div>
       {
         chartIsOutDate && <div className='outdate-message'>
-          Chart is outdate
+          OUTDATED
         </div>
       }
     </div>
