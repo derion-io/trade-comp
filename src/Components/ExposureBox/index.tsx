@@ -1,23 +1,23 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Card } from '../ui/Card'
-import { Text, TextBlue, TextBuy, TextGreen, TextGrey, TextPink, TextSell } from '../ui/Text'
+import { Text, TextBlue, TextBuy, TextGrey, TextPink, TextSell } from '../ui/Text'
 import './style.scss'
 import { Box } from '../ui/Box'
-import { LabelBuy, LabelGreen, LabelSell } from '../ui/Label'
-import { Button, ButtonBuy, ButtonExecute, ButtonGrey, ButtonReset } from '../ui/Button'
+import { LabelBuy, LabelSell } from '../ui/Label'
+import { ButtonExecute, ButtonGrey, ButtonReset } from '../ui/Button'
 import 'rc-slider/assets/index.css'
 import Slider from 'rc-slider'
-import { IconArrowDown, IconArrowLeft, IconArrowRight } from '../ui/Icon'
+import { IconArrowRight } from '../ui/Icon'
 import { Input } from '../ui/Input'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
-import { PowerState, StepType } from 'powerLib'
+import { PowerState } from 'powerLib'
 import {
   bn,
   decodeErc1155Address,
   formatFloat,
   mul,
   numberToWei,
-  parseCallStaticError, parseUq112x112,
+  parseCallStaticError,
   weiToNumber
 } from '../../utils/helpers'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
@@ -28,7 +28,6 @@ import { useMultiSwapAction } from '../../hooks/useMultiSwapAction'
 import { toast } from 'react-toastify'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
-import { POOL_IDS } from '../../utils/constant'
 import { LeverageChangedInfoBox } from './LeverageChangedInfoBox'
 import { CustomSlider } from './CustomSlider'
 
@@ -42,7 +41,7 @@ export const ExposureBox = ({ changedIn24h }: {
   const [newValue, setNewValue] = useState<BigNumber>()
   const { account, showConnectModal } = useWeb3React()
   const [loading, setLoading] = useState<boolean>(false)
-  const { dTokens, cToken, poolAddress, states, powers, baseToken, quoteToken, cTokenPrice, basePrice, getTokenByPower } = useCurrentPool()
+  const { dTokens, cToken, states, powers, baseToken, quoteToken, cTokenPrice, basePrice, getTokenByPower } = useCurrentPool()
   const { balances, routerAllowances, approveRouter, fetchBalanceAndAllowance } = useWalletBalance()
   const [balanceInPool, setBalancesInPool] = useState<any>({})
   const [cAmountToChange, setCAmountToChange] = useState<string>('')
@@ -50,7 +49,7 @@ export const ExposureBox = ({ changedIn24h }: {
   const [isDeleverage, setIsDeleverage] = useState<boolean>(false)
   const { tokens } = useListTokens()
   const { calculateAmountOuts, updateLeverageAndSize } = useMultiSwapAction()
-  const [stepsWithAmounts, setStepsWithAmounts] = useState<(StepType & { amountOut: BigNumber })[]>([])
+  const [stepsWithAmounts, setStepsWithAmounts] = useState<{ amountOut: BigNumber }[]>([])
   const [callError, setCallError] = useState<string>('')
   const [leverageManual, setLeverageManual] = useState<boolean>(false)
   const [txFee, setTxFee] = useState<BigNumber>(bn(0))
@@ -123,8 +122,20 @@ export const ExposureBox = ({ changedIn24h }: {
 
         setNewValue(value)
 
+        const currentBalances = {}
+        powers.forEach((power, key) => {
+          if (balances[dTokens[key]] && balances[dTokens[key]].gt(0)) {
+            currentBalances[power] = bn(balances[dTokens[key]])
+          }
+        })
+
         const steps = powerState.getSwapSteps(balanceInPool, newLeverage, cAmount)
-        setSwapsteps(steps.filter((step) => step.amountIn.gt(0)))
+          .filter((step) => step.amountIn.gt(0))
+        const { amountOuts } = powerState.swap(currentBalances, steps)
+        setStepsWithAmounts(amountOuts.map((amountOut) => {
+          return { amountOut }
+        }))
+        setSwapsteps(steps)
       }
     } catch (e) {
       console.log(e)
@@ -156,7 +167,7 @@ export const ExposureBox = ({ changedIn24h }: {
           }
           setCallError(error ?? e)
         })
-    }, 3000)
+    }, 500)
     return () => {
       clearTimeout(delayDebounceFn)
     }
@@ -203,22 +214,6 @@ export const ExposureBox = ({ changedIn24h }: {
       >{isDeleverage && 'Deleverage & '}Execute</ButtonExecute>
     }
   }
-  const [protocolFee, percent] = useMemo(() => {
-    const fee = bn(0)
-    let percent = 0
-    for (const i in stepsWithAmounts) {
-      const step = stepsWithAmounts[i]
-      if (step.tokenIn === poolAddress + '-' + POOL_IDS.cp && step.tokenOut === cToken) {
-        const cPrice = parseUq112x112(states.twapLP, 1000)
-        fee.add(step.amountOut
-          .mul(3)
-          .mul(cPrice * 1000)
-          .div(1000 * 1000))
-        percent = 0.3
-      }
-    }
-    return [formatFloat(weiToNumber(fee, tokens[cToken]?.decimal || 18), 2), percent]
-  }, [stepsWithAmounts])
 
   return (
     <Card className='exposure-box'>
@@ -234,11 +229,6 @@ export const ExposureBox = ({ changedIn24h }: {
           <TextBlue>)</TextBlue>
         </SkeletonLoader>
       </div>
-      {/*{*/}
-      {/*  chartIsOutDate && <div className='text-center text-danger'>*/}
-      {/*    24h Change is outdate*/}
-      {/*  </div>*/}
-      {/*}*/}
       <Box borderColor='#01A7FA' className='leverage-and-add-remove mb-1 mt-1'>
         <LeverageChangedInfoBox
           oldLeverage={oldLeverage}
