@@ -234,6 +234,11 @@ export const ExposureBox = ({ changedIn24h }: {
           <TextBlue>)</TextBlue>
         </SkeletonLoader>
       </div>
+      {/*{*/}
+      {/*  chartIsOutDate && <div className='text-center text-danger'>*/}
+      {/*    24h Change is outdate*/}
+      {/*  </div>*/}
+      {/*}*/}
       <Box borderColor='#01A7FA' className='leverage-and-add-remove mb-1 mt-1'>
         <LeverageChangedInfoBox
           oldLeverage={oldLeverage}

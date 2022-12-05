@@ -39,7 +39,7 @@ export const Chart = ({
   const { width } = useWindowSize()
   const [tradingviewWidget, setTradingviewWidget] = useState<any>(null)
   const { tokens } = useListTokens()
-  const { cToken, baseToken, quoteToken } = useCurrentPool()
+  const { cToken, baseToken, quoteToken, chartIsOutDate } = useCurrentPool()
 
   useEffect(() => {
     if(cToken && baseToken && quoteToken) {
@@ -112,6 +112,11 @@ export const Chart = ({
           }}
         />
       </div>
+      {
+        chartIsOutDate && <div className='outdate-message'>
+          Chart is outdate
+        </div>
+      }
     </div>
   )
 }

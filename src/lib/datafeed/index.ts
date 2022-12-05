@@ -1,7 +1,10 @@
-import historyProvider from './historyProvider'
+import historyProvider, { CandleType } from './historyProvider'
 import { LASTEST_BLOCK_NUMBER } from '../../utils/constant'
+import { store } from '../../state'
+import { addTokensReduce } from '../../state/token/reducer'
+import { setChartIsOutDate } from '../../state/currentPool/reducer'
 
-const supportedResolutions = ['1', '5', '15', '60', '240', '1D', '1W', '1M']
+const supportedResolutions = ['1', '5', '15', '60', '240', '1D', '1W']
 const configDefault = {
   supported_resolutions: supportedResolutions,
   supports_search: false,
@@ -13,12 +16,14 @@ const configDefault = {
 }
 
 const TIME_IN_RESOLUTION = {
+  1: 60,
   5: 60 * 5,
   15: 60 * 15,
   60: 60 * 60,
   120: 60 * 120,
   240: 60 * 240,
-  '1D': 60 * 60 * 24
+  '1D': 60 * 60 * 24,
+  '1W': 7 * 60 * 60 * 24
 }
 
 const TIME_TO_UPDATE_CHART = 5000
@@ -97,6 +102,8 @@ export const Datafeed = {
           //   this.realTimeCandle[symbol + '-' + interval] = bars[bars.length - 1]
           // }
 
+          detectChartIsOutdate(bars[bars.length - 1], interval)
+
           onHistoryCallback(bars, { noData: false })
         } else {
           onHistoryCallback(bars, { noData: true })
@@ -147,16 +154,8 @@ export const Datafeed = {
               this.lastCandle[baseAddress + '-' + quoteAddress + '-' + resolution] = { ...candle }
             }
 
-            const dataToUpdate = {
-              time: candle.time,
-              open: candle.open,
-              close: candle.close,
-              low: candle.low,
-              high: candle.high,
-              volume: candle.volume
-            }
-
-            onRealtimeCallback(dataToUpdate)
+            detectChartIsOutdate(candle, resolution)
+            onRealtimeCallback(candle)
           }
         })
         .catch((e) => {
@@ -170,6 +169,18 @@ export const Datafeed = {
       clearInterval(this.subscribeBarsInterval[subscriberUID])
     }
   }
+}
+
+const detectChartIsOutdate = (lastCandle: CandleType, resolution: string) => {
+  // const state = store.getState()
+  const nextCandleTime = Number(lastCandle.time) + TIME_IN_RESOLUTION[resolution]
+  const now = new Date().getTime()
+
+  console.log(nextCandleTime, now, Number(lastCandle.time), TIME_IN_RESOLUTION[resolution])
+  const isOutDate = nextCandleTime + 30 < now
+
+  store.dispatch(setChartIsOutDate({ status: isOutDate }))
+
 }
 
 const calcLimitCandle = (

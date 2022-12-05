@@ -74,6 +74,7 @@ export const useCurrentPool = () => {
     logicAddress,
     dTokens,
     states,
-    poolAddress
+    poolAddress,
+    chartIsOutDate
   }
 }
