@@ -105,14 +105,26 @@ export const ExpandPool = ({ visible, pool }: {
         </div>
         <div className='pool-expand__top--right'>
           <p className='mb-1'><TextPink>States</TextPink></p>
-          <div><Text>Total Locked Value:</Text><TextGreen> ${formatFloat(weiToNumber(totalLockedValue), 2)}</TextGreen>
+          <div>
+            <Text>Total Locked Value:</Text><TextGreen> ${formatFloat(weiToNumber(totalLockedValue), 2)}</TextGreen>
           </div>
-          <div><Text>Long Derivatives Value:</Text><TextGreen> ${formatFloat(weiToNumber(rDcLongValue), 2)}</TextGreen>
+          <div>
+            <Text>Collateral Ratio:</Text><TextGreen> {formatFloat(collateralRatio, 2)}</TextGreen>
           </div>
-          <div><Text>Short Derivatives
-            Value:</Text><TextGreen> ${formatFloat(weiToNumber(rDcShortValue), 2)}</TextGreen>
+          <div>
+            <Text>Long Derivatives Value:</Text><TextGreen> ${formatFloat(weiToNumber(rDcLongValue), 2)}</TextGreen>
           </div>
-          <div><Text>Collateral Ratio:</Text><TextGreen> {formatFloat(collateralRatio, 2)}</TextGreen></div>
+          <div>
+            <Text>Short Derivatives Value:</Text><TextGreen> ${formatFloat(weiToNumber(rDcShortValue), 2)}</TextGreen>
+          </div>
+          <div>
+            <Text>Long Funding Rate
+              (APR): </Text><TextGreen>{states?.rentRateLong && formatFloat(parseUq112x112(states.rentRateLong.mul(SECONDS_PER_YEAR).mul(100)), 2)}%</TextGreen>
+          </div>
+          <div>
+            <Text>Short Funding Rate
+              (APR): </Text><TextGreen>{states?.rentRateShort && formatFloat(parseUq112x112(states.rentRateShort.mul(SECONDS_PER_YEAR).mul(100)), 2)}%</TextGreen>
+          </div>
         </div>
       </div>
       <div className='pool-expand__box'>
@@ -125,7 +137,7 @@ export const ExpandPool = ({ visible, pool }: {
             </SkeletonLoader>
           </div>
           <div>
-            <Text>Funding Rate (APR): </Text>
+            <Text>Max Funding Rate (APR): </Text>
             <SkeletonLoader loading={!pool || !pool.rentRate}>
               <TextGreen>{pool?.rentRate && formatFloat(parseUq112x112(pool.rentRate.mul(SECONDS_PER_YEAR).mul(100)), 2)}% </TextGreen>
             </SkeletonLoader>
