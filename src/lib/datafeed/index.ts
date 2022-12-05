@@ -176,7 +176,6 @@ const detectChartIsOutdate = (lastCandle: CandleType, resolution: string) => {
   const nextCandleTime = Number(lastCandle.time) + TIME_IN_RESOLUTION[resolution]
   const now = new Date().getTime()
 
-  console.log(nextCandleTime, now, Number(lastCandle.time), TIME_IN_RESOLUTION[resolution])
   const isOutDate = nextCandleTime + 30 < now
 
   store.dispatch(setChartIsOutDate({ status: isOutDate }))

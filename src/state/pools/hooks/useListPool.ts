@@ -231,14 +231,14 @@ export const useListPool = () => {
         },
         {
           address: pairInfo.token0.adr,
-          decimal: pairInfo.token0.decimals,
+          decimal: pairInfo.token0.decimals?.toNumber(),
           name: pairInfo.token0.name,
           symbol: pairInfo.token0.symbol,
           totalSupply: pairInfo.token0.totalSupply
         },
         {
           address: pairInfo.token1.adr,
-          decimal: pairInfo.token1.decimal,
+          decimal: pairInfo.token1.decimals?.toNumber(),
           name: pairInfo.token1.name,
           symbol: pairInfo.token1.symbol,
           totalSupply: pairInfo.token1.totalSupply

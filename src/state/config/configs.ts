@@ -1,10 +1,12 @@
 export default {
   56: {
     rpcUrl: 'https://bsc-dataseed.binance.org/',
+    rpcToGetLogs: 'https://bscrpc.com',
     scanApi: 'https://api.bscscan.com/api',
     explorer: 'https://bscscan.com',
     scanName: 'BscScan',
     ddlGenesisBlock: 23439272,
+    timePerBlock: 3000,
     addresses: {
       multiCall: '0xC50F4c1E81c873B2204D7eFf7069Ffec6Fbe136D',
       tokensInfo: '0x6B451b1bdaa7088467961FC0370d4049DF1C2E4d',
@@ -31,10 +33,12 @@ export default {
   },
   31337: {
     rpcUrl: 'http://localhost:8545/',
+    rpcToGetLogs: 'http://localhost:8545/',
     explorer: 'https://bscscan.com',
     scanApi: 'https://api.bscscan.com/api',
     scanName: 'Localhost Scan',
     ddlGenesisBlock: 0,
+    timePerBlock: 3000,
     addresses: {
       multiCall: '0x3bc605DBD3f9d8e9B6FACdfc6548f8BD3b0f0Af5',
       tokensInfo: '0xD633ee476cfD10B300F20ae23ABAebf4B35BE18F',

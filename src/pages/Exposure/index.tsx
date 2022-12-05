@@ -17,19 +17,32 @@ import { useWindowSize } from '../../hooks/useWindowSize'
 export const Exposure = ({ tab }: {
   tab: Symbol
 }) => {
-  const { cToken, quoteToken, baseToken, poolAddress } = useCurrentPool()
+  const { cToken, quoteToken, baseToken, baseId, basePrice, poolAddress } = useCurrentPool()
   const { pools } = useListPool()
   const { useHistory } = useConfigs()
   const history = useHistory()
-  const { get24hChange } = useHelper()
+  const { get24hChange, get24hChangeByLog } = useHelper()
   const [changedIn24h, setChangedIn24h] = useState<number>(0)
   const { width } = useWindowSize()
   const isPhone = width && width < 992
 
   useEffect(() => {
     if (baseToken && quoteToken && cToken) {
-      get24hChange(baseToken, cToken, quoteToken).then((value) => {
-        setChangedIn24h(value)
+      get24hChangeByLog({
+        baseId,
+        currentPrice: basePrice,
+        baseToken,
+        quoteToken,
+        cToken
+      }).then((value) => {
+        if (value) {
+          setChangedIn24h(value)
+        } else {
+          get24hChange(baseToken, cToken, quoteToken)
+            .then((value1) => {
+              setChangedIn24h(value1)
+            })
+        }
       })
     }
   }, [cToken, quoteToken, baseToken])
