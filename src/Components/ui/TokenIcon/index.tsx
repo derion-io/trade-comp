@@ -12,7 +12,7 @@ export const TokenIcon = (props: {
   tokenAddress?: string
   size?: number
 }) => {
-  const { powers, poolAddress } = useCurrentPool()
+  const { powers, poolAddress, cToken } = useCurrentPool()
   const { getTokenIconUrl } = useHelper()
   const [isError, setIsError] = useState<boolean>(!props.src)
   const style = {
@@ -35,11 +35,16 @@ export const TokenIcon = (props: {
       if (Number(id) === POOL_IDS.cp) {
         return <div style={style} className='pool-token-logo pool-token-logo__cp'>CP</div>
       }
-      return <div style={style} className={`pool-token-logo ${powers[id] > 0 ? 'pool-token-logo__long' : 'pool-token-logo__short'}`}>
+      return <div
+        style={style}
+        className={`pool-token-logo ${powers[id] > 0 ? 'pool-token-logo__long' : 'pool-token-logo__short'}`}
+      >
         {powers[id] > 0 && '+'}{powers[id]}
       </div>
     } else if (props.tokenAddress === poolAddress) {
       return <div style={style} className='pool-token-logo pool-token-logo__cp'>CP</div>
+    } else if (props.tokenAddress === cToken) {
+      return <div style={style} className='pool-token-logo pool-token-logo__lp'>LP</div>
     }
     return ''
   }, [props.tokenAddress])
