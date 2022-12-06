@@ -287,10 +287,17 @@ export const SwapBox = () => {
           baseToken,
           quoteToken,
           configs.addresses.nativeToken
-        ]}
+        ].filter((address) => {
+          if (
+            (tokenTypeToSelect === 'input' && (!balances[address] || balances[address].isZero()))
+          ) {
+            return false
+          }
+          return true
+        })}
         onSelectToken={(address: string) => {
-          if ((tokenTypeToSelect === 'input' && address === inputTokenAddress) ||
-            (tokenTypeToSelect === 'output' && address === outputTokenAddress)
+          if ((tokenTypeToSelect === 'input' && address === outputTokenAddress) ||
+            (tokenTypeToSelect === 'output' && address === inputTokenAddress)
           ) {
             revertPairAddress()
             return
