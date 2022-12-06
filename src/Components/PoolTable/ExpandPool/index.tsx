@@ -12,6 +12,7 @@ import { PowerState } from 'powerLib'
 import { SkeletonLoader } from '../../ui/SkeletonLoader'
 
 export const SECONDS_PER_YEAR = 31536000
+export const SECONDS_PER_DAY = 86400
 
 export const ExpandPool = ({ visible, pool }: {
   visible: boolean,
@@ -118,12 +119,12 @@ export const ExpandPool = ({ visible, pool }: {
             <Text>Short Derivatives Value:</Text><TextGreen> ${formatFloat(weiToNumber(rDcShortValue), 2)}</TextGreen>
           </div>
           <div>
-            <Text>Long Funding Rate
-              (APR): </Text><TextGreen>{states?.rentRateLong && formatFloat(parseUq112x112(states.rentRateLong.mul(SECONDS_PER_YEAR).mul(100)), 2)}%</TextGreen>
+            <Text>Long Funding Rate (daily): </Text>
+            <TextGreen>{states?.rentRateLong && formatFloat(parseUq112x112(states.rentRateLong.mul(SECONDS_PER_DAY).mul(100)), 4)}%</TextGreen>
           </div>
           <div>
-            <Text>Short Funding Rate
-              (APR): </Text><TextGreen>{states?.rentRateShort && formatFloat(parseUq112x112(states.rentRateShort.mul(SECONDS_PER_YEAR).mul(100)), 2)}%</TextGreen>
+            <Text>Short Funding Rate (daily): </Text>
+            <TextGreen>{states?.rentRateShort && formatFloat(parseUq112x112(states.rentRateShort.mul(SECONDS_PER_DAY).mul(100)), 4)}%</TextGreen>
           </div>
         </div>
       </div>
@@ -137,9 +138,9 @@ export const ExpandPool = ({ visible, pool }: {
             </SkeletonLoader>
           </div>
           <div>
-            <Text>Max Funding Rate (APR): </Text>
+            <Text>Max Funding Rate (daily): </Text>
             <SkeletonLoader loading={!pool || !pool.rentRate}>
-              <TextGreen>{pool?.rentRate && formatFloat(parseUq112x112(pool.rentRate.mul(SECONDS_PER_YEAR).mul(100)), 2)}% </TextGreen>
+              <TextGreen>{pool?.rentRate && formatFloat(parseUq112x112(pool.rentRate.mul(SECONDS_PER_DAY).mul(100)), 4)}% </TextGreen>
             </SkeletonLoader>
           </div>
           <div>
