@@ -93,7 +93,7 @@ export const useMultiSwapAction = () => {
     return stepsToSwap
   }
 
-  const checkMultiSwapError = async (steps: PoolErc1155StepType[]) => {
+  const checkMultiSwapError = async (steps: PoolErc1155StepType[], value: BigNumber ) => {
     try {
       const signer = library.getSigner()
       const contract = getRouterContract(signer)
@@ -105,7 +105,10 @@ export const useMultiSwapAction = () => {
           fee10000,
           referrer: ethers.utils.hexZeroPad('0x00', 32)
         },
-        steps
+        steps,
+        {
+          value
+        }
       )
       return null
     } catch (e) {
@@ -150,7 +153,7 @@ export const useMultiSwapAction = () => {
       if (isDeleverage) {
         stepsToSwap.unshift(DELEVERAGE_STEP)
       }
-      const error = await checkMultiSwapError(stepsToSwap)
+      const error = await checkMultiSwapError(stepsToSwap, value)
       if (error) {
         toast.error(error)
       } else {
