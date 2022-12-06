@@ -33,39 +33,16 @@ export const useMultiSwapAction = () => {
 
   const calculateAmountOuts = async (steps: StepType[], isDeleverage: boolean = false) => {
     if (!library) return [[bn(0)], bn(0)]
-    const signer = library.getSigner()
-    const contract = getRouterContract(signer)
     const { stepsToSwap, value } = convertStepForPoolErc1155(formatSwapSteps(steps))
     if (isDeleverage) {
       stepsToSwap.unshift(DELEVERAGE_STEP)
     }
 
-    console.log('params', [{
-      pool: poolAddress,
-      to: account,
-      deadline: new Date().getTime() + 3600000,
-      fee10000,
-      referrer: ethers.utils.hexZeroPad('0x00', 32)
-    },
-    stepsToSwap,
-    {
+    const res = await callStaticMultiSwap({
+      steps: stepsToSwap,
       gasLimit,
       value
-    }])
-    const res = await contract.callStatic.multiSwap(
-      {
-        pool: poolAddress,
-        to: account,
-        deadline: new Date().getTime() + 3600000,
-        fee10000,
-        referrer: ethers.utils.hexZeroPad('0x00', 32)
-      },
-      stepsToSwap,
-      {
-        gasLimit,
-        value
-      }
-    )
+    })
 
     const result = []
     for (const i in steps) {
@@ -93,30 +70,30 @@ export const useMultiSwapAction = () => {
     return stepsToSwap
   }
 
-  const checkMultiSwapError = async (steps: PoolErc1155StepType[], value: BigNumber ) => {
-    try {
-      const signer = library.getSigner()
-      const contract = getRouterContract(signer)
-      await contract.callStatic.multiSwap(
-        {
-          pool: poolAddress,
-          to: account,
-          deadline: new Date().getTime() + 3600000,
-          fee10000,
-          referrer: ethers.utils.hexZeroPad('0x00', 32)
-        },
-        steps,
-        {
-          value
-        }
-      )
-      return null
-    } catch (e) {
-      return parseCallStaticError(e)
-    }
+  const callStaticMultiSwap = async ({
+    steps,
+    value,
+    gasLimit
+  }: any) => {
+    const signer = library.getSigner()
+    const contract = getRouterContract(signer)
+    return await contract.callStatic.multiSwap(
+      {
+        pool: poolAddress,
+        to: account,
+        deadline: new Date().getTime() + 3600000,
+        fee10000,
+        referrer: ethers.utils.hexZeroPad('0x00', 32)
+      },
+      steps,
+      {
+        value: value || bn(0),
+        gasLimit: gasLimit || undefined
+      }
+    )
   }
 
-  const convertStepForPoolErc1155 = (steps: SwapStepType[]): {stepsToSwap: PoolErc1155StepType[], value: BigNumber} => {
+  const convertStepForPoolErc1155 = (steps: SwapStepType[]): { stepsToSwap: PoolErc1155StepType[], value: BigNumber } => {
     let value = bn(0)
     steps.forEach((step) => {
       if (step.tokenIn === configs.addresses.nativeToken) {
@@ -153,39 +130,35 @@ export const useMultiSwapAction = () => {
       if (isDeleverage) {
         stepsToSwap.unshift(DELEVERAGE_STEP)
       }
-      const error = await checkMultiSwapError(stepsToSwap, value)
-      if (error) {
-        toast.error(error)
-      } else {
-        const signer = library.getSigner()
-        const contract = getRouterContract(signer)
-        console.log({
-          stepsToSwap,
+      await callStaticMultiSwap({ steps: stepsToSwap, value })
+      const signer = library.getSigner()
+      const contract = getRouterContract(signer)
+      console.log({
+        stepsToSwap,
+        pool: poolAddress,
+        to: account,
+        deadline: new Date().getTime() + 3600000,
+        fee10000,
+        referrer: ethers.utils.hexZeroPad('0x00', 32)
+      })
+      const tx = await contract.multiSwap(
+        {
           pool: poolAddress,
           to: account,
           deadline: new Date().getTime() + 3600000,
           fee10000,
           referrer: ethers.utils.hexZeroPad('0x00', 32)
-        })
-        const tx = await contract.multiSwap(
-          {
-            pool: poolAddress,
-            to: account,
-            deadline: new Date().getTime() + 3600000,
-            fee10000,
-            referrer: ethers.utils.hexZeroPad('0x00', 32)
-          },
-          stepsToSwap,
-          {
-            value
-          }
-        )
-        console.log('tx', tx)
-        await tx.wait(1)
-        toast.success('Swap success')
-        fetchBalanceAndAllowance(Object.keys(tokens))
-        return tx
-      }
+        },
+        stepsToSwap,
+        {
+          value
+        }
+      )
+      console.log('tx', tx)
+      await tx.wait(1)
+      toast.success('Swap success')
+      fetchBalanceAndAllowance(Object.keys(tokens))
+      return tx
     } catch (e) {
       console.error(e)
       const error = parseCallStaticError(e)
