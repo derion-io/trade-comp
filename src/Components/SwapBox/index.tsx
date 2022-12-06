@@ -27,11 +27,13 @@ import { useMultiSwapAction } from '../../hooks/useMultiSwapAction'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { POOL_IDS } from '../../utils/constant'
 import { PowerState } from 'powerLib'
+import { useConfigs } from '../../state/config/useConfigs'
 
 const nativePrice = 300
 
 export const SwapBox = () => {
   const { account, showConnectModal } = useWeb3React()
+  const { configs } = useConfigs()
   const { cTokenPrice, states, dTokens, cToken, logicAddress, poolAddress, powers, baseToken, quoteToken } = useCurrentPool()
   const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
@@ -198,7 +200,6 @@ export const SwapBox = () => {
     return 0
   }, [powers, states, amountOut, outputTokenAddress])
 
-
   return (
     <Card className='swap-box'>
       <div className='d-flex jc-space-between'>
@@ -284,7 +285,8 @@ export const SwapBox = () => {
           cToken,
           poolAddress + '-' + POOL_IDS.cp,
           baseToken,
-          quoteToken
+          quoteToken,
+          configs.addresses.nativeToken
         ]}
         onSelectToken={(address: string) => {
           if ((tokenTypeToSelect === 'input' && address === inputTokenAddress) ||

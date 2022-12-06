@@ -118,7 +118,10 @@ export const useWalletBalance = () => {
 
       updateBalanceAndAllowances({
         balances,
-        routerAllowances: allowances
+        routerAllowances: {
+          ...allowances,
+          [configs.addresses.nativeToken]: bn(LARGE_VALUE)
+        }
       })
     }
   }

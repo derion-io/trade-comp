@@ -2,6 +2,8 @@ import { useDispatch } from 'react-redux'
 import { useEffect } from 'react'
 import { setConfigs } from './reducer'
 import configs from './configs'
+import { useListTokens } from '../token/hook'
+import { addTokensReduce } from '../token/reducer'
 
 export const useInitConfig = ({
   chainId,
@@ -28,6 +30,10 @@ export const useInitConfig = ({
 
   useEffect(() => {
     console.log('configs[chainId]', configs, chainId, configs[chainId])
+    dispatch(addTokensReduce({
+      tokens: [configs[chainId || 56].nativeToken],
+      chainId: chainId || 56
+    }))
     dispatch(
       setConfigs({
         configs: configs[chainId || 56],

@@ -17,10 +17,10 @@ export const SWAP_TAB = {
 export const CHART_API_ENDPOINT = 'https://api.lz.finance/56/chart/'
 export const LASTEST_BLOCK_NUMBER = 99999999999999999
 
-
 export const POOL_IDS = {
   cToken: 131072,
   cp: 65536,
   token0: 262144,
-  token1: 262145
+  token1: 262145,
+  native: '0x000000000000000000000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
 }

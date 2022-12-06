@@ -1,3 +1,5 @@
+// import configs from '../config/configs'
+
 export interface TokenType {
   decimal: number
   name: string
@@ -9,11 +11,6 @@ export interface TokenType {
   isCustomToken?: boolean
   value?: string
   hideInSearchModal?: boolean
-}
-
-export interface BlackToken {
-  address: string
-  reason: string
 }
 
 type ListTokensType = { [key: string]: TokenType }
