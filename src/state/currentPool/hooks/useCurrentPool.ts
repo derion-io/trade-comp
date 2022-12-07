@@ -2,9 +2,11 @@ import { useSelector } from 'react-redux'
 import { State } from '../../types'
 import { div, formatPercent, sub } from '../../../utils/helpers'
 import { useListPool } from '../../pools/hooks/useListPool'
+import { useConfigs } from '../../config/useConfigs'
 
 export const useCurrentPool = () => {
   const { pools } = useListPool()
+  const { configs } = useConfigs()
 
   const {
     cTokenPrice,
@@ -54,12 +56,28 @@ export const useCurrentPool = () => {
   const getTokenByPower = (power: number | string) => {
     if (power === 'C') {
       return cToken
+    } else if (power === 'B') {
+      return baseToken
+    } else if (power === 'Q') {
+      return quoteToken
+    } else if (power === 'N') { // native token
+      return configs.addresses.nativeToken
     }
     const index = powers.findIndex((p) => p === Number(power))
     return dTokens[index]
   }
+  const detectChangeType = (address: string) => {
+    if (address === baseToken || address === configs.addresses.nativeToken) {
+      return 'B'
+    } else if (address === quoteToken) {
+      return 'Q'
+    } else {
+      return 'C'
+    }
+  }
 
   return {
+    detectChangeType,
     getTokenByPower,
     updateCurrentPool,
     basePrice,

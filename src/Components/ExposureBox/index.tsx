@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { Fragment, useEffect, useMemo, useState } from 'react'
 import { Card } from '../ui/Card'
 import { Text, TextBlue, TextBuy, TextGrey, TextPink, TextSell } from '../ui/Text'
 import './style.scss'
@@ -30,23 +30,29 @@ import { TokenSymbol } from '../ui/TokenSymbol'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { LeverageChangedInfoBox } from './LeverageChangedInfoBox'
 import { CustomSlider } from './CustomSlider'
+import { SelectTokenModal } from '../SelectTokenModal'
+import { useConfigs } from '../../state/config/useConfigs'
+import { TokenIcon } from '../ui/TokenIcon'
+import { StepType } from '../../utils/type'
 
 const nativePrice = 300
 
 export const ExposureBox = ({ changedIn24h }: {
   changedIn24h: number
 }) => {
+  const { configs } = useConfigs()
   const [formAddOrRemove, setFormAddOrRemove] = useState<'add' | 'remove' | undefined>(undefined)
   const [newLeverage, setNewLeverage] = useState<number>(0)
   const [newValue, setNewValue] = useState<BigNumber>()
   const { account, showConnectModal } = useWeb3React()
   const [loading, setLoading] = useState<boolean>(false)
-  const { dTokens, cToken, states, powers, baseToken, quoteToken, cTokenPrice, basePrice, getTokenByPower } = useCurrentPool()
+  const { dTokens, cToken, states, powers, baseToken, quoteToken, cTokenPrice, basePrice, getTokenByPower, detectChangeType } = useCurrentPool()
   const { balances, routerAllowances, approveRouter, fetchBalanceAndAllowance } = useWalletBalance()
   const [balanceInPool, setBalancesInPool] = useState<any>({})
-  const [cAmountToChange, setCAmountToChange] = useState<string>('')
+  const [amountToChange, setAmountToChange] = useState<string>('')
   const [swapSteps, setSwapsteps] = useState<any>([])
   const [isDeleverage, setIsDeleverage] = useState<boolean>(false)
+  const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
   const { tokens } = useListTokens()
   const { calculateAmountOuts, updateLeverageAndSize } = useMultiSwapAction()
   const [stepsWithAmounts, setStepsWithAmounts] = useState<{ amountOut: BigNumber }[]>([])
@@ -54,13 +60,19 @@ export const ExposureBox = ({ changedIn24h }: {
   const [leverageManual, setLeverageManual] = useState<boolean>(false)
   const [txFee, setTxFee] = useState<BigNumber>(bn(0))
   const [gasUsed, setGasUsed] = useState<BigNumber>(bn(0))
+  const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
 
   const resetFormHandle = () => {
-    setCAmountToChange('')
+    setAmountToChange('')
     setFormAddOrRemove(undefined)
     setNewLeverage(oldLeverage)
+    setInputTokenAddress(cToken)
     setLoading(false)
   }
+
+  useEffect(() => {
+    setInputTokenAddress(cToken)
+  }, [cToken])
 
   const [powerState, oldLeverage, oldValue, marks, exposures] = useMemo(() => {
     let oldLeverage = 0
@@ -93,7 +105,9 @@ export const ExposureBox = ({ changedIn24h }: {
   const tokenNeedApprove = useMemo(() => {
     const result: string[] = []
     for (const i in swapSteps) {
-      const tokenIn = decodeErc1155Address(getTokenByPower(swapSteps[i].tokenIn)).address
+      const tokenIn = ethers.utils.isAddress(swapSteps[i].tokenIn)
+        ? swapSteps[i].tokenIn
+        : decodeErc1155Address(getTokenByPower(swapSteps[i].tokenIn)).address
       if ((!routerAllowances[tokenIn] || routerAllowances[tokenIn].isZero()) && !result.includes(tokenIn)) {
         result.push(tokenIn)
       }
@@ -107,40 +121,25 @@ export const ExposureBox = ({ changedIn24h }: {
   useEffect(() => {
     try {
       if (powerState) {
-        let value = powerState.calculateCompValue(balanceInPool)
-        let cAmount
-        if (cAmountToChange) {
-          const cPrice = powerState.getCPrice()
-          cAmount = bn(numberToWei(cAmountToChange, tokens[cToken]?.decimal || 18))
-          console.log('cAmountToChange', cAmountToChange, ethers.utils.formatEther(cAmount))
-          if (formAddOrRemove === 'remove') {
-            cAmount = bn(0).sub(cAmount)
-          }
-          const cTokenValue = cAmount.mul(numberToWei(cPrice)).div(numberToWei(1))
-          value = value.add(cTokenValue)
-        }
-
+        const { amount, value } = detectCAmount()
+        const currentBalances = getCurrentBalances()
         setNewValue(value)
 
-        const currentBalances = {}
-        powers.forEach((power, key) => {
-          if (balances[dTokens[key]] && balances[dTokens[key]].gt(0)) {
-            currentBalances[power] = bn(balances[dTokens[key]])
-          }
+        const stepsRes = powerState.getSwapSteps(balanceInPool, newLeverage, amount, detectChangeType(inputTokenAddress))
+          .filter((step) => step.amountIn.gt(0))
+        const steps = convertIfTokenIsNative(stepsRes)
+        const { amountOuts } = powerState.swap(currentBalances, steps)
+        const stepsWithAmounts = amountOuts.map((amountOut) => {
+          return { amountOut }
         })
 
-        const steps = powerState.getSwapSteps(balanceInPool, newLeverage, cAmount)
-          .filter((step) => step.amountIn.gt(0))
-        const { amountOuts } = powerState.swap(currentBalances, steps)
-        setStepsWithAmounts(amountOuts.map((amountOut) => {
-          return { amountOut }
-        }))
+        setStepsWithAmounts(stepsWithAmounts)
         setSwapsteps(steps)
       }
     } catch (e) {
       console.log(e)
     }
-  }, [oldLeverage, newLeverage, powerState, cAmountToChange])
+  }, [oldLeverage, newLeverage, powerState, amountToChange, inputTokenAddress])
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -172,6 +171,51 @@ export const ExposureBox = ({ changedIn24h }: {
       clearTimeout(delayDebounceFn)
     }
   }, [swapSteps, isDeleverage])
+
+  const convertIfTokenIsNative = (steps: StepType[]) => {
+    let result = steps
+    if (inputTokenAddress === configs.addresses.nativeToken) {
+      result = steps.map((step) => {
+        if ((step.tokenIn === 'B' && inputTokenAddress === configs.addresses.nativeToken && baseToken === configs.addresses.wrapToken) ||
+          (step.tokenIn === 'Q' && inputTokenAddress === configs.addresses.nativeToken && quoteToken === configs.addresses.wrapToken)
+        ) {
+          step.tokenIn = 'N'
+        } else if ((step.tokenOut === 'B' && inputTokenAddress === configs.addresses.nativeToken && baseToken === configs.addresses.wrapToken) ||
+          (step.tokenOut === 'Q' && inputTokenAddress === configs.addresses.nativeToken && quoteToken === configs.addresses.wrapToken)
+        ) {
+          step.tokenOut = 'N'
+        }
+        return step
+      })
+    }
+    return result
+  }
+
+  const getCurrentBalances = () => {
+    const currentBalances = {}
+    powers.forEach((power, key) => {
+      if (balances[dTokens[key]] && balances[dTokens[key]].gt(0)) {
+        currentBalances[power] = bn(balances[dTokens[key]])
+      }
+    })
+    return currentBalances
+  }
+
+  const detectCAmount = () => {
+    let value = powerState?.calculateCompValue(balanceInPool) || bn(0)
+    let amount = bn(0)
+    if (amountToChange && powerState) {
+      const cPrice = powerState.getCPrice()
+      amount = bn(numberToWei(amountToChange, tokens[cToken]?.decimal || 18))
+      if (formAddOrRemove === 'remove') {
+        amount = bn(0).sub(amount)
+      }
+      const cTokenValue = amount.mul(numberToWei(cPrice)).div(numberToWei(1))
+      value = value.add(cTokenValue)
+    }
+
+    return { value, amount }
+  }
 
   const detectTxFee = (gasUsed: BigNumber) => {
     return gasUsed.mul(2).div(3).mul(5 * 10 ** 9)
@@ -242,28 +286,31 @@ export const ExposureBox = ({ changedIn24h }: {
         {formAddOrRemove && (
           <div className='amount-input-box'>
             <div className='amount-input-box__head'>
-              <TextPink>
-                <a
-                  href={`https://pancakeswap.finance/add/${baseToken}/${quoteToken}`}
-                  className='cursor-pointer text-decoration-none'
-                  target='_blank' rel='noreferrer'
-                >{tokens[cToken]?.symbol}_{tokens[baseToken]?.symbol}_{tokens[quoteToken]?.symbol}</a>
+              <TextPink className='amount-input-box__head--left cursor-pointer text-decoration-none' onClick={() => {
+                setVisibleSelectTokenModal(true)
+              }}>
+                <TokenIcon size={24} className='mr-05' tokenAddress={inputTokenAddress} />
+                <TokenSymbol token={tokens[inputTokenAddress]} />
+                {/* <span */}
+                {/*  href={`https://pancakeswap.finance/add/${baseToken}/${quoteToken}`} */}
+                {/*  className='cursor-pointer text-decoration-none' */}
+                {/* >{tokens[cToken]?.symbol}_{tokens[baseToken]?.symbol}_{tokens[quoteToken]?.symbol}</span> */}
               </TextPink>
               <Text
                 className='cursor-pointer'
                 onClick={() => {
-                  setCAmountToChange(weiToNumber(balances[cToken], tokens[cToken]?.decimal || 18))
+                  setAmountToChange(weiToNumber(balances[inputTokenAddress], tokens[inputTokenAddress]?.decimal || 18))
                 }}
-              >Balance: {weiToNumber(balances[cToken], tokens[cToken]?.decimal || 18, 4)}</Text>
+              >Balance: {weiToNumber(balances[inputTokenAddress], tokens[inputTokenAddress]?.decimal || 18, 4)}</Text>
             </div>
             <Input
               // @ts-ignore
-              value={cAmountToChange}
+              value={amountToChange}
               onChange={(e) => {
-                setCAmountToChange((e.target as HTMLInputElement).value)
+                setAmountToChange((e.target as HTMLInputElement).value)
               }}
               placeholder='0.0'
-              suffix={<TextGrey>${formatFloat(mul(cTokenPrice || 0, cAmountToChange || 0), 2)}</TextGrey>}
+              suffix={<TextGrey>${formatFloat(mul(cTokenPrice || 0, amountToChange || 0), 2)}</TextGrey>}
               className='fs-24'
             />
           </div>
@@ -350,7 +397,7 @@ export const ExposureBox = ({ changedIn24h }: {
         </Box>
       </Box>
       {
-        swapSteps.length > 0 && (newLeverage !== oldLeverage || cAmountToChange) &&
+        swapSteps.length > 0 && (newLeverage !== oldLeverage || amountToChange) &&
         <Box borderColor='#3a3a3a' className='info-box1 ' title='Swaps'>
           {swapSteps.map((step: any, key: any) => {
             const stepFromToken = getTokenByPower(step.tokenIn)
@@ -418,6 +465,19 @@ export const ExposureBox = ({ changedIn24h }: {
         {renderExecuteButton()}
         <ButtonReset className='execute-button' onClick={resetFormHandle}>Reset</ButtonReset>
       </div>
+      <SelectTokenModal
+        visible={visibleSelectTokenModal}
+        setVisible={setVisibleSelectTokenModal}
+        tokens={[
+          baseToken,
+          quoteToken,
+          cToken,
+          configs.addresses.nativeToken
+        ]}
+        onSelectToken={(address: string) => {
+          setInputTokenAddress(address)
+        }}
+      />
     </Card>
   )
 }

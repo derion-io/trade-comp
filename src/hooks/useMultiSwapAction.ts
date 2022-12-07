@@ -21,7 +21,7 @@ const DELEVERAGE_STEP = {
   amountOutMin: bn(0)
 }
 
-const gasLimit = 3000000
+const gasLimit = 30000000
 
 export const useMultiSwapAction = () => {
   const { getRouterContract } = useContract()
@@ -37,6 +37,8 @@ export const useMultiSwapAction = () => {
     if (isDeleverage) {
       stepsToSwap.unshift(DELEVERAGE_STEP)
     }
+
+    console.log('steps', stepsToSwap)
 
     const res = await callStaticMultiSwap({
       steps: stepsToSwap,
@@ -77,6 +79,20 @@ export const useMultiSwapAction = () => {
   }: any) => {
     const signer = library.getSigner()
     const contract = getRouterContract(signer)
+    console.log('callstatic', [
+      {
+        pool: poolAddress,
+        to: account,
+        deadline: new Date().getTime() + 3600000,
+        fee10000,
+        referrer: ethers.utils.hexZeroPad('0x00', 32)
+      },
+      steps,
+      {
+        value: value || bn(0),
+        gasLimit: gasLimit || undefined
+      }
+    ])
     return await contract.callStatic.multiSwap(
       {
         pool: poolAddress,
