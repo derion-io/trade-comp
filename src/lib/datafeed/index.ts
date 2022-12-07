@@ -173,13 +173,12 @@ export const Datafeed = {
 
 const detectChartIsOutdate = (lastCandle: CandleType, resolution: string) => {
   // const state = store.getState()
-  const nextCandleTime = Number(lastCandle.time) + TIME_IN_RESOLUTION[resolution]
+  const nextCandleTime = Number(lastCandle.time) + TIME_IN_RESOLUTION[resolution] * 1000
   const now = new Date().getTime()
 
-  const isOutDate = nextCandleTime + 30 < now
+  const isOutDate = nextCandleTime + 30000 < now
 
   store.dispatch(setChartIsOutDate({ status: isOutDate }))
-
 }
 
 const calcLimitCandle = (
