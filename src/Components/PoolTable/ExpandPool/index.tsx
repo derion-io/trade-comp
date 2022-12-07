@@ -56,28 +56,7 @@ export const ExpandPool = ({ visible, pool }: {
   return <div className='pool-expand__wrap'>
     <div className='pool-expand'>
       <div className='pool-expand__top'>
-        <div className='pool-expand__top--left'>
-          <div className='mb-1'><TextLink
-            href={`${configs.explorer}/address/${poolAddress}`}
-          >DDL Pool Contract</TextLink></div>
-          <div className='mb-1'><TextLink
-            href={`https://pancakeswap.finance/add/${baseToken}/${quoteToken}`}
-          >Get C-Token</TextLink></div>
-
-          {
-            isDeleverage && <div>
-              <ButtonExecute
-                onClick={async () => {
-                  setDeleverageLoading(true)
-                  await multiSwap([], true)
-                  setDeleverageLoading(false)
-                }}
-              >{deleverageLoading ? 'Loading...' : 'Deleverage'}</ButtonExecute>
-            </div>
-          }
-        </div>
-
-        <div className='pool-expand__top--mid'>
+      <div className='pool-expand__top--left'>
           <p className='mb-1'><TextPink>Derivatives</TextPink></p>
           {
             powers && powers
@@ -96,10 +75,10 @@ export const ExpandPool = ({ visible, pool }: {
               .map(({ index, power, value }: { index: number, power: number, value: number }) => {
                 const TextComp = power > 0 ? TextBuy : TextSell
                 return <div key={index}>
+                  <Text><TextGreen>${formatFloat(weiToNumber(value, 36), 2)}</TextGreen> </Text>
                   <TextComp>
                     <TokenSymbol token={tokens[dTokens[index]]} />
                   </TextComp>
-                  <Text> ${formatFloat(weiToNumber(value, 36), 2)}</Text>
                 </div>
               })
           }
@@ -126,6 +105,23 @@ export const ExpandPool = ({ visible, pool }: {
             <Text>Short Funding Rate (daily): </Text>
             <TextGreen>{states?.rentRateShort && formatFloat(parseUq112x112(states.rentRateShort.mul(SECONDS_PER_DAY).mul(100)), 4)}%</TextGreen>
           </div>
+          <div className='mb-1'><TextLink
+            href={`${configs.explorer}/address/${poolAddress}`}
+          >DDL Pool Contract</TextLink></div>
+          <div className='mb-1'><TextLink
+            href={`https://pancakeswap.finance/add/${baseToken}/${quoteToken}`}
+          >Get C-Token</TextLink></div>
+          {
+            isDeleverage && <div>
+              <ButtonExecute
+                onClick={async () => {
+                  setDeleverageLoading(true)
+                  await multiSwap([], true)
+                  setDeleverageLoading(false)
+                }}
+              >{deleverageLoading ? 'Loading...' : 'Deleverage'}</ButtonExecute>
+            </div>
+          }
         </div>
       </div>
       <div className='pool-expand__box'>
