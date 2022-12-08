@@ -10,10 +10,11 @@ import TokensInfoAbi from '../../../assets/abi/TokensInfo.json'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { ContractCallContext, Multicall } from 'ethereum-multicall'
 import { addTokensReduce } from '../../token/reducer'
-import { bn, getNormalAddress, numberToWei, weiToNumber } from '../../../utils/helpers'
+import { bn, formatMultiCallBignumber, getNormalAddress, numberToWei, weiToNumber } from '../../../utils/helpers'
 import { decodePowers } from 'powerLib'
 import { LOCALSTORAGE_KEY, LP_PRICE_UNIT, POOL_IDS } from '../../../utils/constant'
 import { usePairInfo } from '../../../hooks/usePairInfo'
+import LogicAbi from '../../../assets/abi/Logic.json'
 
 const { AssistedJsonRpcProvider } = require('assisted-json-rpc-provider')
 
@@ -182,7 +183,7 @@ export const useListPool = () => {
       multicall.call(context),
       getPairsInfo(uniPools)
     ])
-    console.log('pairsInfo', pairsInfo)
+
     const { tokens: tokensArr, poolsState } = parseMultiCallResponse(results)
 
     const tokens = []
@@ -246,51 +247,25 @@ export const useListPool = () => {
       )
     }
 
-    console.log('pools', pools)
-
     return { tokens, pools }
   }
 
   const parseMultiCallResponse = (data: any) => {
-    console.log('data', data)
+    const abiInterface = new ethers.utils.Interface(LogicAbi)
     const poolStateData = data.pools.callsReturnContext
     const tokens = data.tokens.callsReturnContext[0].returnValues
     const pools = {}
     for (let i = 0; i < poolStateData.length; i++) {
-      const twap = {
-        LP: {
-          _x: bn(poolStateData[i].returnValues[6][1][0])
-        },
-        base: {
-          _x: bn(poolStateData[i].returnValues[6][0][0])
-        }
-      }
-      const spot = {
-        LP: {
-          _x: bn(poolStateData[i].returnValues[7][1][0])
-        },
-        base: {
-          _x: bn(poolStateData[i].returnValues[7][0][0])
-        }
-      }
+      const data = formatMultiCallBignumber(poolStateData[i].returnValues)
+      const encodeData = abiInterface.encodeFunctionResult('getStates', [data])
+      const formatedData = abiInterface.decodeFunctionResult('getStates', encodeData)
+
       pools[poolStateData[i].reference] = {
-        Rc: bn(poolStateData[i].returnValues[0]),
-        priceScaleTimestamp: bn(poolStateData[i].returnValues[1]),
-        priceScaleLong: bn(poolStateData[i].returnValues[2]),
-        priceScaleShort: bn(poolStateData[i].returnValues[3]),
-        oracleStore: poolStateData[i].returnValues[4],
-        oracleStoreUpdated: poolStateData[i].returnValues[5],
-        twap,
-        spot,
-        twapBase: twap.base._x,
-        twapLP: twap.LP._x,
-        spotBase: spot.base._x,
-        spotLP: spot.LP._x,
-        totalSupplies: poolStateData[i].returnValues[8].map((v: any) => bn(v)),
-        rDcLong: bn(poolStateData[i].returnValues[9]),
-        rDcShort: bn(poolStateData[i].returnValues[10]),
-        rentRateLong: bn(poolStateData[i].returnValues[11]),
-        rentRateShort: bn(poolStateData[i].returnValues[12])
+        twapBase: formatedData.states.twap.base._x,
+        twapLP: formatedData.states.twap.LP._x,
+        spotBase: formatedData.states.spot.base._x,
+        spotLP: formatedData.states.spot.LP._x,
+        ...formatedData.states
       }
     }
 
@@ -314,6 +289,8 @@ export const useListPool = () => {
 
     for (const i in listPools) {
       request.push({
+        // @ts-ignore
+        decoded: true,
         reference: 'pools',
         contractAddress: listPools[i].logic,
         abi: [GetStateAbi],

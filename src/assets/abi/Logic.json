@@ -3,17 +3,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "proxy",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
         "name": "poolFactory",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "tokenFactory",
         "type": "address"
       },
       {
@@ -42,19 +32,9 @@
         "type": "uint224"
       },
       {
-        "internalType": "bytes32[]",
-        "name": "names",
-        "type": "bytes32[]"
-      },
-      {
-        "internalType": "bytes32[]",
-        "name": "symbols",
-        "type": "bytes32[]"
-      },
-      {
-        "internalType": "int256[]",
+        "internalType": "bytes32",
         "name": "powers",
-        "type": "int256[]"
+        "type": "bytes32"
       }
     ],
     "stateMutability": "nonpayable",
@@ -138,9 +118,15 @@
       },
       {
         "indexed": false,
-        "internalType": "int256[]",
+        "internalType": "uint224",
+        "name": "deleverageRate",
+        "type": "uint224"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
         "name": "powers",
-        "type": "int256[]"
+        "type": "bytes32"
       }
     ],
     "name": "LogicCreated",
@@ -213,71 +199,6 @@
   },
   {
     "inputs": [],
-    "name": "POOL_FACTORY",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "POWER_0",
-    "outputs": [
-      {
-        "internalType": "int256",
-        "name": "",
-        "type": "int256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "POWER_1",
-    "outputs": [
-      {
-        "internalType": "int256",
-        "name": "",
-        "type": "int256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "POWER_2",
-    "outputs": [
-      {
-        "internalType": "int256",
-        "name": "",
-        "type": "int256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "POWER_3",
-    "outputs": [
-      {
-        "internalType": "int256",
-        "name": "",
-        "type": "int256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "PRICE_ORACLE",
     "outputs": [
       {
@@ -316,71 +237,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "TOKEN_0",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "TOKEN_1",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "TOKEN_2",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "TOKEN_3",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "TOKEN_FACTORY",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "uint224",
@@ -405,95 +261,196 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "idx",
-        "type": "uint256"
-      }
-    ],
-    "name": "getDTokenInfo",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "uint8",
-        "name": "",
-        "type": "uint8"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "getStates",
     "outputs": [
       {
-        "internalType": "uint256",
-        "name": "Rc",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "basePriceCumulative",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint32",
-        "name": "blockTimestamp",
-        "type": "uint32"
-      },
-      {
-        "internalType": "uint224",
-        "name": "baseTWAP",
-        "type": "uint224"
-      },
-      {
-        "internalType": "uint32",
-        "name": "priceScaleTimestamp",
-        "type": "uint32"
-      },
-      {
-        "internalType": "uint224",
-        "name": "priceScaleLong",
-        "type": "uint224"
-      },
-      {
-        "internalType": "uint224",
-        "name": "priceScaleShort",
-        "type": "uint224"
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "Rc",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint32",
+            "name": "priceScaleTimestamp",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint224",
+            "name": "priceScaleLong",
+            "type": "uint224"
+          },
+          {
+            "internalType": "uint224",
+            "name": "priceScaleShort",
+            "type": "uint224"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "basePriceCumulative",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint32",
+                "name": "blockTimestamp",
+                "type": "uint32"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "uint224",
+                    "name": "_x",
+                    "type": "uint224"
+                  }
+                ],
+                "internalType": "struct FixedPoint.uq112x112",
+                "name": "baseTWAP",
+                "type": "tuple"
+              }
+            ],
+            "internalType": "struct OracleStore",
+            "name": "oracleStore",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "basePriceCumulative",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint32",
+                "name": "blockTimestamp",
+                "type": "uint32"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "uint224",
+                    "name": "_x",
+                    "type": "uint224"
+                  }
+                ],
+                "internalType": "struct FixedPoint.uq112x112",
+                "name": "baseTWAP",
+                "type": "tuple"
+              }
+            ],
+            "internalType": "struct OracleStore",
+            "name": "oracleStoreUpdated",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "components": [
+                  {
+                    "internalType": "uint224",
+                    "name": "_x",
+                    "type": "uint224"
+                  }
+                ],
+                "internalType": "struct FixedPoint.uq112x112",
+                "name": "base",
+                "type": "tuple"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "uint224",
+                    "name": "_x",
+                    "type": "uint224"
+                  }
+                ],
+                "internalType": "struct FixedPoint.uq112x112",
+                "name": "LP",
+                "type": "tuple"
+              }
+            ],
+            "internalType": "struct OraclePrice",
+            "name": "twap",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "components": [
+                  {
+                    "internalType": "uint224",
+                    "name": "_x",
+                    "type": "uint224"
+                  }
+                ],
+                "internalType": "struct FixedPoint.uq112x112",
+                "name": "base",
+                "type": "tuple"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "uint224",
+                    "name": "_x",
+                    "type": "uint224"
+                  }
+                ],
+                "internalType": "struct FixedPoint.uq112x112",
+                "name": "LP",
+                "type": "tuple"
+              }
+            ],
+            "internalType": "struct OraclePrice",
+            "name": "spot",
+            "type": "tuple"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "totalSupplies",
+            "type": "uint256[]"
+          },
+          {
+            "internalType": "uint256",
+            "name": "rDcLong",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "rDcShort",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint224",
+            "name": "rentRateLong",
+            "type": "uint224"
+          },
+          {
+            "internalType": "uint224",
+            "name": "rentRateShort",
+            "type": "uint224"
+          }
+        ],
+        "internalType": "struct PowerPerpetual.StateView",
+        "name": "states",
+        "type": "tuple"
       }
     ],
     "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "onceUpgraded",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "tokenIn",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "idIn",
+        "type": "uint256"
       },
       {
-        "internalType": "address",
-        "name": "tokenOut",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "idOut",
+        "type": "uint256"
       }
     ],
     "name": "swap",
@@ -509,6 +466,13 @@
         "type": "bool"
       }
     ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "update",
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },

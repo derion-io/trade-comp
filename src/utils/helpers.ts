@@ -148,3 +148,16 @@ export const decodeErc1155Address = (address: string) => {
 export const parseUq112x112 = (value: BigNumber, unit = 1000) => {
   return value.mul(unit).shr(112).toNumber() / unit
 }
+
+export const formatMultiCallBignumber = (data: any) => {
+  return data.map((item: any) => {
+    if (item.type === 'BigNumber') {
+      item = bn(item.hex)
+    }
+
+    if (Array.isArray(item)) {
+      item = formatMultiCallBignumber(item)
+    }
+    return item
+  })
+}
