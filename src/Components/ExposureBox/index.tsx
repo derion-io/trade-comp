@@ -287,7 +287,9 @@ export const ExposureBox = ({ changedIn24h }: {
           <div className='amount-input-box'>
             <div className='amount-input-box__head'>
               <TextPink className='amount-input-box__head--left cursor-pointer text-decoration-none' onClick={() => {
-                setVisibleSelectTokenModal(true)
+                if (formAddOrRemove == 'add') {
+                  setVisibleSelectTokenModal(true)
+                }
               }}>
                 <TokenIcon size={24} className='mr-05' tokenAddress={inputTokenAddress} />
                 <TokenSymbol token={tokens[inputTokenAddress]} />
@@ -469,10 +471,10 @@ export const ExposureBox = ({ changedIn24h }: {
         visible={visibleSelectTokenModal}
         setVisible={setVisibleSelectTokenModal}
         tokens={[
-          baseToken,
-          quoteToken,
           cToken,
-          configs.addresses.nativeToken
+          quoteToken,
+          baseToken,
+          configs.addresses.nativeToken,
         ]}
         onSelectToken={(address: string) => {
           setInputTokenAddress(address)
