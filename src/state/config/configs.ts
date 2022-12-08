@@ -68,7 +68,7 @@ export default {
       tokensInfo: '0xE48cD6883C0B17aD3C9C321F6afB4d7f4708D647',
       pairsInfo: '0x010AfBf77C86d39949710789d1e4bcC5AB141DBb',
       bnA: '0x6A1a4e301E7634F2D14aEbDD6b38ec2fC6cec731',
-      wrapToken: '0xB29439A682eBa17df241944D5eFAE0f44fcf431B',
+      wrapToken: '0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd',
       nativeToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
       poolFactory: '0xd9Ba0343BED07AE5764c77d7e54d7C3EBaBcC8bC',
       router: '0xace397FBf3fA9f672b014C995Eb579317D55592d'
