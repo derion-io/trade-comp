@@ -24,12 +24,6 @@ export const useInitConfig = ({
   const location = useLocation()
 
   useEffect(() => {
-    // dispatch(resetListTokens())
-    // dispatch(resetBnA())
-  }, [chainId])
-
-  useEffect(() => {
-    console.log('configs[chainId]', configs, chainId, configs[chainId])
     dispatch(addTokensReduce({
       tokens: [configs[chainId || 56].nativeToken],
       chainId: chainId || 56

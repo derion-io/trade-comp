@@ -272,6 +272,11 @@
             "type": "uint256"
           },
           {
+            "internalType": "uint256",
+            "name": "rNeutral",
+            "type": "uint256"
+          },
+          {
             "internalType": "uint32",
             "name": "priceScaleTimestamp",
             "type": "uint32"

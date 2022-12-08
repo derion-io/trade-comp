@@ -2,7 +2,6 @@ import { ethers } from 'ethers'
 import * as WbnbAbi from '../assets/abi/Wbnb.json'
 import IERC20ABI from '../assets/abi/IERC20.json'
 import BnAAbi from '../assets/abi/BnA.json'
-import LogicAbi from '../assets/abi/Logic.json'
 import TokensInfoAbi from '../assets/abi/TokensInfo.json'
 import PairDetailAbi from '../assets/abi/PairDetail.json'
 import RouterAbi from '../assets/abi/Router.json'
@@ -12,9 +11,18 @@ import PoolAbi from '../assets/abi/Pool.json'
 import EventsAbi from '../assets/abi/Events.json'
 import { useConfigs } from '../state/config/useConfigs'
 import { JsonRpcProvider } from '@ethersproject/providers'
+import LogicAbi56 from '../assets/abi/56/Logic.json'
+import LogicAbi97 from '../assets/abi/97/Logic.json'
+import LogicAbi31337 from '../assets/abi/31337/Logic.json'
+
+const LogicAbi = {
+  56: LogicAbi56,
+  97: LogicAbi97,
+  31337: LogicAbi31337
+}
 
 export const useContract = () => {
-  const { configs } = useConfigs()
+  const { configs, chainId } = useConfigs()
   const getContract = (
     abi: any,
     address: string,
@@ -78,14 +86,20 @@ export const useContract = () => {
     logicAddress: string,
     signer?: ethers.Signer | ethers.providers.Provider
   ) => {
-    return getContract(LogicAbi, logicAddress, signer)
+    const abi = getLogicAbi()
+    return getContract(abi, logicAddress, signer)
   }
 
   const getEventInterface = () => {
     return new ethers.utils.Interface(EventsAbi)
   }
 
+  const getLogicAbi = () => {
+    return LogicAbi[chainId]
+  }
+
   return {
+    getLogicAbi,
     getTokenInfoContract,
     getBnAContract,
     getLogicContract,

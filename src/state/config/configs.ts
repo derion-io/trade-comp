@@ -21,8 +21,7 @@ export default {
       wrapToken: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
       nativeToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
       poolFactory: '0x0772BD1981f6092329F12FC041B83b2faBBB1A25',
-      tokenFactory: '0xB5075BD30C1596eBA35347397F5747258770DdB4',
-      router: '0xa06581516e8B9F1B1f43329427d04528D3bDc534'
+      router: '0xbdb37e30833E92a14C0a474CB3318f304b8c47e3'
     }
   },
   31337: {
@@ -47,8 +46,32 @@ export default {
       wrapToken: '0xB29439A682eBa17df241944D5eFAE0f44fcf431B',
       nativeToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
       poolFactory: '0x2A539728626a96a800833B4133Da061c637CCA5B',
-      tokenFactory: '0xfBD6F7Af174A316104Df529D1ca5D508Fb081b7F',
       router: '0xdBa9451aC3f3a4a5171715EB5B776316aA474E62'
+    }
+  },
+  97: {
+    rpcUrl: 'https://data-seed-prebsc-1-s1.binance.org:8545/',
+    rpcToGetLogs: 'https://data-seed-prebsc-1-s1.binance.org:8545/',
+    explorer: 'https://testnet.bscscan.com',
+    scanApi: 'https://api-testnet.bscscan.com/api',
+    scanName: 'BSC test Scan',
+    ddlGenesisBlock: 0,
+    timePerBlock: 3000,
+    nativeToken: {
+      name: 'BNB',
+      symbol: 'BNB',
+      decimal: 18,
+      address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+    },
+    addresses: {
+      multiCall: '0x73CCde5acdb9980f54BcCc0483B28B8b4a537b4A',
+      tokensInfo: '0xE48cD6883C0B17aD3C9C321F6afB4d7f4708D647',
+      pairsInfo: '0x010AfBf77C86d39949710789d1e4bcC5AB141DBb',
+      bnA: '0x6A1a4e301E7634F2D14aEbDD6b38ec2fC6cec731',
+      wrapToken: '0xB29439A682eBa17df241944D5eFAE0f44fcf431B',
+      nativeToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+      poolFactory: '0xd9Ba0343BED07AE5764c77d7e54d7C3EBaBcC8bC',
+      router: '0xace397FBf3fA9f672b014C995Eb579317D55592d'
     }
   }
 }

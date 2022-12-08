@@ -40,6 +40,7 @@ export interface poolsState {
 export const initialState: poolsState = {
   pools: {
     56: {},
-    31337: {}
+    31337: {},
+    97: {}
   }
 }

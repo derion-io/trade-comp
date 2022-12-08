@@ -27,6 +27,7 @@ export const initialState: tokensState = {
   tokens: {
     56: {},
     42161: {},
-    31337: {}
+    31337: {},
+    97: {}
   }
 }

@@ -5,7 +5,6 @@ import { ParseLogType, PoolType } from '../type'
 import { addPoolsWithChain } from '../reducer'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../types'
-import GetStateAbi from './GetStateAbi.json'
 import TokensInfoAbi from '../../../assets/abi/TokensInfo.json'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { ContractCallContext, Multicall } from 'ethereum-multicall'
@@ -14,7 +13,6 @@ import { bn, formatMultiCallBignumber, getNormalAddress, numberToWei, weiToNumbe
 import { decodePowers } from 'powerLib'
 import { LOCALSTORAGE_KEY, LP_PRICE_UNIT, POOL_IDS } from '../../../utils/constant'
 import { usePairInfo } from '../../../hooks/usePairInfo'
-import LogicAbi from '../../../assets/abi/Logic.json'
 
 const { AssistedJsonRpcProvider } = require('assisted-json-rpc-provider')
 
@@ -23,7 +21,7 @@ export const useListPool = () => {
     return { pools: state.pools.pools }
   })
   const { configs, chainId } = useConfigs()
-  const { getEventInterface } = useContract()
+  const { getEventInterface, getLogicContract, getLogicAbi } = useContract()
   const dispatch = useDispatch()
   const { getPairsInfo } = usePairInfo()
 
@@ -184,7 +182,15 @@ export const useListPool = () => {
       getPairsInfo(uniPools)
     ])
 
+    console.log('pairInfo', pairsInfo, uniPools)
+
+    // console.log('1')
+    // const logicContract = getLogicContract('0xDc703C04669a9056e1dC41f0bf14d38b6A02BA5A')
+    // const stateData = await logicContract.getStates()
+    // console.log('stateData', stateData)
+
     const { tokens: tokensArr, poolsState } = parseMultiCallResponse(results)
+    console.log('poolsState', poolsState)
 
     const tokens = []
     for (let i = 0; i < tokensArr.length; i++) {
@@ -247,16 +253,19 @@ export const useListPool = () => {
       )
     }
 
+    console.log({ tokens, pools })
+
     return { tokens, pools }
   }
 
   const parseMultiCallResponse = (data: any) => {
-    const abiInterface = new ethers.utils.Interface(LogicAbi)
+    const abiInterface = new ethers.utils.Interface(getLogicAbi())
     const poolStateData = data.pools.callsReturnContext
     const tokens = data.tokens.callsReturnContext[0].returnValues
     const pools = {}
     for (let i = 0; i < poolStateData.length; i++) {
       const data = formatMultiCallBignumber(poolStateData[i].returnValues)
+      console.log('data', data)
       const encodeData = abiInterface.encodeFunctionResult('getStates', [data])
       const formatedData = abiInterface.decodeFunctionResult('getStates', encodeData)
 
@@ -293,7 +302,8 @@ export const useListPool = () => {
         decoded: true,
         reference: 'pools',
         contractAddress: listPools[i].logic,
-        abi: [GetStateAbi],
+        // @ts-ignore
+        abi: getLogicAbi(),
         calls: [{ reference: i, methodName: 'getStates', methodParameters: [] }]
       })
     }
