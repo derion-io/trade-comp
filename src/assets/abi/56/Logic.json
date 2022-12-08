@@ -413,11 +413,6 @@
           },
           {
             "internalType": "uint256",
-            "name": "rDcNeutral",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
             "name": "rDcLong",
             "type": "uint256"
           },
