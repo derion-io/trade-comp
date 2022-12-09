@@ -318,7 +318,7 @@ export const SwapBox = () => {
             </span>
             <span>
               <Text>{protocolFee}</Text>
-              <TextGrey> USD (3%)</TextGrey>
+              <TextGrey> USD (0.3%)</TextGrey>
             </span>
           </InfoRow>
           : ''
