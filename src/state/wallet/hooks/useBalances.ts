@@ -134,26 +134,28 @@ export const useWalletBalance = () => {
       erc20Address,
       erc20Info
     })
-    const erc1155Info = data.erc1155.callsReturnContext
     for (let i = 0; i < erc20Address.length; i++) {
       const address = erc20Address[i]
       balances[address] = bn(erc20Info[i * 2])
       allowances[address] = bn(erc20Info[i * 2 + 1])
     }
 
-    const approveData = erc1155Info.filter((e: any) => e.methodName === 'isApprovedForAll')
-    const balanceData = erc1155Info.filter((e: any) => e.methodName === 'balanceOfBatch')
-
-    for (let i = 0; i < approveData.length; i++) {
-      const callsReturnContext = approveData[i]
-      allowances[callsReturnContext.reference] = callsReturnContext.returnValues[0] ? bn(LARGE_VALUE) : bn(0)
-    }
-
-    for (let i = 0; i < balanceData.length; i++) {
-      const returnValues = balanceData[i].returnValues
-      for (let j = 0; j < returnValues.length; j++) {
-        const id = erc1155Tokens[balanceData[i].reference][j].toNumber()
-        balances[balanceData[i].reference + '-' + id] = bn(returnValues[j])
+    const erc1155Info = data?.erc1155?.callsReturnContext
+    if (erc1155Info) {
+      const approveData = erc1155Info.filter((e: any) => e.methodName === 'isApprovedForAll')
+      const balanceData = erc1155Info.filter((e: any) => e.methodName === 'balanceOfBatch')
+  
+      for (let i = 0; i < approveData.length; i++) {
+        const callsReturnContext = approveData[i]
+        allowances[callsReturnContext.reference] = callsReturnContext.returnValues[0] ? bn(LARGE_VALUE) : bn(0)
+      }
+  
+      for (let i = 0; i < balanceData.length; i++) {
+        const returnValues = balanceData[i].returnValues
+        for (let j = 0; j < returnValues.length; j++) {
+          const id = erc1155Tokens[balanceData[i].reference][j].toNumber()
+          balances[balanceData[i].reference + '-' + id] = bn(returnValues[j])
+        }
       }
     }
 
