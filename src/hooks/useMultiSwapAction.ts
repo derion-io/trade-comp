@@ -14,28 +14,33 @@ import { useListTokens } from '../state/token/hook'
 // TODO: don't hardcode these
 const fee10000 = 30
 
-const DELEVERAGE_STEP = {
-  idIn: bn(0),
-  idOut: bn(0),
-  amountIn: bn(0),
-  amountOutMin: bn(0)
-}
-
 const gasLimit = 30000000
 
 export const useMultiSwapAction = () => {
   const { getRouterContract } = useContract()
   const { library, account } = useWeb3React()
   const { configs } = useConfigs()
-  const { getTokenByPower, baseToken, poolAddress, quoteToken, cToken, baseId, quoteId } = useCurrentPool()
+  const { getTokenByPower, baseToken, poolAddress, quoteToken, cToken, baseId, quoteId, states } = useCurrentPool()
   const { tokens } = useListTokens()
   const { fetchBalanceAndAllowance } = useWalletBalance()
+
+  const getDeleverageStep = (): PoolErc1155StepType => {
+    const { priceScaleLong, twapBase } = states
+    const [ amountIn, amountOutMin ] = twapBase.lt(priceScaleLong) ?
+      [ twapBase, priceScaleLong ] : [ priceScaleLong, twapBase ]
+    return {
+      idIn: bn(POOL_IDS.cp),
+      idOut: bn(POOL_IDS.cp),
+      amountIn: amountIn.div(32),
+      amountOutMin: amountOutMin.mul(32),
+    }
+  }
 
   const calculateAmountOuts = async (steps: StepType[], isDeleverage: boolean = false) => {
     if (!library) return [[bn(0)], bn(0)]
     const { stepsToSwap, value } = convertStepForPoolErc1155(formatSwapSteps(steps))
     if (isDeleverage) {
-      stepsToSwap.unshift(DELEVERAGE_STEP)
+      stepsToSwap.unshift(getDeleverageStep())
     }
 
     console.log('steps', stepsToSwap)
@@ -144,7 +149,7 @@ export const useMultiSwapAction = () => {
     try {
       const { stepsToSwap, value } = convertStepForPoolErc1155([...steps])
       if (isDeleverage) {
-        stepsToSwap.unshift(DELEVERAGE_STEP)
+        stepsToSwap.unshift(getDeleverageStep())
       }
       await callStaticMultiSwap({ steps: stepsToSwap, value })
       const signer = library.getSigner()
