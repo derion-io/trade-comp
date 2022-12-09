@@ -66,6 +66,9 @@ export const ExpandPool = ({ visible, pool }: {
               .sort((a: any, b: any) => b.power - a.power)
               .map(({ power, index }: { power: number, index: number }) => {
                 const price = powerState ? powerState.calculatePrice(power) : 0
+                if (price == 0 || !Number.isFinite(price)) {
+                  return { index, power, value: 0 }
+                }
                 const value = totalSupplies[index]?.mul(numberToWei(price || 0))
                 return { index, power, value }
               })

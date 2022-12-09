@@ -185,6 +185,9 @@ export const SwapBox = () => {
       const powerState = new PowerState({ powers: [...powers] })
       powerState.loadStates(states)
       const price = getTokenPrice(inputTokenAddress, powerState)
+      if (price == 0 || !Number.isFinite(price)) {
+        return 0
+      }
       return formatFloat(weiToNumber(bn(numberToWei(amountIn)).mul(numberToWei(price || 0)), 36), 2)
     }
     return 0
@@ -195,6 +198,9 @@ export const SwapBox = () => {
       const powerState = new PowerState({ powers: [...powers] })
       powerState.loadStates(states)
       const price = getTokenPrice(outputTokenAddress, powerState)
+      if (price == 0 || !Number.isFinite(price)) {
+        return 0
+      }
       return formatFloat(weiToNumber(bn(numberToWei(amountOut)).mul(numberToWei(price || 0)), 36), 2)
     }
     return 0
