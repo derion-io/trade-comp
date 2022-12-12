@@ -101,8 +101,9 @@ export const Datafeed = {
           //   this.lastCandle[symbol + '-' + interval] = bars[bars.length - 1]
           //   this.realTimeCandle[symbol + '-' + interval] = bars[bars.length - 1]
           // }
-
-          detectChartIsOutdate(bars[bars.length - 1], interval)
+          if (periodParams.firstDataRequest) {
+            detectChartIsOutdate(bars[bars.length - 1], interval)
+          }
 
           onHistoryCallback(bars, { noData: false })
         } else {
