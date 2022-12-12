@@ -16,13 +16,13 @@ export const SelectTokenModal = ({
   setVisible,
   tokens: tokensToSelect,
   onSelectToken,
-  displayFee
+  displayFee = false
 }: {
   visible: boolean,
   setVisible: any,
   tokens: string[],
   onSelectToken: any,
-  displayFee: boolean
+  displayFee?: boolean
 }) => {
   const { baseToken, quoteToken, cToken } = useCurrentPool()
   const { tokens } = useListTokens()
