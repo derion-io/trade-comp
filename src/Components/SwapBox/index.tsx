@@ -286,6 +286,7 @@ export const SwapBox = () => {
       <SelectTokenModal
         visible={visibleSelectTokenModal}
         setVisible={setVisibleSelectTokenModal}
+        displayFee={tokenTypeToSelect === 'input'}
         tokens={[
           ...dTokens,
           cToken,
