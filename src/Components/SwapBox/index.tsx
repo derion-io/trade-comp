@@ -28,6 +28,7 @@ import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { POOL_IDS } from '../../utils/constant'
 import { PowerState } from 'powerLib'
 import { useConfigs } from '../../state/config/useConfigs'
+import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 
 const nativePrice = 300
 
@@ -233,7 +234,15 @@ export const SwapBox = () => {
               onClick={() => {
                 setAmountIn(weiToNumber(balances[inputTokenAddress], tokens[inputTokenAddress]?.decimal || 18))
               }}
-            >Balance: {weiToNumber(balances[inputTokenAddress], tokens[inputTokenAddress]?.decimal || 18)}</Text>
+            >Balance: {balances && balances[inputTokenAddress]
+                ? formatWeiToDisplayNumber(
+                  balances[inputTokenAddress],
+                  4,
+                tokens[inputTokenAddress]?.decimal || 18
+                )
+                : 0
+              }
+            </Text>
           </SkeletonLoader>
         </div>
         <Input
@@ -270,8 +279,16 @@ export const SwapBox = () => {
               <Text><TokenSymbol token={tokens[outputTokenAddress]} /></Text>
             </span>
           </SkeletonLoader>
-          <SkeletonLoader loading={!balances[inputTokenAddress]}>
-            <Text>Balance: {weiToNumber(balances[outputTokenAddress], tokens[outputTokenAddress]?.decimal || 18)}</Text>
+          <SkeletonLoader loading={!balances[outputTokenAddress]}>
+            <Text>Balance: {balances && balances[outputTokenAddress]
+              ? formatWeiToDisplayNumber(
+                balances[outputTokenAddress],
+                4,
+                tokens[outputTokenAddress]?.decimal || 18
+              )
+              : 0
+            }
+            </Text>
           </SkeletonLoader>
         </div>
         <Input
@@ -374,16 +391,16 @@ export const SwapBox = () => {
         {/*  </InfoRow> */}
       </Box>
 
-      { isDeleverage &&
-        <Box className='text-center'>
-          <input
-            type='checkbox'
-            checked={isDeleverage}
-            id='is-deleverage' onChange={(e) => {
-              setIsDeleverage(e.target.checked)
-            }} />
-          <label htmlFor='is-deleverage'> Deleverage</label>
-        </Box>
+      {isDeleverage &&
+      <Box className='text-center'>
+        <input
+          type='checkbox'
+          checked={isDeleverage}
+          id='is-deleverage' onChange={(e) => {
+            setIsDeleverage(e.target.checked)
+          }} />
+        <label htmlFor='is-deleverage'> Deleverage</label>
+      </Box>
       }
 
       <div className='actions'>
