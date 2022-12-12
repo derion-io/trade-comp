@@ -474,8 +474,11 @@ export const ExposureBox = ({ changedIn24h }: {
           cToken,
           quoteToken,
           baseToken,
-          configs.addresses.nativeToken,
-        ]}
+          configs.addresses.nativeToken
+        ].filter((address) => {
+          return address === cToken || (balances[address] && balances[address].gt(0))
+        })}
+        displayFee={formAddOrRemove === 'add'}
         onSelectToken={(address: string) => {
           setInputTokenAddress(address)
         }}
