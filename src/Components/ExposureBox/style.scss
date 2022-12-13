@@ -2,11 +2,7 @@
 @import "../../styles/abstracts/variables";
 
 .exposure-box {
-  width: 400px;
-
-  @include respond(phone) {
-    width: 100%;
-  }
+  padding: 1.5rem;
 
   .leverage-changed-box {
     &__row {

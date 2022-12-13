@@ -10,6 +10,7 @@ import { Datafeed } from '../../lib/datafeed'
 import { useListTokens } from '../../state/token/hook'
 import { useWindowSize } from '../../hooks/useWindowSize'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
+import { Card } from '../ui/Card'
 
 export interface ChartContainerProps {
   interval: ChartingLibraryWidgetOptions['interval']
@@ -100,7 +101,7 @@ export const Chart = ({
   }
 
   return (
-    <div className='chart-wrap'>
+    <Card className='chart-wrap'>
       <div className='chart-box'>
         <div
           id={containerId}
@@ -116,7 +117,7 @@ export const Chart = ({
           OUTDATED
         </div>
       }
-    </div>
+    </Card>
   )
 }
 

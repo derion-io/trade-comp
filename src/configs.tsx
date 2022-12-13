@@ -17,10 +17,6 @@ export default {
       path: '/exposure'
     },
     {
-      name: 'Swap',
-      path: '/swap'
-    },
-    {
       name: 'Pools',
       path: '/pools'
     }

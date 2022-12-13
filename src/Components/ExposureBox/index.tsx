@@ -267,7 +267,7 @@ export const ExposureBox = ({ changedIn24h }: {
   }
 
   return (
-    <Card className='exposure-box'>
+    <div className='exposure-box'>
       <div className='text-center'>
         <SkeletonLoader loading={!tokens[baseToken] || !basePrice}>
           <Text>{tokens[baseToken]?.symbol}/{tokens[quoteToken]?.symbol} </Text>
@@ -497,7 +497,7 @@ export const ExposureBox = ({ changedIn24h }: {
           setInputTokenAddress(address)
         }}
       />
-    </Card>
+    </div>
   )
 }
 

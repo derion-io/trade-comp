@@ -13,6 +13,9 @@ import { Chart } from '../../Components/Chart'
 import { SWAP_TAB } from '../../utils/constant'
 import { SwapBox } from '../../Components/SwapBox'
 import { useWindowSize } from '../../hooks/useWindowSize'
+import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
+import 'react-tabs/style/react-tabs.css';
+import { Card } from '../../Components/ui/Card'
 
 export const Exposure = ({ tab }: {
   tab: Symbol
@@ -64,18 +67,31 @@ export const Exposure = ({ tab }: {
           <Chart />
           {
             !isPhone &&
-            <div className='hidden-on-phone'>
+            <Card className='hidden-on-phone'>
               <ExpandPool visible pool={pools[poolAddress] || {}} />
-            </div>
+            </Card>
           }
         </div>
         <div className='exposure-page__content--right'>
-          {
-            tab === SWAP_TAB.EXPOSURE
-              ? <ExposureBox changedIn24h={changedIn24h}/>
-              : <SwapBox />
-          }
-          <PoolTableCompact />
+          <Tabs>
+            <TabList>
+              <Tab>Exposure</Tab>
+              <Tab>Swap</Tab>
+            </TabList>
+            <TabPanel>
+              <Card className='trade-box trade-box__exposure'>
+                <ExposureBox changedIn24h={changedIn24h}/>
+              </Card>
+            </TabPanel>
+            <TabPanel>
+              <Card className='trade-box trade-box__swap'>
+                <SwapBox />
+              </Card>
+            </TabPanel>
+          </Tabs>
+          <Card>
+            <PoolTableCompact />
+          </Card>
           {
             isPhone && <div className='hidden-on-desktop'><ExpandPool visible pool={pools[poolAddress] || {}} /></div>
           }

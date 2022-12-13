@@ -208,7 +208,7 @@ export const SwapBox = () => {
   }, [powers, states, amountOut, outputTokenAddress])
 
   return (
-    <Card className='swap-box'>
+    <div className='swap-box'>
       <div className='d-flex jc-space-between'>
         <Text>Swap</Text>
         <span><IconOptionLeft /></span>
@@ -406,7 +406,7 @@ export const SwapBox = () => {
       <div className='actions'>
         {renderExecuteButton()}
       </div>
-    </Card>
+    </div>
   )
 }
 

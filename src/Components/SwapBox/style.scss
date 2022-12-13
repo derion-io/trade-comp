@@ -2,11 +2,7 @@
 @import "../../styles/abstracts/mixins";
 
 .swap-box {
-  width: 400px;
-
-  @include respond(phone) {
-    width:100%;
-  }
+  padding: 1.5rem;
 
   .amount-input-box {
     &__head {
