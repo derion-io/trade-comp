@@ -34,6 +34,8 @@ import { SelectTokenModal } from '../SelectTokenModal'
 import { useConfigs } from '../../state/config/useConfigs'
 import { TokenIcon } from '../ui/TokenIcon'
 import { StepType } from '../../utils/type'
+import { RemoveForm } from './RemoveForm'
+import { LP_PRICE_UNIT } from '../../utils/constant'
 
 const nativePrice = 300
 
@@ -61,6 +63,7 @@ export const ExposureBox = ({ changedIn24h }: {
   const [txFee, setTxFee] = useState<BigNumber>(bn(0))
   const [gasUsed, setGasUsed] = useState<BigNumber>(bn(0))
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
+  const [removePercent, setRemovePercent] = useState<number>(0)
 
   const resetFormHandle = () => {
     setAmountToChange('')
@@ -139,7 +142,7 @@ export const ExposureBox = ({ changedIn24h }: {
     } catch (e) {
       console.log(e)
     }
-  }, [oldLeverage, newLeverage, powerState, amountToChange, inputTokenAddress])
+  }, [removePercent, oldLeverage, newLeverage, powerState, amountToChange, inputTokenAddress])
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -203,14 +206,17 @@ export const ExposureBox = ({ changedIn24h }: {
 
   const detectCAmount = () => {
     let value = powerState?.calculateCompValue(balanceInPool) || bn(0)
-    let amount = bn(0)
-    if (amountToChange && powerState) {
-      const cPrice = powerState.getCPrice()
-      amount = bn(numberToWei(amountToChange, tokens[cToken]?.decimal || 18))
+    let amount: BigNumber | number = bn(0)
+    let cTokenValue = bn(0)
+    if ((amountToChange || removePercent) && powerState) {
       if (formAddOrRemove === 'remove') {
-        amount = bn(0).sub(amount)
+        amount = -removePercent / 100
+        cTokenValue = value.mul(-removePercent * LP_PRICE_UNIT).div(LP_PRICE_UNIT * 100)
+      } else {
+        const cPrice = powerState.getCPrice()
+        cTokenValue = amount.mul(numberToWei(cPrice)).div(numberToWei(1))
+        amount = bn(numberToWei(amountToChange, tokens[cToken]?.decimal || 18))
       }
-      const cTokenValue = amount.mul(numberToWei(cPrice)).div(numberToWei(1))
       value = value.add(cTokenValue)
     }
 
@@ -283,11 +289,11 @@ export const ExposureBox = ({ changedIn24h }: {
           loading={!states.twapBase}
         />
 
-        {formAddOrRemove && (
+        {formAddOrRemove === 'add' && (
           <div className='amount-input-box'>
             <div className='amount-input-box__head'>
               <TextPink className='amount-input-box__head--left cursor-pointer text-decoration-none' onClick={() => {
-                if (formAddOrRemove == 'add') {
+                if (formAddOrRemove === 'add') {
                   setVisibleSelectTokenModal(true)
                 }
               }}>
@@ -316,6 +322,13 @@ export const ExposureBox = ({ changedIn24h }: {
               className='fs-24'
             />
           </div>
+        )}
+        {formAddOrRemove === 'remove' && (
+          <RemoveForm
+            removePercent={removePercent}
+            setRemovePercent={setRemovePercent}
+            totalValue={oldValue}
+          />
         )}
 
         {
@@ -366,7 +379,7 @@ export const ExposureBox = ({ changedIn24h }: {
                       const max = Math.max(...Object.values(marks))
                       const min = Math.min(...Object.values(marks))
                       // @ts-ignore
-                      const newValue = e.target.value
+                      const newValue = Number(e.target.value)
                       if (newValue >= min && newValue <= max) {
                         setNewLeverage(newValue)
                       }
@@ -398,8 +411,9 @@ export const ExposureBox = ({ changedIn24h }: {
           </div>
         </Box>
       </Box>
+      <h1>{swapSteps.length}</h1>
       {
-        swapSteps.length > 0 && (newLeverage !== oldLeverage || amountToChange) &&
+        swapSteps.length > 0 && (newLeverage !== oldLeverage || amountToChange || removePercent) &&
         <Box borderColor='#3a3a3a' className='info-box1 ' title='Swaps'>
           {swapSteps.map((step: any, key: any) => {
             const stepFromToken = getTokenByPower(step.tokenIn)

@@ -29,7 +29,7 @@ export const LeverageChangedInfoBox = ({
         </sup>
       </div>
       {
-        oldLeverage !== newLeverage &&
+        (oldLeverage !== newLeverage || (newValue && oldValue && !newValue.eq(oldValue))) &&
         <React.Fragment>
           <span>
             <IconArrowRight />

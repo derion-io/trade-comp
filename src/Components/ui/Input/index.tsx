@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import './style.scss'
+import { InputProps } from 'reactstrap'
 
-type InputType = React.HTMLAttributes<HTMLInputElement> & {
+type InputType = InputProps & {
   inputWrapProps?: React.HTMLAttributes<HTMLDivElement>
   prefix?: any
   suffix?: any

@@ -47,6 +47,7 @@
     "react-redux": "^7.2.5",
     "react-router": "^6.4.2",
     "react-toastify": "^8.1.0",
+    "reactstrap": "^9.1.5",
     "redux": "^4.1.1",
     "redux-localstorage-simple": "^2.4.1",
     "redux-thunk": "^2.3.0"
@@ -77,7 +78,7 @@
     "gh-pages": "^2.2.0",
     "microbundle-crl": "^0.13.10",
     "npm-run-all": "^4.1.5",
-    "powerLib": "git+ssh://git@github.com:derivable-io/power-lib.git#3ba83227b47c162847c654fa70b2fa1fd1e8314d",
+    "powerLib": "git+ssh://git@github.com:derivable-io/power-lib.git#afade85b800e9e23c50ca4521c772efa57758748",
     "prettier": "^2.0.4",
     "react-scripts": "^3.4.1",
     "sass": "^1.38.2",
