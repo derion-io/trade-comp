@@ -63,13 +63,14 @@ export const ExposureBox = ({ changedIn24h }: {
   const [txFee, setTxFee] = useState<BigNumber>(bn(0))
   const [gasUsed, setGasUsed] = useState<BigNumber>(bn(0))
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
-  const [removePercent, setRemovePercent] = useState<number>(0)
+  const [removePercent, setRemovePercent] = useState<number>()
 
   const resetFormHandle = () => {
     setAmountToChange('')
     setFormAddOrRemove(undefined)
     setNewLeverage(oldLeverage)
     setInputTokenAddress(cToken)
+    setRemovePercent(undefined)
     setLoading(false)
   }
 
@@ -209,7 +210,7 @@ export const ExposureBox = ({ changedIn24h }: {
     let amount: BigNumber | number = bn(0)
     let cTokenValue = bn(0)
     if ((amountToChange || removePercent) && powerState) {
-      if (formAddOrRemove === 'remove') {
+      if (formAddOrRemove === 'remove' && removePercent) {
         amount = -removePercent / 100
         cTokenValue = value.mul(-removePercent * LP_PRICE_UNIT).div(LP_PRICE_UNIT * 100)
       } else {
@@ -411,7 +412,6 @@ export const ExposureBox = ({ changedIn24h }: {
           </div>
         </Box>
       </Box>
-      <h1>{swapSteps.length}</h1>
       {
         swapSteps.length > 0 && (newLeverage !== oldLeverage || amountToChange || removePercent) &&
         <Box borderColor='#3a3a3a' className='info-box1 ' title='Swaps'>

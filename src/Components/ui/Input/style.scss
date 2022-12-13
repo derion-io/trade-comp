@@ -6,6 +6,11 @@
   border: none;
   color: $color-text-default;
   max-width: 100%;
+
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+  }
+
   &:focus {
     outline: none;
   }

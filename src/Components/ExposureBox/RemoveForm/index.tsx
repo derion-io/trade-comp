@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import { useCurrentPool } from '../../../state/currentPool/hooks/useCurrentPool'
 import { useListTokens } from '../../../state/token/hook'
-import { Text, TextPink } from '../../ui/Text'
+import { Text, TextGrey, TextPink } from '../../ui/Text'
 import { TokenIcon } from '../../ui/TokenIcon'
 import { TokenSymbol } from '../../ui/TokenSymbol'
 import { Input } from '../../ui/Input'
@@ -9,20 +9,21 @@ import { bn, numberToWei, weiToNumber } from '../../../utils/helpers'
 import { useWalletBalance } from '../../../state/wallet/hooks/useBalances'
 import './style.scss'
 import { BigNumber } from 'ethers'
+import { ButtonBorder } from '../../ui/Button'
 
 export const RemoveForm = ({
   removePercent,
   setRemovePercent,
   totalValue
 }: {
-  removePercent: number
+  removePercent?: number
   setRemovePercent: any
   totalValue: BigNumber
 }) => {
   const { cToken, cTokenPrice } = useCurrentPool()
   const { tokens } = useListTokens()
-  const { balances } = useWalletBalance()
-  const [amount, setAmount] = useState<number>(0)
+  const [amount, setAmount] = useState<number>()
+  const [unit, setUnit] = useState<'amount' | 'percent'>('amount')
 
   const maxAmount = useMemo(() => {
     if (cTokenPrice) {
@@ -43,22 +44,56 @@ export const RemoveForm = ({
       <Text
         className='cursor-pointer'
         onClick={() => {
+          setRemovePercent(100)
+          setAmount(Number(weiToNumber(maxAmount)))
         }}
-      >Balance: {weiToNumber(balances[cToken], tokens[cToken]?.decimal || 18, 4)}</Text>
+      >Max: {weiToNumber(maxAmount, tokens[cToken]?.decimal || 18, 4)}</Text>
     </div>
     <div className='remove-form__input'>
-      <Input
-        value={amount}
-        onChange={(e) => {
-          if (Number(e.target?.value) >= 0) {
-            setAmount(Number(e.target?.value))
-          }
-          if (totalValue && totalValue.gt(0)) {
-            const percent = bn(numberToWei(e.target?.value)).mul(100000).div(totalValue).toNumber() / 100
-            setRemovePercent(percent)
-          }
-        }}
-      />
+      {
+        unit === 'amount'
+          ? <Input
+            inputWrapProps={{
+              className: 'remove-form__input--input-wrap'
+            }}
+            value={amount}
+            type='number'
+            onChange={(e) => {
+              if (Number(e.target?.value) >= 0) {
+                setAmount(Number(e.target?.value))
+              }
+              if (totalValue && totalValue.gt(0)) {
+                const percent = bn(numberToWei(e.target?.value)).mul(100000).div(totalValue).toNumber() / 100
+                setRemovePercent(percent)
+              }
+            }}
+            placeholder='0.0'
+            suffix={<TextGrey>$</TextGrey>}
+          />
+          : <Input
+            inputWrapProps={{
+              className: 'remove-form__input--input-wrap'
+            }}
+            value={removePercent}
+            type='number'
+            onChange={(e) => {
+              // @ts-ignore
+              if (e.target?.value >= 0) {
+                // @ts-ignore
+                setRemovePercent(e.target?.value)
+              }
+            }}
+            placeholder='0.0'
+            suffix={<TextGrey>%</TextGrey>}
+          />
+      }
+      <ButtonBorder
+        className='remove-form__btn-change-unit'
+        onClick={() => {
+          setUnit(unit === 'amount' ? 'percent' : 'amount')
+        }}>
+        {unit === 'amount' ? '%' : 'Value'}
+      </ButtonBorder>
     </div>
     <div className='remove-form__select-percent'>
       {
@@ -73,21 +108,6 @@ export const RemoveForm = ({
           >{percent}%</span>
         })
       }
-      <Input
-        className='remove-form__select-percent--custom-percent'
-        inputWrapProps={{
-          className: 'remove-form__select-percent--custom-percent-wrap'
-        }}
-        // @ts-ignore
-        value={removePercent}
-        onChange={(e) => {
-          // @ts-ignore
-          if (e.target?.value >= 0) {
-            // @ts-ignore
-            setRemovePercent(e.target?.value)
-          }
-        }}
-      />
     </div>
   </div>
 }
