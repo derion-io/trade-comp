@@ -73,7 +73,12 @@ export const Exposure = ({ tab }: {
           }
         </div>
         <div className='exposure-page__content--right'>
-          <Tabs>
+          <Tabs
+            selectedIndex={tab === SWAP_TAB.EXPOSURE ? 0 : 1}
+            onSelect={(index) => {
+              history.push(index === 0 ? '/trade/exposure' : '/trade/swap')
+            }}
+          >
             <TabList>
               <Tab>Exposure</Tab>
               <Tab>Swap</Tab>

@@ -49,15 +49,21 @@ export const App = () => {
 
   const renderAppContent = () => {
     switch (true) {
-      case isMatchWithPath('exposure') || isMatchWithPath('swap'):
-        return <Exposure tab={isMatchWithPath('exposure') ? SWAP_TAB.EXPOSURE : SWAP_TAB.SWAP}/>
-      // case isMatchWithPath('swap'):
-      //   return <Swap />
+      case isMatchWithPath('/trade/:tab') || isMatchWithPath('/trade'):
+        return <Exposure tab={detectTab(location.pathname)}/>
       case isMatchWithPath('pools'):
         return <Pools />
       default:
         return <Exposure tab={SWAP_TAB.EXPOSURE} />
     }
+  }
+
+  const detectTab = (path: string) => {
+    const arr = path.split('/')
+    if (arr.length > 2 && arr[2] === 'swap') {
+      return SWAP_TAB.SWAP
+    }
+    return SWAP_TAB.EXPOSURE
   }
 
   const isMatchWithPath = (path: string) => {
