@@ -31,8 +31,8 @@ export const useMultiSwapAction = () => {
     return {
       idIn: bn(POOL_IDS.cp),
       idOut: bn(POOL_IDS.cp),
-      amountIn: amountIn.div(32),
-      amountOutMin: amountOutMin.mul(32),
+      amountIn: amountIn.div(2),
+      amountOutMin: amountOutMin.mul(2),
     }
   }
 
