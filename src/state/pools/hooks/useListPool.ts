@@ -68,7 +68,7 @@ export const useListPool = () => {
         return log.address && [topics.LogicCreated, topics.PoolCreated, topics.TokenAdded].includes(log.topics[0])
       })
       const swapLogs = logs.filter((log: any) => {
-        return log.address && log.topics[0] === topics.Swap
+        return log.address && log.topics[0] === topics.MultiSwap
       })
       cacheDdlLog({
         ddlLogs,
@@ -112,15 +112,16 @@ export const useListPool = () => {
   const initListPoolCached = async (account: string) => {
     const ddlLogs = JSON.parse(localStorage.getItem(chainId + '-' + LOCALSTORAGE_KEY.DDL_LOGS) || '[]')
     const swapLogs = JSON.parse(localStorage.getItem(chainId + '-' + LOCALSTORAGE_KEY.SWAP_LOGS + '-' + account) || '[]')
+    const [ddlLogsParsed, swapLogsParsed] = [parseDdlLogs(ddlLogs), parseDdlLogs(swapLogs)]
 
-    if (ddlLogs && ddlLogs.length > 0) {
-      const { tokens, pools } = await generatePoolData(ddlLogs)
+    if (ddlLogsParsed && ddlLogsParsed.length > 0) {
+      const { tokens, pools } = await generatePoolData(ddlLogsParsed)
 
       dispatch(addTokensReduce({ tokens, chainId }))
       dispatch(addPoolsWithChain({ pools, chainId }))
     }
-    if (swapLogs && swapLogs.length > 0) {
-      addMultiSwapData(swapLogs, account)
+    if (swapLogsParsed && swapLogsParsed.length > 0) {
+      addMultiSwapData(swapLogsParsed, account)
     }
   }
 
@@ -163,6 +164,7 @@ export const useListPool = () => {
       try {
         return {
           address: log.address,
+          timeStamp: Number(log.timeStamp),
           transactionHash: log.transactionHash,
           blockNumber: log.blockNumber,
           index: log.logIndex,

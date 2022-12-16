@@ -6,65 +6,78 @@ import { useWeb3React } from '../../customWeb3React/hook'
 import { useMemo } from 'react'
 import { useCurrentPool } from '../../currentPool/hooks/useCurrentPool'
 import { PowerState } from 'powerLib/lib/index'
+import { bn } from '../../../utils/helpers'
+import { POOL_IDS } from '../../../utils/constant'
 
 export const useSwapHistory = () => {
-  const { swapTxs } = useSelector((state: State) => {
+  const { swapLogs } = useSelector((state: State) => {
     return {
-      swapTxs: state.wallet.swapTxs
+      swapLogs: state.wallet.swapLogs
     }
   })
   const { account } = useWeb3React()
   const dispatch = useDispatch()
 
   const addMultiSwapData = (swapLogs: any, account: string) => {
-    /** group logs to multiSwap tx */
-    const txGroup = _.groupBy(swapLogs, (log) => {
-      return log.transactionHash
+    console.log({
+      account, txs: swapLogs
     })
-    /** sort step in multiSwap tx */
-    for (const i in txGroup) {
-      txGroup[i] = txGroup[i].sort((a, b) => {
-        return a.index - b.index
-      })
-    }
-    /** sort tx */
-    // const multiSwapTxs = Object.values(txGroup).sort((a, b) => {
-    //   return a[0].blockNumber - b[0].blockNumber
-    // })
-    console.log('multiSwapTxs', txGroup)
-
-    dispatch(updateSwapTxs({ account, txs: txGroup }))
-    return txGroup
+    dispatch(updateSwapTxs({ account, swapLogs }))
   }
 
-  return { addMultiSwapData, swapTxs: swapTxs[account] }
+  return { addMultiSwapData, swapLogs: swapLogs[account] }
 }
 
 export const useSwapHistoryFormated = () => {
-  const { swapTxs } = useSwapHistory()
+  const { swapLogs } = useSwapHistory()
   const { powers, states, poolAddress } = useCurrentPool()
 
   const result = useMemo(() => {
     try {
-      if (!swapTxs || swapTxs.length === 0 || !poolAddress) return []
+      if (!swapLogs || swapLogs.length === 0 || !poolAddress) return []
       const p = new PowerState({ powers: [...powers] })
       p.loadStates(states)
 
-      // const balances = {}
-      // const result = []
-      // const cAmount = bn(0)
-      // for (const i in swapTxs) {
-      //   const steps = swapTxs[i]
-      //   const cAmount = bn(0)
-      //   for (const step of steps) {
-      //   }
-      // }
+      const result = []
+      const balances = {}
+      for (const swapLog of swapLogs) {
+        if (swapLog.args.pool !== poolAddress) continue
 
-      return swapTxs
+        const steps = swapLog.args.steps
+        let cAmount = bn(0)
+        const oldLeverage = p.calculateCompExposure(balances)
+
+        for (const step of steps) {
+          if (step.idIn.eq(bn(POOL_IDS.cToken))) {
+            cAmount = cAmount.add(step.amountIn)
+          } else if (step.idOut.eq(bn(POOL_IDS.cToken))) {
+            cAmount = cAmount.sub(step.amountIn)
+          }
+
+          if (powers[step.idIn]) {
+            balances[powers[step.idIn]] = balances[powers[step.idIn]] ? balances[powers[step.idIn]].sub(step.amountIn) : bn(0).sub(step.amountIn)
+          }
+
+          if (powers[step.idOut]) {
+            balances[powers[step.idOut]] = balances[powers[step.idIn]] ? balances[powers[step.idIn]].add(step.amountIn) : bn(0).add(step.amountIn)
+          }
+        }
+        const newLeverage = p.calculateCompExposure(balances)
+        result.push({
+          timeStamp: swapLog.timeStamp,
+          balances,
+          cAmount,
+          newLeverage,
+          oldLeverage
+        })
+      }
+
+      return result
     } catch (e) {
+      console.error(e)
       return []
     }
-  }, [swapTxs, poolAddress, states])
+  }, [swapLogs, poolAddress, states])
 
   return result
 }

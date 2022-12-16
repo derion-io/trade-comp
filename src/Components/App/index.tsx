@@ -26,7 +26,7 @@ export const App = () => {
   const dispatch = useDispatch()
   const chainIdRef = useRef(null)
   const { initListPool } = useListPool()
-  const { swapTxs } = useSwapHistory()
+  const swapTxs = useSwapHistoryFormated()
   useEffect(() => {
     console.log('final', swapTxs)
   }, [swapTxs])
