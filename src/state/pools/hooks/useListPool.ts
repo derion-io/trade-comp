@@ -145,7 +145,7 @@ export const useListPool = () => {
     localStorage.setItem(chainId + '-' + LOCALSTORAGE_KEY.LAST_BLOCK_DDL_LOGS, headBlock.toString())
     localStorage.setItem(chainId + '-' + LOCALSTORAGE_KEY.DDL_LOGS, JSON.stringify(newCachedDdlLogs))
     if (account) {
-      const cachedSwapLogs = JSON.parse(localStorage.getItem(chainId + '-' + LOCALSTORAGE_KEY.SWAP_LOGS) || '[]')
+      const cachedSwapLogs = JSON.parse(localStorage.getItem(chainId + '-' + LOCALSTORAGE_KEY.SWAP_LOGS + '-' + account) || '[]')
       const newCacheSwapLogs = [...swapLogs, ...cachedSwapLogs].filter((log, index, self) => {
         return index === self.findIndex((t) => (
           t.logIndex === log.logIndex
