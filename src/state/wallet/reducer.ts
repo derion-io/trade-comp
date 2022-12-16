@@ -5,6 +5,7 @@ import {
   BalancesType,
   initialState
 } from './type'
+import _ from 'lodash'
 
 export const tokens = createSlice({
   name: 'wallet',
@@ -19,10 +20,12 @@ export const tokens = createSlice({
       account: string,
       swapLogs: any
     }>) => {
-      state.swapLogs[action.payload.account] = state.swapLogs[action.payload.account] ? [
+      const logs = state.swapLogs[action.payload.account] ? [
         ...action.payload.swapLogs,
         ...state.swapLogs[action.payload.account]
       ] : action.payload.swapLogs
+
+      state.swapLogs[action.payload.account] = _.uniqBy(logs, (l) => l.transactionHash)
     },
     updateBalanceAndAllowancesReduce: (
       state,
