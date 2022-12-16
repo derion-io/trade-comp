@@ -12,12 +12,9 @@ export const WalletHistoryTable = ({ swapTxs }: {swapTxs: SwapTxType[]}) => {
   const { cToken } = useCurrentPool()
   const { tokens } = useListTokens()
 
-
-  console.log(swapTxs)
-
   return (
-    <div className='pool-table-wrap'>
-      <table className='pool-table'>
+    <div className='wallet-history-table-wrap'>
+      <table className='wallet-history-table'>
         <thead>
           <tr>
             <th className='text-left'>Time</th>
@@ -33,7 +30,14 @@ export const WalletHistoryTable = ({ swapTxs }: {swapTxs: SwapTxType[]}) => {
         <tbody>
           {
             swapTxs.map((swapTx, key) => {
-              return <tr key={key}>
+              return <tr
+                key={key}
+                className={`
+                  ${swapTx.cAmount.isZero() && 'is-change-leverage'}
+                  ${swapTx.cAmount.gt(0) && 'is-add'}
+                  ${swapTx.cAmount.lt(0) && 'is-remove'}
+                `}
+              >
                 <td>{formatDate(swapTx.timeStamp)} {formatTime(swapTx.timeStamp)}</td>
                 <td>{
                   formatWeiToDisplayNumber(
