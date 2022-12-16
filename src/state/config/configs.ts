@@ -5,7 +5,7 @@ export default {
     scanApi: 'https://api.bscscan.com/api',
     explorer: 'https://bscscan.com',
     scanName: 'BscScan',
-    ddlGenesisBlock: 23439272,
+    ddlGenesisBlock: 23917200,
     timePerBlock: 3000,
     nativeToken: {
       name: 'BNB',
@@ -20,8 +20,8 @@ export default {
       bnA: '0xA0c0Da3e41c401A601c7c93C4036773B5Ac47be2',
       wrapToken: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
       nativeToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
-      poolFactory: '0x0772BD1981f6092329F12FC041B83b2faBBB1A25',
-      router: '0xbdb37e30833E92a14C0a474CB3318f304b8c47e3'
+      poolFactory: '0xfead51eBe15ba6E16586d59fEFa7249E5E1B6355',
+      router: '0xc9771948BCcb0eF1fc02b3a83b2DaF6858F151Ca'
     }
   },
   31337: {

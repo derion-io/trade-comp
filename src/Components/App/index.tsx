@@ -43,19 +43,21 @@ export const App = () => {
 
   useEffect(() => {
     console.log('configs?.addresses.pool', configs?.addresses.pool)
-    updateCurrentPool(Object.keys(pools)[0])
-      .then((data) => {
-        // @ts-ignore
-        if (Number(chainIdRef?.current?.value) === chainId) {
-          dispatch(setCurrentPoolInfo(data))
-        }
-      })
+    if (pools && Object.keys(pools).length > 0) {
+      updateCurrentPool(Object.keys(pools)[0])
+        .then((data) => {
+          // @ts-ignore
+          if (Number(chainIdRef?.current?.value) === chainId) {
+            dispatch(setCurrentPoolInfo(data))
+          }
+        })
+    }
   }, [chainId, pools])
 
   const renderAppContent = () => {
     switch (true) {
       case isMatchWithPath('/trade/:tab') || isMatchWithPath('/trade'):
-        return <Exposure tab={detectTab(location.pathname)}/>
+        return <Exposure tab={detectTab(location.pathname)} />
       case isMatchWithPath('pools'):
         return <Pools />
       default:

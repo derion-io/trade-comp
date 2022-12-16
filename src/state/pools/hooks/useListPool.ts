@@ -52,13 +52,15 @@ export const useListPool = () => {
     }
     const lastHeadBlockCached = getLastBlockCached(account)
     initListPoolCached(account)
+
     provider.getLogs({
       fromBlock: lastHeadBlockCached,
       toBlock: headBlock,
       topics: [
         null,
-        [null, account ? '0x' + '0'.repeat(24) + account.slice(2) : null, null],
-        [null, null, ethers.utils.formatBytes32String('DDL')]
+        [null, account ? '0x' + '0'.repeat(24) + account.slice(2) : null, null, null],
+        null,
+        [null, null, null, ethers.utils.formatBytes32String('DDL')]
       ]
     }).then((logs: any) => {
       const topics = getTopics()
@@ -86,6 +88,8 @@ export const useListPool = () => {
         dispatch(addTokensReduce({ tokens, chainId }))
         dispatch(addPoolsWithChain({ pools, chainId }))
       }
+    }).catch((e: any) => {
+      console.error(e)
     })
   }
 
@@ -206,10 +210,10 @@ export const useListPool = () => {
         const data = logicData[logic]
 
         data.dTokens = (data.dTokens as { index: number, power: number }[])
-          .map((data) => `${log.args.pool}-${data.index}`)
+          .map((data) => `${log.address}-${data.index}`)
 
-        poolData[log.args.pool] = {
-          poolAddress: log.args.pool,
+        poolData[log.address] = {
+          poolAddress: log.address,
           ...data
         }
         allUniPools.push(data.cToken)
