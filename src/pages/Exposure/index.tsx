@@ -79,12 +79,12 @@ export const Exposure = ({ tab }: {
                 <Tab>History</Tab>
               </TabList>
               <TabPanel>
-                <Card className='hidden-on-phone'>
+                <Card className='hidden-on-phone card-in-tab'>
                   <ExpandPool visible pool={pools[poolAddress] || {}} />
                 </Card>
               </TabPanel>
               <TabPanel>
-                <Card className='hidden-on-phone'>
+                <Card className='hidden-on-phone card-in-tab'>
                   <WalletHistoryTable swapTxs={swapTxs}/>
                 </Card>
               </TabPanel>
@@ -103,12 +103,12 @@ export const Exposure = ({ tab }: {
               <Tab>Swap</Tab>
             </TabList>
             <TabPanel>
-              <Card className='trade-box trade-box__exposure'>
+              <Card className='trade-box card-in-tab'>
                 <ExposureBox changedIn24h={changedIn24h}/>
               </Card>
             </TabPanel>
             <TabPanel>
-              <Card className='trade-box trade-box__swap'>
+              <Card className='trade-box card-in-tab'>
                 <SwapBox />
               </Card>
             </TabPanel>

@@ -16,10 +16,6 @@
     }
   }
 
-  th td {
-    white-space: nowrap;
-  }
-
   tr.is-add td {
     background: rgba(61, 186, 162, 0.1);
   }
@@ -33,5 +29,14 @@
 
   td,th {
     padding: 1rem;
+  }
+
+  &__ctoken-col {
+    display: flex;
+    align-items: center;
+
+    &>*:not(:last-child) {
+      margin-right: 0.5rem;
+    }
   }
 }

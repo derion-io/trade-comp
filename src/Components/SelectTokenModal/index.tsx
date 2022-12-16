@@ -10,6 +10,7 @@ import './style.scss'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { fee10000 } from '../../utils/constant'
 import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
+import { useConfigs } from '../../state/config/useConfigs'
 
 export const SelectTokenModal = ({
   visible,
@@ -27,6 +28,7 @@ export const SelectTokenModal = ({
   const { baseToken, quoteToken, cToken } = useCurrentPool()
   const { tokens } = useListTokens()
   const { balances, routerAllowances } = useWalletBalance()
+  const { configs } = useConfigs()
 
   return <Modal
     setVisible={setVisible}
@@ -41,11 +43,15 @@ export const SelectTokenModal = ({
           if (displayFee) {
             if (address === cToken) {
               fee = <TextBuy>(+{fee10000 / 20000 * 100}% fee)</TextBuy>
-            } else if (address === baseToken || address === quoteToken) {
+            } else if (address === baseToken ||
+              address === quoteToken ||
+              (address === configs.addresses.nativeToken && baseToken === configs.addresses.wrapToken)
+            ) {
               fee = <TextSell>(-{fee10000 / 20000 * 100}% fee)</TextSell>
-              const remainToken = address === baseToken ? quoteToken : baseToken
+              const remainToken = (address === baseToken || (address === configs.addresses.nativeToken && baseToken === configs.addresses.wrapToken)) ? quoteToken : baseToken
 
-              if (balances[remainToken].gt(0) && routerAllowances[remainToken].gt(0)) {
+              if (balances[remainToken]?.gt(0) && routerAllowances[remainToken]?.gt(0)) {
+                fee = ''
                 symbol = <Fragment>
                   {symbol} + <TokenSymbol token={tokens[remainToken]} />
                 </Fragment>

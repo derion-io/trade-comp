@@ -60,13 +60,16 @@ export const parseCallStaticError = (error: any) => {
   const message = error.data?.message
     ? error.data?.message?.replace('check error: ', '') || 'Error'
     : error.message
-  if (message.includes('reason="')) {
+  if (message.includes('Transaction reverted without a reason string')) {
     const arr = message.split('reason="')
     const m = arr[1]
     return m?.split('"')[0]
-  }
-  if (message.includes('insufficient funds for gas * price + value')) {
+  } else if (message.includes('insufficient funds for gas * price + value')) {
     return 'insufficient funds for gas * price + value'
+  } else if (message.includes('VM Exception while processing transaction:')) {
+    const arr = message.split('VM Exception while processing transaction:')
+    const m = arr[1]
+    return m?.split('[')[0]?.trim()
   }
   return message
 }
@@ -163,7 +166,7 @@ export const formatMultiCallBignumber = (data: any) => {
 }
 
 export const formatDate = (timestamp: number) => {
-  if(!timestamp) return ''
+  if (!timestamp) return ''
 
   const date = new Date(timestamp)
   const d = date.getDate()
@@ -173,7 +176,7 @@ export const formatDate = (timestamp: number) => {
 }
 
 export const formatTime = (timestamp: number) => {
-  if(!timestamp) return ''
+  if (!timestamp) return ''
 
   const date = new Date(timestamp)
   const h = date.getHours()

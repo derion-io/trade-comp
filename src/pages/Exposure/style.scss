@@ -42,26 +42,24 @@ $element-gap: 2rem;
     @include respond(phone) {
       width: 100%;
     }
-
-    &__exposure {
-      border-top-left-radius: 0;
-    }
-
-    &__swap {
-      border-top-right-radius: 0;
-    }
   }
 
   .react-tabs {
+    &__tab-list {
+      justify-content: space-between;
+      display: flex;
+    }
+
     &__tab {
-      width: 50%;
+      width: calc(50% - 5px);
       text-align: center;
+      background: $color-grey-2;
+      border-radius: 2rem 2rem 0 0;
 
       &--selected {
         background: $color-card-bg;
         color: $color-text-default;
         border-color: $color-card-border;
-        border-radius: 2rem 2rem 0 0;
       }
 
       &::before {
@@ -75,5 +73,10 @@ $element-gap: 2rem;
       margin-bottom: 0;
       border: none;
     }
+  }
+
+  .card-in-tab {
+    border-top-right-radius: 0;
+    border-top-left-radius: 0;
   }
 }

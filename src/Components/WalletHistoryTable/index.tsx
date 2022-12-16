@@ -19,8 +19,10 @@ export const WalletHistoryTable = ({ swapTxs }: {swapTxs: SwapTxType[]}) => {
           <tr>
             <th className='text-left'>Time</th>
             <th className='text-left'>
-              <TokenIcon size={24} tokenAddress={cToken} />
-              <TokenSymbol token={tokens[cToken]} /> Change
+              <div className='wallet-history-table__ctoken-col'>
+                <TokenIcon size={24} tokenAddress={cToken} />
+                <TokenSymbol token={tokens[cToken]} /> Change
+              </div>
             </th>
             <th className='text-left'>Old Leverage</th>
             <th className='text-left'>New Leverage</th>
