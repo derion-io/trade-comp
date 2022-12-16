@@ -47,7 +47,7 @@ export const useListPool = () => {
 
     const provider = new AssistedJsonRpcProvider(
       etherProvider,
-      etherscanConfig,
+      etherscanConfig
     )
 
     const lastHeadBlockCached = getLastBlockCached(account)
@@ -67,7 +67,7 @@ export const useListPool = () => {
       if (!logs?.length) {
         return [[], []]
       }
-      const headBlock = logs[logs.length-1]?.blockNumber
+      const headBlock = logs[logs.length - 1]?.blockNumber
       const topics = getTopics()
       const ddlLogs = logs.filter((log: any) => {
         return log.address && [topics.LogicCreated, topics.PoolCreated, topics.TokenAdded].includes(log.topics[0])

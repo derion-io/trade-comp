@@ -9,7 +9,7 @@ import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import moment from 'moment'
 import { TextLink } from '../ui/Text'
 import { useConfigs } from '../../state/config/useConfigs'
-import { bn } from '../../utils/helpers'
+import { bn, formatFloat } from '../../utils/helpers'
 import { POOL_IDS } from '../../utils/constant'
 import { BigNumber } from 'ethers'
 
@@ -86,7 +86,7 @@ export const WalletHistoryTable = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
                   {
                     !cpChange.isZero() &&
                     <span>
-                      {cpChange.gt(0) ? '->' : '<-'} {formatWeiToDisplayNumber(cpChange, tokens[cToken]?.decimal || 18, 4)} CP
+                      {cpChange.gt(0) ? '->' : '<-'} {formatWeiToDisplayNumber(cpChange, 4, tokens[cToken]?.decimal || 18)} CP
                     </span>
                   }
                   <span>{swapTx.oldLeverage !== swapTx.newLeverage ? leverageChange : ''}</span>
@@ -112,5 +112,5 @@ const getErc20AmountChange = (oldBalances: {[key: number]: BigNumber}, newBalanc
 }
 
 const Leverage = ({ leverage }: { leverage: number }) => {
-  return <span>{leverage > 0 ? 'Long ' : 'Short '} {leverage}</span>
+  return <span>{leverage > 0 ? 'Long ' : 'Short '} {formatFloat(leverage, 1)}</span>
 }
