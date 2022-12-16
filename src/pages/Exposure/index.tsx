@@ -13,9 +13,11 @@ import { Chart } from '../../Components/Chart'
 import { SWAP_TAB } from '../../utils/constant'
 import { SwapBox } from '../../Components/SwapBox'
 import { useWindowSize } from '../../hooks/useWindowSize'
-import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
-import 'react-tabs/style/react-tabs.css';
+import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
+import 'react-tabs/style/react-tabs.css'
 import { Card } from '../../Components/ui/Card'
+import { useSwapHistoryFormated } from '../../state/wallet/hooks/useSwapHistory'
+import { WalletHistoryTable } from '../../Components/WalletHistoryTable'
 
 export const Exposure = ({ tab }: {
   tab: Symbol
@@ -28,6 +30,10 @@ export const Exposure = ({ tab }: {
   const [changedIn24h, setChangedIn24h] = useState<number>(0)
   const { width } = useWindowSize()
   const isPhone = width && width < 992
+  const swapTxs = useSwapHistoryFormated()
+  useEffect(() => {
+    console.log('final', swapTxs)
+  }, [swapTxs])
 
   useEffect(() => {
     if (baseToken && quoteToken && cToken) {
@@ -67,9 +73,22 @@ export const Exposure = ({ tab }: {
           <Chart />
           {
             !isPhone &&
-            <Card className='hidden-on-phone'>
-              <ExpandPool visible pool={pools[poolAddress] || {}} />
-            </Card>
+            <Tabs>
+              <TabList>
+                <Tab>Pool Info</Tab>
+                <Tab>History</Tab>
+              </TabList>
+              <TabPanel>
+                <Card className='hidden-on-phone'>
+                  <ExpandPool visible pool={pools[poolAddress] || {}} />
+                </Card>
+              </TabPanel>
+              <TabPanel>
+                <Card className='hidden-on-phone'>
+                  <WalletHistoryTable swapTxs={swapTxs}/>
+                </Card>
+              </TabPanel>
+            </Tabs>
           }
         </div>
         <div className='exposure-page__content--right'>

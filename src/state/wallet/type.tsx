@@ -3,10 +3,11 @@ import { BigNumber } from 'ethers'
 export type BalancesType = { [key: string]: BigNumber }
 export type AllowancesType = { [key: string]: BigNumber }
 export type SwapTxType = {
-  timestamp: number,
+  timeStamp: number,
+  balances: {[key: number]: BigNumber},
   cAmount: BigNumber,
-  oldLeverage: BigNumber,
-  newLeverage: BigNumber,
+  newLeverage: number,
+  oldLeverage: number,
 }
 
 export interface walletState {

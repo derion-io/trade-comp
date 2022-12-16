@@ -8,6 +8,7 @@ import { useCurrentPool } from '../../currentPool/hooks/useCurrentPool'
 import { PowerState } from 'powerLib/lib/index'
 import { bn } from '../../../utils/helpers'
 import { POOL_IDS } from '../../../utils/constant'
+import { SwapTxType } from '../type'
 
 export const useSwapHistory = () => {
   const { swapLogs } = useSelector((state: State) => {
@@ -28,7 +29,7 @@ export const useSwapHistory = () => {
   return { addMultiSwapData, swapLogs: swapLogs[account] }
 }
 
-export const useSwapHistoryFormated = () => {
+export const useSwapHistoryFormated = (): SwapTxType[] => {
   const { swapLogs } = useSwapHistory()
   const { powers, states, poolAddress } = useCurrentPool()
 
