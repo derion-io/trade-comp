@@ -152,8 +152,8 @@ export const useListPool = () => {
         ))
       })
 
-      localStorage.setItem(chainId + '-' + LOCALSTORAGE_KEY.SWAP_BLOCK_LOGS + '-' + account, JSON.stringify(newCacheSwapLogs))
-      localStorage.setItem(chainId + '-' + LOCALSTORAGE_KEY.SWAP_LOGS + '-' + account, headBlock.toString())
+      localStorage.setItem(chainId + '-' + LOCALSTORAGE_KEY.SWAP_BLOCK_LOGS + '-' + account, headBlock.toString())
+      localStorage.setItem(chainId + '-' + LOCALSTORAGE_KEY.SWAP_LOGS + '-' + account, JSON.stringify(newCacheSwapLogs))
     }
   }
 

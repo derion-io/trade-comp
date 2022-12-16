@@ -6,10 +6,10 @@ export const fee10000 = 30
 export const LP_PRICE_UNIT = 10000
 
 export const LOCALSTORAGE_KEY = {
-  DDL_LOGS: 'ddl-log',
-  LAST_BLOCK_DDL_LOGS: 'last-block-ddl-log',
-  SWAP_LOGS: 'swap',
-  SWAP_BLOCK_LOGS: 'last-block-swap-log'
+  DDL_LOGS: 'ddl-log-v1.0',
+  LAST_BLOCK_DDL_LOGS: 'last-block-ddl-log-v1.0',
+  SWAP_LOGS: 'swap-log-v1.0',
+  SWAP_BLOCK_LOGS: 'last-block-swap-log-v1.0'
 }
 
 export const SWAP_TAB = {
