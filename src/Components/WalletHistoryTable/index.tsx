@@ -18,8 +18,6 @@ export const WalletHistoryTable = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
   const { tokens } = useListTokens()
   const { configs } = useConfigs()
 
-  console.log('tokens', tokens)
-
   return (
     <div className='wallet-history-table-wrap'>
       <table className='wallet-history-table'>

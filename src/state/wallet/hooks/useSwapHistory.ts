@@ -7,9 +7,7 @@ import { useMemo } from 'react'
 import { useCurrentPool } from '../../currentPool/hooks/useCurrentPool'
 import { PowerState } from 'powerLib/lib/index'
 import { bn } from '../../../utils/helpers'
-import { POOL_IDS } from '../../../utils/constant'
 import { SwapTxType } from '../type'
-import { log } from 'util'
 import { BigNumber } from 'ethers'
 
 export const useSwapHistory = () => {
@@ -44,7 +42,6 @@ export const useSwapHistoryFormated = (): SwapTxType[] => {
       const result = []
       const balancesToCalculateLeverage = {}
       const balances: {[key: number]: BigNumber} = {}
-      console.log('swapLogs', swapLogs)
       for (const swapLog of swapLogs) {
         if (swapLog.args.pool !== poolAddress) continue
 
@@ -77,8 +74,6 @@ export const useSwapHistoryFormated = (): SwapTxType[] => {
           oldLeverage
         })
       }
-
-      console.log('khanh', result)
 
       return result
     } catch (e) {

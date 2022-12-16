@@ -31,9 +31,6 @@ export const Exposure = ({ tab }: {
   const { width } = useWindowSize()
   const isPhone = width && width < 992
   const swapTxs = useSwapHistoryFormated()
-  useEffect(() => {
-    console.log('final', swapTxs)
-  }, [swapTxs])
 
   useEffect(() => {
     if (baseToken && quoteToken && cToken) {
