@@ -21,7 +21,7 @@ export default {
       wrapToken: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
       nativeToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
       poolFactory: '0xfead51eBe15ba6E16586d59fEFa7249E5E1B6355',
-      router: '0xc9771948BCcb0eF1fc02b3a83b2DaF6858F151Ca'
+      router: '0x2B1a5571C00B032d3bF0ca3271CdAa73b1cc6e5c'
     }
   },
   31337: {
