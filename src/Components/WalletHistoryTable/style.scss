@@ -24,7 +24,7 @@
     background: rgba(255, 122, 104, 0.1);
   }
   tr.is-change-leverage td {
-    background: rgba(255, 122, 104, 0.1);
+    background: rgba(104, 192, 255, 0.1);
   }
 
   td,th {
@@ -35,6 +35,21 @@
     display: flex;
     align-items: center;
 
+    &>*:not(:last-child) {
+      margin-right: 0.5rem;
+    }
+  }
+
+  &__time {
+    & span {
+      display: inline-block;
+    }
+    & span::first-letter {
+      text-transform: uppercase;
+    }
+  }
+
+  &__change-info {
     &>*:not(:last-child) {
       margin-right: 0.5rem;
     }

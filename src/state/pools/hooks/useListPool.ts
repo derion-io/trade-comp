@@ -182,6 +182,7 @@ export const useListPool = () => {
    * @param logs
    */
   const generatePoolData = (logs: ParseLogType[]) => {
+    console.log('logs', logs)
     const allTokens: string[] = []
     const allUniPools: string[] = []
     const poolData = {}
@@ -239,6 +240,8 @@ export const useListPool = () => {
       tryAggregate: true
     })
     const normalTokens = getNormalAddress(listTokens)
+
+    console.log('listPools', listPools)
 
     // @ts-ignore
     const context: ContractCallContext[] = getMultiCallRequest(normalTokens, listPools)

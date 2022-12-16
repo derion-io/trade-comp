@@ -9,6 +9,8 @@ import { PowerState } from 'powerLib/lib/index'
 import { bn } from '../../../utils/helpers'
 import { POOL_IDS } from '../../../utils/constant'
 import { SwapTxType } from '../type'
+import { log } from 'util'
+import { BigNumber } from 'ethers'
 
 export const useSwapHistory = () => {
   const { swapLogs } = useSelector((state: State) => {
@@ -40,38 +42,43 @@ export const useSwapHistoryFormated = (): SwapTxType[] => {
       p.loadStates(states)
 
       const result = []
-      const balances = {}
+      const balancesToCalculateLeverage = {}
+      const balances: {[key: number]: BigNumber} = {}
+      console.log('swapLogs', swapLogs)
       for (const swapLog of swapLogs) {
         if (swapLog.args.pool !== poolAddress) continue
 
         const steps = swapLog.args.steps
-        let cAmount = bn(0)
-        const oldLeverage = p.calculateCompExposure(balances)
+        const cAmount = bn(0)
+        const cp = bn(0)
+        const oldBalances = _.cloneDeep(balances)
+        const oldLeverage = p.calculateCompExposure(balancesToCalculateLeverage)
 
         for (const step of steps) {
-          if (step.idIn.eq(bn(POOL_IDS.cToken))) {
-            cAmount = cAmount.add(step.amountIn)
-          } else if (step.idOut.eq(bn(POOL_IDS.cToken))) {
-            cAmount = cAmount.sub(step.amountIn)
-          }
+          balances[step.idIn.toString()] = balances[step.idIn.toString()] ? balances[step.idIn.toString()].sub(step.amountIn) : bn(0).sub(step.amountIn)
+          balances[step.idOut.toString()] = balances[step.idOut.toString()] ? balances[step.idOut.toString()].add(step.amountOutMin) : bn(0).add(step.amountOutMin)
 
           if (powers[step.idIn]) {
-            balances[powers[step.idIn]] = balances[powers[step.idIn]] ? balances[powers[step.idIn]].sub(step.amountIn) : bn(0).sub(step.amountIn)
+            balancesToCalculateLeverage[powers[step.idIn]] = balancesToCalculateLeverage[powers[step.idIn]] ? balancesToCalculateLeverage[powers[step.idIn]].sub(step.amountIn) : bn(0).sub(step.amountIn)
           }
-
           if (powers[step.idOut]) {
-            balances[powers[step.idOut]] = balances[powers[step.idIn]] ? balances[powers[step.idIn]].add(step.amountIn) : bn(0).add(step.amountIn)
+            balancesToCalculateLeverage[powers[step.idOut]] = balancesToCalculateLeverage[powers[step.idOut]] ? balancesToCalculateLeverage[powers[step.idOut]].add(step.amountOutMin) : bn(0).add(step.amountOutMin)
           }
         }
-        const newLeverage = p.calculateCompExposure(balances)
+        const newLeverage = p.calculateCompExposure(balancesToCalculateLeverage)
         result.push({
+          transactionHash: swapLog.transactionHash,
           timeStamp: swapLog.timeStamp,
-          balances,
+          cp,
+          oldBalances,
+          newBalances: balances,
           cAmount,
           newLeverage,
           oldLeverage
         })
       }
+
+      console.log('khanh', result)
 
       return result
     } catch (e) {
@@ -80,5 +87,6 @@ export const useSwapHistoryFormated = (): SwapTxType[] => {
     }
   }, [swapLogs, poolAddress, states])
 
+  // @ts-ignore
   return result
 }
