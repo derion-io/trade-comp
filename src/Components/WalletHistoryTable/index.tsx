@@ -112,5 +112,5 @@ const getErc20AmountChange = (oldBalances: {[key: number]: BigNumber}, newBalanc
 }
 
 const Leverage = ({ leverage }: { leverage: number }) => {
-  return <span>{leverage > 0 ? 'long ' + leverage : 'short ' + leverage}</span>
+  return <span>{leverage > 0 ? 'Long ' : 'Short '} {leverage}</span>
 }
