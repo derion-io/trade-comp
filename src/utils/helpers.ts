@@ -69,7 +69,7 @@ export const parseCallStaticError = (error: any) => {
   } else if (message.includes('VM Exception while processing transaction:')) {
     const arr = message.split('VM Exception while processing transaction:')
     const m = arr[1]
-    return m?.split('[')[0]?.trim()
+    return m?.split('[')[0]?.replace('reverted with', '').trim()
   }
   return message
 }
