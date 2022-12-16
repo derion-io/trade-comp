@@ -9,7 +9,6 @@
   border: none;
   cursor: pointer;
   transition: all 0.25s ease-out;
-  overflow-wrap: anywhere;
 
   &:disabled {
     background: $color-disable-bg !important;

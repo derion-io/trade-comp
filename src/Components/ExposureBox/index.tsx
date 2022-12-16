@@ -248,7 +248,7 @@ export const ExposureBox = ({ changedIn24h }: {
         className='execute-button mr-1'
       >Approve</ButtonExecute>
     } else if (callError) {
-      return <ButtonExecute className='execute-button mr-1' disabled>{callError}</ButtonExecute>
+      return <ButtonExecute className='execute-button mr-1' disabled>{callError.toString()}</ButtonExecute>
     } else {
       return <ButtonExecute
         onClick={async () => {

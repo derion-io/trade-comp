@@ -60,10 +60,12 @@ export const parseCallStaticError = (error: any) => {
   const message = error.data?.message
     ? error.data?.message?.replace('check error: ', '') || 'Error'
     : error.message
-  if (message.includes('Transaction reverted without a reason string')) {
+  if (message.includes('reverted with reason string')) {
     const arr = message.split('reason="')
     const m = arr[1]
     return m?.split('"')[0]
+  } else if (message.includes('insufficient funds for transfer')) {
+    return 'insufficient funds for transfer'
   } else if (message.includes('insufficient funds for gas * price + value')) {
     return 'insufficient funds for gas * price + value'
   } else if (message.includes('VM Exception while processing transaction:')) {
