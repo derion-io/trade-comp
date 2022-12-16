@@ -19,6 +19,9 @@ const { AssistedJsonRpcProvider } = require('assisted-json-rpc-provider')
 
 const DDL_LOG_NAMES = ['LogicCreated', 'PoolCreated', 'TokenAdded']
 
+const MAX_BLOCK = 4294967295
+const TOPIC_APP = ethers.utils.formatBytes32String('DDL')
+
 export const useListPool = () => {
   const { pools } = useSelector((state: State) => {
     return { pools: state.pools.pools }
@@ -33,36 +36,38 @@ export const useListPool = () => {
     if (!chainId || !configs.scanApi) return
 
     const etherProvider = new ethers.providers.StaticJsonRpcProvider(configs.rpcUrl)
-    let provider = new AssistedJsonRpcProvider(
-      etherProvider
+    const etherscanConfig = configs.scanApi ? {
+      url: configs.scanApi,
+      maxResults: 1000,
+      rangeThreshold: 0,
+      rateLimitCount: 1,
+      rateLimitDuration: 5000,
+      apiKeys: ['']
+    } : undefined
+
+    const provider = new AssistedJsonRpcProvider(
+      etherProvider,
+      etherscanConfig,
     )
-    const headBlock = await etherProvider.getBlockNumber()
-    if (configs.scanApi) {
-      provider = new AssistedJsonRpcProvider(
-        etherProvider,
-        {
-          url: configs.scanApi,
-          maxResults: 1000,
-          rangeThreshold: 1000,
-          rateLimitCount: 1,
-          rateLimitDuration: 5000,
-          apiKeys: ['']
-        }
-      )
-    }
+
     const lastHeadBlockCached = getLastBlockCached(account)
     initListPoolCached(account)
 
+    const accTopic = account ? '0x' + '0'.repeat(24) + account.slice(2) : null
     provider.getLogs({
       fromBlock: lastHeadBlockCached,
-      toBlock: headBlock,
+      toBlock: MAX_BLOCK,
       topics: [
         null,
-        [null, account ? '0x' + '0'.repeat(24) + account.slice(2) : null, null, null],
-        null,
-        [null, null, null, ethers.utils.formatBytes32String('DDL')]
+        [null, accTopic, null, null],
+        [null, null, accTopic, null],
+        [null, null, null, TOPIC_APP]
       ]
     }).then((logs: any) => {
+      if (!logs?.length) {
+        return [[], []]
+      }
+      const headBlock = logs[logs.length-1]?.blockNumber
       const topics = getTopics()
       const ddlLogs = logs.filter((log: any) => {
         return log.address && [topics.LogicCreated, topics.PoolCreated, topics.TokenAdded].includes(log.topics[0])
