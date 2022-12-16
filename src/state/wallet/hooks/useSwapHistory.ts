@@ -3,6 +3,9 @@ import { useDispatch, useSelector } from 'react-redux'
 import { updateSwapTxs } from '../reducer'
 import { State } from '../../types'
 import { useWeb3React } from '../../customWeb3React/hook'
+import { useMemo } from 'react'
+import { useCurrentPool } from '../../currentPool/hooks/useCurrentPool'
+import { PowerState } from 'powerLib/lib/index'
 
 export const useSwapHistory = () => {
   const { swapTxs } = useSelector((state: State) => {
@@ -35,4 +38,33 @@ export const useSwapHistory = () => {
   }
 
   return { addMultiSwapData, swapTxs: swapTxs[account] }
+}
+
+export const useSwapHistoryFormated = () => {
+  const { swapTxs } = useSwapHistory()
+  const { powers, states, poolAddress } = useCurrentPool()
+
+  const result = useMemo(() => {
+    try {
+      if (!swapTxs || swapTxs.length === 0 || !poolAddress) return []
+      const p = new PowerState({ powers: [...powers] })
+      p.loadStates(states)
+
+      // const balances = {}
+      // const result = []
+      // const cAmount = bn(0)
+      // for (const i in swapTxs) {
+      //   const steps = swapTxs[i]
+      //   const cAmount = bn(0)
+      //   for (const step of steps) {
+      //   }
+      // }
+
+      return []
+    } catch (e) {
+      return []
+    }
+  }, [swapTxs, poolAddress, states])
+
+  return result
 }
