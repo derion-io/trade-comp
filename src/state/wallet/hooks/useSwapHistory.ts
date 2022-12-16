@@ -28,13 +28,13 @@ export const useSwapHistory = () => {
       })
     }
     /** sort tx */
-    const multiSwapTxs = Object.values(txGroup).sort((a, b) => {
-      return a[0].blockNumber - b[0].blockNumber
-    })
-    console.log('multiSwapTxs', multiSwapTxs)
+    // const multiSwapTxs = Object.values(txGroup).sort((a, b) => {
+    //   return a[0].blockNumber - b[0].blockNumber
+    // })
+    console.log('multiSwapTxs', txGroup)
 
-    dispatch(updateSwapTxs({ account, txs: multiSwapTxs }))
-    return multiSwapTxs
+    dispatch(updateSwapTxs({ account, txs: txGroup }))
+    return txGroup
   }
 
   return { addMultiSwapData, swapTxs: swapTxs[account] }
@@ -60,7 +60,7 @@ export const useSwapHistoryFormated = () => {
       //   }
       // }
 
-      return []
+      return swapTxs
     } catch (e) {
       return []
     }

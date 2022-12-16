@@ -5,6 +5,7 @@ import {
   BalancesType,
   initialState
 } from './type'
+import _ from 'lodash'
 
 export const tokens = createSlice({
   name: 'wallet',
@@ -19,7 +20,10 @@ export const tokens = createSlice({
       account: string,
       txs: any
     }>) => {
-      state.swapTxs[action.payload.account] = action.payload.txs
+      state.swapTxs[action.payload.account] = {
+        ...action.payload.txs,
+        ...state.swapTxs[action.payload.account]
+      }
     },
     updateBalanceAndAllowancesReduce: (
       state,

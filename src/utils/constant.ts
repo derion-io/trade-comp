@@ -7,7 +7,9 @@ export const LP_PRICE_UNIT = 10000
 
 export const LOCALSTORAGE_KEY = {
   DDL_LOGS: 'ddl-log',
-  LAST_BLOCK_DDL_LOGS: 'last-block-ddl-log'
+  LAST_BLOCK_DDL_LOGS: 'last-block-ddl-log',
+  SWAP_LOGS: 'swap',
+  SWAP_BLOCK_LOGS: 'last-block-swap-log'
 }
 
 export const SWAP_TAB = {

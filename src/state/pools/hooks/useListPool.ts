@@ -13,7 +13,6 @@ import { bn, formatMultiCallBignumber, getNormalAddress, numberToWei, weiToNumbe
 import { decodePowers } from 'powerLib'
 import { LOCALSTORAGE_KEY, LP_PRICE_UNIT, POOL_IDS } from '../../../utils/constant'
 import { usePairInfo } from '../../../hooks/usePairInfo'
-import { useWeb3React } from '../../customWeb3React/hook'
 import { useSwapHistory } from '../../wallet/hooks/useSwapHistory'
 
 const { AssistedJsonRpcProvider } = require('assisted-json-rpc-provider')
@@ -33,7 +32,6 @@ export const useListPool = () => {
   const initListPool = async (account: string) => {
     if (!chainId || !configs.scanApi) return
 
-    console.log('account', account)
     const etherProvider = new ethers.providers.StaticJsonRpcProvider(configs.rpcUrl)
     let provider = new AssistedJsonRpcProvider(
       etherProvider
@@ -52,9 +50,8 @@ export const useListPool = () => {
         }
       )
     }
-    // const lastHeadBlockCached = Number(localStorage.getItem(chainId + '-' + LOCALSTORAGE_KEY.LAST_BLOCK_DDL_LOGS)) || configs.ddlGenesisBlock
-    // initListPoolCached()
-    const lastHeadBlockCached = configs.ddlGenesisBlock
+    const lastHeadBlockCached = getLastBlockCached(account)
+    initListPoolCached(account)
     provider.getLogs({
       fromBlock: lastHeadBlockCached,
       toBlock: headBlock,
@@ -64,17 +61,21 @@ export const useListPool = () => {
         [null, null, ethers.utils.formatBytes32String('DDL')]
       ]
     }).then((logs: any) => {
-      console.log('logs', logs)
-      const ddlLogs = parseDdlLogs(logs).filter((log: any) => {
-        return log.address && DDL_LOG_NAMES.includes(log.name)
+      const topics = getTopics()
+      const ddlLogs = logs.filter((log: any) => {
+        return log.address && [topics.LogicCreated, topics.PoolCreated, topics.TokenAdded].includes(log.topics[0])
       })
-      const swapLogs = parseDdlLogs(logs).filter((log: any) => {
-        return log.address && log.name === 'Swap'
+      const swapLogs = logs.filter((log: any) => {
+        return log.address && log.topics[0] === topics.Swap
       })
-      console.log({ ddlLogs, swapLogs })
-      // cacheDdlLog(ddlLogs, headBlock)
+      cacheDdlLog({
+        ddlLogs,
+        swapLogs,
+        headBlock,
+        account
+      })
 
-      return [ddlLogs, swapLogs]
+      return [parseDdlLogs(ddlLogs), parseDdlLogs(swapLogs)]
     }).then(async ([ddlLogs, swapLogs]: any) => {
       if (swapLogs && swapLogs.length > 0) {
         addMultiSwapData(swapLogs, account)
@@ -88,17 +89,48 @@ export const useListPool = () => {
     })
   }
 
-  const initListPoolCached = async () => {
-    const logs = JSON.parse(localStorage.getItem(chainId + '-' + LOCALSTORAGE_KEY.DDL_LOGS) || '[]')
-    const ddlLogs = parseDdlLogs(logs)
-
-    const { tokens, pools } = await generatePoolData(ddlLogs)
-
-    dispatch(addTokensReduce({ tokens, chainId }))
-    dispatch(addPoolsWithChain({ pools, chainId }))
+  const getTopics = (): {[key: string]: string} => {
+    const eventInterface = getEventInterface()
+    const events = eventInterface.events
+    const topics: {[key: string]: string} = {}
+    for (const i in events) {
+      topics[events[i].name] = ethers.utils.id(i)
+    }
+    return topics
   }
 
-  const cacheDdlLog = (ddlLogs: any, headBlock: number) => {
+  const getLastBlockCached = (account: string) => {
+    const lastDDlBlock = Number(localStorage.getItem(chainId + '-' + LOCALSTORAGE_KEY.LAST_BLOCK_DDL_LOGS)) || configs.ddlGenesisBlock
+    const lastWalletBlock = Number(localStorage.getItem(chainId + '-' + LOCALSTORAGE_KEY.SWAP_BLOCK_LOGS + '-' + account)) || configs.ddlGenesisBlock
+    return Math.min(lastDDlBlock, lastWalletBlock)
+  }
+
+  const initListPoolCached = async (account: string) => {
+    const ddlLogs = JSON.parse(localStorage.getItem(chainId + '-' + LOCALSTORAGE_KEY.DDL_LOGS) || '[]')
+    const swapLogs = JSON.parse(localStorage.getItem(chainId + '-' + LOCALSTORAGE_KEY.SWAP_LOGS + '-' + account) || '[]')
+
+    if (ddlLogs && ddlLogs.length > 0) {
+      const { tokens, pools } = await generatePoolData(ddlLogs)
+
+      dispatch(addTokensReduce({ tokens, chainId }))
+      dispatch(addPoolsWithChain({ pools, chainId }))
+    }
+    if (swapLogs && swapLogs.length > 0) {
+      addMultiSwapData(swapLogs, account)
+    }
+  }
+
+  const cacheDdlLog = ({
+    swapLogs,
+    ddlLogs,
+    headBlock,
+    account
+  }: {
+    swapLogs: any,
+    ddlLogs: any,
+    headBlock: number,
+    account: string
+  }) => {
     const cachedDdlLogs = JSON.parse(localStorage.getItem(chainId + '-' + LOCALSTORAGE_KEY.DDL_LOGS) || '[]')
     const newCachedDdlLogs = [...ddlLogs, ...cachedDdlLogs].filter((log, index, self) => {
       return index === self.findIndex((t) => (
@@ -107,6 +139,17 @@ export const useListPool = () => {
     })
     localStorage.setItem(chainId + '-' + LOCALSTORAGE_KEY.LAST_BLOCK_DDL_LOGS, headBlock.toString())
     localStorage.setItem(chainId + '-' + LOCALSTORAGE_KEY.DDL_LOGS, JSON.stringify(newCachedDdlLogs))
+    if (account) {
+      const cachedSwapLogs = JSON.parse(localStorage.getItem(chainId + '-' + LOCALSTORAGE_KEY.SWAP_LOGS) || '[]')
+      const newCacheSwapLogs = [...swapLogs, ...cachedSwapLogs].filter((log, index, self) => {
+        return index === self.findIndex((t) => (
+          t.logIndex === log.logIndex
+        ))
+      })
+
+      localStorage.setItem(chainId + '-' + LOCALSTORAGE_KEY.SWAP_BLOCK_LOGS + '-' + account, JSON.stringify(newCacheSwapLogs))
+      localStorage.setItem(chainId + '-' + LOCALSTORAGE_KEY.SWAP_LOGS + '-' + account, headBlock.toString())
+    }
   }
 
   const parseDdlLogs = (ddlLogs: any) => {
@@ -260,8 +303,6 @@ export const useListPool = () => {
       )
     }
 
-    console.log({ tokens, pools })
-
     return { tokens, pools }
   }
 
@@ -272,7 +313,6 @@ export const useListPool = () => {
     const pools = {}
     for (let i = 0; i < poolStateData.length; i++) {
       const data = formatMultiCallBignumber(poolStateData[i].returnValues)
-      console.log('data', data)
       const encodeData = abiInterface.encodeFunctionResult('getStates', [data])
       const formatedData = abiInterface.decodeFunctionResult('getStates', encodeData)
 

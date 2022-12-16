@@ -14,7 +14,7 @@ import { setCurrentPoolInfo } from '../../state/currentPool/reducer'
 import { useListPool } from '../../state/pools/hooks/useListPool'
 import { Pools } from '../../pages/Pools'
 import { SWAP_TAB } from '../../utils/constant'
-import { useSwapHistoryFormated } from '../../state/wallet/hooks/useSwapHistory'
+import { useSwapHistory, useSwapHistoryFormated } from '../../state/wallet/hooks/useSwapHistory'
 
 export const App = () => {
   const { updateCurrentPool } = useCurrentPool()
@@ -26,7 +26,7 @@ export const App = () => {
   const dispatch = useDispatch()
   const chainIdRef = useRef(null)
   const { initListPool } = useListPool()
-  const swapTxs = useSwapHistoryFormated()
+  const { swapTxs } = useSwapHistory()
   useEffect(() => {
     console.log('final', swapTxs)
   }, [swapTxs])
