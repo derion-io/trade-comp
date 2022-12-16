@@ -3058,9 +3058,9 @@ assign-symbols@^1.0.0:
   resolved "https://registry.yarnpkg.com/assign-symbols/-/assign-symbols-1.0.0.tgz#59667f41fadd4f20ccbc2bb96b8d4f7f78ec0367"
   integrity sha1-WWZ/QfrdTyDMvCu5a41Pf3jsA2c=
 
-"assisted-json-rpc-provider@git+ssh://git@github.com:launchzone/AssistedJsonRpcProvider.git#8273e84a3b4fb89eee066c214bba73799a42bd76":
+"assisted-json-rpc-provider@git+ssh://git@github.com:launchzone/AssistedJsonRpcProvider.git#1662bda1343be76618331a2d671bfa56f0d0e305":
   version "1.0.0"
-  resolved "git+ssh://git@github.com:launchzone/AssistedJsonRpcProvider.git#8273e84a3b4fb89eee066c214bba73799a42bd76"
+  resolved "git+ssh://git@github.com:launchzone/AssistedJsonRpcProvider.git#1662bda1343be76618331a2d671bfa56f0d0e305"
   dependencies:
     async-task-throttle-on-response "^1.0.1"
     ethers "^5.5.3"
@@ -10067,9 +10067,9 @@ postcss@^7, postcss@^7.0.0, postcss@^7.0.1, postcss@^7.0.14, postcss@^7.0.17, po
     source-map "^0.6.1"
     supports-color "^6.1.0"
 
-"powerLib@git+ssh://git@github.com:derivable-io/power-lib.git#afade85b800e9e23c50ca4521c772efa57758748":
+"powerLib@git+ssh://git@github.com:derivable-io/power-lib.git#e5850c44105ecdbb49e766fd6b7d28fad4385406":
   version "1.0.0"
-  resolved "git+ssh://git@github.com:derivable-io/power-lib.git#afade85b800e9e23c50ca4521c772efa57758748"
+  resolved "git+ssh://git@github.com:derivable-io/power-lib.git#e5850c44105ecdbb49e766fd6b7d28fad4385406"
   dependencies:
     ethers "^5.4.6"
     lodash "^4.17.21"

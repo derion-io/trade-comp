@@ -13,23 +13,32 @@ import { bn, formatMultiCallBignumber, getNormalAddress, numberToWei, weiToNumbe
 import { decodePowers } from 'powerLib'
 import { LOCALSTORAGE_KEY, LP_PRICE_UNIT, POOL_IDS } from '../../../utils/constant'
 import { usePairInfo } from '../../../hooks/usePairInfo'
+import { useWeb3React } from '../../customWeb3React/hook'
+import { useSwapHistory } from '../../wallet/hooks/useSwapHistory'
 
 const { AssistedJsonRpcProvider } = require('assisted-json-rpc-provider')
+
+const DDL_LOG_NAMES = ['LogicCreated', 'PoolCreated', 'TokenAdded']
 
 export const useListPool = () => {
   const { pools } = useSelector((state: State) => {
     return { pools: state.pools.pools }
   })
   const { configs, chainId } = useConfigs()
-  const { getEventInterface, getLogicContract, getLogicAbi } = useContract()
+  const { getEventInterface, getLogicAbi } = useContract()
   const dispatch = useDispatch()
   const { getPairsInfo } = usePairInfo()
+  const { addMultiSwapData } = useSwapHistory()
 
-  const initListPool = async () => {
+  const initListPool = async (account: string) => {
     if (!chainId || !configs.scanApi) return
+
+    console.log('account', account)
     const etherProvider = new ethers.providers.StaticJsonRpcProvider(configs.rpcUrl)
-    let provider = etherProvider
-    const headBlock = await provider.getBlockNumber()
+    let provider = new AssistedJsonRpcProvider(
+      etherProvider
+    )
+    const headBlock = await etherProvider.getBlockNumber()
     if (configs.scanApi) {
       provider = new AssistedJsonRpcProvider(
         etherProvider,
@@ -42,29 +51,36 @@ export const useListPool = () => {
           apiKeys: ['']
         }
       )
-    } else {
-      provider = new AssistedJsonRpcProvider(
-        etherProvider
-      )
     }
-
-    const lastHeadBlockCached = Number(localStorage.getItem(chainId + '-' + LOCALSTORAGE_KEY.LAST_BLOCK_DDL_LOGS)) || configs.ddlGenesisBlock
-    initListPoolCached()
+    // const lastHeadBlockCached = Number(localStorage.getItem(chainId + '-' + LOCALSTORAGE_KEY.LAST_BLOCK_DDL_LOGS)) || configs.ddlGenesisBlock
+    // initListPoolCached()
+    const lastHeadBlockCached = configs.ddlGenesisBlock
     provider.getLogs({
       fromBlock: lastHeadBlockCached,
       toBlock: headBlock,
-      topics: [null, null, ethers.utils.formatBytes32String('DDL')]
+      topics: [
+        null,
+        [null, account ? '0x' + '0'.repeat(24) + account.slice(2) : null, null],
+        [null, null, ethers.utils.formatBytes32String('DDL')]
+      ]
     }).then((logs: any) => {
-      const result = parseDdlLogs(logs)
-      const ddlLogs = logs.filter((log: any) => {
-        return log.address
+      console.log('logs', logs)
+      const ddlLogs = parseDdlLogs(logs).filter((log: any) => {
+        return log.address && DDL_LOG_NAMES.includes(log.name)
       })
-      cacheDdlLog(ddlLogs, headBlock)
+      const swapLogs = parseDdlLogs(logs).filter((log: any) => {
+        return log.address && log.name === 'Swap'
+      })
+      console.log({ ddlLogs, swapLogs })
+      // cacheDdlLog(ddlLogs, headBlock)
 
-      return result
-    }).then(async (logs:any) => {
-      if (logs && logs.length > 0) {
-        const { tokens, pools } = await generatePoolData(logs)
+      return [ddlLogs, swapLogs]
+    }).then(async ([ddlLogs, swapLogs]: any) => {
+      if (swapLogs && swapLogs.length > 0) {
+        addMultiSwapData(swapLogs, account)
+      }
+      if (ddlLogs && ddlLogs.length > 0) {
+        const { tokens, pools } = await generatePoolData(ddlLogs)
 
         dispatch(addTokensReduce({ tokens, chainId }))
         dispatch(addPoolsWithChain({ pools, chainId }))
@@ -100,6 +116,9 @@ export const useListPool = () => {
       try {
         return {
           address: log.address,
+          transactionHash: log.transactionHash,
+          blockNumber: log.blockNumber,
+          index: log.logIndex,
           logIndex: log.transactionHash + '-' + log.logIndex,
           ...eventInterface.parseLog(log)
         }
@@ -120,11 +139,12 @@ export const useListPool = () => {
     const logicData = {}
     logs.forEach((log) => {
       if (log.name === 'LogicCreated') {
-        console.log('log', log)
         const powers = decodePowers(log.args.powers)
         logicData[log.address] = {
           logic: log.address,
-          dTokens: powers.map((value, key) => { return { power: value, index: key } }),
+          dTokens: powers.map((value, key) => {
+            return { power: value, index: key }
+          }),
           baseToken: log.args.baseToken,
           baseSymbol: ethers.utils.parseBytes32String(log.args.baseSymbol),
           quoteSymbol: ethers.utils.parseBytes32String(log.args.quoteSymbol),
@@ -139,14 +159,10 @@ export const useListPool = () => {
 
     logs.forEach((log) => {
       if (log.name === 'PoolCreated') {
-        console.log('PoolCreated', log)
         const logic = log.args.logic
         const data = logicData[logic]
 
-        // sort powers and dToken
-        // data.powers = data.powers.sort((a: number, b: number) => a - b)
         data.dTokens = (data.dTokens as { index: number, power: number }[])
-          // .sort((a, b) => a.power - b.power)
           .map((data) => `${log.args.pool}-${data.index}`)
 
         poolData[log.args.pool] = {
@@ -182,16 +198,7 @@ export const useListPool = () => {
       getPairsInfo(uniPools)
     ])
 
-    console.log('pairInfo', pairsInfo, uniPools)
-
-    // console.log('1')
-    // const logicContract = getLogicContract('0xDc703C04669a9056e1dC41f0bf14d38b6A02BA5A')
-    // const stateData = await logicContract.getStates()
-    // console.log('stateData', stateData)
-
     const { tokens: tokensArr, poolsState } = parseMultiCallResponse(results)
-    console.log('poolsState', poolsState)
-
     const tokens = []
     for (let i = 0; i < tokensArr.length; i++) {
       tokens.push({

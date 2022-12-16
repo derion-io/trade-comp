@@ -27,8 +27,8 @@ export const App = () => {
   const { initListPool } = useListPool()
 
   useEffect(() => {
-    initListPool()
-  }, [chainId])
+    initListPool(account)
+  }, [chainId, account])
 
   useEffect(() => {
     if (account && Object.keys(tokens).length > 0) {
