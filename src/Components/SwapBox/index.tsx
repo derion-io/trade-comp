@@ -28,7 +28,7 @@ import { POOL_IDS } from '../../utils/constant'
 import { PowerState } from 'powerLib'
 import { useConfigs } from '../../state/config/useConfigs'
 import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
-import { useNativePrice } from '../../state/token/hooks/useTokenPrice'
+import { useCpPrice, useNativePrice } from '../../state/token/hooks/useTokenPrice'
 
 export const SwapBox = () => {
   const { account, showConnectModal } = useWeb3React()
@@ -50,6 +50,7 @@ export const SwapBox = () => {
   const { tokens } = useListTokens()
   const { multiSwap, calculateAmountOuts } = useMultiSwapAction()
   const nativePrice = useNativePrice()
+  const cpPrice = useCpPrice()
 
   useEffect(() => {
     setInputTokenAddress(cToken || '')
@@ -181,7 +182,7 @@ export const SwapBox = () => {
     if (powerState && isErc1155Address(address)) {
       const { id } = decodeErc1155Address(address)
       if (Number(id) === POOL_IDS.cp) {
-        return cTokenPrice
+        return cpPrice
       }
       const power = powers[id]
       return powerState.calculatePrice(power)
