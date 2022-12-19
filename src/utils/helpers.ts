@@ -192,3 +192,16 @@ export const formatTime = (timestamp: number) => {
     (s <= 9 ? '0' + s : s)
   )
 }
+
+export const detectDecimalFromPrice = (price: number | string) => {
+  if (Number(price || 0) === 0 || Number(price || 0) >= 1) {
+    return 4
+  } else {
+    const rate = !bn(numberToWei(price)).isZero()
+      ? weiToNumber(
+        BigNumber.from(numberToWei(1, 36)).div(numberToWei(price)).toString()
+      )
+      : '0'
+    return rate.split('.')[0].length + 3
+  }
+}

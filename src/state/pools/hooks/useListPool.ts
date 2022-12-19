@@ -329,6 +329,7 @@ export const useListPool = () => {
       const data = formatMultiCallBignumber(poolStateData[i].returnValues)
       const encodeData = abiInterface.encodeFunctionResult('getStates', [data])
       const formatedData = abiInterface.decodeFunctionResult('getStates', encodeData)
+      console.log('formatedData', formatedData)
 
       pools[poolStateData[i].reference] = {
         twapBase: formatedData.states.twap.base._x,

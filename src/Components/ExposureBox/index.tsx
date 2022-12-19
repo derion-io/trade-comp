@@ -1,5 +1,4 @@
-import React, { Fragment, useEffect, useMemo, useState } from 'react'
-import { Card } from '../ui/Card'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Text, TextBlue, TextBuy, TextGrey, TextPink, TextSell } from '../ui/Text'
 import './style.scss'
 import { Box } from '../ui/Box'
@@ -376,13 +375,19 @@ export const ExposureBox = ({ changedIn24h }: {
                     placeholder='Manual input exposure'
                     // @ts-ignore
                     value={newLeverage}
+                    type='number'
                     onChange={(e) => {
                       const max = Math.max(...Object.values(marks))
                       const min = Math.min(...Object.values(marks))
                       // @ts-ignore
                       const newValue = Number(e.target.value)
-                      if (newValue >= min && newValue <= max) {
-                        setNewLeverage(newValue)
+                      if (newValue >= max) {
+                        setNewLeverage(max)
+                      } else if (newValue <= min) {
+                        setNewLeverage(min)
+                      } else {
+                        // @ts-ignore
+                        setNewLeverage(e.target.value)
                       }
                     }}
                   />

@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { Card } from '../ui/Card'
 import { Text, TextGrey } from '../ui/Text'
 import './style.scss'
 import { Box } from '../ui/Box'
@@ -29,13 +28,12 @@ import { POOL_IDS } from '../../utils/constant'
 import { PowerState } from 'powerLib'
 import { useConfigs } from '../../state/config/useConfigs'
 import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
-
-const nativePrice = 300
+import { useNativePrice } from '../../state/token/hooks/useTokenPrice'
 
 export const SwapBox = () => {
   const { account, showConnectModal } = useWeb3React()
   const { configs } = useConfigs()
-  const { cTokenPrice, states, dTokens, cToken, logicAddress, poolAddress, powers, baseToken, quoteToken } = useCurrentPool()
+  const { cTokenPrice, states, dTokens, cToken, logicAddress, poolAddress, powers, baseToken, quoteToken, basePrice } = useCurrentPool()
   const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
@@ -51,6 +49,7 @@ export const SwapBox = () => {
   const [isDeleverage, setIsDeleverage] = useState<boolean>(false)
   const { tokens } = useListTokens()
   const { multiSwap, calculateAmountOuts } = useMultiSwapAction()
+  const nativePrice = useNativePrice()
 
   useEffect(() => {
     setInputTokenAddress(cToken || '')
@@ -172,9 +171,18 @@ export const SwapBox = () => {
   const getTokenPrice = (address: string, powerState: any) => {
     if (address === cToken) {
       return cTokenPrice
+    } else if (address === configs.addresses.nativeToken) {
+      return nativePrice
+    } else if (address === baseToken) {
+      return basePrice
+    } else if (address === quoteToken) {
+      return 1
     }
     if (powerState && isErc1155Address(address)) {
       const { id } = decodeErc1155Address(address)
+      if (Number(id) === POOL_IDS.cp) {
+        return cTokenPrice
+      }
       const power = powers[id]
       return powerState.calculatePrice(power)
     }
@@ -192,7 +200,7 @@ export const SwapBox = () => {
       return formatFloat(weiToNumber(bn(numberToWei(amountIn)).mul(numberToWei(price || 0)), 36), 2)
     }
     return 0
-  }, [powers, states, amountIn, inputTokenAddress])
+  }, [powers, states, amountIn, inputTokenAddress, nativePrice])
 
   const valueOut = useMemo(() => {
     if (powers && states.twapBase && Number(amountOut) > 0) {
@@ -205,7 +213,7 @@ export const SwapBox = () => {
       return formatFloat(weiToNumber(bn(numberToWei(amountOut)).mul(numberToWei(price || 0)), 36), 2)
     }
     return 0
-  }, [powers, states, amountOut, outputTokenAddress])
+  }, [powers, states, amountOut, outputTokenAddress, nativePrice])
 
   return (
     <div className='swap-box'>
@@ -359,7 +367,7 @@ export const SwapBox = () => {
             <Text>
               {weiToNumber(txFee, 18, 4)}
               <TextGrey> BNB </TextGrey>
-              (${weiToNumber(txFee.mul(nativePrice), 18, 2)})
+              (${weiToNumber(txFee.mul(numberToWei(nativePrice)), 36, 2)})
             </Text>
           </span>
         </InfoRow>

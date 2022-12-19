@@ -20,6 +20,7 @@ export default {
       bnA: '0xA0c0Da3e41c401A601c7c93C4036773B5Ac47be2',
       wrapToken: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
       nativeToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+      wrapUsdPair: '0x58F876857a02D6762E0101bb5C46A8c1ED44Dc16',
       poolFactory: '0xfead51eBe15ba6E16586d59fEFa7249E5E1B6355',
       router: '0x2B1a5571C00B032d3bF0ca3271CdAa73b1cc6e5c'
     }
