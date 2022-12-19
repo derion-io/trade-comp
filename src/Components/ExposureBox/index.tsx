@@ -36,6 +36,7 @@ import { StepType } from '../../utils/type'
 import { RemoveForm } from './RemoveForm'
 import { LP_PRICE_UNIT, POOL_IDS } from '../../utils/constant'
 import { useCpPrice, useNativePrice } from '../../state/token/hooks/useTokenPrice'
+import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 
 export const ExposureBox = ({ changedIn24h }: {
   changedIn24h: number
@@ -482,7 +483,7 @@ export const ExposureBox = ({ changedIn24h }: {
             <InfoRow className='mb-1'>
               <Text>Gas Used</Text>
               <span>
-                <Text>{gasUsed.toString()} Gas</Text>
+                <Text>{formatWeiToDisplayNumber(gasUsed, 0, 0)} Gas</Text>
               </span>
             </InfoRow>
             <InfoRow>

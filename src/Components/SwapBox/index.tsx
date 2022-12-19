@@ -359,7 +359,7 @@ export const SwapBox = () => {
         <InfoRow className='mb-1'>
           <Text>Gas Used</Text>
           <span>
-            <Text>{gasUsed.toString()} Gas</Text>
+            <Text>{formatWeiToDisplayNumber(gasUsed, 0, 0)} Gas</Text>
           </span>
         </InfoRow>
         <InfoRow>
