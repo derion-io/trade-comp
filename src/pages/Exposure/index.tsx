@@ -53,6 +53,23 @@ export const Exposure = ({ tab }: {
     }
   }, [cToken, quoteToken, baseToken])
 
+  const poolInfoAndHistory = <Tabs>
+    <TabList>
+      <Tab>Pool Info</Tab>
+      <Tab>History</Tab>
+    </TabList>
+    <TabPanel>
+      <Card className='card-in-tab'>
+        <ExpandPool visible pool={pools[poolAddress] || {}} />
+      </Card>
+    </TabPanel>
+    <TabPanel>
+      <Card className='card-in-tab'>
+        <WalletHistoryTable swapTxs={swapTxs}/>
+      </Card>
+    </TabPanel>
+  </Tabs>
+
   return (
     <div className='exposure-page'>
       <div className='exposure-page__head'>
@@ -69,23 +86,7 @@ export const Exposure = ({ tab }: {
         <div className='exposure-page__content--left'>
           <Chart />
           {
-            !isPhone &&
-            <Tabs>
-              <TabList>
-                <Tab>Pool Info</Tab>
-                <Tab>History</Tab>
-              </TabList>
-              <TabPanel>
-                <Card className='hidden-on-phone card-in-tab'>
-                  <ExpandPool visible pool={pools[poolAddress] || {}} />
-                </Card>
-              </TabPanel>
-              <TabPanel>
-                <Card className='hidden-on-phone card-in-tab'>
-                  <WalletHistoryTable swapTxs={swapTxs}/>
-                </Card>
-              </TabPanel>
-            </Tabs>
+            !isPhone && <div className='hidden-on-phone'>{poolInfoAndHistory}</div>
           }
         </div>
         <div className='exposure-page__content--right'>
@@ -114,7 +115,7 @@ export const Exposure = ({ tab }: {
             <PoolTableCompact />
           </Card>
           {
-            isPhone && <div className='hidden-on-desktop'><ExpandPool visible pool={pools[poolAddress] || {}} /></div>
+            isPhone && <div className='hidden-on-desktop'><div>{poolInfoAndHistory}</div></div>
           }
         </div>
       </div>
