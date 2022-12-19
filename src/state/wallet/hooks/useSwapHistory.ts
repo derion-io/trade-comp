@@ -6,7 +6,7 @@ import { useWeb3React } from '../../customWeb3React/hook'
 import { useMemo } from 'react'
 import { useCurrentPool } from '../../currentPool/hooks/useCurrentPool'
 import { PowerState } from 'powerLib/lib/index'
-import { bn } from '../../../utils/helpers'
+import { bn, weiToNumber } from '../../../utils/helpers'
 import { SwapTxType } from '../type'
 import { BigNumber } from 'ethers'
 
@@ -30,12 +30,22 @@ export const useSwapHistory = () => {
 }
 
 export const useSwapHistoryFormated = (): SwapTxType[] => {
-  const { swapLogs } = useSwapHistory()
+  const { swapLogs: sls } = useSwapHistory()
   const { powers, states, poolAddress } = useCurrentPool()
+
+  const logsBalances = (balances: any) => {
+    const result = []
+    for (const i in balances) {
+      result.push(`${i.toString()} => ${weiToNumber(balances[i])}`)
+    }
+    return result
+  }
 
   const result = useMemo(() => {
     try {
-      if (!swapLogs || swapLogs.length === 0 || !poolAddress) return []
+      if (!sls || sls.length === 0 || !poolAddress) return []
+      const swapLogs = sls.slice().sort((a, b) => a.timeStamp - b.timeStamp)
+
       const p = new PowerState({ powers: [...powers] })
       p.loadStates(states)
 
@@ -68,19 +78,19 @@ export const useSwapHistoryFormated = (): SwapTxType[] => {
           timeStamp: swapLog.timeStamp,
           cp,
           oldBalances,
-          newBalances: balances,
+          newBalances: _.cloneDeep(balances),
           cAmount,
           newLeverage,
           oldLeverage
         })
       }
 
-      return result
+      return result.sort((a, b) => (b.timeStamp - a.timeStamp))
     } catch (e) {
       console.error(e)
       return []
     }
-  }, [swapLogs, poolAddress, states])
+  }, [sls, poolAddress, states])
 
   // @ts-ignore
   return result
