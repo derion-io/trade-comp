@@ -6,7 +6,7 @@ import { TokenSymbol } from '../ui/TokenSymbol'
 import { useListTokens } from '../../state/token/hook'
 import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import moment from 'moment'
-import { Text, TextBlue, TextBuy, TextLink, TextSell } from '../ui/Text'
+import { Text, TextBlue, TextBuy, TextLink, TextPink, TextSell } from '../ui/Text'
 import { useConfigs } from '../../state/config/useConfigs'
 import { bn, formatFloat } from '../../utils/helpers'
 import { POOL_IDS } from '../../utils/constant'
@@ -26,7 +26,7 @@ export const WalletHistoryTable = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
               const leverageChange = swapTx.oldLeverage !== swapTx.newLeverage
                 ? <span>
                   {swapTx.oldLeverage ? <Leverage leverage={swapTx.oldLeverage} /> : ''}
-                  {swapTx.newLeverage && swapTx.oldLeverage ? '->' : ''}
+                  {swapTx.newLeverage && swapTx.oldLeverage ? ' -> ' : ''}
                   {swapTx.newLeverage ? <Leverage leverage={swapTx.newLeverage} /> : ''}
                 </span>
                 : ''
@@ -49,19 +49,19 @@ export const WalletHistoryTable = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
                   <AmountChange amountChange={quoteChange} address={quoteToken} />
                   <AmountChange amountChange={baseChange} address={baseToken} />
                 </td>
-                <td className='wallet-history-table__arrow'>
-                  {
-                    cChange.gt(0) || nativeChange.gt(0) ||
-                    quoteChange.gt(0) || baseChange.gt(0)
-                      ? '->' : '<-'
-                  }
-                </td>
+                {
+                  (cChange.gt(0) || nativeChange.gt(0) || quoteChange.gt(0) || baseChange.gt(0)) ?
+                    <td className='wallet-history-table__arrow text-buy'>{'->'}</td> :
+                  (cChange.isNegative() || nativeChange.isNegative() || quoteChange.isNegative() || baseChange.isNegative()) ?
+                    <td className='wallet-history-table__arrow text-sell'>{'<-'}</td> :
+                    <td></td>
+                }
                 <td>
                   {
                     !cpChange.isZero() &&
                   <span>
+                    <TextBlue>CP </TextBlue>
                     {formatWeiToDisplayNumber(cpChange, 4, tokens[cToken]?.decimal || 18)}
-                    <TextBlue> CP</TextBlue>
                   </span>
                   }
                   {swapTx.oldLeverage !== swapTx.newLeverage && <span>{leverageChange}</span>}
@@ -90,9 +90,8 @@ const AmountChange = ({ amountChange, address }: { amountChange: BigNumber, addr
   const { tokens } = useListTokens()
   if (amountChange.isZero()) return <React.Fragment />
   return <span>
-    <Text className={`${amountChange.isNegative() ? 'text-sell' : 'text-buy'}`}>
-      {!amountChange.isNegative() && '+'}{formatWeiToDisplayNumber(amountChange, 4, tokens[address]?.decimal || 18)}
-    </Text> <TokenSymbol token={tokens[address]} />
+    <TextPink><TokenSymbol token={tokens[address]} /> </TextPink>
+    <Text>{formatWeiToDisplayNumber(amountChange.abs(), 4, tokens[address]?.decimal || 18)}</Text>
   </span>
 }
 
