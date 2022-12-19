@@ -49,7 +49,14 @@
     }
   }
 
-  &__change-info {
+  &__arrow {
+    width: 40px;
+  }
+  &__ctoken-change {
+    width: 0;
+    & * {
+      white-space: nowrap;
+    }
     &>*:not(:last-child) {
       margin-right: 0.5rem;
     }
