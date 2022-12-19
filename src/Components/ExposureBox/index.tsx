@@ -13,7 +13,7 @@ import { PowerState } from 'powerLib'
 import {
   bn,
   decodeErc1155Address,
-  formatFloat,
+  formatFloat, isErc1155Address,
   mul,
   numberToWei,
   parseCallStaticError,
@@ -34,9 +34,8 @@ import { useConfigs } from '../../state/config/useConfigs'
 import { TokenIcon } from '../ui/TokenIcon'
 import { StepType } from '../../utils/type'
 import { RemoveForm } from './RemoveForm'
-import { LP_PRICE_UNIT } from '../../utils/constant'
-
-const nativePrice = 300
+import { LP_PRICE_UNIT, POOL_IDS } from '../../utils/constant'
+import { useCpPrice, useNativePrice } from '../../state/token/hooks/useTokenPrice'
 
 export const ExposureBox = ({ changedIn24h }: {
   changedIn24h: number
@@ -63,6 +62,8 @@ export const ExposureBox = ({ changedIn24h }: {
   const [gasUsed, setGasUsed] = useState<BigNumber>(bn(0))
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
   const [removePercent, setRemovePercent] = useState<number>()
+  const nativePrice = useNativePrice()
+  const cpPrice = useCpPrice()
 
   const resetFormHandle = () => {
     setAmountToChange('')
@@ -174,6 +175,30 @@ export const ExposureBox = ({ changedIn24h }: {
       clearTimeout(delayDebounceFn)
     }
   }, [swapSteps, isDeleverage])
+
+  const getTokenPrice = (address: string) => {
+    if (address === cToken) {
+      return cTokenPrice
+    } else if (address === configs.addresses.nativeToken) {
+      return nativePrice
+    } else if (address === baseToken) {
+      return basePrice
+    } else if (address === quoteToken) {
+      return 1
+    }
+    return 0
+  }
+
+  const valueIn = useMemo(() => {
+    if (powers && states.twapBase && Number(amountToChange) > 0) {
+      const price = getTokenPrice(inputTokenAddress)
+      if (price === 0 || !Number.isFinite(price)) {
+        return 0
+      }
+      return formatFloat(weiToNumber(bn(numberToWei(amountToChange)).mul(numberToWei(price || 0)), 36), 2)
+    }
+    return 0
+  }, [powers, states, amountToChange, inputTokenAddress, nativePrice])
 
   const convertIfTokenIsNative = (steps: StepType[]) => {
     let result = steps
@@ -318,7 +343,7 @@ export const ExposureBox = ({ changedIn24h }: {
                 setAmountToChange((e.target as HTMLInputElement).value)
               }}
               placeholder='0.0'
-              suffix={<TextGrey>${formatFloat(mul(cTokenPrice || 0, amountToChange || 0), 2)}</TextGrey>}
+              suffix={valueIn > 0 ? <TextGrey>${valueIn}</TextGrey> : ''}
               className='fs-24'
             />
           </div>
@@ -463,7 +488,7 @@ export const ExposureBox = ({ changedIn24h }: {
             <InfoRow>
               <Text>Transaction Fee</Text>
               <span>
-                <Text>{weiToNumber(txFee, 18, 4)} BNB (${weiToNumber(txFee.mul(nativePrice), 18, 2)})</Text>
+                <Text>{weiToNumber(txFee, 18, 4)} BNB (${weiToNumber(txFee.mul(numberToWei(nativePrice)), 36, 2)})</Text>
               </span>
             </InfoRow>
           </Box>

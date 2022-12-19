@@ -5,7 +5,7 @@ import { Text, TextGrey, TextPink } from '../../ui/Text'
 import { TokenIcon } from '../../ui/TokenIcon'
 import { TokenSymbol } from '../../ui/TokenSymbol'
 import { Input } from '../../ui/Input'
-import { bn, numberToWei, weiToNumber } from '../../../utils/helpers'
+import { bn, formatFloat, numberToWei, weiToNumber } from '../../../utils/helpers'
 import { useWalletBalance } from '../../../state/wallet/hooks/useBalances'
 import './style.scss'
 import { BigNumber } from 'ethers'
@@ -33,6 +33,12 @@ export const RemoveForm = ({
     }
     return bn(numberToWei(1))
   }, [totalValue, cToken, cTokenPrice])
+  const value = useMemo(() => {
+    if (amount && cTokenPrice) {
+      return formatFloat(weiToNumber(bn(numberToWei(amount)).mul(numberToWei(cTokenPrice || 0)), 36), 2)
+    }
+    return 0
+  }, [amount, cTokenPrice])
 
   return <div className='remove-from'>
     <div className='remove-form__head'>
@@ -68,7 +74,7 @@ export const RemoveForm = ({
               }
             }}
             placeholder='0.0'
-            suffix={<TextGrey>$</TextGrey>}
+            suffix={<TextGrey>${value > 0 ? value : ''}</TextGrey>}
           />
           : <Input
             inputWrapProps={{
