@@ -20,13 +20,6 @@ export const WalletHistoryTable = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
   return (
     <div className='wallet-history-table-wrap'>
       <table className='wallet-history-table'>
-        <thead>
-          <tr>
-            <th className='text-left'>Time</th>
-            <th className='text-left' colSpan={3}>Change</th>
-            <th className='text-left' />
-          </tr>
-        </thead>
         <tbody>
           {
             swapTxs.map((swapTx, key) => {
