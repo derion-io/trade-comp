@@ -21,7 +21,7 @@ export const App = () => {
   const { pools } = useListPool()
   const { fetchBalanceAndAllowance } = useWalletBalance()
   const { account } = useWeb3React()
-  const { configs, chainId } = useConfigs()
+  const { configs, chainId, location } = useConfigs()
   const dispatch = useDispatch()
   const chainIdRef = useRef(null)
   const { initListPool } = useListPool()

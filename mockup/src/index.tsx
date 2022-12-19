@@ -4,7 +4,7 @@ import { Web3ReactProvider } from '@web3-react/core'
 import configs from 'dapp-comp/dist/configs'
 import { ethers } from 'ethers'
 import { AppLayout } from "./components/AppLayout";
-import { BrowserRouter as Router} from 'react-router-dom';
+import { HashRouter as Router} from 'react-router-dom';
 import './styles/main.scss'
 import './index.css'
 
