@@ -23,7 +23,7 @@ export const RemoveForm = ({
   const { cToken, cTokenPrice } = useCurrentPool()
   const { tokens } = useListTokens()
   const [amount, setAmount] = useState<number>()
-  const [unit, setUnit] = useState<'amount' | 'percent'>('amount')
+  const [unit, setUnit] = useState<'amount' | 'percent'>('percent')
 
   const maxAmount = useMemo(() => {
     if (cTokenPrice) {
