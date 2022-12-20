@@ -14,7 +14,7 @@ export default {
   children: [
     {
       name: 'Trade',
-      path: '/trade/:tab',
+      path: '/trade/:tab?',
       menuLink: '/trade'
     },
     {
