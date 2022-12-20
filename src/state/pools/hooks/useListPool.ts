@@ -70,7 +70,7 @@ export const useListPool = () => {
       const headBlock = logs[logs.length - 1]?.blockNumber
       const topics = getTopics()
       const ddlLogs = logs.filter((log: any) => {
-        return log.address && [topics.LogicCreated, topics.PoolCreated, topics.TokenAdded].includes(log.topics[0])
+        return log.address && [topics.LogicCreated, topics.PoolCreated].includes(log.topics[0])
       })
       const swapLogs = logs.filter((log: any) => {
         return log.address && log.topics[0] === topics.MultiSwap
@@ -84,6 +84,7 @@ export const useListPool = () => {
 
       return [parseDdlLogs(ddlLogs), parseDdlLogs(swapLogs)]
     }).then(async ([ddlLogs, swapLogs]: any) => {
+      console.log('provider.getLogs result', { ddlLogs, swapLogs })
       if (swapLogs && swapLogs.length > 0) {
         addMultiSwapData(swapLogs, account)
       }
@@ -228,6 +229,7 @@ export const useListPool = () => {
         allTokens.push(...data.dTokens, data.cToken, data.baseToken)
       }
     })
+    console.log('generatePoolData result', { allTokens, poolData, allUniPools })
 
     return loadStatesData(allTokens, poolData, allUniPools)
   }
@@ -321,6 +323,7 @@ export const useListPool = () => {
   }
 
   const parseMultiCallResponse = (data: any) => {
+    console.log('parseMultiCallResponse', data)
     const abiInterface = new ethers.utils.Interface(getLogicAbi())
     const poolStateData = data.pools.callsReturnContext
     const tokens = data.tokens.callsReturnContext[0].returnValues
