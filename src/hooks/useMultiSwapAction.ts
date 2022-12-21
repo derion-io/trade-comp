@@ -10,6 +10,7 @@ import { toast } from 'react-toastify'
 import { BigNumber, ethers } from 'ethers'
 import { useWalletBalance } from '../state/wallet/hooks/useBalances'
 import { useListTokens } from '../state/token/hook'
+import { useListPool } from '../state/pools/hooks/useListPool'
 
 // TODO: don't hardcode these
 const fee10000 = 30
@@ -17,6 +18,7 @@ const fee10000 = 30
 const gasLimit = 30000000
 
 export const useMultiSwapAction = () => {
+  const { initListPool } = useListPool()
   const { getRouterContract } = useContract()
   const { library, account } = useWeb3React()
   const { configs } = useConfigs()
@@ -164,6 +166,7 @@ export const useMultiSwapAction = () => {
       console.log('tx', tx)
       await tx.wait(1)
       toast.success('Swap success')
+      initListPool(account)
       fetchBalanceAndAllowance(Object.keys(tokens))
       return tx
     } catch (e) {

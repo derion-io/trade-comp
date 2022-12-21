@@ -4,6 +4,7 @@ export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 export const fee10000 = 30
 
 export const LP_PRICE_UNIT = 10000
+export const TIME_TO_REFRESH_STATE = 30000
 
 export const LOCALSTORAGE_KEY = {
   DDL_LOGS: 'ddl-log-v1.0',

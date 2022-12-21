@@ -69,7 +69,9 @@ export const SwapBox = () => {
   }, [tokens[inputTokenAddress] && tokens[outputTokenAddress], amountIn, isDeleverage])
 
   const calcAmountOut = async (isDeleverage: boolean) => {
-    setCallError('Calculating...')
+    if (!amountOut) {
+      setCallError('Calculating...')
+    }
     calculateAmountOuts([{
       tokenIn: inputTokenAddress,
       tokenOut: outputTokenAddress,

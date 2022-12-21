@@ -148,7 +148,10 @@ export const ExposureBox = ({ changedIn24h }: {
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
-      setCallError('Calculating...')
+      if (!isHaveStepToSwap()) return
+      if (stepsWithAmounts.length === 0) {
+        setCallError('Calculating...')
+      }
       calculateAmountOuts(swapSteps, isDeleverage)
         .then(([aOuts, gasUsed]) => {
           // @ts-ignore
@@ -200,6 +203,12 @@ export const ExposureBox = ({ changedIn24h }: {
     }
     return 0
   }, [powers, states, amountToChange, inputTokenAddress, nativePrice])
+
+  const isHaveStepToSwap = () => {
+    return swapSteps.filter((step: {amountIn: BigNumber}) => {
+      return step.amountIn.gt(bn(numberToWei(1)).div(powerState?.unit || 1000000))
+    }).length > 0
+  }
 
   const convertIfTokenIsNative = (steps: StepType[]) => {
     let result = steps
@@ -276,6 +285,7 @@ export const ExposureBox = ({ changedIn24h }: {
       return <ButtonExecute className='execute-button mr-1' disabled>{callError.toString()}</ButtonExecute>
     } else {
       return <ButtonExecute
+        disabled={!isHaveStepToSwap() || stepsWithAmounts.length === 0}
         onClick={async () => {
           setLoading(true)
           try {

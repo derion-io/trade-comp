@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import './style.scss'
 import 'react-toastify/dist/ReactToastify.css'
 import { matchPath } from 'react-router'
@@ -13,7 +13,7 @@ import { useDispatch } from 'react-redux'
 import { setCurrentPoolInfo } from '../../state/currentPool/reducer'
 import { useListPool } from '../../state/pools/hooks/useListPool'
 import { Pools } from '../../pages/Pools'
-import { SWAP_TAB } from '../../utils/constant'
+import { SWAP_TAB, TIME_TO_REFRESH_STATE } from '../../utils/constant'
 
 export const App = () => {
   const { updateCurrentPool } = useCurrentPool()
@@ -28,6 +28,10 @@ export const App = () => {
 
   useEffect(() => {
     initListPool(account)
+    const intervalId = setInterval(() => {
+      initListPool(account)
+    }, TIME_TO_REFRESH_STATE)
+    return () => clearInterval(intervalId)
   }, [chainId, account])
 
   useEffect(() => {
