@@ -12,7 +12,7 @@ import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { PowerState } from 'powerLib'
 import {
   bn,
-  decodeErc1155Address,
+  decodeErc1155Address, div,
   formatFloat, isErc1155Address,
   mul,
   numberToWei,
@@ -142,7 +142,7 @@ export const ExposureBox = ({ changedIn24h }: {
         setSwapsteps(steps)
       }
     } catch (e) {
-      console.log(e)
+      console.error(e)
     }
   }, [removePercent, oldLeverage, newLeverage, powerState, amountToChange, inputTokenAddress])
 
@@ -236,8 +236,8 @@ export const ExposureBox = ({ changedIn24h }: {
     let cTokenValue = bn(0)
     if ((amountToChange || removePercent) && powerState) {
       if (formAddOrRemove === 'remove' && removePercent) {
-        amount = -removePercent / 100
-        cTokenValue = value.mul(-removePercent * LP_PRICE_UNIT).div(LP_PRICE_UNIT * 100)
+        amount = Number(div(-removePercent, 100))
+        cTokenValue = value.mul(numberToWei(-removePercent)).div(numberToWei(100))
       } else {
         const cPrice = powerState.getCPrice()
         cTokenValue = amount.mul(numberToWei(cPrice)).div(numberToWei(1))

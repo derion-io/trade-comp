@@ -22,7 +22,7 @@ export const RemoveForm = ({
 }) => {
   const { cToken, cTokenPrice } = useCurrentPool()
   const { tokens } = useListTokens()
-  const [amount, setAmount] = useState<number>()
+  const [amount, setAmount] = useState<string>()
   const [unit, setUnit] = useState<'amount' | 'percent'>('percent')
 
   const maxAmount = useMemo(() => {
@@ -51,7 +51,7 @@ export const RemoveForm = ({
         className='cursor-pointer'
         onClick={() => {
           setRemovePercent(100)
-          setAmount(Number(weiToNumber(maxAmount)))
+          setAmount(weiToNumber(maxAmount))
         }}
       >Max: {weiToNumber(maxAmount, tokens[cToken]?.decimal || 18, 4)}</Text>
     </div>
@@ -66,7 +66,7 @@ export const RemoveForm = ({
             type='number'
             onChange={(e) => {
               if (Number(e.target?.value) >= 0) {
-                setAmount(Number(e.target?.value))
+                setAmount(e.target?.value)
               }
               if (totalValue && totalValue.gt(0)) {
                 const percent = bn(numberToWei(e.target?.value)).mul(100000).div(totalValue).toNumber() / 100
@@ -109,7 +109,7 @@ export const RemoveForm = ({
             className={`remove-form__select-percent--option ${removePercent === percent && 'active'}`}
             onClick={() => {
               setRemovePercent(percent)
-              setAmount(Number(weiToNumber(maxAmount.mul(percent).div(100))))
+              setAmount(weiToNumber(maxAmount.mul(percent).div(100)))
             }}
           >{percent}%</span>
         })
