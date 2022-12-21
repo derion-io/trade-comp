@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useCurrentPool } from '../../../state/currentPool/hooks/useCurrentPool'
 import { useListTokens } from '../../../state/token/hook'
 import { Text, TextGrey, TextPink } from '../../ui/Text'
@@ -97,8 +97,10 @@ export const RemoveForm = ({
         className='remove-form__btn-change-unit'
         onClick={() => {
           setUnit(unit === 'amount' ? 'percent' : 'amount')
-        }}>
-        {unit === 'amount' ? '%' : 'Value'}
+        }}
+        fill={unit === 'amount' ? '#565656' : undefined}
+      >
+        %
       </ButtonBorder>
     </div>
     <div className='remove-form__select-percent'>

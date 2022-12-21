@@ -25,6 +25,11 @@
     width: 70px;
     padding-top: 0.7rem;
     padding-bottom: 0.7rem;
+
+    &--grey {
+      border-color: $color-disable-bg !important;
+      color: $color-disable-bg !important;
+    }
   }
 
   &__select-percent {
