@@ -30,9 +30,10 @@ export const tokens = createSlice({
     updateFormatedSwapTxs: (state, action: PayloadAction<{
       swapTxs: any
     }>) => {
-      const logs = action.payload.swapTxs
-
-      state.formartedSwapLogs = _.uniqBy(logs, (l) => l.transactionHash)
+      const logs = _.uniqBy(action.payload.swapTxs, (l: any) => l.transactionHash)
+      if (_.differenceBy(logs, state.formartedSwapLogs, 'transactionHash').length) {
+        state.formartedSwapLogs = logs
+      }
     },
     updateBalanceAndAllowancesReduce: (
       state,
