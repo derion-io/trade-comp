@@ -68,8 +68,10 @@ export const RemoveForm = ({
               if (Number(e.target?.value) >= 0) {
                 setAmount(e.target?.value)
               }
-              if (totalValue && totalValue.gt(0)) {
-                const percent = bn(numberToWei(e.target?.value)).mul(100000).div(totalValue).toNumber() / 100
+              if (maxAmount && maxAmount.gt(0)) {
+                const percent = bn(numberToWei(e.target?.value))
+                  .mul(10000)
+                  .div(maxAmount).toNumber() / 100
                 setRemovePercent(percent)
               }
             }}
