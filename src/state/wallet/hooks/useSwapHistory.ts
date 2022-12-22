@@ -11,30 +11,27 @@ import { SwapTxType } from '../type'
 import { BigNumber } from 'ethers'
 
 export const useSwapHistory = () => {
-  const { swapLogs } = useSelector((state: State) => {
+  const { swapLogs, formartedSwapLogs } = useSelector((state: State) => {
     return {
-      swapLogs: state.wallet.swapLogs
+      swapLogs: state.wallet.swapLogs,
+      formartedSwapLogs: state.wallet.formartedSwapLogs
     }
   })
   const { account } = useWeb3React()
   const dispatch = useDispatch()
 
   const addMultiSwapData = (swapLogs: any, account: string) => {
-    console.log({
-      account, txs: swapLogs
-    })
     dispatch(updateSwapTxs({ account, swapLogs }))
   }
 
-  return { addMultiSwapData, swapLogs: swapLogs[account] }
+  return {
+    addMultiSwapData,
+    swapLogs: swapLogs[account],
+    formartedSwapLogs
+  }
 }
 
-export const useSwapHistoryFormated = (): SwapTxType[] => {
-  const { formartedSwapLogs } = useSelector((state: State) => {
-    return {
-      formartedSwapLogs: state.wallet.formartedSwapLogs
-    }
-  })
+export const useSwapHistoryFormated = () => {
   const { swapLogs: sls } = useSwapHistory()
   const { powers, states, poolAddress } = useCurrentPool()
   const dispatch = useDispatch()
@@ -93,7 +90,4 @@ export const useSwapHistoryFormated = (): SwapTxType[] => {
       dispatch(updateFormatedSwapTxs({ swapTxs: [] }))
     }
   }, [sls, poolAddress, states])
-
-  // @ts-ignore
-  return formartedSwapLogs
 }

@@ -11,6 +11,7 @@ import { useConfigs } from '../../state/config/useConfigs'
 import { bn, formatFloat } from '../../utils/helpers'
 import { POOL_IDS } from '../../utils/constant'
 import { BigNumber } from 'ethers'
+import { getErc20AmountChange } from '../../utils/swapHistoryHelper'
 
 export const WalletHistoryTable = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
   const { cToken, baseId, quoteId, baseToken, quoteToken } = useCurrentPool()
@@ -50,11 +51,11 @@ export const WalletHistoryTable = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
                   <AmountChange amountChange={baseChange} address={baseToken} />
                 </td>
                 {
-                  (cChange.gt(0) || nativeChange.gt(0) || quoteChange.gt(0) || baseChange.gt(0)) ?
-                    <td className='wallet-history-table__arrow text-buy'>{'->'}</td> :
-                  (cChange.isNegative() || nativeChange.isNegative() || quoteChange.isNegative() || baseChange.isNegative()) ?
-                    <td className='wallet-history-table__arrow text-sell'>{'<-'}</td> :
-                    <td></td>
+                  (cChange.gt(0) || nativeChange.gt(0) || quoteChange.gt(0) || baseChange.gt(0))
+                    ? <td className='wallet-history-table__arrow text-buy'>{'->'}</td>
+                    : (cChange.isNegative() || nativeChange.isNegative() || quoteChange.isNegative() || baseChange.isNegative())
+                      ? <td className='wallet-history-table__arrow text-sell'>{'<-'}</td>
+                      : <td />
                 }
                 <td>
                   {
@@ -75,14 +76,6 @@ export const WalletHistoryTable = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
         </tbody>
       </table>
     </div>
-  )
-}
-
-const getErc20AmountChange = (oldBalances: { [key: number]: BigNumber }, newBalances: { [key: number]: BigNumber }, id: number | string) => {
-  return bn(oldBalances && oldBalances[id]
-    ? oldBalances[id] : 0
-  ).sub(newBalances && newBalances[id]
-    ? newBalances[id] : 0
   )
 }
 

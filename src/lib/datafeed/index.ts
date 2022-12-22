@@ -1,8 +1,23 @@
 import historyProvider, { CandleType } from './historyProvider'
-import { LASTEST_BLOCK_NUMBER } from '../../utils/constant'
+import { LASTEST_BLOCK_NUMBER, NATIVE_ADDRESS, POOL_IDS } from '../../utils/constant'
 import { store } from '../../state'
-import { addTokensReduce } from '../../state/token/reducer'
 import { setChartIsOutDate } from '../../state/currentPool/reducer'
+import { getErc20AmountChange } from '../../utils/swapHistoryHelper'
+import { SwapTxType } from '../../state/wallet/type'
+import moment from 'moment'
+import { BigNumber } from 'ethers'
+import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
+import { currentPoolState } from '../../state/currentPool/type'
+import { formatFloat } from '../../utils/helpers'
+import { TokenType } from '../../state/token/type'
+import allConfigs from '../../state/config/configs'
+
+const COLORS = {
+  PINK: '#FF98E5',
+  BLUE: '#01A7FA',
+  BUY: '#3DBAA2',
+  SELL: '#FF7A68'
+}
 
 const supportedResolutions = ['1', '5', '15', '60', '240', '1D', '1W']
 const configDefault = {
@@ -169,7 +184,165 @@ export const Datafeed = {
     if (this.subscribeBarsInterval[subscriberUID]) {
       clearInterval(this.subscribeBarsInterval[subscriberUID])
     }
+  },
+
+  getTimescaleMarks: async function (
+    symbolInfo: any,
+    from: any,
+    to: any,
+    onDataCallback: any,
+    resolution: any
+  ) {
+    const state = store.getState()
+    const walletTxs = state.wallet.formartedSwapLogs
+    const currentPool = state.currentPool
+    const configs = state.configs
+    const tokens = state.tokens.tokens[configs.chainId]
+
+    const result = walletTxs.map((t: any) => {
+      return detectMarkInfo(
+        t,
+        resolution,
+        currentPool,
+        tokens,
+        allConfigs[configs.chainId],
+        true
+      )
+    })
+    onDataCallback(result)
+  },
+  getMarks: async function (
+    symbolInfo: any,
+    from: any,
+    to: any,
+    onDataCallback: any,
+    resolution: any
+  ) {
+    const state = store.getState()
+    const walletTxs = state.wallet.formartedSwapLogs
+    const currentPool = state.currentPool
+    const configs = state.configs
+    const tokens = state.tokens.tokens[configs.chainId]
+
+    const result = walletTxs.map((t: any) => {
+      return detectMarkInfo(
+        t,
+        resolution,
+        currentPool,
+        tokens,
+        allConfigs[configs.chainId]
+      )
+    })
+    onDataCallback(result)
   }
+}
+//
+const detectMarkInfo = (
+  swapTx: SwapTxType,
+  resolution: any,
+  currentPool: currentPoolState,
+  tokens: { [key: string]: TokenType },
+  configs: any,
+  timescaleMark = false
+) => {
+  const { baseId, quoteId, cToken, quoteToken, baseToken } = currentPool
+  const cChange = getErc20AmountChange(swapTx.oldBalances, swapTx.newBalances, POOL_IDS.cToken)
+  const nativeChange = getErc20AmountChange(swapTx.oldBalances, swapTx.newBalances, POOL_IDS.native)
+  const cpChange = getErc20AmountChange(swapTx.newBalances, swapTx.oldBalances, POOL_IDS.cp)
+  const baseChange = getErc20AmountChange(swapTx.oldBalances, swapTx.newBalances, baseId)
+  const quoteChange = getErc20AmountChange(swapTx.oldBalances, swapTx.newBalances, quoteId)
+  const time = moment(swapTx.timeStamp * 1000).format('DD/MM/YYYY, hh:mm a')
+
+  const amountChange = `<span>
+    ${getAmountChange({ tokens, amountChange: cChange, address: cToken })}
+    ${getAmountChange({ tokens, amountChange: nativeChange, address: NATIVE_ADDRESS })}
+    ${getAmountChange({ tokens, amountChange: baseChange, address: baseToken })}
+    ${getAmountChange({ tokens, amountChange: quoteChange, address: quoteToken })}
+  </span>`
+
+  const arrow = (cChange.gt(0) || nativeChange.gt(0) || quoteChange.gt(0) || baseChange.gt(0))
+    ? `<span style='color: ${COLORS.BUY}'>-></span>`
+    : (cChange.isNegative() || nativeChange.isNegative() || quoteChange.isNegative() || baseChange.isNegative())
+      ? `<span style='color: ${COLORS.SELL}'><-</span>` : ''
+
+  const cpChangeText = !cpChange.isZero()
+    ? `<span>
+      <span style='color: ${COLORS.BLUE}'>CP </span>
+      ${formatWeiToDisplayNumber(cpChange, 4, tokens[cToken]?.decimal || 18)}
+  </span>` : ''
+
+  const leverageChange = swapTx.oldLeverage !== swapTx.newLeverage
+    ? `<span>
+      ${swapTx.oldLeverage ? getLeverageText(swapTx.oldLeverage) : ''}
+      ${swapTx.newLeverage && swapTx.oldLeverage ? ' -> ' : ''}
+      ${swapTx.newLeverage ? getLeverageText(swapTx.newLeverage) : ''}
+    </span>`
+    : ''
+
+  const explorerLink = `<a style='color: ${COLORS.BLUE}' target='_blank' href='${configs.explorer}/tx/${swapTx.transactionHash}'>View on Scan</a>`
+
+  const l =
+    resolution === '1D' || resolution === '1W' || resolution === '1M'
+      ? 1
+      : parseInt(resolution)
+
+  const result: any = {
+    id: swapTx.transactionHash,
+    time: timescaleMark
+      ? Math.floor(swapTx.timeStamp)
+      : Math.floor(swapTx.timeStamp) - 60 * l
+  }
+  let label = 'E'
+
+  if (timescaleMark) {
+    result.color = COLORS.BLUE
+    result.tooltip = [
+      'Execute at ' + time,
+      `<div>
+        ${amountChange}
+        ${arrow}
+        ${cpChangeText}
+        ${leverageChange}
+      </div>`,
+      `<div>
+        ${explorerLink}
+      </div>`
+    ]
+  } else {
+    result.color = 'blue'
+    label = label.slice(0, 1)
+    result.labelFontColor = '#ffffff'
+    result.text = `<div>
+      <p>Execute at ${time}</p>
+      <div>
+        ${amountChange}
+        ${arrow}
+        ${cpChangeText}
+        ${leverageChange}
+      </div>
+      <div>
+        ${explorerLink}
+      </div>
+    </div>`
+  }
+  result.label = label
+  return result
+}
+
+const getLeverageText = (leverage: number) => {
+  return `<span style='color: ${leverage > 0 ? COLORS.BUY : COLORS.SELL}'>${leverage > 0 ? 'Long ' : 'Short '} ${formatFloat(leverage, 1)}</span>`
+}
+
+const getAmountChange = ({ amountChange, address, tokens }: {
+  tokens: { [key: string]: TokenType },
+  amountChange: BigNumber,
+  address: string
+}) => {
+  if (amountChange.isZero()) return ''
+  return `<span>
+    <span style='color: ${COLORS.PINK}'>${tokens[address]?.symbol}</span>
+  <span>${formatWeiToDisplayNumber(amountChange.abs(), 4, tokens[address]?.decimal || 18)}</span>
+  </span>`
 }
 
 const detectChartIsOutdate = (lastCandle: CandleType, resolution: string) => {

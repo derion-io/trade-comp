@@ -16,7 +16,7 @@ import { useWindowSize } from '../../hooks/useWindowSize'
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
 import 'react-tabs/style/react-tabs.css'
 import { Card } from '../../Components/ui/Card'
-import { useSwapHistoryFormated } from '../../state/wallet/hooks/useSwapHistory'
+import { useSwapHistory, useSwapHistoryFormated } from '../../state/wallet/hooks/useSwapHistory'
 import { WalletHistoryTable } from '../../Components/WalletHistoryTable'
 
 export const Exposure = ({ tab }: {
@@ -30,7 +30,8 @@ export const Exposure = ({ tab }: {
   const [changedIn24h, setChangedIn24h] = useState<number>(0)
   const { width } = useWindowSize()
   const isPhone = width && width < 992
-  const swapTxs = useSwapHistoryFormated()
+  const { formartedSwapLogs: swapTxs } = useSwapHistory()
+  useSwapHistoryFormated()
 
   useEffect(() => {
     if (baseToken && quoteToken && cToken) {

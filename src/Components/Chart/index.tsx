@@ -11,6 +11,7 @@ import { useListTokens } from '../../state/token/hook'
 import { useWindowSize } from '../../hooks/useWindowSize'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { Card } from '../ui/Card'
+import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 
 export interface ChartContainerProps {
   interval: ChartingLibraryWidgetOptions['interval']
@@ -40,12 +41,26 @@ export const Chart = ({
   const [tradingviewWidget, setTradingviewWidget] = useState<any>(null)
   const { tokens } = useListTokens()
   const { cToken, baseToken, quoteToken, chartIsOutDate } = useCurrentPool()
+  const { formartedSwapLogs: swapTxs } = useSwapHistory()
 
   useEffect(() => {
-    if(cToken && baseToken && quoteToken) {
+    if (cToken && baseToken && quoteToken) {
       setTimeout(initChart)
     }
   }, [cToken, baseToken, quoteToken])
+
+  useEffect(() => {
+    console.log('tradingviewWidget', tradingviewWidget)
+    if (tradingviewWidget) {
+      console.log('refresh mark')
+      try {
+        tradingviewWidget.activeChart().clearMarks()
+        tradingviewWidget.activeChart().refreshMarks()
+      } catch (e) {
+        console.error(e)
+      }
+    }
+  }, [swapTxs])
 
   const initChart = async () => {
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
@@ -95,7 +110,7 @@ export const Chart = ({
         'paneProperties.backgroundGradientEndColor': '#1E2026',
         'paneProperties.backgroundGradientStartColor': '#1E2026',
         'paneProperties.vertGridProperties.color': 'rgba(128,128,128,0.2)',
-        'paneProperties.horzGridProperties.color': 'rgba(128,128,128,0.2)',
+        'paneProperties.horzGridProperties.color': 'rgba(128,128,128,0.2)'
       })
     })
   }
