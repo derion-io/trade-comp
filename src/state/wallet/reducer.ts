@@ -27,6 +27,13 @@ export const tokens = createSlice({
 
       state.swapLogs[action.payload.account] = _.uniqBy(logs, (l) => l.transactionHash)
     },
+    updateFormatedSwapTxs: (state, action: PayloadAction<{
+      swapTxs: any
+    }>) => {
+      const logs = action.payload.swapTxs
+
+      state.formartedSwapLogs = _.uniqBy(logs, (l) => l.transactionHash)
+    },
     updateBalanceAndAllowancesReduce: (
       state,
       action: PayloadAction<{
@@ -57,7 +64,8 @@ export const tokens = createSlice({
 export const {
   resetBnA,
   updateBalanceAndAllowancesReduce,
-  updateSwapTxs
+  updateSwapTxs,
+  updateFormatedSwapTxs
 } = tokens.actions
 
 export default tokens.reducer

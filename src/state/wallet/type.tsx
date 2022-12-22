@@ -17,6 +17,7 @@ export interface walletState {
   account: string
   balances: BalancesType
   swapLogs: {[key: string]: any[] }
+  formartedSwapLogs: any[]
   routerAllowances: AllowancesType
 }
 
@@ -24,5 +25,6 @@ export const initialState: walletState = {
   account: '',
   balances: {},
   swapLogs: {},
+  formartedSwapLogs: [],
   routerAllowances: {}
 }

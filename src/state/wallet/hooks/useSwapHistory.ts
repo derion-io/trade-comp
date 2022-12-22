@@ -1,9 +1,9 @@
 import _ from 'lodash'
 import { useDispatch, useSelector } from 'react-redux'
-import { updateSwapTxs } from '../reducer'
+import { updateFormatedSwapTxs, updateSwapTxs } from '../reducer'
 import { State } from '../../types'
 import { useWeb3React } from '../../customWeb3React/hook'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useCurrentPool } from '../../currentPool/hooks/useCurrentPool'
 import { PowerState } from 'powerLib/lib/index'
 import { bn, weiToNumber } from '../../../utils/helpers'
@@ -30,20 +30,21 @@ export const useSwapHistory = () => {
 }
 
 export const useSwapHistoryFormated = (): SwapTxType[] => {
+  const { formartedSwapLogs } = useSelector((state: State) => {
+    return {
+      formartedSwapLogs: state.wallet.formartedSwapLogs
+    }
+  })
   const { swapLogs: sls } = useSwapHistory()
   const { powers, states, poolAddress } = useCurrentPool()
+  const dispatch = useDispatch()
 
-  const logsBalances = (balances: any) => {
-    const result = []
-    for (const i in balances) {
-      result.push(`${i.toString()} => ${weiToNumber(balances[i])}`)
-    }
-    return result
-  }
-
-  const result = useMemo(() => {
+  useEffect(() => {
     try {
-      if (!sls || sls.length === 0 || !poolAddress) return []
+      if (!sls || sls.length === 0 || !poolAddress) {
+        dispatch(updateFormatedSwapTxs({ swapTxs: [] }))
+        return
+      }
       const swapLogs = sls.slice().sort((a, b) => a.timeStamp - b.timeStamp)
 
       const p = new PowerState({ powers: [...powers] })
@@ -84,14 +85,15 @@ export const useSwapHistoryFormated = (): SwapTxType[] => {
           oldLeverage
         })
       }
+      const finalResult = result.sort((a, b) => (b.timeStamp - a.timeStamp))
 
-      return result.sort((a, b) => (b.timeStamp - a.timeStamp))
+      dispatch(updateFormatedSwapTxs({ swapTxs: finalResult }))
     } catch (e) {
       console.error(e)
-      return []
+      dispatch(updateFormatedSwapTxs({ swapTxs: [] }))
     }
   }, [sls, poolAddress, states])
 
   // @ts-ignore
-  return result
+  return formartedSwapLogs
 }
