@@ -20,7 +20,7 @@ export const Menu = ({
         const Icon = item.icon
         return <li className={`item ${location.pathname === item.path ? 'active' : '' }`} key={key}>
           {
-            <Link to={item.path ? item.path : '#'}>
+            <Link to={item.menuLink ? item.menuLink : item.path}>
               {Icon && <Icon className='menu-item-icon'/>}
               <span>{item.name}</span>
             </Link>

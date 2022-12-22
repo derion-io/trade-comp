@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 import './style.scss'
 import 'react-toastify/dist/ReactToastify.css'
-import { matchPath } from 'react-router'
+import { matchPath } from 'react-router-dom'
 import { Exposure } from '../../pages/Exposure'
 import { useListTokens } from '../../state/token/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
@@ -55,9 +55,9 @@ export const App = () => {
 
   const renderAppContent = () => {
     switch (true) {
-      case isMatchWithPath('/trade/:tab') || isMatchWithPath('/trade'):
+      case isMatchWithPath('/:tab(exposure|swap)'):
         return <Exposure tab={detectTab(location.pathname)} />
-      case isMatchWithPath('pools'):
+      case isMatchWithPath('/pools'):
         return <Pools />
       default:
         return <Exposure tab={SWAP_TAB.EXPOSURE} />
@@ -65,21 +65,18 @@ export const App = () => {
   }
 
   const detectTab = (path: string) => {
-    const arr = path.split('/')
-    if (arr.length > 2 && arr[2] === 'swap') {
+    if (path.includes('swap')) {
       return SWAP_TAB.SWAP
     }
     return SWAP_TAB.EXPOSURE
   }
 
   const isMatchWithPath = (path: string) => {
-    return !!matchPath({
+    return !!matchPath(location.pathname, {
       path,
-      // @ts-ignore
       exact: true,
-      // @ts-ignore
       strict: false
-    }, location.pathname)
+    })
   }
 
   return (

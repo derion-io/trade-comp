@@ -14,8 +14,8 @@ export default {
   children: [
     {
       name: 'Trade',
-      path: '/trade/:tab?',
-      menuLink: '/trade'
+      path: '/:tab(swap|exposure)',
+      menuLink: '/exposure'
     },
     {
       name: 'Pools',

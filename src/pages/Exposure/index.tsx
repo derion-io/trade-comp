@@ -93,7 +93,7 @@ export const Exposure = ({ tab }: {
           <Tabs
             selectedIndex={tab === SWAP_TAB.EXPOSURE ? 0 : 1}
             onSelect={(index) => {
-              history.push(index === 0 ? '/trade/exposure' : '/trade/swap')
+              history.push(index === 0 ? '/exposure' : '/swap')
             }}
           >
             <TabList>
