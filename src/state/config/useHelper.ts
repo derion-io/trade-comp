@@ -1,5 +1,5 @@
 import { useConfigs } from './useConfigs'
-import { div, formatPercent, numberToWei, sub, weiToNumber } from '../../utils/helpers'
+import { bn, div, formatPercent, numberToWei, sub, weiToNumber } from '../../utils/helpers'
 import { CHART_API_ENDPOINT, POOL_IDS } from '../../utils/constant'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { useContract } from '../../hooks/useContract'
@@ -35,6 +35,11 @@ export const useHelper = () => {
     const result = await fetch(`${CHART_API_ENDPOINT}candleline4?q=${query}&r=1H&l=24&t=${toTime}`)
       .then((r) => r.json())
       .then((res: any) => {
+        const isOutDate = (Number(res.t[res.t?.length - 1]) + 3600 + 60) * 1000 < new Date().getTime()
+        if (isOutDate) {
+          return 0
+        }
+
         const open = res.o[0]
         const close = res.c[res.o?.length - 1]
         console.log({
@@ -81,7 +86,7 @@ export const useHelper = () => {
       const blocknumber24hAgo = headBlock - Math.floor(8640000 / configs.timePerBlock)
       const eventInterface = getEventInterface()
 
-      const reserves = await provider.getLogs({
+      const { totalBaseReserve, totalQuoteReserve } = await provider.getLogs({
         address: cToken,
         fromBlock: blocknumber24hAgo - range,
         toBlock: blocknumber24hAgo,
@@ -99,12 +104,19 @@ export const useHelper = () => {
             quoteReserve
           }
         })
+      }).then((reserves) => {
+        let totalBaseReserve = bn(0)
+        let totalQuoteReserve = bn(0)
+        for (const i in reserves) {
+          totalBaseReserve = totalBaseReserve.add(reserves[i].baseReserve)
+          totalQuoteReserve = totalQuoteReserve.add(reserves[i].quoteReserve)
+        }
+        return { totalBaseReserve, totalQuoteReserve }
       })
 
-      if (reserves.length > 0) {
-        const { baseReserve, quoteReserve } = reserves[reserves.length - 1]
+      if (totalBaseReserve.gt(0) && totalQuoteReserve.gt(0)) {
         const price = weiToNumber(
-          quoteReserve.mul(numberToWei(1)).div(baseReserve),
+          totalQuoteReserve.mul(numberToWei(1)).div(totalBaseReserve),
           18 + (tokens[quoteToken]?.decimal || 18) - (tokens[baseToken]?.decimal || 18)
         )
 

@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import './style.scss'
 import { ExposureBox } from '../../Components/ExposureBox'
-import { PoolTable, PoolTableCompact } from '../../Components/PoolTable'
+import { PoolTableCompact } from '../../Components/PoolTable'
 import { TextBlue } from '../../Components/ui/Text'
 import { IconArrowLeft } from '../../Components/ui/Icon'
 import { useConfigs } from '../../state/config/useConfigs'
@@ -34,22 +34,22 @@ export const Exposure = ({ tab }: {
 
   useEffect(() => {
     if (baseToken && quoteToken && cToken) {
-      get24hChangeByLog({
-        baseId,
-        currentPrice: basePrice,
-        baseToken,
-        quoteToken,
-        cToken
-      }).then((value) => {
-        if (value) {
-          setChangedIn24h(value)
-        } else {
-          get24hChange(baseToken, cToken, quoteToken)
-            .then((value1) => {
-              setChangedIn24h(value1)
+      get24hChange(baseToken, cToken, quoteToken)
+        .then((value1) => {
+          if (value1) {
+            setChangedIn24h(value1)
+          } else {
+            get24hChangeByLog({
+              baseId,
+              currentPrice: basePrice,
+              baseToken,
+              quoteToken,
+              cToken
+            }).then((value) => {
+              setChangedIn24h(value)
             })
-        }
-      })
+          }
+        })
     }
   }, [cToken, quoteToken, baseToken])
 
