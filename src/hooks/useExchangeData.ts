@@ -58,7 +58,7 @@ export const useExchangeData = () => {
       }).sort((a, b) => a.time - b.time)
     } catch (error) {
       console.error(error)
-      return null
+      return []
     }
   }
 
@@ -87,7 +87,7 @@ export const useExchangeData = () => {
       }).sort((a, b) => a.time - b.time)
     } catch (error) {
       console.error(error)
-      return null
+      return []
     }
   }
 

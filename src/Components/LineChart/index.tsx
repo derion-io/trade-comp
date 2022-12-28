@@ -12,27 +12,32 @@ import { DATE_FORMATS, I_1W, INTERVALS_TAB, LineChartIntervalType } from '../../
 import { Tabs } from '../ui/Tabs'
 import { COLORS } from '../../utils/constant'
 
-export const LineChart = ({ changedIn24h } : {changedIn24h: number}) => {
+export const LineChart = ({ changedIn24h }: { changedIn24h: number }) => {
   const { getLineChartData } = useExchangeData()
   const { cToken, baseToken, quoteToken, basePrice } = useCurrentPool()
   const { tokens } = useListTokens()
   const [hoverValue, setHoverValue] = useState<number>(formatFloat(basePrice))
-  const [chartData, setChartData] = useState<any>([])
+  const [chartData, setChartData] = useState<{ [key: string]: any[] }>({})
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [hoverDate, setHoverDate] = useState<string>('')
   const [interval, setInterval] = useState<LineChartIntervalType>(I_1W)
   useEffect(() => {
-    setIsLoading(true)
-    getLineChartData({ pair: cToken, baseToken, interval })
-      .then((data) => {
-        setChartData(data)
-        setIsLoading(false)
-      })
+    if (!chartData[interval]) {
+      setIsLoading(true)
+      getLineChartData({ pair: cToken, baseToken, interval })
+        .then((data) => {
+          setChartData({
+            ...chartData,
+            [interval]: data
+          })
+          setIsLoading(false)
+        })
+    }
   }, [cToken, interval])
 
   const [finalData, color] = useMemo(() => {
     const data = [
-      ...chartData,
+      ...chartData[interval],
       {
         time: new Date().getTime(),
         value: formatFloat(basePrice)
@@ -42,14 +47,9 @@ export const LineChart = ({ changedIn24h } : {changedIn24h: number}) => {
       ? COLORS.BUY
       : COLORS.SELL
     return [data, color]
-  }, [chartData, basePrice])
+  }, [chartData[interval], basePrice])
 
   return <div className='line-chart-wrap'>
-    {isLoading &&
-    <div className='line-chart__loading'>
-      <LineChartLoader />
-    </div>
-    }
     <div className={`${isLoading && 'transparent'}`}>
       <div className='line-chart__head'>
         <div className='line-chart__head--left'>
@@ -79,6 +79,12 @@ export const LineChart = ({ changedIn24h } : {changedIn24h: number}) => {
         </div>
       </div>
       <div className='line-chart-box'>
+        {(isLoading || !chartData[interval]) &&
+        <div className='line-chart__loading'>
+          <LineChartLoader />
+        </div>
+        }
+        {chartData[interval] && chartData[interval].length > 0 &&
         <ResponsiveContainer>
           <AreaChart
             data={finalData}
@@ -118,6 +124,7 @@ export const LineChart = ({ changedIn24h } : {changedIn24h: number}) => {
             <Area dataKey='value' type='linear' stroke={color} fill='url(#gradient)' strokeWidth={2} />
           </AreaChart>
         </ResponsiveContainer>
+        }
       </div>
     </div>
   </div>

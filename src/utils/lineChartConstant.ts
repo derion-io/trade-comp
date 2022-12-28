@@ -4,10 +4,10 @@ export const DATE_FORMATS = {
   FULL: 'MMM DD, YYYY, hh:mm a'
 }
 
-export const I_1D = Symbol('1d')
-export const I_1W = Symbol('1w')
-export const I_1M = Symbol('1m')
-export const I_6M = Symbol('6m')
+export const I_1D = '1d'
+export const I_1W = '1w'
+export const I_1M = '1m'
+export const I_6M = '6m'
 
 export type LineChartIntervalType = typeof I_1D | typeof I_1W | typeof I_1M | typeof I_6M
 
