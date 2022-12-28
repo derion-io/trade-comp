@@ -76,7 +76,11 @@ export const parseCallStaticError = (error: any) => {
   return message
 }
 
-export const formatFloat = (number: number | string, decimal = 1) => {
+export const formatFloat = (number: number | string, decimal?: number) => {
+  if (!decimal) {
+    decimal = detectDecimalFromPrice(number)
+  }
+
   number = number.toString()
   const arr = number.split('.')
   if (arr.length > 1) {

@@ -1,42 +1,54 @@
-import { request, gql, GraphQLClient } from 'graphql-request'
+import { gql, GraphQLClient } from 'graphql-request'
 import { useConfigs } from '../state/config/useConfigs'
+import { bn, detectDecimalFromPrice, formatFloat, numberToWei, weiToNumber } from '../utils/helpers'
+
+type PairHourDataType = {
+  reserve0: string,
+  reserve1: string
+  hourStartUnix: number
+  pair: {
+    token0: {
+      id: string
+    }
+    token1: {
+      id: string
+    }
+  }
+}
+
+type PairDayDataType = PairHourDataType & {
+  dayStartUnix: number
+}
 
 export const useExchangeData = () => {
   const { configs } = useConfigs()
 
   const getLineChartData = async ({
-    where = {},
-    first = 1000,
-    orderBy = 'id',
-    orderDirection = 'desc',
-    skip = 0
+    pair,
+    baseToken
   }: {
-      where?: any,
-      first?: number,
-      orderBy?: string,
-      orderDirection?: 'asc' | 'desc',
-      skip?: number,
-    }) => {
+    pair: string
+    baseToken: string
+  }) => {
     try {
       const client = new GraphQLClient(configs.theGraphExchange)
-      const query = gql`{
-          pairHourDatas(
-            first: 24
-            where: {pair: "0x58F876857a02D6762E0101bb5C46A8c1ED44Dc16"}
-            orderBy: hourStartUnix
-            orderDirection: desc
-          ) {
-            hourStartUnix,
-            id
-            reserve0
-            reserve1
-          }
+      const query = getQueryHourDatas(pair)
+      console.log('query', query)
+      const res: { pairHourDatas: PairHourDataType[] } = await client.request(query)
+      console.log('res', res)
+      const data = res.pairHourDatas?.map((item) => {
+        const [baseReserve, quoteReserve] = item.pair.token0.id === baseToken
+          ? [item.reserve0, item.reserve1]
+          : [item.reserve1, item.reserve0]
+        const value = weiToNumber(bn(numberToWei(quoteReserve, 36)).div(numberToWei(baseReserve, 18)))
+        return {
+          time: item.hourStartUnix,
+          value: Number(formatFloat(value))
         }
-      `
-      const res = await client.request(query)
-      console.log('khanh', res)
+      })
+      console.log('data', data)
 
-      return res.nfts
+      return data
     } catch (error) {
       console.log('khanh error')
       console.error(error)
@@ -48,3 +60,26 @@ export const useExchangeData = () => {
     getLineChartData
   }
 }
+
+const getQueryHourDatas = (pair: string) => gql`{
+    pairHourDatas(
+      first: 24
+      where: {pair: "${pair}"}
+      orderBy: hourStartUnix
+      orderDirection: desc
+    ) {
+      hourStartUnix,
+      id
+      reserve0
+      reserve1
+      pair {
+        token0 {
+          id
+        }
+        token1 {
+          id
+        }
+      }
+    }
+  }
+`

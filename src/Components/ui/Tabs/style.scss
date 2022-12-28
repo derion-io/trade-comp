@@ -1,0 +1,33 @@
+@import "../../../styles/abstracts/variables";
+
+.exposure-interface .derivable-tabs {
+  display: flex;
+  background: $color-card-bg;
+  padding: 0.4rem;
+  border-radius: 8px;
+  position: relative;
+
+  & > *:not(:last-child) {
+    margin-right: 1rem;
+  }
+
+  &__item {
+    padding: .3rem 1rem;
+    width: auto;
+    cursor: pointer;
+    border-radius: 8px;
+
+    &.active {
+    }
+  }
+
+  &__slider {
+    background: $color-grey;
+    box-shadow: rgb(34 37 49) 0 1px 0;
+    position: absolute;
+    z-index: 1;
+    border-radius: 6px;
+    transform: translateY(0.4rem);
+    transition: all 0.3s ease 0s;
+  }
+}
