@@ -11,6 +11,11 @@ export const tokens = createSlice({
     }>) => {
       state.chartIsOutDate = action.payload.status
     },
+    setCandleChartIsLoadingReduce: (state, action: PayloadAction<{
+      status: boolean
+    }>) => {
+      state.candleChartIsLoading = action.payload.status
+    },
     setCurrentPoolInfo: (
       state,
       action: PayloadAction<{
@@ -49,7 +54,8 @@ export const tokens = createSlice({
 // Actions
 export const {
   setChartIsOutDate,
-  setCurrentPoolInfo
+  setCurrentPoolInfo,
+  setCandleChartIsLoadingReduce
 } = tokens.actions
 
 export default tokens.reducer

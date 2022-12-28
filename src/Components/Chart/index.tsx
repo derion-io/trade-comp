@@ -12,6 +12,8 @@ import { useWindowSize } from '../../hooks/useWindowSize'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { Card } from '../ui/Card'
 import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
+import { useExchangeData } from '../../hooks/useExchangeData'
+import { CandleChartLoader, LineChartLoader } from '../ChartLoaders'
 
 export interface ChartContainerProps {
   interval: ChartingLibraryWidgetOptions['interval']
@@ -40,8 +42,13 @@ export const Chart = ({
 }: ChartContainerProps) => {
   const [tradingviewWidget, setTradingviewWidget] = useState<any>(null)
   const { tokens } = useListTokens()
-  const { cToken, baseToken, quoteToken, chartIsOutDate } = useCurrentPool()
+  const { cToken, baseToken, quoteToken, chartIsOutDate, candleChartIsLoading, setCandleChartIsLoading } = useCurrentPool()
   const { formartedSwapLogs: swapTxs } = useSwapHistory()
+  const { getLineChartData } = useExchangeData()
+
+  useEffect(() => {
+    getLineChartData({})
+  }, [])
 
   useEffect(() => {
     if (cToken && baseToken && quoteToken) {
@@ -63,6 +70,7 @@ export const Chart = ({
   }, [swapTxs])
 
   const initChart = async () => {
+    setCandleChartIsLoading(true)
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
     const widgetOptions: any = {
       symbol: [baseToken, cToken, quoteToken, tokens[baseToken]?.symbol + '/' + tokens[quoteToken]?.symbol].join('-'),
@@ -115,9 +123,16 @@ export const Chart = ({
     })
   }
 
+  // eslint-disable-next-line no-constant-condition
+
   return (
     <Card className='chart-wrap'>
-      <div className='chart-box'>
+      { candleChartIsLoading &&
+        <div className='loading'>
+          <CandleChartLoader />
+        </div>
+      }
+      <div className={`chart-box ${candleChartIsLoading && 'transparent'}`}>
         <div
           id={containerId}
           className='TVChartContainer'

@@ -1,7 +1,7 @@
 import historyProvider, { CandleType } from './historyProvider'
 import { LASTEST_BLOCK_NUMBER, NATIVE_ADDRESS, POOL_IDS } from '../../utils/constant'
 import { store } from '../../state'
-import { setChartIsOutDate } from '../../state/currentPool/reducer'
+import { setCandleChartIsLoadingReduce, setChartIsOutDate } from '../../state/currentPool/reducer'
 import { getErc20AmountChange } from '../../utils/swapHistoryHelper'
 import { SwapTxType } from '../../state/wallet/type'
 import moment from 'moment'
@@ -110,13 +110,9 @@ export const Datafeed = {
       })
       .then((bars: any) => {
         if (bars.length > 0) {
-          // const lastCandle = this.lastCandle[symbol + '-' + interval] || {}
-          // console.log('last candle', bars[bars.length - 1].time, lastCandle.time, bars[bars.length - 1].time > lastCandle.time)
-          // if (bars[bars.length - 1].time > lastCandle.time || !lastCandle.time) {
-          //   this.lastCandle[symbol + '-' + interval] = bars[bars.length - 1]
-          //   this.realTimeCandle[symbol + '-' + interval] = bars[bars.length - 1]
-          // }
           if (periodParams.firstDataRequest) {
+            console.log('periodParams.firstDataRequest')
+            store.dispatch(setCandleChartIsLoadingReduce({ status: false }))
             detectChartIsOutdate(bars[bars.length - 1], interval)
           }
 

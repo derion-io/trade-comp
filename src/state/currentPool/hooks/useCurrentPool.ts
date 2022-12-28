@@ -1,12 +1,13 @@
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../types'
-import { div, formatPercent, sub } from '../../../utils/helpers'
 import { useListPool } from '../../pools/hooks/useListPool'
 import { useConfigs } from '../../config/useConfigs'
+import { setCandleChartIsLoadingReduce } from '../reducer'
 
 export const useCurrentPool = () => {
   const { pools } = useListPool()
   const { configs } = useConfigs()
+  const dispatch = useDispatch()
 
   const {
     cTokenPrice,
@@ -22,7 +23,8 @@ export const useCurrentPool = () => {
     basePrice,
     changedIn24h,
     poolAddress,
-    chartIsOutDate
+    chartIsOutDate,
+    candleChartIsLoading
   } = useSelector((state: State) => {
     return {
       cTokenPrice: state.currentPool.cTokenPrice,
@@ -38,7 +40,8 @@ export const useCurrentPool = () => {
       quoteId: state.currentPool.quoteId,
       changedIn24h: state.currentPool.changedIn24h,
       poolAddress: state.currentPool.poolAddress,
-      chartIsOutDate: state.currentPool.chartIsOutDate
+      chartIsOutDate: state.currentPool.chartIsOutDate,
+      candleChartIsLoading: state.currentPool.candleChartIsLoading
     }
   })
 
@@ -76,10 +79,16 @@ export const useCurrentPool = () => {
     }
   }
 
+  const setCandleChartIsLoading = (status: boolean) => {
+    dispatch(setCandleChartIsLoadingReduce({status}))
+  }
+
   return {
     detectChangeType,
     getTokenByPower,
     updateCurrentPool,
+    setCandleChartIsLoading,
+    candleChartIsLoading,
     basePrice,
     changedIn24h,
     cTokenPrice,

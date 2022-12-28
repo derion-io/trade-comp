@@ -7,6 +7,9 @@ export default {
     scanName: 'BscScan',
     ddlGenesisBlock: 23917200,
     timePerBlock: 3000,
+    // theGraphExchange: 'https://thegraph.com/hosted-service/subgraph/olastenberg/sushiswap-arbitrum-fix',
+    // theGraphExchange: 'https://thegraph.com/hosted-service/subgraph/developerfred/pancake-exchange',
+    theGraphExchange: 'https://data-platform.nodereal.io/graph/v1/95e657b8187749b5b5645487c7dd8bc5/projects/pancakeswap',
     nativeToken: {
       name: 'BNB',
       symbol: 'BNB',
