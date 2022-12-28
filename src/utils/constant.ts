@@ -29,3 +29,8 @@ export const POOL_IDS = {
   token1: 262145,
   native: '0x000000000000000000000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
 }
+
+export const COLORS = {
+  BUY: '#3DBAA2',
+  SELL: '#FF7A68'
+}

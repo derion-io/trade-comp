@@ -1,7 +1,7 @@
 import React from 'react'
 import './style.scss'
 
-type TextType = React.HTMLAttributes<HTMLSpanElement> & { children: any, fontSize?: number }
+type TextType = React.HTMLAttributes<HTMLSpanElement> & { children: any, fontSize?: number, fontWeight?: number }
 
 export const Text = (props: TextType) => {
   return (
@@ -9,7 +9,8 @@ export const Text = (props: TextType) => {
       {...props}
       className={'derivable-text ' + props.className}
       style={{
-        fontSize: props.fontSize
+        fontSize: props.fontSize,
+        fontWeight: props.fontWeight
       }}
     >
       {props.children}

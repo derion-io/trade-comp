@@ -85,7 +85,7 @@ export const Exposure = ({ tab }: {
       </div>
       <div className='exposure-page__content'>
         <div className='exposure-page__content--left'>
-          <Chart />
+          <Chart changedIn24h={changedIn24h}/>
           {
             !isPhone && <div className='hidden-on-phone'>{poolInfoAndHistory}</div>
           }

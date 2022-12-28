@@ -7,7 +7,7 @@ import { LineChart } from '../LineChart'
 const CANDLE_CHART = Symbol('candle')
 const LINE_CHART = Symbol('line')
 
-export const Chart = () => {
+export const Chart = ({ changedIn24h }: {changedIn24h: number}) => {
   const [tab, setTab] = useState<Symbol>(CANDLE_CHART)
 
   return <div className='chart-box'>
@@ -25,7 +25,7 @@ export const Chart = () => {
       tab === CANDLE_CHART && <CandleChart />
     }
     {
-      tab === LINE_CHART && <LineChart />
+      tab === LINE_CHART && <LineChart changedIn24h={changedIn24h} />
     }
   </div>
 }
