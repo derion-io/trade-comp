@@ -1,10 +1,8 @@
 @import "../../../styles/abstracts/variables";
 
-.pool-expand {
-  border: 1px solid $color-box-border;
-  padding: 2rem;
-  border-radius: 2rem;
+$border-radius: 8px;
 
+.exposure-interface .pool-expand {
   &__wrap {
     padding: 2rem;
     background: $color-card-bg;
@@ -12,48 +10,62 @@
   }
 
   &__top {
-    padding-bottom: 2rem;
-
+    display: flex;
     &--left,&--mid,&--right {
-      & >*:not(:last-child) {
-        margin-bottom: 1.5rem !important;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      &-head {
+        height: 32px;
+        display: flex;
+        align-items: start;
+        padding: 0 1rem;
+      }
+      &-content {
+        background: $color-grey-2;
+        flex: 1;
+        padding: 1rem;
+
+        & >*:not(:last-child) {
+          margin-bottom: 1.5rem !important;
+        }
       }
     }
-  }
 
-  &__bottom {
-    padding-top: 2rem;
-  }
-
-  &__top,&__bottom {
-    display: flex;
-
-    &--left {
-      flex: 1
+    &--left-content {
+      border-radius: $border-radius  0 0 0;
+    }
+    &--right-content {
+      border-radius: 0 $border-radius 0 0;
     }
 
-    &--right {
-      flex: 2
-    }
+  }
+
+  & * {
+    font-size: 1.2rem;
+    white-space: nowrap;
   }
 
   &__configs, &__total-supplies {
-    display: flex;
-    justify-content: space-between;
+
   }
 
-  &__box {
+  &__bottom {
+    background: $color-grey-2;
+    border-radius: 0  0 $border-radius $border-radius;
     position: relative;
-    border-top: 1px solid $color-box-border;
-    padding-top: 1.5rem;
+    padding: 1rem;
 
-    &--title {
-      position: absolute;
-      top: -1.1rem;
-      left: 50%;
-      transform: translateX(-50%);
-      background: $color-card-bg;
-      padding: 0 1rem;
+
+    &--content {
+      border-top: 1px solid $color-box-border;
+      display: flex;
+      justify-content: space-between;
+      padding-top: 1rem;
+
+      & > * {
+        white-space: nowrap;
+      }
     }
   }
 }

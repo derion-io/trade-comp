@@ -56,80 +56,88 @@ export const ExpandPool = ({ visible, pool }: {
   return <div className='pool-expand__wrap'>
     <div className='pool-expand'>
       <div className='pool-expand__top'>
-      <div className='pool-expand__top--left'>
-          <p className='mb-1'><TextPink>Derivatives</TextPink></p>
-          {
-            powers && powers
-              .map((power: number, index: number) => {
-                return { power, index }
-              })
-              .sort((a: any, b: any) => b.power - a.power)
-              .map(({ power, index }: { power: number, index: number }) => {
-                const price = powerState ? powerState.calculatePrice(power) : 0
-                if (price == 0 || !Number.isFinite(price)) {
-                  return { index, power, value: 0 }
-                }
-                const value = totalSupplies[index]?.mul(numberToWei(price || 0))
-                return { index, power, value }
-              })
-              .filter(({ value }: { value: number }) => {
-                return value > 0
-              })
-              .map(({ index, power, value }: { index: number, power: number, value: number }) => {
-                const TextComp = power > 0 ? TextBuy : TextSell
-                return <div key={index}>
-                  <Text><TextGreen>${formatFloat(weiToNumber(value, 36), 2)}</TextGreen> </Text>
-                  <TextComp>
-                    <TokenSymbol token={tokens[dTokens[index]]} />
-                  </TextComp>
-                </div>
-              })
-          }
+        <div className='pool-expand__top--left'>
+          <p className='pool-expand__top--left-head'><TextPink> </TextPink></p>
+          <div className='pool-expand__top--left-content'>
+            <div className='mb-1'><TextLink
+              href={`${configs.explorer}/address/${poolAddress}`}
+            >DDL Pool Contract</TextLink></div>
+            <div className='mb-1'><TextLink
+              href={`https://pancakeswap.finance/add/${baseToken}/${quoteToken}`}
+            >Get C-Token</TextLink></div>
+            {
+              isDeleverage && <div>
+                <ButtonExecute
+                  onClick={async () => {
+                    setDeleverageLoading(true)
+                    await multiSwap([], true)
+                    setDeleverageLoading(false)
+                  }}
+                >{deleverageLoading ? 'Loading...' : 'Deleverage'}</ButtonExecute>
+              </div>
+            }
+          </div>
+        </div>
+        <div className='pool-expand__top--mid'>
+          <p className='pool-expand__top--mid-head'><TextPink>Derivatives</TextPink></p>
+          <div className='pool-expand__top--mid-content'>
+            {
+              powers && powers
+                .map((power: number, index: number) => {
+                  return { power, index }
+                })
+                .sort((a: any, b: any) => b.power - a.power)
+                .map(({ power, index }: { power: number, index: number }) => {
+                  const price = powerState ? powerState.calculatePrice(power) : 0
+                  if (price == 0 || !Number.isFinite(price)) {
+                    return { index, power, value: 0 }
+                  }
+                  const value = totalSupplies[index]?.mul(numberToWei(price || 0))
+                  return { index, power, value }
+                })
+                .filter(({ value }: { value: number }) => {
+                  return value > 0
+                })
+                .map(({ index, power, value }: { index: number, power: number, value: number }) => {
+                  const TextComp = power > 0 ? TextBuy : TextSell
+                  return <div key={index}>
+                    <Text><TextGreen>${formatFloat(weiToNumber(value, 36), 2)}</TextGreen> </Text>
+                    <TextComp>
+                      <TokenSymbol token={tokens[dTokens[index]]} />
+                    </TextComp>
+                  </div>
+                })
+            }
+          </div>
         </div>
         <div className='pool-expand__top--right'>
-          <p className='mb-1'><TextPink>States</TextPink></p>
-          <div>
-            <Text>Total Locked Value:</Text><TextGreen> ${formatFloat(weiToNumber(totalLockedValue), 2)}</TextGreen>
-          </div>
-          <div>
-            <Text>Collateral Ratio:</Text><TextGreen> {formatFloat(collateralRatio, 2)}</TextGreen>
-          </div>
-          <div>
-            <Text>Long Derivatives Value:</Text><TextGreen> ${formatFloat(weiToNumber(rDcLongValue), 2)}</TextGreen>
-          </div>
-          <div>
-            <Text>Short Derivatives Value:</Text><TextGreen> ${formatFloat(weiToNumber(rDcShortValue), 2)}</TextGreen>
-          </div>
-          <div>
-            <Text>Long Funding Rate (daily): </Text>
-            <TextGreen>{states?.rentRateLong && formatFloat(parseUq112x112(states.rentRateLong.mul(SECONDS_PER_DAY).mul(100)), 4)}%</TextGreen>
-          </div>
-          <div>
-            <Text>Short Funding Rate (daily): </Text>
-            <TextGreen>{states?.rentRateShort && formatFloat(parseUq112x112(states.rentRateShort.mul(SECONDS_PER_DAY).mul(100)), 4)}%</TextGreen>
-          </div>
-          <div className='mb-1'><TextLink
-            href={`${configs.explorer}/address/${poolAddress}`}
-          >DDL Pool Contract</TextLink></div>
-          <div className='mb-1'><TextLink
-            href={`https://pancakeswap.finance/add/${baseToken}/${quoteToken}`}
-          >Get C-Token</TextLink></div>
-          {
-            isDeleverage && <div>
-              <ButtonExecute
-                onClick={async () => {
-                  setDeleverageLoading(true)
-                  await multiSwap([], true)
-                  setDeleverageLoading(false)
-                }}
-              >{deleverageLoading ? 'Loading...' : 'Deleverage'}</ButtonExecute>
+          <p className='pool-expand__top--right-head'><TextPink>States</TextPink></p>
+          <div className='pool-expand__top--right-content'>
+            <div>
+              <Text>Total Locked Value:</Text><TextGreen> ${formatFloat(weiToNumber(totalLockedValue), 2)}</TextGreen>
             </div>
-          }
+            <div>
+              <Text>Collateral Ratio:</Text><TextGreen> {formatFloat(collateralRatio, 2)}</TextGreen>
+            </div>
+            <div>
+              <Text>Long Derivatives Value:</Text><TextGreen> ${formatFloat(weiToNumber(rDcLongValue), 2)}</TextGreen>
+            </div>
+            <div>
+              <Text>Short Derivatives Value:</Text><TextGreen> ${formatFloat(weiToNumber(rDcShortValue), 2)}</TextGreen>
+            </div>
+            <div>
+              <Text>Long Funding Rate (daily): </Text>
+              <TextGreen>{states?.rentRateLong && formatFloat(parseUq112x112(states.rentRateLong.mul(SECONDS_PER_DAY).mul(100)), 4)}%</TextGreen>
+            </div>
+            <div>
+              <Text>Short Funding Rate (daily): </Text>
+              <TextGreen>{states?.rentRateShort && formatFloat(parseUq112x112(states.rentRateShort.mul(SECONDS_PER_DAY).mul(100)), 4)}%</TextGreen>
+            </div>
+          </div>
         </div>
       </div>
-      <div className='pool-expand__box'>
-        <div className='pool-expand__box--title'>Configs</div>
-        <div className='pool-expand__configs'>
+      <div className='pool-expand__bottom'>
+        <div className='pool-expand__bottom--content'>
           <div>
             <Text>Price Tolenrance Ratio: </Text>
             <SkeletonLoader loading={!pool || !pool.priceToleranceRatio}>

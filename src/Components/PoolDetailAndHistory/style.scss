@@ -1,0 +1,7 @@
+@import "../../styles/abstracts/variables";
+@import "../../styles/abstracts/mixins";
+
+.exposure-interface .pool-detail-and-history {
+  display: flex;
+  justify-content: space-between;
+}

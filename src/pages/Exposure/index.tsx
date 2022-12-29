@@ -18,6 +18,7 @@ import 'react-tabs/style/react-tabs.css'
 import { Card } from '../../Components/ui/Card'
 import { useSwapHistory, useSwapHistoryFormated } from '../../state/wallet/hooks/useSwapHistory'
 import { WalletHistoryTable } from '../../Components/WalletHistoryTable'
+import { PoolDetailAndHistory } from '../../Components/PoolDetailAndHistory'
 
 export const Exposure = ({ tab }: {
   tab: Symbol
@@ -54,22 +55,22 @@ export const Exposure = ({ tab }: {
     }
   }, [cToken, quoteToken, baseToken])
 
-  const poolInfoAndHistory = <Tabs>
-    <TabList>
-      <Tab>Pool Info</Tab>
-      <Tab>History</Tab>
-    </TabList>
-    <TabPanel>
-      <Card className='card-in-tab'>
-        <ExpandPool visible pool={pools[poolAddress] || {}} />
-      </Card>
-    </TabPanel>
-    <TabPanel>
-      <Card className='card-in-tab'>
-        <WalletHistoryTable swapTxs={swapTxs}/>
-      </Card>
-    </TabPanel>
-  </Tabs>
+  // const poolInfoAndHistory = <Tabs>
+  //   <TabList>
+  //     <Tab>Pool Info</Tab>
+  //     <Tab>History</Tab>
+  //   </TabList>
+  //   <TabPanel>
+  //     <Card className='card-in-tab'>
+  //       <ExpandPool visible pool={pools[poolAddress] || {}} />
+  //     </Card>
+  //   </TabPanel>
+  //   <TabPanel>
+  //     <Card className='card-in-tab'>
+  //       <WalletHistoryTable swapTxs={swapTxs}/>
+  //     </Card>
+  //   </TabPanel>
+  // </Tabs>
 
   return (
     <div className='exposure-page'>
@@ -87,7 +88,9 @@ export const Exposure = ({ tab }: {
         <div className='exposure-page__content--left'>
           <Chart changedIn24h={changedIn24h}/>
           {
-            !isPhone && <div className='hidden-on-phone'>{poolInfoAndHistory}</div>
+            !isPhone && <div className='hidden-on-phone'>
+              <PoolDetailAndHistory poolAddress={poolAddress}/>
+            </div>
           }
         </div>
         <div className='exposure-page__content--right'>
@@ -116,7 +119,9 @@ export const Exposure = ({ tab }: {
             <PoolTableCompact />
           </Card>
           {
-            isPhone && <div className='hidden-on-desktop'><div>{poolInfoAndHistory}</div></div>
+            isPhone && <div className='hidden-on-desktop'>
+              <PoolDetailAndHistory poolAddress={poolAddress}/>
+            </div>
           }
         </div>
       </div>
