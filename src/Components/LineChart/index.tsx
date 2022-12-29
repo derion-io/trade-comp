@@ -16,10 +16,10 @@ export const LineChart = ({ changedIn24h }: { changedIn24h: number }) => {
   const { getLineChartData } = useExchangeData()
   const { cToken, baseToken, quoteToken, basePrice } = useCurrentPool()
   const { tokens } = useListTokens()
-  const [hoverValue, setHoverValue] = useState<number>(formatFloat(basePrice))
+  const [hoverValue, setHoverValue] = useState<number>()
   const [chartData, setChartData] = useState<{ [key: string]: any[] }>({})
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [hoverDate, setHoverDate] = useState<string>('')
+  const [hoverDate, setHoverDate] = useState<string>()
   const [interval, setInterval] = useState<LineChartIntervalType>(I_1W)
   useEffect(() => {
     if (!chartData[interval]) {
@@ -43,48 +43,47 @@ export const LineChart = ({ changedIn24h }: { changedIn24h: number }) => {
         value: formatFloat(basePrice)
       }
     ]
-    const color = data[data.length - 1].value > data[data.length - 2]
+    const color = data[data.length - 1].value > (data[data.length - 2]?.value || 0)
       ? COLORS.BUY
       : COLORS.SELL
     return [data, color]
   }, [chartData[interval], basePrice])
 
   return <div className='line-chart-wrap'>
-    <div className={`${isLoading && 'transparent'}`}>
-      <div className='line-chart__head'>
-        <div className='line-chart__head--left'>
-          <div>
-            <Text fontSize={24} fontWeight={700} className='mr-05'>
-              {hoverValue}
-            </Text>
-            <TextGrey className='mr-05' fontWeight={700}>
-              {tokens[baseToken]?.symbol}/{tokens[quoteToken]?.symbol}
-            </TextGrey>
-            {
-              changedIn24h >= 0
-                ? <TextBuy>(+{changedIn24h}%)</TextBuy>
-                : <TextSell>({changedIn24h}%)</TextSell>
-            }
-          </div>
-          <div>
-            <TextGrey>{moment(hoverDate || new Date().getTime()).format(DATE_FORMATS.FULL)}</TextGrey>
-          </div>
+    <div className='line-chart__head'>
+      <div className='line-chart__head--left'>
+        <div>
+          <Text fontSize={24} fontWeight={700} className='mr-05'>
+            {hoverValue || formatFloat(basePrice)}
+          </Text>
+          <TextGrey className='mr-05' fontWeight={700}>
+            {tokens[baseToken]?.symbol}/{tokens[quoteToken]?.symbol}
+          </TextGrey>
+          {
+            changedIn24h >= 0
+              ? <TextBuy>(+{changedIn24h}%)</TextBuy>
+              : <TextSell>({changedIn24h}%)</TextSell>
+          }
         </div>
-        <div className='line-chart__head--right'>
-          <Tabs
-            tab={interval}
-            setTab={setInterval}
-            tabs={INTERVALS_TAB}
-          />
+        <div>
+          <TextGrey>{moment(hoverDate || new Date().getTime()).format(DATE_FORMATS.FULL)}</TextGrey>
         </div>
       </div>
-      <div className='line-chart-box'>
-        {(isLoading || !chartData[interval]) &&
+      <div className='line-chart__head--right'>
+        <Tabs
+          tab={interval}
+          setTab={setInterval}
+          tabs={INTERVALS_TAB}
+        />
+      </div>
+    </div>
+    <div className='line-chart-box'>
+      {(isLoading || !chartData[interval]) &&
         <div className='line-chart__loading'>
           <LineChartLoader />
         </div>
-        }
-        {chartData[interval] && chartData[interval].length > 0 &&
+      }
+      {chartData[interval] && chartData[interval].length > 0 &&
         <ResponsiveContainer>
           <AreaChart
             data={finalData}
@@ -93,6 +92,10 @@ export const LineChart = ({ changedIn24h }: { changedIn24h: number }) => {
               right: 0,
               left: 0,
               bottom: 5
+            }}
+            onMouseLeave={() => {
+              if (setHoverDate) setHoverDate(undefined)
+              if (setHoverValue) setHoverValue(undefined)
             }}
           >
             <defs>
@@ -124,8 +127,7 @@ export const LineChart = ({ changedIn24h }: { changedIn24h: number }) => {
             <Area dataKey='value' type='linear' stroke={color} fill='url(#gradient)' strokeWidth={2} />
           </AreaChart>
         </ResponsiveContainer>
-        }
-      </div>
+      }
     </div>
   </div>
 }
