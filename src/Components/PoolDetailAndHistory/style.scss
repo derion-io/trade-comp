@@ -4,4 +4,13 @@
 .exposure-interface .pool-detail-and-history {
   display: flex;
   justify-content: space-between;
+  padding: 1.5rem;
+
+  &__left {
+    flex: 3;
+    padding-right: 1rem;
+  }
+  &__right {
+    flex: 2;
+  }
 }

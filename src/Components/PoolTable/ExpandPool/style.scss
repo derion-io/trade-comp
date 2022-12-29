@@ -4,7 +4,6 @@ $border-radius: 8px;
 
 .exposure-interface .pool-expand {
   &__wrap {
-    padding: 2rem;
     background: $color-card-bg;
     border-radius: 20px;
   }
@@ -16,7 +15,7 @@ $border-radius: 8px;
       flex-direction: column;
       flex: 1;
       &-head {
-        height: 32px;
+        height: 25px;
         display: flex;
         align-items: start;
         padding: 0 1rem;

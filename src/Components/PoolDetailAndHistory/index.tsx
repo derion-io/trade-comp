@@ -11,7 +11,11 @@ export const PoolDetailAndHistory = ({ poolAddress }: {poolAddress: string}) => 
   const { pools } = useListPool()
 
   return <Card className='pool-detail-and-history'>
-    <ExpandPool visible pool={pools[poolAddress] || {}} />
-    <WalletHistoryTable swapTxs={swapTxs}/>
+    <div className='pool-detail-and-history__left'>
+      <ExpandPool visible pool={pools[poolAddress] || {}} />
+    </div>
+    <div className='pool-detail-and-history__right'>
+      <WalletHistoryTable swapTxs={swapTxs}/>
+    </div>
   </Card>
 }

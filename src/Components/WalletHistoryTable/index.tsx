@@ -20,63 +20,79 @@ export const WalletHistoryTable = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
 
   return (
     <div className='wallet-history-table-wrap'>
-      <table className='wallet-history-table'>
-        <tbody>
-          {
-            swapTxs.map((swapTx, key) => {
-              const leverageChange = swapTx.oldLeverage !== swapTx.newLeverage
-                ? <span>
-                  {swapTx.oldLeverage ? <Leverage leverage={swapTx.oldLeverage} /> : ''}
-                  {swapTx.newLeverage && swapTx.oldLeverage ? ' -> ' : ''}
-                  {swapTx.newLeverage ? <Leverage leverage={swapTx.newLeverage} /> : ''}
-                </span>
-                : ''
-
-              const cChange = getErc20AmountChange(swapTx.oldBalances, swapTx.newBalances, POOL_IDS.cToken)
-              const nativeChange = getErc20AmountChange(swapTx.oldBalances, swapTx.newBalances, POOL_IDS.native)
-              const cpChange = getErc20AmountChange(swapTx.newBalances, swapTx.oldBalances, POOL_IDS.cp)
-              const baseChange = getErc20AmountChange(swapTx.oldBalances, swapTx.newBalances, baseId)
-              const quoteChange = getErc20AmountChange(swapTx.oldBalances, swapTx.newBalances, quoteId)
-
-              return <tr key={key}>
-                <td className='wallet-history-table__time'>
-                  <span>
-                    {swapTx.timeStamp && moment().to(swapTx.timeStamp * 1000, true) + ' ago'}
+      <div className='wallet-history-table__head'>
+        <TextPink>Wallet history</TextPink>
+      </div>
+      <div className='wallet-history-table'>
+        <table>
+          <tbody>
+            {
+              swapTxs.map((swapTx, key) => {
+                const leverageChange = swapTx.oldLeverage !== swapTx.newLeverage
+                  ? <span>
+                    {swapTx.oldLeverage ? <Leverage leverage={swapTx.oldLeverage} /> : ''}
+                    {swapTx.newLeverage && swapTx.oldLeverage ? ' -> ' : ''}
+                    {swapTx.newLeverage ? <Leverage leverage={swapTx.newLeverage} /> : ''}
                   </span>
-                </td>
-                <td className='wallet-history-table__ctoken-change'>
-                  <AmountChange amountChange={cChange} address={cToken} />
-                  <AmountChange amountChange={nativeChange} address={configs.addresses.nativeToken} />
-                  <AmountChange amountChange={quoteChange} address={quoteToken} />
-                  <AmountChange amountChange={baseChange} address={baseToken} />
-                </td>
-                {
-                  (cChange.gt(0) || nativeChange.gt(0) || quoteChange.gt(0) || baseChange.gt(0))
-                    ? <td className='wallet-history-table__arrow text-buy'>{'->'}</td>
-                    : (cChange.isNegative() || nativeChange.isNegative() || quoteChange.isNegative() || baseChange.isNegative())
-                      ? <td className='wallet-history-table__arrow text-sell'>{'<-'}</td>
-                      : <td />
-                }
-                <td>
+                  : ''
+
+                const cChange = getErc20AmountChange(swapTx.oldBalances, swapTx.newBalances, POOL_IDS.cToken)
+                const nativeChange = getErc20AmountChange(swapTx.oldBalances, swapTx.newBalances, POOL_IDS.native)
+                const cpChange = getErc20AmountChange(swapTx.newBalances, swapTx.oldBalances, POOL_IDS.cp)
+                const baseChange = getErc20AmountChange(swapTx.oldBalances, swapTx.newBalances, baseId)
+                const quoteChange = getErc20AmountChange(swapTx.oldBalances, swapTx.newBalances, quoteId)
+
+                return <tr key={key}>
+                  <td className='wallet-history-table__time'>
+                    <span>
+                      {swapTx.timeStamp && getTimeLabel(swapTx.timeStamp) + ' ago'}
+                    </span>
+                  </td>
+                  <td className='wallet-history-table__ctoken-change'>
+                    <AmountChange amountChange={cChange} address={cToken} />
+                    <AmountChange amountChange={nativeChange} address={configs.addresses.nativeToken} />
+                    <AmountChange amountChange={quoteChange} address={quoteToken} />
+                    <AmountChange amountChange={baseChange} address={baseToken} />
+                  </td>
                   {
-                    !cpChange.isZero() &&
+                    (cChange.gt(0) || nativeChange.gt(0) || quoteChange.gt(0) || baseChange.gt(0))
+                      ? <td className='wallet-history-table__arrow text-buy'>{'->'}</td>
+                      : (cChange.isNegative() || nativeChange.isNegative() || quoteChange.isNegative() || baseChange.isNegative())
+                        ? <td className='wallet-history-table__arrow text-sell'>{'<-'}</td>
+                        : <td />
+                  }
+                  <td>
+                    {
+                      !cpChange.isZero() &&
                   <span>
                     <TextBlue>CP </TextBlue>
                     {formatWeiToDisplayNumber(cpChange, 4, tokens[cToken]?.decimal || 18)}
                   </span>
-                  }
-                  {swapTx.oldLeverage !== swapTx.newLeverage && <span>{leverageChange}</span>}
-                </td>
-                <td className='text-right'>
-                  <TextLink href={configs.explorer + '/tx/' + swapTx.transactionHash}>View</TextLink>
-                </td>
-              </tr>
-            })
-          }
-        </tbody>
-      </table>
+                    }
+                    {swapTx.oldLeverage !== swapTx.newLeverage && <span>{leverageChange}</span>}
+                  </td>
+                  <td className='text-right'>
+                    <TextLink href={configs.explorer + '/tx/' + swapTx.transactionHash}>View</TextLink>
+                  </td>
+                </tr>
+              })
+            }
+          </tbody>
+        </table>
+      </div>
     </div>
   )
+}
+
+const getTimeLabel = (timeStamp: number) => {
+  return moment().to(timeStamp * 1000, true)
+    .replace(' days', 'd')
+    .replace(' seconds', 's')
+    .replace(' minutes', 'm')
+    .replace(' hours', 'h')
+    .replace('a day', '1d')
+    .replace('a minute', 'm')
+    .replace('an hour', 'h')
 }
 
 const AmountChange = ({ amountChange, address }: { amountChange: BigNumber, address: string }) => {
