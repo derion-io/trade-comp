@@ -18,6 +18,10 @@ export default {
       menuLink: '/exposure'
     },
     {
+      name: 'Liquidity',
+      path: '/liquidity'
+    },
+    {
       name: 'Pools',
       path: '/pools'
     }

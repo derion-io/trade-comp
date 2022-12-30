@@ -2,7 +2,6 @@ import React, { useEffect, useRef } from 'react'
 import './style.scss'
 import 'react-toastify/dist/ReactToastify.css'
 import { matchPath } from 'react-router-dom'
-import { Exposure } from '../../pages/Exposure'
 import { useListTokens } from '../../state/token/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useWeb3React } from '../../state/customWeb3React/hook'
@@ -14,6 +13,9 @@ import { setCurrentPoolInfo } from '../../state/currentPool/reducer'
 import { useListPool } from '../../state/pools/hooks/useListPool'
 import { Pools } from '../../pages/Pools'
 import { SWAP_TAB, TIME_TO_REFRESH_STATE } from '../../utils/constant'
+import { Liquidity } from '../../pages/Liquidity'
+import { useSwapHistoryFormated } from '../../state/wallet/hooks/useSwapHistory'
+import { Trade } from '../../pages/Trade'
 
 export const App = () => {
   const { updateCurrentPool } = useCurrentPool()
@@ -25,6 +27,7 @@ export const App = () => {
   const dispatch = useDispatch()
   const chainIdRef = useRef(null)
   const { initListPool } = useListPool()
+  useSwapHistoryFormated()
 
   useEffect(() => {
     initListPool(account)
@@ -56,11 +59,13 @@ export const App = () => {
   const renderAppContent = () => {
     switch (true) {
       case isMatchWithPath('/:tab(exposure|swap)'):
-        return <Exposure tab={detectTab(location.pathname)} />
+        return <Trade tab={detectTab(location.pathname)} />
       case isMatchWithPath('/pools'):
         return <Pools />
+      case isMatchWithPath('/liquidity'):
+        return <Liquidity tab={SWAP_TAB.EXPOSURE} />
       default:
-        return <Exposure tab={SWAP_TAB.EXPOSURE} />
+        return <Trade tab={SWAP_TAB.EXPOSURE} />
     }
   }
 

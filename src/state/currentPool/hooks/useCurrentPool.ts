@@ -80,7 +80,7 @@ export const useCurrentPool = () => {
   }
 
   const setCandleChartIsLoading = (status: boolean) => {
-    dispatch(setCandleChartIsLoadingReduce({status}))
+    dispatch(setCandleChartIsLoadingReduce({ status }))
   }
 
   return {

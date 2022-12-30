@@ -1,76 +1,41 @@
 import React, { useEffect, useState } from 'react'
 import './style.scss'
-import { ExposureBox } from '../../Components/ExposureBox'
 import { PoolTableCompact } from '../../Components/PoolTable'
 import { TextBlue } from '../../Components/ui/Text'
 import { IconArrowLeft } from '../../Components/ui/Icon'
 import { useConfigs } from '../../state/config/useConfigs'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
-import { useHelper } from '../../state/config/useHelper'
-import { ExpandPool } from '../../Components/PoolTable/ExpandPool'
-import { useListPool } from '../../state/pools/hooks/useListPool'
-import { Chart } from '../../Components/Chart'
-import { SWAP_TAB } from '../../utils/constant'
-import { SwapBox } from '../../Components/SwapBox'
+import { POOL_IDS, SWAP_TAB } from '../../utils/constant'
 import { useWindowSize } from '../../hooks/useWindowSize'
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
 import 'react-tabs/style/react-tabs.css'
 import { Card } from '../../Components/ui/Card'
-import { useSwapHistory, useSwapHistoryFormated } from '../../state/wallet/hooks/useSwapHistory'
-import { WalletHistoryTable } from '../../Components/WalletHistoryTable'
 import { PoolDetailAndHistory } from '../../Components/PoolDetailAndHistory'
+import { AddLiquidityBox } from './components/AddLiquidityBox'
+import { RemoveLiquidityBox } from './components/RemoveLiquidityBox'
+import { BigNumber } from 'ethers'
+import { bn } from '../../utils/helpers'
+import { useContract } from '../../hooks/useContract'
 
-export const Exposure = ({ tab }: {
+export const Liquidity = ({ tab }: {
   tab: Symbol
 }) => {
-  const { cToken, quoteToken, baseToken, baseId, basePrice, poolAddress } = useCurrentPool()
-  const { pools } = useListPool()
+  const { poolAddress } = useCurrentPool()
   const { useHistory } = useConfigs()
   const history = useHistory()
-  const { get24hChange, get24hChangeByLog } = useHelper()
-  const [changedIn24h, setChangedIn24h] = useState<number>(0)
   const { width } = useWindowSize()
   const isPhone = width && width < 992
-  const { formartedSwapLogs: swapTxs } = useSwapHistory()
-  useSwapHistoryFormated()
+  const [totalSupplyCP, setTotalSupplyCP] = useState<BigNumber>(bn(0))
+  const { getPoolContract } = useContract()
 
   useEffect(() => {
-    if (baseToken && quoteToken && cToken) {
-      get24hChange(baseToken, cToken, quoteToken)
-        .then((value1) => {
-          if (value1) {
-            setChangedIn24h(value1)
-          } else {
-            get24hChangeByLog({
-              baseId,
-              currentPrice: basePrice,
-              baseToken,
-              quoteToken,
-              cToken
-            }).then((value) => {
-              setChangedIn24h(value)
-            })
-          }
-        })
+    const fetchTotalSyupply = async () => {
+      const contract = getPoolContract(poolAddress)
+      const res = await contract.totalSupply(POOL_IDS.cp)
+      setTotalSupplyCP(res)
     }
-  }, [cToken, quoteToken, baseToken])
-
-  // const poolInfoAndHistory = <Tabs>
-  //   <TabList>
-  //     <Tab>Pool Info</Tab>
-  //     <Tab>History</Tab>
-  //   </TabList>
-  //   <TabPanel>
-  //     <Card className='card-in-tab'>
-  //       <ExpandPool visible pool={pools[poolAddress] || {}} />
-  //     </Card>
-  //   </TabPanel>
-  //   <TabPanel>
-  //     <Card className='card-in-tab'>
-  //       <WalletHistoryTable swapTxs={swapTxs}/>
-  //     </Card>
-  //   </TabPanel>
-  // </Tabs>
+    fetchTotalSyupply()
+  }, [poolAddress])
 
   return (
     <div className='exposure-page'>
@@ -86,7 +51,6 @@ export const Exposure = ({ tab }: {
       </div>
       <div className='exposure-page__content'>
         <div className='exposure-page__content--left'>
-          <Chart changedIn24h={changedIn24h}/>
           {
             !isPhone && <div className='hidden-on-phone'>
               <PoolDetailAndHistory poolAddress={poolAddress}/>
@@ -106,12 +70,12 @@ export const Exposure = ({ tab }: {
             </TabList>
             <TabPanel>
               <Card className='trade-box card-in-tab'>
-                <ExposureBox changedIn24h={changedIn24h}/>
+                <AddLiquidityBox totalSupplyCP={totalSupplyCP} />
               </Card>
             </TabPanel>
             <TabPanel>
               <Card className='trade-box card-in-tab'>
-                <SwapBox />
+                <RemoveLiquidityBox totalSupplyCP={totalSupplyCP} />
               </Card>
             </TabPanel>
           </Tabs>
