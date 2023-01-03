@@ -12,7 +12,7 @@ import { useDispatch } from 'react-redux'
 import { setCurrentPoolInfo } from '../../state/currentPool/reducer'
 import { useListPool } from '../../state/pools/hooks/useListPool'
 import { Pools } from '../../pages/Pools'
-import { SWAP_TAB, TIME_TO_REFRESH_STATE } from '../../utils/constant'
+import { LIQUIDITY_TAB, SWAP_TAB, TIME_TO_REFRESH_STATE } from '../../utils/constant'
 import { Liquidity } from '../../pages/Liquidity'
 import { useSwapHistoryFormated } from '../../state/wallet/hooks/useSwapHistory'
 import { Trade } from '../../pages/Trade'
@@ -59,17 +59,24 @@ export const App = () => {
   const renderAppContent = () => {
     switch (true) {
       case isMatchWithPath('/:tab(exposure|swap)'):
-        return <Trade tab={detectTab(location.pathname)} />
+        return <Trade tab={detectTradeTab(location.pathname)} />
       case isMatchWithPath('/pools'):
         return <Pools />
-      case isMatchWithPath('/liquidity'):
-        return <Liquidity tab={SWAP_TAB.EXPOSURE} />
+      case isMatchWithPath('/:tab(add-liquidity|remove-liquidity)'):
+        return <Liquidity tab={detectLiquidityTab(location.pathname)} />
       default:
         return <Trade tab={SWAP_TAB.EXPOSURE} />
     }
   }
 
-  const detectTab = (path: string) => {
+  const detectLiquidityTab = (path: string) => {
+    if (path.includes('add-liquidity')) {
+      return LIQUIDITY_TAB.ADD
+    }
+    return LIQUIDITY_TAB.REMOVE
+  }
+
+  const detectTradeTab = (path: string) => {
     if (path.includes('swap')) {
       return SWAP_TAB.SWAP
     }

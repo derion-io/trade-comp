@@ -19,7 +19,8 @@ export default {
     },
     {
       name: 'Liquidity',
-      path: '/liquidity'
+      path: '/:tab(add-liquidity|remove-liquidity)',
+      menuLink: '/add-liquidity'
     },
     {
       name: 'Pools',

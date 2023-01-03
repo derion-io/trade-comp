@@ -142,14 +142,6 @@ export const useMultiSwapAction = () => {
       await callStaticMultiSwap({ steps: stepsToSwap, value })
       const signer = library.getSigner()
       const contract = getRouterContract(signer)
-      console.log({
-        stepsToSwap,
-        pool: poolAddress,
-        to: account,
-        deadline: new Date().getTime() + 3600000,
-        fee10000,
-        referrer: ethers.utils.hexZeroPad('0x00', 32)
-      })
       const tx = await contract.multiSwap(
         {
           pool: poolAddress,

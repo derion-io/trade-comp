@@ -5,7 +5,7 @@ import { TextBlue } from '../../Components/ui/Text'
 import { IconArrowLeft } from '../../Components/ui/Icon'
 import { useConfigs } from '../../state/config/useConfigs'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
-import { POOL_IDS, SWAP_TAB } from '../../utils/constant'
+import { LIQUIDITY_TAB, POOL_IDS } from '../../utils/constant'
 import { useWindowSize } from '../../hooks/useWindowSize'
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
 import 'react-tabs/style/react-tabs.css'
@@ -59,14 +59,14 @@ export const Liquidity = ({ tab }: {
         </div>
         <div className='exposure-page__content--right'>
           <Tabs
-            selectedIndex={tab === SWAP_TAB.EXPOSURE ? 0 : 1}
+            selectedIndex={tab === LIQUIDITY_TAB.ADD ? 0 : 1}
             onSelect={(index) => {
-              history.push(index === 0 ? '/exposure' : '/swap')
+              history.push(index === 0 ? '/add-liquidity' : '/remove-liquidity')
             }}
           >
             <TabList>
-              <Tab>Exposure</Tab>
-              <Tab>Swap</Tab>
+              <Tab>Add</Tab>
+              <Tab>Remove</Tab>
             </TabList>
             <TabPanel>
               <Card className='trade-box card-in-tab'>
