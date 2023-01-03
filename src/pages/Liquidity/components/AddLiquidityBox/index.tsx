@@ -1,16 +1,15 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useCurrentPool } from '../../../../state/currentPool/hooks/useCurrentPool'
-import { Text, TextPink } from '../../../../Components/ui/Text'
+import { Text, TextGrey, TextPink } from '../../../../Components/ui/Text'
 import { useListTokens } from '../../../../state/token/hook'
 import { Input } from '../../../../Components/ui/Input'
 import { SkeletonLoader } from '../../../../Components/ui/SkeletonLoader'
 import { TokenIcon } from '../../../../Components/ui/TokenIcon'
 import { TokenSymbol } from '../../../../Components/ui/TokenSymbol'
-import { bn, numberToWei, parseCallStaticError, weiToNumber } from '../../../../utils/helpers'
+import { bn, decodeErc1155Address, numberToWei, parseCallStaticError, weiToNumber } from '../../../../utils/helpers'
 import { formatWeiToDisplayNumber } from '../../../../utils/formatBalance'
 import { SelectTokenModal } from '../../../../Components/SelectTokenModal'
 import { useWalletBalance } from '../../../../state/wallet/hooks/useBalances'
-import { useConfigs } from '../../../../state/config/useConfigs'
 import { Box } from '../../../../Components/ui/Box'
 import './style.scss'
 import { ButtonExecute } from '../../../../Components/ui/Button'
@@ -18,19 +17,25 @@ import { IconArrowDown } from '../../../../Components/ui/Icon'
 import { POOL_IDS } from '../../../../utils/constant'
 import { BigNumber } from 'ethers'
 import { useMultiSwapAction } from '../../../../hooks/useMultiSwapAction'
+import { useWeb3React } from '../../../../state/customWeb3React/hook'
+import { useNativePrice } from '../../../../state/token/hooks/useTokenPrice'
+
+const shareOfPoolUnit = 1000
 
 export const AddLiquidityBox = ({ totalSupplyCP }: {totalSupplyCP: BigNumber}) => {
-  const { cToken, baseToken, poolAddress, states, quoteToken, logicAddress } = useCurrentPool()
+  const { account, showConnectModal } = useWeb3React()
+  const { cToken, baseToken, poolAddress, quoteToken, logicAddress } = useCurrentPool()
   const { tokens } = useListTokens()
   const { balances, routerAllowances, approveRouter } = useWalletBalance()
+  const [loading, setLoading] = useState<boolean>(false)
   const [amountIn, setAmountIn] = useState<string>()
   const [amountOut, setAmountOut] = useState<string>()
   const [tokenAdd, setTokenAdd] = useState<string>('')
   const [callError, setCallError] = useState<string>('')
   const [txFee, setTxFee] = useState<BigNumber>(bn(0))
+  const nativePrice = useNativePrice()
 
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
-  const { configs } = useConfigs()
   const { multiSwap, calculateAmountOuts } = useMultiSwapAction()
 
   useEffect(() => {
@@ -46,6 +51,21 @@ export const AddLiquidityBox = ({ totalSupplyCP }: {totalSupplyCP: BigNumber}) =
       setAmountOut('')
     }
   }, [tokens[tokenAdd], amountIn])
+
+  const cpAddress = useMemo(() => {
+    return poolAddress + '-' + POOL_IDS.cp
+  }, [poolAddress])
+
+  const shareOfPool = useMemo(() => {
+    const amountOutBn = bn(numberToWei(amountOut || '0'))
+    if (totalSupplyCP.add(amountOutBn).isZero()) return 0
+
+    return amountOutBn
+      .add(balances[cpAddress] || 0)
+      .mul(100 * shareOfPoolUnit)
+      .div(totalSupplyCP.add(amountOutBn))
+      .toNumber() / shareOfPoolUnit
+  }, [amountOut, totalSupplyCP, balances[cpAddress]])
 
   const calcAmountOut = async () => {
     if (!amountOut) {
@@ -76,6 +96,53 @@ export const AddLiquidityBox = ({ totalSupplyCP }: {totalSupplyCP: BigNumber}) =
     return gasUsed.mul(2).div(3).mul(5 * 10 ** 9)
   }
 
+  const renderExecuteButton = () => {
+    const address = decodeErc1155Address(tokenAdd).address
+
+    if (!tokens[tokenAdd] || loading) {
+      return <ButtonExecute className='add-liquidity__action' disabled>Loading...</ButtonExecute>
+    } else if (!account) {
+      return <ButtonExecute
+        onClick={() => {
+          showConnectModal()
+        }}
+        className='add-liquidity__action'
+      >Connect wallet</ButtonExecute>
+    } else if (Number(amountIn) === 0) {
+      return <ButtonExecute className='add-liquidity__action' disabled>Enter Amount</ButtonExecute>
+    } else if (!balances[tokenAdd] || balances[tokenAdd].lt(numberToWei(amountIn || 0, tokens[tokenAdd]?.decimal || 18))) {
+      return <ButtonExecute className='add-liquidity__action'
+        disabled> Insufficient {tokens[tokenAdd].symbol} Amount </ButtonExecute>
+    } else if (!routerAllowances[address] || routerAllowances[address].lt(numberToWei(amountIn || 0, tokens[tokenAdd]?.decimal || 18))) {
+      return <ButtonExecute
+        className='add-liquidity__action'
+        onClick={async () => {
+          setLoading(true)
+          await approveRouter({ tokenAddress: tokenAdd })
+          setLoading(false)
+        }}
+      >Approve</ButtonExecute>
+    } else if (callError) {
+      return <ButtonExecute className='add-liquidity__action' disabled>{callError}</ButtonExecute>
+    } else {
+      return <ButtonExecute
+        className='add-liquidity__action'
+        onClick={async () => {
+          setLoading(true)
+          await multiSwap([{
+            tokenIn: tokenAdd,
+            tokenOut: cpAddress,
+            amountIn: bn(numberToWei(amountIn, tokens[tokenAdd]?.decimal || 18)),
+            amountOutMin: 0
+          }], false)
+          setAmountIn('')
+          setAmountIn('')
+          setLoading(false)
+        }}
+      >Add liquidity</ButtonExecute>
+    }
+  }
+
   return <div className='add-liquidity-box'>
     <div className='text-center mb-1'><Text>Add Liquidity</Text></div>
     <div className='text-center mb-1'>
@@ -90,13 +157,13 @@ export const AddLiquidityBox = ({ totalSupplyCP }: {totalSupplyCP: BigNumber}) =
               setVisibleSelectTokenModal(true)
             }}
           >
-            <TokenIcon size={24} tokenAddress={tokenAdd} className='mr-05' />
+            <span className='mr-05'><TokenIcon size={24} tokenAddress={tokenAdd} /></span>
             <Text><TokenSymbol token={tokens[tokenAdd]} /></Text>
           </span>
         </SkeletonLoader>
         <SkeletonLoader loading={!balances[tokenAdd]}>
           <Text
-            className='amount-input-box__head--balance'
+            className='amount-input-box__head--balance cursor-pointer'
             onClick={() => {
               setAmountIn(weiToNumber(balances[tokenAdd], tokens[tokenAdd]?.decimal || 18))
             }}
@@ -136,13 +203,13 @@ export const AddLiquidityBox = ({ totalSupplyCP }: {totalSupplyCP: BigNumber}) =
           <span
             className='add-liquidity__token'
           >
-            <TokenIcon size={24} tokenAddress={poolAddress + '-' + POOL_IDS.cp} className='mr-05' />
+            <span className='mr-05'><TokenIcon size={24} tokenAddress={poolAddress + '-' + POOL_IDS.cp} /></span>
             <Text><TokenSymbol token={tokens[poolAddress + '-' + POOL_IDS.cp]} /></Text>
           </span>
         </SkeletonLoader>
         <SkeletonLoader loading={!balances[tokenAdd]}>
           <Text
-            className='amount-input-box__head--balance'
+            className='amount-input-box__head--balance cursor-pointer'
           >Balance: {balances && balances[poolAddress + '-' + POOL_IDS.cp]
               ? formatWeiToDisplayNumber(
                 balances[poolAddress + '-' + POOL_IDS.cp],
@@ -158,12 +225,17 @@ export const AddLiquidityBox = ({ totalSupplyCP }: {totalSupplyCP: BigNumber}) =
         className='fs-24'
         // @ts-ignore
         value={amountOut}
+        readOnly
       />
     </div>
     <Box borderColor='#3a3a3a' className='add-liquidity__info-box mb-1'>
       <InfoRow>
         <Text>Transaction Fee</Text>
-        <Text>3%</Text>
+        <Text>
+          {weiToNumber(txFee, 18, 4)}
+          <TextGrey> BNB </TextGrey>
+          (${weiToNumber(txFee.mul(numberToWei(nativePrice)), 36, 2)})
+        </Text>
       </InfoRow>
       <InfoRow>
         <Text>TRC</Text>
@@ -171,11 +243,11 @@ export const AddLiquidityBox = ({ totalSupplyCP }: {totalSupplyCP: BigNumber}) =
       </InfoRow>
       <InfoRow>
         <Text>Share of pool</Text>
-        <Text>3%</Text>
+        <Text>{shareOfPool}%</Text>
       </InfoRow>
     </Box>
-    <div>
-      <ButtonExecute className='add-liquidity__action'>Add liquidity</ButtonExecute>
+    <div className='actions'>
+      {renderExecuteButton()}
     </div>
     <SelectTokenModal
       visible={visibleSelectTokenModal}
