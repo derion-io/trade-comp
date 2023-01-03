@@ -44,9 +44,7 @@ export const WalletHistoryTable = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
 
                 return <tr key={key}>
                   <td className='wallet-history-table__time'>
-                    <span>
-                      {swapTx.timeStamp && getTimeLabel(swapTx.timeStamp) + ' ago'}
-                    </span>
+                    <TextLink href={configs.explorer + '/tx/' + swapTx.transactionHash}>{swapTx.timeStamp && getTimeLabel(swapTx.timeStamp) + ' ago'}</TextLink>
                   </td>
                   <td className='wallet-history-table__ctoken-change'>
                     <AmountChange amountChange={cChange} address={cToken} />
@@ -70,9 +68,6 @@ export const WalletHistoryTable = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
                   </span>
                     }
                     {swapTx.oldLeverage !== swapTx.newLeverage && <span>{leverageChange}</span>}
-                  </td>
-                  <td className='text-right'>
-                    <TextLink href={configs.explorer + '/tx/' + swapTx.transactionHash}>View</TextLink>
                   </td>
                 </tr>
               })
