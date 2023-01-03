@@ -248,9 +248,9 @@ export const ExposureBox = ({ changedIn24h }: {
         amount = Number(div(-removePercent, 100))
         cTokenValue = value.mul(numberToWei(-removePercent)).div(numberToWei(100))
       } else {
-        const cPrice = powerState.getCPrice()
-        cTokenValue = amount.mul(numberToWei(cPrice)).div(numberToWei(1))
+        const price = getTokenPrice(inputTokenAddress)
         amount = bn(numberToWei(amountToChange, tokens[cToken]?.decimal || 18))
+        cTokenValue = amount.mul(numberToWei(price)).div(numberToWei(1))
       }
       value = value.add(cTokenValue)
     }
