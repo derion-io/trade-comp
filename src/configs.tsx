@@ -17,11 +17,11 @@ export default {
       path: '/:tab(swap|exposure)',
       menuLink: '/exposure'
     },
-    {
-      name: 'Liquidity',
-      path: '/:tab(add-liquidity|remove-liquidity)',
-      menuLink: '/add-liquidity'
-    },
+    // {
+    //   name: 'Liquidity',
+    //   path: '/:tab(add-liquidity|remove-liquidity)',
+    //   menuLink: '/add-liquidity'
+    // },
     {
       name: 'Pools',
       path: '/pools'
