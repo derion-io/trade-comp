@@ -29,22 +29,21 @@ export const Trade = ({ tab }: {
 
   useEffect(() => {
     if (baseToken && quoteToken && cToken) {
-      get24hChange(baseToken, cToken, quoteToken)
-        .then((value1) => {
-          if (value1) {
+      get24hChangeByLog({
+        baseId,
+        currentPrice: basePrice,
+        baseToken,
+        quoteToken,
+        cToken
+      }).then((value) => {
+        setChangedIn24h(value)
+      }).catch((e) => {
+        console.error(e)
+        get24hChange(baseToken, cToken, quoteToken, basePrice)
+          .then((value1) => {
             setChangedIn24h(value1)
-          } else {
-            get24hChangeByLog({
-              baseId,
-              currentPrice: basePrice,
-              baseToken,
-              quoteToken,
-              cToken
-            }).then((value) => {
-              setChangedIn24h(value)
-            })
-          }
-        })
+          })
+      })
     }
   }, [cToken, quoteToken, baseToken])
 

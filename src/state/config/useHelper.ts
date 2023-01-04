@@ -1,9 +1,10 @@
 import { useConfigs } from './useConfigs'
 import { bn, div, formatPercent, numberToWei, sub, weiToNumber } from '../../utils/helpers'
-import { CHART_API_ENDPOINT, POOL_IDS } from '../../utils/constant'
+import { MINI_SECOND_PER_DAY, POOL_IDS } from '../../utils/constant'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { useContract } from '../../hooks/useContract'
 import { useListTokens } from '../token/hook'
+import historyProvider from '../../lib/datafeed/historyProvider'
 
 export const useHelper = () => {
   const { tokens } = useListTokens()
@@ -29,35 +30,27 @@ export const useHelper = () => {
     )?.toLowerCase()}.webp`
   }
 
-  const get24hChange = async (baseToken: string, cToken: string, quoteToken: string) => {
-    const toTime = Math.floor(new Date().getTime() / 1000)
-    const query = `${baseToken},${cToken},${quoteToken}`
-    const result = await fetch(`${CHART_API_ENDPOINT}candleline4?q=${query}&r=1H&l=24&t=${toTime}`)
-      .then((r) => r.json())
-      .then((res: any) => {
-        const isOutDate = (Number(res.t[res.t?.length - 1]) + 3600 + 60) * 1000 < new Date().getTime()
-        if (isOutDate) {
-          return 0
-        }
-
-        const open = res.o[0]
-        const close = res.c[res.o?.length - 1]
-        console.log({
-          open, close
-        })
-        return formatPercent(
-          div(
-            sub(close, open),
-            open
-          )
+  const get24hChange = async (baseToken: string, cToken: string, quoteToken: string, currentPrice: string) => {
+    try {
+      const toTime = Math.floor((new Date().getTime() - MINI_SECOND_PER_DAY) / 1000)
+      const result = await historyProvider.getBars({
+        to: toTime,
+        chainId: chainId,
+        limit: 1,
+        resolution: '1',
+        route: `${baseToken}/${cToken}/${quoteToken}`
+      })
+      const beforePrice = result[0].open
+      return formatPercent(
+        div(
+          sub(currentPrice, beforePrice),
+          beforePrice
         )
-      })
-      .catch((err: any) => {
-        console.error(err)
-        return 0
-      })
-
-    return Number(result)
+      )
+    } catch (e) {
+      console.error(e)
+      return 0
+    }
   }
 
   const get24hChangeByLog = async (
@@ -83,7 +76,7 @@ export const useHelper = () => {
       if (!headBlock) {
         headBlock = await provider.getBlockNumber()
       }
-      const blocknumber24hAgo = headBlock - Math.floor(8640000 / configs.timePerBlock)
+      const blocknumber24hAgo = headBlock - Math.floor(MINI_SECOND_PER_DAY / configs.timePerBlock)
       const eventInterface = getEventInterface()
 
       const { totalBaseReserve, totalQuoteReserve } = await provider.getLogs({

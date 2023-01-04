@@ -3,7 +3,7 @@ export const LARGE_VALUE =
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 export const NATIVE_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
 export const fee10000 = 30
-
+export const MINI_SECOND_PER_DAY = 86400000
 export const LP_PRICE_UNIT = 10000
 export const TIME_TO_REFRESH_STATE = 30000
 
