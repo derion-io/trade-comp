@@ -269,9 +269,9 @@ const detectMarkInfo = (
 
   const leverageChange = swapTx.oldLeverage !== swapTx.newLeverage
     ? `<span>
-      ${swapTx.oldLeverage ? getLeverageText(swapTx.oldLeverage) : ''}
-      ${swapTx.newLeverage && swapTx.oldLeverage ? ' -> ' : ''}
-      ${swapTx.newLeverage ? getLeverageText(swapTx.newLeverage) : ''}
+      ${swapTx.oldLeverage ? getLeverageText(swapTx.oldLeverage) : leverageText0}
+      ${swapTx.newLeverage || swapTx.oldLeverage ? ' -> ' : ''}
+      ${swapTx.newLeverage ? getLeverageText(swapTx.newLeverage) : leverageText0}
     </span>`
     : ''
 
@@ -290,8 +290,14 @@ const detectMarkInfo = (
   }
   let label = 'E'
 
+  result.color = 'pink'
+  if (!cpChange.isZero()) {
+    result.color = 'blue'
+  } else if (swapTx.oldLeverage && swapTx.newLeverage && swapTx.newLeverage !== swapTx.oldLeverage) {
+    result.color = swapTx.newLeverage > swapTx.oldLeverage ? 'green' : 'red'
+  }
+
   if (timescaleMark) {
-    result.color = COLORS.BLUE
     result.tooltip = [
       'Execute at ' + time,
       `<div>
@@ -305,7 +311,6 @@ const detectMarkInfo = (
       </div>`
     ]
   } else {
-    result.color = 'blue'
     label = label.slice(0, 1)
     result.labelFontColor = '#ffffff'
     result.text = `<div>
@@ -328,6 +333,8 @@ const detectMarkInfo = (
 const getLeverageText = (leverage: number) => {
   return `<span style='color: ${leverage > 0 ? COLORS.BUY : COLORS.SELL}'>${leverage > 0 ? 'Long ' : 'Short '} ${formatFloat(leverage, 1)}</span>`
 }
+
+const leverageText0 = `<span style='color: ${COLORS.PINK}'>0</span>`
 
 const getAmountChange = ({ amountChange, address, tokens }: {
   tokens: { [key: string]: TokenType },

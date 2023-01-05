@@ -30,9 +30,9 @@ export const WalletHistoryTable = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
               swapTxs.map((swapTx, key) => {
                 const leverageChange = swapTx.oldLeverage !== swapTx.newLeverage
                   ? <span>
-                    {swapTx.oldLeverage ? <Leverage leverage={swapTx.oldLeverage} /> : ''}
-                    {swapTx.newLeverage && swapTx.oldLeverage ? ' -> ' : ''}
-                    {swapTx.newLeverage ? <Leverage leverage={swapTx.newLeverage} /> : ''}
+                    {swapTx.oldLeverage ? <Leverage leverage={swapTx.oldLeverage} /> : <TextPink>0</TextPink>}
+                    {swapTx.newLeverage || swapTx.oldLeverage ? ' -> ' : ''}
+                    {swapTx.newLeverage ? <Leverage leverage={swapTx.newLeverage} /> : <TextPink>0</TextPink>}
                   </span>
                   : ''
 
