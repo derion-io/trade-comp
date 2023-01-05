@@ -11,6 +11,7 @@ import { TokenSymbol } from '../../ui/TokenSymbol'
 import { ButtonGrey } from '../../ui/Button'
 import { Collapse } from 'react-collapse'
 import { ExpandPool } from '../ExpandPool'
+import './style.scss'
 
 export const PoolRow = ({ pool }: { pool: PoolType }) => {
   const { balances } = useWalletBalance()
@@ -98,7 +99,11 @@ export const PoolRow = ({ pool }: { pool: PoolType }) => {
     </tr>
     <td colSpan={6} className='p-0'>
       <Collapse isOpened={isExpand} initialStyle={{ height: 0, overflow: 'hidden' }}>
-        <ExpandPool visible={isExpand} pool={pool} />
+        <div className='pool-row__expand-box'>
+          <div className='pool-row__expand'>
+            <ExpandPool visible={isExpand} pool={pool} />
+          </div>
+        </div>
       </Collapse>
     </td>
   </React.Fragment>

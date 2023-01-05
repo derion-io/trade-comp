@@ -1,0 +1,12 @@
+@import "../../../styles/abstracts/variables";
+
+.exposure-interface .pool-row {
+  &__expand-box {
+    padding: 1rem;
+  }
+  &__expand {
+    border-radius: 16px;
+    border: 1px solid $color-grey;
+    padding: 1rem;
+  }
+}
