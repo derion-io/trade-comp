@@ -35,7 +35,7 @@ export const LineChart = ({ changedIn24h }: { changedIn24h: number }) => {
     }
   }, [cToken, interval])
 
-  const [finalData, color] = useMemo(() => {
+  const finalData = useMemo(() => {
     const data = [
       ...chartData[interval],
       {
@@ -43,11 +43,14 @@ export const LineChart = ({ changedIn24h }: { changedIn24h: number }) => {
         value: formatFloat(basePrice)
       }
     ]
-    const color = data[data.length - 1].value > (data[data.length - 2]?.value || 0)
+    return data
+  }, [chartData[interval], basePrice])
+
+  const color = useMemo(() => {
+    return changedIn24h > 0
       ? COLORS.BUY
       : COLORS.SELL
-    return [data, color]
-  }, [chartData[interval], basePrice])
+  }, [changedIn24h])
 
   return <div className='line-chart-wrap'>
     <div className='line-chart__head'>

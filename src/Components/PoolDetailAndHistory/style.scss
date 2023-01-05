@@ -7,10 +7,20 @@
   padding: 1.5rem;
 
   &__left {
-    flex: 3;
+    flex: 4;
     padding-right: 1rem;
   }
   &__right {
-    flex: 2;
+    flex: 3;
+  }
+
+  @include respond(phone) {
+    flex-direction: column;
+    &__left {
+      padding-right: 0;
+    }
+    &__right {
+      margin-top: 2rem;
+    }
   }
 }

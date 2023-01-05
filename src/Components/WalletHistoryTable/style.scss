@@ -24,8 +24,13 @@
     border-collapse: collapse;
     background: $color-grey-2;
     border-radius: 8px;
-    height: 246px;
+    height: 320px;
     overflow: auto;
+
+    @include respond(phone) {
+      height: inherit;
+      max-height: 250px;
+    }
 
     @include scrollBar;
   }

@@ -66,16 +66,6 @@ export const Trade = ({ tab }: {
 
   return (
     <div className='exposure-page'>
-      <div className='exposure-page__head'>
-        <div
-          className='exposure-page__head--back-btn'
-          onClick={() => {
-            history.push('pools')
-          }}
-        >
-          <IconArrowLeft fill='#01A7FA' /> <TextBlue>Back</TextBlue>
-        </div>
-      </div>
       <div className='exposure-page__content'>
         <div className='exposure-page__content--left'>
           <Chart changedIn24h={changedIn24h}/>

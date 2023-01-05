@@ -140,21 +140,15 @@ export const ExpandPool = ({ visible, pool }: {
         <div className='pool-expand__bottom--content'>
           <div>
             <Text>Price Tolenrance Ratio: </Text>
-            <SkeletonLoader loading={!pool || !pool.priceToleranceRatio}>
-              <TextGreen>{pool?.priceToleranceRatio && parseUq112x112(pool.priceToleranceRatio)}</TextGreen>
-            </SkeletonLoader>
+            <TextGreen>{pool?.priceToleranceRatio && parseUq112x112(pool.priceToleranceRatio)}</TextGreen>
           </div>
           <div>
             <Text>Max Funding Rate (daily): </Text>
-            <SkeletonLoader loading={!pool || !pool.rentRate}>
-              <TextGreen>{pool?.rentRate && formatFloat(parseUq112x112(pool.rentRate.mul(SECONDS_PER_DAY).mul(100)), 4)}% </TextGreen>
-            </SkeletonLoader>
+            <TextGreen>{pool?.rentRate && formatFloat(parseUq112x112(pool.rentRate.mul(SECONDS_PER_DAY).mul(100)), 4)}% </TextGreen>
           </div>
           <div>
             <Text>Deleverage Rate: </Text>
-            <SkeletonLoader loading={!pool || !pool.deleverageRate}>
-              <TextGreen>{pool?.deleverageRate && formatFloat(parseUq112x112(pool.deleverageRate) * 100, 2)}%</TextGreen>
-            </SkeletonLoader>
+            <TextGreen>{pool?.deleverageRate && formatFloat(parseUq112x112(pool.deleverageRate) * 100, 2)}%</TextGreen>
           </div>
         </div>
       </div>
