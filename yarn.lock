@@ -4880,6 +4880,16 @@ depd@~1.1.2:
   resolved "https://registry.yarnpkg.com/depd/-/depd-1.1.2.tgz#9bcd52e14c097763e749b274c4346ed2e560b5a9"
   integrity sha1-m81S4UwJd2PnSbJ0xDRu0uVgtak=
 
+"derivable-tools@git+ssh://git@github.com:blackskin18/derivable-tools.git#6c22428a11fd352ab5c6e6bacb5b515d50a7fc12":
+  version "1.0.0"
+  resolved "git+ssh://git@github.com:blackskin18/derivable-tools.git#6c22428a11fd352ab5c6e6bacb5b515d50a7fc12"
+  dependencies:
+    assisted-json-rpc-provider "git+ssh://git@github.com:launchzone/AssistedJsonRpcProvider.git#1662bda1343be76618331a2d671bfa56f0d0e305"
+    ethereum-multicall "^2.15.0"
+    ethers "^5.5.4"
+    lodash "^4.17.21"
+    node-fetch "^2.6.7"
+
 des.js@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/des.js/-/des.js-1.0.1.tgz#5382142e1bdc53f85d86d53e5f4aa7deb91e0843"
@@ -5665,7 +5675,7 @@ ethereum-multicall@^2.15.0:
     "@ethersproject/providers" "^5.0.10"
     ethers "^5.0.15"
 
-ethers@^5.0.15, ethers@^5.4.6, ethers@^5.5.3:
+ethers@^5.0.15, ethers@^5.4.6, ethers@^5.5.3, ethers@^5.5.4:
   version "5.7.2"
   resolved "https://registry.yarnpkg.com/ethers/-/ethers-5.7.2.tgz#3a7deeabbb8c030d4126b24f84e525466145872e"
   integrity sha512-wswUsmWo1aOK8rR7DIKiWSw9DbLWe6x98Jrn8wcTflTVvaXhAMaB5zGAXy0GYQEQp9iO1iSHWVyARQm11zUtyg==
@@ -8800,7 +8810,7 @@ no-case@^3.0.4:
     lower-case "^2.0.2"
     tslib "^2.0.3"
 
-node-fetch@2, node-fetch@2.6.7:
+node-fetch@2, node-fetch@2.6.7, node-fetch@^2.6.7:
   version "2.6.7"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.7.tgz#24de9fba827e3b4ae44dc8b20256a379160052ad"
   integrity sha512-ZjMPFEfVx5j+y2yF35Kzx5sF7kDzxuDj6ziH4FFbOp87zKDZNx8yExJIb05OGF4Nlt9IHFIMBkRl41VdvcNdbQ==

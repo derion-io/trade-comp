@@ -55,7 +55,8 @@
     "recharts": "^2.2.0",
     "redux": "^4.1.1",
     "redux-localstorage-simple": "^2.4.1",
-    "redux-thunk": "^2.3.0"
+    "redux-thunk": "^2.3.0",
+    "derivable-tools": "git+ssh://git@github.com:blackskin18/derivable-tools.git#6c22428a11fd352ab5c6e6bacb5b515d50a7fc12"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^4.2.4",

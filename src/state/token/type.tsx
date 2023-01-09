@@ -16,14 +16,12 @@ export interface TokenType {
 type ListTokensType = { [key: string]: TokenType }
 
 export interface tokensState {
-  chainTokens: { [key: number]: ListTokensType }
   tokens: {
     [key: number]: ListTokensType
   }
 }
 
 export const initialState: tokensState = {
-  chainTokens: {},
   tokens: {
     56: {},
     42161: {},
