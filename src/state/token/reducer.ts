@@ -9,6 +9,7 @@ export const tokens = createSlice({
       tokens: TokenType[],
       chainId: number
     }>) => {
+      if (action.payload.tokens.length === 0) return
       const newToken = {}
       const tokens = action.payload.tokens
       for (let i = 0; i < tokens.length; i++) {

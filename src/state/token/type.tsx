@@ -13,7 +13,7 @@ export interface TokenType {
   hideInSearchModal?: boolean
 }
 
-type ListTokensType = { [key: string]: TokenType }
+export type ListTokensType = { [key: string]: TokenType }
 
 export interface tokensState {
   tokens: {

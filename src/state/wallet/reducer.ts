@@ -20,6 +20,7 @@ export const tokens = createSlice({
       account: string,
       swapLogs: any
     }>) => {
+      if (!action.payload.account) return
       const logs = state.swapLogs[action.payload.account] ? [
         ...action.payload.swapLogs,
         ...state.swapLogs[action.payload.account]

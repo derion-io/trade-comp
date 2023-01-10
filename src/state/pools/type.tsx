@@ -1,4 +1,6 @@
 import { BigNumber } from 'ethers'
+import { ListTokensType } from '../token/type'
+import { DdlResource } from 'derivable-tools/dist/pools'
 
 export type BalancesType = { [key: string]: BigNumber }
 export type AllowancesType = { [key: string]: BigNumber }
@@ -34,7 +36,12 @@ export type PoolType = {
 export interface poolsState {
   pools: {
     [key: number]: {[key: string]: PoolType}
-  }
+  },
+  tokens: {
+    [key: string]: ListTokensType
+  },
+  swapLogs: {[key: string]: any[] },
+  ddlResource?: DdlResource
 }
 
 export const initialState: poolsState = {
@@ -42,5 +49,12 @@ export const initialState: poolsState = {
     56: {},
     31337: {},
     97: {}
+  },
+  tokens: {
+    56: {},
+    31337: {},
+    97: {}
+  },
+  swapLogs: {
   }
 }

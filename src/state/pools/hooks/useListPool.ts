@@ -3,21 +3,25 @@ import { addPoolsWithChain } from '../reducer'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../types'
 import { addTokensReduce } from '../../token/reducer'
-import { useSwapHistory } from '../../wallet/hooks/useSwapHistory'
 import { DdlResource } from 'derivable-tools/dist/pools'
+import { updateSwapTxs } from '../../wallet/reducer'
+import _ from 'lodash'
 
 export const useListPool = () => {
-  const { pools } = useSelector((state: State) => {
-    return { pools: state.pools.pools }
+  const { pools, ddlResource } = useSelector((state: State) => {
+    return {
+      pools: state.pools.pools,
+      ddlResource: state.pools.ddlResource
+    }
   })
   const { configs, chainId } = useConfigs()
   const dispatch = useDispatch()
-  const { addMultiSwapData } = useSwapHistory()
 
   const initListPool = async (account: string) => {
-    const resouce = new DdlResource({
+    const resource = new DdlResource({
       account,
       storage: {
+        // @ts-ignore
         setItem: (itemName, value) => localStorage.setItem(itemName, value),
         // @ts-ignore
         getItem: (itemName) => localStorage.getItem(itemName)
@@ -27,11 +31,17 @@ export const useListPool = () => {
       rpcUrl: configs.rpcUrl
     })
 
-    await resouce.fetchResourceData()
-    addMultiSwapData(resouce.swapLogs, account)
-    dispatch(addTokensReduce({ tokens: resouce.tokens, chainId }))
-    dispatch(addPoolsWithChain({ pools: resouce.pools, chainId }))
+    resource.getResourceCached(account).then((data: any) => {
+      dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
+      dispatch(addPoolsWithChain({ pools: data.pools, chainId }))
+      dispatch(updateSwapTxs({ account, swapLogs: data.swapLogs }))
+    })
+    resource.getNewResource(account).then((data: any) => {
+      dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
+      dispatch(addPoolsWithChain({ pools: data.pools, chainId }))
+      dispatch(updateSwapTxs({ account, swapLogs: _.cloneDeep(data.swapLogs) }))
+    })
   }
 
-  return { initListPool, pools: pools[chainId] }
+  return { initListPool, pools: pools[chainId], ddlResource }
 }
