@@ -12,17 +12,13 @@ import { toast } from 'react-toastify'
 import {
   bn,
   decodeErc1155Address,
-  getErc1155Token,
-  getNormalAddress, isErc1155Address,
+  isErc1155Address,
   parseCallStaticError
 } from '../../../utils/helpers'
 import { messageAndViewOnBsc } from '../../../Components/MessageAndViewOnBsc'
-import BnAAbi from '../../../assets/abi/BnA.json'
-import { Multicall } from 'ethereum-multicall'
-import { JsonRpcProvider } from '@ethersproject/providers'
-import PoolAbi from '../../../assets/abi/Pool.json'
 import { useContract } from '../../../hooks/useContract'
 import { useCurrentPool } from '../../currentPool/hooks/useCurrentPool'
+import { getBalanceAndAllowance } from 'derivable-tools/dist/balanceAndAllowance'
 
 export const useWalletBalance = () => {
   const { getPoolContract } = useContract()
@@ -34,7 +30,7 @@ export const useWalletBalance = () => {
       accFetchBalance: state.wallet.accFetchBalance
     }
   })
-  const { configs } = useConfigs()
+  const { configs, chainId } = useConfigs()
   const { library, account } = useWeb3React()
 
   const dispatch = useDispatch()
@@ -62,7 +58,7 @@ export const useWalletBalance = () => {
       try {
         const signer = library.getSigner()
         let hash = ''
-        if (tokenAddress == poolAddress || isErc1155Address(tokenAddress)) {
+        if (tokenAddress === poolAddress || isErc1155Address(tokenAddress)) {
           const poolAddress = decodeErc1155Address(tokenAddress).address
           const contract = getPoolContract(poolAddress, signer)
           const txRes = await contract.setApprovalForAll(configs.addresses.router, true)
@@ -103,96 +99,19 @@ export const useWalletBalance = () => {
   }
 
   const fetchBalanceAndAllowance = async (tokensArr: string[]) => {
-    if (account) {
-      const provider = new JsonRpcProvider(configs.rpcUrl)
-      const multicall = new Multicall({
-        multicallCustomContractAddress: configs.addresses.multiCall,
-        ethersProvider: provider,
-        tryAggregate: true
-      })
-      const erc20Tokens = getNormalAddress(tokensArr)
-      const erc1155Tokens = getErc1155Token(tokensArr)
-      const multiCallRequest = getBnAMulticallRequest(erc20Tokens, erc1155Tokens)
-      const { results } = await multicall.call(multiCallRequest)
-      const { balances, allowances } = parseBnAMultiRes(erc20Tokens, erc1155Tokens, results)
-
-      updateBalanceAndAllowances({
-        balances,
-        routerAllowances: {
-          ...allowances,
-          [configs.addresses.nativeToken]: bn(LARGE_VALUE)
-        }
-      })
-    }
-  }
-
-  const parseBnAMultiRes = (erc20Address: any, erc1155Tokens: any, data: any) => {
-    const balances = {}
-    const allowances = {}
-    const erc20Info = data.erc20.callsReturnContext[0].returnValues[0]
-    console.log({
-      erc20Address,
-      erc20Info
+    const { balances, allowances } = await getBalanceAndAllowance({
+      account,
+      tokens: tokensArr,
+      rpcUrl: configs.rpcUrl,
+      chainId: chainId
     })
-    for (let i = 0; i < erc20Address.length; i++) {
-      const address = erc20Address[i]
-      balances[address] = bn(erc20Info[i * 2])
-      allowances[address] = bn(erc20Info[i * 2 + 1])
-    }
-
-    const erc1155Info = data?.erc1155?.callsReturnContext
-    if (erc1155Info) {
-      const approveData = erc1155Info.filter((e: any) => e.methodName === 'isApprovedForAll')
-      const balanceData = erc1155Info.filter((e: any) => e.methodName === 'balanceOfBatch')
-  
-      for (let i = 0; i < approveData.length; i++) {
-        const callsReturnContext = approveData[i]
-        allowances[callsReturnContext.reference] = callsReturnContext.returnValues[0] ? bn(LARGE_VALUE) : bn(0)
-      }
-  
-      for (let i = 0; i < balanceData.length; i++) {
-        const returnValues = balanceData[i].returnValues
-        for (let j = 0; j < returnValues.length; j++) {
-          const id = erc1155Tokens[balanceData[i].reference][j].toNumber()
-          balances[balanceData[i].reference + '-' + id] = bn(returnValues[j])
-        }
-      }
-    }
-
-    return {
+    updateBalanceAndAllowances({
       balances,
-      allowances
-    }
-  }
-
-  const getBnAMulticallRequest = (erc20Tokens: string[], erc1155Tokens: { [key: string]: string[] }) => {
-    const request: any = [
-      {
-        reference: 'erc20',
-        contractAddress: configs.addresses.bnA,
-        abi: BnAAbi,
-        calls: [{ reference: 'bna', methodName: 'getBnA', methodParameters: [erc20Tokens, [account], [configs.addresses.router]] }]
+      routerAllowances: {
+        ...allowances,
+        [configs.addresses.nativeToken]: bn(LARGE_VALUE)
       }
-    ]
-
-    for (const erc1155Address in erc1155Tokens) {
-      const accounts = erc1155Tokens[erc1155Address].map(() => {
-        return account
-      })
-      request.push(
-        {
-          reference: 'erc1155',
-          contractAddress: erc1155Address,
-          abi: PoolAbi,
-          calls: [
-            { reference: erc1155Address, methodName: 'isApprovedForAll', methodParameters: [account, configs.addresses.router] },
-            { reference: erc1155Address, methodName: 'balanceOfBatch', methodParameters: [accounts, erc1155Tokens[erc1155Address]] }
-          ]
-        }
-      )
-    }
-
-    return request
+    })
   }
 
   return {

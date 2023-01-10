@@ -56,7 +56,7 @@
     "redux": "^4.1.1",
     "redux-localstorage-simple": "^2.4.1",
     "redux-thunk": "^2.3.0",
-    "derivable-tools": "git+ssh://git@github.com:blackskin18/derivable-tools.git#cbc027de883a1704ead520f5e7c383d08b647673"
+    "derivable-tools": "git+ssh://git@github.com:blackskin18/derivable-tools.git#1ead2320ea9f03f0b145251ead43492d5d1b8e12"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^4.2.4",
