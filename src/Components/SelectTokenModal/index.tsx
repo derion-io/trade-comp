@@ -11,8 +11,9 @@ import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { fee10000 } from '../../utils/constant'
 import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import { useConfigs } from '../../state/config/useConfigs'
+import isEqual from 'react-fast-compare'
 
-export const SelectTokenModal = ({
+const Component = ({
   visible,
   setVisible,
   tokens: tokensToSelect,
@@ -88,3 +89,7 @@ export const SelectTokenModal = ({
     </div>
   </Modal>
 }
+
+export const SelectTokenModal = React.memo(Component, (prevProps, nextProps) =>
+  isEqual(prevProps, nextProps)
+)

@@ -11,8 +11,9 @@ import { formatFloat } from '../../utils/helpers'
 import { DATE_FORMATS, I_1W, INTERVALS_TAB, LineChartIntervalType } from '../../utils/lineChartConstant'
 import { Tabs } from '../ui/Tabs'
 import { COLORS } from '../../utils/constant'
+import isEqual from 'react-fast-compare'
 
-export const LineChart = ({ changedIn24h }: { changedIn24h: number }) => {
+const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const { getLineChartData } = useExchangeData()
   const { cToken, baseToken, quoteToken, basePrice } = useCurrentPool()
   const { tokens } = useListTokens()
@@ -143,3 +144,7 @@ const HoverUpdater = ({ payload, setHoverValue, setHoverDate }: any) => {
 
   return null
 }
+
+export const LineChart = React.memo(Component, (prevProps, nextProps) =>
+  isEqual(prevProps, nextProps)
+)

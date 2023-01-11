@@ -12,8 +12,9 @@ import { ButtonGrey } from '../../ui/Button'
 import { Collapse } from 'react-collapse'
 import { ExpandPool } from '../ExpandPool'
 import './style.scss'
+import isEqual from 'react-fast-compare'
 
-export const PoolRow = ({ pool }: { pool: PoolType }) => {
+const Component = ({ pool }: { pool: PoolType }) => {
   const { balances } = useWalletBalance()
   const { tokens } = useListTokens()
   const [isExpand, setIsExpand] = useState<boolean>(true)
@@ -108,3 +109,7 @@ export const PoolRow = ({ pool }: { pool: PoolType }) => {
     </td>
   </React.Fragment>
 }
+
+export const PoolRow = React.memo(Component, (prevProps, nextProps) =>
+  isEqual(prevProps, nextProps)
+)

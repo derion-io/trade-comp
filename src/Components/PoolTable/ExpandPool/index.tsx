@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import './style.scss'
-import { Text, TextBlue, TextBuy, TextGreen, TextLink, TextPink, TextSell } from '../../ui/Text'
+import { Text, TextBuy, TextGreen, TextLink, TextPink, TextSell } from '../../ui/Text'
 import { bn, formatFloat, numberToWei, parseUq112x112, weiToNumber } from '../../../utils/helpers'
 import { PoolType } from '../../../state/pools/type'
 import { useListTokens } from '../../../state/token/hook'
@@ -9,12 +9,12 @@ import { useConfigs } from '../../../state/config/useConfigs'
 import { ButtonExecute } from '../../ui/Button'
 import { useMultiSwapAction } from '../../../hooks/useMultiSwapAction'
 import { PowerState } from 'powerLib'
-import { SkeletonLoader } from '../../ui/SkeletonLoader'
+import isEqual from 'react-fast-compare'
 
 export const SECONDS_PER_YEAR = 31536000
 export const SECONDS_PER_DAY = 86400
 
-export const ExpandPool = ({ visible, pool }: {
+const Component = ({ visible, pool }: {
   visible: boolean,
   pool: PoolType
 }) => {
@@ -155,3 +155,7 @@ export const ExpandPool = ({ visible, pool }: {
     </div>
   </div>
 }
+
+export const ExpandPool = React.memo(Component, (prevProps, nextProps) =>
+  isEqual(prevProps, nextProps)
+)

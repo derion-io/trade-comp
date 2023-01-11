@@ -30,8 +30,9 @@ import { useConfigs } from '../../state/config/useConfigs'
 import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import useSWR from 'swr'
 import { fetchCpPrice, getNativePrice } from 'derivable-tools/dist/price'
+import isEqual from 'react-fast-compare'
 
-export const SwapBox = () => {
+const Component = () => {
   const { account, showConnectModal } = useWeb3React()
   const { configs, chainId } = useConfigs()
   const { cTokenPrice, states, dTokens, cToken, logicAddress, poolAddress, powers, baseToken, quoteToken, basePrice } = useCurrentPool()
@@ -433,3 +434,7 @@ const InfoRow = (props: any) => {
     </div>
   )
 }
+
+export const SwapBox = React.memo(Component, (prevProps, nextProps) =>
+  isEqual(prevProps, nextProps)
+)

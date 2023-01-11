@@ -6,11 +6,12 @@ import { LineChart } from '../LineChart'
 import { IconArrowLeft } from '../ui/Icon'
 import { TextBlue } from '../ui/Text'
 import { useConfigs } from '../../state/config/useConfigs'
+import isEqual from 'react-fast-compare'
 
 const CANDLE_CHART = Symbol('candle')
 const LINE_CHART = Symbol('line')
 
-export const Chart = ({ changedIn24h }: {changedIn24h: number}) => {
+const Component = ({ changedIn24h }: {changedIn24h: number}) => {
   const [tab, setTab] = useState<Symbol>(CANDLE_CHART)
   const { useHistory } = useConfigs()
   const history = useHistory()
@@ -42,3 +43,7 @@ export const Chart = ({ changedIn24h }: {changedIn24h: number}) => {
     }
   </div>
 }
+
+export const Chart = React.memo(Component, (prevProps, nextProps) =>
+  isEqual(prevProps, nextProps)
+)

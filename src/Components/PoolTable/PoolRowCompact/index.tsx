@@ -7,8 +7,9 @@ import { bn, formatFloat, weiToNumber } from '../../../utils/helpers'
 import { PowerState } from 'powerLib'
 import { Text, TextBlue, TextBuy, TextSell } from '../../ui/Text'
 import { TokenIcon } from '../../ui/TokenIcon'
+import isEqual from 'react-fast-compare'
 
-export const PoolRowCompact = ({ pool }: { pool: PoolType }) => {
+const Component = ({ pool }: { pool: PoolType }) => {
   const { balances } = useWalletBalance()
   const { tokens } = useListTokens()
   const { baseToken, quoteToken } = pool
@@ -61,3 +62,7 @@ export const PoolRowCompact = ({ pool }: { pool: PoolType }) => {
     </tr>
   </React.Fragment>
 }
+
+export const PoolRowCompact = React.memo(Component, (prevProps, nextProps) =>
+  isEqual(prevProps, nextProps)
+)

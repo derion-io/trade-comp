@@ -12,8 +12,9 @@ import { bn, formatFloat } from '../../utils/helpers'
 import { POOL_IDS } from '../../utils/constant'
 import { BigNumber } from 'ethers'
 import { getErc20AmountChange } from '../../utils/swapHistoryHelper'
+import isEqual from 'react-fast-compare'
 
-export const WalletHistoryTable = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
+const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
   const { cToken, baseId, quoteId, baseToken, quoteToken } = useCurrentPool()
   const { tokens } = useListTokens()
   const { configs } = useConfigs()
@@ -103,3 +104,7 @@ const Leverage = ({ leverage }: { leverage: number }) => {
   const Text = leverage > 0 ? TextBuy : TextSell
   return <Text>{leverage > 0 ? 'Long ' : 'Short '} {formatFloat(leverage, 1)}</Text>
 }
+
+export const WalletHistoryTable = React.memo(Component, (prevProps, nextProps) =>
+  isEqual(prevProps, nextProps)
+)

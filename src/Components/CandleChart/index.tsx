@@ -12,6 +12,7 @@ import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { Card } from '../ui/Card'
 import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 import { CandleChartLoader } from '../ChartLoaders'
+import isEqual from 'react-fast-compare'
 
 export interface ChartContainerProps {
   interval: ChartingLibraryWidgetOptions['interval']
@@ -28,7 +29,7 @@ export interface ChartContainerProps {
   logo?: any
 }
 
-export const CandleChart = ({
+const Component = ({
   interval,
   containerId,
   libraryPath,
@@ -142,7 +143,7 @@ export const CandleChart = ({
   )
 }
 
-CandleChart.defaultProps = {
+Component.defaultProps = {
   interval: (localStorage.getItem('chart_resolution') ||
     '240') as ResolutionString,
   containerId: 'tv_chart_container',
@@ -156,3 +157,7 @@ CandleChart.defaultProps = {
   autosize: true,
   studiesOverrides: {}
 }
+
+export const CandleChart = React.memo(Component, (prevProps, nextProps) =>
+  isEqual(prevProps, nextProps)
+)

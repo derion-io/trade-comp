@@ -3,8 +3,9 @@ import './style.scss'
 import { useListPool } from '../../state/pools/hooks/useListPool'
 import { PoolRow } from './PoolRow'
 import { PoolRowCompact } from './PoolRowCompact'
+import isEqual from 'react-fast-compare'
 
-export const PoolTable = () => {
+const Component = () => {
   const { pools } = useListPool()
 
   return (
@@ -67,3 +68,7 @@ export const PoolTableCompact = () => {
     </div>
   )
 }
+
+export const PoolTable = React.memo(Component, (prevProps, nextProps) =>
+  isEqual(prevProps, nextProps)
+)

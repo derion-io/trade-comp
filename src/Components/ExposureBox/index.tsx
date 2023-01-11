@@ -37,8 +37,9 @@ import { RemoveForm } from './RemoveForm'
 import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import useSWR from 'swr'
 import { getNativePrice } from 'derivable-tools/dist/price'
+import isEqual from 'react-fast-compare'
 
-export const ExposureBox = ({ changedIn24h }: {
+export const Component = ({ changedIn24h }: {
   changedIn24h: number
 }) => {
   const { configs, chainId } = useConfigs()
@@ -560,3 +561,7 @@ const LeverageValue = ({ leverage }: { leverage: number }) => {
   return <LeverageLabel
     className='d-inline-block'><LeverageText>{leverage >= 0 ? 'Long' : 'Short'} {formatFloat(leverage, 1)}</LeverageText></LeverageLabel>
 }
+
+export const ExposureBox = React.memo(Component, (prevProps, nextProps) =>
+  isEqual(prevProps, nextProps)
+)
