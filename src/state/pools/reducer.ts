@@ -1,7 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { initialState, PoolType } from './type'
-import { DdlResource } from 'derivable-tools/dist/pools'
+import { DdlResource } from 'derivable-tools/dist/ddlResource'
 export const tokens = createSlice({
   name: 'pools',
   initialState,

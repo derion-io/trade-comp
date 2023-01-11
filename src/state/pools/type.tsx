@@ -1,6 +1,6 @@
 import { BigNumber } from 'ethers'
 import { ListTokensType } from '../token/type'
-import { DdlResource } from 'derivable-tools/dist/pools'
+import { DdlResource } from 'derivable-tools/dist/ddlResource'
 
 export type BalancesType = { [key: string]: BigNumber }
 export type AllowancesType = { [key: string]: BigNumber }

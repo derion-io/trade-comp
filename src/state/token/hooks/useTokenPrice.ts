@@ -1,22 +1,25 @@
 import { useConfigs } from '../../config/useConfigs'
 import { useEffect, useState } from 'react'
 import { bn, detectDecimalFromPrice, formatFloat, numberToWei, weiToNumber } from '../../../utils/helpers'
-import { usePairInfo } from '../../../hooks/usePairInfo'
 import { useCurrentPool } from '../../currentPool/hooks/useCurrentPool'
 import { useContract } from '../../../hooks/useContract'
 import { POOL_IDS } from '../../../utils/constant'
+import { getPairInfo } from 'derivable-tools/dist/uniV2Pair'
 
 export const useNativePrice = () => {
   const [price, setPrice] = useState<number>(0)
-  const { configs } = useConfigs()
-  const { getPairInfo } = usePairInfo()
+  const { configs, chainId } = useConfigs()
   useEffect(() => {
     const fetchPrice = async () => {
       try {
         if (!configs.addresses.wrapUsdPair) {
           setPrice(0)
         }
-        const res = await getPairInfo(configs.addresses.wrapUsdPair)
+        const res = await getPairInfo({
+          pairAddress: configs.addresses.wrapUsdPair,
+          chainId,
+          rpcUrl: configs.rpcUrl
+        })
         const [wrapToken, usdToken] = res.token0.adr === configs.addresses.wrapToken ? [res.token0, res.token1] : [res.token1, res.token0]
         const priceWei = usdToken.reserve
           .mul(numberToWei(1))
@@ -30,7 +33,7 @@ export const useNativePrice = () => {
       }
     }
     fetchPrice()
-  }, [configs])
+  }, [configs, chainId])
 
   return price
 }

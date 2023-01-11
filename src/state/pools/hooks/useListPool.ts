@@ -3,7 +3,7 @@ import { addPoolsWithChain } from '../reducer'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../types'
 import { addTokensReduce } from '../../token/reducer'
-import { DdlResource } from 'derivable-tools/dist/pools'
+import { DdlResource } from 'derivable-tools/dist/ddlResource'
 import { updateSwapTxs } from '../../wallet/reducer'
 import _ from 'lodash'
 

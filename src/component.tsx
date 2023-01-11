@@ -1,12 +1,9 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { Provider } from 'react-redux'
 import { store } from './state'
 import { InitConfig } from './InitConfig'
 import { App } from './Components/App'
 import './styles/main.scss'
-import { ethers } from 'ethers'
-import ERC20Abi from './assets/abi/IERC20.json'
-import { LARGE_VALUE } from './utils/constant'
 
 export default ({
   chainId,
