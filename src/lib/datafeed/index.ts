@@ -1,4 +1,4 @@
-import historyProvider, { CandleType } from './historyProvider'
+import historyProvider, { CandleType } from 'derivable-tools/dist/historyProvider'
 import { LASTEST_BLOCK_NUMBER, NATIVE_ADDRESS, POOL_IDS } from '../../utils/constant'
 import { store } from '../../state'
 import { setCandleChartIsLoadingReduce, setChartIsOutDate } from '../../state/currentPool/reducer'
@@ -96,17 +96,19 @@ export const Datafeed = {
     console.log('=====getBars running======', { periodParams, symbolInfo })
     localStorage.setItem('chart_resolution', interval)
 
-    // const [inputAddress, outputAddress] = detectPairInfo(symbolInfo.ticker)
+    const state = store.getState()
+    const tokens = state.tokens.tokens[56]
     const ticker = symbolInfo.ticker
     const [baseAddress, cAddress, quoteAddress] = ticker.split('-')
 
     historyProvider
       .getBars({
         route: [baseAddress, cAddress, quoteAddress].join(','),
-        chainId: 56,
         resolution: interval,
         to: periodParams.to,
-        limit: calcLimitCandle(periodParams.from, periodParams.to, interval)
+        limit: calcLimitCandle(periodParams.from, periodParams.to, interval),
+        inputToken: tokens[baseAddress],
+        outputToken: tokens[quoteAddress]
       })
       .then((bars: any) => {
         if (bars.length > 0) {
@@ -136,15 +138,18 @@ export const Datafeed = {
   ) {
     console.log('===========subscribeBars==========')
     this.subscribeBarsInterval[subscriberUID] = setInterval(() => {
+      const state = store.getState()
+      const tokens = state.tokens.tokens[56]
       const ticker = symbolInfo.ticker
       const [baseAddress, cAddress, quoteAddress] = ticker.split('-')
       historyProvider
         .getBars({
           route: [baseAddress, cAddress, quoteAddress].join(','),
-          chainId: 56,
           resolution,
           limit: 2,
-          to: LASTEST_BLOCK_NUMBER
+          to: LASTEST_BLOCK_NUMBER,
+          inputToken: tokens[baseAddress],
+          outputToken: tokens[quoteAddress]
         })
         .then((data: any) => {
           if (data.length > 0) {

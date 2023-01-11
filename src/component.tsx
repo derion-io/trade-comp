@@ -4,6 +4,7 @@ import { store } from './state'
 import { InitConfig } from './InitConfig'
 import { App } from './Components/App'
 import './styles/main.scss'
+import { SWRConfig } from 'swr/_internal'
 
 export default ({
   chainId,
@@ -30,20 +31,27 @@ export default ({
 }) => {
   return (
     <Provider store={store}>
-      <InitConfig
-        useLocation={useLocation}
-        useHistory={useHistory}
-        chainId={chainId}
-        theme={theme}
-        useWeb3React={useWeb3React}
-        useSubPage={useSubPage}
-        xStorageClient={xStorageClient}
-        language={language}
-        showConnectWalletModal={showConnectWalletModal}
-        env={env}
+      <SWRConfig
+        value={{
+          dedupingInterval: 200, // will override the parent value since the value is primitive
+          fallback: { a: 2, c: 2 } // will merge with the parent value since the value is a mergeable object
+        }}
       >
-        <App />
-      </InitConfig>
+        <InitConfig
+          useLocation={useLocation}
+          useHistory={useHistory}
+          chainId={chainId}
+          theme={theme}
+          useWeb3React={useWeb3React}
+          useSubPage={useSubPage}
+          xStorageClient={xStorageClient}
+          language={language}
+          showConnectWalletModal={showConnectWalletModal}
+          env={env}
+        >
+          <App />
+        </InitConfig>
+      </SWRConfig>
     </Provider>
   )
 }

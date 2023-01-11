@@ -24,8 +24,10 @@ import { POOL_IDS } from '../../../../utils/constant'
 import { BigNumber } from 'ethers'
 import { useMultiSwapAction } from '../../../../hooks/useMultiSwapAction'
 import { useWeb3React } from '../../../../state/customWeb3React/hook'
-import { useNativePrice } from '../../../../state/token/hooks/useTokenPrice'
 import Slider from 'rc-slider'
+import useSWR from 'swr'
+import { getNativePrice } from 'derivable-tools/dist/price'
+import { useConfigs } from '../../../../state/config/useConfigs'
 
 const shareOfPoolUnit = 1000
 const percentUnit = 1000
@@ -42,10 +44,10 @@ export const RemoveLiquidityBox = ({ totalSupplyCP }: { totalSupplyCP: BigNumber
   const [callError, setCallError] = useState<string>('')
   const [percent, setPercent] = useState<number>(0)
   const [txFee, setTxFee] = useState<BigNumber>(bn(0))
-  const nativePrice = useNativePrice()
-
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
   const { multiSwap, calculateAmountOuts } = useMultiSwapAction()
+  const { chainId } = useConfigs()
+  const { data: nativePrice } = useSWR({ chainId }, (params) => getNativePrice(params))
 
   useEffect(() => {
     setTokenAdd(cToken || '')

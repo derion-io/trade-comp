@@ -19,6 +19,7 @@ export const weiToNumber = (wei: any, decimal: number = 18, decimalToDisplay?: n
   return num
 }
 export const numberToWei = (number: any, decimal: number = 18) => {
+  if (!number) return '0'
   number = number.toString()
 
   const arr = number.split('.')

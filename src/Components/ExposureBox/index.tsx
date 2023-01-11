@@ -34,14 +34,14 @@ import { useConfigs } from '../../state/config/useConfigs'
 import { TokenIcon } from '../ui/TokenIcon'
 import { StepType } from '../../utils/type'
 import { RemoveForm } from './RemoveForm'
-import { LP_PRICE_UNIT, POOL_IDS } from '../../utils/constant'
-import { useCpPrice, useNativePrice } from '../../state/token/hooks/useTokenPrice'
 import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
+import useSWR from 'swr'
+import { getNativePrice } from 'derivable-tools/dist/price'
 
 export const ExposureBox = ({ changedIn24h }: {
   changedIn24h: number
 }) => {
-  const { configs } = useConfigs()
+  const { configs, chainId } = useConfigs()
   const [formAddOrRemove, setFormAddOrRemove] = useState<'add' | 'remove' | undefined>(undefined)
   const [newLeverage, setNewLeverage] = useState<number>(0)
   const [newValue, setNewValue] = useState<BigNumber>()
@@ -63,8 +63,8 @@ export const ExposureBox = ({ changedIn24h }: {
   const [gasUsed, setGasUsed] = useState<BigNumber>(bn(0))
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
   const [removePercent, setRemovePercent] = useState<number>()
-  const nativePrice = useNativePrice()
-  const cpPrice = useCpPrice()
+
+  const { data: nativePrice } = useSWR({ chainId }, (params) => getNativePrice(params))
 
   const resetFormHandle = () => {
     setAmountToChange('')

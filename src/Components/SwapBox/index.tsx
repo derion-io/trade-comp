@@ -28,11 +28,12 @@ import { POOL_IDS } from '../../utils/constant'
 import { PowerState } from 'powerLib'
 import { useConfigs } from '../../state/config/useConfigs'
 import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
-import { useCpPrice, useNativePrice } from '../../state/token/hooks/useTokenPrice'
+import useSWR from 'swr'
+import { fetchCpPrice, getNativePrice } from 'derivable-tools/dist/price'
 
 export const SwapBox = () => {
   const { account, showConnectModal } = useWeb3React()
-  const { configs } = useConfigs()
+  const { configs, chainId } = useConfigs()
   const { cTokenPrice, states, dTokens, cToken, logicAddress, poolAddress, powers, baseToken, quoteToken, basePrice } = useCurrentPool()
   const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
@@ -49,8 +50,8 @@ export const SwapBox = () => {
   const [isDeleverage, setIsDeleverage] = useState<boolean>(false)
   const { tokens } = useListTokens()
   const { multiSwap, calculateAmountOuts } = useMultiSwapAction()
-  const nativePrice = useNativePrice()
-  const cpPrice = useCpPrice()
+  const { data: nativePrice } = useSWR({ chainId }, (params) => getNativePrice(params))
+  const { data: cpPrice } = useSWR({ chainId, states, cToken, poolAddress, cTokenPrice }, (params) => fetchCpPrice(params))
 
   useEffect(() => {
     setInputTokenAddress(cToken || '')
@@ -197,7 +198,7 @@ export const SwapBox = () => {
       const powerState = new PowerState({ powers: [...powers] })
       powerState.loadStates(states)
       const price = getTokenPrice(inputTokenAddress, powerState)
-      if (price == 0 || !Number.isFinite(price)) {
+      if (Number(price) === 0 || !Number.isFinite(price)) {
         return 0
       }
       return formatFloat(weiToNumber(bn(numberToWei(amountIn)).mul(numberToWei(price || 0)), 36), 2)
@@ -210,7 +211,7 @@ export const SwapBox = () => {
       const powerState = new PowerState({ powers: [...powers] })
       powerState.loadStates(states)
       const price = getTokenPrice(outputTokenAddress, powerState)
-      if (price == 0 || !Number.isFinite(price)) {
+      if (Number(price) === 0 || !Number.isFinite(price)) {
         return 0
       }
       return formatFloat(weiToNumber(bn(numberToWei(amountOut)).mul(numberToWei(price || 0)), 36), 2)

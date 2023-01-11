@@ -15,14 +15,16 @@ import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
 import 'react-tabs/style/react-tabs.css'
 import { Card } from '../../Components/ui/Card'
 import { PoolDetailAndHistory } from '../../Components/PoolDetailAndHistory'
+import { get24hChange, get24hChangeByLog } from 'derivable-tools/dist/price'
+import { useListTokens } from '../../state/token/hook'
 
 export const Trade = ({ tab }: {
   tab: Symbol
 }) => {
   const { cToken, quoteToken, baseToken, baseId, basePrice, poolAddress } = useCurrentPool()
-  const { useHistory } = useConfigs()
+  const { useHistory, chainId } = useConfigs()
+  const { tokens } = useListTokens()
   const history = useHistory()
-  const { get24hChange, get24hChangeByLog } = useHelper()
   const [changedIn24h, setChangedIn24h] = useState<number>(0)
   const { width } = useWindowSize()
   const isPhone = width && width < 992
@@ -32,37 +34,26 @@ export const Trade = ({ tab }: {
       get24hChangeByLog({
         baseId,
         currentPrice: basePrice,
-        baseToken,
-        quoteToken,
-        cToken
+        baseToken: tokens[baseToken],
+        quoteToken: tokens[quoteToken],
+        cToken,
+        chainId
       }).then((value) => {
         setChangedIn24h(value)
       }).catch((e) => {
         console.error(e)
-        get24hChange(baseToken, cToken, quoteToken, basePrice)
+        get24hChange({
+          baseToken: tokens[baseToken],
+          cToken,
+          quoteToken: tokens[quoteToken],
+          currentPrice: basePrice
+        })
           .then((value1) => {
             setChangedIn24h(value1)
           })
       })
     }
   }, [cToken, quoteToken, baseToken])
-
-  // const poolInfoAndHistory = <Tabs>
-  //   <TabList>
-  //     <Tab>Pool Info</Tab>
-  //     <Tab>History</Tab>
-  //   </TabList>
-  //   <TabPanel>
-  //     <Card className='card-in-tab'>
-  //       <ExpandPool visible pool={pools[poolAddress] || {}} />
-  //     </Card>
-  //   </TabPanel>
-  //   <TabPanel>
-  //     <Card className='card-in-tab'>
-  //       <WalletHistoryTable swapTxs={swapTxs}/>
-  //     </Card>
-  //   </TabPanel>
-  // </Tabs>
 
   return (
     <div className='exposure-page'>
