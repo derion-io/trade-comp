@@ -1,3 +1,5 @@
+import { Engine } from 'derivable-tools/dist/engine'
+
 export interface configsState {
   chainId: number
   useSubPage: any
@@ -16,6 +18,7 @@ export interface configsState {
     powers: number[]
   },
   initialledConfig: boolean
+  engine?: Engine
 }
 
 export const initialState: configsState = {

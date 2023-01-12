@@ -1,6 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { initialState } from './type'
+import { Engine } from 'derivable-tools/dist/engine'
 export const tokens = createSlice({
   name: 'configs',
   initialState,
@@ -25,11 +26,17 @@ export const tokens = createSlice({
       state.useHistory = action.payload.useHistory
       state.configs = action.payload.configs
       state.initialledConfig = true
+    },
+
+    setEngine: (state, action: PayloadAction<{
+      engine: Engine
+    }>) => {
+      state.engine = action.payload.engine
     }
   }
 })
 
 // Actions
-export const { setConfigs } = tokens.actions
+export const { setConfigs, setEngine } = tokens.actions
 
 export default tokens.reducer

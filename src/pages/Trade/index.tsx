@@ -2,11 +2,8 @@ import React, { useEffect, useState } from 'react'
 import './style.scss'
 import { ExposureBox } from '../../Components/ExposureBox'
 import { PoolTableCompact } from '../../Components/PoolTable'
-import { TextBlue } from '../../Components/ui/Text'
-import { IconArrowLeft } from '../../Components/ui/Icon'
 import { useConfigs } from '../../state/config/useConfigs'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
-import { useHelper } from '../../state/config/useHelper'
 import { Chart } from '../../Components/Chart'
 import { SWAP_TAB } from '../../utils/constant'
 import { SwapBox } from '../../Components/SwapBox'
@@ -15,14 +12,13 @@ import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
 import 'react-tabs/style/react-tabs.css'
 import { Card } from '../../Components/ui/Card'
 import { PoolDetailAndHistory } from '../../Components/PoolDetailAndHistory'
-import { get24hChange, get24hChangeByLog } from 'derivable-tools/dist/price'
 import { useListTokens } from '../../state/token/hook'
 
 export const Trade = ({ tab }: {
   tab: Symbol
 }) => {
   const { cToken, quoteToken, baseToken, baseId, basePrice, poolAddress } = useCurrentPool()
-  const { useHistory, chainId } = useConfigs()
+  const { useHistory, ddlEngine } = useConfigs()
   const { tokens } = useListTokens()
   const history = useHistory()
   const [changedIn24h, setChangedIn24h] = useState<number>(0)
@@ -30,19 +26,18 @@ export const Trade = ({ tab }: {
   const isPhone = width && width < 992
 
   useEffect(() => {
-    if (baseToken && quoteToken && cToken) {
-      get24hChangeByLog({
+    if (baseToken && quoteToken && cToken && ddlEngine) {
+      ddlEngine.PRICE.get24hChangeByLog({
         baseId,
         currentPrice: basePrice,
         baseToken: tokens[baseToken],
         quoteToken: tokens[quoteToken],
-        cToken,
-        chainId
+        cToken
       }).then((value) => {
         setChangedIn24h(value)
       }).catch((e) => {
         console.error(e)
-        get24hChange({
+        ddlEngine.PRICE.get24hChange({
           baseToken: tokens[baseToken],
           cToken,
           quoteToken: tokens[quoteToken],
@@ -53,7 +48,7 @@ export const Trade = ({ tab }: {
           })
       })
     }
-  }, [cToken, quoteToken, baseToken])
+  }, [ddlEngine, cToken, quoteToken, baseToken])
 
   return (
     <div className='exposure-page'>

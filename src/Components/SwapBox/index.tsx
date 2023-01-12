@@ -28,13 +28,12 @@ import { POOL_IDS } from '../../utils/constant'
 import { PowerState } from 'powerLib'
 import { useConfigs } from '../../state/config/useConfigs'
 import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
-import useSWR from 'swr'
-import { fetchCpPrice, getNativePrice } from 'derivable-tools/dist/price'
 import isEqual from 'react-fast-compare'
+import { useCpPrice, useNativePrice } from '../../hooks/useTokenPrice'
 
 const Component = () => {
   const { account, showConnectModal } = useWeb3React()
-  const { configs, chainId } = useConfigs()
+  const { configs } = useConfigs()
   const { cTokenPrice, states, dTokens, cToken, logicAddress, poolAddress, powers, baseToken, quoteToken, basePrice } = useCurrentPool()
   const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
@@ -51,8 +50,8 @@ const Component = () => {
   const [isDeleverage, setIsDeleverage] = useState<boolean>(false)
   const { tokens } = useListTokens()
   const { multiSwap, calculateAmountOuts } = useMultiSwapAction()
-  const { data: nativePrice } = useSWR({ chainId }, (params) => getNativePrice(params))
-  const { data: cpPrice } = useSWR({ chainId, states, cToken, poolAddress, cTokenPrice }, (params) => fetchCpPrice(params))
+  const { data: nativePrice } = useNativePrice()
+  const { data: cpPrice } = useCpPrice()
 
   useEffect(() => {
     setInputTokenAddress(cToken || '')

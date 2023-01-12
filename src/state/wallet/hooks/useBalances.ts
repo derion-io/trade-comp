@@ -18,7 +18,6 @@ import {
 import { messageAndViewOnBsc } from '../../../Components/MessageAndViewOnBsc'
 import { useContract } from '../../../hooks/useContract'
 import { useCurrentPool } from '../../currentPool/hooks/useCurrentPool'
-import { getBalanceAndAllowance } from 'derivable-tools/dist/balanceAndAllowance'
 
 export const useWalletBalance = () => {
   const { getPoolContract } = useContract()
@@ -30,7 +29,7 @@ export const useWalletBalance = () => {
       accFetchBalance: state.wallet.accFetchBalance
     }
   })
-  const { configs, chainId } = useConfigs()
+  const { configs, chainId, ddlEngine } = useConfigs()
   const { library, account } = useWeb3React()
 
   const dispatch = useDispatch()
@@ -99,7 +98,8 @@ export const useWalletBalance = () => {
   }
 
   const fetchBalanceAndAllowance = async (tokensArr: string[]) => {
-    const { balances, allowances } = await getBalanceAndAllowance({
+    if (!ddlEngine) return
+    const { balances, allowances } = await ddlEngine.BNA.getBalanceAndAllowance({
       account,
       tokens: tokensArr,
       rpcUrl: configs.rpcUrl,

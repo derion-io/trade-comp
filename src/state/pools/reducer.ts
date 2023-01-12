@@ -1,7 +1,6 @@
 // eslint-disable-next-line no-unused-vars
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { initialState, PoolType } from './type'
-import { DdlResource } from 'derivable-tools/dist/ddlResource'
 export const tokens = createSlice({
   name: 'pools',
   initialState,
@@ -15,19 +14,13 @@ export const tokens = createSlice({
         ...state[action.payload.chainId],
         ...action.payload.pools
       }
-    },
-    setDdlResource: (state, action: PayloadAction<{
-      resource: DdlResource
-    }>) => {
-      state.ddlResource = action.payload.resource
     }
   }
 })
 
 // Actions
 export const {
-  addPoolsWithChain,
-  setDdlResource
+  addPoolsWithChain
 } = tokens.actions
 
 export default tokens.reducer

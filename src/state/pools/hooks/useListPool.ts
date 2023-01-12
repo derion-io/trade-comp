@@ -3,46 +3,33 @@ import { addPoolsWithChain } from '../reducer'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../types'
 import { addTokensReduce } from '../../token/reducer'
-import { DdlResource } from 'derivable-tools/dist/ddlResource'
 import { updateSwapTxs } from '../../wallet/reducer'
 import _ from 'lodash'
 
 export const useListPool = () => {
-  const { pools, ddlResource } = useSelector((state: State) => {
+  const { pools } = useSelector((state: State) => {
     return {
-      pools: state.pools.pools,
-      ddlResource: state.pools.ddlResource
+      pools: state.pools.pools
     }
   })
-  const { configs, chainId } = useConfigs()
+  const { chainId, ddlEngine } = useConfigs()
   const dispatch = useDispatch()
 
   const initListPool = async (account: string) => {
-    const resource = new DdlResource({
-      account,
-      storage: {
-        // @ts-ignore
-        setItem: (itemName, value) => localStorage.setItem(itemName, value),
-        // @ts-ignore
-        getItem: (itemName) => localStorage.getItem(itemName)
-      },
-      chainId,
-      scanApi: configs.scanApi,
-      rpcUrl: configs.rpcUrl
-    })
-
-    resource.getResourceCached(account).then((data: any) => {
-      dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
-      dispatch(addPoolsWithChain({ pools: data.pools, chainId }))
-      dispatch(updateSwapTxs({ account, swapLogs: data.swapLogs }))
-      console.log('data.pools', data.pools)
-    })
-    resource.getNewResource(account).then((data: any) => {
-      dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
-      dispatch(addPoolsWithChain({ pools: data.pools, chainId }))
-      dispatch(updateSwapTxs({ account, swapLogs: _.cloneDeep(data.swapLogs) }))
-    })
+    if (ddlEngine) {
+      ddlEngine.RESOURCE.getResourceCached(account).then((data: any) => {
+        dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
+        dispatch(addPoolsWithChain({ pools: data.pools, chainId }))
+        dispatch(updateSwapTxs({ account, swapLogs: data.swapLogs }))
+        console.log('data.pools', data.pools)
+      })
+      ddlEngine.RESOURCE.getNewResource(account).then((data: any) => {
+        dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
+        dispatch(addPoolsWithChain({ pools: data.pools, chainId }))
+        dispatch(updateSwapTxs({ account, swapLogs: _.cloneDeep(data.swapLogs) }))
+      })
+    }
   }
 
-  return { initListPool, pools: pools[chainId], ddlResource }
+  return { initListPool, pools: pools[chainId] }
 }

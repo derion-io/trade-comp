@@ -35,14 +35,13 @@ import { TokenIcon } from '../ui/TokenIcon'
 import { StepType } from '../../utils/type'
 import { RemoveForm } from './RemoveForm'
 import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
-import useSWR from 'swr'
-import { getNativePrice } from 'derivable-tools/dist/price'
 import isEqual from 'react-fast-compare'
+import { useNativePrice } from '../../hooks/useTokenPrice'
 
 export const Component = ({ changedIn24h }: {
   changedIn24h: number
 }) => {
-  const { configs, chainId } = useConfigs()
+  const { configs } = useConfigs()
   const [formAddOrRemove, setFormAddOrRemove] = useState<'add' | 'remove' | undefined>(undefined)
   const [newLeverage, setNewLeverage] = useState<number>(0)
   const [newValue, setNewValue] = useState<BigNumber>()
@@ -65,7 +64,7 @@ export const Component = ({ changedIn24h }: {
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
   const [removePercent, setRemovePercent] = useState<number>()
 
-  const { data: nativePrice } = useSWR({ chainId }, (params) => getNativePrice(params))
+  const { data: nativePrice } = useNativePrice()
 
   const resetFormHandle = () => {
     setAmountToChange('')

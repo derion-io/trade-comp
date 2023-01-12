@@ -18,9 +18,7 @@ import { POOL_IDS } from '../../../../utils/constant'
 import { BigNumber } from 'ethers'
 import { useMultiSwapAction } from '../../../../hooks/useMultiSwapAction'
 import { useWeb3React } from '../../../../state/customWeb3React/hook'
-import useSWR from 'swr'
-import { getNativePrice } from 'derivable-tools/dist/price'
-import { useConfigs } from '../../../../state/config/useConfigs'
+import { useNativePrice } from '../../../../hooks/useTokenPrice'
 
 const shareOfPoolUnit = 1000
 
@@ -35,10 +33,9 @@ export const AddLiquidityBox = ({ totalSupplyCP }: {totalSupplyCP: BigNumber}) =
   const [tokenAdd, setTokenAdd] = useState<string>('')
   const [callError, setCallError] = useState<string>('')
   const [txFee, setTxFee] = useState<BigNumber>(bn(0))
-  const { chainId } = useConfigs()
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
   const { multiSwap, calculateAmountOuts } = useMultiSwapAction()
-  const { data: nativePrice } = useSWR({ chainId }, (params) => getNativePrice(params))
+  const { data: nativePrice } = useNativePrice()
 
   useEffect(() => {
     setTokenAdd(cToken || '')

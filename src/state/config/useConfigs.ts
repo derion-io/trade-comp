@@ -3,9 +3,10 @@ import { State } from '../types'
 import configs from './configs'
 
 export const useConfigs = () => {
-  const { initialledConfig, location, useHistory, chainId, useSubPage, language, env } = useSelector(
+  const { engine, initialledConfig, location, useHistory, chainId, useSubPage, language, env } = useSelector(
     (state: State) => {
       return {
+        engine: state.configs.engine,
         initialledConfig: state.configs.initialledConfig,
         chainId: state.configs.chainId,
         useSubPage: state.configs.useSubPage,
@@ -25,6 +26,7 @@ export const useConfigs = () => {
     env,
     location,
     useHistory,
-    configs: configs[chainId || 56]
+    configs: configs[chainId || 56],
+    ddlEngine: engine
   }
 }
