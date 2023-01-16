@@ -45,8 +45,6 @@ export const useMultiSwapAction = () => {
       stepsToSwap.unshift(getDeleverageStep())
     }
 
-    console.log('steps', stepsToSwap)
-
     const res = await callStaticMultiSwap({
       steps: stepsToSwap,
       gasLimit,

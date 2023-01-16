@@ -21,7 +21,6 @@ export const useListPool = () => {
         dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
         dispatch(addPoolsWithChain({ pools: data.pools, chainId }))
         dispatch(updateSwapTxs({ account, swapLogs: data.swapLogs }))
-        console.log('data.pools', data.pools)
       })
       ddlEngine.RESOURCE.getNewResource(account).then((data: any) => {
         dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
