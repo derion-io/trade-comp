@@ -9,6 +9,7 @@ import { JsonRpcProvider } from '@ethersproject/providers'
 
 export const useInitConfig = (
   {
+    library,
     chainId,
     useSubPage,
     language,
@@ -16,6 +17,7 @@ export const useInitConfig = (
     useHistory,
     env
   }: {
+    library: any
     useLocation: any
     useHistory: any
     chainId: number
@@ -58,9 +60,10 @@ export const useInitConfig = (
       },
       scanApi: configs[chainId].scanApi,
       rpcUrl: configs[chainId].rpcUrl,
+      signer: library?.getSigner(),
       provider: new JsonRpcProvider(configs[chainId].rpcUrl),
       providerToGetLog: new JsonRpcProvider(configs[chainId].rpcToGetLogs)
     })
     dispatch(setEngine({ engine }))
-  }, [account, chainId])
+  }, [library, account, chainId])
 }

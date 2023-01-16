@@ -15,10 +15,11 @@ export const InitConfig = ({
   useLocation
 }: any) => {
   const { initialledConfig } = useConfigs()
-  const { chainId } = useWeb3React()
+  const { chainId, library } = useWeb3React()
   useInitWeb3React(useWeb3React, showConnectWalletModal)
   useInitConfig({
     chainId: chainId || 56,
+    library,
     env,
     language,
     useSubPage,

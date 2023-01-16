@@ -18,16 +18,33 @@ import { useSwapHistoryFormated } from '../../state/wallet/hooks/useSwapHistory'
 import { Trade } from '../../pages/Trade'
 
 export const App = () => {
-  const { updateCurrentPool } = useCurrentPool()
+  const { poolAddress, updateCurrentPool } = useCurrentPool()
   const { tokens } = useListTokens()
   const { pools } = useListPool()
   const { fetchBalanceAndAllowance } = useWalletBalance()
   const { account } = useWeb3React()
-  const { configs, chainId, location } = useConfigs()
+  const { ddlEngine, configs, chainId, location } = useConfigs()
   const dispatch = useDispatch()
   const chainIdRef = useRef(null)
   const { initListPool } = useListPool()
   useSwapHistoryFormated()
+
+  useEffect(() => {
+    try {
+      setTimeout(() => {
+        if (ddlEngine?.CURRENT_POOL && pools[poolAddress]) {
+          // @ts-ignore
+          ddlEngine.setCurrentPool({
+            ...pools[poolAddress],
+            logic: pools[poolAddress].logic,
+            cTokenPrice: pools[poolAddress].cTokenPrice
+          })
+        }
+      })
+    } catch (e) {
+      console.log(e)
+    }
+  }, [ddlEngine, pools, poolAddress])
 
   useEffect(() => {
     initListPool(account)

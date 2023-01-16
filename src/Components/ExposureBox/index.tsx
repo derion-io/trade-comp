@@ -13,8 +13,7 @@ import { PowerState } from 'powerLib'
 import {
   bn,
   decodeErc1155Address, div,
-  formatFloat, isErc1155Address,
-  mul,
+  formatFloat,
   numberToWei,
   parseCallStaticError,
   weiToNumber
@@ -23,7 +22,6 @@ import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../state/token/hook'
 import { BigNumber, ethers } from 'ethers'
 import { useWeb3React } from '../../state/customWeb3React/hook'
-import { useMultiSwapAction } from '../../hooks/useMultiSwapAction'
 import { toast } from 'react-toastify'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
@@ -41,7 +39,7 @@ import { useNativePrice } from '../../hooks/useTokenPrice'
 export const Component = ({ changedIn24h }: {
   changedIn24h: number
 }) => {
-  const { configs } = useConfigs()
+  const { ddlEngine, configs } = useConfigs()
   const [formAddOrRemove, setFormAddOrRemove] = useState<'add' | 'remove' | undefined>(undefined)
   const [newLeverage, setNewLeverage] = useState<number>(0)
   const [newValue, setNewValue] = useState<BigNumber>()
@@ -55,7 +53,6 @@ export const Component = ({ changedIn24h }: {
   const [isDeleverage, setIsDeleverage] = useState<boolean>(false)
   const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
   const { tokens } = useListTokens()
-  const { calculateAmountOuts, updateLeverageAndSize } = useMultiSwapAction()
   const [stepsWithAmounts, setStepsWithAmounts] = useState<{ amountOut: BigNumber }[]>([])
   const [callError, setCallError] = useState<string>('')
   const [leverageManual, setLeverageManual] = useState<boolean>(false)
@@ -152,7 +149,9 @@ export const Component = ({ changedIn24h }: {
       if (stepsWithAmounts.length === 0) {
         setCallError('Calculating...')
       }
-      calculateAmountOuts(swapSteps, isDeleverage)
+
+      // @ts-ignore
+      ddlEngine.SWAP.calculateAmountOuts(swapSteps, isDeleverage)
         .then(([aOuts, gasUsed]) => {
           // @ts-ignore
           setTxFee(detectTxFee(gasUsed))
@@ -289,7 +288,7 @@ export const Component = ({ changedIn24h }: {
         onClick={async () => {
           setLoading(true)
           try {
-            await updateLeverageAndSize(swapSteps, isDeleverage)
+            await ddlEngine?.SWAP.updateLeverageAndSize(swapSteps, isDeleverage)
             await fetchBalanceAndAllowance(Object.keys(tokens))
           } catch (e) {
             toast(parseCallStaticError(e))

@@ -16,14 +16,15 @@ import { ButtonExecute } from '../../../../Components/ui/Button'
 import { IconArrowDown } from '../../../../Components/ui/Icon'
 import { POOL_IDS } from '../../../../utils/constant'
 import { BigNumber } from 'ethers'
-import { useMultiSwapAction } from '../../../../hooks/useMultiSwapAction'
 import { useWeb3React } from '../../../../state/customWeb3React/hook'
 import { useNativePrice } from '../../../../hooks/useTokenPrice'
+import { useConfigs } from '../../../../state/config/useConfigs'
 
 const shareOfPoolUnit = 1000
 
 export const AddLiquidityBox = ({ totalSupplyCP }: {totalSupplyCP: BigNumber}) => {
   const { account, showConnectModal } = useWeb3React()
+  const { ddlEngine } = useConfigs()
   const { cToken, baseToken, poolAddress, quoteToken, logicAddress } = useCurrentPool()
   const { tokens } = useListTokens()
   const { balances, routerAllowances, approveRouter } = useWalletBalance()
@@ -34,7 +35,6 @@ export const AddLiquidityBox = ({ totalSupplyCP }: {totalSupplyCP: BigNumber}) =
   const [callError, setCallError] = useState<string>('')
   const [txFee, setTxFee] = useState<BigNumber>(bn(0))
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
-  const { multiSwap, calculateAmountOuts } = useMultiSwapAction()
   const { data: nativePrice } = useNativePrice()
 
   useEffect(() => {
@@ -70,7 +70,8 @@ export const AddLiquidityBox = ({ totalSupplyCP }: {totalSupplyCP: BigNumber}) =
     if (!amountOut) {
       setCallError('Calculating...')
     }
-    calculateAmountOuts([{
+    // @ts-ignore
+    ddlEngine.SWAP.calculateAmountOuts([{
       tokenIn: tokenAdd,
       tokenOut: poolAddress + '-' + POOL_IDS.cp,
       amountIn: bn(numberToWei(amountIn, tokens[tokenAdd]?.decimal || 18))
@@ -128,7 +129,8 @@ export const AddLiquidityBox = ({ totalSupplyCP }: {totalSupplyCP: BigNumber}) =
         className='add-liquidity__action'
         onClick={async () => {
           setLoading(true)
-          await multiSwap([{
+          // @ts-ignore
+          await ddlEngine.SWAP.multiSwap([{
             tokenIn: tokenAdd,
             tokenOut: cpAddress,
             amountIn: bn(numberToWei(amountIn, tokens[tokenAdd]?.decimal || 18)),

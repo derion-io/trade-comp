@@ -4880,9 +4880,9 @@ depd@~1.1.2:
   resolved "https://registry.yarnpkg.com/depd/-/depd-1.1.2.tgz#9bcd52e14c097763e749b274c4346ed2e560b5a9"
   integrity sha1-m81S4UwJd2PnSbJ0xDRu0uVgtak=
 
-"derivable-tools@git+ssh://git@github.com:blackskin18/derivable-tools.git#03d1b2bf7eee33c55d202db45e0c50fa05c6b1d4":
+"derivable-tools@git+ssh://git@github.com:blackskin18/derivable-tools.git#fe72b3b923773ebbedf5e145d778b53f45e9fa74":
   version "1.0.0"
-  resolved "git+ssh://git@github.com:blackskin18/derivable-tools.git#03d1b2bf7eee33c55d202db45e0c50fa05c6b1d4"
+  resolved "git+ssh://git@github.com:blackskin18/derivable-tools.git#fe72b3b923773ebbedf5e145d778b53f45e9fa74"
   dependencies:
     assisted-json-rpc-provider "git+ssh://git@github.com:launchzone/AssistedJsonRpcProvider.git#1662bda1343be76618331a2d671bfa56f0d0e305"
     ethereum-multicall "^2.15.0"

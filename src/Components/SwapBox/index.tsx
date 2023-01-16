@@ -22,7 +22,6 @@ import {
   weiToNumber
 } from '../../utils/helpers'
 import { TokenSymbol } from '../ui/TokenSymbol'
-import { useMultiSwapAction } from '../../hooks/useMultiSwapAction'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { POOL_IDS } from '../../utils/constant'
 import { PowerState } from 'powerLib'
@@ -33,7 +32,7 @@ import { useCpPrice, useNativePrice } from '../../hooks/useTokenPrice'
 
 const Component = () => {
   const { account, showConnectModal } = useWeb3React()
-  const { configs } = useConfigs()
+  const { configs, ddlEngine } = useConfigs()
   const { cTokenPrice, states, dTokens, cToken, logicAddress, poolAddress, powers, baseToken, quoteToken, basePrice } = useCurrentPool()
   const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
@@ -49,7 +48,6 @@ const Component = () => {
   const [loading, setLoading] = useState<boolean>(false)
   const [isDeleverage, setIsDeleverage] = useState<boolean>(false)
   const { tokens } = useListTokens()
-  const { multiSwap, calculateAmountOuts } = useMultiSwapAction()
   const { data: nativePrice } = useNativePrice()
   const { data: cpPrice } = useCpPrice()
 
@@ -73,7 +71,8 @@ const Component = () => {
     if (!amountOut) {
       setCallError('Calculating...')
     }
-    calculateAmountOuts([{
+    // @ts-ignore
+    ddlEngine.SWAP.calculateAmountOuts([{
       tokenIn: inputTokenAddress,
       tokenOut: outputTokenAddress,
       amountIn: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))
@@ -145,14 +144,25 @@ const Component = () => {
         className='swap-button'
         onClick={async () => {
           setLoading(true)
-          await multiSwap([{
-            tokenIn: inputTokenAddress,
-            tokenOut: outputTokenAddress,
-            amountIn: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18)),
-            amountOutMin: 0
-          }], isDeleverage)
-          setAmountIn('')
-          setAmountIn('')
+          console.log(ddlEngine?.CURRENT_POOL)
+          if (ddlEngine) {
+            await ddlEngine.SWAP.multiSwap([{
+              tokenIn: inputTokenAddress,
+              tokenOut: outputTokenAddress,
+              amountIn: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18)),
+              amountOutMin: 0
+            }], isDeleverage
+            )
+          }
+
+          // await multiSwap([{
+          //   tokenIn: inputTokenAddress,
+          //   tokenOut: outputTokenAddress,
+          //   amountIn: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18)),
+          //   amountOutMin: 0
+          // }], isDeleverage)
+          // setAmountIn('')
+          // setAmountIn('')
           setLoading(false)
         }}
       >{isDeleverage && 'Deleverage & '} Swap</ButtonExecute>

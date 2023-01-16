@@ -6,7 +6,7 @@ import { setCandleChartIsLoadingReduce } from '../reducer'
 
 export const useCurrentPool = () => {
   const { pools } = useListPool()
-  const { configs } = useConfigs()
+  const { configs, ddlEngine } = useConfigs()
   const dispatch = useDispatch()
 
   const {

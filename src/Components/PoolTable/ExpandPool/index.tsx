@@ -7,7 +7,6 @@ import { useListTokens } from '../../../state/token/hook'
 import { TokenSymbol } from '../../ui/TokenSymbol'
 import { useConfigs } from '../../../state/config/useConfigs'
 import { ButtonExecute } from '../../ui/Button'
-import { useMultiSwapAction } from '../../../hooks/useMultiSwapAction'
 import { PowerState } from 'powerLib'
 import isEqual from 'react-fast-compare'
 
@@ -18,12 +17,11 @@ const Component = ({ visible, pool }: {
   visible: boolean,
   pool: PoolType
 }) => {
-  const { configs } = useConfigs()
+  const { configs, ddlEngine } = useConfigs()
   const { tokens } = useListTokens()
   const { states, powers, dTokens, baseToken, quoteToken, poolAddress } = pool
   const { Rc, rDcLong, rDcShort, totalSupplies } = states || {}
   const [deleverageLoading, setDeleverageLoading] = useState(false)
-  const { multiSwap } = useMultiSwapAction()
 
   const [totalLockedValue, rDcLongValue, rDcShortValue, collateralRatio] = useMemo(() => {
     if (!states) return [bn(0), bn(0), bn(0), 0]
@@ -70,7 +68,8 @@ const Component = ({ visible, pool }: {
                 <ButtonExecute
                   onClick={async () => {
                     setDeleverageLoading(true)
-                    await multiSwap([], true)
+                    // @ts-ignore
+                    await ddlEngine.SWAP.multiSwap([], true)
                     setDeleverageLoading(false)
                   }}
                 >{deleverageLoading ? 'Loading...' : 'Deleverage'}</ButtonExecute>
