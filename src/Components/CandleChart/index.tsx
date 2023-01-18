@@ -1,18 +1,21 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import './style.scss'
 import {
   ChartingLibraryWidgetOptions,
   IChartingLibraryWidget,
-  ResolutionString,
+  ResolutionString, TimeFrameType,
   widget
 } from '../../lib/charting_library'
-import { Datafeed } from '../../lib/datafeed'
+import { Datafeed, TIME_IN_RESOLUTION } from '../../lib/datafeed'
 import { useListTokens } from '../../state/token/hook'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { Card } from '../ui/Card'
 import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 import { CandleChartLoader } from '../ChartLoaders'
 import isEqual from 'react-fast-compare'
+import { bn } from '../../utils/helpers'
+import { useDispatch } from 'react-redux'
+import { setChartTimeRange } from '../../state/currentPool/reducer'
 
 export interface ChartContainerProps {
   interval: ChartingLibraryWidgetOptions['interval']
@@ -41,8 +44,20 @@ const Component = ({
 }: ChartContainerProps) => {
   const [tradingviewWidget, setTradingviewWidget] = useState<any>(null)
   const { tokens } = useListTokens()
-  const { cToken, baseToken, quoteToken, chartIsOutDate, candleChartIsLoading, setCandleChartIsLoading } = useCurrentPool()
+  const {
+    cToken,
+    baseToken,
+    quoteToken,
+    chartIsOutDate,
+    candleChartIsLoading,
+    setCandleChartIsLoading,
+    chartTimeFocus,
+    setChartTimeFocus
+  } = useCurrentPool()
   const { formartedSwapLogs: swapTxs } = useSwapHistory()
+  // const [timeRange, setTimeRange] = useState<number>()
+  const timeRangeRef = useRef<any>(null)
+  const dispatch = useDispatch()
 
   useEffect(() => {
     if (cToken && baseToken && quoteToken) {
@@ -61,7 +76,19 @@ const Component = ({
     }
   }, [swapTxs])
 
+  useEffect(() => {
+    if (tradingviewWidget) {
+      try {
+        const resolution = tradingviewWidget.activeChart().resolution()
+        tradingviewWidget.activeChart().setVisibleRange(detectRange(resolution, chartTimeFocus, chartTimeFocus))
+      } catch (e) {
+        console.error(e)
+      }
+    }
+  }, [chartTimeFocus])
+
   const initChart = async () => {
+    setChartTimeFocus(0)
     setCandleChartIsLoading(true)
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
     const widgetOptions: any = {
@@ -103,6 +130,27 @@ const Component = ({
     const tvWidget: IChartingLibraryWidget = new widget(widgetOptions)
     tvWidget.onChartReady(() => {
       setTradingviewWidget(tvWidget)
+      tvWidget.activeChart().onVisibleRangeChanged().subscribe(null, ({ from, to }) => {
+        if (timeRangeRef) {
+          timeRangeRef.current.value = from + ',' + to
+          dispatch(setChartTimeRange({ timeRange: { from, to } }))
+        }
+      })
+      tvWidget.activeChart().onIntervalChanged().subscribe(null, (resolution, timeframeObj) => {
+        const data = timeRangeRef.current.value
+        const [from, to] = data.split(',').map(Number)
+        // const resolution = tvWidget.activeChart().resolution()
+        tvWidget.activeChart().resetData()
+        if (resolution && from && to) {
+          setTimeout(() => {
+            tvWidget.activeChart().setVisibleRange(detectRange(resolution, from, to))
+          })
+          timeframeObj.timeframe = {
+            type: TimeFrameType.TimeRange,
+            ...detectRange(resolution, from, to)
+          }
+        }
+      })
       // tvWidget.addCustomCSSFile('/darkTheme.css')
       tvWidget.applyOverrides({
         'paneProperties.backgroundType': 'solid',
@@ -115,6 +163,15 @@ const Component = ({
     })
   }
 
+  const detectRange = (resolution: string, from: number, to: number) => {
+    const timePerCandle = TIME_IN_RESOLUTION[resolution]
+    const middleTime = (from + to) / 2
+    return {
+      from: middleTime - timePerCandle * 50,
+      to: middleTime + timePerCandle * 50
+    }
+  }
+
   // eslint-disable-next-line no-constant-condition
 
   return (
@@ -124,6 +181,15 @@ const Component = ({
           <CandleChartLoader />
         </div>
       }
+      <input type='text' ref={timeRangeRef} />
+      <button onClick={() => {
+        if (tradingviewWidget) {
+          tradingviewWidget.activeChart().setVisibleRange({
+            from: 1654102800,
+            to: 1654189200
+          })
+        }
+      }}>test</button>
       <div className={`candle-chart-box ${candleChartIsLoading && 'transparent'}`}>
         <div
           id={containerId}

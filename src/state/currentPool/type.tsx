@@ -14,6 +14,11 @@ export interface currentPoolState {
   quoteId: number,
   chartIsOutDate: boolean
   candleChartIsLoading: boolean
+  chartTimeRange: {
+    from: number,
+    to: number
+  },
+  chartTimeFocus: number
 }
 
 export const initialState: currentPoolState = {
@@ -31,5 +36,10 @@ export const initialState: currentPoolState = {
   changedIn24h: 0,
   poolAddress: '',
   chartIsOutDate: false,
-  candleChartIsLoading: false
+  candleChartIsLoading: false,
+  chartTimeRange: {
+    from: 0,
+    to: 0
+  },
+  chartTimeFocus: 0
 }
