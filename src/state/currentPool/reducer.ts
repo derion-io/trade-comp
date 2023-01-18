@@ -47,15 +47,27 @@ export const tokens = createSlice({
       state.poolAddress = action.payload.poolAddress
       state.baseId = action.payload.baseId
       state.quoteId = action.payload.quoteId
+    },
+    setChartTimeRange: (state, action: PayloadAction<{
+      timeRange: {from: number, to: number}
+    }>) => {
+      state.chartTimeRange = action.payload.timeRange
+    },
+    setChartTimeFocusReduce: (state, action: PayloadAction<{
+      time: number
+    }>) => {
+      state.chartTimeFocus = action.payload.time
     }
   }
 })
 
 // Actions
 export const {
+  setChartTimeFocusReduce,
   setChartIsOutDate,
   setCurrentPoolInfo,
-  setCandleChartIsLoadingReduce
+  setCandleChartIsLoadingReduce,
+  setChartTimeRange
 } = tokens.actions
 
 export default tokens.reducer

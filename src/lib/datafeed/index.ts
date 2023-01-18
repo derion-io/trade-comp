@@ -30,7 +30,7 @@ const configDefault = {
   timezone: 'Asia/Bangkok'
 }
 
-const TIME_IN_RESOLUTION = {
+export const TIME_IN_RESOLUTION = {
   1: 60,
   5: 60 * 5,
   15: 60 * 15,
@@ -98,15 +98,23 @@ export const Datafeed = {
 
     const state = store.getState()
     const tokens = state.tokens.tokens[56]
+    // const timeRange = state.currentPool.chartTimeRange
+    // console.log(timeRange)
     const ticker = symbolInfo.ticker
     const [baseAddress, cAddress, quoteAddress] = ticker.split('-')
+
+    const limit = calcLimitCandle(periodParams.from, periodParams.to, interval)
+    console.log('limit', limit)
+    // if (periodParams.firstDataRequest && timeRange.from && timeRange.to && calcLimitCandle(timeRange.from, timeRange.to, interval) < 1000) {
+    //   limit = calcLimitCandle(timeRange.from, timeRange.to, interval)
+    // }
 
     historyProvider
       .getBars({
         route: [baseAddress, cAddress, quoteAddress].join(','),
         resolution: interval,
         to: periodParams.to,
-        limit: calcLimitCandle(periodParams.from, periodParams.to, interval),
+        limit: limit,
         inputToken: tokens[baseAddress],
         outputToken: tokens[quoteAddress]
       })

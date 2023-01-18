@@ -19,6 +19,21 @@
     white-space: nowrap;
   }
 
+  &__row {
+    cursor: pointer;
+    //& td {
+    //  background: red;
+    //}
+
+    &:hover {
+      background: $color-grey;
+
+      & td {
+        border-color: $color-grey;
+      }
+    }
+  }
+
   & {
     width: 100%;
     border-collapse: collapse;
@@ -26,6 +41,10 @@
     border-radius: 8px;
     height: 320px;
     overflow: auto;
+
+    & table {
+      border-collapse: collapse;
+    }
 
     @include respond(phone) {
       height: inherit;
@@ -47,11 +66,12 @@
   tr.is-remove td {
     background: rgba(255, 122, 104, 0.1);
   }
+
   tr.is-change-leverage td {
     background: rgba(104, 192, 255, 0.1);
   }
 
-  td,th {
+  td, th {
     padding: 0.5rem 0.25rem;
   }
 
@@ -59,7 +79,7 @@
     display: flex;
     align-items: center;
 
-    &>*:not(:last-child) {
+    & > *:not(:last-child) {
       margin-right: 0.5rem;
     }
   }
@@ -68,6 +88,7 @@
     & span {
       display: inline-block;
     }
+
     & span::first-letter {
       text-transform: uppercase;
     }
@@ -76,12 +97,15 @@
   &__arrow {
     width: 40px;
   }
+
   &__ctoken-change {
     width: 0;
+
     & * {
       white-space: nowrap;
     }
-    &>*:not(:last-child) {
+
+    & > *:not(:last-child) {
       margin-right: 0.5rem;
     }
   }

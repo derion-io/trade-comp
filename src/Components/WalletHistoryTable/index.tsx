@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import './style.scss'
 import { SwapTxType } from '../../state/wallet/type'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
@@ -15,7 +15,7 @@ import { getErc20AmountChange } from '../../utils/swapHistoryHelper'
 import isEqual from 'react-fast-compare'
 
 const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
-  const { cToken, baseId, quoteId, baseToken, quoteToken } = useCurrentPool()
+  const { cToken, baseId, quoteId, baseToken, quoteToken, setChartTimeFocus } = useCurrentPool()
   const { tokens } = useListTokens()
   const { configs } = useConfigs()
 
@@ -43,7 +43,9 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
                 const baseChange = getErc20AmountChange(swapTx.oldBalances, swapTx.newBalances, baseId)
                 const quoteChange = getErc20AmountChange(swapTx.oldBalances, swapTx.newBalances, quoteId)
 
-                return <tr key={key}>
+                return <tr className='wallet-history-table__row' key={key} onClick={() => {
+                  setChartTimeFocus(swapTx.timeStamp)
+                }}>
                   <td className='wallet-history-table__time'>
                     <TextLink href={configs.explorer + '/tx/' + swapTx.transactionHash}>{swapTx.timeStamp && getTimeLabel(swapTx.timeStamp) + ' ago'}</TextLink>
                   </td>
