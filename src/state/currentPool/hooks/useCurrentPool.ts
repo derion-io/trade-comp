@@ -25,7 +25,8 @@ export const useCurrentPool = () => {
     poolAddress,
     chartIsOutDate,
     candleChartIsLoading,
-    chartTimeFocus
+    chartTimeFocus,
+    chartResolutionIsUpdated
   } = useSelector((state: State) => {
     return {
       cTokenPrice: state.currentPool.cTokenPrice,
@@ -43,7 +44,8 @@ export const useCurrentPool = () => {
       poolAddress: state.currentPool.poolAddress,
       chartIsOutDate: state.currentPool.chartIsOutDate,
       candleChartIsLoading: state.currentPool.candleChartIsLoading,
-      chartTimeFocus: state.currentPool.chartTimeFocus
+      chartTimeFocus: state.currentPool.chartTimeFocus,
+      chartResolutionIsUpdated: state.currentPool.chartResolutionIsUpdated
     }
   })
 
@@ -110,6 +112,7 @@ export const useCurrentPool = () => {
     states,
     poolAddress,
     chartIsOutDate,
-    chartTimeFocus
+    chartTimeFocus,
+    chartResolutionIsUpdated
   }
 }

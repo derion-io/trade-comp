@@ -19,6 +19,7 @@ export interface currentPoolState {
     to: number
   },
   chartTimeFocus: number
+  chartResolutionIsUpdated: boolean
 }
 
 export const initialState: currentPoolState = {
@@ -41,5 +42,6 @@ export const initialState: currentPoolState = {
     from: 0,
     to: 0
   },
-  chartTimeFocus: 0
+  chartTimeFocus: 0,
+  chartResolutionIsUpdated: false
 }

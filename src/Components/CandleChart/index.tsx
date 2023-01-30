@@ -50,6 +50,7 @@ const Component = ({
     quoteToken,
     chartIsOutDate,
     candleChartIsLoading,
+    chartResolutionIsUpdated,
     setCandleChartIsLoading,
     chartTimeFocus,
     setChartTimeFocus
@@ -57,7 +58,6 @@ const Component = ({
   const { formartedSwapLogs: swapTxs } = useSwapHistory()
   // const [timeRange, setTimeRange] = useState<number>()
   const timeRangeRef = useRef<any>(null)
-  const dispatch = useDispatch()
 
   useEffect(() => {
     if (cToken && baseToken && quoteToken) {
@@ -77,7 +77,7 @@ const Component = ({
   }, [swapTxs])
 
   useEffect(() => {
-    if (tradingviewWidget) {
+    if (tradingviewWidget && chartTimeFocus) {
       try {
         const resolution = tradingviewWidget.activeChart().resolution()
         tradingviewWidget.activeChart().setVisibleRange(detectRange(resolution, chartTimeFocus, chartTimeFocus))
@@ -86,6 +86,19 @@ const Component = ({
       }
     }
   }, [chartTimeFocus])
+
+  useEffect(() => {
+    if (tradingviewWidget && chartResolutionIsUpdated) {
+      try {
+        const resolution = tradingviewWidget.activeChart().resolution()
+        const data = timeRangeRef.current.value
+        const [from, to] = data.split(',').map(Number)
+        tradingviewWidget.activeChart().setVisibleRange(detectRange(resolution, from, to))
+      } catch (e) {
+        console.error(e)
+      }
+    }
+  }, [chartResolutionIsUpdated])
 
   const initChart = async () => {
     setChartTimeFocus(0)
@@ -133,25 +146,18 @@ const Component = ({
       tvWidget.activeChart().onVisibleRangeChanged().subscribe(null, ({ from, to }) => {
         if (timeRangeRef) {
           timeRangeRef.current.value = from + ',' + to
-          dispatch(setChartTimeRange({ timeRange: { from, to } }))
         }
       })
       tvWidget.activeChart().onIntervalChanged().subscribe(null, (resolution, timeframeObj) => {
         const data = timeRangeRef.current.value
         const [from, to] = data.split(',').map(Number)
-        // const resolution = tvWidget.activeChart().resolution()
-        tvWidget.activeChart().resetData()
         if (resolution && from && to) {
-          setTimeout(() => {
-            tvWidget.activeChart().setVisibleRange(detectRange(resolution, from, to))
-          })
           timeframeObj.timeframe = {
             type: TimeFrameType.TimeRange,
             ...detectRange(resolution, from, to)
           }
         }
       })
-      // tvWidget.addCustomCSSFile('/darkTheme.css')
       tvWidget.applyOverrides({
         'paneProperties.backgroundType': 'solid',
         'paneProperties.background': '#1E2026',

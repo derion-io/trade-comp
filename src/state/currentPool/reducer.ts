@@ -57,6 +57,11 @@ export const tokens = createSlice({
       time: number
     }>) => {
       state.chartTimeFocus = action.payload.time
+    },
+    setChartIntervalIsUpdated: (state, action: PayloadAction<{
+      status: boolean
+    }>) => {
+      state.chartResolutionIsUpdated = action.payload.status
     }
   }
 })
@@ -67,7 +72,8 @@ export const {
   setChartIsOutDate,
   setCurrentPoolInfo,
   setCandleChartIsLoadingReduce,
-  setChartTimeRange
+  setChartTimeRange,
+  setChartIntervalIsUpdated
 } = tokens.actions
 
 export default tokens.reducer

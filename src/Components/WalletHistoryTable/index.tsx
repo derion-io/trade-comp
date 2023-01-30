@@ -44,7 +44,10 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
                 const quoteChange = getErc20AmountChange(swapTx.oldBalances, swapTx.newBalances, quoteId)
 
                 return <tr className='wallet-history-table__row' key={key} onClick={() => {
-                  setChartTimeFocus(swapTx.timeStamp)
+                  setChartTimeFocus(0)
+                  setTimeout(() => {
+                    setChartTimeFocus(swapTx.timeStamp)
+                  })
                 }}>
                   <td className='wallet-history-table__time'>
                     <TextLink href={configs.explorer + '/tx/' + swapTx.transactionHash}>{swapTx.timeStamp && getTimeLabel(swapTx.timeStamp) + ' ago'}</TextLink>

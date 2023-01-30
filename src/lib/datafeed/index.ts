@@ -1,7 +1,10 @@
 import historyProvider, { CandleType } from 'derivable-tools/dist/historyProvider'
 import { LASTEST_BLOCK_NUMBER, NATIVE_ADDRESS, POOL_IDS } from '../../utils/constant'
 import { store } from '../../state'
-import { setCandleChartIsLoadingReduce, setChartIsOutDate } from '../../state/currentPool/reducer'
+import {
+  setCandleChartIsLoadingReduce, setChartIntervalIsUpdated,
+  setChartIsOutDate,
+} from '../../state/currentPool/reducer'
 import { getErc20AmountChange } from '../../utils/swapHistoryHelper'
 import { SwapTxType } from '../../state/wallet/type'
 import moment from 'moment'
@@ -98,16 +101,14 @@ export const Datafeed = {
 
     const state = store.getState()
     const tokens = state.tokens.tokens[56]
-    // const timeRange = state.currentPool.chartTimeRange
-    // console.log(timeRange)
     const ticker = symbolInfo.ticker
     const [baseAddress, cAddress, quoteAddress] = ticker.split('-')
 
     const limit = calcLimitCandle(periodParams.from, periodParams.to, interval)
-    console.log('limit', limit)
-    // if (periodParams.firstDataRequest && timeRange.from && timeRange.to && calcLimitCandle(timeRange.from, timeRange.to, interval) < 1000) {
-    //   limit = calcLimitCandle(timeRange.from, timeRange.to, interval)
-    // }
+
+    if (periodParams.firstDataRequest) {
+      store.dispatch(setChartIntervalIsUpdated({ status: false }))
+    }
 
     historyProvider
       .getBars({
@@ -123,6 +124,7 @@ export const Datafeed = {
           if (periodParams.firstDataRequest) {
             console.log('periodParams.firstDataRequest')
             store.dispatch(setCandleChartIsLoadingReduce({ status: false }))
+            store.dispatch(setChartIntervalIsUpdated({ status: true }))
             detectChartIsOutdate(bars[bars.length - 1], interval)
           }
 
