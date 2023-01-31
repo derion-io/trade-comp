@@ -7,68 +7,75 @@ $border-radius: 8px;
     background: $color-card-bg;
     border-radius: 20px;
   }
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+    td:not(:first-child) {
+      text-align: center;
+    }
+    th {
+      height: 40px;
+    }
 
-  &__top {
+    & * {
+      font-size: 1.2rem;
+    }
+  }
+
+  &__info-row {
+    background: $color-input-bg;
+    & td:first-child {
+      padding-left: 1.5rem;
+    }
+    td {
+      padding: 0.8rem;
+    }
+  }
+
+  &__config-row {
+    td {
+      padding-top: 2rem;
+      padding-bottom: 2rem;
+    }
+  }
+
+  &__imbalance-rate-row {
+    td {
+      padding-top: 1.2rem;
+      padding-bottom: 1.2rem;
+    }
+  }
+
+  &__funding-rate {
+    padding: 0 2rem 0 2rem;
+    border-left: 1px solid $color-border-1;
+    border-right: 1px solid $color-border-1;
     display: flex;
-    &--left,&--mid,&--right {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      &-head {
-        height: 25px;
-        display: flex;
-        align-items: start;
-        padding: 0 1rem;
-      }
-      &-content {
-        background: $color-grey-2;
-        flex: 1;
-        padding: 1rem;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
 
-        & >*:not(:last-child) {
-          margin-bottom: 1.5rem !important;
-        }
-      }
+    &--box {
+      height: 1px
     }
-
-    &--left-content {
-      border-radius: $border-radius  0 0 0;
-    }
-    &--right-content {
-      border-radius: 0 $border-radius 0 0;
-    }
-
   }
 
-  & * {
-    font-size: 1.2rem;
-    //white-space: nowrap;
+  .br {
+    border-radius: 10px;
   }
-
-  &__configs, &__total-supplies {
-
+  .space {
+    height: 12px;
   }
-
-  &__bottom {
-    background: $color-grey-2;
-    border-radius: 0  0 $border-radius $border-radius;
-    position: relative;
-    padding: 1rem;
-
-
-    &--content {
-      border-top: 1px solid $color-box-border;
-      display: flex;
-      justify-content: space-between;
-      padding-top: 1rem;
-
-      & > * {
-        //white-space: nowrap;
-      }
-
-      & .skeleton-loader {
-        display: inline-block;
-      }
-    }
+  .br-top-left {
+    border-top-left-radius: 10px;
+  }
+  .br-top-right {
+    border-top-right-radius: 10px;
+  }
+  .br-bottom-left {
+    border-bottom-left-radius: 10px;
+  }
+  .br-bottom-right {
+    border-bottom-right-radius: 10px;
   }
 }

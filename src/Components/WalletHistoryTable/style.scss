@@ -14,16 +14,16 @@
 
   &__head {
     text-align: center;
-    height: 25px;
+    height: 40px;
     font-size: 1.2rem;
     white-space: nowrap;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   &__row {
     cursor: pointer;
-    //& td {
-    //  background: red;
-    //}
 
     &:hover {
       background: $color-grey;

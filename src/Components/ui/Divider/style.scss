@@ -1,0 +1,26 @@
+@import "../../../styles/abstracts/variables";
+
+.derivable-divider {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+
+  &__line {
+    height: 1px;
+    background: $color-border-1;
+    width: 100%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 0;
+  }
+  &__title {
+    background: $color-card-bg;
+    position: relative;
+    z-index: 1;
+    padding: 1rem;
+  }
+}
