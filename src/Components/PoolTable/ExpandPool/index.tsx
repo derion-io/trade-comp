@@ -32,7 +32,7 @@ const Component = ({ visible, pool }: {
     const collateralRatio = rDc.gt(0) ? Rc.mul(unit).div(rDc).toNumber() / unit : 0
 
     const imbalanceRate = rDcShort && rDcLong
-      ? bn(rDcLong).sub(rDcShort).mul(unit).div(rDcLong.add(rDcShort)).toNumber() / unit
+      ? bn(rDcLong).sub(rDcShort).mul(unit).div(Rc).toNumber() / unit
       : 0
 
     return [
