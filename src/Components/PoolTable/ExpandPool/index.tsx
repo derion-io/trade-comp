@@ -139,7 +139,7 @@ const Component = ({ visible, pool }: {
         <tr className='pool-expand__info-row pool-expand__imbalance-rate-row'>
           <td className='br-top-left br-bottom-left'>
             <Text>Imbalance Rate: </Text>
-            <TextBlue>{formatFloat(imbalanceRate, 2)}%</TextBlue>
+            <TextBlue>{formatFloat(imbalanceRate * 100, 2)}%</TextBlue>
           </td>
           <td />
           <td className='br-top-right br-bottom-right'>
