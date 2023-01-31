@@ -186,6 +186,7 @@ const Component = () => {
     if (address === cToken) {
       return cTokenPrice
     } else if (address === configs.addresses.nativeToken) {
+      console.log('khanh')
       return nativePrice
     } else if (address === baseToken) {
       return basePrice
@@ -208,7 +209,7 @@ const Component = () => {
       const powerState = new PowerState({ powers: [...powers] })
       powerState.loadStates(states)
       const price = getTokenPrice(inputTokenAddress, powerState)
-      if (Number(price) === 0 || !Number.isFinite(price)) {
+      if (Number(price) === 0 || !Number(price)) {
         return 0
       }
       return formatFloat(weiToNumber(bn(numberToWei(amountIn)).mul(numberToWei(price || 0)), 36), 2)

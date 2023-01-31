@@ -195,7 +195,7 @@ export const Component = ({ changedIn24h }: {
   const valueIn = useMemo(() => {
     if (powers && states.twapBase && Number(amountToChange) > 0) {
       const price = getTokenPrice(inputTokenAddress)
-      if (price === 0 || !Number.isFinite(price)) {
+      if (price === 0 || !Number(price)) {
         return 0
       }
       return formatFloat(weiToNumber(bn(numberToWei(amountToChange)).mul(numberToWei(price || 0)), 36), 2)
