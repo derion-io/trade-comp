@@ -6,6 +6,11 @@ export const fee10000 = 30
 export const MINI_SECOND_PER_DAY = 86400000
 export const LP_PRICE_UNIT = 10000
 export const TIME_TO_REFRESH_STATE = 30000
+export const DEFAULT_CHAIN = 1337
+export const CHAINS = {
+  LOCAL: 31337,
+  BSC: 56
+}
 
 export const LOCALSTORAGE_KEY = {
   DDL_LOGS: 'ddl-log-v1.0',

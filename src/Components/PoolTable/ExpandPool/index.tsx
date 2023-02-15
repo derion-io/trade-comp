@@ -21,10 +21,13 @@ const Component = ({ visible, pool }: {
   const { ddlEngine } = useConfigs()
   const { tokens } = useListTokens()
   const { states, powers, dTokens } = pool
-  const { Rc, rDcLong, rDcShort, totalSupplies } = states || {}
+  // const { Rc, rDcLong, rDcShort, totalSupplies } = states || {}
+  const { Rc, totalSupplies } = states || {}
+  const [rDcLong, rDcShort] = [bn(0), bn(0)]
   const [deleverageLoading, setDeleverageLoading] = useState(false)
 
   const [totalLockedValue, rDcLongValue, rDcShortValue, collateralRatio, imbalanceRate] = useMemo(() => {
+    return [bn(0), bn(0), bn(0), 0, 0]
     if (!states) return [bn(0), bn(0), bn(0), 0, 0]
     const unit = 100000
     const cPrice = bn(states?.twapLP || 0).mul(unit).shr(112)
@@ -66,6 +69,9 @@ const Component = ({ visible, pool }: {
     return powers && powers.map((power: number, index: number) => {
       return { power, index }
     })
+      .filter(({ power, index }) => {
+        return (power > 0) === powersIsPositive && pool.states.totalSupplies[index].gt(0)
+      })
       .sort((a: any, b: any) => b.power - a.power)
       .map(({ power, index }: { power: number, index: number }) => {
         const price = powerState ? powerState.calculatePrice(power) : 0
@@ -74,9 +80,6 @@ const Component = ({ visible, pool }: {
         }
         const value = totalSupplies[index]?.mul(numberToWei(price || 0))
         return { index, power, value }
-      })
-      .filter(({ power, value }) => {
-        return (power > 0) === powersIsPositive && value > 0
       })
       .map(({ index, power, value }: { index: number, power: number, value: number }, key, arr) => {
         const TextComp = power > 0 ? TextBuy : TextSell

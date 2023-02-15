@@ -42,7 +42,7 @@ const Component = () => {
   const [amountOut, setAmountOut] = useState<string>('')
   const [amountOutWei, setAmountOutWei] = useState<BigNumber>(bn(0))
   const [amountIn, setAmountIn] = useState<string>('')
-  const { balances, routerAllowances, approveRouter } = useWalletBalance()
+  const { balances, routerAllowances, fetchBalanceAndAllowance, approveRouter } = useWalletBalance()
   const [txFee, setTxFee] = useState<BigNumber>(bn(0))
   const [gasUsed, setGasUsed] = useState<BigNumber>(bn(0))
   const [loading, setLoading] = useState<boolean>(false)
@@ -146,13 +146,21 @@ const Component = () => {
           setLoading(true)
           console.log(ddlEngine?.CURRENT_POOL)
           if (ddlEngine) {
+            console.log({
+              tokenIn: inputTokenAddress,
+              tokenOut: outputTokenAddress,
+              amountIn: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18)),
+              amountOutMin: 0
+            })
             await ddlEngine.SWAP.multiSwap([{
               tokenIn: inputTokenAddress,
               tokenOut: outputTokenAddress,
               amountIn: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18)),
               amountOutMin: 0
-            }], isDeleverage
+            }],
+            isDeleverage
             )
+            await fetchBalanceAndAllowance(Object.keys(tokens))
           }
 
           // await multiSwap([{
@@ -186,7 +194,6 @@ const Component = () => {
     if (address === cToken) {
       return cTokenPrice
     } else if (address === configs.addresses.nativeToken) {
-      console.log('khanh')
       return nativePrice
     } else if (address === baseToken) {
       return basePrice

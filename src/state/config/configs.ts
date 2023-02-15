@@ -10,6 +10,7 @@ export default {
     // theGraphExchange: 'https://thegraph.com/hosted-service/subgraph/olastenberg/sushiswap-arbitrum-fix',
     // theGraphExchange: 'https://thegraph.com/hosted-service/subgraph/developerfred/pancake-exchange',
     theGraphExchange: 'https://data-platform.nodereal.io/graph/v1/95e657b8187749b5b5645487c7dd8bc5/projects/pancakeswap',
+    candleChartApi: 'https://api.lz.finance/56/chart/',
     nativeToken: {
       name: 'BNB',
       symbol: 'BNB',
@@ -32,7 +33,7 @@ export default {
     rpcUrl: 'http://localhost:8545/',
     rpcToGetLogs: 'http://localhost:8545/',
     explorer: 'https://bscscan.com',
-    scanApi: 'https://api.bscscan.com/api',
+    scanApi: '',
     scanName: 'Localhost Scan',
     ddlGenesisBlock: 0,
     timePerBlock: 3000,
@@ -51,6 +52,31 @@ export default {
       nativeToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
       poolFactory: '0x2A539728626a96a800833B4133Da061c637CCA5B',
       router: '0xdBa9451aC3f3a4a5171715EB5B776316aA474E62'
+    }
+  },
+  1337: {
+    rpcUrl: 'http://localhost:8545/',
+    rpcToGetLogs: 'http://localhost:8545/',
+    explorer: 'https://bscscan.com',
+    scanApi: '',
+    scanName: 'Localhost Scan',
+    ddlGenesisBlock: 0,
+    timePerBlock: 3000,
+    nativeToken: {
+      name: 'BNB',
+      symbol: 'BNB',
+      decimal: 18,
+      address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+    },
+    addresses: {
+      nativeToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+      multiCall: '0x025ff8c5CB97f5f79dc396DCD501Db775B00F433',
+      pairsInfo: '0xc28A7e46bE1BB74a63aD32784D785A941D1954ab',
+      bnA: '0x95a7d5edfD4701478D3ACA5DCb69D549D83E3c52',
+      tokensInfo: '0xe2b8a85De2ad4076593B81F2435C77a2cb84caAf',
+      router: '0x71de54028B0276dec625779564b00FA195D56818',
+      wrapToken: '0x8F98902cf8255ab9D403Dfa68875b1024cd6C3d4',
+      wrapUsdPair: '0x2B89B4931122EE4Fa474446Fa9B118F2852a8223'
     }
   },
   97: {

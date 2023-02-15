@@ -5,7 +5,7 @@ import { PoolTableCompact } from '../../Components/PoolTable'
 import { useConfigs } from '../../state/config/useConfigs'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { Chart } from '../../Components/Chart'
-import { SWAP_TAB } from '../../utils/constant'
+import { CHAINS, SWAP_TAB } from '../../utils/constant'
 import { SwapBox } from '../../Components/SwapBox'
 import { useWindowSize } from '../../hooks/useWindowSize'
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
@@ -26,7 +26,7 @@ export const Trade = ({ tab }: {
   const isPhone = width && width < 992
 
   useEffect(() => {
-    if (baseToken && quoteToken && cToken && ddlEngine) {
+    if (baseToken && quoteToken && cToken && ddlEngine && ddlEngine?.chainId !== CHAINS.LOCAL) {
       ddlEngine.PRICE.get24hChangeByLog({
         baseId,
         currentPrice: basePrice,

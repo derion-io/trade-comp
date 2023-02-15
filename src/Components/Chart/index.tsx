@@ -13,7 +13,7 @@ const LINE_CHART = Symbol('line')
 
 const Component = ({ changedIn24h }: {changedIn24h: number}) => {
   const [tab, setTab] = useState<Symbol>(CANDLE_CHART)
-  const { useHistory } = useConfigs()
+  const { useHistory, configs } = useConfigs()
   const history = useHistory()
 
   return <div className='chart-box'>
@@ -36,10 +36,10 @@ const Component = ({ changedIn24h }: {changedIn24h: number}) => {
       />
     </div>
     {
-      tab === CANDLE_CHART && <CandleChart />
+      tab === CANDLE_CHART && configs.candleChartApi ? <CandleChart /> : <div/>
     }
     {
-      tab === LINE_CHART && <LineChart changedIn24h={changedIn24h} />
+      tab === LINE_CHART && configs.theGraphExchange ? <LineChart changedIn24h={changedIn24h} /> : <div/>
     }
   </div>
 }

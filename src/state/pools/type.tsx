@@ -47,11 +47,13 @@ export const initialState: poolsState = {
   pools: {
     56: {},
     31337: {},
+    1337: {},
     97: {}
   },
   tokens: {
     56: {},
     31337: {},
+    1337: {},
     97: {}
   },
   swapLogs: {
