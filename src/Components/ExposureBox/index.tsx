@@ -150,8 +150,9 @@ export const Component = ({ changedIn24h }: {
         setCallError('Calculating...')
       }
 
+      console.log(ddlEngine?.SWAP.formatSwapSteps(swapSteps))
       // @ts-ignore
-      ddlEngine.SWAP.calculateAmountOuts(swapSteps, isDeleverage)
+      ddlEngine.SWAP.calculateAmountOuts(ddlEngine?.SWAP.formatSwapSteps(swapSteps), isDeleverage)
         .then(([aOuts, gasUsed]) => {
           // @ts-ignore
           setTxFee(detectTxFee(gasUsed))
@@ -288,6 +289,7 @@ export const Component = ({ changedIn24h }: {
         onClick={async () => {
           setLoading(true)
           try {
+            console.log(swapSteps)
             await ddlEngine?.SWAP.updateLeverageAndSize(swapSteps, isDeleverage)
             await fetchBalanceAndAllowance(Object.keys(tokens))
           } catch (e) {

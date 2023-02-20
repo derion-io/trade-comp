@@ -8,8 +8,6 @@ import { useWeb3React } from '../../state/customWeb3React/hook'
 import { ToastContainer } from 'react-toastify'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { useConfigs } from '../../state/config/useConfigs'
-import { useDispatch } from 'react-redux'
-import { setCurrentPoolInfo } from '../../state/currentPool/reducer'
 import { useListPool } from '../../state/pools/hooks/useListPool'
 import { Pools } from '../../pages/Pools'
 import { LIQUIDITY_TAB, SWAP_TAB, TIME_TO_REFRESH_STATE } from '../../utils/constant'
@@ -24,7 +22,6 @@ export const App = () => {
   const { fetchBalanceAndAllowance } = useWalletBalance()
   const { account } = useWeb3React()
   const { ddlEngine, configs, chainId, location } = useConfigs()
-  const dispatch = useDispatch()
   const chainIdRef = useRef(null)
   const { initListPool } = useListPool()
   useSwapHistoryFormated()
@@ -61,15 +58,16 @@ export const App = () => {
   }, [account, tokens])
 
   useEffect(() => {
-    console.log('configs?.addresses.pool', configs?.addresses.pool)
-    if (pools && Object.keys(pools).length > 0) {
+    // console.log('configs?.addresses.pool', configs?.addresses.pool)
+    // @ts-ignore
+    if (pools && Object.keys(pools).length > 0 && Number(chainIdRef?.current?.value) === chainId) {
       updateCurrentPool(Object.keys(pools)[0])
-        .then((data) => {
-          // @ts-ignore
-          if (Number(chainIdRef?.current?.value) === chainId) {
-            dispatch(setCurrentPoolInfo(data))
-          }
-        })
+      // .then((data) => {
+      //   // @ts-ignore
+      //   if (Number(chainIdRef?.current?.value) === chainId) {
+      //     dispatch(setCurrentPoolInfo(data))
+      //   }
+      // })
     }
   }, [chainId, pools])
 

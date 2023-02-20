@@ -9,6 +9,7 @@ export const TIME_TO_REFRESH_STATE = 30000
 export const DEFAULT_CHAIN = 1337
 export const CHAINS = {
   LOCAL: 31337,
+  GANACHE: 1337,
   BSC: 56
 }
 

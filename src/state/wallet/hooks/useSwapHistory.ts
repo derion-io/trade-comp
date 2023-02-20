@@ -34,13 +34,14 @@ export const useSwapHistoryFormated = () => {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    console.log('swaplog', sls)
-    const swapTxs = ddlEngine?.HISTORY.formatSwapHistory({
-      logs: sls,
-      poolAddress: poolAddress,
-      states: states,
-      powers: powers
-    })
-    dispatch(updateFormatedSwapTxs({ swapTxs }))
-  }, [sls, poolAddress, states])
+    if (ddlEngine?.CURRENT_POOL.poolAddress) {
+      const swapTxs = ddlEngine?.HISTORY.formatSwapHistory({
+        logs: sls,
+        poolAddress: poolAddress,
+        states: states,
+        powers: powers
+      })
+      dispatch(updateFormatedSwapTxs({ swapTxs }))
+    }
+  }, [sls, ddlEngine?.CURRENT_POOL, states])
 }

@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../types'
 import { useListPool } from '../../pools/hooks/useListPool'
 import { useConfigs } from '../../config/useConfigs'
-import { setCandleChartIsLoadingReduce, setChartTimeFocusReduce } from '../reducer'
+import { setCandleChartIsLoadingReduce, setChartTimeFocusReduce, setCurrentPoolInfo } from '../reducer'
 
 export const useCurrentPool = () => {
   const { pools } = useListPool()
@@ -53,11 +53,19 @@ export const useCurrentPool = () => {
     const pool = pools[poolAddress]
     const { cPrice } = pool
 
-    return {
+    if (ddlEngine) {
+      ddlEngine.setCurrentPool({
+        ...pools[poolAddress],
+        logic: pools[poolAddress].logic,
+        cTokenPrice: pools[poolAddress].cTokenPrice
+      })
+    }
+
+    dispatch(setCurrentPoolInfo({
       ...pool,
       cTokenPrice: cPrice,
       logicAddress: pool.logic
-    }
+    }))
   }
 
   const getTokenByPower = (power: number | string) => {

@@ -26,7 +26,7 @@ export const Trade = ({ tab }: {
   const isPhone = width && width < 992
 
   useEffect(() => {
-    if (baseToken && quoteToken && cToken && ddlEngine && ddlEngine?.chainId !== CHAINS.LOCAL) {
+    if (baseToken && quoteToken && cToken && ddlEngine && ddlEngine?.chainId === CHAINS.BSC) {
       ddlEngine.PRICE.get24hChangeByLog({
         baseId,
         currentPrice: basePrice,
