@@ -59,6 +59,7 @@ export const AppLayout = (props: any) => {
         <select name="" id="select-chain" value={chainIdToDisPlay} onChange={(e) => {
           setChainIdToDisPlay(Number(e.target.value))
         }}>
+          <option value="1337">ganache</option>
           <option value="56">BSC</option>
           <option value="42161">Arbitrum</option>
         </select>
