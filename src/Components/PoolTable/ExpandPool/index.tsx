@@ -21,13 +21,10 @@ const Component = ({ visible, pool }: {
   const { ddlEngine } = useConfigs()
   const { tokens } = useListTokens()
   const { states, powers, dTokens } = pool
-  // const { Rc, rDcLong, rDcShort, totalSupplies } = states || {}
-  const { Rc, totalSupplies } = states || {}
-  const [rDcLong, rDcShort] = [bn(0), bn(0)]
+  const { Rc, totalSupplies, rDcLong, rDcShort } = states || {}
   const [deleverageLoading, setDeleverageLoading] = useState(false)
 
   const [totalLockedValue, rDcLongValue, rDcShortValue, collateralRatio, imbalanceRate] = useMemo(() => {
-    return [bn(0), bn(0), bn(0), 0, 0]
     if (!states) return [bn(0), bn(0), bn(0), 0, 0]
     const unit = 100000
     const cPrice = bn(states?.twapLP || 0).mul(unit).shr(112)
@@ -45,7 +42,7 @@ const Component = ({ visible, pool }: {
       collateralRatio,
       Math.abs(imbalanceRate)
     ]
-  }, [pool])
+  }, [pool, states])
 
   const isDeleverage = useMemo(() => {
     if (!states) return false
@@ -125,7 +122,8 @@ const Component = ({ visible, pool }: {
         <tr>
           <th className='text-center'><Text>Derivatives</Text></th>
           <th className='text-center'>Funding Rate <TextBlue>(Daily)</TextBlue></th>
-          <th className='text-center'><Text>TVL</Text> <TextBlue>${formatFloat(weiToNumber(totalLockedValue), 2)}</TextBlue></th>
+          <th className='text-center'><Text>TVL</Text>
+            <TextBlue>${formatFloat(weiToNumber(totalLockedValue), 2)}</TextBlue></th>
         </tr>
       </thead>
       <tbody>
@@ -172,19 +170,19 @@ const Component = ({ visible, pool }: {
         </tr>
         {
           isDeleverage &&
-          <tr>
-            <td colSpan={3} className='pt-1'>
-              <ButtonExecute
-                className='w-100'
-                onClick={async () => {
-                  setDeleverageLoading(true)
-                  // @ts-ignore
-                  await ddlEngine.SWAP.multiSwap([], true)
-                  setDeleverageLoading(false)
-                }}
-              >{deleverageLoading ? 'Loading...' : 'Deleverage'}</ButtonExecute>
-            </td>
-          </tr>
+        <tr>
+          <td colSpan={3} className='pt-1'>
+            <ButtonExecute
+              className='w-100'
+              onClick={async () => {
+                setDeleverageLoading(true)
+                // @ts-ignore
+                await ddlEngine.SWAP.multiSwap([], true)
+                setDeleverageLoading(false)
+              }}
+            >{deleverageLoading ? 'Loading...' : 'Deleverage'}</ButtonExecute>
+          </td>
+        </tr>
         }
       </tbody>
     </table>
