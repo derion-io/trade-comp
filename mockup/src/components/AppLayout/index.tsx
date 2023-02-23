@@ -22,7 +22,7 @@ export const AppLayout = (props: any) => {
   const [visibleUserWalletModal, setVisibleUserWalletModal] = useState<any>()
   const location = useLocation()
   const { configs, Component } = props
-  const [chainIdToDisPlay, setChainIdToDisPlay] = useState<number>(56);
+  const [chainIdToDisPlay, setChainIdToDisPlay] = useState<number>(1337);
 
   useEffect(() => {
     const initConnector = localStorage.getItem(LS_CONNECTOR)
