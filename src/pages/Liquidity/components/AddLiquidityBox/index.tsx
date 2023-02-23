@@ -135,7 +135,7 @@ export const AddLiquidityBox = ({ totalSupplyCP }: {totalSupplyCP: BigNumber}) =
             tokenOut: cpAddress,
             amountIn: bn(numberToWei(amountIn, tokens[tokenAdd]?.decimal || 18)),
             amountOutMin: 0
-          }], false)
+          }],undefined, false)
           setAmountIn('')
           setAmountIn('')
           setLoading(false)

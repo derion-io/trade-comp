@@ -29,6 +29,7 @@ import { useConfigs } from '../../state/config/useConfigs'
 import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import isEqual from 'react-fast-compare'
 import { useCpPrice, useNativePrice } from '../../hooks/useTokenPrice'
+import { toast } from 'react-toastify'
 
 const Component = () => {
   const { account, showConnectModal } = useWeb3React()
@@ -143,35 +144,33 @@ const Component = () => {
       return <ButtonExecute
         className='swap-button'
         onClick={async () => {
-          setLoading(true)
-          console.log(ddlEngine?.CURRENT_POOL)
-          if (ddlEngine) {
-            console.log({
-              tokenIn: inputTokenAddress,
-              tokenOut: outputTokenAddress,
-              amountIn: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18)),
-              amountOutMin: 0
-            })
-            await ddlEngine.SWAP.multiSwap([{
-              tokenIn: inputTokenAddress,
-              tokenOut: outputTokenAddress,
-              amountIn: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18)),
-              amountOutMin: 0
-            }],
-            isDeleverage
-            )
-            await fetchBalanceAndAllowance(Object.keys(tokens))
+          try {
+            setLoading(true)
+            if (ddlEngine) {
+              console.log({
+                tokenIn: inputTokenAddress,
+                tokenOut: outputTokenAddress,
+                amountIn: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18)),
+                amountOutMin: 0
+              })
+              await ddlEngine.SWAP.multiSwap(
+                [{
+                  tokenIn: inputTokenAddress,
+                  tokenOut: outputTokenAddress,
+                  amountIn: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18)),
+                  amountOutMin: 0
+                }],
+                gasUsed && gasUsed.gt(0) ? gasUsed.mul(2) : undefined,
+                isDeleverage
+              )
+              await fetchBalanceAndAllowance(Object.keys(tokens))
+            }
+            setLoading(false)
+          } catch (e) {
+            console.log(e)
+            setLoading(false)
+            toast.error('Error')
           }
-
-          // await multiSwap([{
-          //   tokenIn: inputTokenAddress,
-          //   tokenOut: outputTokenAddress,
-          //   amountIn: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18)),
-          //   amountOutMin: 0
-          // }], isDeleverage)
-          // setAmountIn('')
-          // setAmountIn('')
-          setLoading(false)
         }}
       >{isDeleverage && 'Deleverage & '} Swap</ButtonExecute>
     }

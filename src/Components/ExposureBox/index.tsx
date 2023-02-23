@@ -290,7 +290,11 @@ export const Component = ({ changedIn24h }: {
           setLoading(true)
           try {
             console.log(swapSteps)
-            await ddlEngine?.SWAP.updateLeverageAndSize(swapSteps, isDeleverage)
+            await ddlEngine?.SWAP.updateLeverageAndSize(
+              swapSteps,
+              gasUsed && gasUsed.gt(0) ? gasUsed.mul(2) : undefined,
+              isDeleverage
+            )
             await fetchBalanceAndAllowance(Object.keys(tokens))
           } catch (e) {
             toast(parseCallStaticError(e))

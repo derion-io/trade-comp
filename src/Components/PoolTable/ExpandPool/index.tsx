@@ -21,7 +21,7 @@ const Component = ({ visible, pool }: {
   const { ddlEngine } = useConfigs()
   const { tokens } = useListTokens()
   const { states, powers, dTokens } = pool
-  const { Rc, totalSupplies, rDcLong, rDcShort } = states || {}
+  const { Rc, R, totalSupplies, rDcLong, rDcShort } = states || {}
   const [deleverageLoading, setDeleverageLoading] = useState(false)
 
   const [totalLockedValue, rDcLongValue, rDcShortValue, collateralRatio, imbalanceRate] = useMemo(() => {
@@ -48,7 +48,7 @@ const Component = ({ visible, pool }: {
     if (!states) return false
     const rDc = rDcLong.add(rDcShort)
     const deleverageRate = pool?.deleverageRate ? parseUq112x112(pool.deleverageRate) : bn(1)
-    const cr = rDc.gt(0) ? Rc.mul(numberToWei(1)).div(rDc) : bn(0)
+    const cr = rDc.gt(0) ? R.mul(numberToWei(1)).div(rDc) : bn(0)
     const rate = bn(numberToWei(1, 36)).div(numberToWei(deleverageRate, 18))
     return cr.gt(0) && cr.lt(rate)
   }, [pool])
@@ -177,7 +177,7 @@ const Component = ({ visible, pool }: {
               onClick={async () => {
                 setDeleverageLoading(true)
                 // @ts-ignore
-                await ddlEngine.SWAP.multiSwap([], true)
+                await ddlEngine.SWAP.multiSwap([], undefined,true)
                 setDeleverageLoading(false)
               }}
             >{deleverageLoading ? 'Loading...' : 'Deleverage'}</ButtonExecute>

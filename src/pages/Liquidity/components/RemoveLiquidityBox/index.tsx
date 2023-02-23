@@ -153,7 +153,7 @@ export const RemoveLiquidityBox = ({ totalSupplyCP }: { totalSupplyCP: BigNumber
             tokenOut: cToken,
             amountIn: bn(numberToWei(amountIn, tokens[cpAddress]?.decimal || 18)),
             amountOutMin: 0
-          }], false)
+          }], undefined, false)
           setAmountIn('')
           setAmountIn('')
           setLoading(false)
