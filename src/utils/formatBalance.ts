@@ -76,7 +76,7 @@ export const formatWeiToDisplayNumber = (
   decimal = 18
 ) => {
   if (bn(wei).isZero()) {
-    return ''
+    return '0'
   }
   const fixedNumber = formatBigNumberToFixed(
     ethers.BigNumber.from(wei),

@@ -44,7 +44,7 @@ const Component = () => {
   const [amountOut, setAmountOut] = useState<string>('')
   const [amountOutWei, setAmountOutWei] = useState<BigNumber>(bn(0))
   const [amountIn, setAmountIn] = useState<string>('')
-  const { balances, routerAllowances, fetchBalanceAndAllowance, approveRouter } = useWalletBalance()
+  const { balances, routerAllowances, fetchBalanceAndAllowance, accFetchBalance } = useWalletBalance()
   const [txFee, setTxFee] = useState<BigNumber>(bn(0))
   const [gasUsed, setGasUsed] = useState<BigNumber>(bn(0))
   const [loading, setLoading] = useState<boolean>(false)
@@ -261,7 +261,7 @@ const Component = () => {
               <Text><TokenSymbol token={tokens[inputTokenAddress]} /></Text>
             </span>
           </SkeletonLoader>
-          <SkeletonLoader loading={!balances[inputTokenAddress]}>
+          <SkeletonLoader loading={accFetchBalance !== account}>
             <Text
               className='amount-input-box__head--balance'
               onClick={() => {
@@ -312,7 +312,7 @@ const Component = () => {
               <Text><TokenSymbol token={tokens[outputTokenAddress]} /></Text>
             </span>
           </SkeletonLoader>
-          <SkeletonLoader loading={!balances[outputTokenAddress]}>
+          <SkeletonLoader loading={accFetchBalance !== account}>
             <Text>Balance: {balances && balances[outputTokenAddress]
               ? formatWeiToDisplayNumber(
                 balances[outputTokenAddress],

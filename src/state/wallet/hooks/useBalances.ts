@@ -26,7 +26,7 @@ export const useWalletBalance = () => {
     return {
       balances: state.wallet.balances,
       routerAllowances: state.wallet.routerAllowances,
-      accFetchBalance: state.wallet.accFetchBalance
+      accFetchBalance: state.wallet.account
     }
   })
   const { configs, chainId, ddlEngine } = useConfigs()
