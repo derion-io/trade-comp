@@ -30,6 +30,7 @@ import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import isEqual from 'react-fast-compare'
 import { useCpPrice, useNativePrice } from '../../hooks/useTokenPrice'
 import { toast } from 'react-toastify'
+import { ApproveUtrModal } from '../ApproveUtrModal'
 
 const Component = () => {
   const { account, showConnectModal } = useWeb3React()
@@ -48,6 +49,7 @@ const Component = () => {
   const [gasUsed, setGasUsed] = useState<BigNumber>(bn(0))
   const [loading, setLoading] = useState<boolean>(false)
   const [isDeleverage, setIsDeleverage] = useState<boolean>(false)
+  const [visibleApproveModal, setVisibleApproveModal] = useState<boolean>(false)
   const { tokens } = useListTokens()
   const { data: nativePrice } = useNativePrice()
   const { data: cpPrice } = useCpPrice()
@@ -131,13 +133,15 @@ const Component = () => {
     } else if (!routerAllowances[address] || routerAllowances[address].lt(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))) {
       return <ButtonExecute
         className='swap-button'
-        onClick={async () => {
-          setLoading(true)
-          await approveRouter({ tokenAddress: inputTokenAddress })
-          calcAmountOut(isDeleverage)
-          setLoading(false)
-        }}
-      >Approve</ButtonExecute>
+        onClick={
+          async () => {
+            setVisibleApproveModal(true)
+          // setLoading(true)
+          // await approveRouter({ tokenAddress: inputTokenAddress })
+          // calcAmountOut(isDeleverage)
+          // setLoading(false)
+          }}
+      >Use EIP-6120</ButtonExecute>
     } else if (callError) {
       return <ButtonExecute className='swap-button' disabled>{callError}</ButtonExecute>
     } else {
@@ -392,32 +396,6 @@ const Component = () => {
             </Text>
           </span>
         </InfoRow>
-        {/*  <InfoRow className='mb-2'> */}
-        {/*    <span> */}
-        {/*      <Text>Slippage</Text> */}
-        {/*    </span> */}
-        {/*    <span> */}
-        {/*      <TextGrey>0.5%</TextGrey> */}
-        {/*    </span> */}
-        {/*  </InfoRow> */}
-        {/*  <InfoRow className='mb-1'> */}
-        {/*    <span> */}
-        {/*      <Text>Price Impact</Text> */}
-        {/*    </span> */}
-        {/*    <span> */}
-        {/*      <TextGrey>-0.01%</TextGrey> */}
-        {/*    </span> */}
-        {/*  </InfoRow> */}
-        {/* </Box> */}
-        {/* <Box> */}
-        {/*  <InfoRow className='mt-1'> */}
-        {/*    <span> */}
-        {/*      <TextGrey>Minimum received</TextGrey> */}
-        {/*    </span> */}
-        {/*    <span> */}
-        {/*      <Text>14.2815 ETH</Text> */}
-        {/*    </span> */}
-        {/*  </InfoRow> */}
       </Box>
 
       {isDeleverage &&
@@ -435,6 +413,12 @@ const Component = () => {
       <div className='actions'>
         {renderExecuteButton()}
       </div>
+
+      <ApproveUtrModal
+        visible={visibleApproveModal}
+        setVisible={setVisibleApproveModal}
+        inputTokenAddress={inputTokenAddress}
+      />
     </div>
   )
 }
