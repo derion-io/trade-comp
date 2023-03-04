@@ -156,7 +156,7 @@ export const Component = ({ changedIn24h }: {
 
       // @ts-ignore
       ddlEngine.SWAP.calculateAmountOuts(ddlEngine?.SWAP.formatSwapSteps(swapSteps), isDeleverage)
-        .then(([aOuts, gasUsed]) => {
+        .then(([aOuts, gasUsed]: any) => {
           // @ts-ignore
           setTxFee(detectTxFee(gasUsed))
           // @ts-ignore
@@ -165,7 +165,7 @@ export const Component = ({ changedIn24h }: {
           setStepsWithAmounts(aOuts)
           setCallError('')
         })
-        .catch((e) => {
+        .catch((e: any) => {
           setStepsWithAmounts([])
           setTxFee(bn(0))
           setGasUsed(bn(0))

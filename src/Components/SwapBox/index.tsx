@@ -81,7 +81,7 @@ const Component = () => {
       tokenIn: inputTokenAddress,
       tokenOut: outputTokenAddress,
       amountIn: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))
-    }], isDeleverage).then((res) => {
+    }], isDeleverage).then((res: any) => {
       const [aOuts, gasLeft] = res
       setAmountOutWei(aOuts[0]?.amountOut || bn(0))
       setAmountOut(weiToNumber(aOuts[0]?.amountOut || 0, tokens[outputTokenAddress].decimal || 18))
@@ -90,7 +90,7 @@ const Component = () => {
       // @ts-ignore
       setGasUsed(gasLeft)
       setCallError('')
-    }).catch((e) => {
+    }).catch((e: any) => {
       const error = parseCallStaticError(e)
       if (error === 'deleverage') {
         setIsDeleverage(true)
