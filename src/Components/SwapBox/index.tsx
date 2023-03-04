@@ -31,6 +31,7 @@ import isEqual from 'react-fast-compare'
 import { useCpPrice, useNativePrice } from '../../hooks/useTokenPrice'
 import { toast } from 'react-toastify'
 import { ApproveUtrModal } from '../ApproveUtrModal'
+import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 
 const Component = () => {
   const { account, showConnectModal } = useWeb3React()
@@ -51,6 +52,7 @@ const Component = () => {
   const [isDeleverage, setIsDeleverage] = useState<boolean>(false)
   const [visibleApproveModal, setVisibleApproveModal] = useState<boolean>(false)
   const { tokens } = useListTokens()
+  const { updateSwapTxsHandle } = useSwapHistory()
   const { data: nativePrice } = useNativePrice()
   const { data: cpPrice } = useCpPrice()
 
@@ -133,14 +135,7 @@ const Component = () => {
     } else if (!routerAllowances[address] || routerAllowances[address].lt(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))) {
       return <ButtonExecute
         className='swap-button'
-        onClick={
-          async () => {
-            setVisibleApproveModal(true)
-          // setLoading(true)
-          // await approveRouter({ tokenAddress: inputTokenAddress })
-          // calcAmountOut(isDeleverage)
-          // setLoading(false)
-          }}
+        onClick={() => { setVisibleApproveModal(true) }}
       >Use EIP-6120</ButtonExecute>
     } else if (callError) {
       return <ButtonExecute className='swap-button' disabled>{callError}</ButtonExecute>
@@ -151,13 +146,7 @@ const Component = () => {
           try {
             setLoading(true)
             if (ddlEngine) {
-              console.log({
-                tokenIn: inputTokenAddress,
-                tokenOut: outputTokenAddress,
-                amountIn: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18)),
-                amountOutMin: 0
-              })
-              await ddlEngine.SWAP.multiSwap(
+              const tx: any = await ddlEngine.SWAP.multiSwap(
                 [{
                   tokenIn: inputTokenAddress,
                   tokenOut: outputTokenAddress,
@@ -167,6 +156,8 @@ const Component = () => {
                 gasUsed && gasUsed.gt(0) ? gasUsed.mul(2) : undefined,
                 isDeleverage
               )
+              const swapLogs = ddlEngine.RESOURCE.parseDdlLogs(tx && tx?.logs ? tx.logs : [])
+              updateSwapTxsHandle(account, swapLogs)
               await fetchBalanceAndAllowance(Object.keys(tokens))
             }
             setLoading(false)
@@ -415,6 +406,7 @@ const Component = () => {
       </div>
 
       <ApproveUtrModal
+        callBack={() => { calcAmountOut(isDeleverage) }}
         visible={visibleApproveModal}
         setVisible={setVisibleApproveModal}
         inputTokenAddress={inputTokenAddress}

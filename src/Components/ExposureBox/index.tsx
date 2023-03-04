@@ -35,6 +35,8 @@ import { RemoveForm } from './RemoveForm'
 import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import isEqual from 'react-fast-compare'
 import { useNativePrice } from '../../hooks/useTokenPrice'
+import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
+import { ApproveUtrModal } from '../ApproveUtrModal'
 
 export const Component = ({ changedIn24h }: {
   changedIn24h: number
@@ -42,11 +44,12 @@ export const Component = ({ changedIn24h }: {
   const { ddlEngine, configs } = useConfigs()
   const [formAddOrRemove, setFormAddOrRemove] = useState<'add' | 'remove' | undefined>(undefined)
   const [newLeverage, setNewLeverage] = useState<number>(0)
+  const [visibleApproveModal, setVisibleApproveModal] = useState<boolean>(false)
   const [newValue, setNewValue] = useState<BigNumber>()
   const { account, showConnectModal } = useWeb3React()
   const [loading, setLoading] = useState<boolean>(false)
   const { dTokens, cToken, states, powers, baseToken, quoteToken, cTokenPrice, basePrice, getTokenByPower, detectChangeType } = useCurrentPool()
-  const { balances, routerAllowances, approveRouter, fetchBalanceAndAllowance } = useWalletBalance()
+  const { balances, routerAllowances, fetchBalanceAndAllowance } = useWalletBalance()
   const [balanceInPool, setBalancesInPool] = useState<any>({})
   const [amountToChange, setAmountToChange] = useState<string>('')
   const [swapSteps, setSwapsteps] = useState<any>([])
@@ -60,6 +63,7 @@ export const Component = ({ changedIn24h }: {
   const [gasUsed, setGasUsed] = useState<BigNumber>(bn(0))
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
   const [removePercent, setRemovePercent] = useState<number>()
+  const { updateSwapTxsHandle } = useSwapHistory()
 
   const { data: nativePrice } = useNativePrice()
 
@@ -150,7 +154,6 @@ export const Component = ({ changedIn24h }: {
         setCallError('Calculating...')
       }
 
-      console.log(ddlEngine?.SWAP.formatSwapSteps(swapSteps))
       // @ts-ignore
       ddlEngine.SWAP.calculateAmountOuts(ddlEngine?.SWAP.formatSwapSteps(swapSteps), isDeleverage)
         .then(([aOuts, gasUsed]) => {
@@ -274,13 +277,9 @@ export const Component = ({ changedIn24h }: {
       >Connect wallet</ButtonExecute>
     } else if (tokenNeedApprove.length > 0) {
       return <ButtonExecute
-        onClick={async () => {
-          for (const i in tokenNeedApprove) {
-            await approveRouter({ tokenAddress: tokenNeedApprove[i] })
-          }
-        }}
+        onClick={() => { setVisibleApproveModal(true) }}
         className='execute-button mr-1'
-      >Approve</ButtonExecute>
+      >Use EIP-6120</ButtonExecute>
     } else if (callError) {
       return <ButtonExecute className='execute-button mr-1' disabled>{callError.toString()}</ButtonExecute>
     } else {
@@ -289,13 +288,17 @@ export const Component = ({ changedIn24h }: {
         onClick={async () => {
           setLoading(true)
           try {
-            console.log(swapSteps)
-            await ddlEngine?.SWAP.updateLeverageAndSize(
-              swapSteps,
-              gasUsed && gasUsed.gt(0) ? gasUsed.mul(2) : undefined,
-              isDeleverage
-            )
-            await fetchBalanceAndAllowance(Object.keys(tokens))
+            if (ddlEngine) {
+              const tx: any = await ddlEngine?.SWAP.updateLeverageAndSize(
+                swapSteps,
+                gasUsed && gasUsed.gt(0) ? gasUsed.mul(2) : undefined,
+                isDeleverage
+              )
+              const swapLogs = ddlEngine.RESOURCE.parseDdlLogs(tx && tx?.logs ? tx.logs : [])
+              updateSwapTxsHandle(account, swapLogs)
+
+              await fetchBalanceAndAllowance(Object.keys(tokens))
+            }
           } catch (e) {
             toast(parseCallStaticError(e))
           }
@@ -542,6 +545,11 @@ export const Component = ({ changedIn24h }: {
         onSelectToken={(address: string) => {
           setInputTokenAddress(address)
         }}
+      />
+      <ApproveUtrModal
+        visible={visibleApproveModal}
+        setVisible={setVisibleApproveModal}
+        inputTokenAddress={tokenNeedApprove[0]}
       />
     </div>
   )

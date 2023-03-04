@@ -11,11 +11,13 @@ import { toast } from 'react-toastify'
 const Component = ({
   visible,
   setVisible,
-  inputTokenAddress
+  inputTokenAddress,
+  callBack
 }: {
   visible: boolean,
   inputTokenAddress: string
   setVisible: any,
+  callBack?: any,
 }) => {
   const { approveRouter } = useWalletBalance()
   const { configs } = useConfigs()
@@ -25,6 +27,7 @@ const Component = ({
     try {
       setLoading(true)
       await approveRouter({ tokenAddress: inputTokenAddress })
+      callBack && callBack()
       setLoading(false)
       setVisible(false)
     } catch (e) {
