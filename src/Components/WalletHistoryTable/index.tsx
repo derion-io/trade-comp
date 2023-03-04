@@ -87,13 +87,6 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
 
 const getTimeLabel = (timeStamp: number) => {
   return moment().to(timeStamp * 1000, true)
-    .replace(' days', 'd')
-    .replace(' seconds', 's')
-    .replace(' minutes', 'm')
-    .replace(' hours', 'h')
-    .replace('a day', '1d')
-    .replace('a minute', 'm')
-    .replace('an hour', 'h')
 }
 
 const AmountChange = ({ amountChange, address }: { amountChange: BigNumber, address: string }) => {
