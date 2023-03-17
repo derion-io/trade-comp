@@ -12,13 +12,14 @@ export const InitConfig = ({
   env,
   children,
   useHistory,
-  useLocation
+  useLocation,
+  chainId: chainIdNotConnect
 }: any) => {
   const { initialledConfig } = useConfigs()
   const { chainId, library } = useWeb3React()
   useInitWeb3React(useWeb3React, showConnectWalletModal)
   useInitConfig({
-    chainId: chainId || 56,
+    chainId: chainId || (chainIdNotConnect || 56),
     library,
     env,
     language,

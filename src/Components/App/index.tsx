@@ -32,6 +32,7 @@ export const App = () => {
   useEffect(() => {
     try {
       setTimeout(() => {
+        console.log(ddlEngine);
         if (ddlEngine?.CURRENT_POOL && pools[poolAddress]) {
           // @ts-ignore
           ddlEngine.setCurrentPool({

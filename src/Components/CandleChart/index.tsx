@@ -16,6 +16,7 @@ import isEqual from 'react-fast-compare'
 import { bn } from '../../utils/helpers'
 import { useDispatch } from 'react-redux'
 import { setChartTimeRange } from '../../state/currentPool/reducer'
+import { useConfigs } from '../../state/config/useConfigs'
 
 export interface ChartContainerProps {
   interval: ChartingLibraryWidgetOptions['interval']
@@ -55,15 +56,16 @@ const Component = ({
     chartTimeFocus,
     setChartTimeFocus
   } = useCurrentPool()
+  const { chainId } = useConfigs()
   const { formartedSwapLogs: swapTxs } = useSwapHistory()
   // const [timeRange, setTimeRange] = useState<number>()
   const timeRangeRef = useRef<any>(null)
 
   useEffect(() => {
-    if (cToken && baseToken && quoteToken) {
+    if (cToken && baseToken && quoteToken && tokens[baseToken] && tokens[quoteToken]) {
       setTimeout(initChart)
     }
-  }, [cToken, baseToken, quoteToken])
+  }, [cToken, baseToken, quoteToken, chainId, tokens])
 
   useEffect(() => {
     if (tradingviewWidget) {
@@ -105,7 +107,7 @@ const Component = ({
     setCandleChartIsLoading(true)
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
     const widgetOptions: any = {
-      symbol: [baseToken, cToken, quoteToken, tokens[baseToken]?.symbol + '/' + tokens[quoteToken]?.symbol].join('-'),
+      symbol: [baseToken, cToken, quoteToken, tokens[baseToken]?.symbol + '/' + tokens[quoteToken]?.symbol, chainId].join('-'),
       datafeed: Datafeed,
       interval: (interval as ChartingLibraryWidgetOptions['interval']),
       container_id: containerId as ChartingLibraryWidgetOptions['container_id'],
