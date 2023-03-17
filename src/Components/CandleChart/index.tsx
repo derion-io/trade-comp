@@ -65,7 +65,7 @@ const Component = ({
     if (cToken && baseToken && quoteToken && tokens[baseToken] && tokens[quoteToken]) {
       setTimeout(initChart)
     }
-  }, [cToken, baseToken, quoteToken, chainId, tokens])
+  }, [cToken, baseToken, quoteToken, tokens])
 
   useEffect(() => {
     if (tradingviewWidget) {
