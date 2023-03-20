@@ -86,7 +86,7 @@ const Component = ({ visible, pool }: {
             <TextComp className='mr-2'>
               <TokenSymbol token={tokens[dTokens[index]]} />
             </TextComp>
-            <TextBlue>${formatFloat(weiToNumber(value, 36), 2)}</TextBlue>
+            <TextBlue>${formatFloat(weiToNumber(value, 18 + tokens[dTokens[index]].decimal), 2)}</TextBlue>
           </td>
           {
             key === 0 &&

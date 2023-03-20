@@ -110,8 +110,6 @@ export const Datafeed = {
       store.dispatch(setChartIntervalIsUpdated({ status: false }))
     }
 
-    console.log(tokens, baseAddress, quoteAddress, tokens[baseAddress], tokens[quoteAddress])
-
     historyProvider
       .getBars({
         route: [baseAddress, cAddress, quoteAddress].join(','),
@@ -125,7 +123,6 @@ export const Datafeed = {
       .then((bars: any) => {
         if (bars.length > 0) {
           if (periodParams.firstDataRequest) {
-            console.log('periodParams.firstDataRequest')
             store.dispatch(setCandleChartIsLoadingReduce({ status: false }))
             store.dispatch(setChartIntervalIsUpdated({ status: true }))
             detectChartIsOutdate(bars[bars.length - 1], interval)
