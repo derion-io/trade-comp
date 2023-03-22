@@ -20,7 +20,7 @@ const Component = ({ visible, pool }: {
 }) => {
   const { ddlEngine } = useConfigs()
   const { tokens } = useListTokens()
-  const { states, powers, dTokens } = pool
+  const { states, powers, dTokens, quoteToken } = pool
   const { Rc, rDcLong, rDcShort, totalSupplies } = states || {}
   const [deleverageLoading, setDeleverageLoading] = useState(false)
 
@@ -107,8 +107,8 @@ const Component = ({ visible, pool }: {
             key === 0 &&
             <td rowSpan={colspan} className='br-top-right br-bottom-right'>
               {powersIsPositive
-                ? <TextComp> ${formatFloat(weiToNumber(rDcLongValue), 2)} </TextComp>
-                : <TextComp> ${formatFloat(weiToNumber(rDcShortValue), 2)} </TextComp>
+                ? <TextComp> ${formatFloat(weiToNumber(rDcLongValue, tokens[quoteToken]?.decimal), 2)} </TextComp>
+                : <TextComp> ${formatFloat(weiToNumber(rDcShortValue, tokens[quoteToken]?.decimal), 2)} </TextComp>
               }
             </td>
           }
@@ -122,7 +122,7 @@ const Component = ({ visible, pool }: {
         <tr>
           <th className='text-center'><Text>Derivatives</Text></th>
           <th className='text-center'>Funding Rate <TextBlue>(Daily)</TextBlue></th>
-          <th className='text-center'><Text>TVL</Text> <TextBlue>${formatFloat(weiToNumber(totalLockedValue), 2)}</TextBlue></th>
+          <th className='text-center'><Text>TVL</Text> <TextBlue>${formatFloat(weiToNumber(totalLockedValue, tokens[quoteToken]?.decimal), 2)}</TextBlue></th>
         </tr>
       </thead>
       <tbody>
