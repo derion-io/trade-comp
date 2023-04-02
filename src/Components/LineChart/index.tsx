@@ -46,6 +46,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
         value: formatFloat(basePrice)
       }
     ]
+    console.log('final data', data)
     return data
   }, [chartData, interval, chainId, basePrice])
 
@@ -117,7 +118,13 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
               tickFormatter={(time) => moment(time).format(interval === I_1D ? 'HH:mm' : 'DD/MM')}
               minTickGap={8}
             />
-            <YAxis dataKey='value' axisLine={false} tickLine={false} domain={['auto', 'auto']} hide />
+            <YAxis
+              dataKey='value'
+              axisLine={false}
+              tickLine={false}
+              domain={['auto', 'auto']}
+              minTickGap={8}
+            />
             <Tooltip
               cursor={{ stroke: '#a6a6a6' }}
               contentStyle={{ display: 'none' }}

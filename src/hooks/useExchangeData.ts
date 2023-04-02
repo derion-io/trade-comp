@@ -116,7 +116,7 @@ export const useExchangeData = () => {
       const query = getQueryDayDatas(pair, interval)
       const res: { pairDayDatas: PairDayDataType[]} = await client.request(query)
       return res.pairDayDatas?.map((item) => {
-        const [baseReserve, quoteReserve] = item.token0.id === baseToken
+        const [baseReserve, quoteReserve] = item.token0.id.toLowerCase() === baseToken.toLowerCase()
           ? [item.reserve0, item.reserve1]
           : [item.reserve1, item.reserve0]
         const value = weiToNumber(bn(numberToWei(quoteReserve, 36)).div(numberToWei(baseReserve, 18)))
