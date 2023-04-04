@@ -20,8 +20,8 @@ const Component = ({ visible, pool }: {
 }) => {
   const { ddlEngine } = useConfigs()
   const { tokens } = useListTokens()
-  const { states, powers, dTokens } = pool
-  const { Rc, R, totalSupplies, rDcLong, rDcShort } = states || {}
+  const { states, powers, dTokens, quoteToken } = pool
+  const { Rc, rDcLong, rDcShort, totalSupplies } = states || {}
   const [deleverageLoading, setDeleverageLoading] = useState(false)
 
   const [totalLockedValue, rDcLongValue, rDcShortValue, collateralRatio, imbalanceRate] = useMemo(() => {
@@ -86,7 +86,7 @@ const Component = ({ visible, pool }: {
             <TextComp className='mr-2'>
               <TokenSymbol token={tokens[dTokens[index]]} />
             </TextComp>
-            <TextBlue>${formatFloat(weiToNumber(value, 36), 2)}</TextBlue>
+            <TextBlue>${formatFloat(weiToNumber(value, 18 + tokens[dTokens[index]].decimal), 2)}</TextBlue>
           </td>
           {
             key === 0 &&
@@ -107,8 +107,8 @@ const Component = ({ visible, pool }: {
             key === 0 &&
             <td rowSpan={colspan} className='br-top-right br-bottom-right'>
               {powersIsPositive
-                ? <TextComp> ${formatFloat(weiToNumber(rDcLongValue), 2)} </TextComp>
-                : <TextComp> ${formatFloat(weiToNumber(rDcShortValue), 2)} </TextComp>
+                ? <TextComp> ${formatFloat(weiToNumber(rDcLongValue, tokens[quoteToken]?.decimal), 2)} </TextComp>
+                : <TextComp> ${formatFloat(weiToNumber(rDcShortValue, tokens[quoteToken]?.decimal), 2)} </TextComp>
               }
             </td>
           }

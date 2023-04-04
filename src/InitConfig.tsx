@@ -13,7 +13,8 @@ export const InitConfig = ({
   env,
   children,
   useHistory,
-  useLocation
+  useLocation,
+  chainId: chainIdNotConnect
 }: any) => {
   const { initialledConfig } = useConfigs()
   const { chainId, library } = useWeb3React()

@@ -103,5 +103,32 @@ export default {
       poolFactory: '0xd9Ba0343BED07AE5764c77d7e54d7C3EBaBcC8bC',
       router: '0xace397FBf3fA9f672b014C995Eb579317D55592d'
     }
+  },
+  42161: {
+    rpcUrl: 'https://arb1.arbitrum.io/rpc',
+    rpcToGetLogs: 'https://arb1.arbitrum.io/rpc',
+    explorer: 'https://arbiscan.io',
+    scanApi: 'https://api.arbiscan.io/api',
+    // theGraphExchange: 'https://api.thegraph.com/subgraphs/name/sushi-v2/sushiswap-arbitrum',
+    theGraphExchange: 'https://api.thegraph.com/subgraphs/name/sushiswap/arbitrum-exchange',
+    scanName: 'Arbitrum Scan',
+    ddlGenesisBlock: 70615018,
+    timePerBlock: 1000,
+    nativeToken: {
+      name: 'ETH',
+      symbol: 'ETH',
+      decimal: 18,
+      address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+    },
+    addresses: {
+      multiCall: '0x07BBBb79619a45D041549Baf8Ee7A60376d649cf',
+      tokensInfo: '0x696630d3aE600147902c71bF967ec3eb7a2C8b44',
+      pairsInfo: '0x81C8f6bC2a602B9Ad403116ab4c0EC1a0e5B49B1',
+      bnA: '0x357FF35761979254F93a21995b20d9071904603d',
+      wrapToken: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
+      nativeToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+      poolFactory: '0x848389D3c869dEF538b148cE5864eFee71C868e1',
+      router: '0x0772BD1981f6092329F12FC041B83b2faBBB1A25'
+    }
   }
 }

@@ -15,7 +15,7 @@ import { getErc20AmountChange } from '../../utils/swapHistoryHelper'
 import isEqual from 'react-fast-compare'
 
 const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
-  const { cToken, baseId, quoteId, baseToken, quoteToken, setChartTimeFocus } = useCurrentPool()
+  const { cToken, baseId, poolAddress, quoteId, baseToken, quoteToken, setChartTimeFocus } = useCurrentPool()
   const { tokens } = useListTokens()
   const { configs } = useConfigs()
 
@@ -70,7 +70,7 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
                       !cpChange.isZero() &&
                   <span>
                     <TextBlue>CP </TextBlue>
-                    {formatWeiToDisplayNumber(cpChange, 4, tokens[cToken]?.decimal || 18)}
+                    {formatWeiToDisplayNumber(cpChange, 4, tokens[poolAddress + '-' + POOL_IDS.cp]?.decimal || 18)}
                   </span>
                     }
                     {swapTx.oldLeverage !== swapTx.newLeverage && <span>{leverageChange}</span>}

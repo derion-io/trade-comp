@@ -3,7 +3,7 @@ import { LASTEST_BLOCK_NUMBER, NATIVE_ADDRESS, POOL_IDS } from '../../utils/cons
 import { store } from '../../state'
 import {
   setCandleChartIsLoadingReduce, setChartIntervalIsUpdated,
-  setChartIsOutDate,
+  setChartIsOutDate
 } from '../../state/currentPool/reducer'
 import { getErc20AmountChange } from '../../utils/swapHistoryHelper'
 import { SwapTxType } from '../../state/wallet/type'
@@ -100,9 +100,9 @@ export const Datafeed = {
     localStorage.setItem('chart_resolution', interval)
 
     const state = store.getState()
-    const tokens = state.tokens.tokens[56]
     const ticker = symbolInfo.ticker
-    const [baseAddress, cAddress, quoteAddress] = ticker.split('-')
+    const [baseAddress, cAddress, quoteAddress,, chainId] = ticker.split('-')
+    const tokens = state.tokens.tokens[chainId]
 
     const limit = calcLimitCandle(periodParams.from, periodParams.to, interval)
 
@@ -113,6 +113,7 @@ export const Datafeed = {
     historyProvider
       .getBars({
         route: [baseAddress, cAddress, quoteAddress].join(','),
+        chainId,
         resolution: interval,
         to: periodParams.to,
         limit: limit,
@@ -122,7 +123,6 @@ export const Datafeed = {
       .then((bars: any) => {
         if (bars.length > 0) {
           if (periodParams.firstDataRequest) {
-            console.log('periodParams.firstDataRequest')
             store.dispatch(setCandleChartIsLoadingReduce({ status: false }))
             store.dispatch(setChartIntervalIsUpdated({ status: true }))
             detectChartIsOutdate(bars[bars.length - 1], interval)
@@ -149,14 +149,16 @@ export const Datafeed = {
     console.log('===========subscribeBars==========')
     this.subscribeBarsInterval[subscriberUID] = setInterval(() => {
       const state = store.getState()
-      const tokens = state.tokens.tokens[56]
       const ticker = symbolInfo.ticker
-      const [baseAddress, cAddress, quoteAddress] = ticker.split('-')
+      const [baseAddress, cAddress, quoteAddress,, chainId] = ticker.split('-')
+      const tokens = state.tokens.tokens[chainId]
+
       historyProvider
         .getBars({
           route: [baseAddress, cAddress, quoteAddress].join(','),
           resolution,
           limit: 2,
+          chainId,
           to: LASTEST_BLOCK_NUMBER,
           inputToken: tokens[baseAddress],
           outputToken: tokens[quoteAddress]

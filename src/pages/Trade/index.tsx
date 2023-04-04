@@ -13,12 +13,13 @@ import 'react-tabs/style/react-tabs.css'
 import { Card } from '../../Components/ui/Card'
 import { PoolDetailAndHistory } from '../../Components/PoolDetailAndHistory'
 import { useListTokens } from '../../state/token/hook'
+import { numberToWei, weiToNumber } from '../../utils/helpers'
 
 export const Trade = ({ tab }: {
   tab: Symbol
 }) => {
   const { cToken, quoteToken, baseToken, baseId, basePrice, poolAddress } = useCurrentPool()
-  const { useHistory, ddlEngine } = useConfigs()
+  const { chainId, useHistory, ddlEngine } = useConfigs()
   const { tokens } = useListTokens()
   const history = useHistory()
   const [changedIn24h, setChangedIn24h] = useState<number>(0)
@@ -26,38 +27,49 @@ export const Trade = ({ tab }: {
   const isPhone = width && width < 992
 
   useEffect(() => {
-    if (baseToken && quoteToken && cToken && ddlEngine && ddlEngine?.chainId === CHAINS.BSC) {
-      ddlEngine.PRICE.get24hChangeByLog({
-        baseId,
-        currentPrice: basePrice,
+    if (tokens[baseToken] && tokens[quoteToken] && cToken && ddlEngine) {
+      ddlEngine.PRICE.get24hChange({
         baseToken: tokens[baseToken],
+        cToken,
+        chainId: chainId.toString(),
         quoteToken: tokens[quoteToken],
-        cToken
-      }).then((value) => {
-        setChangedIn24h(value)
-      }).catch((e) => {
-        console.error(e)
-        ddlEngine.PRICE.get24hChange({
-          baseToken: tokens[baseToken],
-          cToken,
-          quoteToken: tokens[quoteToken],
-          currentPrice: basePrice
-        })
-          .then((value1) => {
-            setChangedIn24h(value1)
-          })
+        currentPrice: weiToNumber(numberToWei(basePrice), 18 + tokens[quoteToken].decimal - tokens[baseToken].decimal)
+      }).then((value1) => {
+        setChangedIn24h(value1)
       })
+      // console.log('khanh', tokens[baseToken], tokens[quoteToken])
+      // ddlEngine.PRICE.get24hChangeByLog({
+      //   baseId,
+      //   currentPrice: basePrice,
+      //   baseToken: tokens[baseToken],
+      //   quoteToken: tokens[quoteToken],
+      //   cToken
+      // }).then((value) => {
+      //   setChangedIn24h(value)
+      // }).catch((e) => {
+      //   console.error(e)
+      //   ddlEngine.PRICE.get24hChange({
+      //     baseToken: tokens[baseToken],
+      //     cToken,
+      //     chainId: chainId.toString(),
+      //     quoteToken: tokens[quoteToken],
+      //     currentPrice: basePrice
+      //   })
+      //     .then((value1) => {
+      //       setChangedIn24h(value1)
+      //     })
+      // })
     }
-  }, [ddlEngine, cToken, quoteToken, baseToken])
+  }, [chainId, tokens, ddlEngine, cToken, quoteToken, baseToken])
 
   return (
     <div className='exposure-page'>
       <div className='exposure-page__content'>
         <div className='exposure-page__content--left'>
-          <Chart changedIn24h={changedIn24h}/>
+          <Chart changedIn24h={changedIn24h} />
           {
             !isPhone && <div className='hidden-on-phone'>
-              <PoolDetailAndHistory poolAddress={poolAddress}/>
+              <PoolDetailAndHistory poolAddress={poolAddress} />
             </div>
           }
         </div>
@@ -74,7 +86,7 @@ export const Trade = ({ tab }: {
             </TabList>
             <TabPanel>
               <Card className='trade-box card-in-tab'>
-                <ExposureBox changedIn24h={changedIn24h}/>
+                <ExposureBox changedIn24h={changedIn24h} />
               </Card>
             </TabPanel>
             <TabPanel>
@@ -88,7 +100,7 @@ export const Trade = ({ tab }: {
           </Card>
           {
             isPhone && <div className='hidden-on-desktop'>
-              <PoolDetailAndHistory poolAddress={poolAddress}/>
+              <PoolDetailAndHistory poolAddress={poolAddress} />
             </div>
           }
         </div>

@@ -20,6 +20,7 @@ export const useListPool = () => {
   const initListPool = async (account: string) => {
     if (ddlEngine) {
       ddlEngine.RESOURCE.getResourceCached(account).then((data: any) => {
+        console.log(data)
         dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
         dispatch(addPoolsWithChain({ pools: data.pools, chainId }))
         updateSwapTxsHandle(account, data.swapLogs)

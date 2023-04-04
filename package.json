@@ -37,7 +37,7 @@
     "@types/react-collapse": "^5.0.1",
     "@uniswap/v3-core": "^1.0.1",
     "@uniswap/v3-sdk": "^3.9.0",
-    "assisted-json-rpc-provider": "git+ssh://git@github.com:derivable-io/AssistedJsonRpcProvider.git#0abe7a86f41cd26bcd5a1b5e69517be277ae757c",
+    "assisted-json-rpc-provider": "git+ssh://git@github.com:derivable-labs/AssistedJsonRpcProvider.git#1662bda1343be76618331a2d671bfa56f0d0e305",
     "caniuse-lite": "^1.0.30001434",
     "derivable-tools": "git+ssh://git@github.com:blackskin18/derivable-tools.git#eb102c97032728426a2918034c4d0b2afa4218fc",
     "ethereum-multicall": "^2.15.0",

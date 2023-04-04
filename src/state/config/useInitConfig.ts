@@ -6,6 +6,7 @@ import { addTokensReduce } from '../token/reducer'
 import { Engine } from 'derivable-tools/dist/engine'
 import { useWeb3React } from '../customWeb3React/hook'
 import { JsonRpcProvider } from '@ethersproject/providers'
+import { ZERO_ADDRESS } from '../../utils/constant'
 
 export const useInitConfig = (
   {
@@ -30,6 +31,7 @@ export const useInitConfig = (
   const { account } = useWeb3React()
 
   useEffect(() => {
+    console.log(chainId)
     dispatch(addTokensReduce({
       tokens: [configs[chainId || 56].nativeToken],
       chainId: chainId || 56
@@ -49,8 +51,9 @@ export const useInitConfig = (
 
   useEffect(() => {
     if (!chainId) return
+    console.log(chainId)
     const engine = new Engine({
-      account,
+      account: account || ZERO_ADDRESS,
       chainId,
       storage: {
         // @ts-ignore

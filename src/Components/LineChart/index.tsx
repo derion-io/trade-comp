@@ -8,10 +8,11 @@ import moment from 'moment'
 import { useListTokens } from '../../state/token/hook'
 import { Text, TextBuy, TextGrey, TextSell } from '../ui/Text'
 import { formatFloat } from '../../utils/helpers'
-import { DATE_FORMATS, I_1W, INTERVALS_TAB, LineChartIntervalType } from '../../utils/lineChartConstant'
+import { DATE_FORMATS, I_1D, I_1W, INTERVALS_TAB, LineChartIntervalType } from '../../utils/lineChartConstant'
 import { Tabs } from '../ui/Tabs'
 import { COLORS } from '../../utils/constant'
 import isEqual from 'react-fast-compare'
+import { useConfigs } from '../../state/config/useConfigs'
 
 const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const { getLineChartData } = useExchangeData()
@@ -22,30 +23,32 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [hoverDate, setHoverDate] = useState<string>()
   const [interval, setInterval] = useState<LineChartIntervalType>(I_1W)
+  const { chainId } = useConfigs()
   useEffect(() => {
-    if (!chartData[interval]) {
+    if (!chartData[chainId + interval + cToken] && cToken) {
       setIsLoading(true)
-      getLineChartData({ pair: cToken, baseToken, interval })
+      getLineChartData({ chainId, pair: cToken.toLowerCase(), baseToken, interval })
         .then((data) => {
           setChartData({
             ...chartData,
-            [interval]: data
+            [chainId + interval + cToken]: data
           })
           setIsLoading(false)
         })
     }
-  }, [cToken, interval])
+  }, [cToken, chainId, interval])
 
   const finalData = useMemo(() => {
     const data = [
-      ...chartData[interval],
+      ...chartData[chainId + interval + cToken],
       {
         time: new Date().getTime(),
         value: formatFloat(basePrice)
       }
     ]
+    console.log('final data', data)
     return data
-  }, [chartData[interval], basePrice])
+  }, [chartData, interval, chainId, basePrice])
 
   const color = useMemo(() => {
     return changedIn24h > 0
@@ -82,12 +85,12 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
       </div>
     </div>
     <div className='line-chart-box'>
-      {(isLoading || !chartData[interval]) &&
+      {(isLoading || !chartData[chainId + interval + cToken]) &&
         <div className='line-chart__loading'>
           <LineChartLoader />
         </div>
       }
-      {chartData[interval] && chartData[interval].length > 0 &&
+      {chartData[chainId + interval + cToken] && chartData[chainId + interval + cToken].length > 0 &&
         <ResponsiveContainer>
           <AreaChart
             data={finalData}
@@ -112,10 +115,16 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
               dataKey='time'
               axisLine={false}
               tickLine={false}
-              tickFormatter={(time) => moment(time).format('hh:mm a')}
+              tickFormatter={(time) => moment(time).format(interval === I_1D ? 'HH:mm' : 'DD/MM')}
               minTickGap={8}
             />
-            <YAxis dataKey='value' axisLine={false} tickLine={false} domain={['auto', 'auto']} hide />
+            <YAxis
+              dataKey='value'
+              axisLine={false}
+              tickLine={false}
+              domain={['auto', 'auto']}
+              minTickGap={8}
+            />
             <Tooltip
               cursor={{ stroke: '#a6a6a6' }}
               contentStyle={{ display: 'none' }}
