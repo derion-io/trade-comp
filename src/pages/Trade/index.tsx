@@ -14,6 +14,7 @@ import { Card } from '../../Components/ui/Card'
 import { PoolDetailAndHistory } from '../../Components/PoolDetailAndHistory'
 import { useListTokens } from '../../state/token/hook'
 import { numberToWei, weiToNumber } from '../../utils/helpers'
+// import fetch from 'fetch'
 
 export const Trade = ({ tab }: {
   tab: Symbol
@@ -22,12 +23,14 @@ export const Trade = ({ tab }: {
   const { chainId, useHistory, ddlEngine } = useConfigs()
   const { tokens } = useListTokens()
   const history = useHistory()
-  const [changedIn24h, setChangedIn24h] = useState<number>(0)
+  const [changedIn24h, setChangedIn24h] = useState<number>(10)
   const { width } = useWindowSize()
   const isPhone = width && width < 992
 
   useEffect(() => {
+    console.log(tokens[baseToken] , tokens[quoteToken] , cToken , ddlEngine)
     if (tokens[baseToken] && tokens[quoteToken] && cToken && ddlEngine) {
+      getChangedIn24h(tokens[baseToken], tokens[quoteToken])
       ddlEngine.PRICE.get24hChange({
         baseToken: tokens[baseToken],
         cToken,
@@ -61,6 +64,20 @@ export const Trade = ({ tab }: {
       // })
     }
   }, [chainId, tokens, ddlEngine, cToken, quoteToken, baseToken])
+
+    async function getChangedIn24h(token0: any, token1: any) {
+      let symbol0 = token0.symbol
+      let symbol1 = token1.symbol
+      if (token0.symbol == 'WETH') symbol0 = 'ETH'
+
+      if (token1.symbol == 'WETH') symbol1 = 'ETH'
+      let url = `https://www.kucoin.com/_api/quicksilver/universe-currency/symbols/stats/${symbol0}-${symbol1}/`
+      console.log('@@@', url)
+      fetch(url)
+        .then((response) => console.log('alo', response))
+        // .then((toDoListArray) => console.log('toDoListArray',toDoListArray))
+        console.log('DONEEEEEEE')
+    }
 
   return (
     <div className='exposure-page'>

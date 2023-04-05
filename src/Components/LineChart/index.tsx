@@ -67,9 +67,12 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
             {tokens[baseToken]?.symbol}/{tokens[quoteToken]?.symbol}
           </TextGrey>
           {
-            changedIn24h >= 0
-              ? <TextBuy>(+{changedIn24h}%)</TextBuy>
-              : <TextSell>({changedIn24h}%)</TextSell>
+            changedIn24h > 0 &&
+              <TextBuy>(+{changedIn24h}%)</TextBuy>
+          }
+          {
+            changedIn24h < 0 &&
+            <TextSell>({changedIn24h}%)</TextSell>
           }
         </div>
         <div>
