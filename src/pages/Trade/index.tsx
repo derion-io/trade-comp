@@ -14,6 +14,7 @@ import { Card } from '../../Components/ui/Card'
 import { PoolDetailAndHistory } from '../../Components/PoolDetailAndHistory'
 import { useListTokens } from '../../state/token/hook'
 import { numberToWei, weiToNumber } from '../../utils/helpers'
+import coingecko from '../../assets/abi/coingecko.json'
 // import fetch from 'fetch'
 
 export const Trade = ({ tab }: {
@@ -66,16 +67,35 @@ export const Trade = ({ tab }: {
   }, [chainId, tokens, ddlEngine, cToken, quoteToken, baseToken])
 
     async function getChangedIn24h(token0: any, token1: any) {
-      let symbol0 = token0.symbol
-      let symbol1 = token1.symbol
-      if (token0.symbol == 'WETH') symbol0 = 'ETH'
-
-      if (token1.symbol == 'WETH') symbol1 = 'ETH'
-      let url = `https://www.kucoin.com/_api/quicksilver/universe-currency/symbols/stats/${symbol0}-${symbol1}/`
+      let id0, id1
+      for (let i = 0; i < coingecko.length; i++) {
+        let platforms = Object.values(coingecko[i].platforms)
+        for ( let j = 0; j < platforms.length; j++) {
+          console.log('@#@#@#',j)
+          if (token0.address.toLowerCase() == Object.values(coingecko[i].platforms)[j]) {
+            console.log('cuccu',coingecko[i].id)
+            id0 = coingecko[i].id
+          }
+          if (token1.address.toLowerCase() == Object.values(coingecko[i].platforms)[j]) {
+            id1 = coingecko[i].id
+          }
+        }
+      }
+      if (!id0 || !id1) {
+          setChangedIn24h(0)
+          return
+      }
+      let url = `https://api.coingecko.com/api/v3/simple/price?ids=${id0},${id1}&vs_currencies=USD&include_24hr_change=true`
       console.log('@@@', url)
       fetch(url)
-        .then((response) => console.log('alo', response))
-        // .then((toDoListArray) => console.log('toDoListArray',toDoListArray))
+        .then((response) => response.json())
+        .then((data) => {
+          let arr: any = Object.values(data)
+          let priceNow = arr[1].usd/arr[0].usd
+          let price24h = (arr[1].usd*arr[1].usd_24h_change)/(arr[0].usd*arr[0].usd_24h_change)
+          console.log(priceNow/price24h)
+          setChangedIn24h(priceNow/price24h)
+        })
         console.log('DONEEEEEEE')
     }
 
