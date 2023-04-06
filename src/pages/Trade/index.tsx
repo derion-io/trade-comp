@@ -29,7 +29,6 @@ export const Trade = ({ tab }: {
   const isPhone = width && width < 992
 
   useEffect(() => {
-    console.log('!!!!!!!!!!!!!!!!!!!!')
     if (tokens[baseToken] && tokens[quoteToken] && cToken && ddlEngine) {
       getChangedIn24h(tokens[baseToken], tokens[quoteToken])
       // ddlEngine.PRICE.get24hChange({
@@ -67,7 +66,6 @@ export const Trade = ({ tab }: {
   }, [chainId, tokens, ddlEngine, cToken, quoteToken, baseToken])
 
     async function getChangedIn24h(token0: any, token1: any) {
-      console.log('@@@@@@@@@@@@@@@')
       let id0, id1
       for (let i = 0; i < coingecko.length; i++) {
         let platforms = Object.values(coingecko[i].platforms)
