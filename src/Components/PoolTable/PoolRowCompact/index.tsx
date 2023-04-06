@@ -23,7 +23,7 @@ const Component = ({ pool }: { pool: PoolType }) => {
     p.loadStates(states)
 
     const currentBalances = {}
-    powers.forEach((power, key) => {
+    powers.forEach((power: any, key: any) => {
       if (balances[dTokens[key]] && balances[dTokens[key]].gt(0)) {
         currentBalances[power] = bn(balances[dTokens[key]])
       }

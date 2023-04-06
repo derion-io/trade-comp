@@ -31,7 +31,7 @@ const Component = ({ pool }: { pool: PoolType }) => {
     p.loadStates(states)
 
     const currentBalances = {}
-    powers.forEach((power, key) => {
+    powers.forEach((power: any, key: any) => {
       if (balances[dTokens[key]] && balances[dTokens[key]].gt(0)) {
         currentBalances[power] = bn(balances[dTokens[key]])
       }
@@ -56,14 +56,14 @@ const Component = ({ pool }: { pool: PoolType }) => {
         }
       }}>
       <td className='text-left'>
-        <TdText>{shortenAddressString(pool.poolAddress)}</TdText>
+        <TdText>{shortenAddressString(pool.TOKEN_R)}</TdText>
       </td>
       <td className='text-left'>
         <TdText>{pool.baseSymbol} ({leverage >= 0 ? 'Long' : 'Short'})</TdText>
       </td>
       <td className='text-left'>
         {
-          dTokens.map((dToken, key) => {
+          dTokens.map((dToken: any, key: any) => {
             const SymBolText = powers[key] >= 0 ? TextBuy : TextSell
             if (balances[dToken] && balances[dToken].gt(0)) {
               return <div key={key}>
