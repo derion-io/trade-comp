@@ -20,25 +20,25 @@ const Component = ({ visible, pool }: {
 }) => {
   const { ddlEngine } = useConfigs()
   const { tokens } = useListTokens()
-  const { states, powers, dTokens, quoteToken } = pool
-  const { Rc, rDcLong, rDcShort, totalSupplies } = states || {}
+  const { states, powers, dTokens, quoteToken, basePrice } = pool
+  const { rC, rDcLong, rDcShort, rDetails } = states || {}
   const [deleverageLoading, setDeleverageLoading] = useState(false)
 
   const [totalLockedValue, rDcLongValue, rDcShortValue, collateralRatio, imbalanceRate] = useMemo(() => {
     if (!states) return [bn(0), bn(0), bn(0), 0, 0]
     const unit = 100000
-    const cPrice = bn(states?.twapLP || 0).mul(unit).shr(112)
+    const basePrice = bn(states?.twapBase || 0).mul(unit).shr(112)
     const rDc = rDcLong.add(rDcShort)
-    const collateralRatio = rDc.gt(0) ? Rc.mul(unit).div(rDc).toNumber() / unit : 0
+    const collateralRatio = rDc.gt(0) ? rC.mul(unit).div(rDc).toNumber() / unit : 0
 
-    const imbalanceRate = rDcShort && rDcLong && !Rc.isZero()
-      ? bn(rDcLong).sub(rDcShort).mul(unit).div(Rc).toNumber() / unit
+    const imbalanceRate = rDcShort && rDcLong && !rC.isZero()
+      ? bn(rDcLong).sub(rDcShort).mul(unit).div(rC).toNumber() / unit
       : 0
 
     return [
-      Rc.mul(cPrice).div(unit),
-      rDcLong.mul(cPrice).div(unit),
-      rDcShort.mul(cPrice).div(unit),
+      rC.mul(basePrice).div(unit),
+      rDcLong.mul(basePrice).div(unit),
+      rDcShort.mul(basePrice).div(unit),
       collateralRatio,
       Math.abs(imbalanceRate)
     ]
@@ -63,59 +63,56 @@ const Component = ({ visible, pool }: {
     return null
   }, [pool])
 
-  // const getPowerRows = (powersIsPositive: boolean) => {
-  //   return powers && powers.map((power: number, index: number) => {
-  //     return { power, index }
-  //   })
-  //     .filter(({ power, index }) => {
-  //       return (power > 0) === powersIsPositive && pool.states.totalSupplies[index].gt(0)
-  //     })
-  //     .sort((a: any, b: any) => b.power - a.power)
-  //     .map(({ power, index }: { power: number, index: number }) => {
-  //       const price = powerState ? powerState.calculatePrice(power) : 0
-  //       if (price == 0 || !Number.isFinite(price)) {
-  //         return { index, power, value: 0 }
-  //       }
-  //       const value = totalSupplies[index]?.mul(numberToWei(price || 0))
-  //       return { index, power, value }
-  //     })
-  //     .map(({ index, power, value }: { index: number, power: number, value: number }, key, arr) => {
-  //       const TextComp = power > 0 ? TextBuy : TextSell
-  //       const colspan = arr.length
-  //       return <tr key={index} className='pool-expand__info-row'>
-  //         <td className={`${key === 0 ? 'br-top-left' : ''} ${key === arr.length - 1 ? 'br-bottom-left' : ''}`}>
-  //           <TextComp className='mr-2'>
-  //             <TokenSymbol token={tokens[dTokens[index]]} />
-  //           </TextComp>
-  //           <TextBlue>${formatFloat(weiToNumber(value, 18 + tokens[dTokens[index]].decimal), 2)}</TextBlue>
-  //         </td>
-  //         {
-  //           key === 0 &&
-  //           <td rowSpan={colspan} className='pool-expand__funding-rate--box'>
-  //             <div className='pool-expand__funding-rate'>
-  //               {powersIsPositive
-  //                 ? <TextComp>
-  //                   {states?.rentRateLong && formatFloat(parseUq112x112(states.rentRateLong.mul(SECONDS_PER_DAY).mul(100)), 4)}%
-  //                 </TextComp>
-  //                 : <TextComp>
-  //                   {states?.rentRateShort && formatFloat(parseUq112x112(states.rentRateShort.mul(SECONDS_PER_DAY).mul(100)), 4)}%
-  //                 </TextComp>
-  //               }
-  //             </div>
-  //           </td>
-  //         }
-  //         {
-  //           key === 0 &&
-  //           <td rowSpan={colspan} className='br-top-right br-bottom-right'>
-  //             {powersIsPositive
-  //               ? <TextComp> ${formatFloat(weiToNumber(rDcLongValue, tokens[quoteToken]?.decimal), 2)} </TextComp>
-  //               : <TextComp> ${formatFloat(weiToNumber(rDcShortValue, tokens[quoteToken]?.decimal), 2)} </TextComp>
-  //             }
-  //           </td>
-  //         }
-  //       </tr>
-  //     })
-  // }
+  const getPowerRows = (powersIsPositive: boolean) => {
+    return powers && powers.map((power: number, index: number) => {
+      return { power, index }
+    })
+      .filter(({ power, index }: any) => {
+        return (power > 0) === powersIsPositive
+        // return (power > 0) === powersIsPositive && pool.states.totalSupplies[index].gt(0)
+      })
+      .sort((a: any, b: any) => b.power - a.power)
+      .map(({ power, index }: { power: number, index: number }) => {
+        const value = rDetails[power].mul(numberToWei(basePrice))
+        return { index, power, value }
+      })
+      .map(({ index, power, value }: { index: number, power: number, value: number }, key: any, arr: any) => {
+        const TextComp = power > 0 ? TextBuy : TextSell
+        const colspan = arr.length
+        return <tr key={index} className='pool-expand__info-row'>
+          <td className={`${key === 0 ? 'br-top-left' : ''} ${key === arr.length - 1 ? 'br-bottom-left' : ''}`}>
+            <TextComp className='mr-2'>
+              <TokenSymbol token={tokens[dTokens[index]]} />
+            </TextComp>
+            <TextBlue>${formatFloat(weiToNumber(value, 18 + tokens[dTokens[index]].decimal), 2)}</TextBlue>
+          </td>
+          {
+            key === 0 &&
+            <td rowSpan={colspan} className='pool-expand__funding-rate--box'>
+              <div className='pool-expand__funding-rate'>
+                {powersIsPositive
+                  ? <TextComp>
+                    {states?.rentRateLong && formatFloat(parseUq112x112(states.rentRateLong.mul(SECONDS_PER_DAY).mul(100)), 4)}%
+                  </TextComp>
+                  : <TextComp>
+                    {states?.rentRateShort && formatFloat(parseUq112x112(states.rentRateShort.mul(SECONDS_PER_DAY).mul(100)), 4)}%
+                  </TextComp>
+                }
+              </div>
+            </td>
+          }
+          {
+            key === 0 &&
+            <td rowSpan={colspan} className='br-top-right br-bottom-right'>
+              {powersIsPositive
+                ? <TextComp> ${formatFloat(weiToNumber(rDcLongValue, tokens[quoteToken]?.decimal), 2)} </TextComp>
+                : <TextComp> ${formatFloat(weiToNumber(rDcShortValue, tokens[quoteToken]?.decimal), 2)} </TextComp>
+              }
+            </td>
+          }
+        </tr>
+      })
+  }
 
   return <div className='pool-expand'>
     <table className='pool-expand__table'>
@@ -128,13 +125,13 @@ const Component = ({ visible, pool }: {
         </tr>
       </thead>
       <tbody>
-        {/* {getPowerRows(true)} */}
+        {getPowerRows(true)}
         <tr>
           <td>
             <div className='space' />
           </td>
         </tr>
-        {/* {getPowerRows(false)} */}
+        {getPowerRows(false)}
         <tr>
           <td className='space' />
         </tr>

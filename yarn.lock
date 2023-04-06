@@ -4920,9 +4920,9 @@ depd@~1.1.2:
   resolved "https://registry.yarnpkg.com/depd/-/depd-1.1.2.tgz#9bcd52e14c097763e749b274c4346ed2e560b5a9"
   integrity sha1-m81S4UwJd2PnSbJ0xDRu0uVgtak=
 
-"derivable-tools@git+ssh://git@github.com:blackskin18/derivable-tools.git#cc3800d7b2657f4ce7e5a5f9309f55b1d8f22eed":
+"derivable-tools@git+ssh://git@github.com:blackskin18/derivable-tools.git#e147e14b02357b8a6911a72890b7c62b2cd1409c":
   version "1.0.0"
-  resolved "git+ssh://git@github.com:blackskin18/derivable-tools.git#cc3800d7b2657f4ce7e5a5f9309f55b1d8f22eed"
+  resolved "git+ssh://git@github.com:blackskin18/derivable-tools.git#e147e14b02357b8a6911a72890b7c62b2cd1409c"
   dependencies:
     "@ethersproject/providers" "https://github.com/launchzone/ethers.js/releases/download/v5.3.2.2/ethers_providers.tar.gz"
     assisted-json-rpc-provider "git+ssh://git@github.com:derivable-io/AssistedJsonRpcProvider.git#0abe7a86f41cd26bcd5a1b5e69517be277ae757c"

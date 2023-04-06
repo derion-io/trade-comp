@@ -49,8 +49,6 @@ const Component = ({ pool }: { pool: PoolType }) => {
     return [{}, 0, bn(0)]
   }, [])
 
-  console.log(pool, balances)
-
 
   const TdText = leverage >= 0 ? TextBuy : TextSell
 
@@ -109,7 +107,7 @@ const Component = ({ pool }: { pool: PoolType }) => {
       <Collapse isOpened={isExpand} initialStyle={{ height: 0, overflow: 'hidden' }}>
         <div className='pool-row__expand-box'>
           <div className='pool-row__expand'>
-            {/*<ExpandPool visible={isExpand} pool={pool} />*/}
+            <ExpandPool visible={isExpand} pool={pool} />
           </div>
         </div>
       </Collapse>
