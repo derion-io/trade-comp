@@ -24,23 +24,23 @@ export const Trade = ({ tab }: {
   const { chainId, useHistory, ddlEngine } = useConfigs()
   const { tokens } = useListTokens()
   const history = useHistory()
-  const [changedIn24h, setChangedIn24h] = useState<number>(10)
+  const [changedIn24h, setChangedIn24h] = useState<number>(0)
   const { width } = useWindowSize()
   const isPhone = width && width < 992
 
   useEffect(() => {
-    console.log(tokens[baseToken] , tokens[quoteToken] , cToken , ddlEngine)
+    console.log('!!!!!!!!!!!!!!!!!!!!')
     if (tokens[baseToken] && tokens[quoteToken] && cToken && ddlEngine) {
       getChangedIn24h(tokens[baseToken], tokens[quoteToken])
-      ddlEngine.PRICE.get24hChange({
-        baseToken: tokens[baseToken],
-        cToken,
-        chainId: chainId.toString(),
-        quoteToken: tokens[quoteToken],
-        currentPrice: weiToNumber(numberToWei(basePrice), 18 + tokens[quoteToken].decimal - tokens[baseToken].decimal)
-      }).then((value1) => {
-        setChangedIn24h(value1)
-      })
+      // ddlEngine.PRICE.get24hChange({
+      //   baseToken: tokens[baseToken],
+      //   cToken,
+      //   chainId: chainId.toString(),
+      //   quoteToken: tokens[quoteToken],
+      //   currentPrice: weiToNumber(numberToWei(basePrice), 18 + tokens[quoteToken].decimal - tokens[baseToken].decimal)
+      // }).then((value1) => {
+      //   setChangedIn24h(value1)
+      // })
       // console.log('khanh', tokens[baseToken], tokens[quoteToken])
       // ddlEngine.PRICE.get24hChangeByLog({
       //   baseId,
@@ -67,13 +67,12 @@ export const Trade = ({ tab }: {
   }, [chainId, tokens, ddlEngine, cToken, quoteToken, baseToken])
 
     async function getChangedIn24h(token0: any, token1: any) {
+      console.log('@@@@@@@@@@@@@@@')
       let id0, id1
       for (let i = 0; i < coingecko.length; i++) {
         let platforms = Object.values(coingecko[i].platforms)
         for ( let j = 0; j < platforms.length; j++) {
-          console.log('@#@#@#',j)
           if (token0.address.toLowerCase() == Object.values(coingecko[i].platforms)[j]) {
-            console.log('cuccu',coingecko[i].id)
             id0 = coingecko[i].id
           }
           if (token1.address.toLowerCase() == Object.values(coingecko[i].platforms)[j]) {
@@ -86,17 +85,15 @@ export const Trade = ({ tab }: {
           return
       }
       let url = `https://api.coingecko.com/api/v3/simple/price?ids=${id0},${id1}&vs_currencies=USD&include_24hr_change=true`
-      console.log('@@@', url)
       fetch(url)
         .then((response) => response.json())
         .then((data) => {
           let arr: any = Object.values(data)
           let priceNow = arr[1].usd/arr[0].usd
-          let price24h = (arr[1].usd*arr[1].usd_24h_change)/(arr[0].usd*arr[0].usd_24h_change)
-          console.log(priceNow/price24h)
-          setChangedIn24h(priceNow/price24h)
+          let price24h = (arr[1].usd/(arr[1].usd_24h_change+100)*100)/(arr[0].usd/(arr[0].usd_24h_change+100)*100)
+          const result: any = ((priceNow-price24h)/price24h)*100
+          setChangedIn24h(result.toFixed(2))
         })
-        console.log('DONEEEEEEE')
     }
 
   return (
