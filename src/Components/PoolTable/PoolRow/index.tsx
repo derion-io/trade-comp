@@ -23,27 +23,34 @@ const Component = ({ pool }: { pool: PoolType }) => {
   const history = useHistory()
   const { updateCurrentPool } = useCurrentPool()
 
+  // const [powerState, leverage, value] = useMemo(() => {
+  //   let leverage = 0
+  //   let value = bn(0)
+  //   const { powers, states, dTokens } = pool
+  //   const p = new PowerState({ powers: powers })
+  //   p.loadStates(states)
+  //
+  //   const currentBalances = {}
+  //   powers.forEach((power: any, key: any) => {
+  //     if (balances[dTokens[key]] && balances[dTokens[key]].gt(0)) {
+  //       currentBalances[power] = bn(balances[dTokens[key]])
+  //     }
+  //   })
+  //
+  //   if (Object.keys(currentBalances).length > 0) {
+  //     leverage = p.calculateCompExposure(currentBalances)
+  //     value = p.calculateCompValue(currentBalances)
+  //   }
+  //
+  //   return [p, leverage, value]
+  // }, [pool, balances])
+
   const [powerState, leverage, value] = useMemo(() => {
-    let leverage = 0
-    let value = bn(0)
-    const { powers, states, dTokens } = pool
-    const p = new PowerState({ powers: powers })
-    p.loadStates(states)
+    return [{}, 0, bn(0)]
+  }, [])
 
-    const currentBalances = {}
-    powers.forEach((power: any, key: any) => {
-      if (balances[dTokens[key]] && balances[dTokens[key]].gt(0)) {
-        currentBalances[power] = bn(balances[dTokens[key]])
-      }
-    })
+  console.log(pool, balances)
 
-    if (Object.keys(currentBalances).length > 0) {
-      leverage = p.calculateCompExposure(currentBalances)
-      value = p.calculateCompValue(currentBalances)
-    }
-
-    return [p, leverage, value]
-  }, [pool, balances])
 
   const TdText = leverage >= 0 ? TextBuy : TextSell
 
@@ -59,7 +66,7 @@ const Component = ({ pool }: { pool: PoolType }) => {
         <TdText>{shortenAddressString(pool.TOKEN_R)}</TdText>
       </td>
       <td className='text-left'>
-        <TdText>{pool.baseSymbol} ({leverage >= 0 ? 'Long' : 'Short'})</TdText>
+        <TdText><TokenSymbol token={tokens[pool.TOKEN_R]}/> {pool.baseSymbol} ({leverage >= 0 ? 'Long' : 'Short'})</TdText>
       </td>
       <td className='text-left'>
         {
@@ -102,7 +109,7 @@ const Component = ({ pool }: { pool: PoolType }) => {
       <Collapse isOpened={isExpand} initialStyle={{ height: 0, overflow: 'hidden' }}>
         <div className='pool-row__expand-box'>
           <div className='pool-row__expand'>
-            <ExpandPool visible={isExpand} pool={pool} />
+            {/*<ExpandPool visible={isExpand} pool={pool} />*/}
           </div>
         </div>
       </Collapse>

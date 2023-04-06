@@ -54,7 +54,7 @@ const Component = ({ pool }: { pool: PoolType }) => {
         <Text>{tokens[baseToken]?.symbol}/{tokens[quoteToken]?.symbol}</Text>
       </td>
       <td className='text-left'>
-        <TextBlue>{weiToNumber(value, 18 + tokens[quoteToken].decimal - tokens[baseToken].decimal, 4)} {tokens[quoteToken]?.symbol}</TextBlue>
+        <TextBlue>{weiToNumber(value, 18 + (tokens[quoteToken]?.decimal) || 18 - (tokens[baseToken]?.decimal || 18), 4)} {tokens[quoteToken]?.symbol}</TextBlue>
       </td>
       <td className='text-left'>
         <TdText>{leverage >= 0 ? 'Long' : 'Short'} {formatFloat(leverage, 1)}</TdText>
