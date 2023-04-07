@@ -245,11 +245,11 @@ export const Component = ({ changedIn24h }: {
     if ((amountToChange || removePercent) && powerState) {
       if (formAddOrRemove === 'remove' && removePercent) {
         amount = Number(div(-removePercent, 100))
-        cTokenValue = value.mul(numberToWei(-removePercent)).div(numberToWei(100))
+        cTokenValue = value.mul(numberToWei(-removePercent)).div(numberToWei(100, 18 + tokens[cToken]?.decimal - tokens[quoteToken]?.decimal))
       } else {
         const price = getTokenPrice(inputTokenAddress)
         amount = bn(numberToWei(amountToChange, tokens[cToken]?.decimal || 18))
-        cTokenValue = amount.mul(numberToWei(price)).div(numberToWei(1))
+        cTokenValue = amount.mul(numberToWei(price)).div(numberToWei(1, 18 + tokens[cToken]?.decimal - tokens[quoteToken]?.decimal))
       }
       value = value.add(cTokenValue)
     }
