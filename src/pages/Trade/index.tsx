@@ -14,7 +14,7 @@ import { Card } from '../../Components/ui/Card'
 import { PoolDetailAndHistory } from '../../Components/PoolDetailAndHistory'
 import { useListTokens } from '../../state/token/hook'
 import { numberToWei, weiToNumber } from '../../utils/helpers'
-import coingecko from '../../assets/abi/coingecko.json'
+import coingecko from '../../assets/coingecko.json'
 // import fetch from 'fetch'
 
 export const Trade = ({ tab }: {
@@ -68,14 +68,11 @@ export const Trade = ({ tab }: {
     async function getChangedIn24h(token0: any, token1: any) {
       let id0, id1
       for (let i = 0; i < coingecko.length; i++) {
-        let platforms = Object.values(coingecko[i].platforms)
-        for ( let j = 0; j < platforms.length; j++) {
-          if (token0.address.toLowerCase() == Object.values(coingecko[i].platforms)[j]) {
+          if (token0.address.toLowerCase() == coingecko[i].token?.toLowerCase()) {
             id0 = coingecko[i].id
           }
-          if (token1.address.toLowerCase() == Object.values(coingecko[i].platforms)[j]) {
+          if (token1.address.toLowerCase() == coingecko[i].token?.toLowerCase()) {
             id1 = coingecko[i].id
-          }
         }
       }
       if (!id0 || !id1) {
