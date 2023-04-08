@@ -14,6 +14,8 @@ import { Card } from '../../Components/ui/Card'
 import { PoolDetailAndHistory } from '../../Components/PoolDetailAndHistory'
 import { useListTokens } from '../../state/token/hook'
 import { numberToWei, weiToNumber } from '../../utils/helpers'
+import coingecko from '../../assets/coingecko.json'
+// import fetch from 'fetch'
 
 export const Trade = ({ tab }: {
   tab: Symbol
@@ -28,15 +30,16 @@ export const Trade = ({ tab }: {
 
   useEffect(() => {
     if (tokens[baseToken] && tokens[quoteToken] && cToken && ddlEngine) {
-      ddlEngine.PRICE.get24hChange({
-        baseToken: tokens[baseToken],
-        cToken,
-        chainId: chainId.toString(),
-        quoteToken: tokens[quoteToken],
-        currentPrice: weiToNumber(numberToWei(basePrice), 18 + tokens[quoteToken].decimal - tokens[baseToken].decimal)
-      }).then((value1) => {
-        setChangedIn24h(value1)
-      })
+      getChangedIn24h(tokens[baseToken], tokens[quoteToken])
+      // ddlEngine.PRICE.get24hChange({
+      //   baseToken: tokens[baseToken],
+      //   cToken,
+      //   chainId: chainId.toString(),
+      //   quoteToken: tokens[quoteToken],
+      //   currentPrice: weiToNumber(numberToWei(basePrice), 18 + tokens[quoteToken].decimal - tokens[baseToken].decimal)
+      // }).then((value1) => {
+      //   setChangedIn24h(value1)
+      // })
       // console.log('khanh', tokens[baseToken], tokens[quoteToken])
       // ddlEngine.PRICE.get24hChangeByLog({
       //   baseId,
@@ -61,6 +64,32 @@ export const Trade = ({ tab }: {
       // })
     }
   }, [chainId, tokens, ddlEngine, cToken, quoteToken, baseToken])
+
+    async function getChangedIn24h(token0: any, token1: any) {
+      let id0, id1
+      for (let i = 0; i < coingecko.length; i++) {
+          if (token0.address.toLowerCase() == coingecko[i].token?.toLowerCase()) {
+            id0 = coingecko[i].id
+          }
+          if (token1.address.toLowerCase() == coingecko[i].token?.toLowerCase()) {
+            id1 = coingecko[i].id
+        }
+      }
+      if (!id0 || !id1) {
+          setChangedIn24h(0)
+          return
+      }
+      let url = `https://api.coingecko.com/api/v3/simple/price?ids=${id0},${id1}&vs_currencies=USD&include_24hr_change=true`
+      fetch(url)
+        .then((response) => response.json())
+        .then((data) => {
+          let arr: any = Object.values(data)
+          let priceNow = arr[1].usd/arr[0].usd
+          let price24h = (arr[1].usd/(arr[1].usd_24h_change+100)*100)/(arr[0].usd/(arr[0].usd_24h_change+100)*100)
+          const result: any = ((priceNow-price24h)/price24h)*100
+          setChangedIn24h(result.toFixed(2))
+        })
+    }
 
   return (
     <div className='exposure-page'>
