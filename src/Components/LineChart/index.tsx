@@ -122,6 +122,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
             />
             <YAxis
               dataKey='value'
+              orientation='right'
               axisLine={false}
               tickLine={false}
               domain={['auto', 'auto']}
