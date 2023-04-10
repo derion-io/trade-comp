@@ -21,7 +21,7 @@ import { useCurrentPool } from '../../currentPool/hooks/useCurrentPool'
 
 export const useWalletBalance = () => {
   const { getPoolContract } = useContract()
-  const { powers, poolAddress } = useCurrentPool()
+  const { powers } = useCurrentPool()
   const { balances, accFetchBalance, routerAllowances } = useSelector((state: any) => {
     return {
       balances: state.wallet.balances,
@@ -57,7 +57,7 @@ export const useWalletBalance = () => {
       try {
         const signer = library.getSigner()
         let hash = ''
-        if (tokenAddress === poolAddress || isErc1155Address(tokenAddress)) {
+        if (isErc1155Address(tokenAddress)) {
           const poolAddress = decodeErc1155Address(tokenAddress).address
           const contract = getPoolContract(poolAddress, signer)
           const txRes = await contract.setApprovalForAll(configs.addresses.router, true)

@@ -19,34 +19,26 @@ export const tokens = createSlice({
     setCurrentPoolInfo: (
       state,
       action: PayloadAction<{
-        baseToken: string
-        quoteToken: string
-        cToken: string
-        cTokenPrice: number
-        basePrice: string
-        baseId: number
-        quoteId: number
-        dTokens: string[]
-        logicAddress?: string
+        id: string
+        UTR: string
+        TOKEN: string
+        pools: any
+        ORACLE: string
+        TOKEN_R: string
         states: any,
         powers: number[]
-        // changedIn24h: number
-        poolAddress: string
+        dTokens: string[]
       }>
     ) => {
-      state.cTokenPrice = action.payload.cTokenPrice
-      state.cToken = action.payload.cToken
-      state.dTokens = action.payload.dTokens
-      state.logicAddress = action.payload.logicAddress
+      state.id = action.payload.id
+      state.UTR = action.payload.UTR
+      state.TOKEN = action.payload.TOKEN
+      state.pools = action.payload.pools
+      state.ORACLE = action.payload.ORACLE
+      state.TOKEN_R = action.payload.TOKEN_R
       state.states = action.payload.states
       state.powers = action.payload.powers
-      state.baseToken = action.payload.baseToken
-      state.quoteToken = action.payload.quoteToken
-      state.basePrice = action.payload.basePrice
-      // state.changedIn24h = action.payload.changedIn24h
-      state.poolAddress = action.payload.poolAddress
-      state.baseId = action.payload.baseId
-      state.quoteId = action.payload.quoteId
+      state.dTokens = action.payload.dTokens
     },
     setChartTimeRange: (state, action: PayloadAction<{
       timeRange: {from: number, to: number}

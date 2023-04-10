@@ -36,7 +36,7 @@ import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 const Component = () => {
   const { account, showConnectModal } = useWeb3React()
   const { configs, ddlEngine } = useConfigs()
-  const { cTokenPrice, states, dTokens, cToken, logicAddress, poolAddress, powers, baseToken, quoteToken, basePrice } = useCurrentPool()
+  const { TOKEN_R, states, powers, dTokens } = useCurrentPool()
   const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
@@ -57,9 +57,9 @@ const Component = () => {
   const { data: cpPrice } = useCpPrice()
 
   useEffect(() => {
-    setInputTokenAddress(cToken || '')
-    setOutputTokenAddress(dTokens[0])
-  }, [logicAddress])
+    setInputTokenAddress(TOKEN_R || '')
+    setOutputTokenAddress(TOKEN_R)
+  }, [TOKEN_R])
 
   useEffect(() => {
     if (tokens[inputTokenAddress] && tokens[outputTokenAddress] && amountIn && Number(amountIn)) {
@@ -146,6 +146,12 @@ const Component = () => {
           try {
             setLoading(true)
             if (ddlEngine) {
+              console.log('khanh', {
+                tokenIn: inputTokenAddress,
+                tokenOut: outputTokenAddress,
+                amountIn: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18)),
+                amountOutMin: 0
+              })
               const tx: any = await ddlEngine.SWAP.multiSwap(
                 [{
                   tokenIn: inputTokenAddress,
@@ -172,37 +178,37 @@ const Component = () => {
   }
 
   const protocolFee = useMemo(() => {
-    if (states?.twapLP && inputTokenAddress === poolAddress + '-' + POOL_IDS.cp && outputTokenAddress === cToken) {
-      const cPrice = parseUq112x112(states.twapLP, 1000)
-      return formatFloat(weiToNumber(amountOutWei
-        .mul(3)
-        .mul(cPrice * 1000)
-        .div(1000 * 1000)
-      , tokens[cToken]?.decimal || 18)
-      , 2)
-    }
+    // if (states?.twapLP && inputTokenAddress === poolAddress + '-' + POOL_IDS.cp && outputTokenAddress === cToken) {
+    //   const cPrice = parseUq112x112(states.twapLP, 1000)
+    //   return formatFloat(weiToNumber(amountOutWei
+    //     .mul(3)
+    //     .mul(cPrice * 1000)
+    //     .div(1000 * 1000)
+    //   , tokens[cToken]?.decimal || 18)
+    //   , 2)
+    // }
     return 0
   }, [states, amountOutWei, inputTokenAddress, outputTokenAddress])
 
   const getTokenPrice = (address: string, powerState: any) => {
-    if (address === cToken) {
-      return cTokenPrice
-    } else if (address === configs.addresses.nativeToken) {
-      return nativePrice
-    } else if (address === baseToken) {
-      return basePrice
-    } else if (address === quoteToken) {
-      return 1
-    }
-    if (powerState && isErc1155Address(address)) {
-      const { id } = decodeErc1155Address(address)
-      if (Number(id) === POOL_IDS.cp) {
-        return cpPrice
-      }
-      const power = powers[id]
-      return powerState.calculatePrice(power)
-    }
-    return 0
+    // if (address === cToken) {
+    //   return cTokenPrice
+    // } else if (address === configs.addresses.nativeToken) {
+    //   return nativePrice
+    // } else if (address === baseToken) {
+    //   return basePrice
+    // } else if (address === quoteToken) {
+    //   return 1
+    // }
+    // if (powerState && isErc1155Address(address)) {
+    //   const { id } = decodeErc1155Address(address)
+    //   if (Number(id) === POOL_IDS.cp) {
+    //     return cpPrice
+    //   }
+    //   const power = powers[id]
+    //   return powerState.calculatePrice(power)
+    // }
+    return 1
   }
 
   const valueIn = useMemo(() => {
@@ -330,10 +336,10 @@ const Component = () => {
         displayFee={tokenTypeToSelect === 'input'}
         tokens={[
           ...dTokens,
-          cToken,
-          poolAddress + '-' + POOL_IDS.cp,
-          baseToken,
-          quoteToken,
+          // cToken,
+          // poolAddress + '-' + POOL_IDS.cp,
+          // baseToken,
+          // quoteToken,
           configs.addresses.nativeToken
         ].filter((address) => {
           if (

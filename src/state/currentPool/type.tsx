@@ -1,17 +1,37 @@
+import { BigNumber } from 'ethers'
+
 export interface currentPoolState {
-  baseToken: string
-  quoteToken: string
-  cToken: string
-  dTokens: string[]
-  logicAddress?: string
-  cTokenPrice: number
-  states: any
+  id: string
+  UTR: string
+  TOKEN: string
+  pools: {[key: string]: any}
+  ORACLE: string
+  TOKEN_R: string
   powers: number[]
-  basePrice: string
+  dTokens: string[]
+  states: {
+    twapBase?: BigNumber
+    spotBase?: BigNumber
+    supplyDetails?: {[key: number]: BigNumber}
+    rDetails?: {[key: number]: BigNumber}
+    R?: BigNumber
+    rC?: BigNumber
+    rDcLong?: BigNumber
+    rDcShort?: BigNumber
+  }
+  // baseToken: string
+  // quoteToken: string
+  // cToken: string
+  // dTokens: string[]
+  // logicAddress?: string
+  // cTokenPrice: number
+  // states: any
+  // powers: number[]
+  // basePrice: string
+  // poolAddress: string
+  // baseId: number,
+  // quoteId: number,
   changedIn24h: number
-  poolAddress: string
-  baseId: number,
-  quoteId: number,
   chartIsOutDate: boolean
   candleChartIsLoading: boolean
   chartTimeRange: {
@@ -23,19 +43,16 @@ export interface currentPoolState {
 }
 
 export const initialState: currentPoolState = {
-  baseToken: '',
-  quoteToken: '',
-  cToken: '',
-  dTokens: [],
-  logicAddress: undefined,
-  cTokenPrice: 0,
-  baseId: 0,
-  quoteId: 0,
+  id: '',
   states: {},
+  UTR: '',
+  TOKEN: '',
+  pools: {},
+  ORACLE: '',
+  TOKEN_R: '',
   powers: [],
-  basePrice: '0',
+  dTokens: [],
   changedIn24h: 0,
-  poolAddress: '',
   chartIsOutDate: false,
   candleChartIsLoading: false,
   chartTimeRange: {

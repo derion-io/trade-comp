@@ -18,7 +18,7 @@ import { numberToWei, weiToNumber } from '../../utils/helpers'
 export const Trade = ({ tab }: {
   tab: Symbol
 }) => {
-  const { cToken, quoteToken, baseToken, baseId, basePrice, poolAddress } = useCurrentPool()
+  const { id, TOKEN_R } = useCurrentPool()
   const { chainId, useHistory, ddlEngine } = useConfigs()
   const { tokens } = useListTokens()
   const history = useHistory()
@@ -26,50 +26,50 @@ export const Trade = ({ tab }: {
   const { width } = useWindowSize()
   const isPhone = width && width < 992
 
-  useEffect(() => {
-    if (tokens[baseToken] && tokens[quoteToken] && cToken && ddlEngine) {
-      ddlEngine.PRICE.get24hChange({
-        baseToken: tokens[baseToken],
-        cToken,
-        chainId: chainId.toString(),
-        quoteToken: tokens[quoteToken],
-        currentPrice: weiToNumber(numberToWei(basePrice), 18 + tokens[quoteToken].decimal - tokens[baseToken].decimal)
-      }).then((value1) => {
-        setChangedIn24h(value1)
-      })
-      // console.log('khanh', tokens[baseToken], tokens[quoteToken])
-      // ddlEngine.PRICE.get24hChangeByLog({
-      //   baseId,
-      //   currentPrice: basePrice,
-      //   baseToken: tokens[baseToken],
-      //   quoteToken: tokens[quoteToken],
-      //   cToken
-      // }).then((value) => {
-      //   setChangedIn24h(value)
-      // }).catch((e) => {
-      //   console.error(e)
-      //   ddlEngine.PRICE.get24hChange({
-      //     baseToken: tokens[baseToken],
-      //     cToken,
-      //     chainId: chainId.toString(),
-      //     quoteToken: tokens[quoteToken],
-      //     currentPrice: basePrice
-      //   })
-      //     .then((value1) => {
-      //       setChangedIn24h(value1)
-      //     })
-      // })
-    }
-  }, [chainId, tokens, ddlEngine, cToken, quoteToken, baseToken])
+  // useEffect(() => {
+  //   if (tokens[baseToken] && tokens[quoteToken] && cToken && ddlEngine) {
+  //     ddlEngine.PRICE.get24hChange({
+  //       baseToken: tokens[baseToken],
+  //       cToken,
+  //       chainId: chainId.toString(),
+  //       quoteToken: tokens[quoteToken],
+  //       currentPrice: weiToNumber(numberToWei(basePrice), 18 + tokens[quoteToken].decimal - tokens[baseToken].decimal)
+  //     }).then((value1) => {
+  //       setChangedIn24h(value1)
+  //     })
+  //     // console.log('khanh', tokens[baseToken], tokens[quoteToken])
+  //     // ddlEngine.PRICE.get24hChangeByLog({
+  //     //   baseId,
+  //     //   currentPrice: basePrice,
+  //     //   baseToken: tokens[baseToken],
+  //     //   quoteToken: tokens[quoteToken],
+  //     //   cToken
+  //     // }).then((value) => {
+  //     //   setChangedIn24h(value)
+  //     // }).catch((e) => {
+  //     //   console.error(e)
+  //     //   ddlEngine.PRICE.get24hChange({
+  //     //     baseToken: tokens[baseToken],
+  //     //     cToken,
+  //     //     chainId: chainId.toString(),
+  //     //     quoteToken: tokens[quoteToken],
+  //     //     currentPrice: basePrice
+  //     //   })
+  //     //     .then((value1) => {
+  //     //       setChangedIn24h(value1)
+  //     //     })
+  //     // })
+  //   }
+  // }, [chainId, tokens, ddlEngine, cToken, quoteToken, baseToken])
 
   return (
     <div className='exposure-page'>
       <div className='exposure-page__content'>
         <div className='exposure-page__content--left'>
-          <Chart changedIn24h={changedIn24h} />
-          {
+          {/*<Chart changedIn24h={changedIn24h} />*/}
+            {
             !isPhone && <div className='hidden-on-phone'>
-              <PoolDetailAndHistory poolAddress={poolAddress} />
+              <PoolDetailAndHistory poolAddress={id} />
             </div>
           }
         </div>
@@ -86,7 +86,7 @@ export const Trade = ({ tab }: {
             </TabList>
             <TabPanel>
               <Card className='trade-box card-in-tab'>
-                <ExposureBox changedIn24h={changedIn24h} />
+                {/*<ExposureBox changedIn24h={changedIn24h} />*/}
               </Card>
             </TabPanel>
             <TabPanel>
@@ -100,7 +100,7 @@ export const Trade = ({ tab }: {
           </Card>
           {
             isPhone && <div className='hidden-on-desktop'>
-              <PoolDetailAndHistory poolAddress={poolAddress} />
+              <PoolDetailAndHistory poolAddress={id} />
             </div>
           }
         </div>
