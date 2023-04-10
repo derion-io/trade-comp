@@ -204,9 +204,10 @@ export const Component = ({ changedIn24h }: {
   }, [powers, states, amountToChange, inputTokenAddress, nativePrice])
 
   const isHaveStepToSwap = () => {
-    return swapSteps.filter((step: {amountIn: BigNumber}) => {
-      return step.amountIn.gt(bn(numberToWei(1)).div(powerState?.unit || 1000000))
-    }).length > 0
+    // return swapSteps.filter((step: {amountIn: BigNumber}) => {
+    //    return step.amountIn.gt(bn(numberToWei(1)).div(powerState?.unit || 1000000))
+    // }).length > 0
+    return swapSteps.length > 0
   }
 
   const convertIfTokenIsNative = (steps: StepType[]) => {
@@ -460,9 +461,9 @@ export const Component = ({ changedIn24h }: {
             const stepToToken = getTokenByPower(step.tokenOut)
             const amountIn = step.amountIn
             const amountOut = stepsWithAmounts && stepsWithAmounts[key]?.amountOut ? stepsWithAmounts[key].amountOut : bn(0)
-            if (amountIn.lte(bn(numberToWei(1)).div(powerState?.unit || 1000000))) {
-              return ''
-            }
+            // if (amountIn.lte(bn(numberToWei(1)).div(powerState?.unit || 1000000))) {
+            //   return ''
+            // }
             return <InfoRow key={key}>
               <span>
                 <Text>{weiToNumber(amountIn, tokens[stepFromToken]?.decimal || 18, 4)}</Text>
