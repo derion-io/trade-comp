@@ -24,7 +24,7 @@ const shareOfPoolUnit = 1000
 
 export const AddLiquidityBox = ({ totalSupplyCP }: {totalSupplyCP: BigNumber}) => {
   const { account, showConnectModal } = useWeb3React()
-  const { ddlEngine } = useConfigs()
+  const { ddlEngine, configs } = useConfigs()
   const { cToken, baseToken, poolAddress, quoteToken, logicAddress } = useCurrentPool()
   const { tokens } = useListTokens()
   const { balances, routerAllowances, approveRouter } = useWalletBalance()
@@ -234,7 +234,7 @@ export const AddLiquidityBox = ({ totalSupplyCP }: {totalSupplyCP: BigNumber}) =
         <Text>Transaction Fee</Text>
         <Text>
           {weiToNumber(txFee, 18, 4)}
-          <TextGrey> BNB </TextGrey>
+          <TextGrey> {configs.nativeToken.symbol} </TextGrey>
           (${weiToNumber(txFee.mul(numberToWei(nativePrice)), 36, 2)})
         </Text>
       </InfoRow>

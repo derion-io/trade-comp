@@ -499,7 +499,7 @@ export const Component = ({ changedIn24h }: {
             <InfoRow>
               <Text>Transaction Fee</Text>
               <span>
-                <Text>{weiToNumber(txFee, 18, 4)} BNB (${weiToNumber(txFee.mul(numberToWei(nativePrice)), 36, 2)})</Text>
+                <Text>{weiToNumber(txFee, 18, 4)} {configs.nativeToken.symbol} (${weiToNumber(txFee.mul(numberToWei(nativePrice)), 36, 2)})</Text>
               </span>
             </InfoRow>
           </Box>
