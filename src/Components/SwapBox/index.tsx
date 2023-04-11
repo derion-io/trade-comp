@@ -381,7 +381,7 @@ const Component = () => {
           <span>
             <Text>
               {weiToNumber(txFee, 18, 4)}
-              <TextGrey> BNB </TextGrey>
+              <TextGrey> {configs.nativeToken.symbol} </TextGrey>
               (${weiToNumber(txFee.mul(numberToWei(nativePrice)), 36, 2)})
             </Text>
           </span>
