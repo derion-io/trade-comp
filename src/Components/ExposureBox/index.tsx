@@ -43,7 +43,7 @@ export const Component = ({ changedIn24h }: {
   const [formAddOrRemove, setFormAddOrRemove] = useState<'add' | 'remove' | undefined>(undefined)
   const [newLeverage, setNewLeverage] = useState<number>(0)
   const [newValue, setNewValue] = useState<BigNumber>()
-  const { account, showConnectModal } = useWeb3React()
+  const { account, showConnectModal, provider } = useWeb3React()
   const [loading, setLoading] = useState<boolean>(false)
   const { dTokens, cToken, states, powers, baseToken, quoteToken, cTokenPrice, basePrice, getTokenByPower, detectChangeType } = useCurrentPool()
   const { balances, routerAllowances, approveRouter, fetchBalanceAndAllowance } = useWalletBalance()
@@ -60,6 +60,7 @@ export const Component = ({ changedIn24h }: {
   const [gasUsed, setGasUsed] = useState<BigNumber>(bn(0))
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
   const [removePercent, setRemovePercent] = useState<number>()
+  const [gasPrice, setGasPrice] = useState<BigNumber>(bn(0))
 
   const { data: nativePrice } = useNativePrice()
 
@@ -73,6 +74,7 @@ export const Component = ({ changedIn24h }: {
   }
 
   useEffect(() => {
+    detectFeeData()
     setInputTokenAddress(cToken)
   }, [cToken])
 
@@ -149,12 +151,12 @@ export const Component = ({ changedIn24h }: {
       if (stepsWithAmounts.length === 0) {
         setCallError('Calculating...')
       }
-
+      console.log('@@@@@@@2',gasPrice, gasPrice.toString())
       // @ts-ignore
       ddlEngine.SWAP.calculateAmountOuts(swapSteps, isDeleverage)
         .then(([aOuts, gasUsed]) => {
           // @ts-ignore
-          setTxFee(detectTxFee(gasUsed))
+          setTxFee(detectTxFee(gasUsed, gasPrice))
           // @ts-ignore
           setGasUsed(gasUsed)
           // @ts-ignore
@@ -190,6 +192,10 @@ export const Component = ({ changedIn24h }: {
       return 1
     }
     return 0
+  }
+  const detectFeeData = async() => {
+    const feeData = await provider.getFeeData()
+    setGasPrice(feeData.gasPrice)
   }
 
   const valueIn = useMemo(() => {
@@ -258,8 +264,8 @@ export const Component = ({ changedIn24h }: {
     return { value, amount }
   }
 
-  const detectTxFee = (gasUsed: BigNumber) => {
-    return gasUsed.mul(2).div(3).mul(5 * 10 ** 9)
+  const detectTxFee = (gasUsed: BigNumber, gasPrice: BigNumber) => {
+    return gasUsed.mul(2).div(3).mul(gasPrice)
   }
 
   const renderExecuteButton = () => {

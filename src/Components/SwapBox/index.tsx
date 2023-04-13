@@ -31,7 +31,7 @@ import isEqual from 'react-fast-compare'
 import { useCpPrice, useNativePrice } from '../../hooks/useTokenPrice'
 
 const Component = () => {
-  const { account, showConnectModal } = useWeb3React()
+  const { account, showConnectModal, provider } = useWeb3React()
   const { configs, ddlEngine } = useConfigs()
   const { cTokenPrice, states, dTokens, cToken, logicAddress, poolAddress, powers, baseToken, quoteToken, basePrice } = useCurrentPool()
   const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
@@ -68,6 +68,7 @@ const Component = () => {
   }, [tokens[inputTokenAddress] && tokens[outputTokenAddress], amountIn, isDeleverage])
 
   const calcAmountOut = async (isDeleverage: boolean) => {
+    let gasPrice = await detectFeeData()
     if (!amountOut) {
       setCallError('Calculating...')
     }
@@ -81,7 +82,7 @@ const Component = () => {
       setAmountOutWei(aOuts[0]?.amountOut || bn(0))
       setAmountOut(weiToNumber(aOuts[0]?.amountOut || 0, tokens[outputTokenAddress].decimal || 18))
       // @ts-ignore
-      setTxFee(detectTxFee(gasLeft))
+      setTxFee(detectTxFee(gasLeft, gasPrice))
       // @ts-ignore
       setGasUsed(gasLeft)
       setCallError('')
@@ -100,8 +101,13 @@ const Component = () => {
     })
   }
 
-  const detectTxFee = (gasUsed: BigNumber) => {
-    return gasUsed.mul(2).div(3).mul(5 * 10 ** 9)
+  const detectTxFee = (gasUsed: BigNumber, gasPrice: BigNumber) => {
+    return gasUsed.mul(2).div(3).mul(gasPrice)
+  }
+
+  const detectFeeData = async() => {
+    let feeData = await provider.getFeeData()
+    return feeData.gasPrice
   }
 
   const revertPairAddress = () => {

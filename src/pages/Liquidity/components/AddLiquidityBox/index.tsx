@@ -23,7 +23,7 @@ import { useConfigs } from '../../../../state/config/useConfigs'
 const shareOfPoolUnit = 1000
 
 export const AddLiquidityBox = ({ totalSupplyCP }: {totalSupplyCP: BigNumber}) => {
-  const { account, showConnectModal } = useWeb3React()
+  const { account, showConnectModal, provider } = useWeb3React()
   const { ddlEngine, configs } = useConfigs()
   const { cToken, baseToken, poolAddress, quoteToken, logicAddress } = useCurrentPool()
   const { tokens } = useListTokens()
@@ -67,6 +67,7 @@ export const AddLiquidityBox = ({ totalSupplyCP }: {totalSupplyCP: BigNumber}) =
   }, [amountOut, totalSupplyCP, balances[cpAddress]])
 
   const calcAmountOut = async () => {
+    let gasPrice = await detectFeeData()
     if (!amountOut) {
       setCallError('Calculating...')
     }
@@ -80,7 +81,7 @@ export const AddLiquidityBox = ({ totalSupplyCP }: {totalSupplyCP: BigNumber}) =
       console.log(aOuts)
       setAmountOut(weiToNumber(aOuts[0]?.amountOut || 0, tokens[poolAddress + '-' + POOL_IDS.cp].decimal || 18))
       // @ts-ignore
-      setTxFee(detectTxFee(gasLeft))
+      setTxFee(detectTxFee(gasLeft, gasPrice))
       // @ts-ignore
       setCallError('')
     }).catch((e) => {
@@ -92,8 +93,13 @@ export const AddLiquidityBox = ({ totalSupplyCP }: {totalSupplyCP: BigNumber}) =
     })
   }
 
-  const detectTxFee = (gasUsed: BigNumber) => {
-    return gasUsed.mul(2).div(3).mul(5 * 10 ** 9)
+  const detectTxFee = (gasUsed: BigNumber, gasPrice: BigNumber) => {
+    return gasUsed.mul(2).div(3).mul(gasPrice)
+  }
+
+  const detectFeeData = async() => {
+    let feeData = await provider.getFeeData()
+    return feeData.gasPrice
   }
 
   const renderExecuteButton = () => {
