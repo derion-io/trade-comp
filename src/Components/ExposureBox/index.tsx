@@ -60,7 +60,7 @@ export const Component = ({ changedIn24h }: {
   const [gasUsed, setGasUsed] = useState<BigNumber>(bn(0))
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
   const [removePercent, setRemovePercent] = useState<number>()
-  const [gasPrice, setGasPrice] = useState<BigNumber>(bn(0))
+  const [gasPrice, setGasPrice] = useState<BigNumber>(bn(5 * 10 ** 9))
 
   const { data: nativePrice } = useNativePrice()
 
@@ -73,12 +73,12 @@ export const Component = ({ changedIn24h }: {
     setLoading(false)
   }
 
-  const getGas = async() => {
+  const setGas = async() => {
     setGasPrice(await getGasPrice(provider))
   }
 
   useEffect(() => {
-    getGas()
+    setGas()
     setInputTokenAddress(cToken)
   }, [cToken])
 
