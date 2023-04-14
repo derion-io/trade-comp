@@ -28,7 +28,7 @@ import { PowerState } from 'powerLib'
 import { useConfigs } from '../../state/config/useConfigs'
 import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import isEqual from 'react-fast-compare'
-import { useCpPrice, useNativePrice } from '../../hooks/useTokenPrice'
+import { useCpPrice, useNativePrice, getGasPrice } from '../../hooks/useTokenPrice'
 
 const Component = () => {
   const { account, showConnectModal, provider } = useWeb3React()
@@ -68,7 +68,7 @@ const Component = () => {
   }, [tokens[inputTokenAddress] && tokens[outputTokenAddress], amountIn, isDeleverage])
 
   const calcAmountOut = async (isDeleverage: boolean) => {
-    let gasPrice = await detectFeeData()
+    let gasPrice = await getGasPrice(provider)
     if (!amountOut) {
       setCallError('Calculating...')
     }
@@ -101,13 +101,8 @@ const Component = () => {
     })
   }
 
-  const detectTxFee = (gasUsed: BigNumber, gasPrice: BigNumber) => {
+  const detectTxFee = (gasUsed: BigNumber, gasPrice: BigNumber = bn(5 * 10 ** 9)) => {
     return gasUsed.mul(2).div(3).mul(gasPrice)
-  }
-
-  const detectFeeData = async() => {
-    let feeData = await provider.getFeeData()
-    return feeData.gasPrice
   }
 
   const revertPairAddress = () => {

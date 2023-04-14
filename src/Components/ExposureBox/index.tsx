@@ -34,7 +34,7 @@ import { StepType } from '../../utils/type'
 import { RemoveForm } from './RemoveForm'
 import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import isEqual from 'react-fast-compare'
-import { useNativePrice } from '../../hooks/useTokenPrice'
+import { useNativePrice, getGasPrice } from '../../hooks/useTokenPrice'
 
 export const Component = ({ changedIn24h }: {
   changedIn24h: number
@@ -73,8 +73,12 @@ export const Component = ({ changedIn24h }: {
     setLoading(false)
   }
 
+  const getGas = async() => {
+    setGasPrice(await getGasPrice(provider))
+  }
+
   useEffect(() => {
-    detectFeeData()
+    getGas()
     setInputTokenAddress(cToken)
   }, [cToken])
 
@@ -151,7 +155,6 @@ export const Component = ({ changedIn24h }: {
       if (stepsWithAmounts.length === 0) {
         setCallError('Calculating...')
       }
-      console.log('@@@@@@@2',gasPrice, gasPrice.toString())
       // @ts-ignore
       ddlEngine.SWAP.calculateAmountOuts(swapSteps, isDeleverage)
         .then(([aOuts, gasUsed]) => {
@@ -192,10 +195,6 @@ export const Component = ({ changedIn24h }: {
       return 1
     }
     return 0
-  }
-  const detectFeeData = async() => {
-    const feeData = await provider.getFeeData()
-    setGasPrice(feeData.gasPrice)
   }
 
   const valueIn = useMemo(() => {

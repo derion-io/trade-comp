@@ -17,7 +17,7 @@ import { IconArrowDown } from '../../../../Components/ui/Icon'
 import { POOL_IDS } from '../../../../utils/constant'
 import { BigNumber } from 'ethers'
 import { useWeb3React } from '../../../../state/customWeb3React/hook'
-import { useNativePrice } from '../../../../hooks/useTokenPrice'
+import { useNativePrice, getGasPrice } from '../../../../hooks/useTokenPrice'
 import { useConfigs } from '../../../../state/config/useConfigs'
 
 const shareOfPoolUnit = 1000
@@ -67,7 +67,7 @@ export const AddLiquidityBox = ({ totalSupplyCP }: {totalSupplyCP: BigNumber}) =
   }, [amountOut, totalSupplyCP, balances[cpAddress]])
 
   const calcAmountOut = async () => {
-    let gasPrice = await detectFeeData()
+    let gasPrice = await getGasPrice(provider)
     if (!amountOut) {
       setCallError('Calculating...')
     }
@@ -93,13 +93,8 @@ export const AddLiquidityBox = ({ totalSupplyCP }: {totalSupplyCP: BigNumber}) =
     })
   }
 
-  const detectTxFee = (gasUsed: BigNumber, gasPrice: BigNumber) => {
+  const detectTxFee = (gasUsed: BigNumber, gasPrice: BigNumber = bn(5 * 10 ** 9)) => {
     return gasUsed.mul(2).div(3).mul(gasPrice)
-  }
-
-  const detectFeeData = async() => {
-    let feeData = await provider.getFeeData()
-    return feeData.gasPrice
   }
 
   const renderExecuteButton = () => {

@@ -30,3 +30,8 @@ export const useCpPrice = () => {
     return undefined
   })
 }
+
+export const getGasPrice = async(provider: any) => {
+  let feeData = await provider.getFeeData()
+  return feeData.gasPrice
+}
