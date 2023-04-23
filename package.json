@@ -39,7 +39,7 @@
     "@uniswap/v3-sdk": "^3.9.0",
     "assisted-json-rpc-provider": "git+ssh://git@github.com:derivable-labs/AssistedJsonRpcProvider.git#1662bda1343be76618331a2d671bfa56f0d0e305",
     "caniuse-lite": "^1.0.30001434",
-    "derivable-tools": "git+ssh://git@github.com:blackskin18/derivable-tools.git#914804f200950ef530c10e6256733504464938f2",
+    "derivable-tools": "git+ssh://git@github.com:blackskin18/derivable-tools.git#7dfcd8b78c0b6275395727bf478a488c25c42bae",
     "ethereum-multicall": "^2.15.0",
     "ethers": "^5.4.6",
     "graphql": "^15.5.0",
