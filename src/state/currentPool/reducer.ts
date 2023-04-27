@@ -1,6 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { initialState } from './type'
+import { TokenType } from '../token/type'
 
 export const tokens = createSlice({
   name: 'pool',
@@ -28,6 +29,11 @@ export const tokens = createSlice({
         states: any,
         powers: number[]
         dTokens: string[]
+        allTokens: string[]
+        pair: {
+          token0?: TokenType,
+          token1?: TokenType
+        }
       }>
     ) => {
       state.id = action.payload.id
@@ -39,6 +45,8 @@ export const tokens = createSlice({
       state.states = action.payload.states
       state.powers = action.payload.powers
       state.dTokens = action.payload.dTokens
+      state.allTokens = action.payload.allTokens
+      state.pair = action.payload.pair
     },
     setChartTimeRange: (state, action: PayloadAction<{
       timeRange: {from: number, to: number}

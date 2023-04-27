@@ -75,8 +75,8 @@ export const App = () => {
         return <Trade tab={detectTradeTab(location.pathname)} />
       case isMatchWithPath('/pools'):
         return <Pools />
-      case isMatchWithPath('/:tab(add-liquidity|remove-liquidity)'):
-        return <Liquidity tab={detectLiquidityTab(location.pathname)} />
+      // case isMatchWithPath('/:tab(add-liquidity|remove-liquidity)'):
+      //   return <Liquidity tab={detectLiquidityTab(location.pathname)} />
       default:
         return <Trade tab={SWAP_TAB.EXPOSURE} />
     }

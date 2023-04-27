@@ -2,6 +2,7 @@
 
 export interface TokenType {
   decimal: number
+  decimals?: number
   name: string
   symbol: string
   icon?: string

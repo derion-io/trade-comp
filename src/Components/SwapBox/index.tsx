@@ -15,20 +15,19 @@ import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../state/token/hook'
 import {
   bn,
-  decodeErc1155Address, formatFloat, isErc1155Address,
+  decodeErc1155Address, formatFloat,
   numberToWei,
   parseCallStaticError,
-  parseUq112x112,
   weiToNumber
 } from '../../utils/helpers'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
-import { POOL_IDS } from '../../utils/constant'
+import { NATIVE_ADDRESS } from '../../utils/constant'
 import { PowerState } from 'powerLib'
 import { useConfigs } from '../../state/config/useConfigs'
 import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import isEqual from 'react-fast-compare'
-import { useCpPrice, useNativePrice } from '../../hooks/useTokenPrice'
+import { useNativePrice } from '../../hooks/useTokenPrice'
 import { toast } from 'react-toastify'
 import { ApproveUtrModal } from '../ApproveUtrModal'
 import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
@@ -36,7 +35,7 @@ import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 const Component = () => {
   const { account, showConnectModal } = useWeb3React()
   const { configs, ddlEngine } = useConfigs()
-  const { TOKEN_R, states, powers, dTokens } = useCurrentPool()
+  const { states, powers, dTokens, allTokens } = useCurrentPool()
   const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
@@ -49,30 +48,30 @@ const Component = () => {
   const [txFee, setTxFee] = useState<BigNumber>(bn(0))
   const [gasUsed, setGasUsed] = useState<BigNumber>(bn(0))
   const [loading, setLoading] = useState<boolean>(false)
-  const [isDeleverage, setIsDeleverage] = useState<boolean>(false)
   const [visibleApproveModal, setVisibleApproveModal] = useState<boolean>(false)
   const { tokens } = useListTokens()
   const { updateSwapTxsHandle } = useSwapHistory()
   const { data: nativePrice } = useNativePrice()
-  const { data: cpPrice } = useCpPrice()
+  // const { data: cpPrice } = useCpPrice()
 
   useEffect(() => {
-    setInputTokenAddress(TOKEN_R || '')
-    setOutputTokenAddress(TOKEN_R)
-  }, [TOKEN_R])
+    console.log(dTokens)
+    setInputTokenAddress(NATIVE_ADDRESS || '')
+    setOutputTokenAddress(dTokens[0])
+  }, [dTokens])
 
   useEffect(() => {
     if (tokens[inputTokenAddress] && tokens[outputTokenAddress] && amountIn && Number(amountIn)) {
-      calcAmountOut(isDeleverage)
+      calcAmountOut()
     } else if (Number(amountIn) === 0) {
       setAmountOut('')
       setTxFee(bn(0))
       setGasUsed(bn(0))
       setAmountOutWei(bn(0))
     }
-  }, [tokens[inputTokenAddress] && tokens[outputTokenAddress], amountIn, isDeleverage])
+  }, [tokens[inputTokenAddress] && tokens[outputTokenAddress], amountIn])
 
-  const calcAmountOut = async (isDeleverage: boolean) => {
+  const calcAmountOut = async () => {
     if (!amountOut) {
       setCallError('Calculating...')
     }
@@ -81,7 +80,7 @@ const Component = () => {
       tokenIn: inputTokenAddress,
       tokenOut: outputTokenAddress,
       amountIn: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))
-    }], isDeleverage).then((res: any) => {
+    }]).then((res: any) => {
       const [aOuts, gasLeft] = res
       setAmountOutWei(aOuts[0]?.amountOut || bn(0))
       setAmountOut(weiToNumber(aOuts[0]?.amountOut || 0, tokens[outputTokenAddress].decimal || 18))
@@ -92,11 +91,6 @@ const Component = () => {
       setCallError('')
     }).catch((e: any) => {
       const error = parseCallStaticError(e)
-      if (error === 'deleverage') {
-        setIsDeleverage(true)
-      } else if (error === '!deleverage') {
-        setIsDeleverage(false)
-      }
       setAmountOut('0')
       setTxFee(bn(0))
       setGasUsed(bn(0))
@@ -146,12 +140,6 @@ const Component = () => {
           try {
             setLoading(true)
             if (ddlEngine) {
-              console.log('khanh', {
-                tokenIn: inputTokenAddress,
-                tokenOut: outputTokenAddress,
-                amountIn: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18)),
-                amountOutMin: 0
-              })
               const tx: any = await ddlEngine.SWAP.multiSwap(
                 [{
                   tokenIn: inputTokenAddress,
@@ -159,8 +147,7 @@ const Component = () => {
                   amountIn: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18)),
                   amountOutMin: 0
                 }],
-                gasUsed && gasUsed.gt(0) ? gasUsed.mul(2) : undefined,
-                isDeleverage
+                gasUsed && gasUsed.gt(0) ? gasUsed.mul(2) : undefined
               )
               const swapLogs = ddlEngine.RESOURCE.parseDdlLogs(tx && tx?.logs ? tx.logs : [])
               updateSwapTxsHandle(account, swapLogs)
@@ -173,7 +160,7 @@ const Component = () => {
             toast.error('Error')
           }
         }}
-      >{isDeleverage && 'Deleverage & '} Swap</ButtonExecute>
+      >Swap</ButtonExecute>
     }
   }
 
@@ -335,7 +322,8 @@ const Component = () => {
         setVisible={setVisibleSelectTokenModal}
         displayFee={tokenTypeToSelect === 'input'}
         tokens={[
-          ...dTokens,
+          ...allTokens,
+          // ...dTokens,
           // cToken,
           // poolAddress + '-' + POOL_IDS.cp,
           // baseToken,
@@ -395,24 +383,12 @@ const Component = () => {
         </InfoRow>
       </Box>
 
-      {isDeleverage &&
-      <Box className='text-center'>
-        <input
-          type='checkbox'
-          checked={isDeleverage}
-          id='is-deleverage' onChange={(e) => {
-            setIsDeleverage(e.target.checked)
-          }} />
-        <label htmlFor='is-deleverage'> Deleverage</label>
-      </Box>
-      }
-
       <div className='actions'>
         {renderExecuteButton()}
       </div>
 
       <ApproveUtrModal
-        callBack={() => { calcAmountOut(isDeleverage) }}
+        callBack={() => {}}
         visible={visibleApproveModal}
         setVisible={setVisibleApproveModal}
         inputTokenAddress={inputTokenAddress}

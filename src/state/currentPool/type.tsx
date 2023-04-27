@@ -1,14 +1,20 @@
 import { BigNumber } from 'ethers'
+import { TokenType } from '../token/type'
 
 export interface currentPoolState {
   id: string
   UTR: string
   TOKEN: string
   pools: {[key: string]: any}
+  pair: {
+    token0?: TokenType,
+    token1?: TokenType
+  }
   ORACLE: string
   TOKEN_R: string
   powers: number[]
   dTokens: string[]
+  allTokens: string[]
   states: {
     twapBase?: BigNumber
     spotBase?: BigNumber
@@ -19,18 +25,6 @@ export interface currentPoolState {
     rDcLong?: BigNumber
     rDcShort?: BigNumber
   }
-  // baseToken: string
-  // quoteToken: string
-  // cToken: string
-  // dTokens: string[]
-  // logicAddress?: string
-  // cTokenPrice: number
-  // states: any
-  // powers: number[]
-  // basePrice: string
-  // poolAddress: string
-  // baseId: number,
-  // quoteId: number,
   changedIn24h: number
   chartIsOutDate: boolean
   candleChartIsLoading: boolean
@@ -49,9 +43,14 @@ export const initialState: currentPoolState = {
   TOKEN: '',
   pools: {},
   ORACLE: '',
+  pair: {
+    token0: undefined,
+    token1: undefined
+  },
   TOKEN_R: '',
   powers: [],
   dTokens: [],
+  allTokens: [],
   changedIn24h: 0,
   chartIsOutDate: false,
   candleChartIsLoading: false,

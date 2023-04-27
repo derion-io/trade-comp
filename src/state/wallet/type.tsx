@@ -5,12 +5,17 @@ export type AllowancesType = { [key: string]: BigNumber }
 export type SwapTxType = {
   transactionHash: string,
   timeStamp: number,
-  oldBalances: {[key: number]: BigNumber},
-  newBalances: {[key: number]: BigNumber},
-  cAmount: BigNumber,
-  cp: BigNumber,
-  newLeverage: number,
-  oldLeverage: number,
+  blockNumber: number,
+  poolIn: string,
+  poolOut: string,
+  tokenIn: string,
+  tokenOut: string,
+  payer: string,
+  recipient: string,
+  sideIn: BigNumber,
+  sideOut: BigNumber,
+  amountIn: BigNumber,
+  amountOut: BigNumber
 }
 
 export interface walletState {

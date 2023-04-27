@@ -12,21 +12,21 @@ export const useNativePrice = () => {
   })
 }
 
-export const useCpPrice = () => {
-  const { ddlEngine } = useConfigs()
-  const { poolAddress, cToken, cTokenPrice, states } = useCurrentPool()
-  return useSWR({
-    params: {
-      poolAddress,
-      cToken,
-      cTokenPrice,
-      states
-    },
-    ddlEngine
-  }, ({ params, ddlEngine }) => {
-    if (ddlEngine) {
-      return ddlEngine.PRICE.fetchCpPrice(params)
-    }
-    return undefined
-  })
-}
+// export const useCpPrice = () => {
+//   const { ddlEngine } = useConfigs()
+//   const { poolAddress, cToken, cTokenPrice, states } = useCurrentPool()
+//   return useSWR({
+//     params: {
+//       poolAddress,
+//       cToken,
+//       cTokenPrice,
+//       states
+//     },
+//     ddlEngine
+//   }, ({ params, ddlEngine }) => {
+//     if (ddlEngine) {
+//       return ddlEngine.PRICE.fetchCpPrice(params)
+//     }
+//     return undefined
+//   })
+// }

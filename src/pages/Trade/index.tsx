@@ -37,7 +37,6 @@ export const Trade = ({ tab }: {
   //     }).then((value1) => {
   //       setChangedIn24h(value1)
   //     })
-  //     // console.log('khanh', tokens[baseToken], tokens[quoteToken])
   //     // ddlEngine.PRICE.get24hChangeByLog({
   //     //   baseId,
   //     //   currentPrice: basePrice,

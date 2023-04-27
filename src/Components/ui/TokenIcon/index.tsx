@@ -12,7 +12,7 @@ export const TokenIcon = (props: {
   tokenAddress?: string
   size?: number
 }) => {
-  const { powers, poolAddress, cToken } = useCurrentPool()
+  const { TOKEN_R, pools } = useCurrentPool()
   const { getTokenIconUrl } = useHelper()
   const [isError, setIsError] = useState<boolean>(!props.src)
   const style = {
@@ -30,24 +30,27 @@ export const TokenIcon = (props: {
   }, [props.src])
 
   const poolToken = useMemo(() => {
-    if (props.tokenAddress && isErc1155Address(props.tokenAddress)) {
-      const { id } = decodeErc1155Address(props.tokenAddress)
-      if (Number(id) === POOL_IDS.cp) {
+    if (pools && pools.length > 0 && props.tokenAddress && isErc1155Address(props.tokenAddress)) {
+      const { id, address } = decodeErc1155Address(props.tokenAddress)
+      const pool = pools.find((p: any) => p.poolAddress === address)
+      const k = pool.k.toNumber()
+      const power = Number(id) === Number(POOL_IDS.A) ? (1 + k / 2) : (1 - k / 2)
+      if (Number(id) === POOL_IDS.C) {
         return <div style={style} className='pool-token-logo pool-token-logo__cp'>CP</div>
       }
       return <div
         style={style}
-        className={`pool-token-logo ${powers[id] > 0 ? 'pool-token-logo__long' : 'pool-token-logo__short'}`}
+        className={`pool-token-logo ${power > 0 ? 'pool-token-logo__long' : 'pool-token-logo__short'}`}
       >
-        {powers[id] > 0 && '+'}{powers[id]}
+        {power > 0 && '+'}{power}
       </div>
-    } else if (props.tokenAddress === poolAddress) {
-      return <div style={style} className='pool-token-logo pool-token-logo__cp'>CP</div>
-    } else if (props.tokenAddress === cToken) {
-      return <div style={style} className='pool-token-logo pool-token-logo__lp'>LP</div>
+    } else if (props.tokenAddress === TOKEN_R) {
+      return <div style={style} className='pool-token-logo pool-token-logo__cp'>LP</div>
+    } else if (props.tokenAddress?.includes('-' + POOL_IDS.C)) {
+      return <div style={style} className='pool-token-logo pool-token-logo__lp'>CP</div>
     }
     return ''
-  }, [props.tokenAddress])
+  }, [pools, props.tokenAddress])
 
   const src = useMemo(() => {
     if (props.src) return props.src

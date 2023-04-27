@@ -16,6 +16,8 @@ export const useCurrentPool = () => {
     ORACLE,
     TOKEN_R,
     // pools,
+    allTokens,
+    pair,
     states,
     powers,
     dTokens,
@@ -32,6 +34,8 @@ export const useCurrentPool = () => {
       ORACLE: state.currentPool.ORACLE,
       TOKEN_R: state.currentPool.TOKEN_R,
       pools: state.currentPool.pools,
+      pair: state.currentPool.pair,
+      allTokens: state.currentPool.allTokens,
       states: state.currentPool.states,
       powers: state.currentPool.powers,
       dTokens: state.currentPool.dTokens,
@@ -115,6 +119,8 @@ export const useCurrentPool = () => {
     TOKEN_R,
     powers,
     dTokens,
+    pair,
+    allTokens,
     id
   }
 }

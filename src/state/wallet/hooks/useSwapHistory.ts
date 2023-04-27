@@ -35,17 +35,14 @@ export const useSwapHistory = () => {
 
 export const useSwapHistoryFormated = () => {
   const { swapLogs: sls } = useSwapHistory()
-  const { powers, states, poolAddress } = useCurrentPool()
+  const { states } = useCurrentPool()
   const { ddlEngine } = useConfigs()
   const dispatch = useDispatch()
 
   useEffect(() => {
-    if (ddlEngine?.CURRENT_POOL.poolAddress) {
+    if (ddlEngine?.CURRENT_POOL.TOKEN) {
       const swapTxs = ddlEngine?.HISTORY.formatSwapHistory({
-        logs: sls,
-        poolAddress: poolAddress,
-        states: states,
-        powers: powers
+        logs: sls
       })
       dispatch(updateFormatedSwapTxs({ swapTxs }))
     }

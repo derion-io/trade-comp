@@ -20,7 +20,7 @@ import { useContract } from '../../hooks/useContract'
 export const Liquidity = ({ tab }: {
   tab: Symbol
 }) => {
-  const { poolAddress } = useCurrentPool()
+  // const { poolAddress } = useCurrentPool()
   const { useHistory } = useConfigs()
   const history = useHistory()
   const { width } = useWindowSize()
@@ -28,14 +28,14 @@ export const Liquidity = ({ tab }: {
   const [totalSupplyCP, setTotalSupplyCP] = useState<BigNumber>(bn(0))
   const { getPoolContract } = useContract()
 
-  useEffect(() => {
-    const fetchTotalSyupply = async () => {
-      const contract = getPoolContract(poolAddress)
-      const res = await contract.totalSupply(POOL_IDS.cp)
-      setTotalSupplyCP(res)
-    }
-    fetchTotalSyupply()
-  }, [poolAddress])
+  // useEffect(() => {
+  //   const fetchTotalSyupply = async () => {
+  //     const contract = getPoolContract(poolAddress)
+  //     const res = await contract.totalSupply(POOL_IDS.cp)
+  //     setTotalSupplyCP(res)
+  //   }
+  //   fetchTotalSyupply()
+  // }, [poolAddress])
 
   return (
     <div className='exposure-page'>
@@ -53,7 +53,7 @@ export const Liquidity = ({ tab }: {
         <div className='exposure-page__content--left'>
           {
             !isPhone && <div className='hidden-on-phone'>
-              <PoolDetailAndHistory poolAddress={poolAddress}/>
+              {/*<PoolDetailAndHistory poolAddress={poolAddress}/>*/}
             </div>
           }
         </div>
@@ -84,7 +84,7 @@ export const Liquidity = ({ tab }: {
           </Card>
           {
             isPhone && <div className='hidden-on-desktop'>
-              <PoolDetailAndHistory poolAddress={poolAddress}/>
+              {/*<PoolDetailAndHistory poolAddress={poolAddress}/>*/}
             </div>
           }
         </div>

@@ -2,6 +2,9 @@
 @import "../../styles/abstracts/mixins";
 
 .exposure-interface .wallet-history-table {
+  table {
+    width: 100%
+  }
   &-wrap {
     background: $color-card-bg;
     border-radius: 20px;

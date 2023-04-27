@@ -8,16 +8,32 @@ import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import moment from 'moment'
 import { Text, TextBlue, TextBuy, TextLink, TextPink, TextSell } from '../ui/Text'
 import { useConfigs } from '../../state/config/useConfigs'
-import { bn, formatFloat } from '../../utils/helpers'
-import { POOL_IDS } from '../../utils/constant'
+import { formatFloat } from '../../utils/helpers'
+import { NATIVE_ADDRESS, POOL_IDS } from '../../utils/constant'
 import { BigNumber } from 'ethers'
 import { getErc20AmountChange } from '../../utils/swapHistoryHelper'
 import isEqual from 'react-fast-compare'
 
 const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
-  const { cToken, baseId, poolAddress, quoteId, baseToken, quoteToken, setChartTimeFocus } = useCurrentPool()
+  const { setChartTimeFocus, TOKEN_R } = useCurrentPool()
   const { tokens } = useListTokens()
   const { configs } = useConfigs()
+
+  const getColor = (address: string) => {
+    if (address === NATIVE_ADDRESS || address === TOKEN_R) {
+      return TextPink
+    }
+    const id = address.split('-')[1]
+    if (Number(id) === POOL_IDS.C) {
+      return TextBlue
+    } else if (Number(id) === POOL_IDS.B) {
+      return TextSell
+    } else if (Number(id) === POOL_IDS.A) {
+      return TextBuy
+    } else {
+      return Text
+    }
+  }
 
   return (
     <div className='wallet-history-table-wrap'>
@@ -29,20 +45,8 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
           <tbody>
             {
               swapTxs.map((swapTx, key) => {
-                const leverageChange = swapTx.oldLeverage !== swapTx.newLeverage
-                  ? <span>
-                    {swapTx.oldLeverage ? <Leverage leverage={swapTx.oldLeverage} /> : <TextPink>0</TextPink>}
-                    {swapTx.newLeverage || swapTx.oldLeverage ? ' -> ' : ''}
-                    {swapTx.newLeverage ? <Leverage leverage={swapTx.newLeverage} /> : <TextPink>0</TextPink>}
-                  </span>
-                  : ''
-
-                const cChange = getErc20AmountChange(swapTx.oldBalances, swapTx.newBalances, POOL_IDS.cToken)
-                const nativeChange = getErc20AmountChange(swapTx.oldBalances, swapTx.newBalances, POOL_IDS.native)
-                const cpChange = getErc20AmountChange(swapTx.newBalances, swapTx.oldBalances, POOL_IDS.cp)
-                const baseChange = getErc20AmountChange(swapTx.oldBalances, swapTx.newBalances, baseId)
-                const quoteChange = getErc20AmountChange(swapTx.oldBalances, swapTx.newBalances, quoteId)
-
+                const TextIn = getColor(swapTx.tokenIn)
+                const TextOut = getColor(swapTx.tokenOut)
                 return <tr className='wallet-history-table__row' key={key} onClick={() => {
                   setChartTimeFocus(0)
                   setTimeout(() => {
@@ -50,30 +54,17 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
                   })
                 }}>
                   <td className='wallet-history-table__time'>
-                    <TextLink href={configs.explorer + '/tx/' + swapTx.transactionHash}>{swapTx.timeStamp && getTimeLabel(swapTx.timeStamp) + ' ago'}</TextLink>
+                    <TextLink
+                      href={configs.explorer + '/tx/' + swapTx.transactionHash}>{swapTx.timeStamp && getTimeLabel(swapTx.timeStamp) + ' ago'}</TextLink>
                   </td>
                   <td className='wallet-history-table__ctoken-change'>
-                    <AmountChange amountChange={cChange} address={cToken} />
-                    <AmountChange amountChange={nativeChange} address={configs.addresses.nativeToken} />
-                    <AmountChange amountChange={quoteChange} address={quoteToken} />
-                    <AmountChange amountChange={baseChange} address={baseToken} />
+                    <Text>{formatWeiToDisplayNumber(swapTx.amountIn, 4, tokens[swapTx.tokenIn].decimal)}</Text>
+                    <TextIn><TokenSymbol token={tokens[swapTx.tokenIn]} /></TextIn>
                   </td>
-                  {
-                    (cChange.gt(0) || nativeChange.gt(0) || quoteChange.gt(0) || baseChange.gt(0))
-                      ? <td className='wallet-history-table__arrow text-buy'>{'->'}</td>
-                      : (cChange.isNegative() || nativeChange.isNegative() || quoteChange.isNegative() || baseChange.isNegative())
-                        ? <td className='wallet-history-table__arrow text-sell'>{'<-'}</td>
-                        : <td />
-                  }
-                  <td>
-                    {
-                      !cpChange.isZero() &&
-                  <span>
-                    <TextBlue>CP </TextBlue>
-                    {formatWeiToDisplayNumber(cpChange, 4, tokens[poolAddress + '-' + POOL_IDS.cp]?.decimal || 18)}
-                  </span>
-                    }
-                    {swapTx.oldLeverage !== swapTx.newLeverage && <span>{leverageChange}</span>}
+                  <td className='text-center wallet-history-table__arrow'><TextOut> {'->'} </TextOut></td>
+                  <td className='text-right'>
+                    <Text>{formatWeiToDisplayNumber(swapTx.amountOut, 4, tokens[swapTx.tokenIn].decimal)} </Text>
+                    <TextOut><TokenSymbol token={tokens[swapTx.tokenOut]} /></TextOut>
                   </td>
                 </tr>
               })
