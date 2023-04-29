@@ -94,9 +94,9 @@ export const Trade = ({ tab }: {
               </Card>
             </TabPanel>
           </Tabs>
-          <Card>
-            <PoolTableCompact />
-          </Card>
+          {/*<Card>*/}
+          {/*  <PoolTableCompact />*/}
+          {/*</Card>*/}
           {
             isPhone && <div className='hidden-on-desktop'>
               <PoolDetailAndHistory poolAddress={id} />

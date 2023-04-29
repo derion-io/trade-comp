@@ -35,7 +35,7 @@ import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 const Component = () => {
   const { account, showConnectModal } = useWeb3React()
   const { configs, ddlEngine } = useConfigs()
-  const { states, powers, dTokens, allTokens } = useCurrentPool()
+  const { states, powers, dTokens, allTokens, id } = useCurrentPool()
   const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
@@ -55,10 +55,9 @@ const Component = () => {
   // const { data: cpPrice } = useCpPrice()
 
   useEffect(() => {
-    console.log(dTokens)
     setInputTokenAddress(NATIVE_ADDRESS || '')
     setOutputTokenAddress(dTokens[0])
-  }, [dTokens])
+  }, [id])
 
   useEffect(() => {
     if (tokens[inputTokenAddress] && tokens[outputTokenAddress] && amountIn && Number(amountIn)) {
@@ -150,7 +149,7 @@ const Component = () => {
                 gasUsed && gasUsed.gt(0) ? gasUsed.mul(2) : undefined
               )
               const swapLogs = ddlEngine.RESOURCE.parseDdlLogs(tx && tx?.logs ? tx.logs : [])
-              updateSwapTxsHandle(account, swapLogs)
+              updateSwapTxsHandle(account, swapLogs.filter((l: any) => l.address))
               await fetchBalanceAndAllowance(Object.keys(tokens))
             }
             setLoading(false)

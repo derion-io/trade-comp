@@ -41,6 +41,7 @@ export const useSwapHistoryFormated = () => {
 
   useEffect(() => {
     if (ddlEngine?.CURRENT_POOL.TOKEN) {
+      console.log('sls', sls)
       const swapTxs = ddlEngine?.HISTORY.formatSwapHistory({
         logs: sls
       })

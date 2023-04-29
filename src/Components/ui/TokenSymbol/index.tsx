@@ -22,7 +22,7 @@ export const TokenSymbol = ({ token }: {token: TokenType}) => {
     //   return <span className='font-size-14'>{symbol}_{tokens[baseToken]?.symbol}_{tokens[quoteToken]?.symbol}</span>
     // }
     return <span className='font-size-14'>{symbol}</span>
-  }, [pair])
+  }, [pair, token])
 
   return <React.Fragment>{result}</React.Fragment>
 }
