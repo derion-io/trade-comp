@@ -6,7 +6,7 @@ import { addTokensReduce } from '../token/reducer'
 import { Engine } from 'derivable-tools/dist/engine'
 import { useWeb3React } from '../customWeb3React/hook'
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { ZERO_ADDRESS } from '../../utils/constant'
+import { DEFAULT_CHAIN, ZERO_ADDRESS } from '../../utils/constant'
 
 export const useInitConfig = (
   {
@@ -33,13 +33,13 @@ export const useInitConfig = (
   useEffect(() => {
     console.log(chainId)
     dispatch(addTokensReduce({
-      tokens: [configs[chainId || 56].nativeToken],
-      chainId: chainId || 56
+      tokens: [configs[chainId || DEFAULT_CHAIN].nativeToken],
+      chainId: chainId || DEFAULT_CHAIN
     }))
     dispatch(
       setConfigs({
-        configs: configs[chainId || 56],
-        chainId: chainId || 56,
+        configs: configs[chainId || DEFAULT_CHAIN],
+        chainId: chainId || DEFAULT_CHAIN,
         useSubPage,
         language,
         env,

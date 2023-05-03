@@ -125,11 +125,11 @@ const Component = () => {
     } else if (!balances[inputTokenAddress] || balances[inputTokenAddress].lt(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))) {
       return <ButtonExecute className='swap-button'
         disabled> Insufficient {tokens[inputTokenAddress].symbol} Amount </ButtonExecute>
-    } else if (!routerAllowances[address] || routerAllowances[address].lt(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))) {
-      return <ButtonExecute
-        className='swap-button'
-        onClick={() => { setVisibleApproveModal(true) }}
-      >Use EIP-6120</ButtonExecute>
+    // } else if (!routerAllowances[address] || routerAllowances[address].lt(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))) {
+    //   return <ButtonExecute
+    //     className='swap-button'
+    //     onClick={() => { setVisibleApproveModal(true) }}
+    //   >Use EIP-6120</ButtonExecute>
     } else if (callError) {
       return <ButtonExecute className='swap-button' disabled>{callError}</ButtonExecute>
     } else {
