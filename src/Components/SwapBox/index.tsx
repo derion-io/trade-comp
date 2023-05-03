@@ -55,6 +55,7 @@ const Component = () => {
   // const { data: cpPrice } = useCpPrice()
 
   useEffect(() => {
+    console.log('id', id)
     setInputTokenAddress(NATIVE_ADDRESS || '')
     setOutputTokenAddress(dTokens[0])
   }, [id])

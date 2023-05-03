@@ -9,7 +9,7 @@ export const TokenSymbol = ({ token }: {token: TokenType}) => {
     if (symbol && symbol.includes('^') && symbol.split('^').length === 2) {
       const arr = symbol.split('^')
       const power = arr[1]
-      let baseSymbol = pair.token0?.symbol ?? 'ETH'
+      let baseSymbol = pair?.token0?.symbol ?? 'ETH'
       if (baseSymbol.startsWith('W')) {
         baseSymbol = baseSymbol.substring(1)
       }

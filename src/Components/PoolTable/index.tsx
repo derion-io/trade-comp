@@ -34,8 +34,8 @@ const Component = () => {
             </td>
           </tr> */}
           {
-            Object.values(pools).map((pool, key) => {
-              return <PoolRow pool={pool} key={key} />
+            Object.keys(pools).map((id, key) => {
+              return <PoolRow pool={pools[id]} id={id} key={key} />
             })
           }
         </tbody>

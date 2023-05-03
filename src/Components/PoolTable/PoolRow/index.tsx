@@ -14,7 +14,7 @@ import { ExpandPool } from '../ExpandPool'
 import './style.scss'
 import isEqual from 'react-fast-compare'
 
-const Component = ({ pool }: { pool: PoolType }) => {
+const Component = ({ pool, id }: { pool: PoolType, id: string }) => {
   const { balances } = useWalletBalance()
   const { tokens } = useListTokens()
   const [isExpand, setIsExpand] = useState<boolean>(true)
@@ -90,12 +90,12 @@ const Component = ({ pool }: { pool: PoolType }) => {
       <td className='text-right pool-actions'>
         <ButtonGrey
           onClick={async () => {
-            updateCurrentPool(pool.poolAddress)
+            await updateCurrentPool(id)
             history.push('swap')
           }}>Swap</ButtonGrey>
         <ButtonGrey
           onClick={async () => {
-            updateCurrentPool(pool.poolAddress)
+            await updateCurrentPool(id)
             history.push('exposure')
           }}
         >
