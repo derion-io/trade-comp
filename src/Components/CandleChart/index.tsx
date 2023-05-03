@@ -33,6 +33,13 @@ export interface ChartContainerProps {
   logo?: any
 }
 
+// TODO: need to update hardcode address
+const cToken = '0x905dfCD5649217c42684f23958568e533C711Aa3'
+const baseToken = '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1'
+const quoteToken = '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8'
+
+// TODO: need to fix chart decimal
+
 const Component = ({
   interval,
   containerId,
@@ -46,9 +53,6 @@ const Component = ({
   const [tradingviewWidget, setTradingviewWidget] = useState<any>(null)
   const { tokens } = useListTokens()
   const {
-    cToken,
-    baseToken,
-    quoteToken,
     chartIsOutDate,
     candleChartIsLoading,
     chartResolutionIsUpdated,

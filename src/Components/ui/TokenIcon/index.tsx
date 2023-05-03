@@ -30,9 +30,9 @@ export const TokenIcon = (props: {
   }, [props.src])
 
   const poolToken = useMemo(() => {
-    if (pools && pools.length > 0 && props.tokenAddress && isErc1155Address(props.tokenAddress)) {
+    if (pools && Object.values(pools).length > 0 && props.tokenAddress && isErc1155Address(props.tokenAddress)) {
       const { id, address } = decodeErc1155Address(props.tokenAddress)
-      const pool = pools.find((p: any) => p.poolAddress === address)
+      const pool = pools[address]
       const k = pool.k.toNumber()
       const power = Number(id) === Number(POOL_IDS.A) ? (1 + k / 2) : (1 - k / 2)
       if (Number(id) === POOL_IDS.C) {
@@ -44,8 +44,6 @@ export const TokenIcon = (props: {
       >
         {power > 0 && '+'}{power}
       </div>
-    } else if (props.tokenAddress === TOKEN_R) {
-      return <div style={style} className='pool-token-logo pool-token-logo__cp'>LP</div>
     } else if (props.tokenAddress?.includes('-' + POOL_IDS.C)) {
       return <div style={style} className='pool-token-logo pool-token-logo__lp'>CP</div>
     }

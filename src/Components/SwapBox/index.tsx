@@ -35,7 +35,7 @@ import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 const Component = () => {
   const { account, showConnectModal } = useWeb3React()
   const { configs, ddlEngine } = useConfigs()
-  const { states, powers, dTokens, allTokens, id } = useCurrentPool()
+  const { states, powers, dTokens, allTokens, TOKEN_R, id } = useCurrentPool()
   const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
@@ -322,6 +322,7 @@ const Component = () => {
         displayFee={tokenTypeToSelect === 'input'}
         tokens={[
           ...allTokens,
+          TOKEN_R,
           // ...dTokens,
           // cToken,
           // poolAddress + '-' + POOL_IDS.cp,

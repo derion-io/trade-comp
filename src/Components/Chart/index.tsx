@@ -38,9 +38,9 @@ const Component = ({ changedIn24h }: {changedIn24h: number}) => {
     {
       tab === CANDLE_CHART && configs.candleChartApi ? <CandleChart /> : <div/>
     }
-    {
-      tab === LINE_CHART && configs.theGraphExchange ? <LineChart changedIn24h={changedIn24h} /> : <div/>
-    }
+    {/*{*/}
+    {/*  tab === LINE_CHART && configs.theGraphExchange ? <LineChart changedIn24h={changedIn24h} /> : <div/>*/}
+    {/*}*/}
   </div>
 }
 

@@ -5,7 +5,7 @@ import { setCandleChartIsLoadingReduce, setChartTimeFocusReduce, setCurrentPoolI
 import { useListPool } from '../../pools/hooks/useListPool'
 
 export const useCurrentPool = () => {
-  const { pools } = useListPool()
+  const { pools: poolGroups } = useListPool()
   const { ddlEngine } = useConfigs()
   const dispatch = useDispatch()
 
@@ -15,7 +15,7 @@ export const useCurrentPool = () => {
     TOKEN,
     ORACLE,
     TOKEN_R,
-    // pools,
+    pools,
     allTokens,
     pair,
     states,
@@ -48,12 +48,12 @@ export const useCurrentPool = () => {
   })
 
   const updateCurrentPool = async (poolAddress: string) => {
-    const pool = pools[poolAddress]
+    const pool = poolGroups[poolAddress]
     // const { cPrice } = pool
 
     if (ddlEngine) {
       ddlEngine.setCurrentPool({
-        ...pools[poolAddress]
+        ...poolGroups[poolAddress]
         // logic: pools[poolAddress].logic,
         // cTokenPrice: pools[poolAddress].cTokenPrice
       })
