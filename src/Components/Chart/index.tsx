@@ -12,7 +12,7 @@ const CANDLE_CHART = Symbol('candle')
 const LINE_CHART = Symbol('line')
 
 const Component = ({ changedIn24h }: {changedIn24h: number}) => {
-  const [tab, setTab] = useState<Symbol>(LINE_CHART)
+  const [tab, setTab] = useState<Symbol>(CANDLE_CHART)
   const { useHistory, configs } = useConfigs()
   const history = useHistory()
 
