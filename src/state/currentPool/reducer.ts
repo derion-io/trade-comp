@@ -33,7 +33,10 @@ export const tokens = createSlice({
         pair: {
           token0?: TokenType,
           token1?: TokenType
-        }
+        },
+        baseToken: string,
+        quoteToken: string,
+        basePrice: number,
       }>
     ) => {
       state.id = action.payload.id
@@ -47,6 +50,9 @@ export const tokens = createSlice({
       state.dTokens = action.payload.dTokens
       state.allTokens = action.payload.allTokens
       state.pair = action.payload.pair
+      state.baseToken = action.payload.baseToken
+      state.quoteToken = action.payload.quoteToken
+      state.basePrice = action.payload.basePrice
     },
     setChartTimeRange: (state, action: PayloadAction<{
       timeRange: {from: number, to: number}

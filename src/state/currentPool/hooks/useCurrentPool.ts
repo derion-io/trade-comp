@@ -9,41 +9,9 @@ export const useCurrentPool = () => {
   const { ddlEngine } = useConfigs()
   const dispatch = useDispatch()
 
-  const {
-    id,
-    UTR,
-    TOKEN,
-    ORACLE,
-    TOKEN_R,
-    pools,
-    allTokens,
-    pair,
-    states,
-    powers,
-    dTokens,
-    changedIn24h,
-    chartIsOutDate,
-    candleChartIsLoading,
-    chartTimeFocus,
-    chartResolutionIsUpdated
-  } = useSelector((state: State) => {
+  const currentPool = useSelector((state: State) => {
     return {
-      id: state.currentPool.id,
-      UTR: state.currentPool.UTR,
-      TOKEN: state.currentPool.TOKEN,
-      ORACLE: state.currentPool.ORACLE,
-      TOKEN_R: state.currentPool.TOKEN_R,
-      pools: state.currentPool.pools,
-      pair: state.currentPool.pair,
-      allTokens: state.currentPool.allTokens,
-      states: state.currentPool.states,
-      powers: state.currentPool.powers,
-      dTokens: state.currentPool.dTokens,
-      changedIn24h: state.currentPool.changedIn24h,
-      chartIsOutDate: state.currentPool.chartIsOutDate,
-      candleChartIsLoading: state.currentPool.candleChartIsLoading,
-      chartTimeFocus: state.currentPool.chartTimeFocus,
-      chartResolutionIsUpdated: state.currentPool.chartResolutionIsUpdated
+      ...state.currentPool
     }
   })
 
@@ -68,7 +36,7 @@ export const useCurrentPool = () => {
   }
 
   const getTokenByPower = (power: number | string) => {
-    return TOKEN_R
+    return currentPool.TOKEN_R
     // if (power === 'C') {
     //   return cToken
     // } else if (power === 'B') {
@@ -106,21 +74,6 @@ export const useCurrentPool = () => {
     getTokenByPower,
     updateCurrentPool,
     setCandleChartIsLoading,
-    candleChartIsLoading,
-    changedIn24h,
-    states,
-    chartIsOutDate,
-    chartTimeFocus,
-    chartResolutionIsUpdated,
-    UTR,
-    TOKEN,
-    pools,
-    ORACLE,
-    TOKEN_R,
-    powers,
-    dTokens,
-    pair,
-    allTokens,
-    id
+    ...currentPool
   }
 }

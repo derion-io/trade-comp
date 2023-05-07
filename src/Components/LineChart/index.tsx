@@ -14,9 +14,11 @@ import { COLORS } from '../../utils/constant'
 import isEqual from 'react-fast-compare'
 import { useConfigs } from '../../state/config/useConfigs'
 
+const cToken = '0x905dfCD5649217c42684f23958568e533C711Aa3'
+
 const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const { getLineChartData } = useExchangeData()
-  const { cToken, baseToken, quoteToken, basePrice } = useCurrentPool()
+  const { baseToken, quoteToken, basePrice } = useCurrentPool()
   const { tokens } = useListTokens()
   const [hoverValue, setHoverValue] = useState<number>()
   const [chartData, setChartData] = useState<{ [key: string]: any[] }>({})

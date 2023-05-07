@@ -62,14 +62,14 @@ export const Datafeed = {
     setTimeout(() => callback(config), 0)
   },
 
-  resolveSymbol: async function (
+  resolveSymbol: async function(
     symbolInfo: any,
     onSymbolResolvedCallback: any,
     _onResolveErrorCallback: any,
     extension: any
   ) {
     console.log('======resolveSymbol running====')
-    const [,,, name] = symbolInfo.split('-')
+    const [, , , name] = symbolInfo.split('-')
     var symbolStub = {
       name: name,
       description: '',
@@ -89,7 +89,7 @@ export const Datafeed = {
     onSymbolResolvedCallback(symbolStub)
   },
 
-  getBars: async function (
+  getBars: async function(
     symbolInfo: any,
     interval: any,
     periodParams: any,
@@ -101,7 +101,7 @@ export const Datafeed = {
 
     const state = store.getState()
     const ticker = symbolInfo.ticker
-    const [baseAddress, cAddress, quoteAddress,, chainId] = ticker.split('-')
+    const [baseAddress, cAddress, quoteAddress, , chainId] = ticker.split('-')
     const tokens = state.tokens.tokens[chainId]
 
     const limit = calcLimitCandle(periodParams.from, periodParams.to, interval)
@@ -139,7 +139,7 @@ export const Datafeed = {
   },
 
   // TODO: api is being paused, need to test later
-  subscribeBars: function (
+  subscribeBars: function(
     symbolInfo: any,
     resolution: any,
     onRealtimeCallback: any,
@@ -150,7 +150,7 @@ export const Datafeed = {
     this.subscribeBarsInterval[subscriberUID] = setInterval(() => {
       const state = store.getState()
       const ticker = symbolInfo.ticker
-      const [baseAddress, cAddress, quoteAddress,, chainId] = ticker.split('-')
+      const [baseAddress, cAddress, quoteAddress, , chainId] = ticker.split('-')
       const tokens = state.tokens.tokens[chainId]
 
       historyProvider
@@ -193,7 +193,7 @@ export const Datafeed = {
     }, TIME_TO_UPDATE_CHART)
   },
 
-  unsubscribeBars: function (subscriberUID: string) {
+  unsubscribeBars: function(subscriberUID: string) {
     if (this.subscribeBarsInterval[subscriberUID]) {
       clearInterval(this.subscribeBarsInterval[subscriberUID])
     }

@@ -66,10 +66,10 @@ const Component = ({
   const timeRangeRef = useRef<any>(null)
 
   useEffect(() => {
-    if (cToken && baseToken && quoteToken) {
+    if (tokens[baseToken] && tokens[quoteToken]) {
       setTimeout(initChart)
     }
-  }, [cToken, baseToken, quoteToken])
+  }, [tokens[baseToken], tokens[baseToken]])
 
   useEffect(() => {
     if (tradingviewWidget) {

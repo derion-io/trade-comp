@@ -12,6 +12,9 @@ export interface currentPoolState {
   }
   ORACLE: string
   TOKEN_R: string
+  baseToken: string
+  quoteToken: string
+  basePrice: number
   powers: number[]
   dTokens: string[]
   allTokens: string[]
@@ -47,6 +50,9 @@ export const initialState: currentPoolState = {
     token0: undefined,
     token1: undefined
   },
+  baseToken: '',
+  quoteToken: '',
+  basePrice: 0,
   TOKEN_R: '',
   powers: [],
   dTokens: [],
