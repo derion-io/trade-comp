@@ -7,35 +7,38 @@ import { Engine } from 'derivable-tools/dist/engine'
 import { useWeb3React } from '../customWeb3React/hook'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { DEFAULT_CHAIN, ZERO_ADDRESS } from '../../utils/constant'
+import { Derivable } from 'derivable-tools/dist/services/setConfig'
+import { config } from 'process'
 
-export const useInitConfig = (
-  {
-    library,
-    chainId,
-    useSubPage,
-    language,
-    useLocation,
-    useHistory,
-    env
-  }: {
-    library: any
-    useLocation: any
-    useHistory: any
-    chainId: number
-    useSubPage: any
-    language: string
-    env: 'development' | 'production'
-  }) => {
+export const useInitConfig = ({
+  library,
+  chainId,
+  useSubPage,
+  language,
+  useLocation,
+  useHistory,
+  env
+}: {
+  library: any
+  useLocation: any
+  useHistory: any
+  chainId: number
+  useSubPage: any
+  language: string
+  env: 'development' | 'production'
+}) => {
   const dispatch = useDispatch()
   const location = useLocation()
   const { account } = useWeb3React()
 
   useEffect(() => {
-    console.log(chainId)
-    dispatch(addTokensReduce({
-      tokens: [configs[chainId || DEFAULT_CHAIN].nativeToken],
-      chainId: chainId || DEFAULT_CHAIN
-    }))
+    console.log(chainId, account)
+    dispatch(
+      addTokensReduce({
+        tokens: [configs[chainId || DEFAULT_CHAIN].nativeToken],
+        chainId: chainId || DEFAULT_CHAIN
+      })
+    )
     dispatch(
       setConfigs({
         configs: configs[chainId || DEFAULT_CHAIN],
@@ -51,22 +54,33 @@ export const useInitConfig = (
 
   useEffect(() => {
     if (!chainId) return
-    console.log(chainId)
-    const engine = new Engine({
-      account: account || ZERO_ADDRESS,
-      chainId,
-      storage: {
-        // @ts-ignore
-        setItem: (itemName, value) => localStorage.setItem(itemName, value),
-        // @ts-ignore
-        getItem: (itemName) => localStorage.getItem(itemName)
+    const engineConfig = Derivable.loadConfig(
+      account || ZERO_ADDRESS,
+      {
+        chainId,
+        rpcUrl: configs[chainId].rpcUrl,
+        rpcToGetLogs: configs[chainId].rpcToGetLogs,
+        scanApi: configs[chainId].scanApi,
+        explorer: configs[chainId].explorer,
+        scanName: configs[chainId].scanName,
+        ddlGenesisBlock: configs[chainId].ddlGenesisBlock,
+        timePerBlock: configs[chainId].timePerBlock,
+        theGraphExchange: configs[chainId].theGraphExchange,
+        candleChartApi: configs[chainId].candleChartApi,
+        storage: {
+          // @ts-ignore
+          setItem: (itemName, value) => localStorage.setItem(itemName, value),
+          // @ts-ignore
+          getItem: (itemName) => localStorage.getItem(itemName)
+        },
+        signer: library?.getSigner(),
+        poolAddress: configs[chainId].poolAddress,
+        nativeToken: configs[chainId].nativeToken,
+        addresses: configs[chainId].addresses
       },
-      scanApi: configs[chainId].scanApi,
-      rpcUrl: configs[chainId].rpcUrl,
-      signer: library?.getSigner(),
-      provider: new JsonRpcProvider(configs[chainId].rpcUrl),
-      providerToGetLog: new JsonRpcProvider(configs[chainId].rpcToGetLogs)
-    })
+      chainId
+    )
+    const engine = new Engine(account || ZERO_ADDRESS, engineConfig, chainId)
     dispatch(setEngine({ engine }))
   }, [library, account, chainId])
 }
