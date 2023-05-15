@@ -5,10 +5,8 @@ import configs from './configs'
 import { addTokensReduce } from '../token/reducer'
 import { Engine } from 'derivable-tools/dist/engine'
 import { useWeb3React } from '../customWeb3React/hook'
-import { JsonRpcProvider } from '@ethersproject/providers'
 import { DEFAULT_CHAIN, ZERO_ADDRESS } from '../../utils/constant'
 import { Derivable } from 'derivable-tools/dist/services/setConfig'
-import { config } from 'process'
 
 export const useInitConfig = ({
   library,
@@ -54,6 +52,9 @@ export const useInitConfig = ({
 
   useEffect(() => {
     if (!chainId) return
+    if (account === ZERO_ADDRESS) {
+      return console.log('=======await sync account========')
+    }
     const engineConfig = Derivable.loadConfig(
       account || ZERO_ADDRESS,
       {
@@ -80,7 +81,8 @@ export const useInitConfig = ({
       },
       chainId
     )
-    const engine = new Engine(account || ZERO_ADDRESS, engineConfig, chainId)
+    const engine = new Engine(account, engineConfig, chainId)
+    console.log('Engine init config: ', engine)
     dispatch(setEngine({ engine }))
   }, [library, account, chainId])
 }
