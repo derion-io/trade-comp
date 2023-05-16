@@ -29,31 +29,6 @@ export default {
       router: '0x2B1a5571C00B032d3bF0ca3271CdAa73b1cc6e5c'
     }
   },
-  31337: {
-    rpcUrl: 'http://localhost:8545/',
-    rpcToGetLogs: 'http://localhost:8545/',
-    explorer: 'https://bscscan.com',
-    scanApi: '',
-    scanName: 'Localhost Scan',
-    ddlGenesisBlock: 0,
-    timePerBlock: 3000,
-    nativeToken: {
-      name: 'BNB',
-      symbol: 'BNB',
-      decimal: 18,
-      address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-    },
-    addresses: {
-      multiCall: '0x3bc605DBD3f9d8e9B6FACdfc6548f8BD3b0f0Af5',
-      tokensInfo: '0xD633ee476cfD10B300F20ae23ABAebf4B35BE18F',
-      pairsInfo: '0x82fcaa6c2C9D103b916d4E3bfbDc8DCD8637875E',
-      bnA: '0x66c409EB2937C9627Db0622D48DC8B4982fC58D6',
-      wrapToken: '0xB29439A682eBa17df241944D5eFAE0f44fcf431B',
-      nativeToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
-      poolFactory: '0x2A539728626a96a800833B4133Da061c637CCA5B',
-      router: '0xdBa9451aC3f3a4a5171715EB5B776316aA474E62'
-    }
-  },
   1337: {
     rpcUrl: 'http://localhost:8545/',
     rpcToGetLogs: 'http://localhost:8545/',
@@ -63,8 +38,8 @@ export default {
     ddlGenesisBlock: 0,
     timePerBlock: 3000,
     nativeToken: {
-      name: 'BNB',
-      symbol: 'BNB',
+      name: 'ETH',
+      symbol: 'ETH',
       decimal: 18,
       address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
     },

@@ -55,24 +55,10 @@ export const App = () => {
     }
   }, [account, tokens])
 
-  useEffect(() => {
-    // console.log('configs?.addresses.pool', configs?.addresses.pool)
-    // @ts-ignore
-    if (pools && Object.keys(pools).length > 0 && Number(chainIdRef?.current?.value) === chainId) {
-      updateCurrentPool(Object.keys(pools)[0])
-      // .then((data) => {
-      //   // @ts-ignore
-      //   if (Number(chainIdRef?.current?.value) === chainId) {
-      //     dispatch(setCurrentPoolInfo(data))
-      //   }
-      // })
-    }
-  }, [chainId, pools])
-
   const renderAppContent = () => {
     switch (true) {
-      case isMatchWithPath('/:tab(exposure|swap)'):
-        return <Trade tab={detectTradeTab(location.pathname)} />
+      case isMatchWithPath('/:tab(exposure|swap)/:pool?'):
+        return <Trade tab={detectTradeTab(location.pathname)} pool={detectPool(location.pathname)}/>
       case isMatchWithPath('/pools'):
         return <Pools />
       // case isMatchWithPath('/:tab(add-liquidity|remove-liquidity)'):
@@ -94,6 +80,14 @@ export const App = () => {
       return SWAP_TAB.SWAP
     }
     return SWAP_TAB.EXPOSURE
+  }
+
+  const detectPool = (path: string) => {
+    if (path.includes('swap') || path.includes('exposure')) {
+      const arr = path.split('/')
+      return arr[arr.length - 1]
+    }
+    return ''
   }
 
   const isMatchWithPath = (path: string) => {
