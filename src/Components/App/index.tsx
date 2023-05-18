@@ -8,7 +8,7 @@ import { useWeb3React } from '../../state/customWeb3React/hook'
 import { ToastContainer } from 'react-toastify'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { useConfigs } from '../../state/config/useConfigs'
-import { useListPool } from '../../state/pools/hooks/useListPool'
+import { useListPool } from '../../state/resources/hooks/useListPool'
 import { Pools } from '../../pages/Pools'
 import { LIQUIDITY_TAB, SWAP_TAB, TIME_TO_REFRESH_STATE } from '../../utils/constant'
 import { Liquidity } from '../../pages/Liquidity'
@@ -18,7 +18,7 @@ import { Trade } from '../../pages/Trade'
 export const App = () => {
   const { id, updateCurrentPool } = useCurrentPool()
   const { tokens } = useListTokens()
-  const { pools } = useListPool()
+  const { poolGroups } = useListPool()
   const { fetchBalanceAndAllowance } = useWalletBalance()
   const { account } = useWeb3React()
   const { ddlEngine, configs, chainId, location } = useConfigs()
@@ -29,17 +29,17 @@ export const App = () => {
   useEffect(() => {
     try {
       setTimeout(() => {
-        if (ddlEngine?.CURRENT_POOL && pools[id]) {
+        if (ddlEngine?.CURRENT_POOL && poolGroups[id]) {
           // @ts-ignore
           ddlEngine.setCurrentPool({
-            ...pools[id]
+            ...poolGroups[id]
           })
         }
       })
     } catch (e) {
       console.log(e)
     }
-  }, [ddlEngine, pools, id])
+  }, [ddlEngine, poolGroups, id])
 
   useEffect(() => {
     initListPool(account)

@@ -2,10 +2,10 @@ import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../types'
 import { useConfigs } from '../../config/useConfigs'
 import { setCandleChartIsLoadingReduce, setChartTimeFocusReduce, setCurrentPoolInfo } from '../reducer'
-import { useListPool } from '../../pools/hooks/useListPool'
+import { useListPool } from '../../resources/hooks/useListPool'
 
 export const useCurrentPool = () => {
-  const { pools: poolGroups } = useListPool()
+  const { poolGroups } = useListPool()
   const { ddlEngine } = useConfigs()
   const dispatch = useDispatch()
 

@@ -34,8 +34,8 @@ export type PoolType = any
 //   cPrice: number
 // }
 
-export interface poolsState {
-  pools: {
+export interface resourcesState {
+  poolGroups: {
     [key: number]: {[key: string]: PoolType}
   },
   tokens: {
@@ -44,8 +44,8 @@ export interface poolsState {
   swapLogs: {[key: string]: any[] }
 }
 
-export const initialState: poolsState = {
-  pools: {
+export const initialState: resourcesState = {
+  poolGroups: {
     56: {},
     31337: {},
     1337: {},

@@ -6,13 +6,13 @@ export const tokens = createSlice({
   initialState,
   reducers: {
     addPoolsWithChain: (state, action: PayloadAction<{
-      pools: {[key: string]: PoolType},
+      poolGroups: {[key: string]: PoolType},
       chainId: number
     }>) => {
-      if (Object.keys(action.payload.pools).length === 0) return
-      state.pools[action.payload.chainId] = {
+      if (Object.keys(action.payload.poolGroups).length === 0) return
+      state.poolGroups[action.payload.chainId] = {
         ...state[action.payload.chainId],
-        ...action.payload.pools
+        ...action.payload.poolGroups
       }
     }
   }

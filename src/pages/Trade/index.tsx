@@ -11,7 +11,7 @@ import 'react-tabs/style/react-tabs.css'
 import { Card } from '../../Components/ui/Card'
 import { PoolDetailAndHistory } from '../../Components/PoolDetailAndHistory'
 import { useListTokens } from '../../state/token/hook'
-import { useListPool } from '../../state/pools/hooks/useListPool'
+import { useListPool } from '../../state/resources/hooks/useListPool'
 
 export const Trade = ({ tab, pool }: {
   pool?: string,
@@ -24,7 +24,7 @@ export const Trade = ({ tab, pool }: {
   const [changedIn24h, setChangedIn24h] = useState<number>(0)
   const { width } = useWindowSize()
   const isPhone = width && width < 992
-  const { pools } = useListPool()
+  const { poolGroups } = useListPool()
   const { updateCurrentPool } = useCurrentPool()
 
   // useEffect(() => {
@@ -65,8 +65,8 @@ export const Trade = ({ tab, pool }: {
   useEffect(() => {
     // console.log('configs?.addresses.pool', configs?.addresses.pool)
     // @ts-ignore
-    if (pools && Object.keys(pools).length > 0 && pool && pools[pool]) {
-      updateCurrentPool(Object.keys(pools)[0])
+    if (poolGroups && Object.keys(poolGroups).length > 0 && pool && poolGroups[pool]) {
+      updateCurrentPool(Object.keys(poolGroups)[0])
       // .then((data) => {
       //   // @ts-ignore
       //   if (Number(chainIdRef?.current?.value) === chainId) {
@@ -74,7 +74,7 @@ export const Trade = ({ tab, pool }: {
       //   }
       // })
     }
-  }, [chainId, pools, pool])
+  }, [chainId, poolGroups, pool])
 
   return (
     <div className='exposure-page'>

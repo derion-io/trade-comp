@@ -1,4 +1,4 @@
-import { PoolType } from '../../../state/pools/type'
+import { PoolType } from '../../../state/resources/type'
 import { useWalletBalance } from '../../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../../state/token/hook'
 import React, { useMemo, useState } from 'react'

@@ -1,12 +1,12 @@
 import React from 'react'
 import './style.scss'
-import { useListPool } from '../../state/pools/hooks/useListPool'
+import { useListPool } from '../../state/resources/hooks/useListPool'
 import { PoolRow } from './PoolRow'
 import { PoolRowCompact } from './PoolRowCompact'
 import isEqual from 'react-fast-compare'
 
 const Component = () => {
-  const { pools } = useListPool()
+  const { poolGroups } = useListPool()
 
   return (
     <div className='pool-table-wrap'>
@@ -34,8 +34,8 @@ const Component = () => {
             </td>
           </tr> */}
           {
-            Object.keys(pools).map((id, key) => {
-              return <PoolRow pool={pools[id]} id={id} key={key} />
+            Object.keys(poolGroups).map((id, key) => {
+              return <PoolRow pool={poolGroups[id]} id={id} key={key} />
             })
           }
         </tbody>
@@ -45,7 +45,7 @@ const Component = () => {
 }
 
 export const PoolTableCompact = () => {
-  const { pools } = useListPool()
+  const { poolGroups } = useListPool()
 
   return (
     <div className='pool-table-compact-wrap'>
@@ -59,7 +59,7 @@ export const PoolTableCompact = () => {
         </thead>
         <tbody>
           {
-            Object.values(pools).map((pool, key) => {
+            Object.values(poolGroups).map((pool, key) => {
               return <PoolRowCompact pool={pool} key={key} />
             })
           }
