@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Text, TextGrey } from '../ui/Text'
 import './style.scss'
 import { Box } from '../ui/Box'
@@ -15,14 +15,14 @@ import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../state/token/hook'
 import {
   bn,
-  decodeErc1155Address, formatFloat,
+  decodeErc1155Address, formatFloat, getErc1155Token, isErc1155Address,
   numberToWei,
   parseCallStaticError,
   weiToNumber
 } from '../../utils/helpers'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
-import { NATIVE_ADDRESS } from '../../utils/constant'
+import { NATIVE_ADDRESS, POOL_IDS } from '../../utils/constant'
 import { PowerState } from 'powerLib'
 import { useConfigs } from '../../state/config/useConfigs'
 import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
@@ -31,11 +31,13 @@ import { useNativePrice } from '../../hooks/useTokenPrice'
 import { toast } from 'react-toastify'
 import { ApproveUtrModal } from '../ApproveUtrModal'
 import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
+import _ from 'lodash'
+import { useHelper } from '../../state/config/useHelper'
 
 const Component = () => {
   const { account, showConnectModal } = useWeb3React()
   const { configs, ddlEngine } = useConfigs()
-  const { states, powers, dTokens, allTokens, TOKEN_R, id } = useCurrentPool()
+  const { states, powers, dTokens, allTokens, TOKEN_R, id, pools } = useCurrentPool()
   const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
@@ -52,6 +54,7 @@ const Component = () => {
   const { tokens } = useListTokens()
   const { updateSwapTxsHandle } = useSwapHistory()
   const { data: nativePrice } = useNativePrice()
+  const { convertNativeAddressToWrapAddress } = useHelper()
   // const { data: cpPrice } = useCpPrice()
 
   useEffect(() => {
@@ -126,11 +129,11 @@ const Component = () => {
     } else if (!balances[inputTokenAddress] || balances[inputTokenAddress].lt(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))) {
       return <ButtonExecute className='swap-button'
         disabled> Insufficient {tokens[inputTokenAddress].symbol} Amount </ButtonExecute>
-    // } else if (!routerAllowances[address] || routerAllowances[address].lt(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))) {
-    //   return <ButtonExecute
-    //     className='swap-button'
-    //     onClick={() => { setVisibleApproveModal(true) }}
-    //   >Use EIP-6120</ButtonExecute>
+      // } else if (!routerAllowances[address] || routerAllowances[address].lt(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))) {
+      //   return <ButtonExecute
+      //     className='swap-button'
+      //     onClick={() => { setVisibleApproveModal(true) }}
+      //   >Use EIP-6120</ButtonExecute>
     } else if (callError) {
       return <ButtonExecute className='swap-button' disabled>{callError}</ButtonExecute>
     } else {
@@ -223,6 +226,51 @@ const Component = () => {
     }
     return 0
   }, [powers, states, amountOut, outputTokenAddress, nativePrice])
+
+  const tokensToSelect = useMemo(() => {
+    if (!id) return []
+    const tokenRs = Object.values(pools).map((p: any) => p.TOKEN_R)
+    if (tokenRs.includes(configs.addresses.wrapToken)) tokenRs.push(configs.addresses.nativeToken)
+    return _.uniq(
+      [
+        ...allTokens,
+        ...tokenRs
+      ].filter((address) => {
+        if (tokenRs.includes(address)) return true
+        if (tokenTypeToSelect === 'input' && (!balances[address] || balances[address].isZero())) {
+          return false
+        }
+        return true
+      })
+    )
+  }, [tokenTypeToSelect, allTokens, pools, id])
+
+  const onSelectToken = useCallback((address: string) => {
+    if ((tokenTypeToSelect === 'input' && address === outputTokenAddress) ||
+        (tokenTypeToSelect === 'output' && address === inputTokenAddress)
+    ) {
+      revertPairAddress()
+      return
+    }
+    if (tokenTypeToSelect === 'input') {
+      setInputTokenAddress(address)
+    } else {
+      if (isErc1155Address(address) && isErc1155Address(inputTokenAddress)) {
+        const poolOutAddress = decodeErc1155Address(address).address
+        const poolOut = pools[poolOutAddress]
+        const poolInAddress = decodeErc1155Address(inputTokenAddress).address
+        const poolIn = pools[poolInAddress]
+        if (poolInAddress !== poolOutAddress && poolOut.TOKEN_R !== poolIn.TOKEN_R) {
+          setInputTokenAddress(poolOut.TOKEN_R === configs.addresses.wrapToken ? NATIVE_ADDRESS : poolOut.TOKEN_R)
+        }
+      }
+      if (isErc1155Address(address) && !isErc1155Address(inputTokenAddress)) {
+        const poolOut = pools[decodeErc1155Address(address).address]
+        setInputTokenAddress(poolOut.TOKEN_R === configs.addresses.wrapToken ? NATIVE_ADDRESS : poolOut.TOKEN_R)
+      }
+      setOutputTokenAddress(address)
+    }
+  }, [pools, inputTokenAddress, outputTokenAddress, tokenTypeToSelect, configs])
 
   return (
     <div className='swap-box'>
@@ -321,36 +369,8 @@ const Component = () => {
         visible={visibleSelectTokenModal}
         setVisible={setVisibleSelectTokenModal}
         displayFee={tokenTypeToSelect === 'input'}
-        tokens={[
-          ...allTokens,
-          TOKEN_R,
-          // ...dTokens,
-          // cToken,
-          // poolAddress + '-' + POOL_IDS.cp,
-          // baseToken,
-          // quoteToken,
-          configs.addresses.nativeToken
-        ].filter((address) => {
-          if (
-            (tokenTypeToSelect === 'input' && (!balances[address] || balances[address].isZero()))
-          ) {
-            return false
-          }
-          return true
-        })}
-        onSelectToken={(address: string) => {
-          if ((tokenTypeToSelect === 'input' && address === outputTokenAddress) ||
-            (tokenTypeToSelect === 'output' && address === inputTokenAddress)
-          ) {
-            revertPairAddress()
-            return
-          }
-          if (tokenTypeToSelect === 'input') {
-            setInputTokenAddress(address)
-          } else {
-            setOutputTokenAddress(address)
-          }
-        }}
+        tokens={tokensToSelect}
+        onSelectToken={onSelectToken}
       />
 
       <Box borderColor='#3a3a3a' className='swap-info-box mt-2 mb-2'>
@@ -389,7 +409,8 @@ const Component = () => {
       </div>
 
       <ApproveUtrModal
-        callBack={() => {}}
+        callBack={() => {
+        }}
         visible={visibleApproveModal}
         setVisible={setVisibleApproveModal}
         inputTokenAddress={inputTokenAddress}

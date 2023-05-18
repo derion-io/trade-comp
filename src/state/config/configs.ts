@@ -45,13 +45,13 @@ export default {
     },
     addresses: {
       nativeToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
-      multiCall: '0x025ff8c5CB97f5f79dc396DCD501Db775B00F433',
-      pairsInfo: '0xc28A7e46bE1BB74a63aD32784D785A941D1954ab',
-      bnA: '0x95a7d5edfD4701478D3ACA5DCb69D549D83E3c52',
-      tokensInfo: '0xe2b8a85De2ad4076593B81F2435C77a2cb84caAf',
-      router: '0xb60F861100aC9F8BE31D0e74DCae35D14cbcA2E2',
-      wrapToken: '0x8F98902cf8255ab9D403Dfa68875b1024cd6C3d4',
-      wrapUsdPair: '0x2B89B4931122EE4Fa474446Fa9B118F2852a8223'
+      multiCall: '0x0748990Cd23F13545805295eD1aED30D9f335984',
+      pairsInfo: '0x2bdcF38cd1cb4db04ac6604ECaa02C2fbf1e13e2',
+      bnA: '0xa3030Cef13eFd3E625c576A622E6123Cf7B4006d',
+      tokensInfo: '0x3DC842B4bAD55500c26E31135932677B276e06AE',
+      router: '0x4F1111145AB659CF9BBB45442F54A5D427783DaA',
+      wrapToken: '0x56403E93d5D593E29d47eE5C743058A5993FD2B3',
+      wrapUsdPair: '0x215bfCCF305135AbCAa18b9C0e9738924a53A0E6'
     }
   },
   97: {

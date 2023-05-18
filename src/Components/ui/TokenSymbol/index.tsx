@@ -1,15 +1,17 @@
 import React, { useMemo } from 'react'
 import { TokenType } from '../../../state/token/type'
 import { useCurrentPool } from '../../../state/currentPool/hooks/useCurrentPool'
+import { useListTokens } from '../../../state/token/hook'
 
-export const TokenSymbol = ({ token }: {token: TokenType}) => {
-  const { pair } = useCurrentPool()
+export const TokenSymbol = ({ token }: { token: TokenType }) => {
+  const { baseToken } = useCurrentPool()
+  const { tokens } = useListTokens()
   const result = useMemo(() => {
     const symbol = token?.symbol
     if (symbol && symbol.includes('^') && symbol.split('^').length === 2) {
       const arr = symbol.split('^')
       const power = arr[1]
-      let baseSymbol = pair?.token0?.symbol ?? 'ETH'
+      let baseSymbol = tokens[baseToken]?.symbol ?? 'ETH'
       if (baseSymbol.startsWith('W')) {
         baseSymbol = baseSymbol.substring(1)
       }
@@ -22,7 +24,7 @@ export const TokenSymbol = ({ token }: {token: TokenType}) => {
     //   return <span className='font-size-14'>{symbol}_{tokens[baseToken]?.symbol}_{tokens[quoteToken]?.symbol}</span>
     // }
     return <span className='font-size-14'>{symbol}</span>
-  }, [pair, token])
+  }, [tokens, token])
 
   return <React.Fragment>{result}</React.Fragment>
 }
