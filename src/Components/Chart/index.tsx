@@ -7,24 +7,28 @@ import { IconArrowLeft } from '../ui/Icon'
 import { TextBlue } from '../ui/Text'
 import { useConfigs } from '../../state/config/useConfigs'
 import isEqual from 'react-fast-compare'
+import { SelectPoolGroup } from '../SelectPoolGroup'
 
 const CANDLE_CHART = Symbol('candle')
 const LINE_CHART = Symbol('line')
 
-const Component = ({ changedIn24h }: {changedIn24h: number}) => {
+const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const [tab, setTab] = useState<Symbol>(CANDLE_CHART)
   const { useHistory, configs } = useConfigs()
   const history = useHistory()
 
   return <div className='chart-box'>
     <div className='chart__head'>
-      <div
-        className='exposure-page__head--back-btn'
-        onClick={() => {
-          history.push('pools')
-        }}
-      >
-        <IconArrowLeft fill='#01A7FA' /> <TextBlue>Back</TextBlue>
+      <div className='chart__head--left'>
+        <div
+          className='exposure-page__head--back-btn'
+          onClick={() => {
+            history.push('pools')
+          }}
+        >
+          <IconArrowLeft fill='#01A7FA' /> <TextBlue>Back</TextBlue>
+        </div>
+        <SelectPoolGroup/>
       </div>
       <Tabs
         tab={tab}
@@ -36,10 +40,10 @@ const Component = ({ changedIn24h }: {changedIn24h: number}) => {
       />
     </div>
     {
-      tab === CANDLE_CHART && configs.candleChartApi ? <CandleChart /> : <div/>
+      tab === CANDLE_CHART && configs.candleChartApi ? <CandleChart /> : <div />
     }
     {
-      tab === LINE_CHART && configs.theGraphExchange ? <LineChart changedIn24h={changedIn24h} /> : <div/>
+      tab === LINE_CHART && configs.theGraphExchange ? <LineChart changedIn24h={changedIn24h} /> : <div />
     }
   </div>
 }

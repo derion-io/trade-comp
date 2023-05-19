@@ -80,6 +80,7 @@ export const Trade = ({ tab, pool }: {
     <div className='exposure-page'>
       <div className='exposure-page__content'>
         <div className='exposure-page__content--left'>
+
           <Chart changedIn24h={changedIn24h} />
           {
             !isPhone && <div className='hidden-on-phone'>

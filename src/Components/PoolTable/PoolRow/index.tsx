@@ -90,8 +90,8 @@ const Component = ({ pool, id }: { pool: PoolType, id: string }) => {
       <td className='text-right pool-actions'>
         <ButtonGrey
           onClick={async () => {
-            await updateCurrentPool(id)
-            history.push('swap')
+            // await updateCurrentPool(id)
+            history.push('swap/' + id)
           }}>Swap</ButtonGrey>
         <ButtonGrey
           onClick={async () => {

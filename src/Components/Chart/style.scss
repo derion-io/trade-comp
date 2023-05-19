@@ -3,5 +3,14 @@
     display: flex;
     margin-bottom: 1rem;
     justify-content: space-between;
+
+    &--left {
+      display: flex;
+      align-items: center;
+
+      & *:not(:last-child) {
+        margin-right: 1rem;
+      }
+    }
   }
 }
