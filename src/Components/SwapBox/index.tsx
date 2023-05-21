@@ -30,6 +30,7 @@ import isEqual from 'react-fast-compare'
 import { useNativePrice } from '../../hooks/useTokenPrice'
 import { toast } from 'react-toastify'
 import { ApproveUtrModal } from '../ApproveUtrModal'
+import { BeverageModal } from '../BeverageModal'
 import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 import _ from 'lodash'
 import { useHelper } from '../../state/config/useHelper'
@@ -41,6 +42,7 @@ const Component = () => {
   const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
+  const [visibleLeverage, setVisibleLeverage] = useState<boolean>(false)
   const [tokenTypeToSelect, setTokenTypeToSelect] = useState<'input' | 'output'>('input')
   const [callError, setCallError] = useState<string>('')
   const [amountOut, setAmountOut] = useState<string>('')
@@ -271,9 +273,14 @@ const Component = () => {
     <div className='swap-box'>
       <div className='d-flex jc-space-between'>
         <Text>Swap</Text>
-        <span><IconOptionLeft /></span>
+        <span><IconOptionLeft style={{ cursor: 'pointer' }} onClick={() => setVisibleLeverage(true)}/></span>
       </div>
-
+      {visibleLeverage && <BeverageModal
+        callBack={() => {
+        }}
+        visible={visibleLeverage}
+        setVisible={setVisibleLeverage}
+      />}
       <div className='amount-input-box'>
         <div className='amount-input-box__head'>
           <SkeletonLoader loading={!tokens[inputTokenAddress]}>
