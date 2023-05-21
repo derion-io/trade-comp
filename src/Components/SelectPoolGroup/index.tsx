@@ -6,7 +6,6 @@ import './style.scss'
 import { useOutsideAlerter } from '../../hooks/useHandleClickOutside'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { POOL_IDS } from '../../utils/constant'
-import { TextBlue, TextBuy, TextSell } from '../ui/Text'
 import { TokenIcon } from '../ui/TokenIcon'
 
 export const SelectPoolGroup = () => {
@@ -26,7 +25,7 @@ export const SelectPoolGroup = () => {
     <div className='select-pool-group'>
       <PoolGroupOption poolGroup={poolGroups[id]} className='active' />
       {
-        active &&
+        active && Object.keys(poolGroups).length > 1 &&
         <div className={'select-pool-group__dropdown noselect ' + (!active ? 'un-active' : '')}>
           {
             poolGroups &&
@@ -72,11 +71,8 @@ const PoolGroupOption = ({ poolGroup, className }: { poolGroup: any, className?:
     <span>{tokens[poolGroup.baseToken]?.symbol}/{tokens[poolGroup.quoteToken]?.symbol}</span>
     {
       playingTokens.map((address) => {
-        return <TokenIcon key={address} size={24} tokenAddress={address} />
+        return <TokenIcon key={address} size={20} tokenAddress={address} />
       })
     }
-    {/* {hasLong && <TextBuy>L</TextBuy>} */}
-    {/* {hasShort && <TextSell>S</TextSell>} */}
-    {/* {hasLP && <TextBlue>LP</TextBlue>} */}
   </div>
 }
