@@ -3,18 +3,28 @@
 .select-token-modal {
   .option {
     transition: all 0.1s ease-out;
+    display: flex;
+    align-items: center;
 
     &:hover {
       background: $color-select-token-hover !important;
     }
 
-    &__icon-and-name {
-      display: flex;
-      align-items: center;
-
-      &>*:not(:last-child) {
-        margin-right: 0.5rem;
-      }
+    &__name-and-lp {
+      flex: 1;
     }
+
+    & > *:not(:last-child) {
+      margin-right: 1rem;
+    }
+
+    //&__icon-and-name {
+    //  display: flex;
+    //  align-items: center;
+    //
+    //  &>*:not(:last-child) {
+    //    margin-right: 0.5rem;
+    //  }
+    //}
   }
 }
