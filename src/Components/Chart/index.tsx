@@ -8,6 +8,8 @@ import { TextBlue } from '../ui/Text'
 import { useConfigs } from '../../state/config/useConfigs'
 import isEqual from 'react-fast-compare'
 import { SelectPoolGroup } from '../SelectPoolGroup'
+import { store } from '../../state'
+import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 
 const CANDLE_CHART = Symbol('candle')
 const LINE_CHART = Symbol('line')
@@ -15,6 +17,7 @@ const LINE_CHART = Symbol('line')
 const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const [tab, setTab] = useState<Symbol>(CANDLE_CHART)
   const { useHistory, configs } = useConfigs()
+  const {chartIsOutDate} = useCurrentPool()
   const history = useHistory()
 
   return <div className='chart-box'>
@@ -39,11 +42,11 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
         ]}
       />
     </div>
-    {
+    {/* {
       tab === CANDLE_CHART && configs.candleChartApi ? <CandleChart /> : <div />
-    }
+    } */}
     {
-      tab === LINE_CHART && configs.theGraphExchange ? <LineChart changedIn24h={changedIn24h} /> : <div />
+      tab === LINE_CHART && configs.theGraphExchange && chartIsOutDate ? <LineChart changedIn24h={changedIn24h} /> : <CandleChart />
     }
   </div>
 }
