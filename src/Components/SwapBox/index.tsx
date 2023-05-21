@@ -15,7 +15,7 @@ import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../state/token/hook'
 import {
   bn,
-  decodeErc1155Address, formatFloat, getErc1155Token, isErc1155Address,
+  decodeErc1155Address, formatFloat, getErc1155Token, isErc1155Address, mul,
   numberToWei,
   parseCallStaticError,
   weiToNumber
@@ -37,7 +37,7 @@ import { useHelper } from '../../state/config/useHelper'
 const Component = () => {
   const { account, showConnectModal } = useWeb3React()
   const { configs, ddlEngine } = useConfigs()
-  const { states, powers, dTokens, allTokens, TOKEN_R, id, pools } = useCurrentPool()
+  const { states, powers, dTokens, allTokens, id, pools } = useCurrentPool()
   const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
@@ -55,7 +55,6 @@ const Component = () => {
   const { updateSwapTxsHandle } = useSwapHistory()
   const { data: nativePrice } = useNativePrice()
   const { convertNativeAddressToWrapAddress } = useHelper()
-  // const { data: cpPrice } = useCpPrice()
 
   useEffect(() => {
     console.log('id', id)
@@ -167,19 +166,6 @@ const Component = () => {
     }
   }
 
-  const protocolFee = useMemo(() => {
-    // if (states?.twapLP && inputTokenAddress === poolAddress + '-' + POOL_IDS.cp && outputTokenAddress === cToken) {
-    //   const cPrice = parseUq112x112(states.twapLP, 1000)
-    //   return formatFloat(weiToNumber(amountOutWei
-    //     .mul(3)
-    //     .mul(cPrice * 1000)
-    //     .div(1000 * 1000)
-    //   , tokens[cToken]?.decimal || 18)
-    //   , 2)
-    // }
-    return 0
-  }, [states, amountOutWei, inputTokenAddress, outputTokenAddress])
-
   const getTokenPrice = (address: string, powerState: any) => {
     // if (address === cToken) {
     //   return cTokenPrice
@@ -247,7 +233,7 @@ const Component = () => {
 
   const onSelectToken = useCallback((address: string) => {
     if ((tokenTypeToSelect === 'input' && address === outputTokenAddress) ||
-        (tokenTypeToSelect === 'output' && address === inputTokenAddress)
+      (tokenTypeToSelect === 'output' && address === inputTokenAddress)
     ) {
       revertPairAddress()
       return
@@ -271,6 +257,15 @@ const Component = () => {
       setOutputTokenAddress(address)
     }
   }, [pools, inputTokenAddress, outputTokenAddress, tokenTypeToSelect, configs])
+
+  const poolToShow = useMemo(() => {
+    if (isErc1155Address(outputTokenAddress)) {
+      return pools[decodeErc1155Address(outputTokenAddress).address]
+    } else if (isErc1155Address(inputTokenAddress)) {
+      return pools[decodeErc1155Address(inputTokenAddress).address]
+    }
+    return null
+  }, [pools, inputTokenAddress, outputTokenAddress])
 
   return (
     <div className='swap-box'>
@@ -373,27 +368,34 @@ const Component = () => {
         onSelectToken={onSelectToken}
       />
 
-      <Box borderColor='#3a3a3a' className='swap-info-box mt-2 mb-2'>
-        {protocolFee && protocolFee > 0
-          ? <InfoRow className='mb-1'>
-            <span>
-              <Text>Conversion Fee</Text>
-            </span>
-            <span>
-              <Text>{protocolFee}</Text>
-              <TextGrey> USD (0.3%)</TextGrey>
-            </span>
-          </InfoRow>
-          : ''
-        }
-        <InfoRow className='mb-1'>
-          <Text>Gas Used</Text>
+      <Box borderColor='#3a3a3a' className='swap-info-box mt-1 mb-1'>
+        <InfoRow>
+          <TextGrey>Interest Rate</TextGrey>
+          <span>
+            {formatFloat(mul(poolToShow?.dailyInterestRate || 0, 100), 3)}%
+          </span>
+        </InfoRow>
+        <InfoRow>
+          <TextGrey>Risk Factor</TextGrey>
+          <Text>
+            {formatFloat(mul(poolToShow?.riskFactor || 0, 100), 3)}%
+          </Text>
+        </InfoRow>
+        <InfoRow>
+          <TextGrey>Effective Leverage:</TextGrey>
+          <Text>x{poolToShow?.k.toString()}</Text>
+        </InfoRow>
+      </Box>
+
+      <Box borderColor='#3a3a3a' className='swap-info-box mt-1 mb-1'>
+        <InfoRow>
+          <TextGrey>Gas Used</TextGrey>
           <span>
             <Text>{formatWeiToDisplayNumber(gasUsed, 0, 0)} Gas</Text>
           </span>
         </InfoRow>
         <InfoRow>
-          <Text>Transaction Fee</Text>
+          <TextGrey>Transaction Fee</TextGrey>
           <span>
             <Text>
               {weiToNumber(txFee, 18, 4)}
