@@ -33,7 +33,8 @@ export const TokenIcon = (props: {
     if (pools && Object.values(pools).length > 0 && props.tokenAddress && isErc1155Address(props.tokenAddress)) {
       const { id, address } = decodeErc1155Address(props.tokenAddress)
       const pool = pools[address]
-      const k = pool.k.toNumber()
+      if (!pool) return null
+      const k = pool?.k.toNumber()
       const power = Number(id) === Number(POOL_IDS.A) ? (1 + k / 2) : (1 - k / 2)
       if (Number(id) === POOL_IDS.C) {
         return <div style={style} className='pool-token-logo pool-token-logo__cp'>CP</div>

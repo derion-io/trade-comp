@@ -31,7 +31,7 @@ export const SelectPoolGroup = () => {
             poolGroups &&
             Object.keys(poolGroups)
               .filter((key) => key !== id)
-              .map((uniPair: any) => <PoolGroupOption key={uniPair} poolGroup={poolGroups[uniPair]} />)
+              .map((uniPair: any) => <PoolGroupOption key={uniPair} id={uniPair} poolGroup={poolGroups[uniPair]} />)
           }
         </div>
       }
@@ -39,9 +39,10 @@ export const SelectPoolGroup = () => {
   </div>
 }
 
-const PoolGroupOption = ({ poolGroup, className }: { poolGroup: any, className?: string }) => {
+const PoolGroupOption = ({ poolGroup, className, id }: {id?: string, poolGroup: any, className?: string }) => {
   const { balances } = useWalletBalance()
   const { tokens } = useListTokens()
+  const { updateCurrentPool } = useCurrentPool()
 
   const playingTokens = useMemo(() => {
     if (!poolGroup) return []
@@ -67,6 +68,12 @@ const PoolGroupOption = ({ poolGroup, className }: { poolGroup: any, className?:
 
   return <div
     className={'select-pool-group__option noselect ' + className}
+    onClick={() => {
+      if (id) {
+        console.log(id)
+        updateCurrentPool(id)
+      }
+    }}
   >
     <span>{tokens[poolGroup.baseToken]?.symbol}/{tokens[poolGroup.quoteToken]?.symbol}</span>
     {

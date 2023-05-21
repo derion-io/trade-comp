@@ -63,16 +63,14 @@ export const Trade = ({ tab, pool }: {
   // }, [chainId, tokens, ddlEngine, cToken, quoteToken, baseToken])
 
   useEffect(() => {
-    // console.log('configs?.addresses.pool', configs?.addresses.pool)
-    // @ts-ignore
-    if (poolGroups && Object.keys(poolGroups).length > 0 && pool && poolGroups[pool]) {
-      updateCurrentPool(Object.keys(poolGroups)[0])
-      // .then((data) => {
-      //   // @ts-ignore
-      //   if (Number(chainIdRef?.current?.value) === chainId) {
-      //     dispatch(setCurrentPoolInfo(data))
-      //   }
-      // })
+    if (poolGroups && Object.keys(poolGroups).length > 0) {
+      if (pool && poolGroups[pool]) {
+        console.log('khanh')
+        updateCurrentPool(pool)
+      } else if (Object.keys(poolGroups)[0]) {
+        console.log('cuc')
+        updateCurrentPool(Object.keys(poolGroups)[0])
+      }
     }
   }, [chainId, poolGroups, pool])
 
