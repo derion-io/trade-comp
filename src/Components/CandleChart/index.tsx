@@ -62,12 +62,13 @@ const Component = ({
   } = useCurrentPool()
   const { chainId } = useConfigs()
   const { formartedSwapLogs: swapTxs } = useSwapHistory()
-  // const [timeRange, setTimeRange] = useState<number>()
   const timeRangeRef = useRef<any>(null)
+  const [currentChart, setCurrentChart] = useState<string>('')
 
   useEffect(() => {
-    if (tokens[baseToken] && tokens[quoteToken]) {
+    if (tokens[baseToken] && tokens[quoteToken] && currentChart !== baseToken + quoteToken) {
       setTimeout(initChart)
+      setCurrentChart(baseToken + quoteToken)
     }
   }, [tokens[baseToken], tokens[baseToken]])
 
