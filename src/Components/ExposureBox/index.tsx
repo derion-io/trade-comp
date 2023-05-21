@@ -342,7 +342,7 @@ export const Component = ({ changedIn24h }: {
                 }
               }}>
                 <TokenIcon size={24} className='mr-05' tokenAddress={inputTokenAddress} />
-                <TokenSymbol token={tokens[inputTokenAddress]} />
+                <TokenSymbol token={inputTokenAddress} />
                 {/* <span */}
                 {/*  href={`https://pancakeswap.finance/add/${baseToken}/${quoteToken}`} */}
                 {/*  className='cursor-pointer text-decoration-none' */}
@@ -475,7 +475,7 @@ export const Component = ({ changedIn24h }: {
             return <InfoRow key={key}>
               <span>
                 <Text>{weiToNumber(amountIn, tokens[stepFromToken]?.decimal || 18, 4)}</Text>
-                <TextGrey> <TokenSymbol token={tokens[stepFromToken]} /></TextGrey>
+                <TextGrey> <TokenSymbol token={stepFromToken} /></TextGrey>
               </span>
               <IconArrowRight />
               <span>
@@ -485,7 +485,7 @@ export const Component = ({ changedIn24h }: {
                     : '...'
                 }
                 {/* <Text>{weiToNumber(amountOut, tokens[stepToToken]?.decimal || 18, 4)} </Text> */}
-                <TextGrey> <TokenSymbol token={tokens[stepToToken]} /></TextGrey>
+                <TextGrey> <TokenSymbol token={stepToToken} /></TextGrey>
               </span>
             </InfoRow>
           })

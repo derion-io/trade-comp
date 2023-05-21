@@ -82,7 +82,7 @@ const Component = ({ visible, pool }: {
         return <tr key={index} className='pool-expand__info-row'>
           <td className={`${key === 0 ? 'br-top-left' : ''} ${key === arr.length - 1 ? 'br-bottom-left' : ''}`}>
             <TextComp className='mr-2'>
-              <TokenSymbol token={tokens[dTokens[index]]} />
+              <TokenSymbol token={dTokens[index]} />
             </TextComp>
             <TextBlue>${formatFloat(weiToNumber(value, 18 + tokens[dTokens[index]].decimal), 2)}</TextBlue>
           </td>

@@ -159,7 +159,7 @@ export const AddLiquidityBox = ({ totalSupplyCP }: {totalSupplyCP: BigNumber}) =
             }}
           >
             <span className='mr-05'><TokenIcon size={24} tokenAddress={tokenAdd} /></span>
-            <Text><TokenSymbol token={tokens[tokenAdd]} /></Text>
+            <Text><TokenSymbol token={tokenAdd} /></Text>
           </span>
         </SkeletonLoader>
         <SkeletonLoader loading={!balances[tokenAdd]}>
@@ -205,7 +205,7 @@ export const AddLiquidityBox = ({ totalSupplyCP }: {totalSupplyCP: BigNumber}) =
             className='add-liquidity__token'
           >
             <span className='mr-05'><TokenIcon size={24} tokenAddress={poolAddress + '-' + POOL_IDS.cp} /></span>
-            <Text><TokenSymbol token={tokens[poolAddress + '-' + POOL_IDS.cp]} /></Text>
+            <Text><TokenSymbol token={poolAddress + '-' + POOL_IDS.cp} /></Text>
           </span>
         </SkeletonLoader>
         <SkeletonLoader loading={!balances[tokenAdd]}>

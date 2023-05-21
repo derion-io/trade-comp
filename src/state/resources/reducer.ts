@@ -5,7 +5,7 @@ export const tokens = createSlice({
   name: 'pools',
   initialState,
   reducers: {
-    addPoolsWithChain: (state, action: PayloadAction<{
+    addPoolGroupsWithChain: (state, action: PayloadAction<{
       poolGroups: {[key: string]: PoolType},
       chainId: number
     }>) => {
@@ -14,13 +14,24 @@ export const tokens = createSlice({
         ...state[action.payload.chainId],
         ...action.payload.poolGroups
       }
+    },
+    addPoolsWithChain: (state, action: PayloadAction<{
+      pools: {[key: string]: PoolType},
+      chainId: number
+    }>) => {
+      if (Object.keys(action.payload.pools).length === 0) return
+      state.pools[action.payload.chainId] = {
+        ...state[action.payload.chainId],
+        ...action.payload.pools
+      }
     }
   }
 })
 
 // Actions
 export const {
-  addPoolsWithChain
+  addPoolsWithChain,
+  addPoolGroupsWithChain
 } = tokens.actions
 
 export default tokens.reducer

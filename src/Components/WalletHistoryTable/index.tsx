@@ -59,12 +59,12 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
                   </td>
                   <td className='wallet-history-table__ctoken-change'>
                     <Text>{formatWeiToDisplayNumber(swapTx.amountIn, 4, tokens[swapTx.tokenIn]?.decimal || 18)}</Text>
-                    <TextIn><TokenSymbol token={tokens[swapTx.tokenIn]} /></TextIn>
+                    <TextIn><TokenSymbol token={swapTx.tokenIn} /></TextIn>
                   </td>
                   <td className='text-center wallet-history-table__arrow'><TextOut> {'->'} </TextOut></td>
                   <td className='text-right'>
                     <Text>{formatWeiToDisplayNumber(swapTx.amountOut, 4, tokens[swapTx.tokenIn]?.decimal || 18)} </Text>
-                    <TextOut><TokenSymbol token={tokens[swapTx.tokenOut]} /></TextOut>
+                    <TextOut><TokenSymbol token={swapTx.tokenOut} /></TextOut>
                   </td>
                 </tr>
               })
@@ -84,7 +84,7 @@ const AmountChange = ({ amountChange, address }: { amountChange: BigNumber, addr
   const { tokens } = useListTokens()
   if (amountChange.isZero()) return <React.Fragment />
   return <span>
-    <TextPink><TokenSymbol token={tokens[address]} /> </TextPink>
+    <TextPink><TokenSymbol token={address} /> </TextPink>
     <Text>{formatWeiToDisplayNumber(amountChange.abs(), 4, tokens[address]?.decimal || 18)}</Text>
   </span>
 }

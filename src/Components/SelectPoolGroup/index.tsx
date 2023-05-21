@@ -7,6 +7,7 @@ import { useOutsideAlerter } from '../../hooks/useHandleClickOutside'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { POOL_IDS } from '../../utils/constant'
 import { TextBlue, TextBuy, TextSell } from '../ui/Text'
+import { TokenIcon } from '../ui/TokenIcon'
 
 export const SelectPoolGroup = () => {
   const [active, setActive] = useState<boolean>(false)
@@ -43,24 +44,24 @@ const PoolGroupOption = ({ poolGroup, className }: { poolGroup: any, className?:
   const { balances } = useWalletBalance()
   const { tokens } = useListTokens()
 
-  const [hasLong, hasShort, hasLP] = useMemo(() => {
-    if (!poolGroup) return [false, false, false]
+  const playingTokens = useMemo(() => {
+    if (!poolGroup) return []
     const pools = Object.keys(poolGroup.pools)
-    let _hasLong = false
-    let _hasShort = false
-    let _hasLP = false
+    const results = []
+    let hasLp = false
     for (const poolAddress of pools) {
       if (balances[poolAddress + '-' + POOL_IDS.A]) {
-        _hasLong = true
+        results.push(poolAddress + '-' + POOL_IDS.A)
       }
       if (balances[poolAddress + '-' + POOL_IDS.B]) {
-        _hasShort = true
+        results.push(poolAddress + '-' + POOL_IDS.B)
       }
-      if (balances[poolAddress + '-' + POOL_IDS.C]) {
-        _hasLP = true
+      if (balances[poolAddress + '-' + POOL_IDS.C] && !hasLp) {
+        results.unshift(poolAddress + '-' + POOL_IDS.C)
+        hasLp = true
       }
     }
-    return [_hasLong, _hasShort, _hasLP]
+    return results
   }, [poolGroup, balances])
 
   if (!poolGroup) return <React.Fragment />
@@ -69,8 +70,13 @@ const PoolGroupOption = ({ poolGroup, className }: { poolGroup: any, className?:
     className={'select-pool-group__option noselect ' + className}
   >
     <span>{tokens[poolGroup.baseToken]?.symbol}/{tokens[poolGroup.quoteToken]?.symbol}</span>
-    {hasLong && <TextBuy>L</TextBuy>}
-    {hasShort && <TextSell>S</TextSell>}
-    {hasLP && <TextBlue>LP</TextBlue>}
+    {
+      playingTokens.map((address) => {
+        return <TokenIcon key={address} size={24} tokenAddress={address} />
+      })
+    }
+    {/* {hasLong && <TextBuy>L</TextBuy>} */}
+    {/* {hasShort && <TextSell>S</TextSell>} */}
+    {/* {hasLP && <TextBlue>LP</TextBlue>} */}
   </div>
 }

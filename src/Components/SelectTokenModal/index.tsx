@@ -36,7 +36,7 @@ const Component = ({
       {
         tokensToSelect.map((address: any, key: number) => {
           const fee: string | any = ''
-          const symbol = <TokenSymbol token={tokens[address]} />
+          const symbol = <TokenSymbol token={address} />
           return <Box
             key={key}
             className='option'

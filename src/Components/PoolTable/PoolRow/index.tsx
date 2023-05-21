@@ -64,7 +64,7 @@ const Component = ({ pool, id }: { pool: PoolType, id: string }) => {
         <TdText>{shortenAddressString(pool.TOKEN_R)}</TdText>
       </td>
       <td className='text-left'>
-        <TdText><TokenSymbol token={tokens[pool.TOKEN_R]}/> {pool.baseSymbol} ({leverage >= 0 ? 'Long' : 'Short'})</TdText>
+        <TdText><TokenSymbol token={pool.TOKEN_R}/> {pool.baseSymbol} ({leverage >= 0 ? 'Long' : 'Short'})</TdText>
       </td>
       <td className='text-left'>
         {
@@ -73,7 +73,7 @@ const Component = ({ pool, id }: { pool: PoolType, id: string }) => {
             if (balances[dToken] && balances[dToken].gt(0)) {
               return <div key={key}>
                 <Text>{weiToNumber(balances[dToken], tokens[dToken]?.decimal || 18, 4)} </Text>
-                <SymBolText><TokenSymbol token={tokens[dToken]} /></SymBolText>
+                <SymBolText><TokenSymbol token={dToken} /></SymBolText>
               </div>
             }
             return ''

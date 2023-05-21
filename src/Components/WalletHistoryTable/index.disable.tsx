@@ -93,7 +93,7 @@ const AmountChange = ({ amountChange, address }: { amountChange: BigNumber, addr
   const { tokens } = useListTokens()
   if (amountChange.isZero()) return <React.Fragment />
   return <span>
-    <TextPink><TokenSymbol token={tokens[address]} /> </TextPink>
+    <TextPink><TokenSymbol token={address} /> </TextPink>
     <Text>{formatWeiToDisplayNumber(amountChange.abs(), 4, tokens[address]?.decimal || 18)}</Text>
   </span>
 }

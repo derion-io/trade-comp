@@ -285,7 +285,7 @@ const Component = () => {
               }}
             >
               <TokenIcon size={24} tokenAddress={inputTokenAddress} />
-              <Text><TokenSymbol token={tokens[inputTokenAddress]} /></Text>
+              <Text><TokenSymbol token={inputTokenAddress} /></Text>
             </span>
           </SkeletonLoader>
           <SkeletonLoader loading={accFetchBalance !== account}>
@@ -336,7 +336,7 @@ const Component = () => {
               setTokenTypeToSelect('output')
             }}>
               <TokenIcon size={24} tokenAddress={outputTokenAddress} />
-              <Text><TokenSymbol token={tokens[outputTokenAddress]} /></Text>
+              <Text><TokenSymbol token={outputTokenAddress} /></Text>
             </span>
           </SkeletonLoader>
           <SkeletonLoader loading={accFetchBalance !== account}>

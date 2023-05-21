@@ -188,7 +188,7 @@ export const RemoveLiquidityBox = ({ totalSupplyCP }: { totalSupplyCP: BigNumber
         <SkeletonLoader loading={!tokens[cpAddress]}>
           <span className='add-liquidity__token'>
             <span className='mr-05'><TokenIcon size={24} tokenAddress={cpAddress} /></span>
-            <Text><TokenSymbol token={tokens[cpAddress]} /></Text>
+            <Text><TokenSymbol token={cpAddress} /></Text>
           </span>
         </SkeletonLoader>
         <SkeletonLoader loading={!balances[cpAddress]}>
@@ -261,7 +261,7 @@ export const RemoveLiquidityBox = ({ totalSupplyCP }: { totalSupplyCP: BigNumber
         <Text>Receive</Text>
         <Text>
           <Text>{formatFloat(amountOut || 0, 4)} </Text>
-          <TextPink><TokenSymbol token={tokens[cToken]}/></TextPink>
+          <TextPink><TokenSymbol token={cToken}/></TextPink>
         </Text>
       </InfoRow>
       <InfoRow>

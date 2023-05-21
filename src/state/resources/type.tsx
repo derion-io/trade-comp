@@ -1,6 +1,5 @@
 import { BigNumber } from 'ethers'
 import { ListTokensType } from '../token/type'
-import { Engine } from 'derivable-tools/dist/engine'
 
 export type BalancesType = { [key: string]: BigNumber }
 export type AllowancesType = { [key: string]: BigNumber }
@@ -11,6 +10,7 @@ export type ParseLogType = {
   topic: string
   args: any
 }
+export type PoolGroupType = any
 export type PoolType = any
 // export type PoolType = {
 //   pool: string,
@@ -36,6 +36,9 @@ export type PoolType = any
 
 export interface resourcesState {
   poolGroups: {
+    [key: number]: {[key: string]: PoolGroupType}
+  },
+  pools: {
     [key: number]: {[key: string]: PoolType}
   },
   tokens: {
@@ -46,6 +49,13 @@ export interface resourcesState {
 
 export const initialState: resourcesState = {
   poolGroups: {
+    56: {},
+    31337: {},
+    1337: {},
+    97: {},
+    42161: {}
+  },
+  pools: {
     56: {},
     31337: {},
     1337: {},

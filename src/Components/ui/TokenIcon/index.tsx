@@ -2,9 +2,9 @@ import React, { useEffect, Fragment, useMemo, useState } from 'react'
 import { CustomTokenIcon } from '../Icon'
 import { useHelper } from '../../../state/config/useHelper'
 import { decodeErc1155Address, isErc1155Address } from '../../../utils/helpers'
-import { useCurrentPool } from '../../../state/currentPool/hooks/useCurrentPool'
 import './style.scss'
 import { POOL_IDS } from '../../../utils/constant'
+import { useListPool } from '../../../state/resources/hooks/useListPool'
 
 export const TokenIcon = (props: {
   src?: string
@@ -12,7 +12,7 @@ export const TokenIcon = (props: {
   tokenAddress?: string
   size?: number
 }) => {
-  const { TOKEN_R, pools } = useCurrentPool()
+  const { pools } = useListPool()
   const { getTokenIconUrl } = useHelper()
   const [isError, setIsError] = useState<boolean>(!props.src)
   const style = {

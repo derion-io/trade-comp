@@ -45,7 +45,7 @@ export const RemoveForm = ({
       <TextPink className='amount-input-box__head--left cursor-pointer text-decoration-none' onClick={() => {
       }}>
         <TokenIcon size={24} className='mr-05' tokenAddress={cToken} />
-        <TokenSymbol token={tokens[cToken]} />
+        <TokenSymbol token={cToken} />
       </TextPink>
       <Text
         className='cursor-pointer'
