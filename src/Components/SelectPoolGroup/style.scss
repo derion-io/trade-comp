@@ -8,6 +8,7 @@
   &__wrap {
     position: relative;
     height: 35px;
+    z-index: 10000;
   }
 
   & * {
