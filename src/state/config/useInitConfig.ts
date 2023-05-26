@@ -29,7 +29,6 @@ export const useInitConfig = ({
   const { account } = useWeb3React()
 
   useEffect(() => {
-    console.log(chainId, account)
     dispatch(
       addTokensReduce({
         tokens: [configs[chainId || DEFAULT_CHAIN].nativeToken],
@@ -68,7 +67,6 @@ export const useInitConfig = ({
       },
       chainId
     )
-    console.log('Engine init config: ', engine)
     dispatch(setEngine({ engine }))
   }, [library, account, chainId])
 }

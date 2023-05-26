@@ -18,15 +18,10 @@ export const tokens = createSlice({
       for (let i = 0; i < tokens.length; i++) {
         newToken[tokens[i].address] = tokens[i]
       }
-      console.log('New token: ', newToken)
       state.tokens[action.payload.chainId] = {
         ...state.tokens[action.payload.chainId],
         ...newToken
       }
-      console.log(
-        'State token after merge: ',
-        state.tokens[action.payload.chainId]
-      )
     }
   }
 })

@@ -12,6 +12,7 @@ import { Card } from '../../Components/ui/Card'
 import { PoolDetailAndHistory } from '../../Components/PoolDetailAndHistory'
 import { useListTokens } from '../../state/token/hook'
 import { useListPool } from '../../state/resources/hooks/useListPool'
+import { LongBox } from '../../Components/LongBox'
 
 export const Trade = ({ tab, pool }: {
   pool?: string,
@@ -65,10 +66,8 @@ export const Trade = ({ tab, pool }: {
   useEffect(() => {
     if (poolGroups && Object.keys(poolGroups).length > 0) {
       if (pool && poolGroups[pool]) {
-        console.log('khanh')
         updateCurrentPool(pool)
       } else if (Object.keys(poolGroups)[0]) {
-        console.log('cuc')
         updateCurrentPool(Object.keys(poolGroups)[0])
       }
     }
@@ -99,18 +98,17 @@ export const Trade = ({ tab, pool }: {
             </TabList>
             <TabPanel>
               <Card className='trade-box card-in-tab'>
-                Long
+                <LongBox />
                 {/* <ExposureBox changedIn24h={changedIn24h} /> */}
               </Card>
             </TabPanel>
             <TabPanel>
               <Card className='trade-box card-in-tab'>
                 Short
-                {/* <ExposureBox changedIn24h={changedIn24h} /> */}
               </Card>
             </TabPanel>
             <TabPanel>
-              <Card className='trade-box'>
+              <Card className='trade-box card-in-tab'>
                 <SwapBox />
               </Card>
             </TabPanel>

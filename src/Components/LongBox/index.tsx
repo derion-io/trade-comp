@@ -439,6 +439,6 @@ const InfoRow = (props: any) => {
   )
 }
 
-export const SwapBox = React.memo(Component, (prevProps, nextProps) =>
+export const LongBox = React.memo(Component, (prevProps, nextProps) =>
   isEqual(prevProps, nextProps)
 )

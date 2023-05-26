@@ -48,7 +48,6 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
         value: formatFloat(basePrice)
       }
     ]
-    console.log('final data', data)
     return data
   }, [chartData, interval, chainId, basePrice])
 

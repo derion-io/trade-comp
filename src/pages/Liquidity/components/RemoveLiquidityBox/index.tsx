@@ -95,7 +95,6 @@ export const RemoveLiquidityBox = ({ totalSupplyCP }: { totalSupplyCP: BigNumber
       amountIn: bn(numberToWei(amountIn, tokens[tokenAdd]?.decimal || 18))
     }], false).then((res) => {
       const [aOuts, gasLeft] = res
-      console.log(aOuts)
       setAmountOut(weiToNumber(aOuts[0]?.amountOut || 0, tokens[poolAddress + '-' + POOL_IDS.cp].decimal || 18))
       // @ts-ignore
       setTxFee(detectTxFee(gasLeft))

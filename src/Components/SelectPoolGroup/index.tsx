@@ -70,7 +70,6 @@ const PoolGroupOption = ({ poolGroup, className, id }: {id?: string, poolGroup: 
     className={'select-pool-group__option noselect ' + className}
     onClick={() => {
       if (id) {
-        console.log(id)
         updateCurrentPool(id)
       }
     }}

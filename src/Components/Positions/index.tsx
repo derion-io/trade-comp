@@ -43,7 +43,6 @@ export const Positions = () => {
       result.push(generatePositionData(poolAddress, POOL_IDS.B))
     })
 
-    console.log(result)
     return result.filter((r: any) => r !== null)
   }, [balances, pools])
 
