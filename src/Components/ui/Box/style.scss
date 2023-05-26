@@ -4,6 +4,7 @@
   padding: 0.5rem;
   width: 100%;
   border-radius: 12px;
+  border-color: transparent;
 
   &__wrap {
 
@@ -18,13 +19,13 @@
 
   &.border {
     &-default {
-      border-color: $color-box-border-grey !important;
+      border: 1px solid $color-box-border-grey !important;
     }
     &-sell {
-      border-color: $color-sell !important;
+      border: 1px solid $color-sell !important;
     }
     &-buy {
-      border-color: $color-buy !important;
+      border: 1px solid $color-buy !important;
     }
   }
 }

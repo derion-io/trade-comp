@@ -463,7 +463,7 @@ export const Component = ({ changedIn24h }: {
       </Box>
       {
         swapSteps.length > 0 && (newLeverage !== oldLeverage || amountToChange || removePercent) &&
-        <Box borderColor='#3a3a3a' className='info-box1 ' title='Swaps'>
+        <Box borderColor='default' className='info-box1 ' title='Swaps'>
           {swapSteps.map((step: any, key: any) => {
             const stepFromToken = getTokenByPower(step.tokenIn)
             const stepToToken = getTokenByPower(step.tokenOut)

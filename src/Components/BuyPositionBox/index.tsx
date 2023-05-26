@@ -35,7 +35,7 @@ import _ from 'lodash'
 import { LeverageSlider } from '../Slider'
 import { useGenerateLeverageData } from '../../hooks/useGenerateLeverageData'
 
-const Component = () => {
+const Component = ({ isLong = true }: {isLong?: boolean}) => {
   const [leverage, setLeverage] = useState<number>(1)
   const { account, showConnectModal } = useWeb3React()
   const { configs, ddlEngine } = useConfigs()
@@ -56,16 +56,16 @@ const Component = () => {
   const { updateSwapTxsHandle } = useSwapHistory()
   const { data: nativePrice } = useNativePrice()
 
-  const leverageData = useGenerateLeverageData()
+  const leverageData = useGenerateLeverageData(isLong)
 
   const outputTokenAddress = useMemo(() => {
     for (const poolAddress in pools) {
       if (leverage === pools[poolAddress].k.toNumber()) {
-        return poolAddress + '-' + POOL_IDS.A
+        return poolAddress + '-' + (isLong ? POOL_IDS.A : POOL_IDS.B)
       }
     }
     return ''
-  }, [leverage, pools])
+  }, [leverage, pools, isLong])
 
   useEffect(() => {
     if (outputTokenAddress) {
@@ -324,10 +324,10 @@ const Component = () => {
 
       {
         outputTokenAddress && <Box
-          borderColor='buy'
+          borderColor={isLong ? 'buy' : 'sell'}
           className='estimate-box swap-info-box mt-1 mb-1'
         >
-          <span className='estimate-box__leverage'>Long {leverage}X</span>
+          <span className={`estimate-box__leverage ${isLong ? 'long' : 'short'}`}>{isLong ? 'Long ' : 'Short -'}{leverage}X</span>
           <InfoRow>
             <span>
               <TokenSymbol token={outputTokenAddress} />:
@@ -376,7 +376,7 @@ const Component = () => {
         />
       }
 
-      <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
+      <Box borderColor='default' className='swap-info-box mt-1 mb-2'>
         <InfoRow>
           <TextGrey>Interest Rate</TextGrey>
           <span>
@@ -441,6 +441,6 @@ const InfoRow = (props: any) => {
   )
 }
 
-export const LongBox = React.memo(Component, (prevProps, nextProps) =>
+export const BuyPositionBox = React.memo(Component, (prevProps, nextProps) =>
   isEqual(prevProps, nextProps)
 )

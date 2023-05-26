@@ -4,7 +4,7 @@ import { useCurrentPool } from '../state/currentPool/hooks/useCurrentPool'
 
 const barColors = ['#01A7FA', '#FF98E5', '#4FBF67', '#3DBAA2']
 
-export const useGenerateLeverageData = () => {
+export const useGenerateLeverageData = (isLong: boolean) => {
   const { pools } = useCurrentPool()
   return useMemo(() => {
     const result = {}
@@ -16,7 +16,7 @@ export const useGenerateLeverageData = () => {
             xDisplay: pool.k.toNumber() + 'x',
             bars: [
               {
-                token: pool.poolAddress + '-' + POOL_IDS.A,
+                token: pool.poolAddress + '-' + (isLong ? POOL_IDS.A : POOL_IDS.B),
                 size: 100,
                 color: barColors[0]
               }
@@ -25,7 +25,7 @@ export const useGenerateLeverageData = () => {
         } else {
           let bars = result[pool.k.toNumber()]
           bars.push({
-            token: pool.poolAddress + '-' + POOL_IDS.A,
+            token: pool.poolAddress + '-' + (isLong ? POOL_IDS.A : POOL_IDS.B),
             size: 100,
             color: barColors[bars.length]
           })
@@ -40,5 +40,5 @@ export const useGenerateLeverageData = () => {
       })
     }
     return Object.values(result)
-  }, [pools])
+  }, [pools, isLong])
 }

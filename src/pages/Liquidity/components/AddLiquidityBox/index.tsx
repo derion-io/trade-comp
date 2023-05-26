@@ -228,7 +228,7 @@ export const AddLiquidityBox = ({ totalSupplyCP }: {totalSupplyCP: BigNumber}) =
         readOnly
       />
     </div>
-    <Box borderColor='#3a3a3a' className='add-liquidity__info-box mb-1'>
+    <Box borderColor='default' className='add-liquidity__info-box mb-1'>
       <InfoRow>
         <Text>Transaction Fee</Text>
         <Text>

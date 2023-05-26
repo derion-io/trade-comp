@@ -374,7 +374,7 @@ const Component = () => {
         onSelectToken={onSelectToken}
       />
 
-      <Box borderColor='#3a3a3a' className='swap-info-box mt-1 mb-1'>
+      <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
         <InfoRow>
           <TextGrey>Interest Rate</TextGrey>
           <span>
@@ -393,7 +393,7 @@ const Component = () => {
         </InfoRow>
       </Box>
 
-      <Box borderColor='#3a3a3a' className='swap-info-box mt-1 mb-1'>
+      <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
         <InfoRow>
           <TextGrey>Gas Used</TextGrey>
           <span>

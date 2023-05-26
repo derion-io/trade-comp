@@ -32,19 +32,25 @@
 
     &__leverage {
       position: absolute;
-      border: 1px solid $color-buy;
+      border: 1px solid;
       left: 3rem;
       transform: translateY(calc(-50% - 1.5rem));
       padding: 0.5rem;
       border-radius: 0.5rem;
       background: $color-card-bg;
+      &.long {
+        border-color: $color-buy;
+      }
+      &.short {
+        border-color: $color-sell;
+      }
     }
   }
 
   .info-row {
     font-size: 12px;
     &  * {
-      font-size: 12px;
+      font-size: 12px !important;
     }
   }
 

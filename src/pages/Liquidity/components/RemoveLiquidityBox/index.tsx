@@ -255,7 +255,7 @@ export const RemoveLiquidityBox = ({ totalSupplyCP }: { totalSupplyCP: BigNumber
       </div>
     </div>
 
-    <Box borderColor='#3a3a3a' className='add-liquidity__info-box mb-1' title='Info'>
+    <Box borderColor='default' className='add-liquidity__info-box mb-1' title='Info'>
       <InfoRow>
         <Text>Receive</Text>
         <Text>

@@ -12,7 +12,7 @@ import { Card } from '../../Components/ui/Card'
 import { PoolDetailAndHistory } from '../../Components/PoolDetailAndHistory'
 import { useListTokens } from '../../state/token/hook'
 import { useListPool } from '../../state/resources/hooks/useListPool'
-import { LongBox } from '../../Components/LongBox'
+import { BuyPositionBox } from '../../Components/BuyPositionBox'
 
 export const Trade = ({ tab, pool }: {
   pool?: string,
@@ -98,13 +98,12 @@ export const Trade = ({ tab, pool }: {
             </TabList>
             <TabPanel>
               <Card className='trade-box card-in-tab'>
-                <LongBox />
-                {/* <ExposureBox changedIn24h={changedIn24h} /> */}
+                <BuyPositionBox />
               </Card>
             </TabPanel>
             <TabPanel>
               <Card className='trade-box card-in-tab'>
-                Short
+                <BuyPositionBox isLong={false} />
               </Card>
             </TabPanel>
             <TabPanel>
