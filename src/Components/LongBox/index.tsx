@@ -4,7 +4,7 @@ import './style.scss'
 import { Box } from '../ui/Box'
 import { ButtonExecute } from '../ui/Button'
 import 'rc-slider/assets/index.css'
-import { IconArrowDown, IconOptionLeft } from '../ui/Icon'
+import { IconArrowDown } from '../ui/Icon'
 import { Input } from '../ui/Input'
 import { TokenIcon } from '../ui/TokenIcon'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
@@ -15,7 +15,7 @@ import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../state/token/hook'
 import {
   bn,
-  decodeErc1155Address, formatFloat, getErc1155Token, isErc1155Address, mul,
+  decodeErc1155Address, formatFloat, isErc1155Address, mul,
   numberToWei,
   parseCallStaticError,
   weiToNumber
@@ -30,25 +30,24 @@ import isEqual from 'react-fast-compare'
 import { useNativePrice } from '../../hooks/useTokenPrice'
 import { toast } from 'react-toastify'
 import { ApproveUtrModal } from '../ApproveUtrModal'
-import { BeverageModal } from '../BeverageModal'
 import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 import _ from 'lodash'
-import { useHelper } from '../../state/config/useHelper'
+import { LeverageSlider } from '../Slider'
+import { useGenerateLeverageData } from '../../hooks/useGenerateLeverageData'
 
 const Component = () => {
+  const [leverage, setLeverage] = useState<number>(1)
   const { account, showConnectModal } = useWeb3React()
   const { configs, ddlEngine } = useConfigs()
-  const { states, powers, dTokens, allTokens, id, pools } = useCurrentPool()
+  const { states, powers, allTokens, id, pools } = useCurrentPool()
   const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
-  const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
-  const [visibleLeverage, setVisibleLeverage] = useState<boolean>(false)
   const [tokenTypeToSelect, setTokenTypeToSelect] = useState<'input' | 'output'>('input')
   const [callError, setCallError] = useState<string>('')
   const [amountOut, setAmountOut] = useState<string>('')
   const [amountOutWei, setAmountOutWei] = useState<BigNumber>(bn(0))
   const [amountIn, setAmountIn] = useState<string>('')
-  const { balances, routerAllowances, fetchBalanceAndAllowance, accFetchBalance } = useWalletBalance()
+  const { balances, fetchBalanceAndAllowance, accFetchBalance } = useWalletBalance()
   const [txFee, setTxFee] = useState<BigNumber>(bn(0))
   const [gasUsed, setGasUsed] = useState<BigNumber>(bn(0))
   const [loading, setLoading] = useState<boolean>(false)
@@ -56,12 +55,26 @@ const Component = () => {
   const { tokens } = useListTokens()
   const { updateSwapTxsHandle } = useSwapHistory()
   const { data: nativePrice } = useNativePrice()
-  const { convertNativeAddressToWrapAddress } = useHelper()
+
+  const leverageData = useGenerateLeverageData()
+
+  const outputTokenAddress = useMemo(() => {
+    for (const poolAddress in pools) {
+      if (leverage === pools[poolAddress].k.toNumber()) {
+        return poolAddress + '-' + POOL_IDS.A
+      }
+    }
+    return ''
+  }, [leverage, pools])
 
   useEffect(() => {
-    setInputTokenAddress(NATIVE_ADDRESS || '')
-    setOutputTokenAddress(dTokens[0])
-  }, [id])
+    if (outputTokenAddress) {
+      const { address } = decodeErc1155Address(outputTokenAddress)
+      setInputTokenAddress(pools[address].TOKEN_R)
+    } else if (Object.values(pools).length > 0) {
+      setInputTokenAddress(Object.values(pools)[0].TOKEN_R)
+    }
+  }, [outputTokenAddress, pools])
 
   useEffect(() => {
     if (tokens[inputTokenAddress] && tokens[outputTokenAddress] && amountIn && Number(amountIn)) {
@@ -85,6 +98,7 @@ const Component = () => {
       amountIn: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))
     }]).then((res: any) => {
       const [aOuts, gasLeft] = res
+      console.log(aOuts)
       setAmountOutWei(aOuts[0]?.amountOut || bn(0))
       setAmountOut(weiToNumber(aOuts[0]?.amountOut || 0, tokens[outputTokenAddress].decimal || 18))
       // @ts-ignore
@@ -104,12 +118,6 @@ const Component = () => {
 
   const detectTxFee = (gasUsed: BigNumber) => {
     return gasUsed.mul(2).div(3).mul(5 * 10 ** 9)
-  }
-
-  const revertPairAddress = () => {
-    const inAddr = inputTokenAddress
-    setInputTokenAddress(outputTokenAddress)
-    setOutputTokenAddress(inAddr)
   }
 
   const renderExecuteButton = () => {
@@ -168,23 +176,6 @@ const Component = () => {
   }
 
   const getTokenPrice = (address: string, powerState: any) => {
-    // if (address === cToken) {
-    //   return cTokenPrice
-    // } else if (address === configs.addresses.nativeToken) {
-    //   return nativePrice
-    // } else if (address === baseToken) {
-    //   return basePrice
-    // } else if (address === quoteToken) {
-    //   return 1
-    // }
-    // if (powerState && isErc1155Address(address)) {
-    //   const { id } = decodeErc1155Address(address)
-    //   if (Number(id) === POOL_IDS.cp) {
-    //     return cpPrice
-    //   }
-    //   const power = powers[id]
-    //   return powerState.calculatePrice(power)
-    // }
     return 1
   }
 
@@ -236,7 +227,7 @@ const Component = () => {
     if ((tokenTypeToSelect === 'input' && address === outputTokenAddress) ||
       (tokenTypeToSelect === 'output' && address === inputTokenAddress)
     ) {
-      revertPairAddress()
+      // revertPairAddress()
       return
     }
     if (tokenTypeToSelect === 'input') {
@@ -255,7 +246,7 @@ const Component = () => {
         const poolOut = pools[decodeErc1155Address(address).address]
         setInputTokenAddress(poolOut.TOKEN_R === configs.addresses.wrapToken ? NATIVE_ADDRESS : poolOut.TOKEN_R)
       }
-      setOutputTokenAddress(address)
+      // setOutputTokenAddress(address)
     }
   }, [pools, inputTokenAddress, outputTokenAddress, tokenTypeToSelect, configs])
 
@@ -269,17 +260,7 @@ const Component = () => {
   }, [pools, inputTokenAddress, outputTokenAddress])
 
   return (
-    <div className='swap-box'>
-      <div className='d-flex jc-space-between'>
-        <Text>Swap</Text>
-        <span><IconOptionLeft style={{ cursor: 'pointer' }} onClick={() => setVisibleLeverage(true)}/></span>
-      </div>
-      {visibleLeverage && <BeverageModal
-        callBack={() => {
-        }}
-        visible={visibleLeverage}
-        setVisible={setVisibleLeverage}
-      />}
+    <div className='long-short-box'>
       <div className='amount-input-box'>
         <div className='amount-input-box__head'>
           <SkeletonLoader loading={!tokens[inputTokenAddress]}>
@@ -326,46 +307,6 @@ const Component = () => {
         />
       </div>
 
-      <div className='text-center mt-2 mb-1'>
-        <span className='arrow-down' onClick={() => {
-          revertPairAddress()
-        }}>
-          <IconArrowDown fill='#01A7FA' />
-        </span>
-      </div>
-
-      <div className='amount-input-box'>
-        <div className='amount-input-box__head'>
-          <SkeletonLoader loading={!tokens[inputTokenAddress]}>
-            <span className='current-token' onClick={() => {
-              setVisibleSelectTokenModal(true)
-              setTokenTypeToSelect('output')
-            }}>
-              <TokenIcon size={24} tokenAddress={outputTokenAddress} />
-              <Text><TokenSymbol token={outputTokenAddress} /></Text>
-            </span>
-          </SkeletonLoader>
-          <SkeletonLoader loading={accFetchBalance !== account}>
-            <Text>Balance: {balances && balances[outputTokenAddress]
-              ? formatWeiToDisplayNumber(
-                balances[outputTokenAddress],
-                4,
-                tokens[outputTokenAddress]?.decimal || 18
-              )
-              : 0
-            }
-            </Text>
-          </SkeletonLoader>
-        </div>
-        <Input
-          // @ts-ignore
-          value={Number(amountOut) > 0 ? amountOut : ''}
-          placeholder='0.0'
-          suffix={valueOut > 0 ? <TextGrey>${valueOut}</TextGrey> : ''}
-          className='fs-24'
-        />
-      </div>
-
       <SelectTokenModal
         visible={visibleSelectTokenModal}
         setVisible={setVisibleSelectTokenModal}
@@ -374,7 +315,68 @@ const Component = () => {
         onSelectToken={onSelectToken}
       />
 
-      <Box borderColor='#3a3a3a' className='swap-info-box mt-1 mb-1'>
+      {
+        outputTokenAddress &&
+        <div className='pl-5 mt-1 mb-1'>
+          <IconArrowDown fill='#01A7FA' />
+        </div>
+      }
+
+      {
+        outputTokenAddress && <Box
+          borderColor='buy'
+          className='estimate-box swap-info-box mt-1 mb-1'
+        >
+          <span className='estimate-box__leverage'>Long {leverage}X</span>
+          <InfoRow>
+            <span>
+              <TokenSymbol token={outputTokenAddress} />:
+            </span>
+            <span>
+              <Text>
+                {formatWeiToDisplayNumber(balances[outputTokenAddress], 2, balances[outputTokenAddress].decimal)}
+              </Text>
+              <Text>+</Text>
+              <Text>
+                {formatWeiToDisplayNumber(amountOutWei, 2, balances[outputTokenAddress].decimal)}
+              </Text>
+            </span>
+          </InfoRow>
+          <InfoRow>
+            <span>
+              USD:
+            </span>
+            <span>
+              <Text>
+                {formatWeiToDisplayNumber(balances[outputTokenAddress], 2, balances[outputTokenAddress].decimal)}
+              </Text>
+              <Text>+</Text>
+              <Text>
+                {formatWeiToDisplayNumber(amountOutWei, 2, balances[outputTokenAddress].decimal)}
+              </Text>
+            </span>
+          </InfoRow>
+          <InfoRow>
+            <span>
+              Expiration
+            </span>
+            <Text>
+              0 + 3days
+            </Text>
+          </InfoRow>
+        </Box>
+      }
+      {
+        leverageData.length > 0 &&
+        <LeverageSlider
+          leverage={leverage}
+          setLeverage={setLeverage}
+          leverageData={leverageData}
+          height={100}
+        />
+      }
+
+      <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
         <InfoRow>
           <TextGrey>Interest Rate</TextGrey>
           <span>
@@ -393,7 +395,7 @@ const Component = () => {
         </InfoRow>
       </Box>
 
-      <Box borderColor='#3a3a3a' className='swap-info-box mt-1 mb-1'>
+      <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
         <InfoRow>
           <TextGrey>Gas Used</TextGrey>
           <span>

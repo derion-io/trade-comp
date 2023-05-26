@@ -11,7 +11,7 @@ export const Box = (
   props: React.HTMLAttributes<HTMLSpanElement> & {
     children: any
     background?: string
-    borderColor?: string
+    borderColor?: 'default' | 'buy' | 'sell' | string
     borderWidth?: string | number
     borderRadius?: string
     disableBorderLeft?: boolean
@@ -34,15 +34,16 @@ export const Box = (
 
       <div
         {...propsWithDefault}
-        className={'derivable-box ' + propsWithDefault.className}
+        className={`derivable-box ${propsWithDefault.className} ${propsWithDefault.borderColor ? ('border-' + propsWithDefault.borderColor) : ''} `}
         style={{
           ...propsWithDefault.style,
           background: propsWithDefault.background || 'transparent',
           borderRadius: propsWithDefault.borderRadius,
-          borderLeft: propsWithDefault.disableBorderLeft ? 'none' : `${propsWithDefault.borderWidth} solid ${propsWithDefault.borderColor || 'transparent'}`,
-          borderRight: propsWithDefault.disableBorderRight ? 'none' : `${propsWithDefault.borderWidth} solid ${propsWithDefault.borderColor || 'transparent'}`,
-          borderTop: propsWithDefault.disableBorderTop ? 'none' : `${propsWithDefault.borderWidth} solid ${propsWithDefault.borderColor || 'transparent'}`,
-          borderBottom: propsWithDefault.disableBorderBottom ? 'none' : `${propsWithDefault.borderWidth} solid ${propsWithDefault.borderColor || 'transparent'}`,
+          // borderColor: `${propsWithDefault.borderColor || 'transparent'}`,
+          borderLeft: propsWithDefault.disableBorderLeft ? 'none' : `${propsWithDefault.borderWidth} solid`,
+          borderRight: propsWithDefault.disableBorderRight ? 'none' : `${propsWithDefault.borderWidth} solid`,
+          borderTop: propsWithDefault.disableBorderTop ? 'none' : `${propsWithDefault.borderWidth} solid`,
+          borderBottom: propsWithDefault.disableBorderBottom ? 'none' : `${propsWithDefault.borderWidth} solid`
         }}
       >
         {props.children}

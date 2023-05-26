@@ -1,7 +1,7 @@
 @import "../../styles/abstracts/variables";
 @import "../../styles/abstracts/mixins";
 
-.swap-box {
+.long-short-box {
   padding: 1.5rem;
 
   .amount-input-box {
@@ -23,6 +23,21 @@
       &--balance {
         cursor: pointer;
       }
+    }
+  }
+
+  .estimate-box {
+    position: relative;
+    padding-top: 1.5rem !important;
+
+    &__leverage {
+      position: absolute;
+      border: 1px solid $color-buy;
+      left: 3rem;
+      transform: translateY(calc(-50% - 1.5rem));
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      background: $color-card-bg;
     }
   }
 
