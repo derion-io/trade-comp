@@ -10,18 +10,17 @@ import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { useConfigs } from '../../state/config/useConfigs'
 import { useListPool } from '../../state/resources/hooks/useListPool'
 import { Pools } from '../../pages/Pools'
-import { LIQUIDITY_TAB, SWAP_TAB, TIME_TO_REFRESH_STATE } from '../../utils/constant'
-import { Liquidity } from '../../pages/Liquidity'
+import { SWAP_TAB, TIME_TO_REFRESH_STATE } from '../../utils/constant'
 import { useSwapHistoryFormated } from '../../state/wallet/hooks/useSwapHistory'
 import { Trade } from '../../pages/Trade'
 
 export const App = () => {
-  const { id, updateCurrentPool } = useCurrentPool()
+  const { id } = useCurrentPool()
   const { tokens } = useListTokens()
   const { poolGroups } = useListPool()
   const { fetchBalanceAndAllowance } = useWalletBalance()
   const { account } = useWeb3React()
-  const { ddlEngine, configs, chainId, location } = useConfigs()
+  const { ddlEngine, chainId, location } = useConfigs()
   const chainIdRef = useRef(null)
   const { initListPool } = useListPool()
   useSwapHistoryFormated()
@@ -57,33 +56,35 @@ export const App = () => {
 
   const renderAppContent = () => {
     switch (true) {
-      case isMatchWithPath('/:tab(exposure|swap)/:pool?'):
+      case isMatchWithPath('/:tab(long|short|swap)/:pool?'):
         return <Trade tab={detectTradeTab(location.pathname)} pool={detectPool(location.pathname)}/>
       case isMatchWithPath('/pools'):
         return <Pools />
       // case isMatchWithPath('/:tab(add-liquidity|remove-liquidity)'):
       //   return <Liquidity tab={detectLiquidityTab(location.pathname)} />
       default:
-        return <Trade tab={SWAP_TAB.EXPOSURE} />
+        return <Trade tab={SWAP_TAB.SWAP} />
     }
   }
 
-  const detectLiquidityTab = (path: string) => {
-    if (path.includes('add-liquidity')) {
-      return LIQUIDITY_TAB.ADD
-    }
-    return LIQUIDITY_TAB.REMOVE
-  }
+  // const detectLiquidityTab = (path: string) => {
+  //   if (path.includes('add-liquidity')) {
+  //     return LIQUIDITY_TAB.ADD
+  //   }
+  //   return LIQUIDITY_TAB.REMOVE
+  // }
 
   const detectTradeTab = (path: string) => {
-    if (path.includes('swap')) {
-      return SWAP_TAB.SWAP
+    if (path.includes('long')) {
+      return SWAP_TAB.LONG
+    } else if (path.includes('short')) {
+      return SWAP_TAB.SHORT
     }
-    return SWAP_TAB.EXPOSURE
+    return SWAP_TAB.SWAP
   }
 
   const detectPool = (path: string) => {
-    if (path.includes('swap') || path.includes('exposure')) {
+    if (path.includes('long') || path.includes('short') || path.includes('swap')) {
       const arr = path.split('/')
       return arr[arr.length - 1]
     }

@@ -6,6 +6,7 @@ import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 import { useListPool } from '../../state/resources/hooks/useListPool'
 import './style.scss'
 import isEqual from 'react-fast-compare'
+import { Positions } from '../Positions'
 
 export const Component = ({ poolAddress }: {poolAddress: string}) => {
   const { formartedSwapLogs: swapTxs } = useSwapHistory()
@@ -13,7 +14,8 @@ export const Component = ({ poolAddress }: {poolAddress: string}) => {
 
   return <Card className='pool-detail-and-history'>
     <div className='pool-detail-and-history__left'>
-      <ExpandPool visible pool={poolGroups[poolAddress] || {}} />
+      {/*<ExpandPool visible pool={poolGroups[poolAddress] || {}} />*/}
+      <Positions />
     </div>
     <div className='pool-detail-and-history__right'>
       <WalletHistoryTable swapTxs={swapTxs}/>

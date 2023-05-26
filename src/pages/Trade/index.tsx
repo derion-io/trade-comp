@@ -6,7 +6,7 @@ import { Chart } from '../../Components/Chart'
 import { SWAP_TAB } from '../../utils/constant'
 import { SwapBox } from '../../Components/SwapBox'
 import { useWindowSize } from '../../hooks/useWindowSize'
-import { Tabs, TabPanel } from 'react-tabs'
+import { Tabs, TabPanel, TabList, Tab } from 'react-tabs'
 import 'react-tabs/style/react-tabs.css'
 import { Card } from '../../Components/ui/Card'
 import { PoolDetailAndHistory } from '../../Components/PoolDetailAndHistory'
@@ -78,9 +78,7 @@ export const Trade = ({ tab, pool }: {
     <div className='exposure-page'>
       <div className='exposure-page__content'>
         <div className='exposure-page__content--left'>
-          {
-            <Chart changedIn24h={changedIn24h} />
-          }
+          <Chart changedIn24h={changedIn24h} />
           {
             !isPhone && <div className='hidden-on-phone'>
               <PoolDetailAndHistory poolAddress={id} />
@@ -89,17 +87,25 @@ export const Trade = ({ tab, pool }: {
         </div>
         <div className='exposure-page__content--right'>
           <Tabs
-            selectedIndex={tab === SWAP_TAB.EXPOSURE ? 0 : 1}
+            selectedIndex={tab === SWAP_TAB.LONG ? 0 : tab === SWAP_TAB.SHORT ? 1 : 2}
             onSelect={(index) => {
-              history.push(index === 0 ? '/exposure' : '/swap')
+              history.push(index === 0 ? '/long' : index === 1 ? '/short' : '/swap')
             }}
           >
-            {/* <TabList> */}
-            {/*  /!*<Tab>Exposure</Tab>*!/ */}
-            {/*  <Tab>Swap</Tab> */}
-            {/* </TabList> */}
+            <TabList>
+              <Tab>Long</Tab>
+              <Tab>Short</Tab>
+              <Tab>Swap</Tab>
+            </TabList>
             <TabPanel>
               <Card className='trade-box card-in-tab'>
+                Long
+                {/* <ExposureBox changedIn24h={changedIn24h} /> */}
+              </Card>
+            </TabPanel>
+            <TabPanel>
+              <Card className='trade-box card-in-tab'>
+                Short
                 {/* <ExposureBox changedIn24h={changedIn24h} /> */}
               </Card>
             </TabPanel>

@@ -21,7 +21,8 @@ export const LOCALSTORAGE_KEY = {
 }
 
 export const SWAP_TAB = {
-  EXPOSURE: Symbol('exposure'),
+  LONG: Symbol('long'),
+  SHORT: Symbol('short'),
   SWAP: Symbol('swap')
 }
 
