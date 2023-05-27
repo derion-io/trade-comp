@@ -72,7 +72,7 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
                   </td>
                   <td className='text-center wallet-history-table__arrow'><TextOut> {'->'} </TextOut></td>
                   <td>
-                    <Text>{formatWeiToDisplayNumber(swapTx.amountOut, 4, tokens[swapTx.tokenIn]?.decimal || 18)} </Text>
+                    <Text>{formatWeiToDisplayNumber(swapTx.amountOut, 4, tokens[swapTx.tokenOut]?.decimal || 18)} </Text>
                     <TextOut><TokenSymbol token={swapTx.tokenOut} /></TextOut>
                   </td>
                   <td className='text-right'>

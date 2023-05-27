@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Text, TextGrey } from '../ui/Text'
 import './style.scss'
-import { Box } from '../ui/Box'
 import 'rc-slider/assets/index.css'
 import { IconArrowDown, IconOptionLeft } from '../ui/Icon'
 import { Input } from '../ui/Input'
@@ -13,7 +12,8 @@ import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../state/token/hook'
 import {
   bn,
-  decodeErc1155Address, formatFloat, isErc1155Address, mul,
+  decodeErc1155Address,
+  isErc1155Address,
   numberToWei,
   weiToNumber
 } from '../../utils/helpers'
@@ -23,13 +23,14 @@ import { NATIVE_ADDRESS } from '../../utils/constant'
 import { useConfigs } from '../../state/config/useConfigs'
 import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import isEqual from 'react-fast-compare'
-import { useNativePrice } from '../../hooks/useTokenPrice'
 import { ApproveUtrModal } from '../ApproveUtrModal'
 import { BeverageModal } from '../BeverageModal'
 import _ from 'lodash'
 import { useCalculateSwap } from './hooks/useCalculateSwap'
 import { useTokenValue } from './hooks/useTokenValue'
 import { ButtonSwap } from '../ButtonSwap'
+import { TxFee } from './components/TxFee'
+import { PoolInfo } from './components/PoolInfo'
 
 const Component = () => {
   const { account } = useWeb3React()
@@ -44,7 +45,6 @@ const Component = () => {
   const { balances, accFetchBalance } = useWalletBalance()
   const [visibleApproveModal, setVisibleApproveModal] = useState<boolean>(false)
   const { tokens } = useListTokens()
-  const { data: nativePrice } = useNativePrice()
   const { callError, txFee, gasUsed, amountOut, amountOutWei } = useCalculateSwap({
     amountIn,
     inputTokenAddress,
@@ -111,15 +111,6 @@ const Component = () => {
       setOutputTokenAddress(address)
     }
   }, [pools, inputTokenAddress, outputTokenAddress, tokenTypeToSelect, configs])
-
-  const poolToShow = useMemo(() => {
-    if (isErc1155Address(outputTokenAddress)) {
-      return pools[decodeErc1155Address(outputTokenAddress).address]
-    } else if (isErc1155Address(inputTokenAddress)) {
-      return pools[decodeErc1155Address(inputTokenAddress).address]
-    }
-    return null
-  }, [pools, inputTokenAddress, outputTokenAddress])
 
   return (
     <div className='swap-box'>
@@ -227,43 +218,11 @@ const Component = () => {
         onSelectToken={onSelectToken}
       />
 
-      <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
-        <InfoRow>
-          <TextGrey>Interest Rate</TextGrey>
-          <span>
-            {formatFloat(mul(poolToShow?.dailyInterestRate || 0, 100), 3)}%
-          </span>
-        </InfoRow>
-        <InfoRow>
-          <TextGrey>Risk Factor</TextGrey>
-          <Text>
-            {formatFloat(mul(poolToShow?.riskFactor || 0, 100), 3)}%
-          </Text>
-        </InfoRow>
-        <InfoRow>
-          <TextGrey>Effective Leverage:</TextGrey>
-          <Text>x{poolToShow?.k.toString()}</Text>
-        </InfoRow>
-      </Box>
-
-      <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
-        <InfoRow>
-          <TextGrey>Gas Used</TextGrey>
-          <span>
-            <Text>{formatWeiToDisplayNumber(gasUsed, 0, 0)} Gas</Text>
-          </span>
-        </InfoRow>
-        <InfoRow>
-          <TextGrey>Transaction Fee</TextGrey>
-          <span>
-            <Text>
-              {weiToNumber(txFee, 18, 4)}
-              <TextGrey> BNB </TextGrey>
-              (${weiToNumber(txFee.mul(numberToWei(nativePrice)), 36, 2)})
-            </Text>
-          </span>
-        </InfoRow>
-      </Box>
+      <PoolInfo
+        outputTokenAddress={outputTokenAddress}
+        inputTokenAddress={inputTokenAddress}
+      />
+      <TxFee gasUsed={gasUsed} txFee={txFee} />
 
       <div className='actions'>
         <ButtonSwap
@@ -282,18 +241,6 @@ const Component = () => {
         setVisible={setVisibleApproveModal}
         inputTokenAddress={inputTokenAddress}
       />
-    </div>
-  )
-}
-
-const InfoRow = (props: any) => {
-  return (
-    <div
-      className={
-        'd-flex jc-space-between info-row font-size-12 ' + props.className
-      }
-    >
-      {props.children}
     </div>
   )
 }

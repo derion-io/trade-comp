@@ -8,7 +8,6 @@ import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useConfigs } from '../../state/config/useConfigs'
 import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 import { BigNumber } from 'ethers'
-import { Simulate } from 'react-dom/test-utils'
 
 export const ButtonSwap = ({
   inputTokenAddress,
