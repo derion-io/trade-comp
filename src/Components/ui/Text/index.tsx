@@ -1,7 +1,12 @@
 import React from 'react'
 import './style.scss'
 
-type TextType = React.HTMLAttributes<HTMLSpanElement> & { children: any, fontSize?: number, fontWeight?: number }
+type TextType = React.HTMLAttributes<HTMLSpanElement> & {
+  children: any,
+  fontSize?: number,
+  fontWeight?: number
+  whiteSpace?: 'nowrap'
+}
 
 export const Text = (props: TextType) => {
   return (
@@ -9,6 +14,7 @@ export const Text = (props: TextType) => {
       {...props}
       className={'derivable-text ' + props.className}
       style={{
+        whiteSpace: props.whiteSpace ? props.whiteSpace : 'inherit',
         fontSize: props.fontSize,
         fontWeight: props.fontWeight
       }}

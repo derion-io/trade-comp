@@ -20,8 +20,6 @@ export const Box = (
     ...props
   }
 
-  console.log(propsWithDefault.style)
-
   return (
     <div className='derivable-box__wrap'>
       {

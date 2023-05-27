@@ -3,12 +3,16 @@ import './style.scss'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { POOL_IDS } from '../../utils/constant'
-import { shortenAddressString, weiToNumber } from '../../utils/helpers'
+import { shortenAddressString } from '../../utils/helpers'
 import { useListTokens } from '../../state/token/hook'
 import { PoolType } from '../../state/resources/type'
 import { Button } from '../ui/Button'
 import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import { BigNumber } from 'ethers'
+import { Text, TextLink } from '../ui/Text'
+import { useConfigs } from '../../state/config/useConfigs'
+import { TokenIcon } from '../ui/TokenIcon'
+import { TokenSymbol } from '../ui/TokenSymbol'
 
 type Position = {
   poolAddress: string
@@ -22,6 +26,7 @@ export const Positions = () => {
   const { pools } = useCurrentPool()
   const { balances } = useWalletBalance()
   const { tokens } = useListTokens()
+  const { configs } = useConfigs()
 
   const generatePositionData = (poolAddress: string, poolId: number): Position | null => {
     if (balances[poolAddress + '-' + poolId] && balances[poolAddress + '-' + poolId].gt(0)) {
@@ -46,17 +51,18 @@ export const Positions = () => {
     return result.filter((r: any) => r !== null)
   }, [balances, pools])
 
-  return <div>
+  return <div className='positions-table'>
     <table>
       <thead>
         <tr>
           <th>Pool</th>
+          <th>Token</th>
+          <th>Pair</th>
           <th>Leverage</th>
           <th>Reserve token</th>
-          <th>Token pair</th>
           <th>Value</th>
           <th>Balance</th>
-          <th/>
+          <th />
         </tr>
       </thead>
       <tbody>
@@ -64,15 +70,35 @@ export const Positions = () => {
           (positions && positions.length > 0) && positions.map((position, key: number) => {
             return <tr key={key}>
               <td>
-                {shortenAddressString(position.poolAddress)}
+                <TextLink href={configs.explorer + '/address/' + position.poolAddress}>
+                  {shortenAddressString(position.poolAddress)}
+                </TextLink>
               </td>
-              <td>X{position.pool.k.toNumber()}</td>
-              <td>{tokens[position.pool.TOKEN_R]?.symbol}</td>
               <td>
-                {tokens[position.pool.baseToken]?.symbol}/{tokens[position.pool.quoteToken]?.symbol}
+                <div className='d-flex gap-05 align-items-center'>
+                  <TokenIcon size={24} tokenAddress={position.token} />
+                  <TokenSymbol token={position.token} />
+                </div>
               </td>
-              <td>{formatWeiToDisplayNumber(position.balance, 4, tokens[position.token].decimals)}</td>
-              <td><Button>Close</Button></td>
+              <td>
+                <Text>{tokens[position.pool.baseToken]?.symbol}/{tokens[position.pool.quoteToken]?.symbol}</Text>
+              </td>
+              <td>X{position.pool.k.toNumber() / 2}</td>
+              <td>
+                <div className='d-flex gap-05 align-items-center'>
+                  <TokenIcon size={24} tokenAddress={position.pool.TOKEN_R} />
+                  <Text>{tokens[position.pool.TOKEN_R]?.symbol}</Text>
+                </div>
+              </td>
+              <td>
+                <Text>{formatWeiToDisplayNumber(position.balance, 4, tokens[position.token].decimals)}</Text>
+              </td>
+              <td>
+                <Text>{formatWeiToDisplayNumber(position.balance, 4, tokens[position.token].decimals)}</Text>
+              </td>
+              <td className='text-right'>
+                <Button size='small'>Close</Button>
+              </td>
             </tr>
           })
         }

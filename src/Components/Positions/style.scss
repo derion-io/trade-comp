@@ -1,0 +1,13 @@
+.positions-table {
+  padding: 1rem;
+  table {
+    width: 100%;
+  }
+  tr td {
+    white-space: nowrap;
+  }
+
+  td, th {
+    padding: 0.5rem 0.25rem;
+  }
+}

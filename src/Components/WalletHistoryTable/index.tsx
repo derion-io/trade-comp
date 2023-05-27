@@ -8,7 +8,7 @@ import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import moment from 'moment'
 import { Text, TextBlue, TextBuy, TextLink, TextPink, TextSell } from '../ui/Text'
 import { useConfigs } from '../../state/config/useConfigs'
-import { formatFloat } from '../../utils/helpers'
+import { formatFloat, shortenAddressString } from '../../utils/helpers'
 import { NATIVE_ADDRESS, POOL_IDS } from '../../utils/constant'
 import { BigNumber } from 'ethers'
 import { getErc20AmountChange } from '../../utils/swapHistoryHelper'
@@ -37,11 +37,20 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
 
   return (
     <div className='wallet-history-table-wrap'>
-      <div className='wallet-history-table__head'>
-        <TextPink>Wallet history</TextPink>
-      </div>
+      {/* <div className='wallet-history-table__head'> */}
+      {/*  <TextPink>Wallet history</TextPink> */}
+      {/* </div> */}
       <div className='wallet-history-table'>
         <table>
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>TokenIn</th>
+              <th/>
+              <th>TokenOut</th>
+              <th className='text-right'>Tx</th>
+            </tr>
+          </thead>
           <tbody>
             {
               swapTxs.map((swapTx, key) => {
@@ -62,9 +71,15 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
                     <TextIn><TokenSymbol token={swapTx.tokenIn} /></TextIn>
                   </td>
                   <td className='text-center wallet-history-table__arrow'><TextOut> {'->'} </TextOut></td>
-                  <td className='text-right'>
+                  <td>
                     <Text>{formatWeiToDisplayNumber(swapTx.amountOut, 4, tokens[swapTx.tokenIn]?.decimal || 18)} </Text>
                     <TextOut><TokenSymbol token={swapTx.tokenOut} /></TextOut>
+                  </td>
+                  <td className='text-right'>
+                    <TextLink
+                      href={configs.explorer + '/tx/' + swapTx.transactionHash}>
+                      {shortenAddressString(swapTx.transactionHash)}
+                    </TextLink>
                   </td>
                 </tr>
               })

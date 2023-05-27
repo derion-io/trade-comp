@@ -10,6 +10,18 @@
   cursor: pointer;
   transition: all 0.25s ease-out;
 
+  &.size {
+    &-small {
+      padding: 0.5rem 1rem;
+    }
+    &-normal {
+      padding: 0.8rem 1.2rem;
+    }
+    &-large {
+      padding: 1.2rem 1.6rem;
+    }
+  }
+
   &:disabled {
     background: $color-disable-bg !important;
     color: $color-disable-text !important;

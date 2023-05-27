@@ -6,6 +6,7 @@ import { useEffect } from 'react'
 import { useCurrentPool } from '../../currentPool/hooks/useCurrentPool'
 import { useConfigs } from '../../config/useConfigs'
 import _ from 'lodash'
+import { useListPool } from '../../resources/hooks/useListPool'
 
 export const useSwapHistory = () => {
   const { swapLogs, formartedSwapLogs } = useSelector((state: State) => {
@@ -38,14 +39,14 @@ export const useSwapHistoryFormated = () => {
   const { states, id } = useCurrentPool()
   const { ddlEngine } = useConfigs()
   const dispatch = useDispatch()
+  const { pools } = useListPool()
 
   useEffect(() => {
-    if (ddlEngine?.CURRENT_POOL.TOKEN && id) {
-      console.log('sls', sls)
+    if (Object.values(pools).length > 0 && ddlEngine?.CURRENT_POOL.TOKEN && id) {
       const swapTxs = ddlEngine?.HISTORY.formatSwapHistory({
         logs: sls
       })
       dispatch(updateFormatedSwapTxs({ swapTxs }))
     }
-  }, [sls, ddlEngine?.CURRENT_POOL, id, states])
+  }, [sls, pools, ddlEngine?.CURRENT_POOL, id, states])
 }

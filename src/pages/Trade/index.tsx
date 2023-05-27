@@ -13,6 +13,14 @@ import { PoolDetailAndHistory } from '../../Components/PoolDetailAndHistory'
 import { useListTokens } from '../../state/token/hook'
 import { useListPool } from '../../state/resources/hooks/useListPool'
 import { BuyPositionBox } from '../../Components/BuyPositionBox'
+import { Positions } from '../../Components/Positions'
+import { WalletHistoryTable } from '../../Components/WalletHistoryTable'
+import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
+
+const TAB_2 = {
+  POSITION: Symbol('position'),
+  HISTORY: Symbol('history')
+}
 
 export const Trade = ({ tab, pool }: {
   pool?: string,
@@ -27,6 +35,8 @@ export const Trade = ({ tab, pool }: {
   const isPhone = width && width < 992
   const { poolGroups } = useListPool()
   const { updateCurrentPool } = useCurrentPool()
+  const [tab2, setTab2] = useState<Symbol>(TAB_2.POSITION)
+  const { formartedSwapLogs: swapTxs } = useSwapHistory()
 
   // useEffect(() => {
   //   if (tokens[baseToken] && tokens[quoteToken] && cToken && ddlEngine) {
@@ -78,11 +88,28 @@ export const Trade = ({ tab, pool }: {
       <div className='exposure-page__content'>
         <div className='exposure-page__content--left'>
           <Chart changedIn24h={changedIn24h} />
-          {
-            !isPhone && <div className='hidden-on-phone'>
-              <PoolDetailAndHistory poolAddress={id} />
-            </div>
-          }
+
+          <Tabs
+            selectedIndex={tab2 === TAB_2.POSITION ? 0 : 1}
+            onSelect={(index) => {
+              setTab2(index === 0 ? TAB_2.POSITION : TAB_2.HISTORY)
+            }}
+          >
+            <TabList>
+              <Tab>Positions</Tab>
+              <Tab>Histories</Tab>
+            </TabList>
+            <TabPanel>
+              <Card className='card-in-tab'>
+                <Positions />
+              </Card>
+            </TabPanel>
+            <TabPanel>
+              <Card className='card-in-tab'>
+                <WalletHistoryTable swapTxs={swapTxs} />
+              </Card>
+            </TabPanel>
+          </Tabs>
         </div>
         <div className='exposure-page__content--right'>
           <Tabs
