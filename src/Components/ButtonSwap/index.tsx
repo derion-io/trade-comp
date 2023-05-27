@@ -14,13 +14,15 @@ export const ButtonSwap = ({
   outputTokenAddress,
   amountIn,
   callError,
-  gasUsed
+  gasUsed,
+  callback
 }: {
   inputTokenAddress: string
   outputTokenAddress: string
   amountIn: string
   callError: string
   gasUsed: BigNumber
+  callback: any
 }) => {
   const { tokens } = useListTokens()
   const [loading, setLoading] = useState<boolean>(false)
@@ -73,6 +75,10 @@ export const ButtonSwap = ({
               await fetchBalanceAndAllowance(Object.keys(tokens))
             }
             setLoading(false)
+
+            if (callback) {
+              callback()
+            }
           } catch (e) {
             console.log(e)
             setLoading(false)

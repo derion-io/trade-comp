@@ -35,7 +35,7 @@ export const TokenIcon = (props: {
       const pool = pools[address]
       if (!pool) return null
       const k = pool?.k.toNumber()
-      const power = Number(id) === Number(POOL_IDS.A) ? (1 + k / 2) : (1 - k / 2)
+      const power = Number(id) === Number(POOL_IDS.A) ? (k / 2) : (-k / 2)
       if (Number(id) === POOL_IDS.C) {
         return <div style={style} className='pool-token-logo pool-token-logo__cp'>CP</div>
       }

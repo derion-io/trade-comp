@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import './style.scss'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
@@ -13,6 +13,7 @@ import { Text, TextLink } from '../ui/Text'
 import { useConfigs } from '../../state/config/useConfigs'
 import { TokenIcon } from '../ui/TokenIcon'
 import { TokenSymbol } from '../ui/TokenSymbol'
+import { ClosePosition } from '../ClosePositionModal'
 
 type Position = {
   poolAddress: string
@@ -27,6 +28,11 @@ export const Positions = () => {
   const { balances } = useWalletBalance()
   const { tokens } = useListTokens()
   const { configs } = useConfigs()
+
+  const [visible, setVisible] = useState<boolean>(false)
+  const [dToken, setDToken] = useState<string>('')
+  const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
+  const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
 
   const generatePositionData = (poolAddress: string, poolId: number): Position | null => {
     if (balances[poolAddress + '-' + poolId] && balances[poolAddress + '-' + poolId].gt(0)) {
@@ -97,12 +103,26 @@ export const Positions = () => {
                 <Text>{formatWeiToDisplayNumber(position.balance, 4, tokens[position.token].decimals)}</Text>
               </td>
               <td className='text-right'>
-                <Button size='small'>Close</Button>
+                <Button
+                  size='small'
+                  onClick={() => {
+                    setInputTokenAddress(position.token)
+                    setOutputTokenAddress(position.pool.TOKEN_R)
+                    setVisible(true)
+                  }}
+                >Close</Button>
               </td>
             </tr>
           })
         }
       </tbody>
     </table>
+
+    <ClosePosition
+      visible={visible}
+      setVisible={setVisible}
+      inputTokenAddress={inputTokenAddress}
+      outputTokenAddress={outputTokenAddress}
+    />
   </div>
 }
