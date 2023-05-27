@@ -7,6 +7,7 @@
   }
   &-wrap {
     //background: $color-card-bg;
+    padding: 1rem;
     border-radius: 20px;
     @include respond(phone) {
       max-width: calc(100vw - 20px);
@@ -39,8 +40,6 @@
   & {
     width: 100%;
     border-collapse: collapse;
-    //background: $color-grey-2;
-    padding: 1rem;
     border-radius: 8px;
     height: 320px;
     overflow: auto;

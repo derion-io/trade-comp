@@ -13,7 +13,7 @@ export const useGenerateLeverageData = (isLong: boolean) => {
         if (!result[pool.k.toNumber()]) {
           result[pool.k.toNumber()] = {
             x: pool.k.toNumber(),
-            xDisplay: pool.k.toNumber() + 'x',
+            xDisplay: (pool.k.toNumber() / 2) + 'x',
             bars: [
               {
                 token: pool.poolAddress + '-' + (isLong ? POOL_IDS.A : POOL_IDS.B),

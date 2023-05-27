@@ -1,6 +1,26 @@
+@import "src/styles/abstracts/mixins";
+@import "src/styles/abstracts/variables";
+
 .positions-table {
   padding: 1rem;
+  border-collapse: collapse;
+  border-radius: 8px;
+  height: 320px;
+  overflow: auto;
+
+  & table {
+    border-collapse: collapse;
+  }
+
+  @include respond(phone) {
+    height: inherit;
+    max-height: 250px;
+  }
+
+  @include scrollBar;
+
   table {
+    border-collapse: collapse;
     width: 100%;
   }
   tr td {

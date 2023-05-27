@@ -77,7 +77,7 @@ export const Positions = () => {
               <td>
                 <div className='d-flex gap-05 align-items-center'>
                   <TokenIcon size={24} tokenAddress={position.token} />
-                  <TokenSymbol token={position.token} />
+                  <span><TokenSymbol token={position.token} /></span>
                 </div>
               </td>
               <td>
