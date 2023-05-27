@@ -2,217 +2,70 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Text, TextGrey } from '../ui/Text'
 import './style.scss'
 import { Box } from '../ui/Box'
-import { ButtonExecute } from '../ui/Button'
 import 'rc-slider/assets/index.css'
 import { IconArrowDown, IconOptionLeft } from '../ui/Icon'
 import { Input } from '../ui/Input'
 import { TokenIcon } from '../ui/TokenIcon'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { useWeb3React } from '../../state/customWeb3React/hook'
-import { BigNumber } from 'ethers'
 import { SelectTokenModal } from '../SelectTokenModal'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../state/token/hook'
 import {
   bn,
-  decodeErc1155Address, formatFloat, getErc1155Token, isErc1155Address, mul,
+  decodeErc1155Address, formatFloat, isErc1155Address, mul,
   numberToWei,
-  parseCallStaticError,
   weiToNumber
 } from '../../utils/helpers'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
-import { NATIVE_ADDRESS, POOL_IDS } from '../../utils/constant'
-import { PowerState } from 'powerLib'
+import { NATIVE_ADDRESS } from '../../utils/constant'
 import { useConfigs } from '../../state/config/useConfigs'
 import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import isEqual from 'react-fast-compare'
 import { useNativePrice } from '../../hooks/useTokenPrice'
-import { toast } from 'react-toastify'
 import { ApproveUtrModal } from '../ApproveUtrModal'
 import { BeverageModal } from '../BeverageModal'
-import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 import _ from 'lodash'
-import { useHelper } from '../../state/config/useHelper'
+import { useCalculateSwap } from './hooks/useCalculateSwap'
+import { useTokenValue } from './hooks/useTokenValue'
+import { ButtonSwap } from '../ButtonSwap'
 
 const Component = () => {
-  const { account, showConnectModal } = useWeb3React()
-  const { configs, ddlEngine } = useConfigs()
-  const { states, powers, dTokens, allTokens, id, pools } = useCurrentPool()
+  const { account } = useWeb3React()
+  const { configs } = useConfigs()
+  const { dTokens, allTokens, id, pools } = useCurrentPool()
   const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
   const [visibleLeverage, setVisibleLeverage] = useState<boolean>(false)
   const [tokenTypeToSelect, setTokenTypeToSelect] = useState<'input' | 'output'>('input')
-  const [callError, setCallError] = useState<string>('')
-  const [amountOut, setAmountOut] = useState<string>('')
-  const [amountOutWei, setAmountOutWei] = useState<BigNumber>(bn(0))
   const [amountIn, setAmountIn] = useState<string>('')
-  const { balances, routerAllowances, fetchBalanceAndAllowance, accFetchBalance } = useWalletBalance()
-  const [txFee, setTxFee] = useState<BigNumber>(bn(0))
-  const [gasUsed, setGasUsed] = useState<BigNumber>(bn(0))
-  const [loading, setLoading] = useState<boolean>(false)
+  const { balances, accFetchBalance } = useWalletBalance()
   const [visibleApproveModal, setVisibleApproveModal] = useState<boolean>(false)
   const { tokens } = useListTokens()
-  const { updateSwapTxsHandle } = useSwapHistory()
   const { data: nativePrice } = useNativePrice()
-  const { convertNativeAddressToWrapAddress } = useHelper()
+  const { callError, txFee, gasUsed, amountOut, amountOutWei } = useCalculateSwap({
+    amountIn,
+    inputTokenAddress,
+    outputTokenAddress
+  })
+  const valueIn = useTokenValue({
+    amount: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18)),
+    token: inputTokenAddress
+  })
+  const valueOut = useTokenValue({ amount: amountOutWei, token: outputTokenAddress })
 
   useEffect(() => {
     setInputTokenAddress(NATIVE_ADDRESS || '')
     setOutputTokenAddress(dTokens[0])
   }, [id])
 
-  useEffect(() => {
-    if (tokens[inputTokenAddress] && tokens[outputTokenAddress] && amountIn && Number(amountIn)) {
-      calcAmountOut()
-    } else if (Number(amountIn) === 0) {
-      setAmountOut('')
-      setTxFee(bn(0))
-      setGasUsed(bn(0))
-      setAmountOutWei(bn(0))
-    }
-  }, [tokens[inputTokenAddress] && tokens[outputTokenAddress], amountIn])
-
-  const calcAmountOut = async () => {
-    if (!amountOut) {
-      setCallError('Calculating...')
-    }
-    // @ts-ignore
-    ddlEngine.SWAP.calculateAmountOuts([{
-      tokenIn: inputTokenAddress,
-      tokenOut: outputTokenAddress,
-      amountIn: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))
-    }]).then((res: any) => {
-      const [aOuts, gasLeft] = res
-      setAmountOutWei(aOuts[0]?.amountOut || bn(0))
-      setAmountOut(weiToNumber(aOuts[0]?.amountOut || 0, tokens[outputTokenAddress].decimal || 18))
-      // @ts-ignore
-      setTxFee(detectTxFee(gasLeft))
-      // @ts-ignore
-      setGasUsed(gasLeft)
-      setCallError('')
-    }).catch((e: any) => {
-      const error = parseCallStaticError(e)
-      setAmountOut('0')
-      setTxFee(bn(0))
-      setGasUsed(bn(0))
-      setCallError(error ?? e)
-      console.log(e)
-    })
-  }
-
-  const detectTxFee = (gasUsed: BigNumber) => {
-    return gasUsed.mul(2).div(3).mul(5 * 10 ** 9)
-  }
-
   const revertPairAddress = () => {
     const inAddr = inputTokenAddress
     setInputTokenAddress(outputTokenAddress)
     setOutputTokenAddress(inAddr)
   }
-
-  const renderExecuteButton = () => {
-    const address = decodeErc1155Address(inputTokenAddress).address
-
-    if (!tokens[inputTokenAddress] || loading) {
-      return <ButtonExecute className='swap-button' disabled>Loading...</ButtonExecute>
-    } else if (!account) {
-      return <ButtonExecute
-        onClick={() => {
-          showConnectModal()
-        }}
-        className='swap-button'
-      >Connect wallet</ButtonExecute>
-    } else if (Number(amountIn) === 0) {
-      return <ButtonExecute className='swap-button' disabled>Enter Amount</ButtonExecute>
-    } else if (!balances[inputTokenAddress] || balances[inputTokenAddress].lt(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))) {
-      return <ButtonExecute className='swap-button'
-        disabled> Insufficient {tokens[inputTokenAddress].symbol} Amount </ButtonExecute>
-      // } else if (!routerAllowances[address] || routerAllowances[address].lt(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))) {
-      //   return <ButtonExecute
-      //     className='swap-button'
-      //     onClick={() => { setVisibleApproveModal(true) }}
-      //   >Use EIP-6120</ButtonExecute>
-    } else if (callError) {
-      return <ButtonExecute className='swap-button' disabled>{callError}</ButtonExecute>
-    } else {
-      return <ButtonExecute
-        className='swap-button'
-        onClick={async () => {
-          try {
-            setLoading(true)
-            if (ddlEngine) {
-              const tx: any = await ddlEngine.SWAP.multiSwap(
-                [{
-                  tokenIn: inputTokenAddress,
-                  tokenOut: outputTokenAddress,
-                  amountIn: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18)),
-                  amountOutMin: 0
-                }],
-                gasUsed && gasUsed.gt(0) ? gasUsed.mul(2) : undefined
-              )
-              const swapLogs = ddlEngine.RESOURCE.parseDdlLogs(tx && tx?.logs ? tx.logs : [])
-              updateSwapTxsHandle(account, swapLogs.filter((l: any) => l.address))
-              await fetchBalanceAndAllowance(Object.keys(tokens))
-            }
-            setLoading(false)
-          } catch (e) {
-            console.log(e)
-            setLoading(false)
-            toast.error('Error')
-          }
-        }}
-      >Swap</ButtonExecute>
-    }
-  }
-
-  const getTokenPrice = (address: string, powerState: any) => {
-    // if (address === cToken) {
-    //   return cTokenPrice
-    // } else if (address === configs.addresses.nativeToken) {
-    //   return nativePrice
-    // } else if (address === baseToken) {
-    //   return basePrice
-    // } else if (address === quoteToken) {
-    //   return 1
-    // }
-    // if (powerState && isErc1155Address(address)) {
-    //   const { id } = decodeErc1155Address(address)
-    //   if (Number(id) === POOL_IDS.cp) {
-    //     return cpPrice
-    //   }
-    //   const power = powers[id]
-    //   return powerState.calculatePrice(power)
-    // }
-    return 1
-  }
-
-  const valueIn = useMemo(() => {
-    if (powers && states.twapBase && Number(amountIn) > 0) {
-      const powerState = new PowerState({ powers: [...powers] })
-      powerState.loadStates(states)
-      const price = getTokenPrice(inputTokenAddress, powerState)
-      if (Number(price) === 0 || !Number(price)) {
-        return 0
-      }
-      return formatFloat(weiToNumber(bn(numberToWei(amountIn)).mul(numberToWei(price || 0)), 36), 2)
-    }
-    return 0
-  }, [powers, states, amountIn, inputTokenAddress, nativePrice])
-
-  const valueOut = useMemo(() => {
-    if (powers && states.twapBase && Number(amountOut) > 0) {
-      const powerState = new PowerState({ powers: [...powers] })
-      powerState.loadStates(states)
-      const price = getTokenPrice(outputTokenAddress, powerState)
-      if (Number(price) === 0 || !Number.isFinite(price)) {
-        return 0
-      }
-      return formatFloat(weiToNumber(bn(numberToWei(amountOut)).mul(numberToWei(price || 0)), 36), 2)
-    }
-    return 0
-  }, [powers, states, amountOut, outputTokenAddress, nativePrice])
 
   const tokensToSelect = useMemo(() => {
     if (!id) return []
@@ -413,7 +266,13 @@ const Component = () => {
       </Box>
 
       <div className='actions'>
-        {renderExecuteButton()}
+        <ButtonSwap
+          inputTokenAddress={inputTokenAddress}
+          outputTokenAddress={outputTokenAddress}
+          amountIn={amountIn}
+          callError={callError}
+          gasUsed={gasUsed}
+        />
       </div>
 
       <ApproveUtrModal

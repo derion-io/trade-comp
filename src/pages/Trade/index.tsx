@@ -9,7 +9,6 @@ import { useWindowSize } from '../../hooks/useWindowSize'
 import { Tabs, TabPanel, TabList, Tab } from 'react-tabs'
 import 'react-tabs/style/react-tabs.css'
 import { Card } from '../../Components/ui/Card'
-import { PoolDetailAndHistory } from '../../Components/PoolDetailAndHistory'
 import { useListTokens } from '../../state/token/hook'
 import { useListPool } from '../../state/resources/hooks/useListPool'
 import { BuyPositionBox } from '../../Components/BuyPositionBox'
@@ -139,14 +138,6 @@ export const Trade = ({ tab, pool }: {
               </Card>
             </TabPanel>
           </Tabs>
-          {/* <Card> */}
-          {/*  <PoolTableCompact /> */}
-          {/* </Card> */}
-          {
-            isPhone && <div className='hidden-on-desktop'>
-              <PoolDetailAndHistory poolAddress={id} />
-            </div>
-          }
         </div>
       </div>
     </div>
