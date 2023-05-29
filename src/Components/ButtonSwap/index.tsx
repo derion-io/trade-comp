@@ -22,7 +22,7 @@ export const ButtonSwap = ({
   amountIn: string
   callError: string
   gasUsed: BigNumber
-  callback: any
+  callback?: any
 }) => {
   const { tokens } = useListTokens()
   const [loading, setLoading] = useState<boolean>(false)
