@@ -36,7 +36,7 @@ import { LeverageSlider } from '../Slider'
 import { useGenerateLeverageData } from '../../hooks/useGenerateLeverageData'
 
 const Component = ({ isLong = true }: {isLong?: boolean}) => {
-  const [leverage, setLeverage] = useState<number>(1)
+  const [leverage, setLeverage] = useState<any>({})
   const { account, showConnectModal } = useWeb3React()
   const { configs, ddlEngine } = useConfigs()
   const { states, powers, allTokens, id, pools } = useCurrentPool()
@@ -59,13 +59,8 @@ const Component = ({ isLong = true }: {isLong?: boolean}) => {
   const leverageData = useGenerateLeverageData(isLong)
 
   const outputTokenAddress = useMemo(() => {
-    for (const poolAddress in pools) {
-      if (leverage === pools[poolAddress].k.toNumber()) {
-        return poolAddress + '-' + (isLong ? POOL_IDS.A : POOL_IDS.B)
-      }
-    }
-    return ''
-  }, [leverage, pools, isLong])
+    return leverage.token || ''
+  }, [leverage])
 
   useEffect(() => {
     if (outputTokenAddress) {
@@ -334,11 +329,11 @@ const Component = ({ isLong = true }: {isLong?: boolean}) => {
             </span>
             <span>
               <Text>
-                {formatWeiToDisplayNumber(balances[outputTokenAddress], 2, balances[outputTokenAddress].decimal)}
+                {formatWeiToDisplayNumber(balances[outputTokenAddress], 2, balances[outputTokenAddress]?.decimal)}
               </Text>
               <Text>+</Text>
               <Text>
-                {formatWeiToDisplayNumber(amountOutWei, 2, balances[outputTokenAddress].decimal)}
+                {formatWeiToDisplayNumber(amountOutWei, 2, balances[outputTokenAddress]?.decimal)}
               </Text>
             </span>
           </InfoRow>
@@ -348,11 +343,11 @@ const Component = ({ isLong = true }: {isLong?: boolean}) => {
             </span>
             <span>
               <Text>
-                {formatWeiToDisplayNumber(balances[outputTokenAddress], 2, balances[outputTokenAddress].decimal)}
+                {formatWeiToDisplayNumber(balances[outputTokenAddress], 2, balances[outputTokenAddress]?.decimal)}
               </Text>
               <Text>+</Text>
               <Text>
-                {formatWeiToDisplayNumber(amountOutWei, 2, balances[outputTokenAddress].decimal)}
+                {formatWeiToDisplayNumber(amountOutWei, 2, balances[outputTokenAddress]?.decimal)}
               </Text>
             </span>
           </InfoRow>
@@ -372,7 +367,7 @@ const Component = ({ isLong = true }: {isLong?: boolean}) => {
           leverage={leverage}
           setLeverage={setLeverage}
           leverageData={leverageData}
-          height={100}
+          height={300}
         />
       }
 

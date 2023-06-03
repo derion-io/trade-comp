@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { BarChart, Bar, YAxis } from 'recharts'
 import './style.scss'
 import isEqual from 'react-fast-compare'
@@ -67,14 +67,16 @@ const fakeData = [
 
 const renderBar = (barData: any, barDataEntriesKeys: any, barColor: any) => {
   const barArray = []
-  console.log(barData)
+  // console.log(barData)
   for (let i = 0; i < barDataEntriesKeys.length; i++) {
     barArray.push(
       <Bar
         dataKey={barDataEntriesKeys[i]}
         stackId='a'
         fill={barColor[i]}
-        onClick={() => alert(barData[barDataEntriesKeys[i]])}
+        onClick={() => {
+          console.log(barData[barDataEntriesKeys[i]])
+        }}
       />
     )
   }
@@ -98,13 +100,20 @@ const StackedBarChart = ({
   const code = 'a'.charCodeAt(0)
   for (let i = 0; i < Object.keys(barColor || {}).length; i++) {
     barColorValues.push(barColor?.[String.fromCharCode(code + i)])
-    barSize.push(barData?.[String.fromCharCode(code + i)])
+    barSize.push(barData?.[String.fromCharCode(code + i)]?.size)
   }
   const barTotalSize = barSize.reduce((accumulator, value) => {
     return accumulator + value
   }, 0)
 
-  console.log(barTotalSize)
+  const barSizeData = useMemo(() => {
+    const result = {}
+    for (const i in barData) {
+      result[i] = barData[i].size
+    }
+    return result
+  }, [barData])
+
   return (
     <div style={{ position: 'relative' }}>
       {xDisplay}
@@ -124,7 +133,7 @@ const StackedBarChart = ({
             right: rightPixel
           }}
         >
-          <BarChart width={30} height={barTotalSize + 200} data={[barData]}>
+          <BarChart width={30} height={barTotalSize + 200} data={[barSizeData]}>
             {renderBar(barData, barDataEntriesKeys, barColorValues)}
           </BarChart>
         </div>
@@ -160,7 +169,7 @@ const Component = ({
   const getBarData = (data: any) => {
     const barData = {}
     for (let i = 0; i < data.length; i++) {
-      barData[initToChar(i)] = data[i].size
+      barData[initToChar(i)] = data[i]
     }
     return barData
   }
