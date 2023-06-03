@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { BarChart, Bar } from 'recharts'
+import { BarChart, Bar, YAxis } from 'recharts'
 import './style.scss'
 import isEqual from 'react-fast-compare'
 import { ButtonExecute } from '../ui/Button'
@@ -65,18 +65,18 @@ const fakeData = [
   }
 ]
 
-const data = [
-  { name: 'A', a: 30, b: 70 }
-  //   { name: 'B', x: 12, y: 88 },
-  //   { name: 'C', x: 15, y: 85 },
-  //   { name: 'D', x: 35, y: 65 }
-]
-
-const renderBar = (barData: any, barColor: any) => {
+const renderBar = (barData: any, barDataEntriesKeys: any, barColor: any) => {
   const barArray = []
-
-  for (let i = 0; i < barData.length; i++) {
-    barArray.push(<Bar dataKey={barData[i]} stackId='a' fill={barColor[i]} />)
+  console.log(barData)
+  for (let i = 0; i < barDataEntriesKeys.length; i++) {
+    barArray.push(
+      <Bar
+        dataKey={barDataEntriesKeys[i]}
+        stackId='a'
+        fill={barColor[i]}
+        onClick={() => alert(barData[barDataEntriesKeys[i]])}
+      />
+    )
   }
 
   return barArray
@@ -94,21 +94,38 @@ const StackedBarChart = ({
   const rightPixel = xDisplay.length === 2 ? '-7px' : '-4px'
   const barDataEntriesKeys = Object.keys(barData || [])
   const barColorValues = []
+  const barSize = []
   const code = 'a'.charCodeAt(0)
   for (let i = 0; i < Object.keys(barColor || {}).length; i++) {
     barColorValues.push(barColor?.[String.fromCharCode(code + i)])
+    barSize.push(barData?.[String.fromCharCode(code + i)])
   }
+  const barTotalSize = barSize.reduce((accumulator, value) => {
+    return accumulator + value
+  }, 0)
+
+  console.log(barTotalSize)
   return (
     <div style={{ position: 'relative' }}>
       {xDisplay}
       {xDisplay === '0x' ? (
         <div />
       ) : (
-        <div style={{ position: 'absolute', top: '-330px', right: rightPixel }}>
-          <BarChart width={30} height={300} data={[barData]}>
-            {renderBar(barDataEntriesKeys, barColorValues)}
-            {/* <Bar dataKey='a' stackId='a' fill='aqua' />
-            <Bar dataKey='b' stackId='a' fill='green' /> */}
+        <div
+          style={{
+            position: 'absolute',
+            top: `${
+              barTotalSize === 100
+                ? '-330px'
+                : barTotalSize > 100
+                ? `-${330 + (barTotalSize - 100)}px`
+                : `-${330 - (100 - barTotalSize)}px`
+            }`,
+            right: rightPixel
+          }}
+        >
+          <BarChart width={30} height={barTotalSize + 200} data={[barData]}>
+            {renderBar(barData, barDataEntriesKeys, barColorValues)}
           </BarChart>
         </div>
       )}
