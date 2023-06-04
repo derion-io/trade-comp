@@ -28,7 +28,7 @@ export const useTokenValue = ({
   const { pools } = useListPool()
   const { convertNativeAddressToWrapAddress } = useHelper()
 
-  const value = useMemo(() => {
+  return useMemo(() => {
     let value = 0
     const address = convertNativeAddressToWrapAddress(tokenAddress)
 
@@ -36,7 +36,6 @@ export const useTokenValue = ({
       const { address: poolAddress, id } = decodeErc1155Address(address)
       const pool = pools[poolAddress]
       if (pool && pool.states) {
-        // const price = div(pool.states.rA, pool.states.sA)
         const rX = Number(id) === POOL_IDS.A
           ? pool.states.rA
           : Number(id) === POOL_IDS.B ? pool.states.rB : pool.states.rB
@@ -68,6 +67,4 @@ export const useTokenValue = ({
     }
     return value
   }, [amount, tokenAddress, prices])
-
-  return value
 }

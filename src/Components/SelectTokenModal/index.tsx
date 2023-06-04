@@ -10,16 +10,18 @@ import './style.scss'
 import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import isEqual from 'react-fast-compare'
 import { useListPool } from '../../state/resources/hooks/useListPool'
-import { decodeErc1155Address, div, isErc1155Address, weiToNumber } from '../../utils/helpers'
-import { POOL_IDS } from '../../utils/constant'
+import { bn, decodeErc1155Address, div, isErc1155Address, weiToNumber } from '../../utils/helpers'
+import { POOL_IDS, ZERO_ADDRESS } from '../../utils/constant'
+import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
+import { ZERO } from '@uniswap/v3-sdk/dist/internalConstants'
 
 const Component = ({
-                     visible,
-                     setVisible,
-                     tokens: tokensToSelect,
-                     onSelectToken,
-                     displayFee = false
-                   }: {
+  visible,
+  setVisible,
+  tokens: tokensToSelect,
+  onSelectToken,
+  displayFee = false
+}: {
   visible: boolean,
   setVisible: any,
   tokens: string[],
@@ -55,37 +57,28 @@ const Option = ({ onSelectToken, address, setVisible }: {
   const { pools } = useListPool()
   const { balances } = useWalletBalance()
 
-  const [lp, value, unit] = useMemo(() => {
-    let lp = null
-    let value = null
-    let unit = null
+  const value = useTokenValue({
+    tokenAddress: address,
+    amount: weiToNumber(balances[address], tokens[address]?.decimal || 18)
+  })
+
+  const [reserve, tokenR] = useMemo(() => {
     if (isErc1155Address(address)) {
-      const { address: poolAddress, id } = decodeErc1155Address(address)
+      const { address: poolAddress } = decodeErc1155Address(address)
       const pool = pools[poolAddress]
-      if (pool && pool.states) {
-        lp = formatWeiToDisplayNumber(pool.states.R, 2, tokens[pool.TOKEN_R].decimals)
-        // const price = div(pool.states.rA, pool.states.sA)
-        const rX = Number(id) === POOL_IDS.A
-          ? pool.states.rA
-          : Number(id) === POOL_IDS.B ? pool.states.rB : pool.states.rB
 
-        const sX = Number(id) === POOL_IDS.A
-          ? pool.states.sA
-          : Number(id) === POOL_IDS.B ? pool.states.sB : pool.states.sB
-
-        value = formatWeiToDisplayNumber(
-          balances[address].mul(rX).div(sX),
-          2,
-          tokens[address].decimals
-        )
-        unit = tokens[pool.TOKEN_R]?.symbol
-      }
-    } else {
-      value = formatWeiToDisplayNumber(balances[address], 2, tokens[address].decimals)
-      unit = tokens[address]?.symbol
+      return [
+        weiToNumber(pool.states.R, tokens[pool.TOKEN_R].decimals),
+        pool.TOKEN_R
+      ]
     }
-    return [lp, value, unit]
-  }, [pools, address])
+    return ['0', ZERO_ADDRESS]
+  }, [])
+
+  const lp = useTokenValue({
+    tokenAddress: tokenR,
+    amount: reserve
+  })
 
   const symbol = <TokenSymbol token={address} />
   return <Box
@@ -99,17 +92,16 @@ const Option = ({ onSelectToken, address, setVisible }: {
     <div className='option__name-and-lp'>
       <Text>{symbol}</Text>
       {
-        lp &&
-        <div>
-          <Text>LP: </Text>
-          <Text>{lp}</Text>
-          <TextGrey> {unit}</TextGrey>
-        </div>
+        (lp && lp > 0)
+          ? <div>
+            <Text>LP: </Text>
+            <Text>${lp}</Text>
+          </div>
+          : ''
       }
     </div>
     <div>
-      <Text>{value}</Text>
-      <TextGrey> {unit}</TextGrey>
+      <Text>${value}</Text>
     </div>
   </Box>
 }

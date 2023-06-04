@@ -1,4 +1,5 @@
 import { useConfigs } from './useConfigs'
+import { NATIVE_ADDRESS } from '../../utils/constant'
 
 export const useHelper = () => {
   const { configs, chainId } = useConfigs()
@@ -8,6 +9,13 @@ export const useHelper = () => {
 
     return address?.toLowerCase() === configs.addresses?.nativeToken?.toLowerCase()
       ? configs.addresses?.wrapToken
+      : address
+  }
+
+  const wrapToNativeAddress = (address: string) => {
+    if (!address) return address
+    return address?.toLowerCase() === configs.addresses?.wrapToken?.toLowerCase()
+      ? NATIVE_ADDRESS
       : address
   }
 
@@ -22,5 +30,5 @@ export const useHelper = () => {
     )?.toLowerCase()}.webp`
   }
 
-  return { convertNativeAddressToWrapAddress, getTokenIconUrl }
+  return { wrapToNativeAddress, convertNativeAddressToWrapAddress, getTokenIconUrl }
 }
