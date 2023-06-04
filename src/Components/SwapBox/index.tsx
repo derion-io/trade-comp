@@ -11,7 +11,7 @@ import { SelectTokenModal } from '../SelectTokenModal'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../state/token/hook'
 import {
-  decodeErc1155Address,
+  decodeErc1155Address, formatFloat,
   isErc1155Address,
   weiToNumber
 } from '../../utils/helpers'
@@ -19,7 +19,7 @@ import { TokenSymbol } from '../ui/TokenSymbol'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { NATIVE_ADDRESS } from '../../utils/constant'
 import { useConfigs } from '../../state/config/useConfigs'
-import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
+import formatLocalisedCompactNumber, { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import isEqual from 'react-fast-compare'
 import { ApproveUtrModal } from '../ApproveUtrModal'
 import { BeverageModal } from '../BeverageModal'
@@ -158,7 +158,7 @@ const Component = () => {
         </div>
         <Input
           placeholder='0.0'
-          suffix={Number(valueIn) > 0 ? <TextGrey>${valueIn}</TextGrey> : ''}
+          suffix={Number(valueIn) > 0 ? <TextGrey>${formatLocalisedCompactNumber(formatFloat(valueIn))}</TextGrey> : ''}
           className='fs-24'
           // @ts-ignore
           value={amountIn}
@@ -206,7 +206,7 @@ const Component = () => {
           // @ts-ignore
           value={Number(amountOut) > 0 ? amountOut : ''}
           placeholder='0.0'
-          suffix={Number(valueOut) > 0 ? <TextGrey>${valueOut}</TextGrey> : ''}
+          suffix={Number(valueOut) > 0 ? <TextGrey>${formatLocalisedCompactNumber(formatFloat(valueOut))}</TextGrey> : ''}
           className='fs-24'
         />
       </div>

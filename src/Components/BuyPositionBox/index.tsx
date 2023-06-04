@@ -54,7 +54,7 @@ const Component = ({ isLong = true }: {isLong?: boolean}) => {
   }, [barData])
 
   const leverage = useMemo(() => {
-    return 0
+    return barData.x || 0
   }, [barData])
 
   const { callError, txFee, gasUsed, amountOut } = useCalculateSwap({
@@ -173,7 +173,7 @@ const Component = ({ isLong = true }: {isLong?: boolean}) => {
         </div>
         <Input
           placeholder='0.0'
-          suffix={Number(valueIn) > 0 ? <TextGrey>${valueIn}</TextGrey> : ''}
+          suffix={Number(valueIn) > 0 ? <TextGrey>${formatLocalisedCompactNumber(formatFloat(valueIn))}</TextGrey> : ''}
           className='fs-24'
           // @ts-ignore
           value={amountIn}
@@ -217,7 +217,7 @@ const Component = ({ isLong = true }: {isLong?: boolean}) => {
               </Text>
               <Text> + </Text>
               <Text>
-                {formatLocalisedCompactNumber(Number(amountOut))}
+                {formatLocalisedCompactNumber(formatFloat(amountOut))}
               </Text>
             </span>
           </InfoRow>
@@ -231,7 +231,7 @@ const Component = ({ isLong = true }: {isLong?: boolean}) => {
               </Text>
               <Text> + </Text>
               <Text>
-                {valueOut}
+                {formatLocalisedCompactNumber(formatFloat(valueOut))}
               </Text>
             </span>
           </InfoRow>

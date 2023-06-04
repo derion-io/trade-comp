@@ -55,8 +55,6 @@ const StackedBarChart = ({
     return result
   }, [barData])
 
-  console.log('barTotalSize', barTotalSize)
-
   return (
     <div style={{ position: 'relative' }}>
       {xDisplay}
@@ -137,6 +135,8 @@ const Component = ({ leverage, setLeverage, leverageData, height }: {height: num
           const data = leverageData.find((d: any) => {
             return d.x === e
           })
+
+          console.log(data)
 
           if (data?.bars[0]) {
             setLeverage(data.bars[0])

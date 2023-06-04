@@ -6,9 +6,9 @@ import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { Text, TextGrey } from '../ui/Text'
 import './style.scss'
-import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
+import formatLocalisedCompactNumber, { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import isEqual from 'react-fast-compare'
-import { div, weiToNumber } from '../../utils/helpers'
+import { div, formatFloat, weiToNumber } from '../../utils/helpers'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { Input } from '../ui/Input'
 import { useWeb3React } from '../../state/customWeb3React/hook'
@@ -87,7 +87,7 @@ const Component = ({
         </InfoRow>
         <Input
           placeholder='0.0'
-          suffix={Number(valueIn) > 0 ? <TextGrey>${valueIn}</TextGrey> : ''}
+          suffix={Number(valueIn) > 0 ? <TextGrey>${formatLocalisedCompactNumber(formatFloat(valueIn))}</TextGrey> : ''}
           className='fs-24'
           // @ts-ignore
           value={amountIn}
@@ -132,7 +132,7 @@ const Component = ({
         </InfoRow>
         <Input
           placeholder='0.0'
-          suffix={Number(valueOut) > 0 ? <TextGrey>${valueOut}</TextGrey> : ''}
+          suffix={Number(valueOut) > 0 ? <TextGrey>${formatLocalisedCompactNumber(formatFloat(valueOut))}</TextGrey> : ''}
           className='fs-24'
           // @ts-ignore
           value={amountOut}
