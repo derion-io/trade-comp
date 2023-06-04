@@ -90,6 +90,19 @@ export const formatFloat = (number: number | string, decimal?: number) => {
   return Number(arr.join('.'))
 }
 
+export const cutDecimal = (number: string, decimal?: number) => {
+  if (!decimal) {
+    decimal = detectDecimalFromPrice(number)
+  }
+
+  number = number.toString()
+  const arr = number.split('.')
+  if (arr.length > 1) {
+    arr[1] = arr[1].slice(0, decimal)
+  }
+  return arr.join('.')
+}
+
 export const mul = (a: any, b: any) => {
   const result = weiToNumber(
     BigNumber.from(numberToWei(a)).mul(numberToWei(b)),

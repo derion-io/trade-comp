@@ -6,7 +6,6 @@ import Slider from 'rc-slider'
 
 const renderBar = (barData: any, barDataEntriesKeys: any, barColor: any, setLeverage: any) => {
   const barArray = []
-  // console.log(barData)
   for (let i = 0; i < barDataEntriesKeys.length; i++) {
     barArray.push(
       <Bar
@@ -56,6 +55,8 @@ const StackedBarChart = ({
     return result
   }, [barData])
 
+  console.log('barTotalSize', barTotalSize)
+
   return (
     <div style={{ position: 'relative' }}>
       {xDisplay}
@@ -67,15 +68,13 @@ const StackedBarChart = ({
             position: 'absolute',
             top: `${
               barTotalSize === 100
-                ? '-330px'
-                : barTotalSize > 100
-                  ? `-${330 + (barTotalSize - 100)}px`
-                  : `-${330 - (100 - barTotalSize)}px`
+                ? `-${height + 30}px`
+                : `-${height + 30 - (100 - (barTotalSize < 20 ? 20 : barTotalSize))}px`
             }`,
             right: rightPixel
           }}
         >
-          <BarChart width={30} height={barTotalSize + 200} data={[barSizeData]}>
+          <BarChart width={30} height={barTotalSize < 20 ? 20 : barTotalSize} data={[barSizeData]}>
             {renderBar(barData, barDataEntriesKeys, barColorValues, setLeverage)}
           </BarChart>
         </div>
@@ -135,7 +134,13 @@ const Component = ({ leverage, setLeverage, leverageData, height }: {height: num
         count={1}
         value={leverage}
         onChange={(e: number) => {
-          // setLeverage(e)
+          const data = leverageData.find((d: any) => {
+            return d.x === e
+          })
+
+          if (data?.bars[0]) {
+            setLeverage(data.bars[0])
+          }
         }}
         dotStyle={{
           background: '#303236',

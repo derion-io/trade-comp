@@ -57,7 +57,7 @@ const Option = ({ onSelectToken, address, setVisible }: {
   const { pools } = useListPool()
   const { balances } = useWalletBalance()
 
-  const value = useTokenValue({
+  const { value } = useTokenValue({
     tokenAddress: address,
     amount: weiToNumber(balances[address], tokens[address]?.decimal || 18)
   })
@@ -75,7 +75,7 @@ const Option = ({ onSelectToken, address, setVisible }: {
     return ['0', ZERO_ADDRESS]
   }, [])
 
-  const lp = useTokenValue({
+  const { value: lp } = useTokenValue({
     tokenAddress: tokenR,
     amount: reserve
   })
@@ -92,7 +92,7 @@ const Option = ({ onSelectToken, address, setVisible }: {
     <div className='option__name-and-lp'>
       <Text>{symbol}</Text>
       {
-        (lp && lp > 0)
+        (lp && Number(lp) > 0)
           ? <div>
             <Text>LP: </Text>
             <Text>${lp}</Text>

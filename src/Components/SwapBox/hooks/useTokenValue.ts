@@ -1,8 +1,7 @@
 import { useMemo } from 'react'
 import {
-  bn,
+  bn, cutDecimal,
   decodeErc1155Address,
-  formatFloat,
   isErc1155Address,
   numberToWei,
   weiToNumber
@@ -19,8 +18,8 @@ export const useTokenValue = ({
   amount,
   tokenAddress
 }: {
-  amount: string,
-  tokenAddress: string
+  amount?: string,
+  tokenAddress?: string
 }) => {
   const { prices } = useTokenPrice()
   const { configs } = useConfigs()
@@ -28,9 +27,9 @@ export const useTokenValue = ({
   const { pools } = useListPool()
   const { convertNativeAddressToWrapAddress } = useHelper()
 
-  return useMemo(() => {
-    let value = 0
-    const address = convertNativeAddressToWrapAddress(tokenAddress)
+  const getTokenValue = (_tokenAddress: string, _amount: string) => {
+    let value = '0'
+    const address = convertNativeAddressToWrapAddress(_tokenAddress)
 
     if (isErc1155Address(address)) {
       const { address: poolAddress, id } = decodeErc1155Address(address)
@@ -50,21 +49,31 @@ export const useTokenValue = ({
           tokens[configs.stableCoins[0]] || {}
         )
 
-        value = formatFloat(weiToNumber(
-          bn(numberToWei(amount)).mul(numberToWei(tokenPrice))
-          , 54), 2)
+        value = weiToNumber(
+          bn(numberToWei(_amount)).mul(numberToWei(tokenPrice))
+          , 54)
       }
     } else {
-      const tokenPrice = parseSqrtX96(
+      const tokenPrice = prices[address] && prices[address].gt(0) ? parseSqrtX96(
         prices[address]?.mul(numberToWei(1, 9)) || bn(0),
         tokens[address] || {},
         tokens[configs.stableCoins[0]] || {}
-      )
+      ) : numberToWei(1, 36)
 
-      value = formatFloat(weiToNumber(
-        bn(numberToWei(amount)).mul(numberToWei(tokenPrice))
-        , 54), 2)
+      value = weiToNumber(
+        bn(numberToWei(_amount)).mul(numberToWei(tokenPrice))
+        , 54)
     }
-    return value
+    return cutDecimal(value, 18)
+  }
+
+  const value = useMemo(() => {
+    if (!amount || !tokenAddress) return 0
+    return getTokenValue(tokenAddress, amount)
   }, [amount, tokenAddress, prices])
+
+  return {
+    value,
+    getTokenValue
+  }
 }

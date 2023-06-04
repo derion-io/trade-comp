@@ -48,11 +48,11 @@ const Component = () => {
     inputTokenAddress,
     outputTokenAddress
   })
-  const valueIn = useTokenValue({
+  const { value: valueIn } = useTokenValue({
     amount: amountIn,
     tokenAddress: inputTokenAddress
   })
-  const valueOut = useTokenValue({
+  const { value: valueOut } = useTokenValue({
     amount: amountOut,
     tokenAddress: outputTokenAddress
   })
@@ -158,7 +158,7 @@ const Component = () => {
         </div>
         <Input
           placeholder='0.0'
-          suffix={valueIn > 0 ? <TextGrey>${valueIn}</TextGrey> : ''}
+          suffix={Number(valueIn) > 0 ? <TextGrey>${valueIn}</TextGrey> : ''}
           className='fs-24'
           // @ts-ignore
           value={amountIn}
@@ -206,7 +206,7 @@ const Component = () => {
           // @ts-ignore
           value={Number(amountOut) > 0 ? amountOut : ''}
           placeholder='0.0'
-          suffix={valueOut > 0 ? <TextGrey>${valueOut}</TextGrey> : ''}
+          suffix={Number(valueOut) > 0 ? <TextGrey>${valueOut}</TextGrey> : ''}
           className='fs-24'
         />
       </div>

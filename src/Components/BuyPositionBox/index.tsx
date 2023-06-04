@@ -74,12 +74,12 @@ const Component = ({ isLong = true }: {isLong?: boolean}) => {
     }
   }, [outputTokenAddress, pools])
 
-  const valueIn = useTokenValue({
+  const { value: valueIn } = useTokenValue({
     amount: amountIn,
     tokenAddress: inputTokenAddress
   })
 
-  const valueOut = useTokenValue({
+  const { value: valueOut } = useTokenValue({
     amount: amountOut,
     tokenAddress: outputTokenAddress
   })
@@ -173,7 +173,7 @@ const Component = ({ isLong = true }: {isLong?: boolean}) => {
         </div>
         <Input
           placeholder='0.0'
-          suffix={valueIn > 0 ? <TextGrey>${valueIn}</TextGrey> : ''}
+          suffix={Number(valueIn) > 0 ? <TextGrey>${valueIn}</TextGrey> : ''}
           className='fs-24'
           // @ts-ignore
           value={amountIn}
@@ -206,7 +206,7 @@ const Component = ({ isLong = true }: {isLong?: boolean}) => {
           borderColor={isLong ? 'buy' : 'sell'}
           className='estimate-box swap-info-box mt-1 mb-1'
         >
-          <span className={`estimate-box__leverage ${isLong ? 'long' : 'short'}`}>{isLong ? 'Long ' : 'Short -'}{barData?.x}X</span>
+          <span className={`estimate-box__leverage ${isLong ? 'long' : 'short'}`}>{isLong ? 'Long ' : 'Short -'}{barData?.x / 2}X</span>
           <InfoRow>
             <span>
               <TokenSymbol token={outputTokenAddress} />:
@@ -251,7 +251,7 @@ const Component = ({ isLong = true }: {isLong?: boolean}) => {
           leverage={leverage}
           setLeverage={setBarData}
           leverageData={leverageData}
-          height={300}
+          height={100}
         />
       }
 

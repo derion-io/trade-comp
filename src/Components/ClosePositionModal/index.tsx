@@ -8,7 +8,7 @@ import { Text, TextGrey } from '../ui/Text'
 import './style.scss'
 import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import isEqual from 'react-fast-compare'
-import { bn, div, numberToWei, weiToNumber } from '../../utils/helpers'
+import { div, weiToNumber } from '../../utils/helpers'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { Input } from '../ui/Input'
 import { useWeb3React } from '../../state/customWeb3React/hook'
@@ -36,18 +36,21 @@ const Component = ({
   const { account } = useWeb3React()
   const [amountIn, setAmountIn] = useState<string>('')
 
-  const { callError, txFee, gasUsed, amountOut, amountOutWei } = useCalculateSwap({
+  const { callError, txFee, gasUsed, amountOut } = useCalculateSwap({
     amountIn,
     inputTokenAddress,
     outputTokenAddress
   })
 
-  const valueIn = useTokenValue({
-    amount: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18)),
+  const { value: valueIn } = useTokenValue({
+    amount: amountIn,
     tokenAddress: inputTokenAddress
   })
 
-  const valueOut = useTokenValue({ amount: amountOutWei, tokenAddress: outputTokenAddress })
+  const { value: valueOut } = useTokenValue({
+    amount: amountOut,
+    tokenAddress: outputTokenAddress
+  })
 
   return <Modal
     setVisible={setVisible}
@@ -84,7 +87,7 @@ const Component = ({
         </InfoRow>
         <Input
           placeholder='0.0'
-          suffix={valueIn > 0 ? <TextGrey>${valueIn}</TextGrey> : ''}
+          suffix={Number(valueIn) > 0 ? <TextGrey>${valueIn}</TextGrey> : ''}
           className='fs-24'
           // @ts-ignore
           value={amountIn}
@@ -129,7 +132,7 @@ const Component = ({
         </InfoRow>
         <Input
           placeholder='0.0'
-          suffix={valueOut > 0 ? <TextGrey>${valueOut}</TextGrey> : ''}
+          suffix={Number(valueOut) > 0 ? <TextGrey>${valueOut}</TextGrey> : ''}
           className='fs-24'
           // @ts-ignore
           value={amountOut}
