@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { BarChart, Bar } from 'recharts'
 import './style.scss'
 import isEqual from 'react-fast-compare'
@@ -123,6 +123,12 @@ const Component = ({ leverage, setLeverage, leverageData, height }: {height: num
     }
   }
 
+  useEffect(() => {
+    if (leverage === 0 && leverageData && leverageData[0]?.bars.length > 0) {
+      setLeverage(leverageData[0].bars[0])
+    }
+  }, [leverage])
+
   return (
     <div style={{ marginTop: height + 30, marginBottom: 35, paddingRight: 15, paddingLeft: 15 }}>
       <Slider
@@ -135,8 +141,6 @@ const Component = ({ leverage, setLeverage, leverageData, height }: {height: num
           const data = leverageData.find((d: any) => {
             return d.x === e
           })
-
-          console.log(data)
 
           if (data?.bars[0]) {
             setLeverage(data.bars[0])

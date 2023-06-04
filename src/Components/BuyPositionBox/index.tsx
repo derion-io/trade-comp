@@ -12,6 +12,7 @@ import { SelectTokenModal } from '../SelectTokenModal'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../state/token/hook'
 import {
+  bn,
   decodeErc1155Address, formatFloat, isErc1155Address, mul,
   numberToWei,
   weiToNumber
@@ -213,7 +214,11 @@ const Component = ({ isLong = true }: {isLong?: boolean}) => {
             </span>
             <span>
               <Text>
-                {formatWeiToDisplayNumber(balances[outputTokenAddress], 2, balances[outputTokenAddress]?.decimal)}
+                {formatWeiToDisplayNumber(
+                  balances[outputTokenAddress] || bn(0),
+                  2,
+                  balances[outputTokenAddress]?.decimal || 18
+                )}
               </Text>
               <Text> + </Text>
               <Text>
@@ -227,7 +232,10 @@ const Component = ({ isLong = true }: {isLong?: boolean}) => {
             </span>
             <span>
               <Text>
-                {formatWeiToDisplayNumber(balances[outputTokenAddress], 2, balances[outputTokenAddress]?.decimal)}
+                {formatWeiToDisplayNumber(
+                  balances[outputTokenAddress] || bn(0),
+                  2, balances[outputTokenAddress]?.decimal || 18
+                )}
               </Text>
               <Text> + </Text>
               <Text>
