@@ -1,6 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { initialState, PoolType } from './type'
+import { BigNumber } from 'ethers'
 export const tokens = createSlice({
   name: 'pools',
   initialState,
@@ -24,6 +25,16 @@ export const tokens = createSlice({
         ...state[action.payload.chainId],
         ...action.payload.pools
       }
+    },
+    addTokenPriceWithChain: (state, action: PayloadAction<{
+      prices: {[key: string]: BigNumber},
+      chainId: number
+    }>) => {
+      if (Object.keys(action.payload.prices).length === 0) return
+      state.prices[action.payload.chainId] = {
+        ...state[action.payload.chainId],
+        ...action.payload.prices
+      }
     }
   }
 })
@@ -31,7 +42,8 @@ export const tokens = createSlice({
 // Actions
 export const {
   addPoolsWithChain,
-  addPoolGroupsWithChain
+  addPoolGroupsWithChain,
+  addTokenPriceWithChain
 } = tokens.actions
 
 export default tokens.reducer

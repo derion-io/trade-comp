@@ -44,31 +44,25 @@ export interface resourcesState {
   tokens: {
     [key: string]: ListTokensType
   },
+  prices: {
+    [key: string]: ListTokensType
+  },
   swapLogs: {[key: string]: any[] }
 }
 
+const initDataEachChain = {
+  56: {},
+  31337: {},
+  1337: {},
+  97: {},
+  42161: {}
+}
+
 export const initialState: resourcesState = {
-  poolGroups: {
-    56: {},
-    31337: {},
-    1337: {},
-    97: {},
-    42161: {}
-  },
-  pools: {
-    56: {},
-    31337: {},
-    1337: {},
-    97: {},
-    42161: {}
-  },
-  tokens: {
-    56: {},
-    31337: {},
-    1337: {},
-    97: {},
-    42161: {}
-  },
+  poolGroups: initDataEachChain,
+  pools: initDataEachChain,
+  tokens: initDataEachChain,
+  prices: initDataEachChain,
   swapLogs: {
   }
 }

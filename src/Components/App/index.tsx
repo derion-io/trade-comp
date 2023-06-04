@@ -13,6 +13,7 @@ import { Pools } from '../../pages/Pools'
 import { SWAP_TAB, TIME_TO_REFRESH_STATE } from '../../utils/constant'
 import { useSwapHistoryFormated } from '../../state/wallet/hooks/useSwapHistory'
 import { Trade } from '../../pages/Trade'
+import { useFetchTokenPrice } from '../../state/resources/hooks/useTokenPrice'
 
 export const App = () => {
   const { id } = useCurrentPool()
@@ -23,6 +24,7 @@ export const App = () => {
   const { ddlEngine, chainId, location } = useConfigs()
   const chainIdRef = useRef(null)
   const { initListPool } = useListPool()
+  useFetchTokenPrice()
   useSwapHistoryFormated()
 
   useEffect(() => {
