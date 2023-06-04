@@ -44,6 +44,7 @@ export const useCalculateSwap = ({
     }]).then((res: any) => {
       const [aOuts, gasLeft] = res
       setAmountOutWei(aOuts[0]?.amountOut || bn(0))
+      console.log('khanh', tokens[outputTokenAddress].decimal)
       setAmountOut(weiToNumber(aOuts[0]?.amountOut || 0, tokens[outputTokenAddress].decimal || 18))
       // @ts-ignore
       setTxFee(detectTxFee(gasLeft))

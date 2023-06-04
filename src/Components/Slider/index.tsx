@@ -4,7 +4,7 @@ import './style.scss'
 import isEqual from 'react-fast-compare'
 import Slider from 'rc-slider'
 
-const renderBar = (barData: any, barDataEntriesKeys: any, barColor: any) => {
+const renderBar = (barData: any, barDataEntriesKeys: any, barColor: any, setLeverage: any) => {
   const barArray = []
   // console.log(barData)
   for (let i = 0; i < barDataEntriesKeys.length; i++) {
@@ -14,7 +14,7 @@ const renderBar = (barData: any, barDataEntriesKeys: any, barColor: any) => {
         stackId='a'
         fill={barColor[i]}
         onClick={() => {
-          console.log(barData[barDataEntriesKeys[i]])
+          setLeverage(barData[barDataEntriesKeys[i]])
         }}
       />
     )
@@ -26,12 +26,14 @@ const StackedBarChart = ({
   xDisplay,
   barData,
   barColor,
-  height = 0
+  height = 0,
+  setLeverage
 }: {
   height?: number
   xDisplay: string
   barData?: {}
   barColor?: {}
+  setLeverage: any
 }) => {
   const rightPixel = xDisplay.length === 2 ? '-7px' : '-4px'
   const barDataEntriesKeys = Object.keys(barData || [])
@@ -74,7 +76,7 @@ const StackedBarChart = ({
           }}
         >
           <BarChart width={30} height={barTotalSize + 200} data={[barSizeData]}>
-            {renderBar(barData, barDataEntriesKeys, barColorValues)}
+            {renderBar(barData, barDataEntriesKeys, barColorValues, setLeverage)}
           </BarChart>
         </div>
       )}
@@ -114,26 +116,26 @@ const Component = ({ leverage, setLeverage, leverageData, height }: {height: num
           xDisplay={data.xDisplay}
           barData={getBarData(data.bars)}
           barColor={getBarColor(data.bars)}
+          setLeverage={setLeverage}
         />
       )
     })
 
     return {
-      ...finalData,
-      0: <StackedBarChart xDisplay='0x' />
+      ...finalData
     }
   }
 
   return (
     <div style={{ marginTop: height + 30, marginBottom: 35, paddingRight: 15, paddingLeft: 15 }}>
       <Slider
-        min={0}
+        min={leverageData[0].x}
         max={leverageData[leverageData.length - 1].x}
         step={null}
         count={1}
         value={leverage}
         onChange={(e: number) => {
-          setLeverage(e)
+          // setLeverage(e)
         }}
         dotStyle={{
           background: '#303236',

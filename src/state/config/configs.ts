@@ -52,7 +52,10 @@ export default {
       router: '0x4F1111145AB659CF9BBB45442F54A5D427783DaA',
       wrapToken: '0x56403E93d5D593E29d47eE5C743058A5993FD2B3',
       wrapUsdPair: '0x215bfCCF305135AbCAa18b9C0e9738924a53A0E6'
-    }
+    },
+    stableCoins: [
+      '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d',
+    ]
   },
   97: {
     rpcUrl: 'https://data-seed-prebsc-1-s1.binance.org:8545/',
@@ -77,7 +80,12 @@ export default {
       nativeToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
       poolFactory: '0xd9Ba0343BED07AE5764c77d7e54d7C3EBaBcC8bC',
       router: '0xace397FBf3fA9f672b014C995Eb579317D55592d'
-    }
+    },
+    stableCoins: [
+      '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
+      '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
+      '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1'
+    ]
   },
   42161: {
     rpcUrl: 'https://arb1.arbitrum.io/rpc',
@@ -105,6 +113,11 @@ export default {
       nativeToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
       poolFactory: '0x848389D3c869dEF538b148cE5864eFee71C868e1',
       router: '0x0772BD1981f6092329F12FC041B83b2faBBB1A25'
-    }
+    },
+    stableCoins: [
+      '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
+      '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
+      '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1'
+    ]
   }
 }

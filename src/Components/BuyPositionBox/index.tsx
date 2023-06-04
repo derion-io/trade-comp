@@ -34,9 +34,10 @@ import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 import _ from 'lodash'
 import { LeverageSlider } from '../Slider'
 import { useGenerateLeverageData } from '../../hooks/useGenerateLeverageData'
+import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
 
 const Component = ({ isLong = true }: {isLong?: boolean}) => {
-  const [leverage, setLeverage] = useState<any>({})
+  const [barData, setBarData] = useState<any>({})
   const { account, showConnectModal } = useWeb3React()
   const { configs, ddlEngine } = useConfigs()
   const { states, powers, allTokens, id, pools } = useCurrentPool()
@@ -59,8 +60,12 @@ const Component = ({ isLong = true }: {isLong?: boolean}) => {
   const leverageData = useGenerateLeverageData(isLong)
 
   const outputTokenAddress = useMemo(() => {
-    return leverage.token || ''
-  }, [leverage])
+    return barData.token ? barData.token : ''
+  }, [barData])
+
+  const leverage = useMemo(() => {
+    return 0
+  }, [barData])
 
   useEffect(() => {
     if (outputTokenAddress) {
@@ -80,7 +85,7 @@ const Component = ({ isLong = true }: {isLong?: boolean}) => {
       setGasUsed(bn(0))
       setAmountOutWei(bn(0))
     }
-  }, [tokens[inputTokenAddress] && tokens[outputTokenAddress], amountIn])
+  }, [tokens[inputTokenAddress] && tokens[outputTokenAddress], outputTokenAddress, amountIn])
 
   const calcAmountOut = async () => {
     if (!amountOut) {
@@ -170,35 +175,15 @@ const Component = ({ isLong = true }: {isLong?: boolean}) => {
     }
   }
 
-  const getTokenPrice = (address: string, powerState: any) => {
-    return 1
-  }
+  const valueIn = useTokenValue({
+    amount: amountIn,
+    tokenAddress: inputTokenAddress
+  })
 
-  const valueIn = useMemo(() => {
-    if (powers && states.twapBase && Number(amountIn) > 0) {
-      const powerState = new PowerState({ powers: [...powers] })
-      powerState.loadStates(states)
-      const price = getTokenPrice(inputTokenAddress, powerState)
-      if (Number(price) === 0 || !Number(price)) {
-        return 0
-      }
-      return formatFloat(weiToNumber(bn(numberToWei(amountIn)).mul(numberToWei(price || 0)), 36), 2)
-    }
-    return 0
-  }, [powers, states, amountIn, inputTokenAddress, nativePrice])
-
-  const valueOut = useMemo(() => {
-    if (powers && states.twapBase && Number(amountOut) > 0) {
-      const powerState = new PowerState({ powers: [...powers] })
-      powerState.loadStates(states)
-      const price = getTokenPrice(outputTokenAddress, powerState)
-      if (Number(price) === 0 || !Number.isFinite(price)) {
-        return 0
-      }
-      return formatFloat(weiToNumber(bn(numberToWei(amountOut)).mul(numberToWei(price || 0)), 36), 2)
-    }
-    return 0
-  }, [powers, states, amountOut, outputTokenAddress, nativePrice])
+  const valueOut = useTokenValue({
+    amount: amountIn,
+    tokenAddress: outputTokenAddress
+  })
 
   const tokensToSelect = useMemo(() => {
     if (!id) return []
@@ -322,7 +307,7 @@ const Component = ({ isLong = true }: {isLong?: boolean}) => {
           borderColor={isLong ? 'buy' : 'sell'}
           className='estimate-box swap-info-box mt-1 mb-1'
         >
-          <span className={`estimate-box__leverage ${isLong ? 'long' : 'short'}`}>{isLong ? 'Long ' : 'Short -'}{leverage}X</span>
+          <span className={`estimate-box__leverage ${isLong ? 'long' : 'short'}`}>{isLong ? 'Long ' : 'Short -'}{barData?.x}X</span>
           <InfoRow>
             <span>
               <TokenSymbol token={outputTokenAddress} />:
@@ -365,7 +350,7 @@ const Component = ({ isLong = true }: {isLong?: boolean}) => {
         leverageData.length > 0 &&
         <LeverageSlider
           leverage={leverage}
-          setLeverage={setLeverage}
+          setLeverage={setBarData}
           leverageData={leverageData}
           height={300}
         />

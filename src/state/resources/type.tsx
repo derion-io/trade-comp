@@ -45,7 +45,7 @@ export interface resourcesState {
     [key: string]: ListTokensType
   },
   prices: {
-    [key: string]: ListTokensType
+    [key: number]: {[key: string]: BigNumber}
   },
   swapLogs: {[key: string]: any[] }
 }

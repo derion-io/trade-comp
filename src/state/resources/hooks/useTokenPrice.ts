@@ -9,13 +9,16 @@ import { NATIVE_ADDRESS } from '../../../utils/constant'
 import _ from 'lodash'
 
 export const useTokenPrice = () => {
+  const { chainId } = useConfigs()
   const { prices } = useSelector((state: State) => {
     return {
       prices: state.resources.prices
     }
   })
 
-  return prices
+  return {
+    prices: prices[chainId]
+  }
 }
 
 export const useFetchTokenPrice = () => {
@@ -25,7 +28,7 @@ export const useFetchTokenPrice = () => {
 
   useEffect(() => {
     fetchPrice()
-  }, [tokens, chainId])
+  }, [ddlEngine, tokens, chainId])
 
   const fetchPrice = async () => {
     const tokenAddress = _.uniq(

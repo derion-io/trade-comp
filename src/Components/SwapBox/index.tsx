@@ -11,10 +11,8 @@ import { SelectTokenModal } from '../SelectTokenModal'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../state/token/hook'
 import {
-  bn,
   decodeErc1155Address,
   isErc1155Address,
-  numberToWei,
   weiToNumber
 } from '../../utils/helpers'
 import { TokenSymbol } from '../ui/TokenSymbol'
@@ -45,16 +43,19 @@ const Component = () => {
   const { balances, accFetchBalance } = useWalletBalance()
   const [visibleApproveModal, setVisibleApproveModal] = useState<boolean>(false)
   const { tokens } = useListTokens()
-  const { callError, txFee, gasUsed, amountOut, amountOutWei } = useCalculateSwap({
+  const { callError, txFee, gasUsed, amountOut } = useCalculateSwap({
     amountIn,
     inputTokenAddress,
     outputTokenAddress
   })
   const valueIn = useTokenValue({
-    amount: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18)),
-    token: inputTokenAddress
+    amount: amountIn,
+    tokenAddress: inputTokenAddress
   })
-  const valueOut = useTokenValue({ amount: amountOutWei, token: outputTokenAddress })
+  const valueOut = useTokenValue({
+    amount: amountOut,
+    tokenAddress: outputTokenAddress
+  })
 
   useEffect(() => {
     setInputTokenAddress(NATIVE_ADDRESS || '')

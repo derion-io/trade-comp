@@ -16,6 +16,7 @@ export const useGenerateLeverageData = (isLong: boolean) => {
             xDisplay: (pool.k.toNumber() / 2) + 'x',
             bars: [
               {
+                x: pool.k.toNumber(),
                 token: pool.poolAddress + '-' + (isLong ? POOL_IDS.A : POOL_IDS.B),
                 size: 100,
                 color: barColors[0]
@@ -25,6 +26,7 @@ export const useGenerateLeverageData = (isLong: boolean) => {
         } else {
           let bars = result[pool.k.toNumber()]
           bars.push({
+            x: pool.k.toNumber(),
             token: pool.poolAddress + '-' + (isLong ? POOL_IDS.A : POOL_IDS.B),
             size: 100,
             color: barColors[bars.length]

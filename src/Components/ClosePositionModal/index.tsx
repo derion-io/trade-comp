@@ -44,10 +44,10 @@ const Component = ({
 
   const valueIn = useTokenValue({
     amount: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18)),
-    token: inputTokenAddress
+    tokenAddress: inputTokenAddress
   })
 
-  const valueOut = useTokenValue({ amount: amountOutWei, token: outputTokenAddress })
+  const valueOut = useTokenValue({ amount: amountOutWei, tokenAddress: outputTokenAddress })
 
   return <Modal
     setVisible={setVisible}
