@@ -7,10 +7,10 @@ import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { Text, TextGrey } from '../ui/Text'
 import './style.scss'
-import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
+import formatLocalisedCompactNumber, { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import isEqual from 'react-fast-compare'
 import { useListPool } from '../../state/resources/hooks/useListPool'
-import { bn, decodeErc1155Address, div, isErc1155Address, weiToNumber } from '../../utils/helpers'
+import { bn, decodeErc1155Address, div, formatFloat, isErc1155Address, weiToNumber } from '../../utils/helpers'
 import { POOL_IDS, ZERO_ADDRESS } from '../../utils/constant'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
 import { ZERO } from '@uniswap/v3-sdk/dist/internalConstants'
@@ -95,14 +95,19 @@ const Option = ({ onSelectToken, address, setVisible }: {
         (lp && Number(lp) > 0)
           ? <div>
             <Text>LP: </Text>
-            <Text>${lp}</Text>
+            <TextGrey>${formatLocalisedCompactNumber(formatFloat(lp, 2))}</TextGrey>
           </div>
           : ''
       }
     </div>
-    <div>
-      <Text>${value}</Text>
-    </div>
+    {
+      (balances[address] && balances[address].gt(0)) &&
+      <div className='option__balance'>
+        <Text>{formatWeiToDisplayNumber(balances[address] || 0, 4, tokens[address]?.decimal || 18)}</Text>
+        <TextGrey>${formatLocalisedCompactNumber(formatFloat(value, 2))}</TextGrey>
+      </div>
+    }
+
   </Box>
 }
 

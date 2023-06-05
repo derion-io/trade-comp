@@ -67,7 +67,7 @@ const Component = ({ isLong = true }: {isLong?: boolean}) => {
   useEffect(() => {
     if (outputTokenAddress) {
       const { address } = decodeErc1155Address(outputTokenAddress)
-      if (wrapToNativeAddress(inputTokenAddress) !== wrapToNativeAddress(pools[address].TOKEN_R)) {
+      if (wrapToNativeAddress(inputTokenAddress) !== wrapToNativeAddress(pools[address]?.TOKEN_R)) {
         setInputTokenAddress(pools[address].TOKEN_R)
       }
     } else if (Object.values(pools).length > 0) {

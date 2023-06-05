@@ -8,7 +8,11 @@
   &__wrap {
     position: relative;
     height: 35px;
-    z-index: 10000;
+    z-index: 1000;
+
+    @include respond(phone) {
+      height: 26px;
+    }
   }
 
   & * {
@@ -42,6 +46,12 @@
     &.active {
       //padding: 1rem 2rem;
       background: $color-grey
+    }
+
+    &>*:not(:first-child){
+      @include respond(phone) {
+        display: none;
+      }
     }
   }
 }

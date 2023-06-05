@@ -1,8 +1,16 @@
+@import "src/styles/abstracts/mixins";
+
 .exposure-interface .chart {
   &__head {
     display: flex;
     margin-bottom: 1rem;
     justify-content: space-between;
+
+    @include respond(phone) {
+      flex-direction: column;
+      align-items: start;
+      gap: 10px;
+    }
 
     &--left {
       display: flex;

@@ -3,17 +3,18 @@ import './style.scss'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { POOL_IDS } from '../../utils/constant'
-import { shortenAddressString } from '../../utils/helpers'
+import { bn, formatFloat, numberToWei, shortenAddressString, weiToNumber } from '../../utils/helpers'
 import { useListTokens } from '../../state/token/hook'
 import { PoolType } from '../../state/resources/type'
 import { Button } from '../ui/Button'
-import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
+import formatLocalisedCompactNumber, { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import { BigNumber } from 'ethers'
-import { Text, TextLink } from '../ui/Text'
+import { Text, TextGrey, TextLink } from '../ui/Text'
 import { useConfigs } from '../../state/config/useConfigs'
 import { TokenIcon } from '../ui/TokenIcon'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { ClosePosition } from '../ClosePositionModal'
+import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
 
 type Position = {
   poolAddress: string
@@ -28,9 +29,9 @@ export const Positions = () => {
   const { balances } = useWalletBalance()
   const { tokens } = useListTokens()
   const { configs } = useConfigs()
+  const { getTokenValue } = useTokenValue({})
 
   const [visible, setVisible] = useState<boolean>(false)
-  const [dToken, setDToken] = useState<string>('')
   const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
 
@@ -61,21 +62,26 @@ export const Positions = () => {
     <table>
       <thead>
         <tr>
-          <th>Pool</th>
+          <th className='hidden-on-phone'>Pool</th>
           <th>Token</th>
-          <th>Pair</th>
-          <th>Leverage</th>
-          <th>Reserve token</th>
-          <th>Value</th>
+          <th className='hidden-on-phone'>Pair</th>
+          <th className='hidden-on-phone'>Leverage</th>
+          <th className='hidden-on-phone'>Reserve token</th>
           <th>Balance</th>
+          <th>Value</th>
           <th />
         </tr>
       </thead>
       <tbody>
         {
           (positions && positions.length > 0) && positions.map((position, key: number) => {
+            const value = getTokenValue(
+              position.token,
+              weiToNumber(position.balance, tokens[position.token]?.decimal || 18)
+            )
+
             return <tr key={key}>
-              <td>
+              <td className='hidden-on-phone'>
                 <TextLink href={configs.explorer + '/address/' + position.poolAddress}>
                   {shortenAddressString(position.poolAddress)}
                 </TextLink>
@@ -86,11 +92,11 @@ export const Positions = () => {
                   <span><TokenSymbol token={position.token} /></span>
                 </div>
               </td>
-              <td>
+              <td className='hidden-on-phone'>
                 <Text>{tokens[position.pool.baseToken]?.symbol}/{tokens[position.pool.quoteToken]?.symbol}</Text>
               </td>
-              <td>X{position.pool.k.toNumber() / 2}</td>
-              <td>
+              <td className='hidden-on-phone'>x{position.pool.k.toNumber() / 2}</td>
+              <td className='hidden-on-phone'>
                 <div className='d-flex gap-05 align-items-center'>
                   <TokenIcon size={24} tokenAddress={position.pool.TOKEN_R} />
                   <Text>{tokens[position.pool.TOKEN_R]?.symbol}</Text>
@@ -100,7 +106,7 @@ export const Positions = () => {
                 <Text>{formatWeiToDisplayNumber(position.balance, 4, tokens[position.token].decimals)}</Text>
               </td>
               <td>
-                <Text>{formatWeiToDisplayNumber(position.balance, 4, tokens[position.token].decimals)}</Text>
+                <Text>${formatLocalisedCompactNumber(formatFloat(value))}</Text>
               </td>
               <td className='text-right'>
                 <Button

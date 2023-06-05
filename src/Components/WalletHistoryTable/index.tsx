@@ -64,7 +64,7 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
                 }}>
                   <td className='wallet-history-table__time'>
                     <TextLink
-                      href={configs.explorer + '/tx/' + swapTx.transactionHash}>{swapTx.timeStamp && getTimeLabel(swapTx.timeStamp) + ' ago'}</TextLink>
+                      href={configs.explorer + '/tx/' + swapTx.transactionHash}>{swapTx.timeStamp && getTimeLabel(swapTx.timeStamp * 1000) + ' ago'}</TextLink>
                   </td>
                   <td className='wallet-history-table__ctoken-change'>
                     <Text>{formatWeiToDisplayNumber(swapTx.amountIn, 4, tokens[swapTx.tokenIn]?.decimal || 18)}</Text>

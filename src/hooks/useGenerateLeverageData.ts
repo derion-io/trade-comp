@@ -36,7 +36,8 @@ export const useGenerateLeverageData = (isLong: boolean) => {
             ]
           }
         } else {
-          const bars = result[pool.k.toNumber()]
+          const bars = result[pool.k.toNumber()].bars
+          console.log(bars)
           bars.push({
             x: pool.k.toNumber(),
             token: pool.poolAddress + '-' + (isLong ? POOL_IDS.A : POOL_IDS.B),

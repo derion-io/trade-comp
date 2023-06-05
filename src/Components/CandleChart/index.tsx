@@ -13,9 +13,6 @@ import { Card } from '../ui/Card'
 import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 import { CandleChartLoader } from '../ChartLoaders'
 import isEqual from 'react-fast-compare'
-import { bn } from '../../utils/helpers'
-import { useDispatch } from 'react-redux'
-import { setChartTimeRange } from '../../state/currentPool/reducer'
 import { useConfigs } from '../../state/config/useConfigs'
 
 export interface ChartContainerProps {
