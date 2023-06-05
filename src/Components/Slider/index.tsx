@@ -67,12 +67,12 @@ const StackedBarChart = ({
             top: `${
               barTotalSize === 100
                 ? `-${height + 30}px`
-                : `-${height + 30 - (100 - (barTotalSize < 20 ? 20 : barTotalSize))}px`
+                : `-${height + 30 - (100 - (barTotalSize < 50 ? 50 : barTotalSize))}px`
             }`,
             right: rightPixel
           }}
         >
-          <BarChart width={30} height={barTotalSize < 20 ? 20 : barTotalSize} data={[barSizeData]}>
+          <BarChart width={30} height={barTotalSize < 50 ? 50 : barTotalSize} data={[barSizeData]}>
             {renderBar(barData, barDataEntriesKeys, barColorValues, setLeverage)}
           </BarChart>
         </div>
