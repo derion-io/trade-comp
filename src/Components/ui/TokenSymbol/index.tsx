@@ -27,7 +27,7 @@ export const TokenSymbol = ({ token }: { token: string }) => {
           {Number(id) === POOL_IDS.B && '-'}{(pool.TOKEN_R === baseToken && Number(id) !== POOL_IDS.C ? 1 : 0) + (pool?.k.toNumber() / 2)}
         </sup>
         {
-          (pool.TOKEN_R !== baseToken && Number(id) !== POOL_IDS.C) &&
+          (pool.TOKEN_R !== baseToken || Number(id) === POOL_IDS.C) &&
           <span className='font-size-14'>.{tokens[wrapToNativeAddress(pool.TOKEN_R)]?.symbol}</span>
         }
       </React.Fragment>
