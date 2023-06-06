@@ -6,8 +6,10 @@ import React from 'react'
 import { InfoRow } from '../../ui/InfoRow'
 import { useNativePrice } from '../../../hooks/useTokenPrice'
 import { BigNumber } from 'ethers'
+import { useConfigs } from '../../../state/config/useConfigs'
 
 export const TxFee = ({ gasUsed, txFee } : {gasUsed: BigNumber, txFee: BigNumber}) => {
+  const { chainId } = useConfigs()
   const { data: nativePrice } = useNativePrice()
 
   return <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
@@ -22,7 +24,7 @@ export const TxFee = ({ gasUsed, txFee } : {gasUsed: BigNumber, txFee: BigNumber
       <span>
         <Text>
           {weiToNumber(txFee, 18, 4)}
-          <TextGrey> BNB </TextGrey>
+          <TextGrey> {chainId === 56 ? 'BNB' : 'ETH'} </TextGrey>
           (${weiToNumber(txFee.mul(numberToWei(nativePrice)), 36, 2)})
         </Text>
       </span>
