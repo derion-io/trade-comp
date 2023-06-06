@@ -5,6 +5,7 @@ import { decodeErc1155Address, getTokenPower, isErc1155Address } from '../../../
 import { useListPool } from '../../../state/resources/hooks/useListPool'
 import { POOL_IDS } from '../../../utils/constant'
 import { useHelper } from '../../../state/config/useHelper'
+import { Text, TextBlue, TextBuy, TextPink, TextSell } from '../Text'
 
 export const TokenSymbol = ({ token }: { token: string }) => {
   const { baseToken } = useCurrentPool()
@@ -21,8 +22,17 @@ export const TokenSymbol = ({ token }: { token: string }) => {
         return <span className='font-size-14'>{symbol}</span>
       }
 
-      return <React.Fragment>
-        <span className='font-size-14'>{Number(id) === POOL_IDS.C && 'DLP-'}{tokens[wrapToNativeAddress(pool.TOKEN_R)]?.symbol}</span>
+      const TextComp = Number(id) === POOL_IDS.C
+        ? TextBlue
+        : Number(id) === POOL_IDS.A
+          ? TextBuy
+          : Number(id) === POOL_IDS.B
+            ? TextSell
+            : Text
+
+      return <TextComp>
+        <span
+          className='font-size-14'>{Number(id) === POOL_IDS.C && 'DLP-'}{tokens[wrapToNativeAddress(pool.TOKEN_R)]?.symbol}</span>
         <sup className='font-size-12'>
           {getTokenPower(pool.TOKEN_R, baseToken, Number(id), pool?.k.toNumber())}
         </sup>
@@ -30,9 +40,9 @@ export const TokenSymbol = ({ token }: { token: string }) => {
           (pool.TOKEN_R !== baseToken || Number(id) === POOL_IDS.C) &&
           <span className='font-size-14'>·{tokens[wrapToNativeAddress(pool.TOKEN_R)]?.symbol}</span>
         }
-      </React.Fragment>
+      </TextComp>
     }
-    return <span className='font-size-14'>{symbol}</span>
+    return <TextPink className='font-size-14'>{symbol}</TextPink>
   }, [tokens, token, pools])
 
   return <React.Fragment>{result}</React.Fragment>

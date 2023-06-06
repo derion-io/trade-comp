@@ -17,7 +17,7 @@ import {
 } from '../../utils/helpers'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
-import { NATIVE_ADDRESS } from '../../utils/constant'
+import { NATIVE_ADDRESS, POOL_IDS } from '../../utils/constant'
 import { useConfigs } from '../../state/config/useConfigs'
 import formatLocalisedCompactNumber, { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import isEqual from 'react-fast-compare'
@@ -77,10 +77,15 @@ const Component = ({
     if (!id) return []
     const tokenRs = Object.values(pools).map((p: any) => p.TOKEN_R)
     if (tokenRs.includes(configs.addresses.wrapToken)) tokenRs.push(configs.addresses.nativeToken)
+    const aTokens = allTokens.filter((a) => Number(a.split('-')[1]) === POOL_IDS.A)
+    const bTokens = allTokens.filter((a) => Number(a.split('-')[1]) === POOL_IDS.B)
+    const cTokens = allTokens.filter((a) => Number(a.split('-')[1]) === POOL_IDS.C)
     return _.uniq(
       [
-        ...allTokens,
-        ...tokenRs
+        ...tokenRs,
+        ...aTokens,
+        ...bTokens,
+        ...cTokens
       ].filter((address) => {
         if (tokenRs.includes(address)) return true
         if (tokenTypeToSelect === 'input' && (!balances[address] || balances[address].isZero())) {

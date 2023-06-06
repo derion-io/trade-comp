@@ -10,10 +10,9 @@ import './style.scss'
 import formatLocalisedCompactNumber, { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import isEqual from 'react-fast-compare'
 import { useListPool } from '../../state/resources/hooks/useListPool'
-import { bn, decodeErc1155Address, div, formatFloat, isErc1155Address, weiToNumber } from '../../utils/helpers'
-import { POOL_IDS, ZERO_ADDRESS } from '../../utils/constant'
+import { decodeErc1155Address, div, formatFloat, isErc1155Address, weiToNumber } from '../../utils/helpers'
+import { ZERO_ADDRESS } from '../../utils/constant'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
-import { ZERO } from '@uniswap/v3-sdk/dist/internalConstants'
 
 const Component = ({
   visible,

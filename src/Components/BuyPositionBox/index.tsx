@@ -97,7 +97,6 @@ const Component = ({
     if (tokenRs.includes(configs.addresses.wrapToken)) tokenRs.push(configs.addresses.nativeToken)
     return _.uniq(
       [
-        ...allTokens,
         ...tokenRs
       ].filter((address) => {
         if (tokenRs.includes(address)) return true
@@ -144,6 +143,11 @@ const Component = ({
     }
     return null
   }, [pools, inputTokenAddress, outputTokenAddress])
+
+  const { value: liquidity } = useTokenValue({
+    amount: weiToNumber(poolToShow?.states?.R, tokens[poolToShow?.TOKEN_R]?.decimals),
+    tokenAddress: poolToShow?.TOKEN_R
+  })
 
   return (
     <div className='long-short-box'>
@@ -241,14 +245,14 @@ const Component = ({
             </span>
             <span>
               <Text>
-                {formatWeiToDisplayNumber(
+                ${formatWeiToDisplayNumber(
                   balances[outputTokenAddress] || bn(0),
                   2, balances[outputTokenAddress]?.decimal || 18
                 )}
               </Text>
               <Text> + </Text>
               <Text>
-                {formatLocalisedCompactNumber(formatFloat(valueOut))}
+                ${formatLocalisedCompactNumber(formatFloat(valueOut))}
               </Text>
             </span>
           </InfoRow>
@@ -257,7 +261,7 @@ const Component = ({
               Expiration
             </span>
             <Text>
-              0 + 3days
+              0 + 1s
             </Text>
           </InfoRow>
         </Box>
@@ -288,6 +292,10 @@ const Component = ({
         <InfoRow>
           <TextGrey>Effective Leverage:</TextGrey>
           <Text>x{poolToShow?.k.toNumber() / 2}</Text>
+        </InfoRow>
+        <InfoRow>
+          <TextGrey>Liquidity:</TextGrey>
+          <Text>${formatLocalisedCompactNumber(formatFloat(liquidity, 2))}</Text>
         </InfoRow>
       </Box>
 
