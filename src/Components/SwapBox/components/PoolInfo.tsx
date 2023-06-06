@@ -1,9 +1,19 @@
 import { Text, TextGrey } from '../../ui/Text'
-import { decodeErc1155Address, formatFloat, isErc1155Address, mul } from '../../../utils/helpers'
+import {
+  decodeErc1155Address,
+  formatFloat,
+  getTokenPower,
+  isErc1155Address,
+  mul,
+  weiToNumber
+} from '../../../utils/helpers'
 import { Box } from '../../ui/Box'
 import React, { useMemo } from 'react'
 import { InfoRow } from '../../ui/InfoRow'
 import { useCurrentPool } from '../../../state/currentPool/hooks/useCurrentPool'
+import { useTokenValue } from '../hooks/useTokenValue'
+import { useListTokens } from '../../../state/token/hook'
+import formatLocalisedCompactNumber from '../../../utils/formatBalance'
 
 export const PoolInfo = ({
   inputTokenAddress,
@@ -13,15 +23,23 @@ export const PoolInfo = ({
   outputTokenAddress: string
 }) => {
   const { pools } = useCurrentPool()
+  const { tokens } = useListTokens()
 
-  const poolToShow = useMemo(() => {
+  const [poolToShow, id] = useMemo(() => {
     if (isErc1155Address(outputTokenAddress)) {
-      return pools[decodeErc1155Address(outputTokenAddress).address]
+      const { address, id } = decodeErc1155Address(outputTokenAddress)
+      return [pools[address], id]
     } else if (isErc1155Address(inputTokenAddress)) {
-      return pools[decodeErc1155Address(inputTokenAddress).address]
+      const { address, id } = decodeErc1155Address(inputTokenAddress)
+      return [pools[address], id]
     }
-    return null
+    return [null, null]
   }, [pools, inputTokenAddress, outputTokenAddress])
+
+  const { value: liquidity } = useTokenValue({
+    amount: weiToNumber(poolToShow?.states?.R, tokens[poolToShow?.TOKEN_R]?.decimals),
+    tokenAddress: poolToShow?.TOKEN_R
+  })
 
   return <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
     <InfoRow>
@@ -38,7 +56,14 @@ export const PoolInfo = ({
     </InfoRow>
     <InfoRow>
       <TextGrey>Effective Leverage:</TextGrey>
-      <Text>x{poolToShow?.k.toNumber() / 2}</Text>
+      <Text>
+          x{!id ? 0 : Math.abs(getTokenPower(poolToShow.TOKEN_R, poolToShow.baseToken, Number(id), poolToShow.k.toNumber()))}
+      </Text>
+
+    </InfoRow>
+    <InfoRow>
+      <TextGrey>Liquidity:</TextGrey>
+      <Text>${formatLocalisedCompactNumber(formatFloat(liquidity, 2))}</Text>
     </InfoRow>
   </Box>
 }

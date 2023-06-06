@@ -34,7 +34,7 @@ export const TokenSymbol = ({ token }: { token: string }) => {
         <span
           className='font-size-14'>{Number(id) === POOL_IDS.C && 'DLP-'}{tokens[wrapToNativeAddress(pool.TOKEN_R)]?.symbol}</span>
         <sup className='font-size-12'>
-          {getTokenPower(pool.TOKEN_R, baseToken, Number(id), pool?.k.toNumber())}
+          {Number(id) === POOL_IDS.C && '±'}{getTokenPower(pool.TOKEN_R, baseToken, Number(id), pool?.k.toNumber())}
         </sup>
         {
           (pool.TOKEN_R !== baseToken || Number(id) === POOL_IDS.C) &&
