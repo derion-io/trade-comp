@@ -38,7 +38,7 @@ export const PoolInfo = ({
     </InfoRow>
     <InfoRow>
       <TextGrey>Effective Leverage:</TextGrey>
-      <Text>x{poolToShow?.k.toString()}</Text>
+      <Text>x{poolToShow?.k.toNumber() / 2}</Text>
     </InfoRow>
   </Box>
 }
