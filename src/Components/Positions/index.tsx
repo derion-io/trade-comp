@@ -15,6 +15,7 @@ import { TokenIcon } from '../ui/TokenIcon'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { ClosePosition } from '../ClosePositionModal'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
+import { useHelper } from '../../state/config/useHelper'
 
 const MIN_POSITON_VALUE_TO_DISPLAY = 0.0001
 
@@ -32,6 +33,7 @@ export const Positions = () => {
   const { tokens } = useListTokens()
   const { configs } = useConfigs()
   const { getTokenValue } = useTokenValue({})
+  const { wrapToNativeAddress } = useHelper()
 
   const [visible, setVisible] = useState<boolean>(false)
   const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
@@ -118,7 +120,7 @@ export const Positions = () => {
                   size='small'
                   onClick={() => {
                     setInputTokenAddress(position.token)
-                    setOutputTokenAddress(position.pool.TOKEN_R)
+                    setOutputTokenAddress(wrapToNativeAddress(position.pool.TOKEN_R))
                     setVisible(true)
                   }}
                 >Close</Button>
