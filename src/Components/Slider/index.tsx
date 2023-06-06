@@ -56,23 +56,24 @@ const StackedBarChart = ({
   }, [barData])
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div style={{ position: 'relative', padding: '0' }}>
       {xDisplay}
       {xDisplay === '0x' ? (
         <div />
       ) : (
         <div
           style={{
+            display: 'flex',
             position: 'absolute',
             top: `${
               barTotalSize === 100
                 ? `-${height + 30}px`
-                : `-${height + 30 - (100 - (barTotalSize < 50 ? 50 : barTotalSize))}px`
+                : `-${height + 30 - (100 - barTotalSize)}px`
             }`,
             right: rightPixel
           }}
         >
-          <BarChart width={30} height={barTotalSize < 50 ? 50 : barTotalSize} data={[barSizeData]}>
+          <BarChart className='d-flex' width={30} height={barTotalSize < 1 ? 1 : barTotalSize} data={[barSizeData]}>
             {renderBar(barData, barDataEntriesKeys, barColorValues, setLeverage)}
           </BarChart>
         </div>
