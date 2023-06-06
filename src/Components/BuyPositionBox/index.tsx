@@ -33,12 +33,16 @@ import { useHelper } from '../../state/config/useHelper'
 import { useCalculateSwap } from '../SwapBox/hooks/useCalculateSwap'
 import { ButtonSwap } from '../ButtonSwap'
 
-const Component = ({ isLong = true }: {isLong?: boolean}) => {
+const Component = ({
+  isLong = true,
+  inputTokenAddress,
+  setInputTokenAddress,
+  setOutputTokenAddress
+}: any) => {
   const [barData, setBarData] = useState<any>({})
   const { account } = useWeb3React()
   const { configs } = useConfigs()
   const { allTokens, id, pools } = useCurrentPool()
-  const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
   const [tokenTypeToSelect, setTokenTypeToSelect] = useState<'input' | 'output'>('input')
   const [amountIn, setAmountIn] = useState<string>('')
@@ -51,7 +55,9 @@ const Component = ({ isLong = true }: {isLong?: boolean}) => {
   const leverageData = useGenerateLeverageData(isLong)
 
   const outputTokenAddress = useMemo(() => {
-    return barData.token ? barData.token : ''
+    const address = barData.token ? barData.token : ''
+    setOutputTokenAddress(address)
+    return address
   }, [barData])
 
   const leverage = useMemo(() => {
@@ -207,7 +213,10 @@ const Component = ({ isLong = true }: {isLong?: boolean}) => {
           borderColor={isLong ? 'buy' : 'sell'}
           className='estimate-box swap-info-box mt-1 mb-1'
         >
-          <span className={`estimate-box__leverage ${isLong ? 'long' : 'short'}`}>{isLong ? 'Long ' : 'Short -'}{barData?.x / 2}X</span>
+          <span className={`estimate-box__leverage ${isLong ? 'long' : 'short'}`}>
+            {isLong ? 'Long ' : 'Short -'}
+            {barData?.x / 2}X
+          </span>
           <InfoRow>
             <span>
               <TokenSymbol token={outputTokenAddress} />:

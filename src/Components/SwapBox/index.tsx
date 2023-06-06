@@ -30,12 +30,17 @@ import { ButtonSwap } from '../ButtonSwap'
 import { TxFee } from './components/TxFee'
 import { PoolInfo } from './components/PoolInfo'
 
-const Component = () => {
+const Component = ({
+  inputTokenAddress,
+  setInputTokenAddress,
+  outputTokenAddress,
+  setOutputTokenAddress
+}: any) => {
   const { account } = useWeb3React()
   const { configs } = useConfigs()
   const { dTokens, allTokens, id, pools } = useCurrentPool()
-  const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
-  const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
+  // const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
+  // const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
   const [visibleLeverage, setVisibleLeverage] = useState<boolean>(false)
   const [tokenTypeToSelect, setTokenTypeToSelect] = useState<'input' | 'output'>('input')
@@ -58,8 +63,8 @@ const Component = () => {
   })
 
   useEffect(() => {
-    setInputTokenAddress(NATIVE_ADDRESS || '')
-    setOutputTokenAddress(dTokens[0])
+    if (!inputTokenAddress) setInputTokenAddress(NATIVE_ADDRESS || '')
+    if (!outputTokenAddress) setOutputTokenAddress(dTokens[0])
   }, [id])
 
   const revertPairAddress = () => {

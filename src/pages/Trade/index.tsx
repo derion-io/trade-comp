@@ -9,7 +9,6 @@ import { useWindowSize } from '../../hooks/useWindowSize'
 import { Tabs, TabPanel, TabList, Tab } from 'react-tabs'
 import 'react-tabs/style/react-tabs.css'
 import { Card } from '../../Components/ui/Card'
-import { useListTokens } from '../../state/token/hook'
 import { useListPool } from '../../state/resources/hooks/useListPool'
 import { BuyPositionBox } from '../../Components/BuyPositionBox'
 import { Positions } from '../../Components/Positions'
@@ -25,17 +24,16 @@ export const Trade = ({ tab, pool }: {
   pool?: string,
   tab: Symbol
 }) => {
-  const { id, TOKEN_R } = useCurrentPool()
-  const { chainId, useHistory, ddlEngine } = useConfigs()
-  const { tokens } = useListTokens()
+  const { chainId, useHistory } = useConfigs()
   const history = useHistory()
   const [changedIn24h, setChangedIn24h] = useState<number>(0)
   const { width } = useWindowSize()
-  const isPhone = width && width < 992
   const { poolGroups } = useListPool()
   const { updateCurrentPool } = useCurrentPool()
   const [tab2, setTab2] = useState<Symbol>(TAB_2.POSITION)
   const { formartedSwapLogs: swapTxs } = useSwapHistory()
+  const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
+  const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
 
   // useEffect(() => {
   //   if (tokens[baseToken] && tokens[quoteToken] && cToken && ddlEngine) {
@@ -124,17 +122,33 @@ export const Trade = ({ tab, pool }: {
             </TabList>
             <TabPanel>
               <Card className='trade-box card-in-tab'>
-                <BuyPositionBox />
+                <BuyPositionBox
+                  inputTokenAddress={inputTokenAddress}
+                  setInputTokenAddress={setInputTokenAddress}
+                  outputTokenAddress={outputTokenAddress}
+                  setOutputTokenAddress={setOutputTokenAddress}
+                />
               </Card>
             </TabPanel>
             <TabPanel>
               <Card className='trade-box card-in-tab'>
-                <BuyPositionBox isLong={false} />
+                <BuyPositionBox
+                  inputTokenAddress={inputTokenAddress}
+                  setInputTokenAddress={setInputTokenAddress}
+                  outputTokenAddress={outputTokenAddress}
+                  setOutputTokenAddress={setOutputTokenAddress}
+                  isLong={false}
+                />
               </Card>
             </TabPanel>
             <TabPanel>
               <Card className='trade-box card-in-tab'>
-                <SwapBox />
+                <SwapBox
+                  inputTokenAddress={inputTokenAddress}
+                  setInputTokenAddress={setInputTokenAddress}
+                  outputTokenAddress={outputTokenAddress}
+                  setOutputTokenAddress={setOutputTokenAddress}
+                />
               </Card>
             </TabPanel>
           </Tabs>
