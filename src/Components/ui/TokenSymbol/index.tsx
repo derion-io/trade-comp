@@ -28,7 +28,7 @@ export const TokenSymbol = ({ token }: { token: string }) => {
         </sup>
         {
           (pool.TOKEN_R !== baseToken || Number(id) === POOL_IDS.C) &&
-          <span className='font-size-14'>.{tokens[wrapToNativeAddress(pool.TOKEN_R)]?.symbol}</span>
+          <span className='font-size-14'>·{tokens[wrapToNativeAddress(pool.TOKEN_R)]?.symbol}</span>
         }
       </React.Fragment>
     }
