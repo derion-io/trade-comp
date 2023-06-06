@@ -1,7 +1,7 @@
 import React, { useEffect, Fragment, useMemo, useState } from 'react'
 import { CustomTokenIcon } from '../Icon'
 import { useHelper } from '../../../state/config/useHelper'
-import { decodeErc1155Address, isErc1155Address } from '../../../utils/helpers'
+import { decodeErc1155Address, getTokenPower, isErc1155Address } from '../../../utils/helpers'
 import './style.scss'
 import { POOL_IDS } from '../../../utils/constant'
 import { useListPool } from '../../../state/resources/hooks/useListPool'
@@ -34,8 +34,7 @@ export const TokenIcon = (props: {
       const { id, address } = decodeErc1155Address(props.tokenAddress)
       const pool = pools[address]
       if (!pool) return null
-      const k = pool?.k.toNumber()
-      const power = Number(id) === Number(POOL_IDS.A) ? (k / 2) : (-k / 2)
+      const power = getTokenPower(pool.TOKEN_R, pool.baseToken, Number(id), pool.k.toNumber())
       if (Number(id) === POOL_IDS.C) {
         return <div style={style} className='pool-token-logo pool-token-logo__cp'>LP</div>
       }

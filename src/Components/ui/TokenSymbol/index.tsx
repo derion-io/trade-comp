@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react'
 import { useCurrentPool } from '../../../state/currentPool/hooks/useCurrentPool'
 import { useListTokens } from '../../../state/token/hook'
-import { decodeErc1155Address, isErc1155Address } from '../../../utils/helpers'
+import { decodeErc1155Address, getTokenPower, isErc1155Address } from '../../../utils/helpers'
 import { useListPool } from '../../../state/resources/hooks/useListPool'
 import { POOL_IDS } from '../../../utils/constant'
 import { useHelper } from '../../../state/config/useHelper'
@@ -24,7 +24,7 @@ export const TokenSymbol = ({ token }: { token: string }) => {
       return <React.Fragment>
         <span className='font-size-14'>{Number(id) === POOL_IDS.C && 'DLP-'}{tokens[wrapToNativeAddress(pool.TOKEN_R)]?.symbol}</span>
         <sup className='font-size-12'>
-          {Number(id) === POOL_IDS.B && '-'}{(pool.TOKEN_R === baseToken && Number(id) !== POOL_IDS.C ? 1 : 0) + (pool?.k.toNumber() / 2)}
+          {getTokenPower(pool.TOKEN_R, baseToken, Number(id), pool?.k.toNumber())}
         </sup>
         {
           (pool.TOKEN_R !== baseToken || Number(id) === POOL_IDS.C) &&

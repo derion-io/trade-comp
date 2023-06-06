@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { POOL_IDS } from '../utils/constant'
 import { useCurrentPool } from '../state/currentPool/hooks/useCurrentPool'
 import { useTokenValue } from '../Components/SwapBox/hooks/useTokenValue'
-import { add, bn, numberToWei, weiToNumber } from '../utils/helpers'
+import { add, bn, getTokenPower, numberToWei, weiToNumber } from '../utils/helpers'
 import { useListTokens } from '../state/token/hook'
 
 const barColors = ['#01A7FA', '#FF98E5', '#4FBF67', '#3DBAA2']
@@ -21,14 +21,16 @@ export const useGenerateLeverageData = (isLong: boolean) => {
           weiToNumber(pool.states.R, tokens[pool.TOKEN_R]?.decimals)
         )))
 
-        if (!result[pool.k.toNumber()]) {
-          result[pool.k.toNumber()] = {
-            x: pool.k.toNumber(),
-            xDisplay: (pool.k.toNumber() / 2) + 'x',
+        const power = Math.abs(Number(getTokenPower(pool.TOKEN_R, pool.baseToken, isLong ? POOL_IDS.A : POOL_IDS.B, pool.k.toNumber())))
+
+        if (!result[power]) {
+          result[power] = {
+            x: power,
+            xDisplay: (power) + 'x',
             totalSize: size,
             bars: [
               {
-                x: pool.k.toNumber(),
+                x: power,
                 token: pool.poolAddress + '-' + (isLong ? POOL_IDS.A : POOL_IDS.B),
                 size,
                 color: barColors[0]
@@ -36,16 +38,15 @@ export const useGenerateLeverageData = (isLong: boolean) => {
             ]
           }
         } else {
-          const bars = result[pool.k.toNumber()].bars
-          console.log(bars)
+          const bars = result[power].bars
           bars.push({
-            x: pool.k.toNumber(),
+            x: power,
             token: pool.poolAddress + '-' + (isLong ? POOL_IDS.A : POOL_IDS.B),
             size,
             color: barColors[bars.length]
           })
-          result[pool.k.toNumber()].bars = bars
-          result[pool.k.toNumber()].totalSize = result[pool.k.toNumber()].totalSize.add(size)
+          result[power].bars = bars
+          result[power].totalSize = result[power].totalSize.add(size)
         }
       })
     }
@@ -73,8 +74,6 @@ export const useGenerateLeverageData = (isLong: boolean) => {
         bars
       }
     })
-
-    console.log('khanh', result, maxTotalSize.toString(), data)
 
     return data
   }, [pools, isLong])

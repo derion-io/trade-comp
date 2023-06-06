@@ -94,7 +94,6 @@ const Option = ({ onSelectToken, address, setVisible }: {
       {
         (lp && Number(lp) > 0)
           ? <div>
-            <Text>LP: </Text>
             <TextGrey>${formatLocalisedCompactNumber(formatFloat(lp, 2))}</TextGrey>
           </div>
           : ''

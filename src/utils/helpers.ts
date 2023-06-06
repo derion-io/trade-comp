@@ -1,4 +1,5 @@
 import { BigNumber, ethers, utils } from 'ethers'
+import { POOL_IDS } from './constant'
 
 export const bn = ethers.BigNumber.from
 
@@ -222,4 +223,12 @@ export const detectDecimalFromPrice = (price: number | string) => {
       : '0'
     return rate.split('.')[0].length + 3
   }
+}
+
+export const getTokenPower = (
+  TOKEN_R: string,
+  baseToken: string,
+  id: number, k: number) => {
+  if (id === POOL_IDS.C) return '±' + k / 2
+  return (TOKEN_R === baseToken && id !== POOL_IDS.C ? 1 : 0) + (id === POOL_IDS.B ? -1 : 1) * k / 2
 }

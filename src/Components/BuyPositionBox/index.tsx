@@ -214,8 +214,8 @@ const Component = ({
           className='estimate-box swap-info-box mt-1 mb-1'
         >
           <span className={`estimate-box__leverage ${isLong ? 'long' : 'short'}`}>
-            {isLong ? 'Long ' : 'Short -'}
-            {barData?.x / 2}X
+            {isLong ? 'Long ' : 'Short'}
+            {barData?.x}x
           </span>
           <InfoRow>
             <span>
