@@ -3,18 +3,20 @@ import './style.scss'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { POOL_IDS } from '../../utils/constant'
-import { bn, formatFloat, numberToWei, shortenAddressString, weiToNumber } from '../../utils/helpers'
+import { formatFloat, shortenAddressString, weiToNumber } from '../../utils/helpers'
 import { useListTokens } from '../../state/token/hook'
 import { PoolType } from '../../state/resources/type'
 import { Button } from '../ui/Button'
 import formatLocalisedCompactNumber, { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import { BigNumber } from 'ethers'
-import { Text, TextGrey, TextLink } from '../ui/Text'
+import { Text, TextLink } from '../ui/Text'
 import { useConfigs } from '../../state/config/useConfigs'
 import { TokenIcon } from '../ui/TokenIcon'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { ClosePosition } from '../ClosePositionModal'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
+
+const MIN_POSITON_VALUE_TO_DISPLAY = 0.0001
 
 type Position = {
   poolAddress: string
@@ -79,6 +81,9 @@ export const Positions = () => {
               position.token,
               weiToNumber(position.balance, tokens[position.token]?.decimal || 18)
             )
+            if (Number(value) < MIN_POSITON_VALUE_TO_DISPLAY) {
+              return ''
+            }
 
             return <tr key={key}>
               <td className='hidden-on-phone'>
