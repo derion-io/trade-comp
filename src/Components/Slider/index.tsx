@@ -4,6 +4,8 @@ import './style.scss'
 import isEqual from 'react-fast-compare'
 import Slider from 'rc-slider'
 
+const barColors = ['#01A7FA', '#FF98E5', '#4FBF67', '#3DBAA2']
+
 const renderBar = (barData: any, barDataEntriesKeys: any, barColor: any, setLeverage: any) => {
   const barArray = []
   for (let i = 0; i < barDataEntriesKeys.length; i++) {
@@ -13,7 +15,7 @@ const renderBar = (barData: any, barDataEntriesKeys: any, barColor: any, setLeve
         yAxisId={1000}
         dataKey={barDataEntriesKeys[i]}
         stackId='a'
-        fill={barColor[i]}
+        fill={barColors[i]}
         onClick={() => {
           setLeverage(barData[barDataEntriesKeys[i]])
         }}

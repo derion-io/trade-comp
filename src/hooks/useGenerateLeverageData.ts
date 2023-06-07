@@ -71,7 +71,7 @@ export const useGenerateLeverageData = (isLong: boolean) => {
 
       return {
         ...leverage,
-        bars
+        bars: bars.sort((a: any, b: any) => b.size - a.size)
       }
     })
 
