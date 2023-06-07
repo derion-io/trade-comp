@@ -43,7 +43,7 @@ export const POOL_IDS = {
   R: 0x00,
   A: 0x10,
   B: 0x20,
-  C: 0x30,
+  C: 0x30
 }
 
 export const COLORS = {

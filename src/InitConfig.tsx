@@ -17,7 +17,7 @@ export const InitConfig = ({
   chainId: chainIdNotConnect
 }: any) => {
   const { initialledConfig } = useConfigs()
-  const { chainId, library } = useWeb3React()
+  const { chainId, library, account } = useWeb3React()
   useInitWeb3React(useWeb3React, showConnectWalletModal)
   useInitConfig({
     chainId: chainId || DEFAULT_CHAIN,
@@ -26,7 +26,8 @@ export const InitConfig = ({
     language,
     useSubPage,
     useHistory,
-    useLocation
+    useLocation,
+    account
   })
   if (initialledConfig) {
     return <Fragment>{children}</Fragment>

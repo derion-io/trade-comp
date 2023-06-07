@@ -3687,9 +3687,19 @@ assert@^2.0.0:
     object-is "^1.0.1"
     util "^0.12.0"
 
-"assisted-json-rpc-provider@git+ssh://git@github.com:derivable-io/AssistedJsonRpcProvider.git#0abe7a86f41cd26bcd5a1b5e69517be277ae757c":
+"assisted-json-rpc-provider@git+ssh://git@github.com:derivable-io/AssistedJsonRpcProvider.git#1410f1d9a1e733c35d409f4ee79b0ca348f16718":
   version "1.0.0"
-  resolved "git+ssh://git@github.com:derivable-io/AssistedJsonRpcProvider.git#0abe7a86f41cd26bcd5a1b5e69517be277ae757c"
+  uid "1410f1d9a1e733c35d409f4ee79b0ca348f16718"
+  resolved "git+ssh://git@github.com:derivable-io/AssistedJsonRpcProvider.git#1410f1d9a1e733c35d409f4ee79b0ca348f16718"
+  dependencies:
+    async-task-throttle-on-response "^1.0.1"
+    ethers "^5.5.3"
+    lodash "^4.17.21"
+    node-fetch "2"
+
+"assisted-json-rpc-provider@git+ssh://git@github.com:derivable-labs/AssistedJsonRpcProvider.git#1410f1d9a1e733c35d409f4ee79b0ca348f16718":
+  version "1.0.0"
+  resolved "git+ssh://git@github.com:derivable-labs/AssistedJsonRpcProvider.git#1410f1d9a1e733c35d409f4ee79b0ca348f16718"
   dependencies:
     async-task-throttle-on-response "^1.0.1"
     ethers "^5.5.3"
@@ -4401,6 +4411,11 @@ caniuse-lite@^1.0.0, caniuse-lite@^1.0.30001400, caniuse-lite@^1.0.30001426, can
   version "1.0.30001434"
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001434.tgz#ec1ec1cfb0a93a34a0600d37903853030520a4e5"
   integrity sha512-aOBHrLmTQw//WFa2rcF1If9fa3ypkC1wzqqiKHgfdrXTWcU8C4gKVZT77eQAPWN1APys3+uQ0Df07rKauXGEYA==
+
+canonical-weth@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/canonical-weth/-/canonical-weth-1.4.0.tgz#e6b16574443e8ff0a132f1b4947bb2faf8c3e078"
+  integrity sha512-9rkLfAFndWALLhxd5lpyTX4RkV36WmVBZ92NYtYr1kWdAUmclRp7I5KkK4wvogzDcCI++yw53TLwx/GCPcocMg==
 
 case-sensitive-paths-webpack-plugin@^2.4.0:
   version "2.4.0"
@@ -5264,12 +5279,13 @@ depd@~1.1.2:
   resolved "https://registry.yarnpkg.com/depd/-/depd-1.1.2.tgz#9bcd52e14c097763e749b274c4346ed2e560b5a9"
   integrity sha512-7emPTl6Dpo6JRXOXjLRxck+FlLRX5847cLKEn00PLAgc3g2hTZZgr+e4c2v6QpSmLeFP3n5yUo7ft6avBK/5jQ==
 
-"derivable-tools@git+ssh://git@github.com:blackskin18/derivable-tools.git#57e99b51509030bb2d78005b7e35fc6f72c6aa30":
+"derivable-tools@git+ssh://git@github.com:blackskin18/derivable-tools.git#0b98f62acbbabec048c9733bd15db9d3621d0e46":
   version "1.0.0"
-  resolved "git+ssh://git@github.com:blackskin18/derivable-tools.git#57e99b51509030bb2d78005b7e35fc6f72c6aa30"
+  resolved "git+ssh://git@github.com:blackskin18/derivable-tools.git#0b98f62acbbabec048c9733bd15db9d3621d0e46"
   dependencies:
     "@ethersproject/providers" "https://github.com/launchzone/ethers.js/releases/download/v5.3.2.2/ethers_providers.tar.gz"
-    assisted-json-rpc-provider "git+ssh://git@github.com:derivable-io/AssistedJsonRpcProvider.git#0abe7a86f41cd26bcd5a1b5e69517be277ae757c"
+    assisted-json-rpc-provider "git+ssh://git@github.com:derivable-io/AssistedJsonRpcProvider.git#1410f1d9a1e733c35d409f4ee79b0ca348f16718"
+    canonical-weth "^1.4.0"
     ethereum-multicall "^2.15.0"
     ethers "^5.5.4"
     lodash "^4.17.21"

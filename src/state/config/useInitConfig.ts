@@ -4,29 +4,29 @@ import { setConfigs, setEngine } from './reducer'
 import configs from './configs'
 import { addTokensReduce } from '../token/reducer'
 import { Engine } from 'derivable-tools/dist/engine'
-import { useWeb3React } from '../customWeb3React/hook'
-import { DEFAULT_CHAIN, ZERO_ADDRESS } from '../../utils/constant'
+import { DEFAULT_CHAIN } from '../../utils/constant'
 
 export const useInitConfig = ({
-                                library,
-                                chainId,
-                                useSubPage,
-                                language,
-                                useLocation,
-                                useHistory,
-                                env
-                              }: {
+  library,
+  chainId,
+  useSubPage,
+  language,
+  useLocation,
+  useHistory,
+  env,
+  account
+}: {
   library: any
   useLocation: any
   useHistory: any
   chainId: number
   useSubPage: any
   language: string
+  account: string
   env: 'development' | 'production'
 }) => {
   const dispatch = useDispatch()
   const location = useLocation()
-  const { account } = useWeb3React()
 
   useEffect(() => {
     dispatch(
@@ -50,7 +50,7 @@ export const useInitConfig = ({
 
   useEffect(() => {
     if (!chainId) return
-    if (account === ZERO_ADDRESS) {
+    if (!account) {
       return console.log('=======await sync account========')
     }
     const engine = new Engine(
@@ -63,6 +63,7 @@ export const useInitConfig = ({
           getItem: (itemName) => localStorage.getItem(itemName)
         },
         signer: library?.getSigner(),
+        ...configs[chainId || DEFAULT_CHAIN],
         account
       },
       chainId

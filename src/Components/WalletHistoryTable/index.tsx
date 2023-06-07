@@ -18,7 +18,6 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
   const { setChartTimeFocus, TOKEN_R } = useCurrentPool()
   const { tokens } = useListTokens()
   const { configs } = useConfigs()
-
   const getColor = (address: string) => {
     if (address === NATIVE_ADDRESS || address === TOKEN_R) {
       return TextPink
@@ -64,7 +63,7 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
                 }}>
                   <td className='wallet-history-table__time'>
                     <TextLink
-                      href={configs.explorer + '/tx/' + swapTx.transactionHash}>{swapTx.timeStamp && getTimeLabel(swapTx.timeStamp * 1000) + ' ago'}</TextLink>
+                      href={configs.explorer + '/tx/' + swapTx.transactionHash}>{moment.unix(swapTx.timeStamp).fromNow()}</TextLink>
                   </td>
                   <td className='wallet-history-table__ctoken-change'>
                     <Text>{formatWeiToDisplayNumber(swapTx.amountIn, 4, tokens[swapTx.tokenIn]?.decimal || 18)}</Text>
@@ -89,10 +88,6 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
       </div>
     </div>
   )
-}
-
-const getTimeLabel = (timeStamp: number) => {
-  return moment().to(timeStamp * 1000, true)
 }
 
 const AmountChange = ({ amountChange, address }: { amountChange: BigNumber, address: string }) => {
