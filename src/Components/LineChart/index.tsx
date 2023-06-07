@@ -42,14 +42,14 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
 
   const finalData = useMemo(() => {
     const data = [
-      ...chartData[chainId + interval + cToken],
-      {
-        time: new Date().getTime(),
-        value: formatFloat(basePrice)
-      }
+      ...chartData[chainId + interval + cToken]
+      // {
+      //   time: new Date().getTime(),
+      //   value: formatFloat(basePrice)
+      // }
     ]
     return data
-  }, [chartData, interval, chainId, basePrice])
+  }, [chartData, interval, chainId])
 
   const color = useMemo(() => {
     return changedIn24h > 0
@@ -62,7 +62,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
       <div className='line-chart__head--left'>
         <div>
           <Text fontSize={24} fontWeight={700} className='mr-05'>
-            {hoverValue || formatFloat(basePrice)}
+            {hoverValue}
           </Text>
           <TextGrey className='mr-05' fontWeight={700}>
             {tokens[baseToken]?.symbol}/{tokens[quoteToken]?.symbol}
