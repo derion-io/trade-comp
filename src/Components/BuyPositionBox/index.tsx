@@ -14,7 +14,6 @@ import { useListTokens } from '../../state/token/hook'
 import {
   bn,
   decodeErc1155Address, formatFloat, isErc1155Address, mul,
-  numberToWei,
   weiToNumber
 } from '../../utils/helpers'
 import { TokenSymbol } from '../ui/TokenSymbol'
@@ -23,7 +22,6 @@ import { NATIVE_ADDRESS } from '../../utils/constant'
 import { useConfigs } from '../../state/config/useConfigs'
 import formatLocalisedCompactNumber, { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import isEqual from 'react-fast-compare'
-import { useNativePrice } from '../../hooks/useTokenPrice'
 import { ApproveUtrModal } from '../ApproveUtrModal'
 import _ from 'lodash'
 import { LeverageSlider } from '../Slider'
@@ -32,6 +30,7 @@ import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
 import { useHelper } from '../../state/config/useHelper'
 import { useCalculateSwap } from '../SwapBox/hooks/useCalculateSwap'
 import { ButtonSwap } from '../ButtonSwap'
+import { TxFee } from '../SwapBox/components/TxFee'
 
 const Component = ({
   isLong = true,
@@ -42,7 +41,7 @@ const Component = ({
 }: any) => {
   const [barData, setBarData] = useState<any>({})
   const { account } = useWeb3React()
-  const { configs, chainId } = useConfigs()
+  const { configs } = useConfigs()
   const { allTokens, id, pools } = useCurrentPool()
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
   const [tokenTypeToSelect, setTokenTypeToSelect] = useState<'input' | 'output'>('input')
@@ -50,7 +49,6 @@ const Component = ({
   const { balances, accFetchBalance } = useWalletBalance()
   const [visibleApproveModal, setVisibleApproveModal] = useState<boolean>(false)
   const { tokens } = useListTokens()
-  const { data: nativePrice } = useNativePrice()
   const { wrapToNativeAddress } = useHelper()
 
   const leverageData = useGenerateLeverageData(isLong)
@@ -343,24 +341,26 @@ const Component = ({
         </InfoRow>
       </Box>
 
-      <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
-        <InfoRow>
-          <TextGrey>Gas Used</TextGrey>
-          <span>
-            <Text>{formatWeiToDisplayNumber(gasUsed, 0, 0)}</Text>
-          </span>
-        </InfoRow>
-        <InfoRow>
-          <TextGrey>Transaction Fee</TextGrey>
-          <span>
-            <Text>
-              {weiToNumber(txFee, 18, 4)}
-              <TextGrey> {chainId === 56 ? 'BNB' : 'ETH'} </TextGrey>
-              (${weiToNumber(txFee.mul(numberToWei(nativePrice)), 36, 2)})
-            </Text>
-          </span>
-        </InfoRow>
-      </Box>
+      <TxFee gasUsed={gasUsed} txFee={txFee} />
+
+      {/* <Box borderColor='default' className='swap-info-box mt-1 mb-1'> */}
+      {/*  <InfoRow> */}
+      {/*    <TextGrey>Gas Used</TextGrey> */}
+      {/*    <span> */}
+      {/*      <Text>{formatWeiToDisplayNumber(gasUsed, 0, 0)}</Text> */}
+      {/*    </span> */}
+      {/*  </InfoRow> */}
+      {/*  <InfoRow> */}
+      {/*    <TextGrey>Transaction Fee</TextGrey> */}
+      {/*    <span> */}
+      {/*      <Text> */}
+      {/*        {weiToNumber(txFee, 18, 4)} */}
+      {/*        <TextGrey> {chainId === 56 ? 'BNB' : 'ETH'} </TextGrey> */}
+      {/*        (${weiToNumber(txFee.mul(numberToWei(nativePrice)), 36, 2)}) */}
+      {/*      </Text> */}
+      {/*    </span> */}
+      {/*  </InfoRow> */}
+      {/* </Box> */}
 
       <div className='actions'>
         <ButtonSwap

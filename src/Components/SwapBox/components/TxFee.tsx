@@ -23,9 +23,9 @@ export const TxFee = ({ gasUsed, txFee } : {gasUsed: BigNumber, txFee: BigNumber
       <TextGrey>Transaction Fee</TextGrey>
       <span>
         <Text>
-          {weiToNumber(txFee, 18, 4)}
+          {weiToNumber(gasUsed.mul(0.1 * 10 ** 9), 18, 5)}
           <TextGrey> {chainId === 56 ? 'BNB' : 'ETH'} </TextGrey>
-          (${weiToNumber(txFee.mul(numberToWei(nativePrice)), 36, 2)})
+          (${weiToNumber(gasUsed.mul(0.1 * 10 ** 9).mul(numberToWei(nativePrice)), 36, 2)})
         </Text>
       </span>
     </InfoRow>
