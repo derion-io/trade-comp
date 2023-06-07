@@ -47,6 +47,22 @@
     }
   }
 
+  .delta-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    width: 200px;
+    .text-left {
+      width: 60px;
+    }
+    .text-right {
+      width: 100px;
+    }
+    .icon-plus {
+      width: 10px;
+    }
+  }
+
   .info-row {
     font-size: 14px;
     &  * {

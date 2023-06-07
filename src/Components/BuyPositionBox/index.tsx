@@ -235,44 +235,73 @@ const Component = ({
             <span>
               <TokenSymbol token={outputTokenAddress} />
             </span>
-            <span>
-              <Text>
-                {formatWeiToDisplayNumber(
-                  balances[outputTokenAddress] || bn(0),
-                  2,
-                  balances[outputTokenAddress]?.decimal || 18
-                )}
-              </Text>
-              <Text> + </Text>
-              <Text>
-                {formatLocalisedCompactNumber(formatFloat(amountOut))}
-              </Text>
+            <span className='delta-box'>
+              <div className='text-left'>
+                <Text>
+                  {
+                    formatWeiToDisplayNumber(
+                      balances[outputTokenAddress] || bn(0),
+                      2,
+                      balances[outputTokenAddress]?.decimal || 18
+                    ) !== '0' && formatWeiToDisplayNumber(
+                      balances[outputTokenAddress] || bn(0),
+                      2,
+                      balances[outputTokenAddress]?.decimal || 18
+                    )
+                  }
+                </Text>
+              </div>
+              <div className='icon-plus'><Text>+</Text></div>
+              {
+                amountIn && <div className='text-right'>
+                  <Text>
+                    {formatLocalisedCompactNumber(formatFloat(amountOut))}
+                  </Text>
+                </div>
+              }
             </span>
           </InfoRow>
           <InfoRow>
             <span>
               Value
             </span>
-            <span>
-              <Text>
-                ${formatWeiToDisplayNumber(
-                  balances[outputTokenAddress] || bn(0),
-                  2, balances[outputTokenAddress]?.decimal || 18
-                )}
-              </Text>
-              <Text> + </Text>
-              <Text>
-                ${formatLocalisedCompactNumber(formatFloat(valueOut))}
-              </Text>
+            <span className='delta-box'>
+              <div className='text-left'>
+                {
+                  formatWeiToDisplayNumber(
+                    balances[outputTokenAddress] || bn(0),
+                    2, balances[outputTokenAddress]?.decimal || 18
+                  ) !== '0' && <Text>
+                    ${formatWeiToDisplayNumber(
+                      balances[outputTokenAddress] || bn(0),
+                      2, balances[outputTokenAddress]?.decimal || 18
+                    )}
+                  </Text>
+                }
+              </div>
+              <div className='icon-plus'><Text> + </Text></div>
+              {amountIn && <div className='text-right'>
+                <Text>
+                  ${formatLocalisedCompactNumber(formatFloat(valueOut))}
+                </Text>
+              </div>}
             </span>
           </InfoRow>
           <InfoRow>
             <span>
               Expiration
             </span>
-            <Text>
-              0 + 1s
-            </Text>
+            {
+              amountIn ? (
+                <div className='delta-box'>
+                  <div className='text-left'>
+                    {/* <Text>0</Text> */}
+                  </div>
+                  <div className='plus-icon'><Text>+</Text></div>
+                  <div className='text-right'><Text>1s</Text></div>
+                </div>
+              ) : <Text className='delta-box'>0</Text>
+            }
           </InfoRow>
         </Box>
       }
