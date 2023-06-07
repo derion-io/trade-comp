@@ -36,6 +36,7 @@ import { ButtonSwap } from '../ButtonSwap'
 const Component = ({
   isLong = true,
   inputTokenAddress,
+  outputTokenAddress,
   setInputTokenAddress,
   setOutputTokenAddress
 }: any) => {
@@ -54,10 +55,9 @@ const Component = ({
 
   const leverageData = useGenerateLeverageData(isLong)
 
-  const outputTokenAddress = useMemo(() => {
+  useEffect(() => {
     const address = barData.token ? barData.token : ''
     setOutputTokenAddress(address)
-    return address
   }, [barData])
 
   const leverage = useMemo(() => {
@@ -72,9 +72,18 @@ const Component = ({
 
   useEffect(() => {
     if (outputTokenAddress) {
+      for (let i = 0; i < leverageData.length; i++) {
+        const leve: any = leverageData[i];
+        for (let k = 0; k < leve.bars.length; k++) {
+          if (leve.bars[k].token.includes(outputTokenAddress.slice(0, -3))) {
+            setBarData(leve.bars[k])
+            break
+          }
+        }
+      }
       const { address } = decodeErc1155Address(outputTokenAddress)
       if (wrapToNativeAddress(inputTokenAddress) !== wrapToNativeAddress(pools[address]?.TOKEN_R)) {
-        setInputTokenAddress(pools[address].TOKEN_R)
+        setInputTokenAddress(pools[address]?.TOKEN_R)
       }
     } else if (Object.values(pools).length > 0) {
       setInputTokenAddress(wrapToNativeAddress(Object.values(pools)[0].TOKEN_R))
