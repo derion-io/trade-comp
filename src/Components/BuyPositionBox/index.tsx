@@ -56,8 +56,9 @@ const Component = ({
   const leverageData = useGenerateLeverageData(isLong)
 
   useEffect(() => {
-    const address = barData.token ? barData.token : ''
-    setOutputTokenAddress(address)
+    if (barData.token) {
+      setOutputTokenAddress(barData.token)
+    }
   }, [barData])
 
   const leverage = useMemo(() => {
@@ -73,7 +74,7 @@ const Component = ({
   useEffect(() => {
     if (outputTokenAddress) {
       for (let i = 0; i < leverageData.length; i++) {
-        const leve: any = leverageData[i];
+        const leve: any = leverageData[i]
         for (let k = 0; k < leve.bars.length; k++) {
           if (leve.bars[k].token.includes(outputTokenAddress.slice(0, -3))) {
             setBarData(leve.bars[k])

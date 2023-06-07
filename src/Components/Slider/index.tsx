@@ -9,6 +9,8 @@ const renderBar = (barData: any, barDataEntriesKeys: any, barColor: any, setLeve
   for (let i = 0; i < barDataEntriesKeys.length; i++) {
     barArray.push(
       <Bar
+        style={{ transform: `translateY(-${5 * i}px)` }}
+        yAxisId={1000}
         dataKey={barDataEntriesKeys[i]}
         stackId='a'
         fill={barColor[i]}
@@ -52,6 +54,7 @@ const StackedBarChart = ({
     for (const i in barData) {
       result[i] = barData[i].size
     }
+
     return result
   }, [barData])
 
@@ -73,7 +76,7 @@ const StackedBarChart = ({
             right: rightPixel
           }}
         >
-          <BarChart className='d-flex' width={30} height={barTotalSize < 1 ? 1 : barTotalSize} data={[barSizeData]}>
+          <BarChart className='d-flex' width={30} height={barTotalSize + (Object.values(barSizeData).length - 1) * 5} data={[barSizeData]}>
             {renderBar(barData, barDataEntriesKeys, barColorValues, setLeverage)}
           </BarChart>
         </div>
