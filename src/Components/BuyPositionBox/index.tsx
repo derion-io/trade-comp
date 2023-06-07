@@ -101,6 +101,11 @@ const Component = ({
     tokenAddress: outputTokenAddress
   })
 
+  const { value: valueOutBefore } = useTokenValue({
+    amount: weiToNumber(balances[outputTokenAddress], tokens[outputTokenAddress]?.decimal || 18),
+    tokenAddress: outputTokenAddress
+  })
+
   const tokensToSelect = useMemo(() => {
     if (!id) return []
     const tokenRs = Object.values(pools).map((p: any) => p.TOKEN_R)
@@ -235,7 +240,7 @@ const Component = ({
             <span>
               <TokenSymbol token={outputTokenAddress} />
             </span>
-            <span className='delta-box'>
+            <span className={`delta-box ${!amountIn && 'no-data'}`}>
               <div className='text-left'>
                 <Text>
                   {
@@ -251,13 +256,15 @@ const Component = ({
                   }
                 </Text>
               </div>
-              <div className='icon-plus'><Text>+</Text></div>
               {
-                amountIn && <div className='text-right'>
-                  <Text>
-                    {formatLocalisedCompactNumber(formatFloat(amountOut))}
-                  </Text>
-                </div>
+                amountIn && <React.Fragment>
+                  <div className='icon-plus'><Text>+</Text></div>
+                  <div className='text-right'>
+                    <Text>
+                      {formatLocalisedCompactNumber(formatFloat(amountOut))}
+                    </Text>
+                  </div>
+                </React.Fragment>
               }
             </span>
           </InfoRow>
@@ -265,43 +272,41 @@ const Component = ({
             <span>
               Value
             </span>
-            <span className='delta-box'>
+            <span className={`delta-box ${!amountIn && 'no-data'}`}>
               <div className='text-left'>
                 {
-                  formatWeiToDisplayNumber(
-                    balances[outputTokenAddress] || bn(0),
-                    2, balances[outputTokenAddress]?.decimal || 18
-                  ) !== '0' && <Text>
-                    ${formatWeiToDisplayNumber(
-                      balances[outputTokenAddress] || bn(0),
-                      2, balances[outputTokenAddress]?.decimal || 18
-                    )}
+                  valueOutBefore && <Text>
+                    ${formatLocalisedCompactNumber(formatFloat(valueOutBefore))}
                   </Text>
                 }
               </div>
-              <div className='icon-plus'><Text> + </Text></div>
-              {amountIn && <div className='text-right'>
-                <Text>
+              {amountIn &&
+              <React.Fragment>
+                <div className='icon-plus'><Text> + </Text></div>
+                <div className='text-right'>
+                  <Text>
                   ${formatLocalisedCompactNumber(formatFloat(valueOut))}
-                </Text>
-              </div>}
+                  </Text>
+                </div>
+              </React.Fragment>
+              }
             </span>
           </InfoRow>
           <InfoRow>
             <span>
               Expiration
             </span>
-            {
-              amountIn ? (
-                <div className='delta-box'>
-                  <div className='text-left'>
-                    {/* <Text>0</Text> */}
-                  </div>
+            <div className={`delta-box ${!amountIn && 'no-data'}`}>
+              <div className='text-left'>
+                <Text>0</Text>
+              </div>
+              {
+                amountIn && (<React.Fragment>
                   <div className='plus-icon'><Text>+</Text></div>
                   <div className='text-right'><Text>1s</Text></div>
-                </div>
-              ) : <Text className='delta-box'>0</Text>
-            }
+                </React.Fragment>)
+              }
+            </div>
           </InfoRow>
         </Box>
       }
