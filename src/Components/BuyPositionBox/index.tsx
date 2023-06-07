@@ -41,7 +41,7 @@ const Component = ({
 }: any) => {
   const [barData, setBarData] = useState<any>({})
   const { account } = useWeb3React()
-  const { configs } = useConfigs()
+  const { configs, chainId } = useConfigs()
   const { allTokens, id, pools } = useCurrentPool()
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
   const [tokenTypeToSelect, setTokenTypeToSelect] = useState<'input' | 'output'>('input')
@@ -311,7 +311,7 @@ const Component = ({
           <span>
             <Text>
               {weiToNumber(txFee, 18, 4)}
-              <TextGrey> BNB </TextGrey>
+              <TextGrey> {chainId === 56 ? 'BNB' : 'ETH'} </TextGrey>
               (${weiToNumber(txFee.mul(numberToWei(nativePrice)), 36, 2)})
             </Text>
           </span>
