@@ -246,10 +246,6 @@ const Component = ({
                       balances[outputTokenAddress] || bn(0),
                       2,
                       balances[outputTokenAddress]?.decimal || 18
-                    ) !== '0' && formatWeiToDisplayNumber(
-                      balances[outputTokenAddress] || bn(0),
-                      2,
-                      balances[outputTokenAddress]?.decimal || 18
                     )
                   }
                 </Text>
