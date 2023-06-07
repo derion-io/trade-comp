@@ -15,7 +15,10 @@ export const ButtonSwap = ({
   amountIn,
   callError,
   gasUsed,
-  callback
+  callback,
+  isLong,
+  isSwap,
+  isClose
 }: {
   inputTokenAddress: string
   outputTokenAddress: string
@@ -23,6 +26,9 @@ export const ButtonSwap = ({
   callError: string
   gasUsed: BigNumber
   callback?: any
+  isLong?: boolean
+  isSwap?: boolean
+  isClose?: boolean
 }) => {
   const { tokens } = useListTokens()
   const [loading, setLoading] = useState<boolean>(false)
@@ -85,7 +91,9 @@ export const ButtonSwap = ({
             toast.error('Error')
           }
         }}
-      >Swap</ButtonExecute>
+      >
+        {isLong ? 'Long' : isSwap ? 'Swap' : isClose ? 'Close' : 'Short'}
+      </ButtonExecute>
     }
   }, [
     ddlEngine,

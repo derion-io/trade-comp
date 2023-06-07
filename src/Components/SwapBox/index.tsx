@@ -242,6 +242,7 @@ const Component = ({
           amountIn={amountIn}
           callError={callError}
           gasUsed={gasUsed}
+          isSwap
         />
       </div>
 

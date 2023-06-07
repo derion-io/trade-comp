@@ -218,7 +218,7 @@ const Component = ({
           className='estimate-box swap-info-box mt-1 mb-1'
         >
           <span className={`estimate-box__leverage ${isLong ? 'long' : 'short'}`}>
-            {isLong ? 'Long ' : 'Short'}
+            {isLong ? 'Long ' : 'Short '}
             {barData?.x}x
           </span>
           <InfoRow>
@@ -325,6 +325,7 @@ const Component = ({
           amountIn={amountIn}
           callError={callError}
           gasUsed={gasUsed}
+          isLong={isLong}
         />
       </div>
 

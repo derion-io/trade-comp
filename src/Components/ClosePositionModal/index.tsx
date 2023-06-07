@@ -155,6 +155,7 @@ const Component = ({
           callback={() => {
             setVisible(false)
           }}
+          isClose
         />
       </div>
     </div>
