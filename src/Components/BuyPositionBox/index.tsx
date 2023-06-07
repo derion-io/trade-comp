@@ -223,7 +223,7 @@ const Component = ({
           </span>
           <InfoRow>
             <span>
-              <TokenSymbol token={outputTokenAddress} />:
+              <TokenSymbol token={outputTokenAddress} />
             </span>
             <span>
               <Text>
@@ -241,7 +241,7 @@ const Component = ({
           </InfoRow>
           <InfoRow>
             <span>
-              USD:
+              Value
             </span>
             <span>
               <Text>
@@ -303,7 +303,7 @@ const Component = ({
         <InfoRow>
           <TextGrey>Gas Used</TextGrey>
           <span>
-            <Text>{formatWeiToDisplayNumber(gasUsed, 0, 0)} Gas</Text>
+            <Text>{formatWeiToDisplayNumber(gasUsed, 0, 0)}</Text>
           </span>
         </InfoRow>
         <InfoRow>

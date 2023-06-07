@@ -19,21 +19,21 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const { chartIsOutDate } = useCurrentPool()
   const history = useHistory()
 
-  return <div className='chart-box'>
-    <div className='chart__head'>
-      <div className='chart__head--left'>
-        <div
-          className='exposure-page__head--back-btn'
-          onClick={() => {
-            history.push('pools')
-          }}
-        >
-          <IconArrowLeft fill='#01A7FA' /> <TextBlue>Back</TextBlue>
+  return (
+    <div className='chart-box'>
+      <div className='chart__head'>
+        <div className='chart__head--left'>
+          <div
+            className='exposure-page__head--back-btn'
+            onClick={() => {
+              history.push('pools')
+            }}
+          >
+            <IconArrowLeft fill='#01A7FA' /> <TextBlue>Back</TextBlue>
+          </div>
+          <SelectPoolGroup />
         </div>
-        <SelectPoolGroup />
-      </div>
-      {
-        chainId !== 1337 && (
+        {chainId !== 1337 && (
           <Tabs
             tab={tab}
             setTab={setTab}
@@ -42,19 +42,21 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
               { name: 'Line Chart', value: LINE_CHART }
             ]}
           />
-        )
-      }
+        )}
+      </div>
+      {/* {tab === CANDLE_CHART && configs.candleChartApi ? (
+        <CandleChart />
+      ) : (
+        <div />
+      )} */}
+      {chainId !== 1337 &&
+        (tab === LINE_CHART && configs.theGraphExchange ? (
+          <LineChart changedIn24h={changedIn24h} />
+        ) : (
+          <CandleChart />
+        ))}
     </div>
-    {/* {
-      tab === CANDLE_CHART && configs.candleChartApi ? <CandleChart /> : <div />
-    } */}
-    {
-      chainId !== 1337 &&
-      (tab === LINE_CHART && configs.theGraphExchange && chartIsOutDate
-        ? <LineChart changedIn24h={changedIn24h} />
-        : <CandleChart />)
-    }
-  </div>
+  )
 }
 
 export const Chart = React.memo(Component, (prevProps, nextProps) =>
