@@ -7,6 +7,7 @@ import { useOutsideAlerter } from '../../hooks/useHandleClickOutside'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { POOL_IDS } from '../../utils/constant'
 import { TokenIcon } from '../ui/TokenIcon'
+import { bn } from '../../utils/helpers'
 
 export const SelectPoolGroup = () => {
   const [active, setActive] = useState<boolean>(false)
@@ -77,7 +78,11 @@ const PoolGroupOption = ({ poolGroup, className, id }: {id?: string, poolGroup: 
     <span>{tokens[poolGroup.baseToken]?.symbol}/{tokens[poolGroup.quoteToken]?.symbol}</span>
     {
       playingTokens.map((address) => {
-        return <TokenIcon key={address} size={20} tokenAddress={address} />
+        if (balances[address] && bn(balances[address]).gt(0)) {
+          return <TokenIcon key={address} size={20} tokenAddress={address} />
+        } else {
+          return null
+        }
       })
     }
   </div>
