@@ -112,7 +112,7 @@ export default {
       wrapToken: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
       nativeToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
       poolFactory: '0x848389D3c869dEF538b148cE5864eFee71C868e1',
-      router: '0x0772BD1981f6092329F12FC041B83b2faBBB1A25'
+      router: '0xbc9a257e43f7b3b1a03aEBE909f15e95A4928834'
     },
     stableCoins: [
       '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
