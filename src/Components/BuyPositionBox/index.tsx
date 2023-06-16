@@ -13,12 +13,16 @@ import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../state/token/hook'
 import {
   bn,
-  decodeErc1155Address, formatFloat, isErc1155Address, mul,
+  decodeErc1155Address,
+  formatFloat,
+  getTitleBuyTradeType,
+  isErc1155Address,
+  mul,
   weiToNumber
 } from '../../utils/helpers'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
-import { NATIVE_ADDRESS } from '../../utils/constant'
+import { NATIVE_ADDRESS, TRADE_TYPE } from '../../utils/constant'
 import { useConfigs } from '../../state/config/useConfigs'
 import formatLocalisedCompactNumber, { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import isEqual from 'react-fast-compare'
@@ -33,12 +37,18 @@ import { ButtonSwap } from '../ButtonSwap'
 import { TxFee } from '../SwapBox/components/TxFee'
 
 const Component = ({
-  isLong = true,
+  tradeType = TRADE_TYPE.LONG,
   inputTokenAddress,
   outputTokenAddress,
   setInputTokenAddress,
   setOutputTokenAddress
-}: any) => {
+}: {
+  tradeType?:TRADE_TYPE,
+  inputTokenAddress: string
+  outputTokenAddress: string
+  setInputTokenAddress: any
+  setOutputTokenAddress: any
+}) => {
   const [barData, setBarData] = useState<any>({})
   const { account } = useWeb3React()
   const { configs } = useConfigs()
@@ -51,7 +61,7 @@ const Component = ({
   const { tokens } = useListTokens()
   const { wrapToNativeAddress } = useHelper()
 
-  const leverageData = useGenerateLeverageData(isLong)
+  const leverageData = useGenerateLeverageData(tradeType)
 
   useEffect(() => {
     if (barData.token) {
@@ -227,11 +237,11 @@ const Component = ({
 
       {
         outputTokenAddress && <Box
-          borderColor={isLong ? 'buy' : 'sell'}
+          borderColor={tradeType === TRADE_TYPE.LONG ? 'buy' : tradeType === TRADE_TYPE.SHORT ? 'sell' : 'blue'}
           className='estimate-box swap-info-box mt-1 mb-1'
         >
-          <span className={`estimate-box__leverage ${isLong ? 'long' : 'short'}`}>
-            {isLong ? 'Long ' : 'Short '}
+          <span className={`estimate-box__leverage ${getTitleBuyTradeType(tradeType).toLowerCase()}`}>
+            {getTitleBuyTradeType(tradeType)}
             {barData?.x}x
           </span>
           <InfoRow>
@@ -365,7 +375,7 @@ const Component = ({
           amountIn={amountIn}
           callError={callError}
           gasUsed={gasUsed}
-          isLong={isLong}
+          tradeType={tradeType}
         />
       </div>
 

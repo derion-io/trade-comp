@@ -10,7 +10,7 @@ import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { useConfigs } from '../../state/config/useConfigs'
 import { useListPool } from '../../state/resources/hooks/useListPool'
 import { Pools } from '../../pages/Pools'
-import { SWAP_TAB, TIME_TO_REFRESH_STATE } from '../../utils/constant'
+import { TIME_TO_REFRESH_STATE, TRADE_TYPE } from '../../utils/constant'
 import { useSwapHistoryFormated } from '../../state/wallet/hooks/useSwapHistory'
 import { Trade } from '../../pages/Trade'
 import { useFetchTokenPrice } from '../../state/resources/hooks/useTokenPrice'
@@ -58,14 +58,14 @@ export const App = () => {
 
   const renderAppContent = () => {
     switch (true) {
-      case isMatchWithPath('/:tab(long|short|swap)/:pool?'):
-        return <Trade tab={detectTradeTab(location.pathname)} pool={detectPool(location.pathname)}/>
+      case isMatchWithPath('/:tab(long|short|liquidity|swap)/:pool?'):
+        return <Trade tab={detectTradeTab(location.pathname)} pool={detectPool(location.pathname)} />
       case isMatchWithPath('/pools'):
         return <Pools />
       // case isMatchWithPath('/:tab(add-liquidity|remove-liquidity)'):
       //   return <Liquidity tab={detectLiquidityTab(location.pathname)} />
       default:
-        return <Trade tab={SWAP_TAB.SWAP} />
+        return <Trade tab={TRADE_TYPE.SWAP} />
     }
   }
 
@@ -78,11 +78,13 @@ export const App = () => {
 
   const detectTradeTab = (path: string) => {
     if (path.includes('long')) {
-      return SWAP_TAB.LONG
+      return TRADE_TYPE.LONG
     } else if (path.includes('short')) {
-      return SWAP_TAB.SHORT
+      return TRADE_TYPE.SHORT
+    } else if (path.includes('liquidity')) {
+      return TRADE_TYPE.LIQUIDITY
     }
-    return SWAP_TAB.SWAP
+    return TRADE_TYPE.SWAP
   }
 
   const detectPool = (path: string) => {

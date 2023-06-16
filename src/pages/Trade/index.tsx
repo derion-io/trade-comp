@@ -3,7 +3,7 @@ import './style.scss'
 import { useConfigs } from '../../state/config/useConfigs'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { Chart } from '../../Components/Chart'
-import { SWAP_TAB } from '../../utils/constant'
+import { TRADE_TYPE } from '../../utils/constant'
 import { SwapBox } from '../../Components/SwapBox'
 import { useWindowSize } from '../../hooks/useWindowSize'
 import { Tabs, TabPanel, TabList, Tab } from 'react-tabs'
@@ -20,9 +20,16 @@ const TAB_2 = {
   HISTORY: Symbol('history')
 }
 
+const TAB_INDEX_TO_PATH = {
+  0: '/long',
+  1: '/short',
+  2: '/liquidity',
+  3: '/swap'
+}
+
 export const Trade = ({ tab, pool }: {
   pool?: string,
-  tab: Symbol
+  tab: TRADE_TYPE
 }) => {
   const { chainId, useHistory } = useConfigs()
   const history = useHistory()
@@ -110,14 +117,15 @@ export const Trade = ({ tab, pool }: {
         </div>
         <div className='exposure-page__content--right'>
           <Tabs
-            selectedIndex={tab === SWAP_TAB.LONG ? 0 : tab === SWAP_TAB.SHORT ? 1 : 2}
+            selectedIndex={tab}
             onSelect={(index) => {
-              history.push(index === 0 ? '/long' : index === 1 ? '/short' : '/swap')
+              history.push(TAB_INDEX_TO_PATH[index])
             }}
           >
             <TabList>
               <Tab>Long</Tab>
               <Tab>Short</Tab>
+              <Tab>LP</Tab>
               <Tab>Swap</Tab>
             </TabList>
             <TabPanel>
@@ -127,6 +135,7 @@ export const Trade = ({ tab, pool }: {
                   setInputTokenAddress={setInputTokenAddress}
                   outputTokenAddress={outputTokenAddress}
                   setOutputTokenAddress={setOutputTokenAddress}
+                  tradeType={TRADE_TYPE.LONG}
                 />
               </Card>
             </TabPanel>
@@ -137,7 +146,18 @@ export const Trade = ({ tab, pool }: {
                   setInputTokenAddress={setInputTokenAddress}
                   outputTokenAddress={outputTokenAddress}
                   setOutputTokenAddress={setOutputTokenAddress}
-                  isLong={false}
+                  tradeType={TRADE_TYPE.SHORT}
+                />
+              </Card>
+            </TabPanel>
+            <TabPanel>
+              <Card className='trade-box card-in-tab'>
+                <BuyPositionBox
+                  inputTokenAddress={inputTokenAddress}
+                  setInputTokenAddress={setInputTokenAddress}
+                  outputTokenAddress={outputTokenAddress}
+                  setOutputTokenAddress={setOutputTokenAddress}
+                  tradeType={TRADE_TYPE.LIQUIDITY}
                 />
               </Card>
             </TabPanel>

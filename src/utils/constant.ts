@@ -13,6 +13,13 @@ export const CHAINS = {
   BSC: 56
 }
 
+export enum TRADE_TYPE {
+  LONG,
+  SHORT,
+  LIQUIDITY,
+  SWAP
+}
+
 export const LOCALSTORAGE_KEY = {
   DDL_LOGS: 'ddl-log-v1.0',
   LAST_BLOCK_DDL_LOGS: 'last-block-ddl-log-v1.0',

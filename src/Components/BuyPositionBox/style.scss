@@ -44,6 +44,9 @@
       &.short {
         border-color: $color-sell;
       }
+      &.liquidity {
+        border-color: $color-blue;
+      }
     }
   }
 

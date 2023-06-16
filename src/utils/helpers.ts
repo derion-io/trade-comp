@@ -1,5 +1,5 @@
 import { BigNumber, ethers, utils } from 'ethers'
-import { POOL_IDS } from './constant'
+import { POOL_IDS, TRADE_TYPE } from './constant'
 
 export const bn = ethers.BigNumber.from
 
@@ -231,4 +231,26 @@ export const getTokenPower = (
   id: number, k: number) => {
   if (id === POOL_IDS.C) return k / 2
   return (TOKEN_R === baseToken && id !== POOL_IDS.C ? 1 : 0) + (id === POOL_IDS.B ? -1 : 1) * k / 2
+}
+
+export const getTitleBuyTradeType = (type: TRADE_TYPE) : string => {
+  switch (type) {
+    case TRADE_TYPE.LONG:
+      return 'Long'
+    case TRADE_TYPE.SHORT:
+      return 'Short'
+    default:
+      return 'Liquidity'
+  }
+}
+
+export const tradeTypeToId = (type: TRADE_TYPE) : number => {
+  switch (type) {
+    case TRADE_TYPE.LONG:
+      return POOL_IDS.A
+    case TRADE_TYPE.SHORT:
+      return POOL_IDS.B
+    default:
+      return POOL_IDS.C
+  }
 }

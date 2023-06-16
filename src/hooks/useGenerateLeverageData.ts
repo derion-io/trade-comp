@@ -1,13 +1,13 @@
 import { useMemo } from 'react'
-import { POOL_IDS } from '../utils/constant'
+import { POOL_IDS, TRADE_TYPE } from '../utils/constant'
 import { useCurrentPool } from '../state/currentPool/hooks/useCurrentPool'
 import { useTokenValue } from '../Components/SwapBox/hooks/useTokenValue'
-import { add, bn, getTokenPower, numberToWei, weiToNumber } from '../utils/helpers'
+import { bn, getTokenPower, numberToWei, tradeTypeToId, weiToNumber } from '../utils/helpers'
 import { useListTokens } from '../state/token/hook'
 
 const barColors = ['#01A7FA', '#FF98E5', '#4FBF67', '#3DBAA2']
 
-export const useGenerateLeverageData = (isLong: boolean) => {
+export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
   const { pools } = useCurrentPool()
   const { tokens } = useListTokens()
   const { getTokenValue } = useTokenValue({})
@@ -21,7 +21,7 @@ export const useGenerateLeverageData = (isLong: boolean) => {
           weiToNumber(pool.states.R, tokens[pool.TOKEN_R]?.decimals)
         )))
 
-        const power = Math.abs(Number(getTokenPower(pool.TOKEN_R, pool.baseToken, isLong ? POOL_IDS.A : POOL_IDS.B, pool.k.toNumber())))
+        const power = Math.abs(Number(getTokenPower(pool.TOKEN_R, pool.baseToken, tradeTypeToId(tradeType), pool.k.toNumber())))
 
         if (!result[power]) {
           result[power] = {
@@ -31,7 +31,7 @@ export const useGenerateLeverageData = (isLong: boolean) => {
             bars: [
               {
                 x: power,
-                token: pool.poolAddress + '-' + (isLong ? POOL_IDS.A : POOL_IDS.B),
+                token: pool.poolAddress + '-' + tradeTypeToId(tradeType),
                 size,
                 color: barColors[0]
               }
@@ -41,7 +41,7 @@ export const useGenerateLeverageData = (isLong: boolean) => {
           const bars = result[power].bars
           bars.push({
             x: power,
-            token: pool.poolAddress + '-' + (isLong ? POOL_IDS.A : POOL_IDS.B),
+            token: pool.poolAddress + '-' + tradeTypeToId(tradeType),
             size,
             color: barColors[bars.length]
           })
@@ -76,5 +76,5 @@ export const useGenerateLeverageData = (isLong: boolean) => {
     })
 
     return data
-  }, [pools, isLong])
+  }, [pools, tradeType])
 }

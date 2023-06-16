@@ -10,7 +10,7 @@ export const Box = (
   props: React.HTMLAttributes<HTMLSpanElement> & {
     children: any
     background?: string
-    borderColor?: 'default' | 'buy' | 'sell' | string
+    borderColor?: 'default' | 'buy' | 'sell' | 'blue' | string
     borderWidth?: string | number
     borderRadius?: string
   }
