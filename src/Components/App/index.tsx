@@ -83,8 +83,10 @@ export const App = () => {
       return TRADE_TYPE.SHORT
     } else if (path.includes('liquidity')) {
       return TRADE_TYPE.LIQUIDITY
+    } else if (path.includes('swap')) {
+      return TRADE_TYPE.SWAP
     }
-    return TRADE_TYPE.SWAP
+    return TRADE_TYPE.LONG
   }
 
   const detectPool = (path: string) => {

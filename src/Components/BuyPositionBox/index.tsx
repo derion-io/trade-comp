@@ -22,7 +22,7 @@ import {
 } from '../../utils/helpers'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
-import { NATIVE_ADDRESS, TRADE_TYPE } from '../../utils/constant'
+import { NATIVE_ADDRESS, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
 import { useConfigs } from '../../state/config/useConfigs'
 import formatLocalisedCompactNumber, { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import isEqual from 'react-fast-compare'
@@ -376,6 +376,7 @@ const Component = ({
           callError={callError}
           gasUsed={gasUsed}
           tradeType={tradeType}
+          title={Number(decodeErc1155Address(outputTokenAddress).id) === POOL_IDS.A ? 'Long' : 'Short'}
         />
       </div>
 

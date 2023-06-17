@@ -24,12 +24,14 @@ const Component = ({
   visible,
   setVisible,
   inputTokenAddress,
-  outputTokenAddress
+  outputTokenAddress,
+  title
 }: {
   visible: boolean,
   setVisible: any,
   inputTokenAddress: string,
-  outputTokenAddress: string
+  outputTokenAddress: string,
+  title: string
 }) => {
   const { tokens } = useListTokens()
   const { balances, accFetchBalance } = useWalletBalance()
@@ -156,6 +158,7 @@ const Component = ({
             setVisible(false)
           }}
           isClose
+          title={title}
         />
       </div>
     </div>

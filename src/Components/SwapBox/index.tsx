@@ -243,6 +243,7 @@ const Component = ({
           callError={callError}
           gasUsed={gasUsed}
           isSwap
+          title='Swap'
         />
       </div>
 

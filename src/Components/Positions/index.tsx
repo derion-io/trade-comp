@@ -3,10 +3,10 @@ import './style.scss'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { POOL_IDS } from '../../utils/constant'
-import { formatFloat, shortenAddressString, weiToNumber } from '../../utils/helpers'
+import { decodeErc1155Address, formatFloat, shortenAddressString, weiToNumber } from '../../utils/helpers'
 import { useListTokens } from '../../state/token/hook'
 import { PoolType } from '../../state/resources/type'
-import { Button } from '../ui/Button'
+import { Button, ButtonExecute, ButtonSell } from '../ui/Button'
 import formatLocalisedCompactNumber, { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import { BigNumber } from 'ethers'
 import { Text, TextLink } from '../ui/Text'
@@ -23,6 +23,7 @@ type Position = {
   poolAddress: string
   token: string
   pool: PoolType
+  poolId: number
   balance: BigNumber
   netValue: BigNumber
 }
@@ -45,6 +46,7 @@ export const Positions = () => {
         poolAddress,
         pool: pools[poolAddress],
         token: poolAddress + '-' + poolId,
+        poolId,
         balance: balances[poolAddress + '-' + poolId],
         netValue: balances[poolAddress + '-' + poolId]
       }
@@ -117,14 +119,14 @@ export const Positions = () => {
                 <Text>${formatLocalisedCompactNumber(formatFloat(value))}</Text>
               </td>
               <td className='text-right'>
-                <Button
+                <ButtonSell
                   size='small'
                   onClick={() => {
                     setInputTokenAddress(position.token)
                     setOutputTokenAddress(wrapToNativeAddress(position.pool.TOKEN_R))
                     setVisible(true)
                   }}
-                >Close</Button>
+                >{position.poolId === POOL_IDS.C ? 'Remove Liquidity' : 'Close'}</ButtonSell>
               </td>
             </tr>
           })
@@ -137,6 +139,7 @@ export const Positions = () => {
       setVisible={setVisible}
       inputTokenAddress={inputTokenAddress}
       outputTokenAddress={outputTokenAddress}
+      title={Number(decodeErc1155Address(outputTokenAddress).id) === POOL_IDS.C ? 'Remove Liquidity' : 'Close'}
     />
   </div>
 }

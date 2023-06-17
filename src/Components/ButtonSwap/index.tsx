@@ -11,16 +11,17 @@ import { BigNumber } from 'ethers'
 import { TRADE_TYPE } from '../../utils/constant'
 
 export const ButtonSwap = ({
-                             inputTokenAddress,
-                             outputTokenAddress,
-                             amountIn,
-                             callError,
-                             gasUsed,
-                             callback,
-                             tradeType,
-                             isSwap,
-                             isClose
-                           }: {
+  inputTokenAddress,
+  outputTokenAddress,
+  amountIn,
+  callError,
+  gasUsed,
+  callback,
+  tradeType,
+  isSwap,
+  isClose,
+  title
+}: {
   inputTokenAddress: string
   outputTokenAddress: string
   amountIn: string
@@ -30,6 +31,7 @@ export const ButtonSwap = ({
   tradeType?: TRADE_TYPE
   isSwap?: boolean
   isClose?: boolean
+  title: string
 }) => {
   const { tokens } = useListTokens()
   const [loading, setLoading] = useState<boolean>(false)
@@ -53,7 +55,7 @@ export const ButtonSwap = ({
       return <ButtonExecute className='swap-button' disabled>Enter Amount</ButtonExecute>
     } else if (!balances[inputTokenAddress] || balances[inputTokenAddress].lt(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))) {
       return <ButtonExecute className='swap-button'
-                            disabled> Insufficient {tokens[inputTokenAddress].symbol} Amount </ButtonExecute>
+        disabled> Insufficient {tokens[inputTokenAddress].symbol} Amount </ButtonExecute>
       // } else if (!routerAllowances[address] || routerAllowances[address].lt(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))) {
       //   return <ButtonExecute
       //     className='swap-button'
@@ -93,15 +95,16 @@ export const ButtonSwap = ({
           }
         }}
       >
-        {
-          tradeType !== undefined
-            ? tradeType === TRADE_TYPE.LONG
-              ? 'Long'
-              : tradeType === TRADE_TYPE.SHORT
-                ? ' Short'
-                : 'Liquidity'
-            : isClose ? 'Close' : 'Short'
-        }
+        {title}
+        {/* { */}
+        {/*  tradeType !== undefined */}
+        {/*    ? tradeType === TRADE_TYPE.LONG */}
+        {/*      ? 'Long' */}
+        {/*      : tradeType === TRADE_TYPE.SHORT */}
+        {/*        ? 'Short' */}
+        {/*        : 'Add Liquidity' */}
+        {/*    : isClose ? 'Close' : 'Short' */}
+        {/* } */}
       </ButtonExecute>
     }
   }, [
