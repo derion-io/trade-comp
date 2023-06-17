@@ -57,6 +57,7 @@ export const Positions = () => {
     Object.keys(pools).forEach((poolAddress) => {
       result.push(generatePositionData(poolAddress, POOL_IDS.A))
       result.push(generatePositionData(poolAddress, POOL_IDS.B))
+      result.push(generatePositionData(poolAddress, POOL_IDS.C))
     })
 
     return result.filter((r: any) => r !== null)
