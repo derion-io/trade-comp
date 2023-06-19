@@ -35,6 +35,8 @@ import { useHelper } from '../../state/config/useHelper'
 import { useCalculateSwap } from '../SwapBox/hooks/useCalculateSwap'
 import { ButtonSwap } from '../ButtonSwap'
 import { TxFee } from '../SwapBox/components/TxFee'
+import { SettingModal } from '../SettingModal'
+import { useListPool } from '../../state/resources/hooks/useListPool'
 
 const Component = ({
   tradeType = TRADE_TYPE.LONG,
@@ -56,10 +58,12 @@ const Component = ({
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
   const [tokenTypeToSelect, setTokenTypeToSelect] = useState<'input' | 'output'>('input')
   const [amountIn, setAmountIn] = useState<string>('')
+  const [visibleLeverage, setVisibleLeverage] = useState<boolean>(true)
   const { balances, accFetchBalance } = useWalletBalance()
   const [visibleApproveModal, setVisibleApproveModal] = useState<boolean>(false)
   const { tokens } = useListTokens()
   const { wrapToNativeAddress } = useHelper()
+  const { poolGroups } = useListPool()
 
   const leverageData = useGenerateLeverageData(tradeType)
 
@@ -387,6 +391,14 @@ const Component = ({
         setVisible={setVisibleApproveModal}
         inputTokenAddress={inputTokenAddress}
       />
+
+      {visibleLeverage && <SettingModal
+        callBack={() => {
+        }}
+        visible={visibleLeverage}
+        poolGroupData={poolGroups}
+        setVisible={setVisibleLeverage}
+      />}
     </div>
   )
 }

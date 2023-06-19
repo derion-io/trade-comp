@@ -22,13 +22,13 @@ import { useConfigs } from '../../state/config/useConfigs'
 import formatLocalisedCompactNumber, { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import isEqual from 'react-fast-compare'
 import { ApproveUtrModal } from '../ApproveUtrModal'
-import { BeverageModal } from '../BeverageModal'
 import _ from 'lodash'
 import { useCalculateSwap } from './hooks/useCalculateSwap'
 import { useTokenValue } from './hooks/useTokenValue'
 import { ButtonSwap } from '../ButtonSwap'
 import { TxFee } from './components/TxFee'
 import { PoolInfo } from './components/PoolInfo'
+import { useListPool } from '../../state/resources/hooks/useListPool'
 
 const Component = ({
   inputTokenAddress,
@@ -42,7 +42,6 @@ const Component = ({
   // const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
   // const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
-  const [visibleLeverage, setVisibleLeverage] = useState<boolean>(false)
   const [tokenTypeToSelect, setTokenTypeToSelect] = useState<'input' | 'output'>('input')
   const [amountIn, setAmountIn] = useState<string>('')
   const { balances, accFetchBalance } = useWalletBalance()
@@ -127,14 +126,8 @@ const Component = ({
     <div className='swap-box'>
       <div className='d-flex jc-space-between'>
         <Text>Swap</Text>
-        <span><IconOptionLeft style={{ cursor: 'pointer' }} onClick={() => setVisibleLeverage(true)}/></span>
+        <span><IconOptionLeft style={{ cursor: 'pointer' }} /></span>
       </div>
-      {visibleLeverage && <BeverageModal
-        callBack={() => {
-        }}
-        visible={visibleLeverage}
-        setVisible={setVisibleLeverage}
-      />}
       <div className='amount-input-box'>
         <div className='amount-input-box__head'>
           <SkeletonLoader loading={!tokens[inputTokenAddress]}>
