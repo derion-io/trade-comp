@@ -16,15 +16,6 @@ export default {
       name: 'Trade',
       path: '/:tab(swap|exposure)/:pool?',
       menuLink: '/swap'
-    },
-    // {
-    //   name: 'Liquidity',
-    //   path: '/:tab(add-liquidity|remove-liquidity)',
-    //   menuLink: '/add-liquidity'
-    // },
-    {
-      name: 'Pools',
-      path: '/pools'
     }
   ]
 }
