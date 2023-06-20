@@ -8225,6 +8225,26 @@ levenary@^1.1.1:
   dependencies:
     leven "^3.1.0"
 
+"leverage-slider@git+ssh://git@github.com:blackskin18/leverage-slider-comp.git#776429ea8022f28e11d0eed59fd16aab26aa2f7c":
+  version "1.0.0"
+  resolved "git+ssh://git@github.com:blackskin18/leverage-slider-comp.git#776429ea8022f28e11d0eed59fd16aab26aa2f7c"
+  dependencies:
+    "@reduxjs/toolkit" "^1.7.1"
+    "@types/lodash" "^4.14.186"
+    "@types/react-collapse" "^5.0.1"
+    caniuse-lite "^1.0.30001434"
+    lodash "^4.17.21"
+    moment "^2.29.4"
+    rc-slider "^10.0.1"
+    react-collapse "^5.1.1"
+    react-fast-compare "^3.2.0"
+    react-redux "^7.2.5"
+    react-router-dom "^5.2.0"
+    react-tabs "^6.0.0"
+    react-toastify "^8.1.0"
+    reactstrap "^9.1.5"
+    recharts "^2.2.0"
+
 levn@^0.3.0, levn@~0.3.0:
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/levn/-/levn-0.3.0.tgz#3b09924edf9f083c0490fdd4c0bc4421e04764ee"

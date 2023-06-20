@@ -28,7 +28,7 @@ import formatLocalisedCompactNumber, { formatWeiToDisplayNumber } from '../../ut
 import isEqual from 'react-fast-compare'
 import { ApproveUtrModal } from '../ApproveUtrModal'
 import _ from 'lodash'
-import { LeverageSlider } from '../Slider'
+// import { LeverageSlider } from '../Slider'
 import { useGenerateLeverageData } from '../../hooks/useGenerateLeverageData'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
 import { useHelper } from '../../state/config/useHelper'
@@ -37,6 +37,8 @@ import { ButtonSwap } from '../ButtonSwap'
 import { TxFee } from '../SwapBox/components/TxFee'
 import { SettingModal } from '../SettingModal'
 import { useListPool } from '../../state/resources/hooks/useListPool'
+// import { LeverageSlider } from '../Slider'
+import LeverageSlider from 'leverage-slider/dist/component'
 
 const Component = ({
   tradeType = TRADE_TYPE.LONG,
@@ -58,7 +60,7 @@ const Component = ({
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
   const [tokenTypeToSelect, setTokenTypeToSelect] = useState<'input' | 'output'>('input')
   const [amountIn, setAmountIn] = useState<string>('')
-  const [visibleLeverage, setVisibleLeverage] = useState<boolean>(true)
+  const [visibleLeverage, setVisibleLeverage] = useState<boolean>(false)
   const { balances, accFetchBalance } = useWalletBalance()
   const [visibleApproveModal, setVisibleApproveModal] = useState<boolean>(false)
   const { tokens } = useListTokens()
@@ -234,7 +236,7 @@ const Component = ({
 
       {
         outputTokenAddress &&
-        <div className='pl-5 mt-1 mb-1'>
+        <div className='pl-5 mt-1 mb-2'>
           <IconArrowDown fill='#01A7FA' />
         </div>
       }
@@ -321,8 +323,9 @@ const Component = ({
       {
         leverageData.length > 0 &&
         <LeverageSlider
-          leverage={leverage}
-          setLeverage={setBarData}
+          // leverage={leverage}
+          barData={barData}
+          setBarData={setBarData}
           leverageData={leverageData}
           height={100}
         />
