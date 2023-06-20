@@ -10,12 +10,12 @@ export default {
     <img src={`data:image/svg+xml;base64,${btoa(svgText)}`} {...props} />
   ),
   name: 'Dapp',
-  path: '/swap',
+  path: '/long',
   children: [
     {
       name: 'Trade',
-      path: '/:tab(swap|exposure)/:pool?',
-      menuLink: '/swap'
+      path: '/:tab(long|short|liquidity|swap)/:pool?',
+      menuLink: '/long'
     }
   ]
 }
