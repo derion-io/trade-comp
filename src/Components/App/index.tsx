@@ -65,7 +65,7 @@ export const App = () => {
       // case isMatchWithPath('/:tab(add-liquidity|remove-liquidity)'):
       //   return <Liquidity tab={detectLiquidityTab(location.pathname)} />
       default:
-        return <Trade tab={TRADE_TYPE.SWAP} />
+        return <Trade tab={TRADE_TYPE.LONG} />
     }
   }
 

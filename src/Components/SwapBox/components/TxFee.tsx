@@ -16,7 +16,7 @@ export const TxFee = ({ gasUsed, txFee } : {gasUsed: BigNumber, txFee: BigNumber
     <InfoRow>
       <TextGrey>Gas Used</TextGrey>
       <span>
-        <Text>{formatWeiToDisplayNumber(gasUsed, 0, 0)} Gas</Text>
+        <Text>{formatWeiToDisplayNumber(gasUsed, 0, 0)}</Text>
       </span>
     </InfoRow>
     <InfoRow>

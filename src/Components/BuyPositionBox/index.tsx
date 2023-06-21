@@ -248,6 +248,7 @@ const Component = ({
         >
           <span className={`estimate-box__leverage ${getTitleBuyTradeType(tradeType).toLowerCase()}`}>
             {getTitleBuyTradeType(tradeType)}
+            &nbsp;
             {barData?.x}x
           </span>
           <InfoRow>
@@ -395,13 +396,13 @@ const Component = ({
         inputTokenAddress={inputTokenAddress}
       />
 
-      {visibleLeverage && <SettingModal
+      {/* {visibleLeverage && <SettingModal
         callBack={() => {
         }}
         visible={visibleLeverage}
         poolGroupData={poolGroups}
         setVisible={setVisibleLeverage}
-      />}
+      />} */}
     </div>
   )
 }
