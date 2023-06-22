@@ -1,31 +1,6 @@
 @import '../../styles/abstracts/variables';
 @import '../../styles/abstracts/mixins';
 
-.beverage-modal {
-  display: flex;
-  flex-direction: column;
-  padding: '20px 24px 24px 24px';
-  min-width: '384px';
-  min-height: '200px';
-  gap: '20px';
-}
-
-//input[type=text]{
-//  width:100%;
-//  border:2px solid #aaa;
-//  border-radius:4px;
-//  margin:8px 0;
-//  outline:none;
-//  padding:8px;
-//  box-sizing:border-box;
-//  transition:.3s;
-//}
-
-//input[type=text]:focus{
-//  border-color:dodgerBlue;
-//  box-shadow:0 0 8px 0 dodgerBlue;
-//}
-
 .swap-modal {
   position: fixed;
   top: 0;
@@ -38,6 +13,7 @@
   opacity: 0;
   visibility: hidden;
   transition: all 0.25s ease-out;
+
   &.show {
     visibility: visible;
     outline: none;
@@ -45,6 +21,22 @@
     font-size: 70%;
     cursor: pointer;
     opacity: 1;
+  }
+
+  input[type='text'] {
+    width: 10rem;
+    border: 2px solid #aaa;
+    border-radius: 0.25rem;
+    margin: 0.5rem 0;
+    outline: none;
+    padding: 0.5rem;
+    box-sizing: border-box;
+    transition: 0.3s;
+  }
+
+  input[type='text']:focus {
+    border-color: dodgerBlue;
+    box-shadow: 0 0 8px 0 dodgerBlue;
   }
 
   .overlay {
@@ -56,18 +48,20 @@
   }
 
   .modal {
+    min-width: 50rem;
+    min-height: 20rem;
     background: $color-modal-bg;
-    border-radius: 20px;
-    width: 40rem;
+    border-radius: 1.25rem;
     max-height: 100%;
     z-index: 1001;
-    padding: 1rem 1.5rem 2rem 1.5rem;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    box-shadow: 0 0.625rem 1.25rem rgba(0, 0, 0, 0.1);
     margin-top: 12rem;
     overflow: hidden;
 
     .btn-close-wrap {
-      margin-bottom: 0.5rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid #696969;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -82,6 +76,45 @@
     }
     .modal-content {
       padding: 1rem 0;
+
+      .beverage-modal {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        padding: 1.5rem;
+        min-height: 20rem;
+
+        .beverage-modal__percent {
+          display: flex;
+          gap: 1.25rem;
+          align-items: center;
+        }
+
+        .beverage-modal__reserve {
+          display: flex;
+          min-height: 10rem;
+          gap: 1.25rem;
+          align-items: center;
+
+          .reserve-title {
+            display: flex;
+            min-height: 10rem;
+            justify-content: start;
+          }
+
+          .reserve-token {
+            display: flex;
+            min-height: 10rem;
+            justify-content: start;
+
+            .reserve-token__wrap {
+              display: flex;
+              flex-direction: column;
+              gap: 0.625rem;
+            }
+          }
+        }
+      }
     }
   }
 }

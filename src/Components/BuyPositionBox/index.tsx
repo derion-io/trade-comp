@@ -60,7 +60,7 @@ const Component = ({
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
   const [tokenTypeToSelect, setTokenTypeToSelect] = useState<'input' | 'output'>('input')
   const [amountIn, setAmountIn] = useState<string>('')
-  const [visibleLeverage, setVisibleLeverage] = useState<boolean>(false)
+  const [visibleLeverage, setVisibleLeverage] = useState<boolean>(true)
   const { balances, accFetchBalance } = useWalletBalance()
   const [visibleApproveModal, setVisibleApproveModal] = useState<boolean>(false)
   const { tokens } = useListTokens()
@@ -396,13 +396,13 @@ const Component = ({
         inputTokenAddress={inputTokenAddress}
       />
 
-      {/* {visibleLeverage && <SettingModal
+      {visibleLeverage && <SettingModal
         callBack={() => {
         }}
         visible={visibleLeverage}
         poolGroupData={poolGroups}
         setVisible={setVisibleLeverage}
-      />} */}
+      />}
     </div>
   )
 }

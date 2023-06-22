@@ -40,46 +40,32 @@ const Component = ({
   return (
     <div className={`swap-modal  ${visible ? 'show' : ''}`}>
       <div className='overlay' onClick={() => setVisible(false)} />
-      <div className='modal' style={{ minWidth: '500px', minHeight: '300px' }}>
+      <div className='modal'>
         <div className='btn-close-wrap'>
           <span className='title'>Setting</span>
           <span className='btn-close' onClick={() => setVisible(false)}>
-            {/* <ExitIcon /> */}X
+            X
           </span>
         </div>
         <div className='modal-content'>
           <div className='beverage-modal'>
-            <div
-              style={{
-                display: 'flex',
-                gap: '20px',
-                justifyContent: 'center',
-                alignItems: 'center'
-              }}
-            >
+            <div className='beverage-modal__percent'>
               <span>Min pool reserve percentage: </span>
-              <input
-                type='text'
-                style={{ width: '100px', borderRadius: '4px' }}
-              />
+              <input type='text' />
             </div>
-            <div
-              style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
-            >
-              <span>Reserve token: </span>
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '10px'
-                }}
-              >
+            <div className='beverage-modal__reserve'>
+              <div className='reserve-title'>
+                <span>Reserve token: </span>
+              </div>
+              <div className='reserve-token'>
                 {sortUnique(getAllReserveToken()).map((item: any, idx: any) => (
-                  <div style={{ display: 'flex', gap: '10px' }} key={idx}>
-                    <input type='checkbox' />
-                    <Text>
-                      <TokenSymbol token={item} />
-                    </Text>
+                  <div className='reserve-token__wrap' key={idx}>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <input type='checkbox' />
+                      <Text>
+                        <TokenSymbol token={item} />
+                      </Text>
+                    </div>
                   </div>
                 ))}
               </div>
