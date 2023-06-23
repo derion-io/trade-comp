@@ -4,7 +4,7 @@ import { setConfigs, setEngine } from './reducer'
 import configs from './configs'
 import { addTokensReduce } from '../token/reducer'
 import { Engine } from 'derivable-tools/dist/engine'
-import { DEFAULT_CHAIN } from '../../utils/constant'
+import { DEFAULT_CHAIN, ZERO_ADDRESS } from '../../utils/constant'
 
 export const useInitConfig = ({
   library,
@@ -49,12 +49,13 @@ export const useInitConfig = ({
   }, [location, useHistory, chainId, useSubPage, language, env])
 
   useEffect(() => {
+    console.log('khanh', chainId)
     if (!chainId) return
     if (!account) {
-      return console.log('=======await sync account========')
+      console.log('=======await sync account========')
     }
     const engine = new Engine(
-      account,
+      account || ZERO_ADDRESS,
       {
         storage: {
           // @ts-ignore
