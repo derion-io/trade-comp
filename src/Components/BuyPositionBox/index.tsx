@@ -15,6 +15,7 @@ import {
   bn,
   decodeErc1155Address,
   formatFloat,
+  formatNumberByDot,
   getTitleBuyTradeType,
   isErc1155Address,
   mul,
@@ -272,7 +273,7 @@ const Component = ({
                   <div className='icon-plus'><Text>+</Text></div>
                   <div className='text-right'>
                     <Text>
-                      {formatLocalisedCompactNumber(formatFloat(amountOut))}
+                      {formatNumberByDot(formatLocalisedCompactNumber(formatFloat(amountOut, 4)))}
                     </Text>
                   </div>
                 </React.Fragment>
@@ -287,7 +288,7 @@ const Component = ({
               <div className='text-left'>
                 {
                   valueOutBefore && <Text>
-                    ${formatLocalisedCompactNumber(formatFloat(valueOutBefore))}
+                    ${formatNumberByDot(formatLocalisedCompactNumber(formatFloat(valueOutBefore, 4)))}
                   </Text>
                 }
               </div>
@@ -296,7 +297,7 @@ const Component = ({
                 <div className='icon-plus'><Text> + </Text></div>
                 <div className='text-right'>
                   <Text>
-                  ${formatLocalisedCompactNumber(formatFloat(valueOut))}
+                  ${formatNumberByDot(formatLocalisedCompactNumber(formatFloat(valueOut, 4)))}
                   </Text>
                 </div>
               </React.Fragment>
@@ -314,7 +315,10 @@ const Component = ({
               {
                 amountIn && (<React.Fragment>
                   <div className='plus-icon'><Text>+</Text></div>
-                  <div className='text-right'><Text>1s</Text></div>
+                  <div className='text-right'>
+                    <Text>1s</Text>
+                    <Text>{formatNumberByDot(formatLocalisedCompactNumber(formatFloat(1, 4))).length === 1 && <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>}</Text>
+                  </div>
                 </React.Fragment>)
               }
             </div>

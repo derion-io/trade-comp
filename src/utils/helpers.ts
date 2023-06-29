@@ -1,5 +1,6 @@
 import { BigNumber, ethers, utils } from 'ethers'
 import { POOL_IDS, TRADE_TYPE } from './constant'
+import formatLocalisedCompactNumber from './formatBalance'
 
 export const bn = ethers.BigNumber.from
 
@@ -89,6 +90,36 @@ export const formatFloat = (number: number | string, decimal?: number) => {
     arr[1] = arr[1].slice(0, decimal)
   }
   return Number(arr.join('.'))
+}
+
+export const formatNumberByDot = (number: number | string) => {
+  number = number.toString()
+  const arr = number.split('.')
+  const tempArr = []
+  if (arr.length > 1) {
+    const arrAfterSlice = arr[1].slice(0, 4)
+    for (let i = arrAfterSlice.length - 1; i >= 0; i--) {
+      if (i === arrAfterSlice.length - 1 && arrAfterSlice[i] === '0') tempArr[i] = ' '
+      else if (i < arrAfterSlice.length - 1 && tempArr[i + 1] === ' ') tempArr[i] = ' '
+      else tempArr[i] = arrAfterSlice[i]
+    }
+    arr[1] = tempArr.join('')
+  }
+  if (arr.length > 1) {
+    switch (arr[1].length) {
+      case 4:
+        return arr.join('.')
+      case 3:
+        return arr.join('.') + '0'
+      case 2:
+        return arr.join('.') + '00'
+      case 1:
+        return arr.join('.') + '000'
+      default:
+        return arr.join('.') + '0000'
+    }
+  }
+  return arr[0]
 }
 
 export const cutDecimal = (number: string, decimal?: number) => {
