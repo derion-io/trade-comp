@@ -49,7 +49,6 @@ export const useInitConfig = ({
   }, [location, useHistory, chainId, useSubPage, language, env])
 
   useEffect(() => {
-    console.log('khanh', chainId)
     if (!chainId) return
     if (!account) {
       console.log('=======await sync account========')

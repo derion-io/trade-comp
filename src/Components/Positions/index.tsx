@@ -32,7 +32,7 @@ export const Positions = () => {
   const { pools } = useCurrentPool()
   const { balances } = useWalletBalance()
   const { tokens } = useListTokens()
-  const { configs } = useConfigs()
+  const { configs, chainId } = useConfigs()
   const { getTokenValue } = useTokenValue({})
   const { wrapToNativeAddress } = useHelper()
 
@@ -65,6 +65,8 @@ export const Positions = () => {
     return result.filter((r: any) => r !== null)
   }, [balances, pools])
 
+  console.log(positions)
+
   return <div className='positions-table'>
     <table>
       <thead>
@@ -86,7 +88,7 @@ export const Positions = () => {
               position.token,
               weiToNumber(position.balance, tokens[position.token]?.decimal || 18)
             )
-            if (Number(value) < MIN_POSITON_VALUE_TO_DISPLAY) {
+            if (Number(value) < MIN_POSITON_VALUE_TO_DISPLAY && chainId !== 1337) {
               return ''
             }
 

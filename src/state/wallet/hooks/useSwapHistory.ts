@@ -18,6 +18,7 @@ export const useSwapHistory = () => {
   const { account } = useWeb3React()
   const dispatch = useDispatch()
 
+
   const addMultiSwapData = (swapLogs: any, account: string) => {
     dispatch(updateSwapTxs({ account, swapLogs }))
   }
@@ -42,10 +43,12 @@ export const useSwapHistoryFormated = () => {
   const { pools } = useListPool()
 
   useEffect(() => {
-    if (Object.values(pools).length > 0 && ddlEngine?.CURRENT_POOL.TOKEN && id) {
+    console.log(pools, ddlEngine?.CURRENT_POOL.TOKEN)
+    if (Object.values(pools).length > 0 && id) {
       const swapTxs = ddlEngine?.HISTORY.formatSwapHistory({
         logs: sls
       })
+      console.log('swapTxs', swapTxs)
       dispatch(updateFormatedSwapTxs({ swapTxs }))
     }
   }, [sls, pools, ddlEngine?.CURRENT_POOL, id, states])

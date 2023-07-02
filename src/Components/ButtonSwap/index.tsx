@@ -80,7 +80,7 @@ export const ButtonSwap = ({
                 gasUsed && gasUsed.gt(0) ? gasUsed.mul(2) : undefined
               )
               const swapLogs = ddlEngine.RESOURCE.parseDdlLogs(tx && tx?.logs ? tx.logs : [])
-              updateSwapTxsHandle(account, swapLogs.filter((l: any) => l.address))
+              updateSwapTxsHandle(account, swapLogs.filter((l: any) => l.transactionHash))
               await fetchBalanceAndAllowance(Object.keys(tokens))
             }
             setLoading(false)
