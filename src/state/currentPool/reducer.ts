@@ -1,6 +1,6 @@
 // eslint-disable-next-line no-unused-vars
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { initialState } from './type'
+import { CHART_TABS, initialState } from './type'
 import { TokenType } from '../token/type'
 
 export const tokens = createSlice({
@@ -16,6 +16,11 @@ export const tokens = createSlice({
       status: boolean
     }>) => {
       state.candleChartIsLoading = action.payload.status
+    },
+    setChartTabReduce: (state, action: PayloadAction<{
+      tab: CHART_TABS
+    }>) => {
+      state.chartTab = action.payload.tab
     },
     setCurrentPoolInfo: (
       state,
@@ -79,7 +84,8 @@ export const {
   setCurrentPoolInfo,
   setCandleChartIsLoadingReduce,
   setChartTimeRange,
-  setChartIntervalIsUpdated
+  setChartIntervalIsUpdated,
+  setChartTabReduce
 } = tokens.actions
 
 export default tokens.reducer

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Tabs } from '../ui/Tabs'
 import './style.scss'
 import { CandleChart } from '../CandleChart'
@@ -9,15 +9,14 @@ import { useConfigs } from '../../state/config/useConfigs'
 import isEqual from 'react-fast-compare'
 import { SelectPoolGroup } from '../SelectPoolGroup'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
-
-const CANDLE_CHART = Symbol('candle')
-const LINE_CHART = Symbol('line')
+import { FunctionPlot } from '../FuncPlot'
+import { CHART_TABS } from '../../state/currentPool/type'
 
 const Component = ({ changedIn24h }: { changedIn24h: number }) => {
-  const [tab, setTab] = useState<Symbol>(CANDLE_CHART)
   const { chainId, useHistory, configs } = useConfigs()
-  const { chartIsOutDate } = useCurrentPool()
+  const { chartTab, setChartTab } = useCurrentPool()
   const history = useHistory()
+  // const [targetReached, setTargetReached] = useState(checkInnerWidth())
 
   return (
     <div className='chart-box'>
@@ -35,11 +34,12 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
         </div>
         {chainId !== 1337 && (
           <Tabs
-            tab={tab}
-            setTab={setTab}
+            tab={chartTab}
+            setTab={setChartTab}
             tabs={[
-              { name: 'Candle Chart', value: CANDLE_CHART },
-              { name: 'Line Chart', value: LINE_CHART }
+              { name: 'Candle Chart', value: CHART_TABS.CANDLE_CHART },
+              { name: 'Line Chart', value: CHART_TABS.LINE_CHART },
+              { name: 'Curve', value: CHART_TABS.FUNC_PLOT }
             ]}
           />
         )}
@@ -50,11 +50,13 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
         <div />
       )} */}
       {chainId !== 1337 &&
-        (tab === LINE_CHART && configs.theGraphExchange ? (
-          <LineChart changedIn24h={changedIn24h} />
-        ) : (
-          <CandleChart />
-        ))}
+        (chartTab === CHART_TABS.LINE_CHART && configs.theGraphExchange
+          ? <LineChart changedIn24h={changedIn24h} />
+          : chartTab === CHART_TABS.FUNC_PLOT
+            ? <FunctionPlot />
+            : <CandleChart />
+        )
+      }
     </div>
   )
 }

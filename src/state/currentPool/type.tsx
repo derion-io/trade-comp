@@ -1,6 +1,16 @@
 import { BigNumber } from 'ethers'
 import { TokenType } from '../token/type'
 
+const FUNC_PLOT = Symbol('candle')
+const CANDLE_CHART = Symbol('candle')
+const LINE_CHART = Symbol('line')
+
+export enum CHART_TABS {
+  FUNC_PLOT,
+  CANDLE_CHART,
+  LINE_CHART
+}
+
 export interface currentPoolState {
   id: string
   UTR: string
@@ -29,6 +39,7 @@ export interface currentPoolState {
     rDcShort?: BigNumber
   }
   changedIn24h: number
+  chartTab: CHART_TABS
   chartIsOutDate: boolean
   candleChartIsLoading: boolean
   chartTimeRange: {
@@ -46,6 +57,7 @@ export const initialState: currentPoolState = {
   TOKEN: '',
   pools: {},
   ORACLE: '',
+  chartTab: CHART_TABS.CANDLE_CHART,
   pair: {
     token0: undefined,
     token1: undefined

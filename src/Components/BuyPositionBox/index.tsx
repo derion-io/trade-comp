@@ -35,10 +35,10 @@ import { useHelper } from '../../state/config/useHelper'
 import { useCalculateSwap } from '../SwapBox/hooks/useCalculateSwap'
 import { ButtonSwap } from '../ButtonSwap'
 import { TxFee } from '../SwapBox/components/TxFee'
-import { SettingModal } from '../SettingModal'
 import { useListPool } from '../../state/resources/hooks/useListPool'
 // import { LeverageSlider } from '../Slider'
 import LeverageSlider from 'leverage-slider/dist/component'
+import { CHART_TABS } from '../../state/currentPool/type'
 
 const Component = ({
   tradeType = TRADE_TYPE.LONG,
@@ -56,7 +56,7 @@ const Component = ({
   const [barData, setBarData] = useState<any>({})
   const { account } = useWeb3React()
   const { configs } = useConfigs()
-  const { allTokens, id, pools } = useCurrentPool()
+  const { allTokens, id, pools, chartTab, setChartTab } = useCurrentPool()
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
   const [tokenTypeToSelect, setTokenTypeToSelect] = useState<'input' | 'output'>('input')
   const [amountIn, setAmountIn] = useState<string>('')
@@ -68,6 +68,12 @@ const Component = ({
   const { poolGroups } = useListPool()
 
   const leverageData = useGenerateLeverageData(tradeType)
+
+  useEffect(() => {
+    if (tradeType === TRADE_TYPE.LIQUIDITY && chartTab !== CHART_TABS.FUNC_PLOT) {
+      setChartTab(CHART_TABS.FUNC_PLOT)
+    }
+  }, [tradeType, chartTab])
 
   useEffect(() => {
     if (barData.token) {
@@ -182,34 +188,30 @@ const Component = ({
     <div className='long-short-box'>
       <div className='amount-input-box'>
         <div className='amount-input-box__head'>
-          <SkeletonLoader loading={!tokens[inputTokenAddress]}>
-            <span
-              className='current-token'
-              onClick={(address) => {
-                setVisibleSelectTokenModal(true)
-                setTokenTypeToSelect('input')
-              }}
-            >
-              <TokenIcon size={24} tokenAddress={inputTokenAddress} />
-              <Text><TokenSymbol token={inputTokenAddress} /></Text>
-            </span>
-          </SkeletonLoader>
-          <SkeletonLoader loading={accFetchBalance !== account}>
-            <Text
-              className='amount-input-box__head--balance'
-              onClick={() => {
-                setAmountIn(weiToNumber(balances[inputTokenAddress], tokens[inputTokenAddress]?.decimal || 18))
-              }}
-            >Balance: {balances && balances[inputTokenAddress]
-                ? formatWeiToDisplayNumber(
-                  balances[inputTokenAddress],
-                  4,
+          <span
+            className='current-token'
+            onClick={(address) => {
+              setVisibleSelectTokenModal(true)
+              setTokenTypeToSelect('input')
+            }}
+          >
+            <TokenIcon size={24} tokenAddress={inputTokenAddress} />
+            <Text><TokenSymbol token={inputTokenAddress} /></Text>
+          </span>
+          <Text
+            className='amount-input-box__head--balance'
+            onClick={() => {
+              setAmountIn(weiToNumber(balances[inputTokenAddress], tokens[inputTokenAddress]?.decimal || 18))
+            }}
+          >Balance: {balances && balances[inputTokenAddress]
+              ? formatWeiToDisplayNumber(
+                balances[inputTokenAddress],
+                4,
                 tokens[inputTokenAddress]?.decimal || 18
-                )
-                : 0
-              }
-            </Text>
-          </SkeletonLoader>
+              )
+              : 0
+            }
+          </Text>
         </div>
         <Input
           placeholder='0.0'

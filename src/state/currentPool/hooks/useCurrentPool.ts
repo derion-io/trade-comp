@@ -1,8 +1,14 @@
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../types'
 import { useConfigs } from '../../config/useConfigs'
-import { setCandleChartIsLoadingReduce, setChartTimeFocusReduce, setCurrentPoolInfo } from '../reducer'
+import {
+  setCandleChartIsLoadingReduce,
+  setChartTabReduce,
+  setChartTimeFocusReduce,
+  setCurrentPoolInfo
+} from '../reducer'
 import { useListPool } from '../../resources/hooks/useListPool'
+import { CHART_TABS } from '../type'
 
 export const useCurrentPool = () => {
   const { poolGroups } = useListPool()
@@ -14,6 +20,10 @@ export const useCurrentPool = () => {
       ...state.currentPool
     }
   })
+
+  const setChartTab = (tab: CHART_TABS) => {
+    dispatch(setChartTabReduce({ tab }))
+  }
 
   const updateCurrentPool = async (poolAddress: string) => {
     const pool = poolGroups[poolAddress]
@@ -74,6 +84,7 @@ export const useCurrentPool = () => {
     getTokenByPower,
     updateCurrentPool,
     setCandleChartIsLoading,
+    setChartTab,
     ...currentPool
   }
 }

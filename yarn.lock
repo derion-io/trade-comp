@@ -2246,6 +2246,11 @@
   resolved "https://registry.yarnpkg.com/@types/d3-time/-/d3-time-2.1.1.tgz#743fdc821c81f86537cbfece07093ac39b4bc342"
   integrity sha512-9MVYlmIgmRR31C5b4FVSWtuMmBHh2mOWQYfl7XAYOa8dsnb7iEmUmRSWSFgXFtkjxO65d7hTUHQC+RhR/9IWFg==
 
+"@types/desmos@^1.6.0":
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/@types/desmos/-/desmos-1.6.0.tgz#49fb86f87cd3a61434a04b4d9765aa78cc6e5b99"
+  integrity sha512-g+U7FVw3/iu88uzaJ/RT+coKxKiCxOWx6ue1hQTLsTPN7jidJw2RMbB+UviSImAUm0TkdkRV0nE9hLSvNX45zQ==
+
 "@types/eslint-visitor-keys@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@types/eslint-visitor-keys/-/eslint-visitor-keys-1.0.0.tgz#1ee30d79544ca84d68d4b3cdb0af4f205663dd2d"
@@ -4946,6 +4951,13 @@ des.js@^1.0.0:
   dependencies:
     inherits "^2.0.1"
     minimalistic-assert "^1.0.0"
+
+desmos-react@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/desmos-react/-/desmos-react-1.2.0.tgz#f45bbf3649be087687fdfa0c780687f6379241ef"
+  integrity sha512-EoLW2/kfBnGTY1l1ZTgnDUwJQCqgrYupwa56hrwYYBNn0m/7cSXzxB7ljBhg6NIwFR9QFGzAlYy7T/LsyVupuA==
+  dependencies:
+    "@types/desmos" "^1.6.0"
 
 destroy@~1.0.4:
   version "1.0.4"
