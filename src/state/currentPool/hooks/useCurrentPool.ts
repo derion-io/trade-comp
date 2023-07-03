@@ -5,10 +5,11 @@ import {
   setCandleChartIsLoadingReduce,
   setChartTabReduce,
   setChartTimeFocusReduce,
-  setCurrentPoolInfo
+  setCurrentPoolInfo, setSwapTabReduce
 } from '../reducer'
 import { useListPool } from '../../resources/hooks/useListPool'
 import { CHART_TABS } from '../type'
+import { TRADE_TYPE } from '../../../utils/constant'
 
 export const useCurrentPool = () => {
   const { poolGroups } = useListPool()
@@ -23,6 +24,10 @@ export const useCurrentPool = () => {
 
   const setChartTab = (tab: CHART_TABS) => {
     dispatch(setChartTabReduce({ tab }))
+  }
+
+  const setTradeType = (tab: TRADE_TYPE) => {
+    dispatch(setSwapTabReduce({ tab }))
   }
 
   const updateCurrentPool = async (poolAddress: string) => {
@@ -85,6 +90,7 @@ export const useCurrentPool = () => {
     updateCurrentPool,
     setCandleChartIsLoading,
     setChartTab,
+    setTradeType,
     ...currentPool
   }
 }

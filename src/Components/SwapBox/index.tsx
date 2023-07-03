@@ -10,14 +10,10 @@ import { useWeb3React } from '../../state/customWeb3React/hook'
 import { SelectTokenModal } from '../SelectTokenModal'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../state/token/hook'
-import {
-  decodeErc1155Address, formatFloat,
-  isErc1155Address,
-  weiToNumber
-} from '../../utils/helpers'
+import { decodeErc1155Address, formatFloat, isErc1155Address, weiToNumber } from '../../utils/helpers'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
-import { NATIVE_ADDRESS, POOL_IDS } from '../../utils/constant'
+import { NATIVE_ADDRESS, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
 import { useConfigs } from '../../state/config/useConfigs'
 import formatLocalisedCompactNumber, { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import isEqual from 'react-fast-compare'
@@ -28,7 +24,6 @@ import { useTokenValue } from './hooks/useTokenValue'
 import { ButtonSwap } from '../ButtonSwap'
 import { TxFee } from './components/TxFee'
 import { PoolInfo } from './components/PoolInfo'
-import { useListPool } from '../../state/resources/hooks/useListPool'
 
 const Component = ({
   inputTokenAddress,
@@ -38,7 +33,7 @@ const Component = ({
 }: any) => {
   const { account } = useWeb3React()
   const { configs } = useConfigs()
-  const { dTokens, allTokens, id, pools } = useCurrentPool()
+  const { dTokens, allTokens, id, pools, setTradeType } = useCurrentPool()
   // const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
   // const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
@@ -60,6 +55,10 @@ const Component = ({
     amount: amountOut,
     tokenAddress: outputTokenAddress
   })
+
+  useEffect(() => {
+    setTradeType(TRADE_TYPE.SWAP)
+  }, [])
 
   useEffect(() => {
     if (!inputTokenAddress) setInputTokenAddress(NATIVE_ADDRESS || '')

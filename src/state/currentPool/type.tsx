@@ -1,5 +1,6 @@
 import { BigNumber } from 'ethers'
 import { TokenType } from '../token/type'
+import { TRADE_TYPE } from '../../utils/constant'
 
 const FUNC_PLOT = Symbol('candle')
 const CANDLE_CHART = Symbol('candle')
@@ -40,6 +41,7 @@ export interface currentPoolState {
   }
   changedIn24h: number
   chartTab: CHART_TABS
+  tradeType: TRADE_TYPE
   chartIsOutDate: boolean
   candleChartIsLoading: boolean
   chartTimeRange: {
@@ -58,6 +60,7 @@ export const initialState: currentPoolState = {
   pools: {},
   ORACLE: '',
   chartTab: CHART_TABS.CANDLE_CHART,
+  tradeType: TRADE_TYPE.LONG,
   pair: {
     token0: undefined,
     token1: undefined

@@ -54,13 +54,11 @@ const Component = ({
   setOutputTokenAddress: any
 }) => {
   const [barData, setBarData] = useState<any>({})
-  const { account } = useWeb3React()
   const { configs } = useConfigs()
-  const { allTokens, id, pools, chartTab, setChartTab } = useCurrentPool()
+  const { allTokens, id, pools, chartTab, setChartTab, setTradeType } = useCurrentPool()
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
   const [tokenTypeToSelect, setTokenTypeToSelect] = useState<'input' | 'output'>('input')
   const [amountIn, setAmountIn] = useState<string>('')
-  const [visibleLeverage, setVisibleLeverage] = useState<boolean>(false)
   const { balances, accFetchBalance } = useWalletBalance()
   const [visibleApproveModal, setVisibleApproveModal] = useState<boolean>(false)
   const { tokens } = useListTokens()
@@ -73,6 +71,7 @@ const Component = ({
     if (tradeType === TRADE_TYPE.LIQUIDITY && chartTab !== CHART_TABS.FUNC_PLOT) {
       setChartTab(CHART_TABS.FUNC_PLOT)
     }
+    setTradeType(tradeType)
   }, [tradeType, chartTab])
 
   useEffect(() => {

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useMemo } from 'react'
 import './style.scss'
 import { SwapTxType } from '../../state/wallet/type'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
@@ -8,14 +8,12 @@ import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import moment from 'moment'
 import { Text, TextBlue, TextBuy, TextLink, TextPink, TextSell } from '../ui/Text'
 import { useConfigs } from '../../state/config/useConfigs'
-import { formatFloat, shortenAddressString } from '../../utils/helpers'
-import { NATIVE_ADDRESS, POOL_IDS } from '../../utils/constant'
-import { BigNumber } from 'ethers'
-import { getErc20AmountChange } from '../../utils/swapHistoryHelper'
+import { shortenAddressString } from '../../utils/helpers'
+import { NATIVE_ADDRESS, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
 import isEqual from 'react-fast-compare'
 
 const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
-  const { setChartTimeFocus, TOKEN_R } = useCurrentPool()
+  const { setChartTimeFocus, TOKEN_R, tradeType } = useCurrentPool()
   const { tokens } = useListTokens()
   const { configs } = useConfigs()
   const getColor = (address: string) => {
@@ -33,6 +31,21 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
       return Text
     }
   }
+
+  const displaySwapTxs = useMemo(() => {
+    if (swapTxs && swapTxs.length > 0) {
+      return swapTxs.filter((p) => {
+        if (tradeType === TRADE_TYPE.LIQUIDITY) {
+          return p.sideIn.eq(POOL_IDS.C) || p.sideOut.eq(POOL_IDS.C)
+        }
+        if (tradeType === TRADE_TYPE.LONG || tradeType === TRADE_TYPE.SHORT) {
+          return p.sideIn.eq(POOL_IDS.A) || p.sideIn.eq(POOL_IDS.B) || p.sideOut.eq(POOL_IDS.A) || p.sideOut.eq(POOL_IDS.B)
+        }
+        return true
+      })
+    }
+    return []
+  }, [swapTxs, tradeType])
 
   return (
     <div className='wallet-history-table-wrap'>
@@ -52,7 +65,7 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
           </thead>
           <tbody>
             {
-              swapTxs.map((swapTx, key) => {
+              displaySwapTxs.map((swapTx, key) => {
                 const TextIn = getColor(swapTx.tokenIn)
                 const TextOut = getColor(swapTx.tokenOut)
                 return <tr className='wallet-history-table__row' key={key} onClick={() => {
@@ -88,20 +101,6 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
       </div>
     </div>
   )
-}
-
-const AmountChange = ({ amountChange, address }: { amountChange: BigNumber, address: string }) => {
-  const { tokens } = useListTokens()
-  if (amountChange.isZero()) return <React.Fragment />
-  return <span>
-    <TextPink><TokenSymbol token={address} /> </TextPink>
-    <Text>{formatWeiToDisplayNumber(amountChange.abs(), 4, tokens[address]?.decimal || 18)}</Text>
-  </span>
-}
-
-const Leverage = ({ leverage }: { leverage: number }) => {
-  const Text = leverage > 0 ? TextBuy : TextSell
-  return <Text>{leverage > 0 ? 'Long ' : 'Short '} {formatFloat(leverage, 1)}</Text>
 }
 
 export const WalletHistoryTable = React.memo(Component, (prevProps, nextProps) =>

@@ -2,6 +2,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { CHART_TABS, initialState } from './type'
 import { TokenType } from '../token/type'
+import { TRADE_TYPE } from '../../utils/constant'
 
 export const tokens = createSlice({
   name: 'pool',
@@ -21,6 +22,11 @@ export const tokens = createSlice({
       tab: CHART_TABS
     }>) => {
       state.chartTab = action.payload.tab
+    },
+    setSwapTabReduce: (state, action: PayloadAction<{
+      tab: TRADE_TYPE
+    }>) => {
+      state.tradeType = action.payload.tab
     },
     setCurrentPoolInfo: (
       state,
@@ -85,7 +91,8 @@ export const {
   setCandleChartIsLoadingReduce,
   setChartTimeRange,
   setChartIntervalIsUpdated,
-  setChartTabReduce
+  setChartTabReduce,
+  setSwapTabReduce
 } = tokens.actions
 
 export default tokens.reducer

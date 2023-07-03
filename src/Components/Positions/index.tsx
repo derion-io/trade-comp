@@ -2,11 +2,11 @@ import React, { useMemo, useState } from 'react'
 import './style.scss'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
-import { POOL_IDS } from '../../utils/constant'
+import { POOL_IDS, TRADE_TYPE } from '../../utils/constant'
 import { decodeErc1155Address, formatFloat, shortenAddressString, weiToNumber } from '../../utils/helpers'
 import { useListTokens } from '../../state/token/hook'
 import { PoolType } from '../../state/resources/type'
-import { Button, ButtonExecute, ButtonSell } from '../ui/Button'
+import { ButtonSell } from '../ui/Button'
 import formatLocalisedCompactNumber, { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import { BigNumber } from 'ethers'
 import { Text, TextLink } from '../ui/Text'
@@ -29,7 +29,7 @@ type Position = {
 }
 
 export const Positions = () => {
-  const { pools } = useCurrentPool()
+  const { pools, tradeType } = useCurrentPool()
   const { balances } = useWalletBalance()
   const { tokens } = useListTokens()
   const { configs, chainId } = useConfigs()
@@ -65,7 +65,20 @@ export const Positions = () => {
     return result.filter((r: any) => r !== null)
   }, [balances, pools])
 
-  console.log(positions)
+  const displayPositions = useMemo(() => {
+    if (positions && positions.length > 0) {
+      return positions.filter((p) => {
+        if (tradeType === TRADE_TYPE.LIQUIDITY) {
+          return p.poolId === POOL_IDS.C
+        }
+        if (tradeType === TRADE_TYPE.LONG || tradeType === TRADE_TYPE.SHORT) {
+          return p.poolId === POOL_IDS.A || p.poolId === POOL_IDS.B
+        }
+        return true
+      })
+    }
+    return []
+  }, [positions, tradeType])
 
   return <div className='positions-table'>
     <table>
@@ -83,7 +96,7 @@ export const Positions = () => {
       </thead>
       <tbody>
         {
-          (positions && positions.length > 0) && positions.map((position, key: number) => {
+          displayPositions.map((position, key: number) => {
             const value = getTokenValue(
               position.token,
               weiToNumber(position.balance, tokens[position.token]?.decimal || 18)
