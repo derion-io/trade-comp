@@ -111,6 +111,7 @@ export default {
       address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
     },
     addresses: {
+      nativeToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
       reserveTokenPrice: '0xBf4CC059DfF52AeFe7f12516e4CA4Bc691D97474',
       uniswapFactory: '0x1F98431c8aD98523631AE4a59f267346ea31F984',
       token: '0x1BA630bEd23129aed65BFF106cd15C4B457a26e8',
