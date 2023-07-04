@@ -24,6 +24,7 @@ import { useTokenValue } from './hooks/useTokenValue'
 import { ButtonSwap } from '../ButtonSwap'
 import { TxFee } from './components/TxFee'
 import { PoolInfo } from './components/PoolInfo'
+import { CHART_TABS } from '../../state/currentPool/type'
 
 const Component = ({
   inputTokenAddress,
@@ -33,9 +34,7 @@ const Component = ({
 }: any) => {
   const { account } = useWeb3React()
   const { configs } = useConfigs()
-  const { dTokens, allTokens, id, pools, setTradeType } = useCurrentPool()
-  // const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
-  // const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
+  const { dTokens, allTokens, id, pools, setTradeType, setChartTab } = useCurrentPool()
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
   const [tokenTypeToSelect, setTokenTypeToSelect] = useState<'input' | 'output'>('input')
   const [amountIn, setAmountIn] = useState<string>('')
@@ -58,6 +57,7 @@ const Component = ({
 
   useEffect(() => {
     setTradeType(TRADE_TYPE.SWAP)
+    setChartTab(CHART_TABS.CANDLE_CHART)
   }, [])
 
   useEffect(() => {

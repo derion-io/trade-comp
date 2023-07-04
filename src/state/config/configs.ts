@@ -111,14 +111,19 @@ export default {
       address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
     },
     addresses: {
-      multiCall: '0x07BBBb79619a45D041549Baf8Ee7A60376d649cf',
-      tokensInfo: '0x696630d3aE600147902c71bF967ec3eb7a2C8b44',
+      reserveTokenPrice: '0xBf4CC059DfF52AeFe7f12516e4CA4Bc691D97474',
+      uniswapFactory: '0x1F98431c8aD98523631AE4a59f267346ea31F984',
+      token: '0x1BA630bEd23129aed65BFF106cd15C4B457a26e8',
+      stateCalHelper: '0x9401a34764E01B6556C89bA7ca4944a8907D4442',
+      multiCall: '0xcA11bde05977b3631167028862bE2a173976CA11',
       pairsInfo: '0x81C8f6bC2a602B9Ad403116ab4c0EC1a0e5B49B1',
+      pairsV3Info: '0x81C8f6bC2a602B9Ad403116ab4c0EC1a0e5B49B1',
       bnA: '0x357FF35761979254F93a21995b20d9071904603d',
+      tokensInfo: '0x696630d3aE600147902c71bF967ec3eb7a2C8b44',
+      router: '0xbc9a257e43f7b3b1a03aEBE909f15e95A4928834',
+      poolFactory: '0xF817EBA38BebD48a58AE38360306ea0E243077cd',
       wrapToken: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
-      nativeToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
-      poolFactory: '0x848389D3c869dEF538b148cE5864eFee71C868e1',
-      router: '0xbc9a257e43f7b3b1a03aEBE909f15e95A4928834'
+      wrapUsdPair: '0xCB0E5bFa72bBb4d16AB5aA0c60601c438F04b4ad'
     },
     stableCoins: [
       '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',

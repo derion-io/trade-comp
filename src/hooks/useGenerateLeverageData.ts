@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { POOL_IDS, TRADE_TYPE } from '../utils/constant'
+import { TRADE_TYPE } from '../utils/constant'
 import { useCurrentPool } from '../state/currentPool/hooks/useCurrentPool'
 import { useTokenValue } from '../Components/SwapBox/hooks/useTokenValue'
 import { bn, getTokenPower, numberToWei, tradeTypeToId, weiToNumber } from '../utils/helpers'

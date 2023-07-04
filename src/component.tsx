@@ -4,6 +4,7 @@ import { store } from './state'
 import { InitConfig } from './InitConfig'
 import { App } from './Components/App'
 import './styles/main.scss'
+import 'leverage-slider/dist/component.css'
 import { SWRConfig } from 'swr/_internal'
 
 export default ({

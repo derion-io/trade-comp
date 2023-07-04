@@ -7,7 +7,6 @@ import { IconArrowDown } from '../ui/Icon'
 import { Input } from '../ui/Input'
 import { TokenIcon } from '../ui/TokenIcon'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
-import { useWeb3React } from '../../state/customWeb3React/hook'
 import { SelectTokenModal } from '../SelectTokenModal'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../state/token/hook'
@@ -21,14 +20,12 @@ import {
   weiToNumber
 } from '../../utils/helpers'
 import { TokenSymbol } from '../ui/TokenSymbol'
-import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { NATIVE_ADDRESS, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
 import { useConfigs } from '../../state/config/useConfigs'
 import formatLocalisedCompactNumber, { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import isEqual from 'react-fast-compare'
 import { ApproveUtrModal } from '../ApproveUtrModal'
 import _ from 'lodash'
-// import { LeverageSlider } from '../Slider'
 import { useGenerateLeverageData } from '../../hooks/useGenerateLeverageData'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
 import { useHelper } from '../../state/config/useHelper'
@@ -59,11 +56,10 @@ const Component = ({
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
   const [tokenTypeToSelect, setTokenTypeToSelect] = useState<'input' | 'output'>('input')
   const [amountIn, setAmountIn] = useState<string>('')
-  const { balances, accFetchBalance } = useWalletBalance()
+  const { balances } = useWalletBalance()
   const [visibleApproveModal, setVisibleApproveModal] = useState<boolean>(false)
   const { tokens } = useListTokens()
   const { wrapToNativeAddress } = useHelper()
-  const { poolGroups } = useListPool()
 
   const leverageData = useGenerateLeverageData(tradeType)
 
@@ -71,17 +67,17 @@ const Component = ({
     if (tradeType === TRADE_TYPE.LIQUIDITY && chartTab !== CHART_TABS.FUNC_PLOT) {
       setChartTab(CHART_TABS.FUNC_PLOT)
     }
+    if (tradeType !== TRADE_TYPE.LIQUIDITY && chartTab === CHART_TABS.FUNC_PLOT) {
+      setChartTab(CHART_TABS.CANDLE_CHART)
+    }
+
     setTradeType(tradeType)
-  }, [tradeType, chartTab])
+  }, [tradeType])
 
   useEffect(() => {
     if (barData.token) {
       setOutputTokenAddress(barData.token)
     }
-  }, [barData])
-
-  const leverage = useMemo(() => {
-    return barData.x || 0
   }, [barData])
 
   const { callError, txFee, gasUsed, amountOut } = useCalculateSwap({
@@ -325,7 +321,6 @@ const Component = ({
       {
         leverageData.length > 0 &&
         <LeverageSlider
-          // leverage={leverage}
           barData={barData}
           setBarData={setBarData}
           leverageData={leverageData}
