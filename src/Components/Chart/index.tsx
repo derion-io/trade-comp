@@ -37,8 +37,8 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
             tab={chartTab}
             setTab={setChartTab}
             tabs={[
-              { name: 'Candle Chart', value: CHART_TABS.CANDLE_CHART },
-              { name: 'Line Chart', value: CHART_TABS.LINE_CHART },
+              { name: 'Candle', value: CHART_TABS.CANDLE_CHART },
+              { name: 'Line', value: CHART_TABS.LINE_CHART },
               { name: 'Curve', value: CHART_TABS.FUNC_PLOT }
             ]}
           />
