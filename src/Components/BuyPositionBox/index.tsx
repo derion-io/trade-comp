@@ -34,6 +34,7 @@ import { ButtonSwap } from '../ButtonSwap'
 import { TxFee } from '../SwapBox/components/TxFee'
 import LeverageSlider from 'leverage-slider/dist/component'
 import { CHART_TABS } from '../../state/currentPool/type'
+import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 
 const Component = ({
   tradeType = TRADE_TYPE.LONG,
@@ -58,6 +59,7 @@ const Component = ({
   const [visibleApproveModal, setVisibleApproveModal] = useState<boolean>(false)
   const { tokens } = useListTokens()
   const { wrapToNativeAddress } = useHelper()
+  const { setCurrentPoolAddress, setDrC } = useCurrentPool()
 
   const leverageData = useGenerateLeverageData(tradeType)
 
@@ -75,8 +77,17 @@ const Component = ({
   useEffect(() => {
     if (barData.token) {
       setOutputTokenAddress(barData.token)
+      setCurrentPoolAddress(decodeErc1155Address(barData.token).address)
     }
   }, [barData])
+
+  useEffect(() => {
+    if (tradeType === TRADE_TYPE.LIQUIDITY) {
+      setDrC(Number(amountIn))
+    } else {
+      setDrC(0)
+    }
+  }, [amountIn, tradeType])
 
   const { callError, txFee, gasUsed, amountOut } = useCalculateSwap({
     amountIn,

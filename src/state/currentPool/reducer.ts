@@ -66,7 +66,7 @@ export const tokens = createSlice({
       state.basePrice = action.payload.basePrice
     },
     setChartTimeRange: (state, action: PayloadAction<{
-      timeRange: {from: number, to: number}
+      timeRange: { from: number, to: number }
     }>) => {
       state.chartTimeRange = action.payload.timeRange
     },
@@ -79,6 +79,16 @@ export const tokens = createSlice({
       status: boolean
     }>) => {
       state.chartResolutionIsUpdated = action.payload.status
+    },
+    setCurrentPoolAddressReduce: (state, action: PayloadAction<{
+      address: string
+    }>) => {
+      state.currentPoolAddress = action.payload.address
+    },
+    setDrcReduce: (state, action: PayloadAction<{
+      r: number
+    }>) => {
+      state.drC = action.payload.r
     }
   }
 })
@@ -92,7 +102,9 @@ export const {
   setChartTimeRange,
   setChartIntervalIsUpdated,
   setChartTabReduce,
-  setSwapTabReduce
+  setSwapTabReduce,
+  setDrcReduce,
+  setCurrentPoolAddressReduce
 } = tokens.actions
 
 export default tokens.reducer

@@ -1,42 +1,54 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { Expression, GraphingCalculator } from 'desmos-react'
 import './style.scss'
 import { Card } from '../ui/Card'
-
-const P = 2 // = K/2
-const R = 50
-const a = 0.3 * R
-const b = 0.2 * R
-const price = 1900
-const MARK = 1800
-const X = price / MARK
-const TOKEN_R = 'ETH'
-const PX = X * 0.01
-
-const drA = R * 0
-const drB = R * 0
-const drC = 5
-const R1 = R + drA + drB + drC
-
-const drLatex = drC > 0
-  ? `x=X*1.004\\{g(${P},X,${b},${R})<y<g(${P},X,${b},${R1})\\}`
-  : `x=X*1.004\\{g(${P},X,${b},${R})>y>g(${P},X,${b},${R1})\\}`
+import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
+import { bn, formatFloat, weiToNumber } from '../../utils/helpers'
+import { CandleChartLoader } from '../ChartLoaders'
 
 const FX = process.env.REACT_APP_FX
 const GX = process.env.REACT_APP_GX
 
 export const FunctionPlot = (props: any) => {
+  const { currentPool, drC } = useCurrentPool()
   const calc = React.useRef() as React.MutableRefObject<Desmos.Calculator>
+
+  const { PX, a, b, TOKEN_R, R, R1, P, X } = useMemo(() => {
+    const P = currentPool.k?.toNumber() / 2 // = K/2
+    const R = formatFloat(weiToNumber(currentPool.states?.R))
+    const a = formatFloat(weiToNumber(currentPool.states?.a))
+    const b = formatFloat(weiToNumber(currentPool.states?.b))
+    // const MARK = 1800
+    const X = bn(currentPool.states?.twap || 0).mul(1000).div(currentPool.MARK || 1).toNumber() / 1000
+    const TOKEN_R = 'ETH'
+    const PX = X * 0.01
+    const drA = R * 0
+    const drB = R * 0
+    const R1 = R + drA + drB + drC
+
+    return { PX, a, b, TOKEN_R, R, R1, P, X }
+  }, [currentPool, drC])
+
+  const drLatex = drC > 0
+    ? `x=X*1.004\\{g(${P},X,${b},${R})<y<g(${P},X,${b},${R1})\\}`
+    : `x=X*1.004\\{g(${P},X,${b},${R})>y>g(${P},X,${b},${R1})\\}`
+
   React.useEffect(() => {
-    calc.current.setMathBounds({
-      bottom: -0.05 * Math.max(R, R1),
-      top: Math.max(R, R1) * 1.05,
-      left: -0.03 * X * 3,
-      right: X * 3 * 1.03
-    })
-    return () => {
+    if (calc && calc.current) {
+      calc.current.setMathBounds({
+        bottom: -0.05 * Math.max(R, R1),
+        top: Math.max(R, R1) * 1.05,
+        left: -0.03 * X * 3,
+        right: X * 3 * 1.03
+      })
     }
-  }, [calc])
+  }, [calc, R, R1, X])
+
+  if (!currentPool.states) {
+    return <Card className='p-1'>
+      <CandleChartLoader />
+    </Card>
+  }
 
   return (
     <React.Fragment>
@@ -218,11 +230,11 @@ export const FunctionPlot = (props: any) => {
                 latex={`X=${X}`}
                 sliderBounds={{ min: PX, max: '', step: '' }}
               />
-              <Expression
-                id='p'
-                latex={`p=\\operatorname{round}\\left(X\\cdot${MARK}\\right)`}
-                hidden
-              />
+              {/* <Expression */}
+              {/*  id='p' */}
+              {/*  latex={`p=\\operatorname{round}\\left(X\\cdot${MARK}\\right)`} */}
+              {/*  hidden */}
+              {/* /> */}
               <Expression
                 id='Price'
                 latex='(X,-0.15)'
