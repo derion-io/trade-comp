@@ -6,7 +6,7 @@ import 'rc-slider/assets/index.css'
 import { IconArrowDown } from '../ui/Icon'
 import { Input } from '../ui/Input'
 import { TokenIcon } from '../ui/TokenIcon'
-import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
+import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 import { SelectTokenModal } from '../SelectTokenModal'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../state/token/hook'
@@ -32,8 +32,6 @@ import { useHelper } from '../../state/config/useHelper'
 import { useCalculateSwap } from '../SwapBox/hooks/useCalculateSwap'
 import { ButtonSwap } from '../ButtonSwap'
 import { TxFee } from '../SwapBox/components/TxFee'
-import { useListPool } from '../../state/resources/hooks/useListPool'
-// import { LeverageSlider } from '../Slider'
 import LeverageSlider from 'leverage-slider/dist/component'
 import { CHART_TABS } from '../../state/currentPool/type'
 
@@ -52,7 +50,7 @@ const Component = ({
 }) => {
   const [barData, setBarData] = useState<any>({})
   const { configs } = useConfigs()
-  const { allTokens, id, pools, chartTab, setChartTab, setTradeType } = useCurrentPool()
+  const { allTokens, id, pools, chartTab, setChartTab, setTradeType } = useCurrentPoolGroup()
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
   const [tokenTypeToSelect, setTokenTypeToSelect] = useState<'input' | 'output'>('input')
   const [amountIn, setAmountIn] = useState<string>('')

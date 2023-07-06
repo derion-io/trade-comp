@@ -9,18 +9,18 @@ const a = 0.3 * R
 const b = 0.2 * R
 const price = 1900
 const MARK = 1800
-const X = price/MARK
+const X = price / MARK
 const TOKEN_R = 'ETH'
-const PX = X*0.01
+const PX = X * 0.01
 
 const drA = R * 0
 const drB = R * 0
 const drC = 5
 const R1 = R + drA + drB + drC
 
-const drLatex = drC > 0 ?
-  `x=X*1.004\\{g(${P},X,${b},${R})<y<g(${P},X,${b},${R1})\\}` :
-  `x=X*1.004\\{g(${P},X,${b},${R})>y>g(${P},X,${b},${R1})\\}`
+const drLatex = drC > 0
+  ? `x=X*1.004\\{g(${P},X,${b},${R})<y<g(${P},X,${b},${R1})\\}`
+  : `x=X*1.004\\{g(${P},X,${b},${R})>y>g(${P},X,${b},${R1})\\}`
 
 const FX = process.env.REACT_APP_FX
 const GX = process.env.REACT_APP_GX
@@ -31,8 +31,8 @@ export const FunctionPlot = (props: any) => {
     calc.current.setMathBounds({
       bottom: -0.05 * Math.max(R, R1),
       top: Math.max(R, R1) * 1.05,
-      left: -0.03 * X*3,
-      right: X*3* 1.03,
+      left: -0.03 * X * 3,
+      right: X * 3 * 1.03
     })
     return () => {
     }
@@ -182,7 +182,7 @@ export const FunctionPlot = (props: any) => {
               <Expression id='g' latex={GX} hidden />
               <Expression
                 id='lR'
-                latex={`(${X*0.01},${R*0.97})`}
+                latex={`(${X * 0.01},${R * 0.97})`}
                 color='RED'
                 hidden
                 showLabel

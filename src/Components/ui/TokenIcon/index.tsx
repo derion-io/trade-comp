@@ -4,7 +4,7 @@ import { useHelper } from '../../../state/config/useHelper'
 import { decodeErc1155Address, getTokenPower, isErc1155Address } from '../../../utils/helpers'
 import './style.scss'
 import { POOL_IDS } from '../../../utils/constant'
-import { useListPool } from '../../../state/resources/hooks/useListPool'
+import { useResource } from '../../../state/resources/hooks/useResource'
 
 export const TokenIcon = (props: {
   src?: string
@@ -12,7 +12,7 @@ export const TokenIcon = (props: {
   tokenAddress?: string
   size?: number
 }) => {
-  const { pools } = useListPool()
+  const { pools } = useResource()
   const { getTokenIconUrl } = useHelper()
   const [isError, setIsError] = useState<boolean>(!props.src)
   const style = {

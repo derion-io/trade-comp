@@ -17,11 +17,11 @@ import {
 } from '../../../utils/helpers'
 import { messageAndViewOnBsc } from '../../../Components/MessageAndViewOnBsc'
 import { useContract } from '../../../hooks/useContract'
-import { useCurrentPool } from '../../currentPool/hooks/useCurrentPool'
+import { useCurrentPoolGroup } from '../../currentPool/hooks/useCurrentPoolGroup'
 
 export const useWalletBalance = () => {
   const { getPoolContract } = useContract()
-  const { powers } = useCurrentPool()
+  const { powers } = useCurrentPoolGroup()
   const { balances, accFetchBalance, routerAllowances } = useSelector((state: any) => {
     return {
       balances: state.wallet.balances,

@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react'
 import './style.scss'
 import { SwapTxType } from '../../state/wallet/type'
-import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
+import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { useListTokens } from '../../state/token/hook'
 import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
@@ -13,7 +13,7 @@ import { NATIVE_ADDRESS, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
 import isEqual from 'react-fast-compare'
 
 const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
-  const { setChartTimeFocus, TOKEN_R, tradeType } = useCurrentPool()
+  const { setChartTimeFocus, TOKEN_R, tradeType } = useCurrentPoolGroup()
   const { tokens } = useListTokens()
   const { configs } = useConfigs()
   const getColor = (address: string) => {

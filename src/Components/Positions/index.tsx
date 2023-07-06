@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import './style.scss'
-import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
+import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { POOL_IDS, TRADE_TYPE } from '../../utils/constant'
 import { decodeErc1155Address, formatFloat, shortenAddressString, weiToNumber } from '../../utils/helpers'
@@ -29,7 +29,7 @@ type Position = {
 }
 
 export const Positions = () => {
-  const { pools, tradeType } = useCurrentPool()
+  const { pools, tradeType } = useCurrentPoolGroup()
   const { balances } = useWalletBalance()
   const { tokens } = useListTokens()
   const { configs, chainId } = useConfigs()

@@ -12,7 +12,7 @@ import { useConfigs } from '../../../state/config/useConfigs'
 import { useListTokens } from '../../../state/token/hook'
 import { useHelper } from '../../../state/config/useHelper'
 import { POOL_IDS } from '../../../utils/constant'
-import { useListPool } from '../../../state/resources/hooks/useListPool'
+import { useResource } from '../../../state/resources/hooks/useResource'
 
 export const useTokenValue = ({
   amount,
@@ -24,7 +24,7 @@ export const useTokenValue = ({
   const { prices } = useTokenPrice()
   const { configs } = useConfigs()
   const { tokens } = useListTokens()
-  const { pools } = useListPool()
+  const { pools } = useResource()
   const { convertNativeAddressToWrapAddress } = useHelper()
 
   const getTokenValue = (_tokenAddress: string, _amount: string) => {

@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react'
 import './style.scss'
 import { SwapTxType } from '../../state/wallet/type'
-import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
+import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { useListTokens } from '../../state/token/hook'
 import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
@@ -15,7 +15,7 @@ import { getErc20AmountChange } from '../../utils/swapHistoryHelper'
 import isEqual from 'react-fast-compare'
 
 const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
-  const { cToken, baseId, poolAddress, quoteId, baseToken, quoteToken, setChartTimeFocus } = useCurrentPool()
+  const { cToken, baseId, poolAddress, quoteId, baseToken, quoteToken, setChartTimeFocus } = useCurrentPoolGroup()
   const { tokens } = useListTokens()
   const { configs } = useConfigs()
 

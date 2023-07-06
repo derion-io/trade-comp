@@ -1,6 +1,6 @@
 import React, { useMemo, useRef, useState } from 'react'
-import { useListPool } from '../../state/resources/hooks/useListPool'
-import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
+import { useResource } from '../../state/resources/hooks/useResource'
+import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 import { useListTokens } from '../../state/token/hook'
 import './style.scss'
 import { useOutsideAlerter } from '../../hooks/useHandleClickOutside'
@@ -11,8 +11,8 @@ import { bn } from '../../utils/helpers'
 
 export const SelectPoolGroup = () => {
   const [active, setActive] = useState<boolean>(false)
-  const { poolGroups } = useListPool()
-  const { id } = useCurrentPool()
+  const { poolGroups } = useResource()
+  const { id } = useCurrentPoolGroup()
   const wrapperRef = useRef(null)
   useOutsideAlerter(wrapperRef, () => setActive(false))
 
@@ -43,7 +43,7 @@ export const SelectPoolGroup = () => {
 const PoolGroupOption = ({ poolGroup, className, id }: {id?: string, poolGroup: any, className?: string }) => {
   const { balances } = useWalletBalance()
   const { tokens } = useListTokens()
-  const { updateCurrentPool } = useCurrentPool()
+  const { updateCurrentPoolGroup } = useCurrentPoolGroup()
 
   const playingTokens = useMemo(() => {
     if (!poolGroup) return []
@@ -71,7 +71,7 @@ const PoolGroupOption = ({ poolGroup, className, id }: {id?: string, poolGroup: 
     className={'select-pool-group__option noselect ' + className}
     onClick={() => {
       if (id) {
-        updateCurrentPool(id)
+        updateCurrentPoolGroup(id)
       }
     }}
   >

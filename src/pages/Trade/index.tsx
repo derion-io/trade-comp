@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import './style.scss'
 import { useConfigs } from '../../state/config/useConfigs'
-import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
+import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 import { Chart } from '../../Components/Chart'
 import { TRADE_TYPE } from '../../utils/constant'
 import { SwapBox } from '../../Components/SwapBox'
@@ -9,7 +9,7 @@ import { useWindowSize } from '../../hooks/useWindowSize'
 import { Tabs, TabPanel, TabList, Tab } from 'react-tabs'
 import 'react-tabs/style/react-tabs.css'
 import { Card } from '../../Components/ui/Card'
-import { useListPool } from '../../state/resources/hooks/useListPool'
+import { useResource } from '../../state/resources/hooks/useResource'
 import { BuyPositionBox } from '../../Components/BuyPositionBox'
 import { Positions } from '../../Components/Positions'
 import { WalletHistoryTable } from '../../Components/WalletHistoryTable'
@@ -35,8 +35,8 @@ export const Trade = ({ tab, pool }: {
   const history = useHistory()
   const [changedIn24h, setChangedIn24h] = useState<number>(0)
   const { width } = useWindowSize()
-  const { poolGroups } = useListPool()
-  const { updateCurrentPool } = useCurrentPool()
+  const { poolGroups } = useResource()
+  const { updateCurrentPoolGroup } = useCurrentPoolGroup()
   const [tab2, setTab2] = useState<Symbol>(TAB_2.POSITION)
   const { formartedSwapLogs: swapTxs } = useSwapHistory()
   const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
@@ -80,9 +80,9 @@ export const Trade = ({ tab, pool }: {
   useEffect(() => {
     if (poolGroups && Object.keys(poolGroups).length > 0) {
       if (pool && poolGroups[pool]) {
-        updateCurrentPool(pool)
+        updateCurrentPoolGroup(pool)
       } else if (Object.keys(poolGroups)[0]) {
-        updateCurrentPool(Object.keys(poolGroups)[0])
+        updateCurrentPoolGroup(Object.keys(poolGroups)[0])
       }
     }
   }, [chainId, poolGroups, pool])

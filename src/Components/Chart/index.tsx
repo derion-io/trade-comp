@@ -8,13 +8,13 @@ import { TextBlue } from '../ui/Text'
 import { useConfigs } from '../../state/config/useConfigs'
 import isEqual from 'react-fast-compare'
 import { SelectPoolGroup } from '../SelectPoolGroup'
-import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
+import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 import { FunctionPlot } from '../FuncPlot'
 import { CHART_TABS } from '../../state/currentPool/type'
 
 const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const { chainId, useHistory, configs } = useConfigs()
-  const { chartTab, setChartTab } = useCurrentPool()
+  const { chartTab, setChartTab } = useCurrentPoolGroup()
   const history = useHistory()
   // const [targetReached, setTargetReached] = useState(checkInnerWidth())
 

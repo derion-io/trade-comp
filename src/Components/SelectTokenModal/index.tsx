@@ -9,7 +9,7 @@ import { Text, TextGrey } from '../ui/Text'
 import './style.scss'
 import formatLocalisedCompactNumber, { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import isEqual from 'react-fast-compare'
-import { useListPool } from '../../state/resources/hooks/useListPool'
+import { useResource } from '../../state/resources/hooks/useResource'
 import { decodeErc1155Address, div, formatFloat, isErc1155Address, weiToNumber } from '../../utils/helpers'
 import { ZERO_ADDRESS } from '../../utils/constant'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
@@ -53,7 +53,7 @@ const Option = ({ onSelectToken, address, setVisible }: {
   onSelectToken: any
 }) => {
   const { tokens } = useListTokens()
-  const { pools } = useListPool()
+  const { pools } = useResource()
   const { balances } = useWalletBalance()
 
   const { value } = useTokenValue({

@@ -2,7 +2,7 @@ import { PoolType } from '../../../state/resources/type'
 import { useWalletBalance } from '../../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../../state/token/hook'
 import React, { useMemo } from 'react'
-import { useCurrentPool } from '../../../state/currentPool/hooks/useCurrentPool'
+import { useCurrentPoolGroup } from '../../../state/currentPool/hooks/useCurrentPoolGroup'
 import { bn, formatFloat, weiToNumber } from '../../../utils/helpers'
 import { PowerState } from 'powerLib'
 import { Text, TextBlue, TextBuy, TextSell } from '../../ui/Text'
@@ -13,7 +13,7 @@ const Component = ({ pool }: { pool: PoolType }) => {
   const { balances } = useWalletBalance()
   const { tokens } = useListTokens()
   const { baseToken, quoteToken } = pool
-  const { updateCurrentPool } = useCurrentPool()
+  const { updateCurrentPoolGroup } = useCurrentPoolGroup()
 
   // const [leverage, value] = useMemo(() => {
   //   let leverage = 0
@@ -43,7 +43,7 @@ const Component = ({ pool }: { pool: PoolType }) => {
     <tr
       className='pool-tr'
       onClick={(e) => {
-        updateCurrentPool(pool.poolAddress)
+        updateCurrentPoolGroup(pool.poolAddress)
       }}
     >
       <td className='pair-name'>

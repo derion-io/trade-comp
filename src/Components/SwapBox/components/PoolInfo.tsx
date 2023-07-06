@@ -10,7 +10,7 @@ import {
 import { Box } from '../../ui/Box'
 import React, { useMemo } from 'react'
 import { InfoRow } from '../../ui/InfoRow'
-import { useCurrentPool } from '../../../state/currentPool/hooks/useCurrentPool'
+import { useCurrentPoolGroup } from '../../../state/currentPool/hooks/useCurrentPoolGroup'
 import { useTokenValue } from '../hooks/useTokenValue'
 import { useListTokens } from '../../../state/token/hook'
 import formatLocalisedCompactNumber from '../../../utils/formatBalance'
@@ -22,7 +22,7 @@ export const PoolInfo = ({
   inputTokenAddress: string,
   outputTokenAddress: string
 }) => {
-  const { pools } = useCurrentPool()
+  const { pools } = useCurrentPoolGroup()
   const { tokens } = useListTokens()
 
   const [poolToShow, id] = useMemo(() => {

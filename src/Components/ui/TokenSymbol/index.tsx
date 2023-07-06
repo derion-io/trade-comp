@@ -1,16 +1,16 @@
 import React, { useMemo } from 'react'
-import { useCurrentPool } from '../../../state/currentPool/hooks/useCurrentPool'
+import { useCurrentPoolGroup } from '../../../state/currentPool/hooks/useCurrentPoolGroup'
 import { useListTokens } from '../../../state/token/hook'
 import { decodeErc1155Address, getTokenPower, isErc1155Address } from '../../../utils/helpers'
-import { useListPool } from '../../../state/resources/hooks/useListPool'
+import { useResource } from '../../../state/resources/hooks/useResource'
 import { POOL_IDS } from '../../../utils/constant'
 import { useHelper } from '../../../state/config/useHelper'
 import { Text, TextBlue, TextBuy, TextPink, TextSell } from '../Text'
 
 export const TokenSymbol = ({ token }: { token: string }) => {
-  const { baseToken } = useCurrentPool()
+  const { baseToken } = useCurrentPoolGroup()
   const { tokens } = useListTokens()
-  const { pools } = useListPool()
+  const { pools } = useResource()
   const { wrapToNativeAddress } = useHelper()
 
   const result = useMemo(() => {

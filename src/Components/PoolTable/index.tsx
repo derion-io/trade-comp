@@ -1,12 +1,12 @@
 import React from 'react'
 import './style.scss'
-import { useListPool } from '../../state/resources/hooks/useListPool'
+import { useResource } from '../../state/resources/hooks/useListPool'
 import { PoolRow } from './PoolRow'
 import { PoolRowCompact } from './PoolRowCompact'
 import isEqual from 'react-fast-compare'
 
 const Component = () => {
-  const { poolGroups } = useListPool()
+  const { poolGroups } = useResource()
 
   return (
     <div className='pool-table-wrap'>
@@ -45,7 +45,7 @@ const Component = () => {
 }
 
 export const PoolTableCompact = () => {
-  const { poolGroups } = useListPool()
+  const { poolGroups } = useResource()
 
   return (
     <div className='pool-table-compact-wrap'>

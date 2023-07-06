@@ -7,12 +7,12 @@ import {
   setChartTimeFocusReduce,
   setCurrentPoolInfo, setSwapTabReduce
 } from '../reducer'
-import { useListPool } from '../../resources/hooks/useListPool'
+import { useResource } from '../../resources/hooks/useResource'
 import { CHART_TABS } from '../type'
 import { TRADE_TYPE } from '../../../utils/constant'
 
-export const useCurrentPool = () => {
-  const { poolGroups } = useListPool()
+export const useCurrentPoolGroup = () => {
+  const { poolGroups } = useResource()
   const { ddlEngine } = useConfigs()
   const dispatch = useDispatch()
 
@@ -30,13 +30,13 @@ export const useCurrentPool = () => {
     dispatch(setSwapTabReduce({ tab }))
   }
 
-  const updateCurrentPool = async (poolAddress: string) => {
-    const pool = poolGroups[poolAddress]
+  const updateCurrentPoolGroup = async (uniPoolAddress: string) => {
+    const pool = poolGroups[uniPoolAddress]
     // const { cPrice } = pool
 
     if (ddlEngine) {
       ddlEngine.setCurrentPool({
-        ...poolGroups[poolAddress]
+        ...poolGroups[uniPoolAddress]
         // logic: pools[poolAddress].logic,
         // cTokenPrice: pools[poolAddress].cTokenPrice
       })
@@ -44,7 +44,7 @@ export const useCurrentPool = () => {
 
     dispatch(setCurrentPoolInfo({
       ...pool,
-      id: poolAddress
+      id: uniPoolAddress
       // cTokenPrice: cPrice,
       // logicAddress: pool.logic
     }))
@@ -87,7 +87,7 @@ export const useCurrentPool = () => {
     setChartTimeFocus,
     detectChangeType,
     getTokenByPower,
-    updateCurrentPool,
+    updateCurrentPoolGroup,
     setCandleChartIsLoading,
     setChartTab,
     setTradeType,

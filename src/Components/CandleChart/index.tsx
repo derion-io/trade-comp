@@ -8,7 +8,7 @@ import {
 } from '../../lib/charting_library'
 import { Datafeed, TIME_IN_RESOLUTION } from '../../lib/datafeed'
 import { useListTokens } from '../../state/token/hook'
-import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
+import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 import { Card } from '../ui/Card'
 import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 import { CandleChartLoader } from '../ChartLoaders'
@@ -56,7 +56,7 @@ const Component = ({
     setCandleChartIsLoading,
     chartTimeFocus,
     setChartTimeFocus
-  } = useCurrentPool()
+  } = useCurrentPoolGroup()
   const { chainId } = useConfigs()
   const { formartedSwapLogs: swapTxs } = useSwapHistory()
   const timeRangeRef = useRef<any>(null)

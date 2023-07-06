@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { useCurrentPool } from '../../../../state/currentPool/hooks/useCurrentPool'
+import { useCurrentPoolGroup } from '../../../../state/currentPool/hooks/useCurrentPoolGroup'
 import { Text, TextGrey, TextPink } from '../../../../Components/ui/Text'
 import { useListTokens } from '../../../../state/token/hook'
 import { Input } from '../../../../Components/ui/Input'
@@ -25,7 +25,7 @@ const shareOfPoolUnit = 1000
 export const AddLiquidityBox = ({ totalSupplyCP }: {totalSupplyCP: BigNumber}) => {
   const { account, showConnectModal } = useWeb3React()
   const { ddlEngine, chainId } = useConfigs()
-  const { cToken, baseToken, poolAddress, quoteToken, logicAddress } = useCurrentPool()
+  const { cToken, baseToken, poolAddress, quoteToken, logicAddress } = useCurrentPoolGroup()
   const { tokens } = useListTokens()
   const { balances, routerAllowances, approveRouter } = useWalletBalance()
   const [loading, setLoading] = useState<boolean>(false)

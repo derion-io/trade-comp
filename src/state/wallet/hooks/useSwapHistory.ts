@@ -3,10 +3,10 @@ import { updateFormatedSwapTxs, updateSwapTxs } from '../reducer'
 import { State } from '../../types'
 import { useWeb3React } from '../../customWeb3React/hook'
 import { useEffect } from 'react'
-import { useCurrentPool } from '../../currentPool/hooks/useCurrentPool'
+import { useCurrentPoolGroup } from '../../currentPool/hooks/useCurrentPoolGroup'
 import { useConfigs } from '../../config/useConfigs'
 import _ from 'lodash'
-import { useListPool } from '../../resources/hooks/useListPool'
+import { useResource } from '../../resources/hooks/useResource'
 
 export const useSwapHistory = () => {
   const { swapLogs, formartedSwapLogs } = useSelector((state: State) => {
@@ -17,7 +17,6 @@ export const useSwapHistory = () => {
   })
   const { account } = useWeb3React()
   const dispatch = useDispatch()
-
 
   const addMultiSwapData = (swapLogs: any, account: string) => {
     dispatch(updateSwapTxs({ account, swapLogs }))
@@ -37,10 +36,10 @@ export const useSwapHistory = () => {
 
 export const useSwapHistoryFormated = () => {
   const { swapLogs: sls } = useSwapHistory()
-  const { states, id } = useCurrentPool()
+  const { states, id } = useCurrentPoolGroup()
   const { ddlEngine } = useConfigs()
   const dispatch = useDispatch()
-  const { pools } = useListPool()
+  const { pools } = useResource()
 
   useEffect(() => {
     console.log(pools, ddlEngine?.CURRENT_POOL.TOKEN)

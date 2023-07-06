@@ -5,7 +5,7 @@ import 'rc-slider/assets/index.css'
 import { IconArrowDown, IconOptionLeft } from '../ui/Icon'
 import { Input } from '../ui/Input'
 import { TokenIcon } from '../ui/TokenIcon'
-import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
+import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 import { useWeb3React } from '../../state/customWeb3React/hook'
 import { SelectTokenModal } from '../SelectTokenModal'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
@@ -34,7 +34,7 @@ const Component = ({
 }: any) => {
   const { account } = useWeb3React()
   const { configs } = useConfigs()
-  const { dTokens, allTokens, id, pools, setTradeType, setChartTab } = useCurrentPool()
+  const { dTokens, allTokens, id, pools, setTradeType, setChartTab } = useCurrentPoolGroup()
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
   const [tokenTypeToSelect, setTokenTypeToSelect] = useState<'input' | 'output'>('input')
   const [amountIn, setAmountIn] = useState<string>('')

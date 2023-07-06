@@ -3,7 +3,7 @@ import { useWalletBalance } from '../../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../../state/token/hook'
 import React, { useMemo, useState } from 'react'
 import { useConfigs } from '../../../state/config/useConfigs'
-import { useCurrentPool } from '../../../state/currentPool/hooks/useCurrentPool'
+import { useCurrentPoolGroup } from '../../../state/currentPool/hooks/useCurrentPoolGroup'
 import { bn, formatFloat, shortenAddressString, weiToNumber } from '../../../utils/helpers'
 import { PowerState } from 'powerLib'
 import { Text, TextBuy, TextSell } from '../../ui/Text'
@@ -21,7 +21,7 @@ const Component = ({ pool, id }: { pool: PoolType, id: string }) => {
   const { dTokens, powers } = pool
   const { useHistory } = useConfigs()
   const history = useHistory()
-  const { updateCurrentPool } = useCurrentPool()
+  const { updateCurrentPoolGroup } = useCurrentPoolGroup()
 
   // const [powerState, leverage, value] = useMemo(() => {
   //   let leverage = 0
@@ -95,7 +95,7 @@ const Component = ({ pool, id }: { pool: PoolType, id: string }) => {
           }}>Swap</ButtonGrey>
         <ButtonGrey
           onClick={async () => {
-            await updateCurrentPool(id)
+            await updateCurrentPoolGroup(id)
             history.push('exposure')
           }}
         >

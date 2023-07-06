@@ -3,7 +3,7 @@ import { useExchangeData } from '../../hooks/useExchangeData'
 import { LineChartLoader } from '../ChartLoaders'
 import { ResponsiveContainer, XAxis, YAxis, Tooltip, AreaChart, Area } from 'recharts'
 import './style.scss'
-import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
+import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 import moment from 'moment'
 import { useListTokens } from '../../state/token/hook'
 import { Text, TextBuy, TextGrey, TextSell } from '../ui/Text'
@@ -18,7 +18,7 @@ const cToken = '0x905dfCD5649217c42684f23958568e533C711Aa3'
 
 const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const { getLineChartData } = useExchangeData()
-  const { baseToken, quoteToken, basePrice } = useCurrentPool()
+  const { baseToken, quoteToken, basePrice } = useCurrentPoolGroup()
   const { tokens } = useListTokens()
   const [hoverValue, setHoverValue] = useState<number>()
   const [chartData, setChartData] = useState<{ [key: string]: any[] }>({})

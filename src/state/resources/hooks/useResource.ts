@@ -5,7 +5,7 @@ import { State } from '../../types'
 import { addTokensReduce } from '../../token/reducer'
 import { useSwapHistory } from '../../wallet/hooks/useSwapHistory'
 
-export const useListPool = () => {
+export const useResource = () => {
   const { poolGroups, pools } = useSelector((state: State) => {
     return {
       poolGroups: state.resources.poolGroups,
@@ -37,7 +37,7 @@ export const useListPool = () => {
   }
 
   return {
-    initListPool,
+    initResource: initListPool,
     updateSwapTxsHandle,
     poolGroups: poolGroups[chainId],
     pools: pools[chainId]

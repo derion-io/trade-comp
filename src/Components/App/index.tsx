@@ -6,24 +6,23 @@ import { useListTokens } from '../../state/token/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useWeb3React } from '../../state/customWeb3React/hook'
 import { ToastContainer } from 'react-toastify'
-import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
+import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 import { useConfigs } from '../../state/config/useConfigs'
-import { useListPool } from '../../state/resources/hooks/useListPool'
-import { Pools } from '../../pages/Pools'
+import { useResource } from '../../state/resources/hooks/useResource'
 import { TIME_TO_REFRESH_STATE, TRADE_TYPE } from '../../utils/constant'
 import { useSwapHistoryFormated } from '../../state/wallet/hooks/useSwapHistory'
 import { Trade } from '../../pages/Trade'
 import { useFetchTokenPrice } from '../../state/resources/hooks/useTokenPrice'
 
 export const App = () => {
-  const { id } = useCurrentPool()
+  const { id } = useCurrentPoolGroup()
   const { tokens } = useListTokens()
-  const { poolGroups } = useListPool()
+  const { poolGroups } = useResource()
   const { fetchBalanceAndAllowance } = useWalletBalance()
   const { account } = useWeb3React()
   const { ddlEngine, chainId, location } = useConfigs()
   const chainIdRef = useRef(null)
-  const { initListPool } = useListPool()
+  const { initResource } = useResource()
   useFetchTokenPrice()
   useSwapHistoryFormated()
 
@@ -43,9 +42,9 @@ export const App = () => {
   }, [ddlEngine, poolGroups, id])
 
   useEffect(() => {
-    initListPool(account)
+    initResource(account)
     const intervalId = setInterval(() => {
-      initListPool(account)
+      initResource(account)
     }, TIME_TO_REFRESH_STATE)
     return () => clearInterval(intervalId)
   }, [chainId, account])

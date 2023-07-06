@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { TRADE_TYPE } from '../utils/constant'
-import { useCurrentPool } from '../state/currentPool/hooks/useCurrentPool'
+import { useCurrentPoolGroup } from '../state/currentPool/hooks/useCurrentPoolGroup'
 import { useTokenValue } from '../Components/SwapBox/hooks/useTokenValue'
 import { bn, getTokenPower, numberToWei, tradeTypeToId, weiToNumber } from '../utils/helpers'
 import { useListTokens } from '../state/token/hook'
@@ -8,7 +8,7 @@ import { useListTokens } from '../state/token/hook'
 const barColors = ['#01A7FA', '#FF98E5', '#4FBF67', '#3DBAA2']
 
 export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
-  const { pools } = useCurrentPool()
+  const { pools } = useCurrentPoolGroup()
   const { tokens } = useListTokens()
   const { getTokenValue } = useTokenValue({})
 
