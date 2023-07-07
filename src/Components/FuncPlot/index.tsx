@@ -13,25 +13,29 @@ export const FunctionPlot = (props: any) => {
   const { currentPool, drC } = useCurrentPool()
   const calc = React.useRef() as React.MutableRefObject<Desmos.Calculator>
 
-  const { PX, a, b, TOKEN_R, R, R1, P, X } = useMemo(() => {
+  const { PX, a, b, TOKEN_R, R, R1, P, X, MARK } = useMemo(() => {
     const P = currentPool.k?.toNumber() / 2 // = K/2
     const R = formatFloat(weiToNumber(currentPool.states?.R))
     const a = formatFloat(weiToNumber(currentPool.states?.a))
     const b = formatFloat(weiToNumber(currentPool.states?.b))
-    // const MARK = 1800
-    const X = bn(currentPool.states?.twap || 0).mul(1000).div(currentPool.MARK || 1).toNumber() / 1000
+    const MARK = currentPool.MARK ? currentPool.MARK.mul(currentPool.MARK).mul((bn(10).pow(12))).shr(256) : 1
+    const X = (!currentPool.states?.twap || !currentPool.MARK) ? 1 :
+      bn(currentPool.states?.twap).mul(currentPool.states?.twap)
+      .mul(1000)
+      .div(currentPool.MARK).div(currentPool.MARK)
+      .toNumber() / 1000
     const TOKEN_R = 'ETH'
     const PX = X * 0.01
     const drA = R * 0
     const drB = R * 0
     const R1 = R + drA + drB + drC
 
-    return { PX, a, b, TOKEN_R, R, R1, P, X }
+    return { PX, a, b, TOKEN_R, R, R1, P, X, MARK }
   }, [currentPool, drC])
 
   const drLatex = drC > 0
-    ? `x=X*1.004\\{g(${P},X,${b},${R})<y<g(${P},X,${b},${R1})\\}`
-    : `x=X*1.004\\{g(${P},X,${b},${R})>y>g(${P},X,${b},${R1})\\}`
+    ? `x=X\\{g(${P},X,${b},${R})<y<g(${P},X,${b},${R1})\\}`
+    : `x=X\\{g(${P},X,${b},${R})>y>g(${P},X,${b},${R1})\\}`
 
   React.useEffect(() => {
     if (calc && calc.current) {
@@ -178,7 +182,7 @@ export const FunctionPlot = (props: any) => {
               expressionsCollapsed
               expressions={false}
               zoomButtons={false}
-              lockViewport
+              lockViewport={false}
               invertedColors
               border={false}
               showGrid={false}
@@ -230,14 +234,14 @@ export const FunctionPlot = (props: any) => {
                 latex={`X=${X}`}
                 sliderBounds={{ min: PX, max: '', step: '' }}
               />
-              {/* <Expression */}
-              {/*  id='p' */}
-              {/*  latex={`p=\\operatorname{round}\\left(X\\cdot${MARK}\\right)`} */}
-              {/*  hidden */}
-              {/* /> */}
+              <Expression
+                id='p'
+                latex={`p=\\operatorname{round}(X*${MARK})`}
+                hidden
+              />
               <Expression
                 id='Price'
-                latex='(X,-0.15)'
+                latex='(X,0)'
                 color='BLACK'
                 hidden
                 showLabel
