@@ -100,6 +100,7 @@ export const FunctionPlot = (props: any) => {
               id='R1'
               latex={`y=${R1}\\{${PX}<x\\}`}
               color='RED'
+              hidden={R==R1}
               lineWidth={1.5}
               lineStyle='DASHED'
             />
@@ -112,8 +113,8 @@ export const FunctionPlot = (props: any) => {
             /> */}
             <Expression id='short' latex={`g(${P},x,${b},${R})\\{${PX}<x\\}`} color='GREEN' />
             <Expression id='long' latex={`f(${P},x,${a},${R})\\{${PX}<x\\}`} color='PURPLE' />
-            <Expression id='short1' latex={`g(${P},x,${b},${R1})\\{${PX}<x\\}`} color='GREEN' lineStyle='DASHED' />
-            <Expression id='long1' latex={`f(${P},x,${a},${R1})\\{${PX}<x\\}`} color='PURPLE' lineStyle='DASHED' />
+            <Expression id='short1' latex={`g(${P},x,${b},${R1})\\{${PX}<x\\}`} color='GREEN' lineStyle='DASHED' hidden={R==R1} />
+            <Expression id='long1' latex={`f(${P},x,${a},${R1})\\{${PX}<x\\}`} color='PURPLE' lineStyle='DASHED' hidden={R==R1} />
             <Expression
               id='X'
               latex={`X=${X}`}
@@ -135,8 +136,8 @@ export const FunctionPlot = (props: any) => {
             />
             <Expression id='S' latex={`(X,g(${P},X,${b},${R}))`} color='GREEN' />
             <Expression id='L' latex={`(X,f(${P},X,${a},${R}))`} color='PURPLE' />
-            <Expression id='S1' latex={`(X,g(${P},X,${b},${R1}))`} color='GREEN' />
-            <Expression id='L1' latex={`(X,f(${P},X,${a},${R1}))`} color='PURPLE' />
+            <Expression id='S1' latex={`(X,g(${P},X,${b},${R1}))`} color='GREEN' hidden={R==R1} />
+            <Expression id='L1' latex={`(X,f(${P},X,${a},${R1}))`} color='PURPLE' hidden={R==R1} />
             {/* <Expression
               id='rB'
               latex={`x=X\\{g(${P},X,${b},${R})<y<${R}\\}`}
@@ -155,6 +156,7 @@ export const FunctionPlot = (props: any) => {
               id='dr'
               latex={drLatex}
               color={Desmos.Colors.BLACK}
+              hidden={R==R1}
               lineWidth={3}
             />
             <Expression
