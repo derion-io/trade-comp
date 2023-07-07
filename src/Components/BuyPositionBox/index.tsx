@@ -389,7 +389,10 @@ const Component = ({
           callError={callError}
           gasUsed={gasUsed}
           tradeType={tradeType}
-          title={Number(decodeErc1155Address(outputTokenAddress).id) === POOL_IDS.A ? 'Long' : 'Short'}
+          title={
+            Number(decodeErc1155Address(outputTokenAddress).id) === POOL_IDS.A ? 'Long' :
+            Number(decodeErc1155Address(outputTokenAddress).id) === POOL_IDS.B ? 'Short' :
+            'Add Liquidity'}
         />
       </div>
 
