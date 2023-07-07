@@ -352,7 +352,7 @@ const Component = ({
         </InfoRow>
         <InfoRow>
           <TextGrey>Effective Leverage:</TextGrey>
-          <Text>x{poolToShow?.k.toNumber() / 2}</Text>
+          <Text>{poolToShow?.k.toNumber() / 2}x</Text>
         </InfoRow>
         <InfoRow>
           <TextGrey>Liquidity:</TextGrey>

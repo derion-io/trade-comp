@@ -57,7 +57,7 @@ export const PoolInfo = ({
     <InfoRow>
       <TextGrey>Effective Leverage:</TextGrey>
       <Text>
-          x{!id ? 0 : Math.abs(getTokenPower(poolToShow.TOKEN_R, poolToShow.baseToken, Number(id), poolToShow.k.toNumber()))}
+          {!id ? 0 : Math.abs(getTokenPower(poolToShow.TOKEN_R, poolToShow.baseToken, Number(id), poolToShow.k.toNumber()))}x
       </Text>
 
     </InfoRow>

@@ -141,7 +141,7 @@ export const Positions = () => {
                     setOutputTokenAddress(wrapToNativeAddress(position.pool.TOKEN_R))
                     setVisible(true)
                   }}
-                >{position.poolId === POOL_IDS.C ? 'Remove Liquidity' : 'Close'}</ButtonSell>
+                >{position.poolId === POOL_IDS.C ? 'Remove' : 'Close'}</ButtonSell>
               </td>
             </tr>
           })
@@ -154,7 +154,7 @@ export const Positions = () => {
       setVisible={setVisible}
       inputTokenAddress={inputTokenAddress}
       outputTokenAddress={outputTokenAddress}
-      title={Number(decodeErc1155Address(outputTokenAddress).id) === POOL_IDS.C ? 'Remove Liquidity' : 'Close'}
+      title={Number(decodeErc1155Address(inputTokenAddress).id) === POOL_IDS.C ? 'Remove' : 'Close'}
     />
   </div>
 }

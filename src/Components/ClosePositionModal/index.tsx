@@ -8,7 +8,7 @@ import { Text, TextGrey } from '../ui/Text'
 import './style.scss'
 import formatLocalisedCompactNumber, { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import isEqual from 'react-fast-compare'
-import { div, formatFloat, weiToNumber } from '../../utils/helpers'
+import { decodeErc1155Address, div, formatFloat, weiToNumber } from '../../utils/helpers'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { Input } from '../ui/Input'
 import { useWeb3React } from '../../state/customWeb3React/hook'
@@ -19,6 +19,7 @@ import { PoolInfo } from '../SwapBox/components/PoolInfo'
 import { TxFee } from '../SwapBox/components/TxFee'
 import { useCalculateSwap } from '../SwapBox/hooks/useCalculateSwap'
 import { ButtonSwap } from '../ButtonSwap'
+import { POOL_IDS } from '../../utils/constant'
 
 const Component = ({
   visible,
@@ -57,7 +58,9 @@ const Component = ({
   return <Modal
     setVisible={setVisible}
     visible={visible}
-    title='Close position'
+    title={
+      Number(decodeErc1155Address(inputTokenAddress).id) === POOL_IDS.C ? 'Remove Liquidity' : 'Close Position'
+    }
   >
     <div className='close-position-modal'>
       <div className='amount-input-box'>

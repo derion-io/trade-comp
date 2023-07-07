@@ -106,7 +106,7 @@ export const AddLiquidityBox = ({ totalSupplyCP }: {totalSupplyCP: BigNumber}) =
           showConnectModal()
         }}
         className='add-liquidity__action'
-      >Connect wallet</ButtonExecute>
+      >Connect Wallet</ButtonExecute>
     } else if (Number(amountIn) === 0) {
       return <ButtonExecute className='add-liquidity__action' disabled>Enter Amount</ButtonExecute>
     } else if (!balances[tokenAdd] || balances[tokenAdd].lt(numberToWei(amountIn || 0, tokens[tokenAdd]?.decimal || 18))) {

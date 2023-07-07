@@ -32,7 +32,7 @@ export const TokenSymbol = ({ token }: { token: string }) => {
 
       return <TextComp>
         <span
-          className='font-size-14'>{Number(id) === POOL_IDS.C && 'DLP-'}{tokens[wrapToNativeAddress(pool.TOKEN_R)]?.symbol}</span>
+          className='font-size-14'>{Number(id) === POOL_IDS.C && 'LP-'}{tokens[wrapToNativeAddress(pool.TOKEN_R)]?.symbol}</span>
         <sup className='font-size-12'>
           {Number(id) === POOL_IDS.C && '±'}{getTokenPower(pool.TOKEN_R, baseToken, Number(id), pool?.k.toNumber())}
         </sup>

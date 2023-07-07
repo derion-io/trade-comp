@@ -50,7 +50,7 @@ export const ButtonSwap = ({
           showConnectModal()
         }}
         className='swap-button'
-      >Connect wallet</ButtonExecute>
+      >Connect Wallet</ButtonExecute>
     } else if (Number(amountIn) === 0) {
       return <ButtonExecute className='swap-button' disabled>Enter Amount</ButtonExecute>
     } else if (!balances[inputTokenAddress] || balances[inputTokenAddress].lt(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))) {

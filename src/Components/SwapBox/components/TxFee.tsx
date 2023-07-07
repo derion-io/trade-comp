@@ -14,13 +14,13 @@ export const TxFee = ({ gasUsed, txFee } : {gasUsed: BigNumber, txFee: BigNumber
 
   return <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
     <InfoRow>
-      <TextGrey>Gas Used</TextGrey>
+      <TextGrey>Estimated Gas</TextGrey>
       <span>
         <Text>{formatWeiToDisplayNumber(gasUsed, 0, 0)}</Text>
       </span>
     </InfoRow>
     <InfoRow>
-      <TextGrey>Transaction Fee</TextGrey>
+      <TextGrey>Estimated Fee</TextGrey>
       <span>
         <Text>
           {weiToNumber(gasUsed.mul(0.1 * 10 ** 9), 18, 5)}
