@@ -17,6 +17,15 @@
       color: $color-sell;
     }
   }
+
+  &.text-warning {
+    color: $color-warning;
+  }
+
+  &.text-error {
+    color: $color-error;
+  }
+
   &.text-grey {
     color: $color-grey;
   }

@@ -1,5 +1,5 @@
 import { ButtonExecute } from '../ui/Button'
-import { bn, numberToWei } from '../../utils/helpers'
+import { bn, div, numberToWei } from '../../utils/helpers'
 import { toast } from 'react-toastify'
 import React, { useMemo, useState } from 'react'
 import { useListTokens } from '../../state/token/hook'
@@ -9,6 +9,7 @@ import { useConfigs } from '../../state/config/useConfigs'
 import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 import { BigNumber } from 'ethers'
 import { TRADE_TYPE } from '../../utils/constant'
+import { TextError } from '../ui/Text'
 
 export const ButtonSwap = ({
   inputTokenAddress,
@@ -20,7 +21,8 @@ export const ButtonSwap = ({
   tradeType,
   isSwap,
   isClose,
-  title
+  title,
+  payoffRate
 }: {
   inputTokenAddress: string
   outputTokenAddress: string
@@ -32,6 +34,7 @@ export const ButtonSwap = ({
   isSwap?: boolean
   isClose?: boolean
   title: string
+  payoffRate?: number
 }) => {
   const { tokens } = useListTokens()
   const [loading, setLoading] = useState<boolean>(false)
@@ -41,7 +44,7 @@ export const ButtonSwap = ({
 
   const { updateSwapTxsHandle } = useSwapHistory()
 
-  return useMemo(() => {
+  const button = useMemo(() => {
     if (!tokens[inputTokenAddress] || loading) {
       return <ButtonExecute className='swap-button' disabled>Loading...</ButtonExecute>
     } else if (!account) {
@@ -118,4 +121,22 @@ export const ButtonSwap = ({
     gasUsed,
     account
   ])
+
+  return <React.Fragment>
+    {
+      payoffRate && payoffRate < 94
+        ? <div className='text-center mb-1'>
+          {
+            tradeType === TRADE_TYPE.LONG
+              ? <TextError>Payoff Rate is too low. You should not open Long when the market is one-sided Long.</TextError>
+              : tradeType === TRADE_TYPE.SHORT
+                ? <TextError>Payoff Rate is too low. You should not open Short when the market is one-sided
+                  Short.</TextError>
+                : <TextError>Payoff Rate is too low. You should wait for the position maturity to run out first.</TextError>
+          }
+        </div>
+        : ''
+    }
+    {button}
+  </React.Fragment>
 }

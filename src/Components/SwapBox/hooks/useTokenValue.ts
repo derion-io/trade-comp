@@ -70,7 +70,7 @@ export const useTokenValue = ({
   }
 
   const value = useMemo(() => {
-    if (!amount || !tokenAddress) return 0
+    if (!amount || !tokenAddress) return '0'
     return getTokenValue(tokenAddress, amount)
   }, [amount, tokenAddress, prices])
 

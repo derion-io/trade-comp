@@ -12,8 +12,8 @@ import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../state/token/hook'
 import {
   bn,
-  decodeErc1155Address,
-  formatFloat,
+  decodeErc1155Address, div,
+  formatFloat, formatPercent,
   getTitleBuyTradeType,
   isErc1155Address,
   mul,
@@ -129,6 +129,13 @@ const Component = ({
     amount: weiToNumber(balances[outputTokenAddress], tokens[outputTokenAddress]?.decimal || 18),
     tokenAddress: outputTokenAddress
   })
+
+  const payoffRate = useMemo(() => {
+    if (valueOut && valueIn) {
+      return formatPercent(div(valueOut, valueIn), 2)
+    }
+    return undefined
+  }, [valueIn, valueOut])
 
   const tokensToSelect = useMemo(() => {
     if (!id) return []
@@ -360,7 +367,10 @@ const Component = ({
         </InfoRow>
       </Box>
 
-      <TxFee gasUsed={gasUsed} txFee={txFee} />
+      <TxFee
+        gasUsed={gasUsed}
+        payoffRate={payoffRate}
+      />
 
       {/* <Box borderColor='default' className='swap-info-box mt-1 mb-1'> */}
       {/*  <InfoRow> */}
@@ -383,6 +393,7 @@ const Component = ({
 
       <div className='actions'>
         <ButtonSwap
+          payoffRate={payoffRate}
           inputTokenAddress={inputTokenAddress}
           outputTokenAddress={outputTokenAddress}
           amountIn={amountIn}
@@ -390,9 +401,9 @@ const Component = ({
           gasUsed={gasUsed}
           tradeType={tradeType}
           title={
-            Number(decodeErc1155Address(outputTokenAddress).id) === POOL_IDS.A ? 'Long' :
-            Number(decodeErc1155Address(outputTokenAddress).id) === POOL_IDS.B ? 'Short' :
-            'Add Liquidity'}
+            Number(decodeErc1155Address(outputTokenAddress).id) === POOL_IDS.A ? 'Long'
+              : Number(decodeErc1155Address(outputTokenAddress).id) === POOL_IDS.B ? 'Short'
+                : 'Add Liquidity'}
         />
       </div>
 

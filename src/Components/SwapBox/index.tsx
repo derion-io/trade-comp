@@ -10,7 +10,14 @@ import { useWeb3React } from '../../state/customWeb3React/hook'
 import { SelectTokenModal } from '../SelectTokenModal'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../state/token/hook'
-import { decodeErc1155Address, formatFloat, isErc1155Address, weiToNumber } from '../../utils/helpers'
+import {
+  decodeErc1155Address,
+  div,
+  formatFloat,
+  formatPercent,
+  isErc1155Address,
+  weiToNumber
+} from '../../utils/helpers'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { NATIVE_ADDRESS, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
@@ -93,6 +100,13 @@ const Component = ({
       })
     )
   }, [tokenTypeToSelect, allTokens, pools, id])
+
+  const payoffRate = useMemo(() => {
+    if (valueOut && valueIn) {
+      return formatPercent(div(valueOut, valueIn), 2)
+    }
+    return undefined
+  }, [valueIn, valueOut])
 
   const onSelectToken = useCallback((address: string) => {
     if ((tokenTypeToSelect === 'input' && address === outputTokenAddress) ||
@@ -225,10 +239,11 @@ const Component = ({
         outputTokenAddress={outputTokenAddress}
         inputTokenAddress={inputTokenAddress}
       />
-      <TxFee gasUsed={gasUsed} txFee={txFee} />
+      <TxFee gasUsed={gasUsed} payoffRate={payoffRate} />
 
       <div className='actions'>
         <ButtonSwap
+          payoffRate={payoffRate}
           inputTokenAddress={inputTokenAddress}
           outputTokenAddress={outputTokenAddress}
           amountIn={amountIn}

@@ -40,6 +40,22 @@ export const TextSell = (props: TextType) => {
   )
 }
 
+export const TextWarning = (props: TextType) => {
+  return (
+    <Text {...props} className={'text-warning ' + props.className}>
+      {props.children}
+    </Text>
+  )
+}
+
+export const TextError = (props: TextType) => {
+  return (
+    <Text {...props} className={'text-error ' + props.className}>
+      {props.children}
+    </Text>
+  )
+}
+
 export const TextGrey = (props: TextType) => {
   return (
     <Text {...props} className={'text-grey ' + props.className}>
