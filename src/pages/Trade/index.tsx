@@ -125,8 +125,8 @@ export const Trade = ({ tab, pool }: {
             <TabList>
               <Tab>Long</Tab>
               <Tab>Short</Tab>
-              <Tab>LP</Tab>
               <Tab>Swap</Tab>
+              <Tab>LP</Tab>
             </TabList>
             <TabPanel>
               <Card className='trade-box card-in-tab'>
@@ -152,22 +152,22 @@ export const Trade = ({ tab, pool }: {
             </TabPanel>
             <TabPanel>
               <Card className='trade-box card-in-tab'>
+                <SwapBox
+                  inputTokenAddress={inputTokenAddress}
+                  setInputTokenAddress={setInputTokenAddress}
+                  outputTokenAddress={outputTokenAddress}
+                  setOutputTokenAddress={setOutputTokenAddress}
+                />
+              </Card>
+            </TabPanel>
+            <TabPanel>
+              <Card className='trade-box card-in-tab'>
                 <BuyPositionBox
                   inputTokenAddress={inputTokenAddress}
                   setInputTokenAddress={setInputTokenAddress}
                   outputTokenAddress={outputTokenAddress}
                   setOutputTokenAddress={setOutputTokenAddress}
                   tradeType={TRADE_TYPE.LIQUIDITY}
-                />
-              </Card>
-            </TabPanel>
-            <TabPanel>
-              <Card className='trade-box card-in-tab'>
-                <SwapBox
-                  inputTokenAddress={inputTokenAddress}
-                  setInputTokenAddress={setInputTokenAddress}
-                  outputTokenAddress={outputTokenAddress}
-                  setOutputTokenAddress={setOutputTokenAddress}
                 />
               </Card>
             </TabPanel>
