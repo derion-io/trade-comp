@@ -56,7 +56,7 @@ const Component = ({
   })
 
   const payoffRate = useMemo(() => {
-    if (valueOut && valueIn) {
+    if (valueOut && valueIn && Number(valueOut) && Number(valueIn)) {
       return formatPercent(div(valueOut, valueIn), 2)
     }
     return undefined

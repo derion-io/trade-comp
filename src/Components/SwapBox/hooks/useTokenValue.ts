@@ -37,21 +37,21 @@ export const useTokenValue = ({
       if (pool && pool.states) {
         const rX = Number(id) === POOL_IDS.A
           ? pool.states.rA
-          : Number(id) === POOL_IDS.B ? pool.states.rB : pool.states.rB
+          : Number(id) === POOL_IDS.B ? pool.states.rB : pool.states.rC
 
         const sX = Number(id) === POOL_IDS.A
           ? pool.states.sA
-          : Number(id) === POOL_IDS.B ? pool.states.sB : pool.states.sB
+          : Number(id) === POOL_IDS.B ? pool.states.sB : pool.states.sC
 
         // TOTO: need remove mul(numberToWei(1, 9) after fix parseSqrtX96 function
-        const tokenPrice = parseSqrtX96(
-          prices[pool.TOKEN_R]?.mul(rX)?.div(sX).mul(numberToWei(1, 9)) || bn(0),
-          tokens[address] || {},
+        const tokenPrice = prices[pool.TOKEN_R] && prices[pool.TOKEN_R].gt(0) ? parseSqrtX96(
+          prices[pool.TOKEN_R]?.mul(numberToWei(1, 9)) || bn(0),
+          tokens[pool.TOKEN_R] || {},
           tokens[configs.stableCoins[0]] || {}
-        )
+        ) : numberToWei(1, 36)
 
         value = weiToNumber(
-          bn(numberToWei(_amount)).mul(numberToWei(tokenPrice))
+          bn(numberToWei(_amount)).mul(numberToWei(tokenPrice)).mul(rX).div(sX)
           , 54)
       }
     } else {
