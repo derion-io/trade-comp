@@ -43,6 +43,7 @@ export const useTokenValue = ({
           ? pool.states.sA
           : Number(id) === POOL_IDS.B ? pool.states.sB : pool.states.sB
 
+        // TOTO: need remove mul(numberToWei(1, 9) after fix parseSqrtX96 function
         const tokenPrice = parseSqrtX96(
           prices[pool.TOKEN_R]?.mul(rX)?.div(sX).mul(numberToWei(1, 9)) || bn(0),
           tokens[address] || {},
@@ -54,6 +55,7 @@ export const useTokenValue = ({
           , 54)
       }
     } else {
+      // TOTO: need remove mul(numberToWei(1, 9) after fix parseSqrtX96 function
       const tokenPrice = prices[address] && prices[address].gt(0) ? parseSqrtX96(
         prices[address]?.mul(numberToWei(1, 9)) || bn(0),
         tokens[address] || {},
