@@ -21,10 +21,10 @@ const TAB_2 = {
 }
 
 const TAB_INDEX_TO_PATH = {
-  0: '/long',
-  1: '/short',
-  2: '/swap',
-  3: '/liquidity'
+  [TRADE_TYPE.LONG]: '/long',
+  [TRADE_TYPE.SHORT]: '/short',
+  [TRADE_TYPE.SWAP]: '/swap',
+  [TRADE_TYPE.LIQUIDITY]: '/liquidity'
 }
 
 export const Trade = ({ tab, pool }: {

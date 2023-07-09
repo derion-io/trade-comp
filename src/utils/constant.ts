@@ -16,8 +16,8 @@ export const CHAINS = {
 export enum TRADE_TYPE {
   LONG,
   SHORT,
-  LIQUIDITY,
-  SWAP
+  SWAP,
+  LIQUIDITY
 }
 
 export const LOCALSTORAGE_KEY = {
