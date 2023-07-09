@@ -58,7 +58,7 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
       }
     }
 
-    let data = Object.values(result)
+    let data = maxTotalSize.gt(0) ? Object.values(result) : []
     data = data.map((leverage: any) => {
       const bars = leverage.bars.map((bar: any) => {
         return {

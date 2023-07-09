@@ -31,7 +31,7 @@ export const useCurrentPoolGroup = () => {
   }
 
   const updateCurrentPoolGroup = async (uniPoolAddress: string) => {
-    const pool = poolGroups[uniPoolAddress]
+    const poolGroup = poolGroups[uniPoolAddress]
     // const { cPrice } = pool
 
     if (ddlEngine) {
@@ -43,7 +43,7 @@ export const useCurrentPoolGroup = () => {
     }
 
     dispatch(setCurrentPoolInfo({
-      ...pool,
+      ...poolGroup,
       id: uniPoolAddress
       // cTokenPrice: cPrice,
       // logicAddress: pool.logic

@@ -121,8 +121,8 @@ const Component = ({
   })
 
   const { value: valueOut } = useTokenValue({
-    amount: amountIn,
-    tokenAddress: inputTokenAddress
+    amount: amountOut,
+    tokenAddress: outputTokenAddress
   })
 
   const { value: valueOutBefore } = useTokenValue({
