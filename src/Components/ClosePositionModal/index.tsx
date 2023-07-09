@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Modal } from '../ui/Modal'
 import { useListTokens } from '../../state/token/hook'
 import { TokenIcon } from '../ui/TokenIcon'
@@ -8,7 +8,7 @@ import { Text, TextGrey } from '../ui/Text'
 import './style.scss'
 import formatLocalisedCompactNumber, { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import isEqual from 'react-fast-compare'
-import { decodeErc1155Address, div, formatFloat, weiToNumber } from '../../utils/helpers'
+import { decodeErc1155Address, div, formatFloat, formatPercent, weiToNumber } from '../../utils/helpers'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { Input } from '../ui/Input'
 import { useWeb3React } from '../../state/customWeb3React/hook'
@@ -39,7 +39,7 @@ const Component = ({
   const { account } = useWeb3React()
   const [amountIn, setAmountIn] = useState<string>('')
 
-  const { callError, txFee, gasUsed, amountOut } = useCalculateSwap({
+  const { callError, gasUsed, amountOut } = useCalculateSwap({
     amountIn,
     inputTokenAddress,
     outputTokenAddress
@@ -54,6 +54,13 @@ const Component = ({
     amount: amountOut,
     tokenAddress: outputTokenAddress
   })
+
+  const payoffRate = useMemo(() => {
+    if (valueOut && valueIn) {
+      return formatPercent(div(valueOut, valueIn), 2)
+    }
+    return undefined
+  }, [valueIn, valueOut])
 
   return <Modal
     setVisible={setVisible}
@@ -148,10 +155,11 @@ const Component = ({
         outputTokenAddress={outputTokenAddress}
         inputTokenAddress={inputTokenAddress}
       />
-      <TxFee gasUsed={gasUsed} txFee={txFee} />
+      <TxFee gasUsed={gasUsed} payoffRate={payoffRate} />
 
       <div className='actions'>
         <ButtonSwap
+          payoffRate={payoffRate}
           inputTokenAddress={inputTokenAddress}
           outputTokenAddress={outputTokenAddress}
           amountIn={amountIn}
