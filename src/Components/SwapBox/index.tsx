@@ -32,6 +32,7 @@ import { ButtonSwap } from '../ButtonSwap'
 import { TxFee } from './components/TxFee'
 import { PoolInfo } from './components/PoolInfo'
 import { CHART_TABS } from '../../state/currentPool/type'
+import { SettingModal } from '../SettingModal'
 
 const Component = ({
   inputTokenAddress,
@@ -47,6 +48,7 @@ const Component = ({
   const [amountIn, setAmountIn] = useState<string>('')
   const { balances, accFetchBalance } = useWalletBalance()
   const [visibleApproveModal, setVisibleApproveModal] = useState<boolean>(false)
+  const [visibleSettingModal, setVisibleSettingModal] = useState<boolean>(false)
   const { tokens } = useListTokens()
   const { callError, txFee, gasUsed, amountOut } = useCalculateSwap({
     amountIn,
@@ -139,7 +141,11 @@ const Component = ({
     <div className='swap-box'>
       <div className='d-flex jc-space-between'>
         <Text>Swap</Text>
-        <span><IconOptionLeft style={{ cursor: 'pointer' }} /></span>
+        <span
+          onClick={() => {
+            setVisibleSettingModal(true)
+          }}
+        ><IconOptionLeft style={{ cursor: 'pointer' }} /></span>
       </div>
       <div className='amount-input-box'>
         <div className='amount-input-box__head'>
@@ -260,6 +266,10 @@ const Component = ({
         visible={visibleApproveModal}
         setVisible={setVisibleApproveModal}
         inputTokenAddress={inputTokenAddress}
+      />
+      <SettingModal
+        visible={visibleSettingModal}
+        setVisible={setVisibleSettingModal}
       />
     </div>
   )
