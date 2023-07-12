@@ -128,11 +128,10 @@ export const ButtonSwap = ({
         ? <div className='text-center mb-1'>
           {
             tradeType === TRADE_TYPE.LONG
-              ? <TextError>Payoff Rate is too low. You should not open Long when the market is one-sided Long.</TextError>
+              ? <TextError>The Payoff Rate is too low due to an imbalance between the Long and Short positions in the pool.</TextError>
               : tradeType === TRADE_TYPE.SHORT
-                ? <TextError>Payoff Rate is too low. You should not open Short when the market is one-sided
-                  Short.</TextError>
-                : <TextError>Payoff Rate is too low. You should wait for the position maturity to run out first.</TextError>
+                ? <TextError>The Payoff Rate is too low due to an imbalance between the  Short and Long positions in the pool.</TextError>
+                : <TextError>The Payoff Rate is too low because your position has not yet fully matured.</TextError>
           }
         </div>
         : ''
