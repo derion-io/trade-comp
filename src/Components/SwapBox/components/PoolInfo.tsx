@@ -14,6 +14,7 @@ import { useCurrentPoolGroup } from '../../../state/currentPool/hooks/useCurrent
 import { useTokenValue } from '../hooks/useTokenValue'
 import { useListTokens } from '../../../state/token/hook'
 import formatLocalisedCompactNumber from '../../../utils/formatBalance'
+import { POOL_IDS } from '../../../utils/constant'
 
 export const PoolInfo = ({
   inputTokenAddress,
@@ -25,15 +26,23 @@ export const PoolInfo = ({
   const { pools } = useCurrentPoolGroup()
   const { tokens } = useListTokens()
 
-  const [poolToShow, id] = useMemo(() => {
+  const [poolToShow, id, deleverageRiskDisplay] = useMemo(() => {
     if (isErc1155Address(outputTokenAddress)) {
       const { address, id } = decodeErc1155Address(outputTokenAddress)
-      return [pools[address], id]
+      const deleverageRiskDisplay: string =
+        Number(id) == POOL_IDS.A ? Math.round(pools[address].deleverageRiskA*100)+'%' :
+        Number(id) == POOL_IDS.B ? Math.round(pools[address].deleverageRiskB*100)+'%' :
+        '...'
+      return [pools[address], id, deleverageRiskDisplay ]
     } else if (isErc1155Address(inputTokenAddress)) {
       const { address, id } = decodeErc1155Address(inputTokenAddress)
-      return [pools[address], id]
+      const deleverageRiskDisplay: string =
+        Number(id) == POOL_IDS.A ? Math.round(pools[address].deleverageRiskA*100)+'%' :
+        Number(id) == POOL_IDS.B ? Math.round(pools[address].deleverageRiskB*100)+'%' :
+        '...'
+      return [pools[address], id, deleverageRiskDisplay ]
     }
-    return [null, null]
+    return [null, null, '...']
   }, [pools, inputTokenAddress, outputTokenAddress])
 
   const { value: liquidity } = useTokenValue({
@@ -49,9 +58,9 @@ export const PoolInfo = ({
       </span>
     </InfoRow>
     <InfoRow>
-      <TextGrey>Risk Factor</TextGrey>
+      <TextGrey>Deleverage Risk</TextGrey>
       <Text>
-        {formatFloat(mul(poolToShow?.riskFactor || 0, 100), 3)}%
+        {deleverageRiskDisplay}
       </Text>
     </InfoRow>
     <InfoRow>

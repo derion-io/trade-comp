@@ -190,6 +190,17 @@ const Component = ({
     return null
   }, [pools, inputTokenAddress, outputTokenAddress])
 
+  const deleverageRiskDisplay = useMemo(() => {
+    if (poolToShow?.deleverageRiskA == null) {
+      return "..."
+    }
+    const deleverageRiskDisplay =
+      tradeType === TRADE_TYPE.LONG ? Math.round(100*poolToShow!.deleverageRiskA)+'%' :
+      tradeType === TRADE_TYPE.SHORT ? Math.round(100*poolToShow!.deleverageRiskB)+'%' :
+      "..."
+    return deleverageRiskDisplay
+  }, [poolToShow, tradeType])
+
   const { value: liquidity } = useTokenValue({
     amount: weiToNumber(poolToShow?.states?.R, tokens[poolToShow?.TOKEN_R]?.decimals),
     tokenAddress: poolToShow?.TOKEN_R
@@ -352,9 +363,9 @@ const Component = ({
           </span>
         </InfoRow>
         <InfoRow>
-          <TextGrey>Risk Factor</TextGrey>
+          <TextGrey>Deleverage Risk</TextGrey>
           <Text>
-            {formatFloat(mul(poolToShow?.riskFactor || 0, 100), 3)}%
+            {deleverageRiskDisplay}
           </Text>
         </InfoRow>
         <InfoRow>

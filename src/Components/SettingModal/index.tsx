@@ -75,7 +75,7 @@ const Component = ({
             />
           </div>
           <div className='info-row'>
-            <Text>Max Deleverage Chance:</Text>
+            <Text>Max Deleverage Risk:</Text>
             <Input
               value={settings.deleverageChance}
               onChange={(e) => {

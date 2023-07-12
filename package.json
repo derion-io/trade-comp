@@ -40,7 +40,7 @@
     "@uniswap/v3-sdk": "^3.9.0",
     "assisted-json-rpc-provider": "git+ssh://git@github.com:derivable-labs/AssistedJsonRpcProvider.git#1410f1d9a1e733c35d409f4ee79b0ca348f16718",
     "caniuse-lite": "^1.0.30001434",
-    "derivable-tools": "git+ssh://git@github.com:derivable-labs/derivable-tools.git#8f8330c1b557586bd7c3dbb125b41cc756726269",
+    "derivable-tools": "git+ssh://git@github.com:derivable-labs/derivable-tools.git#b8b849fc9f9357070ee5adfb8b5cc39315dfb9ad",
     "desmos-react": "^1.2.0",
     "ethereum-multicall": "^2.15.0",
     "ethers": "^5.4.6",
