@@ -40,15 +40,17 @@ export const useSwapHistoryFormated = () => {
   const { ddlEngine } = useConfigs()
   const dispatch = useDispatch()
   const { pools } = useResource()
+  const { account } = useWeb3React()
 
   useEffect(() => {
-    console.log(pools, ddlEngine?.CURRENT_POOL.TOKEN)
-    if (Object.values(pools).length > 0 && id) {
+    if (Object.values(pools).length > 0 && ddlEngine?.CURRENT_POOL.pools && id) {
       const swapTxs = ddlEngine?.HISTORY.formatSwapHistory({
         logs: sls
       })
-      console.log('swapTxs', swapTxs)
       dispatch(updateFormatedSwapTxs({ swapTxs }))
     }
-  }, [sls, pools, ddlEngine?.CURRENT_POOL, id, states])
+    if (!account) {
+      dispatch(updateFormatedSwapTxs({ swapTxs: [] }))
+    }
+  }, [sls, pools, ddlEngine?.CURRENT_POOL, id, states, account])
 }
