@@ -3,7 +3,7 @@ import { Text, TextGrey } from '../ui/Text'
 import './style.scss'
 import { Box } from '../ui/Box'
 import 'rc-slider/assets/index.css'
-import { IconArrowDown } from '../ui/Icon'
+import { IconArrowDown, SettingIcon } from '../ui/Icon'
 import { Input } from '../ui/Input'
 import { TokenIcon } from '../ui/TokenIcon'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
@@ -35,6 +35,7 @@ import { TxFee } from '../SwapBox/components/TxFee'
 import LeverageSlider from 'leverage-slider/dist/component'
 import { CHART_TABS } from '../../state/currentPool/type'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
+import { SettingModal } from '../SettingModal'
 
 const Component = ({
   tradeType = TRADE_TYPE.LONG,
@@ -57,6 +58,7 @@ const Component = ({
   const [amountIn, setAmountIn] = useState<string>('')
   const { balances } = useWalletBalance()
   const [visibleApproveModal, setVisibleApproveModal] = useState<boolean>(false)
+  const [visibleSettingModal, setVisibleSettingModal] = useState<boolean>(false)
   const { tokens } = useListTokens()
   const { wrapToNativeAddress } = useHelper()
   const { setCurrentPoolAddress, setDrC } = useCurrentPool()
@@ -192,12 +194,12 @@ const Component = ({
 
   const deleverageRiskDisplay = useMemo(() => {
     if (poolToShow?.deleverageRiskA == null) {
-      return "..."
+      return '...'
     }
     const deleverageRiskDisplay =
-      tradeType === TRADE_TYPE.LONG ? Math.round(100*poolToShow!.deleverageRiskA)+'%' :
-      tradeType === TRADE_TYPE.SHORT ? Math.round(100*poolToShow!.deleverageRiskB)+'%' :
-      "..."
+      tradeType === TRADE_TYPE.LONG ? Math.round(100 * poolToShow!.deleverageRiskA) + '%'
+        : tradeType === TRADE_TYPE.SHORT ? Math.round(100 * poolToShow!.deleverageRiskB) + '%'
+          : '...'
     return deleverageRiskDisplay
   }, [poolToShow, tradeType])
 
@@ -220,20 +222,30 @@ const Component = ({
             <TokenIcon size={24} tokenAddress={inputTokenAddress} />
             <Text><TokenSymbol token={inputTokenAddress} /></Text>
           </span>
-          <Text
-            className='amount-input-box__head--balance'
-            onClick={() => {
-              setAmountIn(weiToNumber(balances[inputTokenAddress], tokens[inputTokenAddress]?.decimal || 18))
-            }}
-          >Balance: {balances && balances[inputTokenAddress]
-              ? formatWeiToDisplayNumber(
-                balances[inputTokenAddress],
-                4,
+          <div className='d-flex align-item-center'>
+            <Text
+              className='amount-input-box__head--balance'
+              onClick={() => {
+                setAmountIn(weiToNumber(balances[inputTokenAddress], tokens[inputTokenAddress]?.decimal || 18))
+              }}
+            >Balance: {balances && balances[inputTokenAddress]
+                ? formatWeiToDisplayNumber(
+                  balances[inputTokenAddress],
+                  4,
                 tokens[inputTokenAddress]?.decimal || 18
-              )
-              : 0
-            }
-          </Text>
+                )
+                : 0
+              }
+            </Text>
+            <span
+              className='ml-1'
+              onClick={() => {
+                setVisibleSettingModal(true)
+              }}
+            >
+              <SettingIcon style={{ cursor: 'pointer' }} />
+            </span>
+          </div>
         </div>
         <Input
           placeholder='0.0'
@@ -426,13 +438,10 @@ const Component = ({
         inputTokenAddress={inputTokenAddress}
       />
 
-      {/* {visibleLeverage && <SettingModal
-        callBack={() => {
-        }}
-        visible={visibleLeverage}
-        poolGroupData={poolGroups}
-        setVisible={setVisibleLeverage}
-      />} */}
+      <SettingModal
+        visible={visibleSettingModal}
+        setVisible={setVisibleSettingModal}
+      />
     </div>
   )
 }

@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Text, TextGrey } from '../ui/Text'
 import './style.scss'
 import 'rc-slider/assets/index.css'
-import { IconArrowDown, IconOptionLeft } from '../ui/Icon'
+import { IconArrowDown, IconOptionLeft, SettingIcon } from '../ui/Icon'
 import { Input } from '../ui/Input'
 import { TokenIcon } from '../ui/TokenIcon'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
@@ -55,6 +55,7 @@ const Component = ({
     inputTokenAddress,
     outputTokenAddress
   })
+  console.log(balances)
   const { value: valueIn } = useTokenValue({
     amount: amountIn,
     tokenAddress: inputTokenAddress
@@ -139,14 +140,6 @@ const Component = ({
 
   return (
     <div className='swap-box'>
-      <div className='d-flex jc-space-between'>
-        <Text>Swap</Text>
-        <span
-          onClick={() => {
-            setVisibleSettingModal(true)
-          }}
-        ><IconOptionLeft style={{ cursor: 'pointer' }} /></span>
-      </div>
       <div className='amount-input-box'>
         <div className='amount-input-box__head'>
           <SkeletonLoader loading={!tokens[inputTokenAddress]}>
@@ -161,22 +154,32 @@ const Component = ({
               <Text><TokenSymbol token={inputTokenAddress} /></Text>
             </span>
           </SkeletonLoader>
-          <SkeletonLoader loading={accFetchBalance !== account}>
-            <Text
-              className='amount-input-box__head--balance'
-              onClick={() => {
-                setAmountIn(weiToNumber(balances[inputTokenAddress], tokens[inputTokenAddress]?.decimal || 18))
-              }}
-            >Balance: {balances && balances[inputTokenAddress]
-                ? formatWeiToDisplayNumber(
-                  balances[inputTokenAddress],
-                  4,
+          <div className='d-flex align-item-center'>
+            <SkeletonLoader loading={accFetchBalance !== account && account}>
+              <Text
+                className='amount-input-box__head--balance'
+                onClick={() => {
+                  setAmountIn(weiToNumber(balances[inputTokenAddress], tokens[inputTokenAddress]?.decimal || 18))
+                }}
+              >Balance: {balances && balances[inputTokenAddress]
+                  ? formatWeiToDisplayNumber(
+                    balances[inputTokenAddress],
+                    4,
                 tokens[inputTokenAddress]?.decimal || 18
-                )
-                : 0
-              }
-            </Text>
-          </SkeletonLoader>
+                  )
+                  : 0
+                }
+              </Text>
+            </SkeletonLoader>
+            <span
+              className='ml-1'
+              onClick={() => {
+                setVisibleSettingModal(true)
+              }}
+            >
+              <SettingIcon style={{ cursor: 'pointer' }} />
+            </span>
+          </div>
         </div>
         <Input
           placeholder='0.0'
@@ -212,7 +215,7 @@ const Component = ({
               <Text><TokenSymbol token={outputTokenAddress} /></Text>
             </span>
           </SkeletonLoader>
-          <SkeletonLoader loading={accFetchBalance !== account}>
+          <SkeletonLoader loading={accFetchBalance !== account && account}>
             <Text>Balance: {balances && balances[outputTokenAddress]
               ? formatWeiToDisplayNumber(
                 balances[outputTokenAddress],
