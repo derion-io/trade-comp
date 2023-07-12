@@ -50,10 +50,10 @@ export const App = () => {
   }, [chainId, account])
 
   useEffect(() => {
-    if (account && Object.keys(tokens).length > 0) {
+    if (tokens && Object.keys(tokens).length > 0) {
       fetchBalanceAndAllowance(Object.keys(tokens))
     }
-  }, [account, tokens])
+  }, [tokens])
 
   const renderAppContent = () => {
     switch (true) {

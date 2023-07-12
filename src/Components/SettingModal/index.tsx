@@ -31,7 +31,7 @@ const Component = ({
         className='swap-setting-modal'
       >
         <div className='info-row'>
-          <Text>Slippage</Text>
+          <Text>Slippage Tolerance</Text>
           <Input
             value={settings.slippage}
             onChange={(e) => {
@@ -41,7 +41,7 @@ const Component = ({
           />
         </div>
         <div className='info-row'>
-          <Text>Pay-Off Min Rate</Text>
+          <Text>Payoff Tolerance</Text>
           <Input
             value={settings.payoffMinRate}
             onChange={(e) => {
@@ -75,7 +75,7 @@ const Component = ({
             />
           </div>
           <div className='info-row'>
-            <Text>Max Deleverage Chance:</Text>
+            <Text>Max Deleverage Risk:</Text>
             <Input
               value={settings.deleverageChance}
               onChange={(e) => {
