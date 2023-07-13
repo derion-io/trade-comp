@@ -3,6 +3,7 @@ import { useInitWeb3React } from './state/customWeb3React/hook'
 import { useInitConfig } from './state/config/useInitConfig'
 import { useConfigs } from './state/config/useConfigs'
 import { DEFAULT_CHAIN } from './utils/constant'
+import configs from './state/config/configs'
 
 export const InitConfig = ({
   useWeb3React,
@@ -20,7 +21,7 @@ export const InitConfig = ({
   const { chainId, library, account } = useWeb3React()
   useInitWeb3React(useWeb3React, showConnectWalletModal)
   useInitConfig({
-    chainId: chainId || DEFAULT_CHAIN,
+    chainId: chainId && configs[chainId] ? chainId : DEFAULT_CHAIN,
     library,
     env,
     language,
