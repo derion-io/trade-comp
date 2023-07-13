@@ -122,16 +122,20 @@ export const Trade = ({ tab, pool }: {
           <div
             className='settings-button'
             style={{
-              position: 'absolute',
-              marginTop: '0.3em',
-              right: '2.3rem',
+              height: 0,
+              zIndex: 0,
+              margin: 0,
               cursor: 'pointer',
             }}
             onClick={() => {
               setVisibleSettingModal(true)
             }}
           >
-            <SettingIcon />
+            <SettingIcon style={{
+              float: 'right',
+              marginTop: '0.4rem',
+              marginRight: '0.8rem',
+            }} />
           </div>
           <Tabs
             selectedIndex={tab}
