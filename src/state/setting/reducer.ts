@@ -11,6 +11,7 @@ export const tokens = createSlice({
         slippage: any
       }>
     ) => {
+      localStorage.setItem('slippage', action.payload.slippage)
       state.slippage = action.payload.slippage
     },
     setPayoffMinRateReduce: (
@@ -19,6 +20,7 @@ export const tokens = createSlice({
         payoffMinRate: any
       }>
     ) => {
+      localStorage.setItem('payoffMinRate', action.payload.payoffMinRate)
       state.payoffMinRate = action.payload.payoffMinRate
     },
     setMinInterestRateReduce: (
@@ -27,6 +29,7 @@ export const tokens = createSlice({
         minInterestRate: any
       }>
     ) => {
+      localStorage.setItem('minInterestRate', action.payload.minInterestRate)
       state.minInterestRate = action.payload.minInterestRate
     },
     setMinLiquidityReduce: (
@@ -35,6 +38,7 @@ export const tokens = createSlice({
         minLiquidity: any
       }>
     ) => {
+      localStorage.setItem('minLiquidity', action.payload.minLiquidity)
       state.minLiquidity = action.payload.minLiquidity
     },
     setDeleverageChanceReduce: (
@@ -43,6 +47,7 @@ export const tokens = createSlice({
         deleverageChance: any
       }>
     ) => {
+      localStorage.setItem('deleverageChance', action.payload.deleverageChance)
       state.deleverageChance = action.payload.deleverageChance
     }
   }

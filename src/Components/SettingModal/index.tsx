@@ -40,7 +40,7 @@ const Component = ({
             min={0}
             max={100}
             setter={setSlippage}
-            errorMessage='slippage must be greater than 0 and less than 100'
+            errorMessage='Invalid Slippage'
           />
         </div>
         <div className='mb-1'>
@@ -52,7 +52,7 @@ const Component = ({
             min={0}
             max={100}
             setter={setPayoffMinRate}
-            errorMessage='Payoff must be greater than 0 and less than 100'
+            errorMessage='Invalid Pay-Off Min Rate'
           />
         </div>
         <div className='mb-05'>
@@ -68,7 +68,7 @@ const Component = ({
               min={0}
               max={100}
               setter={setMinInterestRate}
-              errorMessage='Min Interest Rate must be greater than 0 and less than 100'
+              errorMessage='Invalid Min Interest Rate'
             />
           </div>
           <div className='mb-1'>
@@ -78,9 +78,8 @@ const Component = ({
             <InputWithValidate
               defaultValue={settings.minLiquidity}
               min={0}
-              max={100}
               setter={setMinLiquidity}
-              errorMessage='Min Liquidity must be greater than 0 and less than 100'
+              errorMessage='Invalid Min Liquidity'
             />
           </div>
           <div>
@@ -92,7 +91,7 @@ const Component = ({
               min={0}
               max={100}
               setter={setDeleverageChance}
-              errorMessage='Max Deleverage Risk must be greater than 0 and less than 100'
+              errorMessage='Invalid Max Deleverage Chance'
             />
           </div>
         </Box>
@@ -104,14 +103,14 @@ const Component = ({
 const InputWithValidate = ({ defaultValue, setter, min, max, errorMessage }: {
   defaultValue: number,
   setter: any,
-  min: number,
-  max: number,
+  min?: number,
+  max?: number,
   errorMessage: string
 }) => {
   const [slippageState, setSlippageState] = useState(defaultValue)
 
   useEffect(() => {
-    if (slippageState > min && slippageState < max) {
+    if ((!min || slippageState > min) && (!max || slippageState < max)) {
       setter(slippageState)
     }
   }, [slippageState])
@@ -125,7 +124,7 @@ const InputWithValidate = ({ defaultValue, setter, min, max, errorMessage }: {
       suffix='%'
     />
     {
-      slippageState < min || slippageState > max ? <TextError>{errorMessage}</TextError> : ''
+      (min && slippageState < min) || (max && slippageState > max) ? <TextError>{errorMessage}</TextError> : ''
     }
   </div>
 }
