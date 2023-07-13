@@ -134,7 +134,7 @@ const Component = ({
 
   const payoffRate = useMemo(() => {
     if (valueOut && valueIn && Number(valueOut) && Number(valueIn)) {
-      return formatPercent(div(valueOut, valueIn), 2)
+      return formatPercent(div(valueOut, valueIn), 2, true)
     }
     return undefined
   }, [valueIn, valueOut])
@@ -197,8 +197,8 @@ const Component = ({
       return '...'
     }
     const deleverageRiskDisplay =
-      tradeType === TRADE_TYPE.LONG ? Math.round(100 * poolToShow!.deleverageRiskA) + '%'
-        : tradeType === TRADE_TYPE.SHORT ? Math.round(100 * poolToShow!.deleverageRiskB) + '%'
+      tradeType === TRADE_TYPE.LONG ? formatPercent(poolToShow!.deleverageRiskA, 0, true) + '%'
+        : tradeType === TRADE_TYPE.SHORT ? formatPercent(poolToShow!.deleverageRiskB, 0, true) + '%'
           : '...'
     return deleverageRiskDisplay
   }, [poolToShow, tradeType])
@@ -371,7 +371,7 @@ const Component = ({
         <InfoRow>
           <TextGrey>Interest Rate</TextGrey>
           <span>
-            {formatFloat(mul(poolToShow?.dailyInterestRate || 0, 100), 3)}%
+            {formatPercent(poolToShow?.dailyInterestRate ?? 0, 3, true)}%
           </span>
         </InfoRow>
         <InfoRow>

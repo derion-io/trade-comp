@@ -2,6 +2,7 @@ import { Text, TextGrey } from '../../ui/Text'
 import {
   decodeErc1155Address,
   formatFloat,
+  formatPercent,
   getTokenPower,
   isErc1155Address,
   mul,
@@ -30,8 +31,8 @@ export const PoolInfo = ({
     if (isErc1155Address(outputTokenAddress)) {
       const { address, id } = decodeErc1155Address(outputTokenAddress)
       const deleverageRiskDisplay: string =
-        Number(id) == POOL_IDS.A ? Math.round(pools[address].deleverageRiskA*100)+'%' :
-        Number(id) == POOL_IDS.B ? Math.round(pools[address].deleverageRiskB*100)+'%' :
+        Number(id) == POOL_IDS.A ? formatPercent(pools[address].deleverageRiskA, 0, true)+'%' :
+        Number(id) == POOL_IDS.B ? formatPercent(pools[address].deleverageRiskB, 0, true)+'%' :
         '...'
       return [pools[address], id, deleverageRiskDisplay ]
     } else if (isErc1155Address(inputTokenAddress)) {
@@ -54,7 +55,7 @@ export const PoolInfo = ({
     <InfoRow>
       <TextGrey>Interest Rate</TextGrey>
       <span>
-        {formatFloat(mul(poolToShow?.dailyInterestRate || 0, 100), 3)}%
+        {formatPercent(poolToShow?.dailyInterestRate ?? 0, 3, true)}%
       </span>
     </InfoRow>
     <InfoRow>

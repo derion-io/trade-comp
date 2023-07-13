@@ -129,7 +129,10 @@ export const add = (a: any, b: any) => {
   return weiToNumber(BigNumber.from(numberToWei(a)).add(numberToWei(b)))
 }
 
-export const formatPercent = (floatNumber: any, decimal: number = 2) => {
+export const formatPercent = (floatNumber: any, decimal: number = 2, rounding: boolean = false) => {
+  if (rounding) {
+    return Math.round(Number(floatNumber) * 10**(decimal+2)) / 10**decimal
+  }
   floatNumber = floatNumber.toString()
   return formatFloat(weiToNumber(numberToWei(floatNumber), 16), decimal)
 }
