@@ -163,6 +163,7 @@ const Component = ({
           inputTokenAddress={inputTokenAddress}
           outputTokenAddress={outputTokenAddress}
           amountIn={amountIn}
+          amountOut={amountOut}
           callError={callError}
           gasUsed={gasUsed}
           callback={() => {

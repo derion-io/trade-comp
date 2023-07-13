@@ -1,5 +1,5 @@
 import { ButtonExecute } from '../ui/Button'
-import { bn, div, numberToWei } from '../../utils/helpers'
+import { bn, div, mul, numberToWei } from '../../utils/helpers'
 import { toast } from 'react-toastify'
 import React, { useMemo, useState } from 'react'
 import { useListTokens } from '../../state/token/hook'
@@ -10,11 +10,13 @@ import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 import { BigNumber } from 'ethers'
 import { TRADE_TYPE } from '../../utils/constant'
 import { TextError } from '../ui/Text'
+import { useSettings } from '../../state/setting/hooks/useSettings'
 
 export const ButtonSwap = ({
   inputTokenAddress,
   outputTokenAddress,
   amountIn,
+  amountOut,
   callError,
   gasUsed,
   callback,
@@ -27,6 +29,7 @@ export const ButtonSwap = ({
   inputTokenAddress: string
   outputTokenAddress: string
   amountIn: string
+  amountOut: string
   callError: string
   gasUsed: BigNumber
   callback?: any
@@ -41,6 +44,7 @@ export const ButtonSwap = ({
   const { account, showConnectModal } = useWeb3React()
   const { balances, fetchBalanceAndAllowance } = useWalletBalance()
   const { ddlEngine } = useConfigs()
+  const { settings: { slippage, payoffMinRate } } = useSettings()
 
   const { updateSwapTxsHandle } = useSwapHistory()
 
@@ -68,17 +72,19 @@ export const ButtonSwap = ({
       return <ButtonExecute className='swap-button' disabled>{callError}</ButtonExecute>
     } else {
       return <ButtonExecute
+        disabled={Number(payoffRate) < payoffMinRate}
         className='swap-button'
         onClick={async () => {
           try {
             setLoading(true)
             if (ddlEngine) {
+              const amountOutMin = numberToWei(div(mul(amountOut, 100 - slippage), 100), tokens[outputTokenAddress]?.decimals || 18)
               const tx: any = await ddlEngine.SWAP.multiSwap(
                 [{
                   tokenIn: inputTokenAddress,
                   tokenOut: outputTokenAddress,
                   amountIn: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18)),
-                  amountOutMin: 0
+                  amountOutMin
                 }],
                 gasUsed && gasUsed.gt(0) ? gasUsed.mul(2) : undefined
               )
@@ -111,6 +117,8 @@ export const ButtonSwap = ({
       </ButtonExecute>
     }
   }, [
+    amountOut,
+    slippage,
     ddlEngine,
     loading,
     tokens,

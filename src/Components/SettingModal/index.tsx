@@ -45,7 +45,7 @@ const Component = ({
         </div>
         <div className='mb-1'>
           <div className='mb-05'>
-            <Text>Payoff Tolerance</Text>
+            <Text>Pay-Off Min Rate</Text>
           </div>
           <InputWithValidate
             defaultValue={settings.payoffMinRate}
@@ -85,7 +85,7 @@ const Component = ({
           </div>
           <div>
             <div className='mb-05'>
-              <Text>Max Deleverage Risk:</Text>
+              <Text>Max Deleverage Chance:</Text>
             </div>
             <InputWithValidate
               defaultValue={settings.deleverageChance}

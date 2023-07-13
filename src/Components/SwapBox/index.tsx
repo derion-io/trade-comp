@@ -48,12 +48,12 @@ const Component = ({
   const { balances, accFetchBalance } = useWalletBalance()
   const [visibleApproveModal, setVisibleApproveModal] = useState<boolean>(false)
   const { tokens } = useListTokens()
-  const { callError, txFee, gasUsed, amountOut } = useCalculateSwap({
+  const { callError, gasUsed, amountOut } = useCalculateSwap({
     amountIn,
     inputTokenAddress,
     outputTokenAddress
   })
-  console.log(balances)
+
   const { value: valueIn } = useTokenValue({
     amount: amountIn,
     tokenAddress: inputTokenAddress
@@ -246,6 +246,7 @@ const Component = ({
           inputTokenAddress={inputTokenAddress}
           outputTokenAddress={outputTokenAddress}
           amountIn={amountIn}
+          amountOut={amountOut}
           callError={callError}
           gasUsed={gasUsed}
           isSwap

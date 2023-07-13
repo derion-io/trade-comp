@@ -2,8 +2,9 @@ import { useMemo } from 'react'
 import { TRADE_TYPE } from '../utils/constant'
 import { useCurrentPoolGroup } from '../state/currentPool/hooks/useCurrentPoolGroup'
 import { useTokenValue } from '../Components/SwapBox/hooks/useTokenValue'
-import { bn, getTokenPower, numberToWei, tradeTypeToId, weiToNumber } from '../utils/helpers'
+import { bn, formatPercent, getTokenPower, numberToWei, tradeTypeToId, weiToNumber } from '../utils/helpers'
 import { useListTokens } from '../state/token/hook'
+import { useSettings } from '../state/setting/hooks/useSettings'
 
 const barColors = ['#01A7FA', '#FF98E5', '#4FBF67', '#3DBAA2']
 
@@ -11,6 +12,7 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
   const { pools } = useCurrentPoolGroup()
   const { tokens } = useListTokens()
   const { getTokenValue } = useTokenValue({})
+  const { settings: { minLiquidity, deleverageChance, minInterestRate } } = useSettings()
 
   return useMemo(() => {
     const result = {}
@@ -20,6 +22,13 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
           pool.TOKEN_R,
           weiToNumber(pool.states.R, tokens[pool.TOKEN_R]?.decimals)
         )))
+        if (size.lt(numberToWei(minLiquidity, tokens[pool.TOKEN_R]?.decimals)) ||
+          Number(pool.dailyInterestRate) * 100 < minInterestRate ||
+          (tradeType === TRADE_TYPE.LONG && pool!.deleverageRiskA * 100 > deleverageChance) ||
+          (tradeType === TRADE_TYPE.SHORT && pool!.deleverageRiskB * 100 > deleverageChance)
+        ) {
+          return
+        }
 
         const power = Math.abs(Number(getTokenPower(pool.TOKEN_R, pool.baseToken, tradeTypeToId(tradeType), pool.k.toNumber())))
 
@@ -76,5 +85,5 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
     })
 
     return data
-  }, [pools, tradeType])
+  }, [pools, tradeType, minLiquidity, deleverageChance, minInterestRate])
 }
