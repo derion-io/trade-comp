@@ -32,7 +32,6 @@ import { ButtonSwap } from '../ButtonSwap'
 import { TxFee } from './components/TxFee'
 import { PoolInfo } from './components/PoolInfo'
 import { CHART_TABS } from '../../state/currentPool/type'
-import { SettingModal } from '../SettingModal'
 
 const Component = ({
   inputTokenAddress,
@@ -48,7 +47,6 @@ const Component = ({
   const [amountIn, setAmountIn] = useState<string>('')
   const { balances, accFetchBalance } = useWalletBalance()
   const [visibleApproveModal, setVisibleApproveModal] = useState<boolean>(false)
-  const [visibleSettingModal, setVisibleSettingModal] = useState<boolean>(false)
   const { tokens } = useListTokens()
   const { callError, txFee, gasUsed, amountOut } = useCalculateSwap({
     amountIn,
@@ -171,14 +169,6 @@ const Component = ({
                 }
               </Text>
             </SkeletonLoader>
-            <span
-              className='ml-1'
-              onClick={() => {
-                setVisibleSettingModal(true)
-              }}
-            >
-              <SettingIcon style={{ cursor: 'pointer' }} />
-            </span>
           </div>
         </div>
         <Input
@@ -269,10 +259,6 @@ const Component = ({
         visible={visibleApproveModal}
         setVisible={setVisibleApproveModal}
         inputTokenAddress={inputTokenAddress}
-      />
-      <SettingModal
-        visible={visibleSettingModal}
-        setVisible={setVisibleSettingModal}
       />
     </div>
   )

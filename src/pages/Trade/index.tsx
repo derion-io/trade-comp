@@ -14,6 +14,8 @@ import { BuyPositionBox } from '../../Components/BuyPositionBox'
 import { Positions } from '../../Components/Positions'
 import { WalletHistoryTable } from '../../Components/WalletHistoryTable'
 import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
+import { SettingIcon } from '../../Components/ui/Icon'
+import { SettingModal } from '../../Components/SettingModal'
 
 const TAB_2 = {
   POSITION: Symbol('position'),
@@ -41,6 +43,7 @@ export const Trade = ({ tab, pool }: {
   const { formartedSwapLogs: swapTxs } = useSwapHistory()
   const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
+  const [visibleSettingModal, setVisibleSettingModal] = useState<boolean>(false)
 
   // useEffect(() => {
   //   if (tokens[baseToken] && tokens[quoteToken] && cToken && ddlEngine) {
@@ -116,6 +119,20 @@ export const Trade = ({ tab, pool }: {
           </Tabs>
         </div>
         <div className='exposure-page__content--right'>
+          <div
+            className='settings-button'
+            style={{
+              position: 'absolute',
+              marginTop: '0.3em',
+              right: '2.3rem',
+              cursor: 'pointer',
+            }}
+            onClick={() => {
+              setVisibleSettingModal(true)
+            }}
+          >
+            <SettingIcon />
+          </div>
           <Tabs
             selectedIndex={tab}
             onSelect={(index) => {
@@ -174,6 +191,10 @@ export const Trade = ({ tab, pool }: {
           </Tabs>
         </div>
       </div>
+      <SettingModal
+        visible={visibleSettingModal}
+        setVisible={setVisibleSettingModal}
+      />
     </div>
   )
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import './style.scss'
 import 'react-toastify/dist/ReactToastify.css'
 import { matchPath } from 'react-router-dom'
@@ -23,6 +23,7 @@ export const App = () => {
   const { ddlEngine, chainId, location } = useConfigs()
   const chainIdRef = useRef(null)
   const { initResource } = useResource()
+
   useFetchTokenPrice()
   useSwapHistoryFormated()
 

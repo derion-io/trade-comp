@@ -35,7 +35,6 @@ import { TxFee } from '../SwapBox/components/TxFee'
 import LeverageSlider from 'leverage-slider/dist/component'
 import { CHART_TABS } from '../../state/currentPool/type'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
-import { SettingModal } from '../SettingModal'
 
 const Component = ({
   tradeType = TRADE_TYPE.LONG,
@@ -58,7 +57,6 @@ const Component = ({
   const [amountIn, setAmountIn] = useState<string>('')
   const { balances } = useWalletBalance()
   const [visibleApproveModal, setVisibleApproveModal] = useState<boolean>(false)
-  const [visibleSettingModal, setVisibleSettingModal] = useState<boolean>(false)
   const { tokens } = useListTokens()
   const { wrapToNativeAddress } = useHelper()
   const { setCurrentPoolAddress, setDrC } = useCurrentPool()
@@ -237,14 +235,6 @@ const Component = ({
                 : 0
               }
             </Text>
-            <span
-              className='ml-1'
-              onClick={() => {
-                setVisibleSettingModal(true)
-              }}
-            >
-              <SettingIcon style={{ cursor: 'pointer' }} />
-            </span>
           </div>
         </div>
         <Input
@@ -436,11 +426,6 @@ const Component = ({
         visible={visibleApproveModal}
         setVisible={setVisibleApproveModal}
         inputTokenAddress={inputTokenAddress}
-      />
-
-      <SettingModal
-        visible={visibleSettingModal}
-        setVisible={setVisibleSettingModal}
       />
     </div>
   )
