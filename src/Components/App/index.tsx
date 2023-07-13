@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 import './style.scss'
 import 'react-toastify/dist/ReactToastify.css'
 import { matchPath } from 'react-router-dom'
@@ -18,7 +18,7 @@ export const App = () => {
   const { id } = useCurrentPoolGroup()
   const { tokens } = useListTokens()
   const { poolGroups } = useResource()
-  const { fetchBalanceAndAllowance } = useWalletBalance()
+  const { fetchBalanceAndAllowance, updateBalanceAndAllowances } = useWalletBalance()
   const { account } = useWeb3React()
   const { ddlEngine, chainId, location } = useConfigs()
   const chainIdRef = useRef(null)
@@ -51,10 +51,15 @@ export const App = () => {
   }, [chainId, account])
 
   useEffect(() => {
-    if (tokens && Object.keys(tokens).length > 0) {
+    if (!account) {
+      updateBalanceAndAllowances({
+        balances: {},
+        routerAllowances: {}
+      })
+    } else if (tokens && Object.keys(tokens).length > 0) {
       fetchBalanceAndAllowance(Object.keys(tokens))
     }
-  }, [tokens])
+  }, [tokens, account])
 
   const renderAppContent = () => {
     switch (true) {

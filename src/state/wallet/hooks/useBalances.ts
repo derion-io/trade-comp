@@ -116,6 +116,7 @@ export const useWalletBalance = () => {
     routerAllowances,
     balances,
     fetchBalanceAndAllowance,
-    approveRouter
+    approveRouter,
+    updateBalanceAndAllowances
   }
 }
