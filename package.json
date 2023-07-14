@@ -46,7 +46,7 @@
     "ethers": "^5.4.6",
     "graphql": "^15.5.0",
     "graphql-request": "^3.4.0",
-    "leverage-slider": "git+ssh://git@github.com:derivable-labs/leverage-slider-comp.git#6ce9674f8e7f856927bb7642139055fd98372a1e",
+    "leverage-slider": "git+ssh://git@github.com:derivable-labs/leverage-slider-comp.git#6758b5328d79bc00312341210c45b353da8653a7",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
     "rc-slider": "^10.0.1",

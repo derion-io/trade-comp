@@ -21,6 +21,7 @@ export const ButtonSwap = ({
   gasUsed,
   callback,
   tradeType,
+  loadingAmountOut,
   isSwap,
   isClose,
   title,
@@ -33,6 +34,7 @@ export const ButtonSwap = ({
   callError: string
   gasUsed: BigNumber
   callback?: any
+  loadingAmountOut?: boolean
   tradeType?: TRADE_TYPE
   isSwap?: boolean
   isClose?: boolean
@@ -132,7 +134,7 @@ export const ButtonSwap = ({
 
   return <React.Fragment>
     {
-      payoffRate && payoffRate < 94
+      payoffRate && payoffRate < 94 && !loadingAmountOut
         ? <div className='text-center mb-1'>
           {
             tradeType === TRADE_TYPE.LONG

@@ -35,6 +35,7 @@ import { TxFee } from '../SwapBox/components/TxFee'
 import LeverageSlider from 'leverage-slider/dist/component'
 import { CHART_TABS } from '../../state/currentPool/type'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
+import { SkeletonLoader } from '../ui/SkeletonLoader'
 
 const Component = ({
   tradeType = TRADE_TYPE.LONG,
@@ -43,7 +44,7 @@ const Component = ({
   setInputTokenAddress,
   setOutputTokenAddress
 }: {
-  tradeType?:TRADE_TYPE,
+  tradeType?: TRADE_TYPE,
   inputTokenAddress: string
   outputTokenAddress: string
   setInputTokenAddress: any
@@ -89,7 +90,7 @@ const Component = ({
     }
   }, [amountIn, tradeType])
 
-  const { callError, txFee, gasUsed, amountOut } = useCalculateSwap({
+  const { callError, loading, gasUsed, amountOut } = useCalculateSwap({
     amountIn,
     inputTokenAddress,
     outputTokenAddress
@@ -297,9 +298,11 @@ const Component = ({
                 amountIn && <React.Fragment>
                   <div className='icon-plus'><Text>+</Text></div>
                   <div className='text-right'>
-                    <Text>
-                      {formatLocalisedCompactNumber(formatFloat(amountOut))}
-                    </Text>
+                    <SkeletonLoader loading={loading || Number(amountOut) === 0}>
+                      <Text>
+                        {formatLocalisedCompactNumber(formatFloat(amountOut))}
+                      </Text>
+                    </SkeletonLoader>
                   </div>
                 </React.Fragment>
               }
@@ -321,9 +324,11 @@ const Component = ({
               <React.Fragment>
                 <div className='icon-plus'><Text> + </Text></div>
                 <div className='text-right'>
-                  <Text>
-                  ${formatLocalisedCompactNumber(formatFloat(valueOut))}
-                  </Text>
+                  <SkeletonLoader loading={loading || Number(valueOut) === 0}>
+                    <Text>
+                        ${formatLocalisedCompactNumber(formatFloat(valueOut))}
+                    </Text>
+                  </SkeletonLoader>
                 </div>
               </React.Fragment>
               }
@@ -383,6 +388,7 @@ const Component = ({
       <TxFee
         gasUsed={gasUsed}
         payoffRate={payoffRate}
+        loading={loading}
       />
 
       {/* <Box borderColor='default' className='swap-info-box mt-1 mb-1'> */}
@@ -414,6 +420,7 @@ const Component = ({
           callError={callError}
           gasUsed={gasUsed}
           tradeType={tradeType}
+          loadingAmountOut={loading}
           title={
             Number(decodeErc1155Address(outputTokenAddress).id) === POOL_IDS.A ? 'Long'
               : Number(decodeErc1155Address(outputTokenAddress).id) === POOL_IDS.B ? 'Short'

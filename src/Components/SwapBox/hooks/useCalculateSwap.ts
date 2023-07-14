@@ -19,6 +19,7 @@ export const useCalculateSwap = ({
   const [txFee, setTxFee] = useState<BigNumber>(bn(0))
   const [gasUsed, setGasUsed] = useState<BigNumber>(bn(0))
   const [amountOutWei, setAmountOutWei] = useState<BigNumber>(bn(0))
+  const [loading, setLoading] = useState<boolean>(false)
   const { ddlEngine } = useConfigs()
 
   useEffect(() => {
@@ -36,6 +37,7 @@ export const useCalculateSwap = ({
     if (!amountOut) {
       setCallError('Calculating...')
     }
+    setLoading(true)
     // @ts-ignore
     ddlEngine.SWAP.calculateAmountOuts([{
       tokenIn: inputTokenAddress,
@@ -57,6 +59,8 @@ export const useCalculateSwap = ({
       setGasUsed(bn(0))
       setCallError(error ?? e)
       console.log(e)
+    }).finally(() => {
+      setLoading(false)
     })
   }
 
@@ -65,6 +69,7 @@ export const useCalculateSwap = ({
   }
 
   return {
+    loading,
     callError,
     txFee,
     gasUsed,

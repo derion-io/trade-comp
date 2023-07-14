@@ -7,13 +7,16 @@ import { InfoRow } from '../../ui/InfoRow'
 import { useNativePrice } from '../../../hooks/useTokenPrice'
 import { BigNumber } from 'ethers'
 import { useConfigs } from '../../../state/config/useConfigs'
+import { SkeletonLoader } from '../../ui/SkeletonLoader'
 
 export const TxFee = ({
   gasUsed,
-  payoffRate
+  payoffRate,
+  loading
 }: {
   gasUsed: BigNumber,
   payoffRate?: number,
+  loading?: boolean,
 }) => {
   const { chainId } = useConfigs()
   const { data: nativePrice } = useNativePrice()
@@ -23,13 +26,15 @@ export const TxFee = ({
       payoffRate
         ? <InfoRow>
           <TextGrey>Payoff Rate</TextGrey>
-          <span>
-            {
-              payoffRate < 97
-                ? payoffRate < 94 ? <TextError>{payoffRate}%</TextError> : <TextWarning>{payoffRate}%</TextWarning>
-                : <TextGreen>{payoffRate}%</TextGreen>
-            }
-          </span>
+          <SkeletonLoader loading={!!loading}>
+            <span>
+              {
+                payoffRate < 97
+                  ? payoffRate < 94 ? <TextError>{payoffRate}%</TextError> : <TextWarning>{payoffRate}%</TextWarning>
+                  : <TextGreen>{payoffRate}%</TextGreen>
+              }
+            </span>
+          </SkeletonLoader>
         </InfoRow>
         : ''
     }
