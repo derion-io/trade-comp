@@ -78,6 +78,7 @@ const Component = ({
             <InputWithValidate
               defaultValue={settings.minLiquidity}
               min={0}
+              suffix='$'
               setter={setMinLiquidity}
               errorMessage='Invalid Min Liquidity'
             />
@@ -100,9 +101,10 @@ const Component = ({
   )
 }
 
-const InputWithValidate = ({ defaultValue, setter, min, max, errorMessage }: {
+const InputWithValidate = ({ suffix = '%', defaultValue, setter, min, max, errorMessage }: {
   defaultValue: number,
   setter: any,
+  suffix?: string,
   min?: number,
   max?: number,
   errorMessage: string
@@ -118,10 +120,12 @@ const InputWithValidate = ({ defaultValue, setter, min, max, errorMessage }: {
   return <div>
     <Input
       value={slippageState}
+      type='number'
       onChange={(e) => {
-        setSlippageState(Number(e.target.value))
+        // @ts-ignore
+        setSlippageState(e.target.value)
       }}
-      suffix='%'
+      suffix={suffix}
     />
     {
       (min && slippageState < min) || (max && slippageState > max) ? <TextError>{errorMessage}</TextError> : ''
