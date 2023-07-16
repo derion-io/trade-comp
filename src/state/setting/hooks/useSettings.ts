@@ -3,12 +3,14 @@ import {
   setDeleverageChanceReduce,
   setMinInterestRateReduce,
   setMinLiquidityReduce,
-  setPayoffMinRateReduce,
+  setPayoffMinRateReduce, setScanApiKeyReduce,
   setSlippageReduce
 } from '../reducer'
 import { State } from '../../types'
+import { useConfigs } from '../../config/useConfigs'
 
 export const useSettings = () => {
+  const { chainId } = useConfigs()
   const settings = useSelector((state: State) => {
     return {
       ...state.settings
@@ -31,9 +33,13 @@ export const useSettings = () => {
   const setMinLiquidity = (minLiquidity: number) => {
     dispatch(setMinLiquidityReduce({ minLiquidity }))
   }
+  const setScanApi = (scanApiKey: string) => {
+    dispatch(setScanApiKeyReduce({ chainId, scanApiKey }))
+  }
   return {
     settings,
     setSlippage,
+    setScanApi,
     setDeleverageChance,
     setMinInterestRate,
     setPayoffMinRate,

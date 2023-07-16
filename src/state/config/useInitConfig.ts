@@ -1,10 +1,11 @@
 import { useDispatch } from 'react-redux'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { setConfigs, setEngine } from './reducer'
 import configs from './configs'
 import { addTokensReduce } from '../token/reducer'
 import { Engine } from 'derivable-tools/dist/engine'
 import { DEFAULT_CHAIN, ZERO_ADDRESS } from '../../utils/constant'
+import { useSettings } from '../setting/hooks/useSettings'
 
 export const useInitConfig = ({
   library,
@@ -27,6 +28,11 @@ export const useInitConfig = ({
 }) => {
   const dispatch = useDispatch()
   const location = useLocation()
+  const { settings: { scanApiKey } } = useSettings()
+
+  const currentScanApiKey = useMemo(() => {
+    return scanApiKey[chainId]
+  }, [scanApiKey, chainId])
 
   useEffect(() => {
     dispatch(
@@ -64,10 +70,11 @@ export const useInitConfig = ({
         },
         signer: library?.getSigner(),
         ...configs[chainId || DEFAULT_CHAIN],
-        account
+        scanApiKey: currentScanApiKey || '',
+        account: account || ZERO_ADDRESS
       },
       chainId
     )
     dispatch(setEngine({ engine }))
-  }, [library, account, chainId])
+  }, [library, account, chainId, currentScanApiKey])
 }

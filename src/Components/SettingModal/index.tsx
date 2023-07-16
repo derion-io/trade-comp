@@ -6,6 +6,7 @@ import { Input } from '../ui/Input'
 import { Text, TextError } from '../ui/Text'
 import { Box } from '../ui/Box'
 import { useSettings } from '../../state/setting/hooks/useSettings'
+import { useConfigs } from '../../state/config/useConfigs'
 
 const Component = ({
   visible,
@@ -20,8 +21,10 @@ const Component = ({
     setDeleverageChance,
     setMinInterestRate,
     setPayoffMinRate,
-    setMinLiquidity
+    setMinLiquidity,
+    setScanApi
   } = useSettings()
+  const { chainId } = useConfigs()
 
   return (
     <Modal
@@ -55,6 +58,19 @@ const Component = ({
             errorMessage='Invalid Pay-Off Min Rate'
           />
         </div>
+        {
+          visible &&
+          <div className='mb-1'>
+            <div className='mb-05'>
+              <Text>Scan api Key</Text>
+            </div>
+            <InputApiKey
+              setter={setScanApi}
+              defaultValue={settings.scanApiKey[chainId]}
+            />
+          </div>
+        }
+
         <div className='mb-05'>
           <Text>Pool Filter: </Text>
         </div>
@@ -99,6 +115,41 @@ const Component = ({
       </div>
     </Modal>
   )
+}
+
+const InputApiKey = ({ defaultValue, setter }: {
+  defaultValue: string,
+  setter: any,
+}) => {
+  const [value, setValue] = useState(defaultValue)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    validateApiKey()
+  }, [value])
+
+  const validateApiKey = async () => {
+    const res = await fetch('https://api.arbiscan.io/api?module=block&action=getblocknobytime&timestamp=1689517013&closest=before&apikey=' + value).then((r) => r.json())
+    if (res.status === '0' && res.message === 'NOTOK' && res.result) {
+      setError(res.result)
+    } else {
+      setter(value)
+      setError('')
+    }
+  }
+
+  return <div>
+    <Input
+      value={value}
+      onChange={(e) => {
+        // @ts-ignore
+        setValue(e.target.value)
+      }}
+    />
+    {
+      error && <TextError>{error}</TextError>
+    }
+  </div>
 }
 
 const InputWithValidate = ({ suffix = '%', defaultValue, setter, min, max, errorMessage }: {

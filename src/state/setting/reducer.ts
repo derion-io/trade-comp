@@ -49,12 +49,23 @@ export const tokens = createSlice({
     ) => {
       localStorage.setItem('deleverageChance', action.payload.deleverageChance)
       state.deleverageChance = action.payload.deleverageChance
+    },
+    setScanApiKeyReduce: (
+      state,
+      action: PayloadAction<{
+        scanApiKey: string
+        chainId: number
+      }>
+    ) => {
+      localStorage.setItem(`scanApiKey-${action.payload.chainId}`, action.payload.scanApiKey)
+      state.scanApiKey[action.payload.chainId] = action.payload.scanApiKey
     }
   }
 })
 
 // Actions
 export const {
+  setScanApiKeyReduce,
   setSlippageReduce,
   setDeleverageChanceReduce,
   setMinInterestRateReduce,
