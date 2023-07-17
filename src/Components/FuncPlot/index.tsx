@@ -6,14 +6,32 @@ import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { bn, formatFloat, weiToNumber } from '../../utils/helpers'
 import { CandleChartLoader } from '../ChartLoaders'
 
-const FX = process.env.REACT_APP_FX
-const GX = process.env.REACT_APP_GX
+const FX = 'f(P,x,v,R)=\\{vx^P<R/2:vx^P,R-R^2/(4vx^P)\\}'
+const GX = 'g(P,x,v,R)=\\{vx^{-P}<R/2:R-vx^{-P},R^2/(4vx^{-P})\\}'
+
+function _r(xk: number, v: number, R: number) {
+  const r = v * xk
+  if (r <= R/2) {
+    return r
+  }
+  const denominator = v * xk  * 4
+  const minuend = R*R / denominator
+  return R - minuend
+}
+
+function _v(xk: number, r: number, R: number) {
+  if (r <= R/2) {
+    return r / xk
+  }
+  const denominator = (R-r) * xk * 4
+  return R*R / denominator
+}
 
 export const FunctionPlot = (props: any) => {
   const { currentPool, drC } = useCurrentPool()
   const calc = React.useRef() as React.MutableRefObject<Desmos.Calculator>
 
-  const { PX, a, b, TOKEN_R, R, R1, P, X, MARK } = useMemo(() => {
+  const { PX, a, b, TOKEN_R, R, P, X, MARK, R1, a1, b1, drAChange, drBChange } = useMemo(() => {
     const P = currentPool.k?.toNumber() / 2 // = K/2
     const R = formatFloat(weiToNumber(currentPool.states?.R))
     const a = formatFloat(weiToNumber(currentPool.states?.a))
@@ -30,12 +48,20 @@ export const FunctionPlot = (props: any) => {
     const drB = R * 0
     const R1 = R + drA + drB + drC
 
-    return { PX, a, b, TOKEN_R, R, R1, P, X, MARK }
+    const xk = X**P
+    const rA = _r(xk, a, R)
+    const rB = _r(1/xk, b, R)
+    const rA1 = rA + drA
+    const rB1 = rB + drB
+    const a1 = _v(xk, rA1, R1)
+    const b1 = _v(1/xk, rB1, R1)
+
+    const drAChange = rA1 != rA ? `x=X\\{${Math.min(rA,rA1)}<y<${Math.max(rA,rA1)}\\}` : null
+    const drBChange = (R1-rB1) != (R-rB) ? `x=X\\{${Math.min(R-rB,R1-rB1)}<y<${Math.max(R-rB,R1-rB1)}\\}` : null
+
+    return { PX, a, b, TOKEN_R, R, P, X, MARK, R1, a1, b1, drAChange, drBChange }
   }, [currentPool, drC])
 
-  const drLatex = drC > 0
-    ? `x=X\\{g(${P},X,${b},${R})<y<g(${P},X,${b},${R1})\\}`
-    : `x=X\\{g(${P},X,${b},${R})>y>g(${P},X,${b},${R1})\\}`
 
   React.useEffect(() => {
     if (calc && calc.current) {
@@ -113,12 +139,13 @@ export const FunctionPlot = (props: any) => {
             /> */}
             <Expression id='short' latex={`g(${P},x,${b},${R})\\{${PX}<x\\}`} color='GREEN' />
             <Expression id='long' latex={`f(${P},x,${a},${R})\\{${PX}<x\\}`} color='PURPLE' />
-            <Expression id='short1' latex={`g(${P},x,${b},${R1})\\{${PX}<x\\}`} color='GREEN' lineStyle='DASHED' hidden={R==R1} />
-            <Expression id='long1' latex={`f(${P},x,${a},${R1})\\{${PX}<x\\}`} color='PURPLE' lineStyle='DASHED' hidden={R==R1} />
+            <Expression id='short1' latex={`g(${P},x,${b1},${R1})\\{${PX}<x\\}`} color='GREEN' lineStyle='DASHED' hidden={drBChange==null} />
+            <Expression id='long1' latex={`f(${P},x,${a1},${R1})\\{${PX}<x\\}`} color='PURPLE' lineStyle='DASHED' hidden={drAChange==null} />
             <Expression
               id='X'
               latex={`X=${X}`}
-              sliderBounds={{ min: PX, max: '', step: '' }}
+              sliderBounds={{ min: X, max: X, step: '' }}
+              // sliderBounds={{ min: PX, max: '', step: '' }}
             />
             <Expression
               id='p'
@@ -136,8 +163,8 @@ export const FunctionPlot = (props: any) => {
             />
             <Expression id='S' latex={`(X,g(${P},X,${b},${R}))`} color='GREEN' />
             <Expression id='L' latex={`(X,f(${P},X,${a},${R}))`} color='PURPLE' />
-            <Expression id='S1' latex={`(X,g(${P},X,${b},${R1}))`} color='GREEN' hidden={R==R1} />
-            <Expression id='L1' latex={`(X,f(${P},X,${a},${R1}))`} color='PURPLE' hidden={R==R1} />
+            <Expression id='S1' latex={`(X,g(${P},X,${b1},${R1}))`} color='GREEN' hidden={drBChange==null} />
+            <Expression id='L1' latex={`(X,f(${P},X,${a1},${R1}))`} color='PURPLE' hidden={drAChange==null} />
             {/* <Expression
               id='rB'
               latex={`x=X\\{g(${P},X,${b},${R})<y<${R}\\}`}
@@ -153,10 +180,17 @@ export const FunctionPlot = (props: any) => {
               lineWidth={1.5}
             /> */}
             <Expression
-              id='dr'
-              latex={drLatex}
-              color={Desmos.Colors.BLACK}
-              hidden={R==R1}
+              id='drBChange'
+              latex={drBChange!}
+              color='GREEN'
+              hidden={drBChange==null}
+              lineWidth={3}
+            />
+            <Expression
+              id='drAChange'
+              latex={drAChange!}
+              color='PURPLE'
+              hidden={drAChange==null}
               lineWidth={3}
             />
             <Expression
