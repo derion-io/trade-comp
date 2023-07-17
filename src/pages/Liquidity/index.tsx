@@ -39,6 +39,7 @@ export const Liquidity = ({ tab }: {
 
   return (
     <div className='exposure-page'>
+      {/* 
       <div className='exposure-page__head'>
         <div
           className='exposure-page__head--back-btn'
@@ -49,6 +50,7 @@ export const Liquidity = ({ tab }: {
           <IconArrowLeft fill='#01A7FA' /> <TextBlue>Back</TextBlue>
         </div>
       </div>
+      */}
       <div className='exposure-page__content'>
         <div className='exposure-page__content--left'>
           {

@@ -22,6 +22,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
     <div className='chart-box'>
       <div className='chart__head'>
         <div className='chart__head--left'>
+          {/* 
           <div
             className='exposure-page__head--back-btn'
             onClick={() => {
@@ -30,6 +31,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
           >
             <IconArrowLeft fill='#01A7FA' /> <TextBlue>Back</TextBlue>
           </div>
+          */}
           <SelectPoolGroup />
         </div>
         {chainId !== 1337 && (
@@ -37,9 +39,9 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
             tab={chartTab}
             setTab={setChartTab}
             tabs={[
-              { name: 'Candle', value: CHART_TABS.CANDLE_CHART },
-              { name: 'Line', value: CHART_TABS.LINE_CHART },
-              { name: 'Curve', value: CHART_TABS.FUNC_PLOT }
+              { name: 'Candles', value: CHART_TABS.CANDLE_CHART },
+              { name: 'Lines', value: CHART_TABS.LINE_CHART },
+              { name: 'Curves', value: CHART_TABS.FUNC_PLOT }
             ]}
           />
         )}
