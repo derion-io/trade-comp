@@ -75,7 +75,7 @@ export const PoolInfo = ({
       </InfoRow>
     }
     <InfoRow>
-      <TextGrey>Liquidity:</TextGrey>
+      <TextGrey>Liquidity</TextGrey>
       <Text>${formatLocalisedCompactNumber(formatFloat(liquidity, 2))}</Text>
     </InfoRow>
   </Box>

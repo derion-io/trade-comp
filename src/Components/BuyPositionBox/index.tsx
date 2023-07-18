@@ -193,14 +193,14 @@ const Component = ({
 
   const deleverageRiskDisplay = useMemo(() => {
     if (!poolToShow) {
-      return '...'
+      return ''
     }
     const deleverageRisk: number|null =
       tradeType === TRADE_TYPE.LONG ? poolToShow.deleverageRiskA :
       tradeType === TRADE_TYPE.SHORT ? poolToShow.deleverageRiskB :
       null
     const deleverageRiskDisplay: string =
-      deleverageRisk == null ? '...' :
+      deleverageRisk == null ? '' :
       formatPercent(Math.min(100, deleverageRisk), 0, true)+'%'
     return deleverageRiskDisplay
   }, [poolToShow, tradeType])
@@ -312,9 +312,7 @@ const Component = ({
             </span>
           </InfoRow>
           <InfoRow>
-            <span>
-              Value
-            </span>
+            <span>Net Value</span>
             <span className={`delta-box ${!amountIn && 'no-data'}`}>
               <div className='text-left'>
                 {
@@ -367,28 +365,30 @@ const Component = ({
 
       <Box borderColor='default' className='swap-info-box mt-1 mb-2'>
         <InfoRow>
-          <TextGrey>Interest Rate</TextGrey>
-          <span>
-            {formatPercent(poolToShow?.dailyInterestRate ?? 0, 3, true)}%
-          </span>
+          <TextGrey>Daily Interest Rate</TextGrey>
+          <SkeletonLoader loading={!poolToShow}>
+            {formatPercent((poolToShow?.dailyInterestRate ?? 0) / (poolToShow?.k.toNumber() ?? 1), 3, true)}%
+          </SkeletonLoader>
         </InfoRow>
         {
           deleverageRiskDisplay != '100%' ?
           <InfoRow>
             <TextGrey>Deleverage Risk</TextGrey>
-            <Text>
-              {deleverageRiskDisplay}
-            </Text>
+            <Text>{deleverageRiskDisplay}</Text>
           </InfoRow>
           :
           <InfoRow>
             <TextGrey>Leverage:</TextGrey>
-            <Text>{poolToShow?.k.toNumber() / 2}x</Text>
+            <SkeletonLoader loading={!poolToShow}>
+              <Text>{poolToShow?.k.toNumber() / 2}x</Text>
+            </SkeletonLoader>
           </InfoRow>
         }
         <InfoRow>
-          <TextGrey>Liquidity:</TextGrey>
-          <Text>${formatLocalisedCompactNumber(formatFloat(liquidity, 2))}</Text>
+          <TextGrey>Liquidity</TextGrey>
+          <SkeletonLoader loading={!liquidity}>
+            <Text>${formatLocalisedCompactNumber(formatFloat(liquidity, 2))}</Text>
+          </SkeletonLoader>
         </InfoRow>
       </Box>
 
