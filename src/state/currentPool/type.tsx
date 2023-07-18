@@ -2,10 +2,6 @@ import { BigNumber } from 'ethers'
 import { TokenType } from '../token/type'
 import { TRADE_TYPE } from '../../utils/constant'
 
-const FUNC_PLOT = Symbol('candle')
-const CANDLE_CHART = Symbol('candle')
-const LINE_CHART = Symbol('line')
-
 export enum CHART_TABS {
   FUNC_PLOT,
   CANDLE_CHART,

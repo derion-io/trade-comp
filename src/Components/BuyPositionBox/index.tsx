@@ -141,7 +141,12 @@ const Component = ({
 
   const payoffRate = useMemo(() => {
     if (valueOut && valueIn && Number(valueOut) && Number(valueIn)) {
-      return formatPercent(div(valueOut, valueIn), 2, true)
+      const rate = div(valueOut, valueIn)
+      if (Number(rate) < 0.94) {
+        // show FunctionPlot on low payoffRate
+        setChartTab(CHART_TABS.FUNC_PLOT)
+      }
+      return formatPercent(rate, 2, true)
     }
     return undefined
   }, [valueIn, valueOut])
