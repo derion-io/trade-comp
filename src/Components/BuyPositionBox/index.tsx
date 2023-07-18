@@ -122,7 +122,11 @@ const Component = ({
     } else if (Object.values(pools).length > 0) {
       setInputTokenAddress(wrapToNativeAddress(Object.values(pools)[0].TOKEN_R))
     }
-  }, [outputTokenAddress, pools])
+  }, [outputTokenAddress, pools, id])
+
+  useEffect(() => {
+    setBarData({})
+  }, [id, leverageData])
 
   const { value: valueIn } = useTokenValue({
     amount: amountIn,
@@ -225,6 +229,11 @@ const Component = ({
 
   return (
     <div className='long-short-box'>
+      <button onClick={() => {
+        setBarData({})
+      }}>
+        test
+      </button>
       <div className='amount-input-box'>
         <div className='amount-input-box__head'>
           <span
@@ -373,6 +382,7 @@ const Component = ({
           setBarData={setBarData}
           leverageData={leverageData}
           height={100}
+          key={id}
         />
       }
 

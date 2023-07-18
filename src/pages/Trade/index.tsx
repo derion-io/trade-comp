@@ -38,7 +38,7 @@ export const Trade = ({ tab, pool }: {
   const [changedIn24h, setChangedIn24h] = useState<number>(0)
   const { width } = useWindowSize()
   const { poolGroups } = useResource()
-  const { updateCurrentPoolGroup } = useCurrentPoolGroup()
+  const { updateCurrentPoolGroup, id } = useCurrentPoolGroup()
   const [tab2, setTab2] = useState<Symbol>(TAB_2.POSITION)
   const { formartedSwapLogs: swapTxs } = useSwapHistory()
   const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
@@ -84,7 +84,7 @@ export const Trade = ({ tab, pool }: {
     if (poolGroups && Object.keys(poolGroups).length > 0) {
       if (pool && poolGroups[pool]) {
         updateCurrentPoolGroup(pool)
-      } else if (Object.keys(poolGroups)[0]) {
+      } else if (Object.keys(poolGroups)[0] && !id) {
         updateCurrentPoolGroup(Object.keys(poolGroups)[0])
       }
     }
@@ -125,7 +125,7 @@ export const Trade = ({ tab, pool }: {
               height: 0,
               zIndex: 0,
               margin: 0,
-              cursor: 'pointer',
+              cursor: 'pointer'
             }}
             onClick={() => {
               setVisibleSettingModal(true)
@@ -134,7 +134,7 @@ export const Trade = ({ tab, pool }: {
             <SettingIcon style={{
               float: 'right',
               marginTop: '0.4rem',
-              marginRight: '0.8rem',
+              marginRight: '0.8rem'
             }} />
           </div>
           <Tabs
