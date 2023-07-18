@@ -6,8 +6,6 @@ import { bn, formatPercent, getTokenPower, numberToWei, tradeTypeToId, weiToNumb
 import { useListTokens } from '../state/token/hook'
 import { useSettings } from '../state/setting/hooks/useSettings'
 
-const barColors = ['#01A7FA', '#FF98E5', '#4FBF67', '#3DBAA2']
-
 export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
   const { pools } = useCurrentPoolGroup()
   const { tokens } = useListTokens()
@@ -22,14 +20,19 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
           pool.TOKEN_R,
           weiToNumber(pool.states.R, tokens[pool.TOKEN_R]?.decimals)
         )))
+        const deleverageRisk = tradeType === TRADE_TYPE.LONG ? pool!.deleverageRiskA :
+          tradeType === TRADE_TYPE.SHORT ? pool!.deleverageRiskB :
+          Math.max(pool!.deleverageRiskA, pool!.deleverageRiskB)
         if (size.lt(numberToWei(minLiquidity, tokens[pool.TOKEN_R]?.decimals)) ||
           Number(pool.dailyInterestRate) * 100 < minInterestRate ||
-          (tradeType === TRADE_TYPE.LONG && pool!.deleverageRiskA * 100 > deleverageChance) ||
-          (tradeType === TRADE_TYPE.SHORT && pool!.deleverageRiskB * 100 > deleverageChance)
+          deleverageRisk * 100 > deleverageChance
         ) {
           return
         }
 
+        // TODO: use real opacity instead of dimming like this
+        const opacity = 1-Math.sqrt(deleverageRisk)
+        const color = `rgb(0, ${opacity*180}, ${opacity*256})`
         const power = Math.abs(Number(getTokenPower(pool.TOKEN_R, pool.baseToken, tradeTypeToId(tradeType), pool.k.toNumber())))
 
         if (!result[power]) {
@@ -42,7 +45,7 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
                 x: power,
                 token: pool.poolAddress + '-' + tradeTypeToId(tradeType),
                 size,
-                color: barColors[0]
+                color,
               }
             ]
           }
@@ -52,7 +55,7 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
             x: power,
             token: pool.poolAddress + '-' + tradeTypeToId(tradeType),
             size,
-            color: barColors[bars.length]
+            color,
           })
           result[power].bars = bars
           result[power].totalSize = result[power].totalSize.add(size)
