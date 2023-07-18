@@ -192,13 +192,16 @@ const Component = ({
   }, [pools, inputTokenAddress, outputTokenAddress])
 
   const deleverageRiskDisplay = useMemo(() => {
-    if (poolToShow?.deleverageRiskA == null) {
+    if (!poolToShow) {
       return '...'
     }
-    const deleverageRiskDisplay =
-      tradeType === TRADE_TYPE.LONG ? formatPercent(poolToShow!.deleverageRiskA, 0, true) + '%'
-        : tradeType === TRADE_TYPE.SHORT ? formatPercent(poolToShow!.deleverageRiskB, 0, true) + '%'
-          : '...'
+    const deleverageRisk: number|null =
+      tradeType === TRADE_TYPE.LONG ? poolToShow.deleverageRiskA :
+      tradeType === TRADE_TYPE.SHORT ? poolToShow.deleverageRiskB :
+      null
+    const deleverageRiskDisplay: string =
+      deleverageRisk == null ? '...' :
+      formatPercent(Math.min(100, deleverageRisk), 0, true)+'%'
     return deleverageRiskDisplay
   }, [poolToShow, tradeType])
 
@@ -369,16 +372,20 @@ const Component = ({
             {formatPercent(poolToShow?.dailyInterestRate ?? 0, 3, true)}%
           </span>
         </InfoRow>
-        <InfoRow>
-          <TextGrey>Deleverage Risk</TextGrey>
-          <Text>
-            {deleverageRiskDisplay}
-          </Text>
-        </InfoRow>
-        <InfoRow>
-          <TextGrey>Effective Leverage:</TextGrey>
-          <Text>{poolToShow?.k.toNumber() / 2}x</Text>
-        </InfoRow>
+        {
+          deleverageRiskDisplay != '100%' ?
+          <InfoRow>
+            <TextGrey>Deleverage Risk</TextGrey>
+            <Text>
+              {deleverageRiskDisplay}
+            </Text>
+          </InfoRow>
+          :
+          <InfoRow>
+            <TextGrey>Leverage:</TextGrey>
+            <Text>{poolToShow?.k.toNumber() / 2}x</Text>
+          </InfoRow>
+        }
         <InfoRow>
           <TextGrey>Liquidity:</TextGrey>
           <Text>${formatLocalisedCompactNumber(formatFloat(liquidity, 2))}</Text>

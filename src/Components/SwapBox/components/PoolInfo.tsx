@@ -28,22 +28,22 @@ export const PoolInfo = ({
   const { tokens } = useListTokens()
 
   const [poolToShow, id, deleverageRiskDisplay] = useMemo(() => {
-    if (isErc1155Address(outputTokenAddress)) {
-      const { address, id } = decodeErc1155Address(outputTokenAddress)
-      const deleverageRiskDisplay: string =
-        Number(id) == POOL_IDS.A ? formatPercent(pools[address].deleverageRiskA, 0, true)+'%' :
-        Number(id) == POOL_IDS.B ? formatPercent(pools[address].deleverageRiskB, 0, true)+'%' :
-        '...'
-      return [pools[address], id, deleverageRiskDisplay ]
-    } else if (isErc1155Address(inputTokenAddress)) {
-      const { address, id } = decodeErc1155Address(inputTokenAddress)
-      const deleverageRiskDisplay: string =
-        Number(id) == POOL_IDS.A ? Math.round(pools[address].deleverageRiskA*100)+'%' :
-        Number(id) == POOL_IDS.B ? Math.round(pools[address].deleverageRiskB*100)+'%' :
-        '...'
-      return [pools[address], id, deleverageRiskDisplay ]
+    const tokenAddress = isErc1155Address(outputTokenAddress) ? outputTokenAddress :
+      isErc1155Address(inputTokenAddress) ? inputTokenAddress :
+      null
+    if (!tokenAddress) {
+      return [null, null, '...']
     }
-    return [null, null, '...']
+    const { address, id } = decodeErc1155Address(tokenAddress)
+    const poolToShow = pools[address]
+    const deleverageRisk: number|null =
+      Number(id) == POOL_IDS.A ? poolToShow.deleverageRiskA :
+      Number(id) == POOL_IDS.B ? poolToShow.deleverageRiskB :
+      null
+    const deleverageRiskDisplay: string =
+      deleverageRisk == null ? '...' :
+      formatPercent(Math.min(100, deleverageRisk), 0, true)+'%'
+    return [poolToShow, id, deleverageRiskDisplay ]
   }, [pools, inputTokenAddress, outputTokenAddress])
 
   const { value: liquidity } = useTokenValue({
@@ -58,19 +58,22 @@ export const PoolInfo = ({
         {formatPercent(poolToShow?.dailyInterestRate ?? 0, 3, true)}%
       </span>
     </InfoRow>
-    <InfoRow>
-      <TextGrey>Deleverage Risk</TextGrey>
-      <Text>
-        {deleverageRiskDisplay}
-      </Text>
-    </InfoRow>
-    <InfoRow>
-      <TextGrey>Effective Leverage:</TextGrey>
-      <Text>
-          {!id ? 0 : Math.abs(getTokenPower(poolToShow.TOKEN_R, poolToShow.baseToken, Number(id), poolToShow.k.toNumber()))}x
-      </Text>
-
-    </InfoRow>
+    {
+      deleverageRiskDisplay != '100%' ?
+      <InfoRow>
+        <TextGrey>Deleverage Risk</TextGrey>
+        <Text>
+          {deleverageRiskDisplay}
+        </Text>
+      </InfoRow>
+      :
+      <InfoRow>
+        <TextGrey>Leverage:</TextGrey>
+        <Text>
+            {!id ? 0 : Math.abs(getTokenPower(poolToShow.TOKEN_R, poolToShow.baseToken, Number(id), poolToShow.k.toNumber()))}x
+        </Text>
+      </InfoRow>
+    }
     <InfoRow>
       <TextGrey>Liquidity:</TextGrey>
       <Text>${formatLocalisedCompactNumber(formatFloat(liquidity, 2))}</Text>
