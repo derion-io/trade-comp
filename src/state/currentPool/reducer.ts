@@ -85,10 +85,14 @@ export const tokens = createSlice({
     }>) => {
       state.currentPoolAddress = action.payload.address
     },
-    setDrcReduce: (state, action: PayloadAction<{
-      r: number
+    setDrReduce: (state, action: PayloadAction<{
+      drA: number,
+      drB: number,
+      drC: number,
     }>) => {
-      state.drC = action.payload.r
+      state.drA = action.payload.drA
+      state.drB = action.payload.drB
+      state.drC = action.payload.drC
     }
   }
 })
@@ -103,7 +107,7 @@ export const {
   setChartIntervalIsUpdated,
   setChartTabReduce,
   setSwapTabReduce,
-  setDrcReduce,
+  setDrReduce,
   setCurrentPoolAddressReduce
 } = tokens.actions
 

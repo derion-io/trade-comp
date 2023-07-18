@@ -60,7 +60,7 @@ const Component = ({
   const [visibleApproveModal, setVisibleApproveModal] = useState<boolean>(false)
   const { tokens } = useListTokens()
   const { wrapToNativeAddress } = useHelper()
-  const { setCurrentPoolAddress, setDrC } = useCurrentPool()
+  const { setCurrentPoolAddress, setDr } = useCurrentPool()
 
   const leverageData = useGenerateLeverageData(tradeType)
 
@@ -83,10 +83,18 @@ const Component = ({
   }, [barData])
 
   useEffect(() => {
-    if (tradeType === TRADE_TYPE.LIQUIDITY) {
-      setDrC(Number(amountIn))
-    } else {
-      setDrC(0)
+    switch(tradeType) {
+      case TRADE_TYPE.LONG:
+        setDr(Number(amountIn), 0, 0)
+        break;
+      case TRADE_TYPE.SHORT:
+        setDr(0, Number(amountIn), 0)
+        break;
+      case TRADE_TYPE.LIQUIDITY:
+        setDr(0, 0, Number(amountIn))
+        break;
+      default:
+        setDr(0, 0, 0)
     }
   }, [amountIn, tradeType])
 

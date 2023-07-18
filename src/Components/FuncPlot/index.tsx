@@ -28,7 +28,7 @@ function _v(xk: number, r: number, R: number) {
 }
 
 export const FunctionPlot = (props: any) => {
-  const { currentPool, drC } = useCurrentPool()
+  const { currentPool, drA, drB, drC } = useCurrentPool()
   const calc = React.useRef() as React.MutableRefObject<Desmos.Calculator>
 
   const { PX, a, b, TOKEN_R, R, P, X, MARK, R1, a1, b1, drAChange, drBChange } = useMemo(() => {
@@ -44,8 +44,6 @@ export const FunctionPlot = (props: any) => {
       .toNumber() / 1000
     const TOKEN_R = 'ETH'
     const PX = X * 0.01
-    const drA = R * 0
-    const drB = R * 0
     const R1 = R + drA + drB + drC
 
     const xk = X**P
@@ -60,7 +58,7 @@ export const FunctionPlot = (props: any) => {
     const drBChange = (R1-rB1) != (R-rB) ? `x=X\\{${Math.min(R-rB,R1-rB1)}<y<${Math.max(R-rB,R1-rB1)}\\}` : null
 
     return { PX, a, b, TOKEN_R, R, P, X, MARK, R1, a1, b1, drAChange, drBChange }
-  }, [currentPool, drC])
+  }, [currentPool, drA, drB, drC])
 
 
   React.useEffect(() => {
@@ -139,8 +137,8 @@ export const FunctionPlot = (props: any) => {
             /> */}
             <Expression id='short' latex={`g(${P},x,${b},${R})\\{${PX}<x\\}`} color='GREEN' />
             <Expression id='long' latex={`f(${P},x,${a},${R})\\{${PX}<x\\}`} color='PURPLE' />
-            <Expression id='short1' latex={`g(${P},x,${b1},${R1})\\{${PX}<x\\}`} color='GREEN' lineStyle='DASHED' hidden={drBChange==null} />
-            <Expression id='long1' latex={`f(${P},x,${a1},${R1})\\{${PX}<x\\}`} color='PURPLE' lineStyle='DASHED' hidden={drAChange==null} />
+            <Expression id='short1' latex={`g(${P},x,${b1},${R1})\\{${PX}<x\\}`} color='GREEN' lineStyle='DASHED' hidden={!drBChange&&R1==R} />
+            <Expression id='long1' latex={`f(${P},x,${a1},${R1})\\{${PX}<x\\}`} color='PURPLE' lineStyle='DASHED' hidden={!drAChange&&R1==R} />
             <Expression
               id='X'
               latex={`X=${X}`}

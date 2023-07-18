@@ -18,6 +18,8 @@ export interface currentPoolState {
   TOKEN: string
   pools: {[key: string]: any}
   currentPoolAddress: string
+  drA: number
+  drB: number
   drC: number
   pair: {
     token0?: TokenType,
@@ -61,6 +63,8 @@ export const initialState: currentPoolState = {
   TOKEN: '',
   pools: {},
   ORACLE: '',
+  drA: 0,
+  drB: 0,
   drC: 0,
   currentPoolAddress: '',
   chartTab: CHART_TABS.CANDLE_CHART,

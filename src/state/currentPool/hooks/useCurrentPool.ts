@@ -1,14 +1,16 @@
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../types'
 import { useResource } from '../../resources/hooks/useResource'
-import { setCurrentPoolAddressReduce, setDrcReduce } from '../reducer'
+import { setCurrentPoolAddressReduce, setDrReduce } from '../reducer'
 
 export const useCurrentPool = () => {
   const { pools } = useResource()
-  const { currentPoolAddress, drC } = useSelector((state: State) => {
+  const { currentPoolAddress, drA, drB, drC } = useSelector((state: State) => {
     return {
       currentPoolAddress: state.currentPool.currentPoolAddress,
-      drC: state.currentPool.drC
+      drA: state.currentPool.drA,
+      drB: state.currentPool.drB,
+      drC: state.currentPool.drC,
     }
   })
   const dispatch = useDispatch()
@@ -17,14 +19,14 @@ export const useCurrentPool = () => {
     dispatch(setCurrentPoolAddressReduce({ address }))
   }
 
-  const setDrC = (r: number) => {
-    dispatch(setDrcReduce({ r }))
+  const setDr = (drA: number, drB: number, drC: number) => {
+    dispatch(setDrReduce({ drA, drB, drC }))
   }
 
   return {
-    drC,
+    drA, drB, drC,
     currentPool: pools[currentPoolAddress] || {},
     setCurrentPoolAddress,
-    setDrC
+    setDr,
   }
 }
