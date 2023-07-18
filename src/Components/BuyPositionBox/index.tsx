@@ -16,7 +16,6 @@ import {
   formatFloat, formatPercent,
   getTitleBuyTradeType,
   isErc1155Address,
-  mul,
   weiToNumber
 } from '../../utils/helpers'
 import { TokenSymbol } from '../ui/TokenSymbol'
@@ -83,16 +82,16 @@ const Component = ({
   }, [barData])
 
   useEffect(() => {
-    switch(tradeType) {
+    switch (tradeType) {
       case TRADE_TYPE.LONG:
         setDr(Number(amountIn), 0, 0)
-        break;
+        break
       case TRADE_TYPE.SHORT:
         setDr(0, Number(amountIn), 0)
-        break;
+        break
       case TRADE_TYPE.LIQUIDITY:
         setDr(0, 0, Number(amountIn))
-        break;
+        break
       default:
         setDr(0, 0, 0)
     }
@@ -123,10 +122,6 @@ const Component = ({
       setInputTokenAddress(wrapToNativeAddress(Object.values(pools)[0].TOKEN_R))
     }
   }, [outputTokenAddress, pools, id])
-
-  useEffect(() => {
-    setBarData({})
-  }, [id, leverageData])
 
   const { value: valueIn } = useTokenValue({
     amount: amountIn,
@@ -212,13 +207,13 @@ const Component = ({
     if (!poolToShow) {
       return ''
     }
-    const deleverageRisk: number|null =
-      tradeType === TRADE_TYPE.LONG ? poolToShow.deleverageRiskA :
-      tradeType === TRADE_TYPE.SHORT ? poolToShow.deleverageRiskB :
-      null
+    const deleverageRisk: number | null =
+      tradeType === TRADE_TYPE.LONG ? poolToShow.deleverageRiskA
+        : tradeType === TRADE_TYPE.SHORT ? poolToShow.deleverageRiskB
+          : null
     const deleverageRiskDisplay: string =
-      deleverageRisk == null ? '' :
-      formatPercent(Math.min(100, deleverageRisk), 0, true)+'%'
+      deleverageRisk == null ? ''
+        : formatPercent(Math.min(100, deleverageRisk), 0, true) + '%'
     return deleverageRiskDisplay
   }, [poolToShow, tradeType])
 
@@ -229,11 +224,6 @@ const Component = ({
 
   return (
     <div className='long-short-box'>
-      <button onClick={() => {
-        setBarData({})
-      }}>
-        test
-      </button>
       <div className='amount-input-box'>
         <div className='amount-input-box__head'>
           <span
@@ -349,7 +339,7 @@ const Component = ({
                 <div className='text-right'>
                   <SkeletonLoader loading={loading || Number(valueOut) === 0}>
                     <Text>
-                        ${formatLocalisedCompactNumber(formatFloat(valueOut))}
+                      ${formatLocalisedCompactNumber(formatFloat(valueOut))}
                     </Text>
                   </SkeletonLoader>
                 </div>
@@ -394,18 +384,17 @@ const Component = ({
           </SkeletonLoader>
         </InfoRow>
         {
-          deleverageRiskDisplay != '100%' ?
-          <InfoRow>
-            <TextGrey>Deleverage Risk</TextGrey>
-            <Text>{deleverageRiskDisplay}</Text>
-          </InfoRow>
-          :
-          <InfoRow>
-            <TextGrey>Leverage:</TextGrey>
-            <SkeletonLoader loading={!poolToShow}>
-              <Text>{poolToShow?.k.toNumber() / 2}x</Text>
-            </SkeletonLoader>
-          </InfoRow>
+          deleverageRiskDisplay !== '100%'
+            ? <InfoRow>
+              <TextGrey>Deleverage Risk</TextGrey>
+              <Text>{deleverageRiskDisplay}</Text>
+            </InfoRow>
+            : <InfoRow>
+              <TextGrey>Leverage:</TextGrey>
+              <SkeletonLoader loading={!poolToShow}>
+                <Text>{poolToShow?.k.toNumber() / 2}x</Text>
+              </SkeletonLoader>
+            </InfoRow>
         }
         <InfoRow>
           <TextGrey>Liquidity</TextGrey>

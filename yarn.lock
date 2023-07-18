@@ -8237,9 +8237,9 @@ levenary@^1.1.1:
   dependencies:
     leven "^3.1.0"
 
-"leverage-slider@git+ssh://git@github.com:derivable-labs/leverage-slider-comp.git#6758b5328d79bc00312341210c45b353da8653a7":
+"leverage-slider@git+ssh://git@github.com:derivable-labs/leverage-slider-comp.git#b1d0e28edb3c390b3a5da7aed9ad16d1c55c8319":
   version "1.0.0"
-  resolved "git+ssh://git@github.com:derivable-labs/leverage-slider-comp.git#6758b5328d79bc00312341210c45b353da8653a7"
+  resolved "git+ssh://git@github.com:derivable-labs/leverage-slider-comp.git#b1d0e28edb3c390b3a5da7aed9ad16d1c55c8319"
   dependencies:
     "@reduxjs/toolkit" "^1.7.1"
     "@types/lodash" "^4.14.186"
