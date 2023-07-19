@@ -40,7 +40,7 @@ export const PoolInfo = ({
     const deleverageRisk: number|null =
       Number(id) == POOL_IDS.A ? poolToShow.deleverageRiskA :
       Number(id) == POOL_IDS.B ? poolToShow.deleverageRiskB :
-      null
+      Math.max(poolToShow.deleverageRiskA, poolToShow.deleverageRiskB)
     const deleverageRiskDisplay: string =
       deleverageRisk == null ? '' :
       formatPercent(Math.min(100, deleverageRisk), 0, true)+'%'

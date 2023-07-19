@@ -214,7 +214,7 @@ const Component = ({
     const deleverageRisk: number | null =
       tradeType === TRADE_TYPE.LONG ? poolToShow.deleverageRiskA
         : tradeType === TRADE_TYPE.SHORT ? poolToShow.deleverageRiskB
-          : null
+          : Math.max(poolToShow.deleverageRiskA, poolToShow.deleverageRiskB)
     const deleverageRiskDisplay: string =
       deleverageRisk == null ? ''
         : formatPercent(Math.min(100, deleverageRisk), 0, true) + '%'
