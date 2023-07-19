@@ -54,10 +54,10 @@ export const PoolInfo = ({
 
   return <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
     <InfoRow>
-      <TextGrey>Interest Rate</TextGrey>
-      <span>
-        {formatPercent(poolToShow?.dailyInterestRate ?? 0, 3, true)}%
-      </span>
+      <TextGrey>Daily Interest Rate</TextGrey>
+      <SkeletonLoader loading={!poolToShow}>
+        {formatPercent((poolToShow?.dailyInterestRate ?? 0) / (poolToShow?.k.toNumber() ?? 1), 3, true)}%
+      </SkeletonLoader>
     </InfoRow>
     {
       deleverageRiskDisplay != '100%' ?
