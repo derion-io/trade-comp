@@ -38,7 +38,7 @@ export const ButtonSwap = ({
   tradeType?: TRADE_TYPE
   isSwap?: boolean
   isClose?: boolean
-  title: string
+  title: any
   payoffRate?: number
 }) => {
   const { tokens } = useListTokens()

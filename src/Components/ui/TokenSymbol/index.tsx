@@ -7,7 +7,7 @@ import { POOL_IDS } from '../../../utils/constant'
 import { useHelper } from '../../../state/config/useHelper'
 import { Text, TextBlue, TextBuy, TextPink, TextSell } from '../Text'
 
-export const TokenSymbol = ({ token }: { token: string }) => {
+export const TokenSymbol = ({ token, textWrap }: { token: string, textWrap?: any }) => {
   const { baseToken } = useCurrentPoolGroup()
   const { tokens } = useListTokens()
   const { pools } = useResource()
@@ -22,13 +22,13 @@ export const TokenSymbol = ({ token }: { token: string }) => {
         return <span className='font-size-14'>{symbol}</span>
       }
 
-      const TextComp = Number(id) === POOL_IDS.C
+      const TextComp = textWrap || (Number(id) === POOL_IDS.C
         ? TextBlue
         : Number(id) === POOL_IDS.A
           ? TextBuy
           : Number(id) === POOL_IDS.B
             ? TextSell
-            : Text
+            : Text)
 
       return <TextComp>
         <span

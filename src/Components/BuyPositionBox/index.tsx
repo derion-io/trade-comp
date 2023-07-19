@@ -433,9 +433,10 @@ const Component = ({
           tradeType={tradeType}
           loadingAmountOut={loading}
           title={
-            Number(decodeErc1155Address(outputTokenAddress).id) === POOL_IDS.A ? 'Long'
-              : Number(decodeErc1155Address(outputTokenAddress).id) === POOL_IDS.B ? 'Short'
-                : 'Add Liquidity'}
+            Number(decodeErc1155Address(outputTokenAddress).id) === POOL_IDS.A ? <Text>Long <TokenSymbol token={outputTokenAddress} textWrap={Text} /> </Text>
+              : Number(decodeErc1155Address(outputTokenAddress).id) === POOL_IDS.B ? <Text>Short <TokenSymbol token={outputTokenAddress} textWrap={Text} /> </Text>
+                : <Text>Add Liquidity <TokenSymbol token={outputTokenAddress} textWrap={Text} /> </Text>
+          }
         />
       </div>
 

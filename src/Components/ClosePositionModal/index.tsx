@@ -32,7 +32,7 @@ const Component = ({
   setVisible: any,
   inputTokenAddress: string,
   outputTokenAddress: string,
-  title: string
+  title: any
 }) => {
   const { tokens } = useListTokens()
   const { balances, accFetchBalance } = useWalletBalance()

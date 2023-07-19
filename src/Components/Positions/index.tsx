@@ -154,7 +154,11 @@ export const Positions = () => {
       setVisible={setVisible}
       inputTokenAddress={inputTokenAddress}
       outputTokenAddress={outputTokenAddress}
-      title={Number(decodeErc1155Address(inputTokenAddress).id) === POOL_IDS.C ? 'Remove' : 'Close'}
+      title={
+        Number(decodeErc1155Address(inputTokenAddress).id) === POOL_IDS.C
+          ? <Text>Remove <TokenSymbol token={inputTokenAddress} textWrap={Text} /> </Text>
+          : <Text>Close <TokenSymbol token={inputTokenAddress} textWrap={Text} /> </Text>
+      }
     />
   </div>
 }
