@@ -368,7 +368,7 @@ const Component = ({
         />
       }
 
-      <Box borderColor='default' className='swap-info-box mt-1 mb-2'>
+      <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
         <InfoRow>
           <TextGrey>Daily Interest Rate</TextGrey>
           <SkeletonLoader loading={!poolToShow}>
