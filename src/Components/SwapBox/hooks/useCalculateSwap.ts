@@ -58,7 +58,8 @@ export const useCalculateSwap = ({
       setTxFee(bn(0))
       setGasUsed(bn(0))
       setCallError(error ?? e)
-      console.log(e)
+      console.error(error)
+      console.error(e)
     }).finally(() => {
       setLoading(false)
     })
