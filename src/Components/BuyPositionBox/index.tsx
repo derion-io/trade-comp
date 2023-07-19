@@ -293,76 +293,64 @@ const Component = ({
             &nbsp;
             {barData?.x}x
           </span>
-          <InfoRow>
-            <span>
-              <TokenSymbol token={outputTokenAddress} />
-            </span>
-            <span className={`delta-box ${!amountIn && 'no-data'}`}>
-              <div className='text-left'>
-                <Text>
-                  {
-                    formatWeiToDisplayNumber(
-                      balances[outputTokenAddress] || bn(0),
-                      2,
-                      balances[outputTokenAddress]?.decimal || 18
-                    )
-                  }
-                </Text>
-              </div>
-              {
-                amountIn && <React.Fragment>
-                  <div className='icon-plus'><Text>+</Text></div>
-                  <div className='text-right'>
-                    <SkeletonLoader loading={loading || Number(amountOut) === 0}>
-                      <Text>
-                        {formatLocalisedCompactNumber(formatFloat(amountOut))}
-                      </Text>
-                    </SkeletonLoader>
-                  </div>
-                </React.Fragment>
-              }
-            </span>
-          </InfoRow>
-          <InfoRow>
-            <span>Net Value</span>
-            <span className={`delta-box ${!amountIn && 'no-data'}`}>
-              <div className='text-left'>
-                {
-                  valueOutBefore && <Text>
-                    ${formatLocalisedCompactNumber(formatFloat(valueOutBefore))}
-                  </Text>
-                }
-              </div>
-              {amountIn &&
-              <React.Fragment>
-                <div className='icon-plus'><Text> + </Text></div>
-                <div className='text-right'>
-                  <SkeletonLoader loading={loading || Number(valueOut) === 0}>
-                    <Text>
-                      ${formatLocalisedCompactNumber(formatFloat(valueOut))}
-                    </Text>
-                  </SkeletonLoader>
-                </div>
-              </React.Fragment>
-              }
-            </span>
-          </InfoRow>
-          <InfoRow>
-            <span>
-              Expiration
-            </span>
-            <div className={`delta-box ${!amountIn && 'no-data'}`}>
-              <div className='text-left'>
-                <Text>0</Text>
-              </div>
-              {
-                amountIn && (<React.Fragment>
-                  <div className='plus-icon'><Text>+</Text></div>
-                  <div className='text-right'><Text>1s</Text></div>
-                </React.Fragment>)
-              }
+          <div className='position-delta--box'>
+            <div className='position-delta--left'>
+              <div><TokenSymbol token={outputTokenAddress} /></div>
+              <div>Net Value</div>
+              <div>Expiration</div>
             </div>
-          </InfoRow>
+            <SkeletonLoader loading={balances[outputTokenAddress] == null}>
+              {!Number(valueOutBefore) ? '' :
+                <div className='position-delta--group'>
+                  <div className='position-delta--right'>
+                    <div>{
+                      formatWeiToDisplayNumber(
+                        balances[outputTokenAddress] ?? bn(0),
+                        4,
+                        tokens[outputTokenAddress]?.decimal || 18,
+                      ).split(".")[0]
+                    }</div>
+                    <div>${formatLocalisedCompactNumber(formatFloat(valueOutBefore)).split(".")[0]}</div>
+                    <div>0</div>
+                  </div>
+                  <div className='position-delta--left'>
+                    <div>{
+                      formatWeiToDisplayNumber(
+                        balances[outputTokenAddress] ?? bn(0),
+                        4,
+                        tokens[outputTokenAddress]?.decimal || 18,
+                      ).match(/\.\d+$/g) || '\u00A0'
+                    }</div>
+                    <div>{formatLocalisedCompactNumber(formatFloat(valueOutBefore)).match(/\.\d+$/g) || '\u00A0'}</div>
+                    <div>(s)</div>
+                  </div>
+                </div>
+              }
+            </SkeletonLoader>
+            {!Number(amountIn) ? '' :
+              <div className='position-delta--left'>
+                <div>+</div>
+                <div>+</div>
+                <div>+</div>
+              </div>
+            }
+            {!Number(amountIn) ? '' :
+              <SkeletonLoader loading={!Number(valueOut)}>
+                <div className='position-delta--group'>
+                  <div className='position-delta--right'>
+                    <div>{formatLocalisedCompactNumber(formatFloat(amountOut)).split(".")[0]}</div>
+                    <div>${formatLocalisedCompactNumber(formatFloat(valueOut)).split(".")[0]}</div>
+                    <div>0</div>
+                  </div>
+                  <div className='position-delta--left'>
+                    <div>{formatLocalisedCompactNumber(formatFloat(amountOut)).match(/\.\d+$/g) || '\u00A0'}</div>
+                    <div>{formatLocalisedCompactNumber(formatFloat(valueOut)).match(/\.\d+$/g) || '\u00A0'}</div>
+                    <div>(s)</div>
+                  </div>
+                </div>
+              </SkeletonLoader>
+            }
+          </div>
         </Box>
       }
       {
@@ -398,7 +386,7 @@ const Component = ({
         }
         <InfoRow>
           <TextGrey>Liquidity</TextGrey>
-          <SkeletonLoader loading={!liquidity}>
+          <SkeletonLoader loading={!liquidity || liquidity == '0'}>
             <Text>${formatLocalisedCompactNumber(formatFloat(liquidity, 2))}</Text>
           </SkeletonLoader>
         </InfoRow>
@@ -407,7 +395,7 @@ const Component = ({
       <TxFee
         gasUsed={gasUsed}
         payoffRate={payoffRate}
-        loading={loading}
+        loading={loading && Number(amountIn) > 0}
       />
 
       {/* <Box borderColor='default' className='swap-info-box mt-1 mb-1'> */}
@@ -462,7 +450,7 @@ const InfoRow = (props: any) => {
   return (
     <div
       className={
-        'd-flex jc-space-between info-row font-size-12 ' + props.className
+        'd-flex jc-space-between info-row font-size-14 ' + props.className
       }
     >
       {props.children}

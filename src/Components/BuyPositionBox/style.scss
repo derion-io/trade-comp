@@ -50,6 +50,26 @@
     }
   }
 
+  .position-delta--box {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+
+    .position-delta--group {
+      display: flex;
+      flex-wrap: nowrap;
+      justify-content: center;
+    }
+
+    .position-delta--right {
+      text-align: right;
+    }
+
+    .position-delta--left {
+      text-align: left;
+    }
+}
+
   .delta-box {
     display: flex;
     justify-content: space-between;

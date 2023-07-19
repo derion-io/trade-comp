@@ -16,6 +16,7 @@ import { useTokenValue } from '../hooks/useTokenValue'
 import { useListTokens } from '../../../state/token/hook'
 import formatLocalisedCompactNumber from '../../../utils/formatBalance'
 import { POOL_IDS } from '../../../utils/constant'
+import { SkeletonLoader } from '../../ui/SkeletonLoader'
 
 export const PoolInfo = ({
   inputTokenAddress,
@@ -76,7 +77,9 @@ export const PoolInfo = ({
     }
     <InfoRow>
       <TextGrey>Liquidity</TextGrey>
-      <Text>${formatLocalisedCompactNumber(formatFloat(liquidity, 2))}</Text>
+      <SkeletonLoader loading={!liquidity || liquidity == '0'}>
+        <Text>${formatLocalisedCompactNumber(formatFloat(liquidity, 2))}</Text>
+      </SkeletonLoader>
     </InfoRow>
   </Box>
 }

@@ -24,10 +24,10 @@ export const TxFee = ({
   return <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
     <InfoRow>
       <TextGrey>Payoff Rate</TextGrey>
-      <SkeletonLoader loading={payoffRate == null}>
+      <SkeletonLoader loading={!!loading}>
         <span>
           {
-            payoffRate == null ? <TextGreen>...</TextGreen> :
+            payoffRate == null ? <TextGreen>&nbsp;</TextGreen> :
             payoffRate > 100 ? <TextGreen>100%</TextGreen> :
             payoffRate >= 97 ? <TextGreen>{payoffRate}%</TextGreen> :
             payoffRate >= 94 ? <TextWarning>{payoffRate}%</TextWarning> :
@@ -38,18 +38,24 @@ export const TxFee = ({
     </InfoRow>
     <InfoRow>
       <TextGrey>Estimated Gas</TextGrey>
-      <SkeletonLoader loading={!gasUsed || gasUsed?.isZero()}>
-        <Text>{formatWeiToDisplayNumber(gasUsed, 0, 0)}</Text>
+      <SkeletonLoader loading={!!loading}>
+        {(!gasUsed || gasUsed?.isZero()) ?
+          <Text>&nbsp;</Text> :
+          <Text>{formatWeiToDisplayNumber(gasUsed, 0, 0)}</Text>
+        }
       </SkeletonLoader>
     </InfoRow>
     <InfoRow>
       <TextGrey>Estimated Fee</TextGrey>
-      <SkeletonLoader loading={!nativePrice || !gasUsed || gasUsed?.isZero()}>
-        <Text>
-          {weiToNumber(gasUsed.mul(0.1 * 10 ** 9), 18, 5)}
-          <TextGrey> {chainId === 56 ? 'BNB' : 'ETH'} </TextGrey>
-          (${weiToNumber(gasUsed.mul(0.1 * 10 ** 9).mul(numberToWei(nativePrice)), 36, 2)})
-        </Text>
+      <SkeletonLoader loading={!!loading}>
+        {(!nativePrice || !gasUsed || gasUsed?.isZero()) ?
+          <Text>&nbsp;</Text> :
+          <Text>
+            {weiToNumber(gasUsed.mul(0.1 * 10 ** 9), 18, 5)}
+            <TextGrey> {chainId === 56 ? 'BNB' : 'ETH'} </TextGrey>
+            (${weiToNumber(gasUsed.mul(0.1 * 10 ** 9).mul(numberToWei(nativePrice)), 36, 2)})
+          </Text>
+        }
       </SkeletonLoader>
     </InfoRow>
   </Box>
