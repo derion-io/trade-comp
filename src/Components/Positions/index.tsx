@@ -86,9 +86,9 @@ export const Positions = () => {
         <tr>
           <th className='hidden-on-phone'>Pool</th>
           <th>Token</th>
-          <th className='hidden-on-phone'>Pair</th>
+          <th className='hidden-on-phone'>Index</th>
           <th className='hidden-on-phone'>Leverage</th>
-          <th className='hidden-on-phone'>Reserve token</th>
+          <th className='hidden-on-phone'>Reserve</th>
           <th>Balance</th>
           <th>Value</th>
           <th />
@@ -120,7 +120,7 @@ export const Positions = () => {
               <td className='hidden-on-phone'>
                 <Text>{tokens[position.pool.baseToken]?.symbol}/{tokens[position.pool.quoteToken]?.symbol}</Text>
               </td>
-              <td className='hidden-on-phone'>x{position.pool.k.toNumber() / 2}</td>
+              <td className='hidden-on-phone'>{position.pool.k.toNumber() / 2}</td>
               <td className='hidden-on-phone'>
                 <div className='d-flex gap-05 align-items-center'>
                   <TokenIcon size={24} tokenAddress={position.pool.TOKEN_R} />

@@ -57,10 +57,9 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
           <thead>
             <tr>
               <th>Time</th>
-              <th>TokenIn</th>
+              <th>From</th>
               <th/>
-              <th>TokenOut</th>
-              <th className='text-right'>Tx</th>
+              <th>To</th>
             </tr>
           </thead>
           <tbody>
@@ -75,23 +74,18 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
                   })
                 }}>
                   <td className='wallet-history-table__time'>
-                    <TextLink
-                      href={configs.explorer + '/tx/' + swapTx.transactionHash}>{moment.unix(swapTx.timeStamp).fromNow()}</TextLink>
+                    <TextLink href={configs.explorer + '/tx/' + swapTx.transactionHash}>
+                      {moment.unix(swapTx.timeStamp).fromNow()}
+                    </TextLink>
                   </td>
                   <td className='wallet-history-table__ctoken-change'>
-                    <Text>{formatWeiToDisplayNumber(swapTx.amountIn, 4, tokens[swapTx.tokenIn]?.decimal || 18)}</Text>
                     <TextIn><TokenSymbol token={swapTx.tokenIn} /></TextIn>
+                    <Text> {formatWeiToDisplayNumber(swapTx.amountIn, 4, tokens[swapTx.tokenIn]?.decimal || 18)}</Text>
                   </td>
                   <td className='text-center wallet-history-table__arrow'><TextOut> {'->'} </TextOut></td>
                   <td>
-                    <Text>{formatWeiToDisplayNumber(swapTx.amountOut, 4, tokens[swapTx.tokenOut]?.decimal || 18)} </Text>
                     <TextOut><TokenSymbol token={swapTx.tokenOut} /></TextOut>
-                  </td>
-                  <td className='text-right'>
-                    <TextLink
-                      href={configs.explorer + '/tx/' + swapTx.transactionHash}>
-                      {shortenAddressString(swapTx.transactionHash)}
-                    </TextLink>
+                    <Text> {formatWeiToDisplayNumber(swapTx.amountOut, 4, tokens[swapTx.tokenOut]?.decimal || 18)}</Text>
                   </td>
                 </tr>
               })
