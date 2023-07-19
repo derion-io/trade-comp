@@ -37,6 +37,9 @@ export const PoolInfo = ({
     }
     const { address, id } = decodeErc1155Address(tokenAddress)
     const poolToShow = pools[address]
+    if (!poolToShow) {
+      return [null, null, null]
+    }
     const deleverageRisk: number|null =
       Number(id) == POOL_IDS.A ? poolToShow.deleverageRiskA :
       Number(id) == POOL_IDS.B ? poolToShow.deleverageRiskB :
