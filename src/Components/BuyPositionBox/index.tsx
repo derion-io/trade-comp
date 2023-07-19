@@ -63,6 +63,10 @@ const Component = ({
 
   const leverageData = useGenerateLeverageData(tradeType)
 
+  // TODO: load this
+  const expiration = 0
+  const expirationDelta = 0
+
   useEffect(() => {
     if (tradeType === TRADE_TYPE.LIQUIDITY && chartTab !== CHART_TABS.FUNC_PLOT) {
       setChartTab(CHART_TABS.FUNC_PLOT)
@@ -311,7 +315,7 @@ const Component = ({
                       ).split(".")[0]
                     }</div>
                     <div>${formatLocalisedCompactNumber(formatFloat(valueOutBefore)).split(".")[0]}</div>
-                    <div>0</div>
+                    <div>{expiration || '\u00A0'}</div>
                   </div>
                   <div className='position-delta--left'>
                     <div>{
@@ -322,7 +326,7 @@ const Component = ({
                       ).match(/\.\d+$/g) || '\u00A0'
                     }</div>
                     <div>{formatLocalisedCompactNumber(formatFloat(valueOutBefore)).match(/\.\d+$/g) || '\u00A0'}</div>
-                    <div>(s)</div>
+                    <div>{expiration ? '(s)' : '\u00A0'}</div>
                   </div>
                 </div>
               }
@@ -340,12 +344,12 @@ const Component = ({
                   <div className='position-delta--right'>
                     <div>{formatLocalisedCompactNumber(formatFloat(amountOut)).split(".")[0]}</div>
                     <div>${formatLocalisedCompactNumber(formatFloat(valueOut)).split(".")[0]}</div>
-                    <div>0</div>
+                    <div>{expirationDelta || '\u00A0'}</div>
                   </div>
                   <div className='position-delta--left'>
                     <div>{formatLocalisedCompactNumber(formatFloat(amountOut)).match(/\.\d+$/g) || '\u00A0'}</div>
                     <div>{formatLocalisedCompactNumber(formatFloat(valueOut)).match(/\.\d+$/g) || '\u00A0'}</div>
-                    <div>(s)</div>
+                    <div>{expirationDelta ? '(s)' : '\u00A0'}</div>
                   </div>
                 </div>
               </SkeletonLoader>
