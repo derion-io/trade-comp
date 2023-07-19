@@ -8,7 +8,7 @@ import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useConfigs } from '../../state/config/useConfigs'
 import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 import { BigNumber } from 'ethers'
-import { TRADE_TYPE } from '../../utils/constant'
+import { CHAINS, TRADE_TYPE } from '../../utils/constant'
 import { TextError } from '../ui/Text'
 import { useSettings } from '../../state/setting/hooks/useSettings'
 
@@ -47,6 +47,7 @@ export const ButtonSwap = ({
   const { balances, fetchBalanceAndAllowance } = useWalletBalance()
   const { ddlEngine } = useConfigs()
   const { settings: { slippage, payoffMinRate } } = useSettings()
+  const { chainId } = useWeb3React()
 
   const { updateSwapTxsHandle } = useSwapHistory()
 
@@ -60,6 +61,8 @@ export const ButtonSwap = ({
         }}
         className='swap-button'
       >Connect Wallet</ButtonExecute>
+    } else if (!Object.values(CHAINS).includes(chainId)) {
+      return <ButtonExecute className='swap-button' disabled>Unsupported Network</ButtonExecute>
     } else if (Number(amountIn) === 0) {
       return <ButtonExecute className='swap-button' disabled>Enter Amount</ButtonExecute>
     } else if (!balances[inputTokenAddress] || balances[inputTokenAddress].lt(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))) {
@@ -119,6 +122,7 @@ export const ButtonSwap = ({
       </ButtonExecute>
     }
   }, [
+    chainId,
     amountOut,
     slippage,
     ddlEngine,
