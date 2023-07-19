@@ -112,10 +112,13 @@ const Component = ({
         />
       </div>
 
-      <div className='text-center mt-2 mb-1'>
-        <span className='arrow-down' >
-          <IconArrowDown fill='#01A7FA' />
-        </span>
+      <PoolInfo
+        outputTokenAddress={outputTokenAddress}
+        inputTokenAddress={inputTokenAddress}
+      />
+
+      <div className='text-center mt-1 mb-1'>
+        <IconArrowDown fill='#01A7FA' />
       </div>
 
       <div className='amount-input-box'>
@@ -151,10 +154,6 @@ const Component = ({
         />
       </div>
 
-      <PoolInfo
-        outputTokenAddress={outputTokenAddress}
-        inputTokenAddress={inputTokenAddress}
-      />
       <TxFee gasUsed={gasUsed} payoffRate={payoffRate} />
 
       <div className='actions'>
