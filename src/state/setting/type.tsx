@@ -1,3 +1,5 @@
+import { CHAINS } from '../../utils/constant'
+
 export interface settingsState {
   slippage: number
   payoffMinRate: number
@@ -9,7 +11,8 @@ export interface settingsState {
 
 export const initialState: settingsState = {
   scanApiKey: {
-    42161: localStorage.getItem('scanApiKey-42161') || ''
+    [CHAINS.ARBITRUM]: localStorage.getItem(`scanApiKey-${CHAINS.ARBITRUM}`) || '',
+    [CHAINS.GANACHE]: localStorage.getItem(`scanApiKey-${CHAINS.GANACHE}`) || ''
   },
   slippage: Number(localStorage.getItem('slippage') || 3),
   payoffMinRate: Number(localStorage.getItem('payoffMinRate') || 97),

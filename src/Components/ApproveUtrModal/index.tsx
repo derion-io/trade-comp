@@ -45,7 +45,7 @@ const Component = ({
       <p className='mb-2'>
         Derivable use the Universal Token Router (EIP-6120) for token routing and allowance.
         You only need to approve your token to this contract once. You can review the verified
-        contract here: <TextBlue>{configs.router}</TextBlue>
+        contract here: <TextBlue>{configs.addresses.router}</TextBlue>
       </p>
       <div className='text-center mb-2'>
         <span>EIP-6120 is publicly accessible from here: </span>

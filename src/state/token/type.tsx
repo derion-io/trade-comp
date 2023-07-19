@@ -1,5 +1,7 @@
 // import configs from '../config/configs'
 
+import { CHAINS } from '../../utils/constant'
+
 export interface TokenType {
   decimal: number
   decimals?: number
@@ -24,9 +26,7 @@ export interface tokensState {
 
 export const initialState: tokensState = {
   tokens: {
-    56: {},
-    42161: {},
-    31337: {},
-    97: {}
+    [CHAINS.ARBITRUM]: {},
+    [CHAINS.GANACHE]: {}
   }
 }

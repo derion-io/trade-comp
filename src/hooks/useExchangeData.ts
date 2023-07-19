@@ -44,6 +44,9 @@ export const useExchangeData = () => {
     baseToken: string
   }) => {
     try {
+      if (!configs.theGraphExchange) {
+        return []
+      }
       const client = new GraphQLClient(configs.theGraphExchange)
       const query = getQueryArbitrumHourDatas(pair, interval)
       const res: { pairHourDatas: PairHourDataType[]} = await client.request(query)
@@ -83,6 +86,9 @@ export const useExchangeData = () => {
       })
     }
     try {
+      if (!configs.theGraphExchange) {
+        return []
+      }
       const client = new GraphQLClient(configs.theGraphExchange)
       const query = getQueryHourDatas(pair, interval)
       const res: { pairHourDatas: PairHourDataType[]} = await client.request(query)
@@ -112,6 +118,9 @@ export const useExchangeData = () => {
     baseToken: string
   }) => {
     try {
+      if (!configs.theGraphExchange) {
+        return []
+      }
       const client = new GraphQLClient(configs.theGraphExchange)
       const query = getQueryDayDatas(pair, interval)
       const res: { pairDayDatas: PairDayDataType[]} = await client.request(query)

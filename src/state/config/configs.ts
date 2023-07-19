@@ -1,5 +1,7 @@
+import { CHAINS } from '../../utils/constant'
+
 export default {
-  1337: {
+  [CHAINS.GANACHE]: {
     rpcUrl: 'http://localhost:8545/',
     rpcToGetLogs: 'http://localhost:8545/',
     explorer: 'https://bscscan.com',
@@ -33,7 +35,7 @@ export default {
       '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d',
     ]
   },
-  42161: {
+  [CHAINS.ARBITRUM]: {
     rpcUrl: 'https://arb1.arbitrum.io/rpc',
     rpcToGetLogs: 'https://arb1.arbitrum.io/rpc',
     explorer: 'https://arbiscan.io',

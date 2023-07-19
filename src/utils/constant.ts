@@ -6,12 +6,11 @@ export const fee10000 = 30
 export const MINI_SECOND_PER_DAY = 86400000
 export const LP_PRICE_UNIT = 10000
 export const TIME_TO_REFRESH_STATE = 30000
-export const DEFAULT_CHAIN = 42161
 export const CHAINS = {
-  LOCAL: 31337,
   GANACHE: 1337,
-  BSC: 56
+  ARBITRUM: 42161
 }
+export const DEFAULT_CHAIN = CHAINS.ARBITRUM
 
 export enum TRADE_TYPE {
   LONG,

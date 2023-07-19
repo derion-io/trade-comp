@@ -7,7 +7,7 @@ import { useWeb3React } from '../../customWeb3React/hook'
 import { useConfigs } from '../../config/useConfigs'
 import { ethers } from 'ethers'
 import ERC20Abi from '../../../assets/abi/IERC20.json'
-import { LARGE_VALUE, POOL_IDS } from '../../../utils/constant'
+import { LARGE_VALUE, NATIVE_ADDRESS, POOL_IDS } from '../../../utils/constant'
 import { toast } from 'react-toastify'
 import {
   bn,
@@ -29,7 +29,7 @@ export const useWalletBalance = () => {
       accFetchBalance: state.wallet.account
     }
   })
-  const { configs, chainId, ddlEngine } = useConfigs()
+  const { configs, ddlEngine } = useConfigs()
   const { library, account } = useWeb3React()
 
   const dispatch = useDispatch()
@@ -106,7 +106,7 @@ export const useWalletBalance = () => {
       balances,
       routerAllowances: {
         ...allowances,
-        [configs.addresses.nativeToken]: bn(LARGE_VALUE)
+        [NATIVE_ADDRESS]: bn(LARGE_VALUE)
       }
     })
   }
