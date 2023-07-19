@@ -33,7 +33,7 @@ export const PoolInfo = ({
       isErc1155Address(inputTokenAddress) ? inputTokenAddress :
       null
     if (!tokenAddress) {
-      return [null, null, '...']
+      return [null, null, '']
     }
     const { address, id } = decodeErc1155Address(tokenAddress)
     const poolToShow = pools[address]
@@ -42,7 +42,7 @@ export const PoolInfo = ({
       Number(id) == POOL_IDS.B ? poolToShow.deleverageRiskB :
       null
     const deleverageRiskDisplay: string =
-      deleverageRisk == null ? '...' :
+      deleverageRisk == null ? '' :
       formatPercent(Math.min(100, deleverageRisk), 0, true)+'%'
     return [poolToShow, id, deleverageRiskDisplay ]
   }, [pools, inputTokenAddress, outputTokenAddress])
