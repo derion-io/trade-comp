@@ -32,9 +32,8 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
           return
         }
 
-        // TODO: use real opacity instead of dimming like this
-        const opacity = 1 - Math.sqrt(deleverageRisk)
-        const color = `rgb(0, ${opacity * 180}, ${opacity * 256})`
+        const opacity = 1 - 0.95*Math.sqrt(deleverageRisk)
+        const color = `rgb(0, 180, 255)`
         const power = Math.abs(Number(getTokenPower(pool.TOKEN_R, pool.baseToken, tradeTypeToId(tradeType), pool.k.toNumber())))
 
         if (!result[power]) {
@@ -48,7 +47,7 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
                 token: pool.poolAddress + '-' + tradeTypeToId(tradeType),
                 size,
                 color,
-                opacity
+                opacity,
               }
             ]
           }
@@ -59,7 +58,7 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
             token: pool.poolAddress + '-' + tradeTypeToId(tradeType),
             size,
             color,
-            opacity
+            opacity,
           })
           result[power].bars = bars
           result[power].totalSize = result[power].totalSize.add(size)

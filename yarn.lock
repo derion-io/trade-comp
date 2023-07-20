@@ -8617,7 +8617,7 @@ levenary@^1.1.1:
 
 "leverage-slider@git+ssh://git@github.com:derivable-labs/leverage-slider-comp.git":
   version "1.0.0"
-  resolved "git+ssh://git@github.com:derivable-labs/leverage-slider-comp.git#b1d0e28edb3c390b3a5da7aed9ad16d1c55c8319"
+  resolved "git+ssh://git@github.com:derivable-labs/leverage-slider-comp.git#61640c4e933943d983a5951a30b85b6f596b4c2e"
   dependencies:
     "@reduxjs/toolkit" "^1.7.1"
     "@types/lodash" "^4.14.186"
@@ -10772,9 +10772,17 @@ postcss@^7, postcss@^7.0.0, postcss@^7.0.1, postcss@^7.0.14, postcss@^7.0.17, po
     picocolors "^0.2.1"
     source-map "^0.6.1"
 
-"powerLib@git+ssh://git@github.com:derivable-io/power-lib.git#502f7724fe3f25676f48e4107a0c7da705e25d7f", "powerLib@git+ssh://git@github.com:derivable-io/power-lib.git#build":
+"powerLib@git+ssh://git@github.com:derivable-io/power-lib.git#502f7724fe3f25676f48e4107a0c7da705e25d7f":
   version "1.0.0"
   resolved "git+ssh://git@github.com:derivable-io/power-lib.git#502f7724fe3f25676f48e4107a0c7da705e25d7f"
+  dependencies:
+    ethers "^5.4.6"
+    lodash "^4.17.21"
+
+"powerLib@git+ssh://git@github.com:derivable-labs/power-lib.git#build":
+  version "1.0.0"
+  uid "502f7724fe3f25676f48e4107a0c7da705e25d7f"
+  resolved "git+ssh://git@github.com:derivable-labs/power-lib.git#502f7724fe3f25676f48e4107a0c7da705e25d7f"
   dependencies:
     ethers "^5.4.6"
     lodash "^4.17.21"
