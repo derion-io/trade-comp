@@ -1,6 +1,6 @@
 // eslint-disable-next-line no-unused-vars
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { initialState } from './type'
+import { initialState, SORT_POOL_BY } from './type'
 export const tokens = createSlice({
   name: 'settings',
   initialState,
@@ -59,6 +59,16 @@ export const tokens = createSlice({
     ) => {
       localStorage.setItem(`scanApiKey-${action.payload.chainId}`, action.payload.scanApiKey)
       state.scanApiKey[action.payload.chainId] = action.payload.scanApiKey
+    },
+    setSortPoolBuyReduce: (
+      state,
+      action: PayloadAction<{
+        sortPoolBy: SORT_POOL_BY
+        chainId: number
+      }>
+    ) => {
+      localStorage.setItem('sortPoolBy', action.payload.sortPoolBy.toString())
+      state.sortPoolBy = action.payload.sortPoolBy
     }
   }
 })
@@ -70,7 +80,8 @@ export const {
   setDeleverageChanceReduce,
   setMinInterestRateReduce,
   setPayoffMinRateReduce,
-  setMinLiquidityReduce
+  setMinLiquidityReduce,
+  setSortPoolBuyReduce
 } = tokens.actions
 
 export default tokens.reducer

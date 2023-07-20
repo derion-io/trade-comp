@@ -4,10 +4,11 @@ import {
   setMinInterestRateReduce,
   setMinLiquidityReduce,
   setPayoffMinRateReduce, setScanApiKeyReduce,
-  setSlippageReduce
+  setSlippageReduce, setSortPoolBuyReduce
 } from '../reducer'
 import { State } from '../../types'
 import { useConfigs } from '../../config/useConfigs'
+import { SORT_POOL_BY } from '../type'
 
 export const useSettings = () => {
   const { chainId } = useConfigs()
@@ -36,8 +37,12 @@ export const useSettings = () => {
   const setScanApi = (scanApiKey: string) => {
     dispatch(setScanApiKeyReduce({ chainId, scanApiKey }))
   }
+  const setSortPoolBuy = (sortPoolBy: SORT_POOL_BY) => {
+    dispatch(setSortPoolBuyReduce({ chainId, sortPoolBy }))
+  }
   return {
     settings,
+    setSortPoolBuy,
     setSlippage,
     setScanApi,
     setDeleverageChance,

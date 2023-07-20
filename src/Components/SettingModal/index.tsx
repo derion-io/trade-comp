@@ -7,6 +7,7 @@ import { Text, TextError } from '../ui/Text'
 import { Box } from '../ui/Box'
 import { useSettings } from '../../state/setting/hooks/useSettings'
 import { useConfigs } from '../../state/config/useConfigs'
+import { SORT_POOL_BY } from '../../state/setting/type'
 
 const Component = ({
   visible,
@@ -99,7 +100,7 @@ const Component = ({
               errorMessage='Invalid Min Liquidity'
             />
           </div>
-          <div>
+          <div className='mb-1'>
             <div className='mb-05'>
               <Text>Max Deleverage Chance:</Text>
             </div>
@@ -111,10 +112,37 @@ const Component = ({
               errorMessage='Invalid Max Deleverage Chance'
             />
           </div>
+          <div>
+            <div className='mb-05'>
+              <Text>Sort By:</Text>
+            </div>
+            <div className='sort-by__items'>
+              <BtnSortPool
+                type={SORT_POOL_BY.LIQUIDITY}
+                title='Liquidity'
+              />
+              <BtnSortPool
+                type={SORT_POOL_BY.INTEREST_RATE}
+                title='Interest Rate'
+              />
+              <BtnSortPool
+                type={SORT_POOL_BY.DELEVERAGE_RISK}
+                title='Deleverage Risk'
+              />
+            </div>
+          </div>
         </Box>
       </div>
     </Modal>
   )
+}
+
+const BtnSortPool = ({ type, title }: any) => {
+  const { settings, setSortPoolBuy } = useSettings()
+  return <span
+    onClick={() => { setSortPoolBuy(type) }}
+    className={`sort-by__item ${settings.sortPoolBy === type && 'active'}`}
+  >{title}</span>
 }
 
 const InputApiKey = ({ defaultValue, setter }: {

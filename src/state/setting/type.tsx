@@ -1,15 +1,23 @@
 import { CHAINS } from '../../utils/constant'
 
+export enum SORT_POOL_BY {
+  LIQUIDITY,
+  INTEREST_RATE,
+  DELEVERAGE_RISK
+}
+
 export interface settingsState {
   slippage: number
   payoffMinRate: number
   minInterestRate: number
   minLiquidity: number
   deleverageChance: number
-  scanApiKey: {[key: number]: string}
+  scanApiKey: { [key: number]: string }
+  sortPoolBy: SORT_POOL_BY
 }
 
 export const initialState: settingsState = {
+  sortPoolBy: Number(localStorage.getItem('sortPoolBy') || SORT_POOL_BY.LIQUIDITY),
   scanApiKey: {
     [CHAINS.ARBITRUM]: localStorage.getItem(`scanApiKey-${CHAINS.ARBITRUM}`) || '',
     [CHAINS.GANACHE]: localStorage.getItem(`scanApiKey-${CHAINS.GANACHE}`) || ''

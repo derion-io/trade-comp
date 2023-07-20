@@ -18,4 +18,29 @@
       flex: 1;
     }
   }
+
+  .sort-by {
+    &__items {
+      display: flex;
+      gap: 1rem;
+    }
+
+    &__item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: 1px solid #565656;
+      padding: 1rem;
+      border-radius: 1.5rem;
+
+      &.active {
+        border: 1px solid $color-primary;
+      }
+
+      &:hover {
+        border: 1px solid rgba($color-primary, 0.6);
+      }
+    }
+  }
 }

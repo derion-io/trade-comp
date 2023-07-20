@@ -5,12 +5,13 @@ import { useTokenValue } from '../Components/SwapBox/hooks/useTokenValue'
 import { bn, getTokenPower, numberToWei, tradeTypeToId, weiToNumber } from '../utils/helpers'
 import { useListTokens } from '../state/token/hook'
 import { useSettings } from '../state/setting/hooks/useSettings'
+import { SORT_POOL_BY } from '../state/setting/type'
 
 export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
   const { pools } = useCurrentPoolGroup()
   const { tokens } = useListTokens()
   const { getTokenValue } = useTokenValue({})
-  const { settings: { minLiquidity, deleverageChance, minInterestRate } } = useSettings()
+  const { settings: { minLiquidity, deleverageChance, minInterestRate, sortPoolBy } } = useSettings()
 
   return useMemo(() => {
     const result = {}
@@ -32,8 +33,8 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
           return
         }
 
-        const opacity = 1 - 0.95*Math.sqrt(deleverageRisk)
-        const color = `rgb(0, 180, 255)`
+        const opacity = 1 - 0.95 * Math.sqrt(deleverageRisk)
+        const color = 'rgb(0, 180, 255)'
         const power = Math.abs(Number(getTokenPower(pool.TOKEN_R, pool.baseToken, tradeTypeToId(tradeType), pool.k.toNumber())))
 
         if (!result[power]) {
@@ -48,6 +49,8 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
                 size,
                 color,
                 opacity,
+                dailyInterestRate: pool.dailyInterestRate,
+                deleverageRisk
               }
             ]
           }
@@ -59,6 +62,8 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
             size,
             color,
             opacity,
+            dailyInterestRate: pool.dailyInterestRate,
+            deleverageRisk
           })
           result[power].bars = bars
           result[power].totalSize = result[power].totalSize.add(size)
@@ -86,10 +91,17 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
 
       return {
         ...leverage,
-        bars: bars.sort((a: any, b: any) => b.size - a.size)
+        bars: bars.sort((a: any, b: any) => {
+          if (sortPoolBy === SORT_POOL_BY.INTEREST_RATE) {
+            return b.dailyInterestRate - a.dailyInterestRate
+          } else if (sortPoolBy === SORT_POOL_BY.DELEVERAGE_RISK) {
+            return b.deleverageRisk - a.deleverageRisk
+          }
+          return b.size - a.size
+        })
       }
     })
 
     return data
-  }, [pools, tradeType, minLiquidity, deleverageChance, minInterestRate])
+  }, [pools, tradeType, minLiquidity, deleverageChance, minInterestRate, sortPoolBy])
 }
