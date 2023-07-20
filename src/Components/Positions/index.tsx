@@ -28,7 +28,7 @@ type Position = {
   netValue: BigNumber
 }
 
-export const Positions = () => {
+export const Positions = ({ setOutputTokenAddressToBuy }: { setOutputTokenAddressToBuy: any }) => {
   const { pools, tradeType } = useCurrentPoolGroup()
   const { balances } = useWalletBalance()
   const { tokens } = useListTokens()
@@ -105,7 +105,12 @@ export const Positions = () => {
               return ''
             }
 
-            return <tr key={key}>
+            return <tr
+              onClick={() => {
+                setOutputTokenAddressToBuy(position.token)
+              }}
+              key={key}
+            >
               <td className='hidden-on-phone'>
                 <TextLink href={configs.explorer + '/address/' + position.poolAddress}>
                   {shortenAddressString(position.poolAddress)}

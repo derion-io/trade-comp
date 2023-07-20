@@ -108,7 +108,9 @@ export const Trade = ({ tab, pool }: {
             </TabList>
             <TabPanel>
               <Card className='card-in-tab'>
-                <Positions />
+                <Positions
+                  setOutputTokenAddressToBuy={setOutputTokenAddress}
+                />
               </Card>
             </TabPanel>
             <TabPanel>
