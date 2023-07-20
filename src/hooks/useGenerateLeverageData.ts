@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { TRADE_TYPE } from '../utils/constant'
 import { useCurrentPoolGroup } from '../state/currentPool/hooks/useCurrentPoolGroup'
 import { useTokenValue } from '../Components/SwapBox/hooks/useTokenValue'
-import { bn, formatPercent, getTokenPower, numberToWei, tradeTypeToId, weiToNumber } from '../utils/helpers'
+import { bn, getTokenPower, numberToWei, tradeTypeToId, weiToNumber } from '../utils/helpers'
 import { useListTokens } from '../state/token/hook'
 import { useSettings } from '../state/setting/hooks/useSettings'
 
@@ -20,9 +20,11 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
           pool.TOKEN_R,
           weiToNumber(pool.states.R, tokens[pool.TOKEN_R]?.decimals)
         )))
-        const deleverageRisk = tradeType === TRADE_TYPE.LONG ? pool!.deleverageRiskA :
-          tradeType === TRADE_TYPE.SHORT ? pool!.deleverageRiskB :
-          Math.max(pool!.deleverageRiskA, pool!.deleverageRiskB)
+        const deleverageRisk = tradeType === TRADE_TYPE.LONG
+          ? pool!.deleverageRiskA
+          : tradeType === TRADE_TYPE.SHORT
+            ? pool!.deleverageRiskB
+            : Math.max(pool!.deleverageRiskA, pool!.deleverageRiskB)
         if (size.lt(numberToWei(minLiquidity, tokens[pool.TOKEN_R]?.decimals)) ||
           Number(pool.dailyInterestRate) * 100 < minInterestRate ||
           deleverageRisk * 100 > deleverageChance
@@ -31,8 +33,8 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
         }
 
         // TODO: use real opacity instead of dimming like this
-        const opacity = 1-Math.sqrt(deleverageRisk)
-        const color = `rgb(0, ${opacity*180}, ${opacity*256})`
+        const opacity = 1 - Math.sqrt(deleverageRisk)
+        const color = `rgb(0, ${opacity * 180}, ${opacity * 256})`
         const power = Math.abs(Number(getTokenPower(pool.TOKEN_R, pool.baseToken, tradeTypeToId(tradeType), pool.k.toNumber())))
 
         if (!result[power]) {
@@ -46,6 +48,7 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
                 token: pool.poolAddress + '-' + tradeTypeToId(tradeType),
                 size,
                 color,
+                opacity
               }
             ]
           }
@@ -56,6 +59,7 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
             token: pool.poolAddress + '-' + tradeTypeToId(tradeType),
             size,
             color,
+            opacity
           })
           result[power].bars = bars
           result[power].totalSize = result[power].totalSize.add(size)
