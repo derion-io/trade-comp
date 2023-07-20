@@ -108,22 +108,25 @@ const Component = ({
   })
 
   useEffect(() => {
-    if (outputTokenAddress) {
-      for (let i = 0; i < leverageData.length; i++) {
-        const leve: any = leverageData[i]
-        for (let k = 0; k < leve.bars.length; k++) {
-          if (leve.bars[k].token.includes(outputTokenAddress.slice(0, -3))) {
-            setBarData(leve.bars[k])
-            break
+    if (Object.values(pools).length > 0) {
+      if (outputTokenAddress) {
+        for (let i = 0; i < leverageData.length; i++) {
+          const leve: any = leverageData[i]
+          for (let k = 0; k < leve.bars.length; k++) {
+            if (leve.bars[k].token.includes(outputTokenAddress.slice(0, -3))) {
+              setBarData(leve.bars[k])
+              break
+            }
           }
         }
+        const { address } = decodeErc1155Address(outputTokenAddress)
+        if (inputTokenAddress && pools[address]?.TOKEN_R && wrapToNativeAddress(inputTokenAddress) !== wrapToNativeAddress(pools[address]?.TOKEN_R)) {
+          // console.log(inputTokenAddress, pools, address, pools[address]?.TOKEN_R)
+          setInputTokenAddress(wrapToNativeAddress(pools[address]?.TOKEN_R))
+        }
+      } else if (Object.values(pools).length > 0) {
+        setInputTokenAddress(wrapToNativeAddress(Object.values(pools)[0].TOKEN_R))
       }
-      const { address } = decodeErc1155Address(outputTokenAddress)
-      if (wrapToNativeAddress(inputTokenAddress) !== wrapToNativeAddress(pools[address]?.TOKEN_R)) {
-        setInputTokenAddress(pools[address]?.TOKEN_R)
-      }
-    } else if (Object.values(pools).length > 0) {
-      setInputTokenAddress(wrapToNativeAddress(Object.values(pools)[0].TOKEN_R))
     }
   }, [outputTokenAddress, pools, id])
 
@@ -304,17 +307,17 @@ const Component = ({
               <div>Expiration</div>
             </div>
             <SkeletonLoader loading={balances[outputTokenAddress] == null}>
-              {!Number(valueOutBefore) ? '' :
-                <div className='position-delta--group'>
+              {!Number(valueOutBefore) ? ''
+                : <div className='position-delta--group'>
                   <div className='position-delta--right'>
                     <div>{
                       formatWeiToDisplayNumber(
                         balances[outputTokenAddress] ?? bn(0),
                         4,
-                        tokens[outputTokenAddress]?.decimal || 18,
-                      ).split(".")[0]
+                        tokens[outputTokenAddress]?.decimal || 18
+                      ).split('.')[0]
                     }</div>
-                    <div>${formatLocalisedCompactNumber(formatFloat(valueOutBefore)).split(".")[0]}</div>
+                    <div>${formatLocalisedCompactNumber(formatFloat(valueOutBefore)).split('.')[0]}</div>
                     <div>{expiration || '\u00A0'}</div>
                   </div>
                   <div className='position-delta--left'>
@@ -322,7 +325,7 @@ const Component = ({
                       formatWeiToDisplayNumber(
                         balances[outputTokenAddress] ?? bn(0),
                         4,
-                        tokens[outputTokenAddress]?.decimal || 18,
+                        tokens[outputTokenAddress]?.decimal || 18
                       ).match(/\.\d+$/g) || '\u00A0'
                     }</div>
                     <div>{formatLocalisedCompactNumber(formatFloat(valueOutBefore)).match(/\.\d+$/g) || '\u00A0'}</div>
@@ -331,19 +334,19 @@ const Component = ({
                 </div>
               }
             </SkeletonLoader>
-            {!Number(amountIn) ? '' :
-              <div className='position-delta--left'>
+            {!Number(amountIn) ? ''
+              : <div className='position-delta--left'>
                 <div>+</div>
                 <div>+</div>
                 <div>+</div>
               </div>
             }
-            {!Number(amountIn) ? '' :
-              <SkeletonLoader loading={!Number(valueOut)}>
+            {!Number(amountIn) ? ''
+              : <SkeletonLoader loading={!Number(valueOut)}>
                 <div className='position-delta--group'>
                   <div className='position-delta--right'>
-                    <div>{formatLocalisedCompactNumber(formatFloat(amountOut)).split(".")[0]}</div>
-                    <div>${formatLocalisedCompactNumber(formatFloat(valueOut)).split(".")[0]}</div>
+                    <div>{formatLocalisedCompactNumber(formatFloat(amountOut)).split('.')[0]}</div>
+                    <div>${formatLocalisedCompactNumber(formatFloat(valueOut)).split('.')[0]}</div>
                     <div>{expirationDelta || '\u00A0'}</div>
                   </div>
                   <div className='position-delta--left'>
