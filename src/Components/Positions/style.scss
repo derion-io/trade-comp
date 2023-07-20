@@ -30,4 +30,11 @@
   td, th {
     padding: 0.5rem 0.25rem;
   }
+
+  .position-row {
+    cursor: pointer;
+    &:hover td {
+      background: #58585840;
+    }
+  }
 }

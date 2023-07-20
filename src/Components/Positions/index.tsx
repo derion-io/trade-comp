@@ -106,6 +106,7 @@ export const Positions = ({ setOutputTokenAddressToBuy }: { setOutputTokenAddres
             }
 
             return <tr
+              className='position-row'
               onClick={() => {
                 setOutputTokenAddressToBuy(position.token)
               }}
