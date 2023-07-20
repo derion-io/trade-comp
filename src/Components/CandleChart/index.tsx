@@ -9,6 +9,7 @@ import {
 import { Datafeed, TIME_IN_RESOLUTION } from '../../lib/datafeed'
 import { useListTokens } from '../../state/token/hook'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
+import { useResource } from '../../state/resources/hooks/useResource'
 import { Card } from '../ui/Card'
 import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 import { CandleChartLoader } from '../ChartLoaders'
@@ -30,10 +31,10 @@ export interface ChartContainerProps {
   logo?: any
 }
 
-// TODO: need to update hardcode address
-const cToken = '0x905dfCD5649217c42684f23958568e533C711Aa3'
-const baseToken = '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1'
-const quoteToken = '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8'
+let cToken: any, baseToken: any, quoteToken: any
+// const cToken = '0x905dfCD5649217c42684f23958568e533C711Aa3'
+// const baseToken = '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1'
+// const quoteToken = '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8'
 
 // TODO: need to fix chart decimal
 
@@ -50,6 +51,7 @@ const Component = ({
   const [tradingviewWidget, setTradingviewWidget] = useState<any>(null)
   const { tokens } = useListTokens()
   const {
+    id,
     chartIsOutDate,
     candleChartIsLoading,
     chartResolutionIsUpdated,
@@ -61,13 +63,17 @@ const Component = ({
   const { formartedSwapLogs: swapTxs } = useSwapHistory()
   const timeRangeRef = useRef<any>(null)
   const [currentChart, setCurrentChart] = useState<string>('')
+  const { poolGroups } = useResource()
+  baseToken = poolGroups[id]?.baseToken
+  quoteToken = poolGroups[id]?.quoteToken
+  cToken = id
 
   useEffect(() => {
-    if (tokens[baseToken] && tokens[quoteToken] && currentChart !== baseToken + quoteToken) {
+    if (tokens[baseToken] && tokens[quoteToken] && cToken && currentChart !== baseToken + cToken + quoteToken) {
       setTimeout(initChart)
-      setCurrentChart(baseToken + quoteToken)
+      setCurrentChart(baseToken + cToken + quoteToken)
     }
-  }, [tokens[baseToken], tokens[baseToken]])
+  }, [tokens[baseToken], tokens[quoteToken], cToken])
 
   useEffect(() => {
     if (tradingviewWidget) {
