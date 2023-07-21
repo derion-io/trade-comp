@@ -1,5 +1,6 @@
 import { BigNumber, ethers, utils } from 'ethers'
 import { POOL_IDS, TRADE_TYPE } from './constant'
+import _ from 'lodash'
 
 export const bn = ethers.BigNumber.from
 
@@ -59,23 +60,26 @@ export function overrideContract(provider: any, deployedBytecode: string) {
 }
 
 export const parseCallStaticError = (error: any) => {
-  const message = error.data?.message
-    ? error.data?.message?.replace('check error: ', '') || 'Error'
-    : error.message
-  if (message.includes('reverted with reason string')) {
-    const arr = message.split('reason="')
-    const m = arr[1]
-    return m?.split('"')[0]
-  } else if (message.includes('insufficient funds for transfer')) {
-    return 'insufficient funds for transfer'
-  } else if (message.includes('insufficient funds for gas * price + value')) {
-    return 'insufficient funds for gas * price + value'
-  } else if (message.includes('VM Exception while processing transaction:')) {
-    const arr = message.split('VM Exception while processing transaction:')
-    const m = arr[1]
-    return m?.split('[')[0]?.replace('reverted with', '').trim()
+  return _extractErrorReason(error)?.reason ?? 'ERROR'
+}
+
+function _extractErrorReason(err: any) {
+  if (typeof err?.error?.body == 'string') {
+      try {
+          const rre = JSON.parse(err?.error?.body)
+          if (!_.isEmpty(rre)) {
+              let reason = rre?.error?.message
+              if (reason.startsWith('execution reverted: ')) {
+                  reason = reason.substr(20)
+              }
+              return { reason, err: rre }
+          }
+      } catch (eee) {
+          console.error(eee)
+      }
   }
-  return message
+  const reason = err?.reason ?? err?.error?.body ?? err
+  return { reason, err }
 }
 
 export const formatFloat = (number: number | string, decimal?: number) => {
