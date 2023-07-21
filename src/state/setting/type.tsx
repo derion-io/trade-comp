@@ -1,4 +1,14 @@
-import { CHAINS } from '../../utils/constant'
+function loadJSON(key: string, defaultValue: any): any {
+  try {
+    const json = localStorage.getItem(key)
+    if (json != null) {
+      return JSON.parse(json)
+    }
+  } catch (err) {
+    console.error(err)
+  }
+  return defaultValue
+}
 
 export enum SORT_POOL_BY {
   LIQUIDITY,
@@ -17,14 +27,11 @@ export interface settingsState {
 }
 
 export const initialState: settingsState = {
-  sortPoolBy: Number(localStorage.getItem('sortPoolBy') || SORT_POOL_BY.LIQUIDITY),
-  scanApiKey: {
-    [CHAINS.ARBITRUM]: localStorage.getItem(`scanApiKey-${CHAINS.ARBITRUM}`) || '',
-    [CHAINS.GANACHE]: localStorage.getItem(`scanApiKey-${CHAINS.GANACHE}`) || ''
-  },
-  slippage: Number(localStorage.getItem('slippage') || 3),
-  minPayoffRate: Number(localStorage.getItem('minPayoffRate') || 97),
-  maxInterestRate: Number(localStorage.getItem('maxInterestRate') || 0.02),
-  minLiquidityShare: Number(localStorage.getItem('minLiquidityShare') || 1),
-  maxDeleverageRisk: Number(localStorage.getItem('maxDeleverageRisk') || 80)
+  sortPoolBy: Number(localStorage.getItem('sortPoolBy') || SORT_POOL_BY.INTEREST_RATE),
+  scanApiKey: loadJSON('scanApiKey', {}),
+  slippage: Number(localStorage.getItem('slippage') ?? 3),
+  minPayoffRate: Number(localStorage.getItem('minPayoffRate') ?? 97),
+  maxInterestRate: Number(localStorage.getItem('maxInterestRate') ?? 0.1),
+  minLiquidityShare: Number(localStorage.getItem('minLiquidityShare') ?? 1),
+  maxDeleverageRisk: Number(localStorage.getItem('maxDeleverageRisk') ?? 80),
 }

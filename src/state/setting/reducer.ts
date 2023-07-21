@@ -57,8 +57,8 @@ export const tokens = createSlice({
         chainId: number
       }>
     ) => {
-      localStorage.setItem(`scanApiKey-${action.payload.chainId}`, action.payload.scanApiKey)
       state.scanApiKey[action.payload.chainId] = action.payload.scanApiKey
+      localStorage.setItem(`scanApiKey`, JSON.stringify(state.scanApiKey))
     },
     setSortPoolBuyReduce: (
       state,
