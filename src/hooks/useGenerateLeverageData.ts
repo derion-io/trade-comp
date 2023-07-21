@@ -11,24 +11,26 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
   const { pools } = useCurrentPoolGroup()
   const { tokens } = useListTokens()
   const { getTokenValue } = useTokenValue({})
-  const { settings: { minLiquidity, deleverageChance, minInterestRate, sortPoolBy } } = useSettings()
+  const { settings: { minLiquidityShare, maxDeleverageRisk, maxInterestRate, sortPoolBy } } = useSettings()
 
   return useMemo(() => {
     const result = {}
     if (Object.values(pools).length > 0) {
+      const sumR = Object.values(pools).reduce((sumR, pool) => {
+        return sumR = sumR.add(pool.states.R)
+      }, bn(0))
+      const minR = sumR.mul(Math.round(minLiquidityShare * 1000)).div(100*1000)
+
       Object.values(pools).forEach((pool) => {
-        const size = bn(numberToWei(getTokenValue(
-          pool.TOKEN_R,
-          weiToNumber(pool.states.R, tokens[pool.TOKEN_R]?.decimals)
-        )))
         const deleverageRisk = tradeType === TRADE_TYPE.LONG
           ? pool!.deleverageRiskA
           : tradeType === TRADE_TYPE.SHORT
             ? pool!.deleverageRiskB
             : Math.max(pool!.deleverageRiskA, pool!.deleverageRiskB)
-        if (size.lt(numberToWei(minLiquidity, tokens[pool.TOKEN_R]?.decimals)) ||
-          Number(pool.dailyInterestRate) * 100 < minInterestRate ||
-          deleverageRisk * 100 > deleverageChance
+
+        if (pool.states.R.lt(minR) ||
+          (Number(pool.dailyInterestRate) * 99) > (maxInterestRate * pool.k.toNumber()) ||
+          (deleverageRisk * 99) > maxDeleverageRisk
         ) {
           return
         }
@@ -36,6 +38,7 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
         const opacity = 1 - 0.95 * Math.sqrt(deleverageRisk)
         const color = 'rgb(0, 180, 255)'
         const power = Math.abs(Number(getTokenPower(pool.TOKEN_R, pool.baseToken, tradeTypeToId(tradeType), pool.k.toNumber())))
+        const size = pool.states.R
 
         if (!result[power]) {
           result[power] = {
@@ -93,9 +96,9 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
         ...leverage,
         bars: bars.sort((a: any, b: any) => {
           if (sortPoolBy === SORT_POOL_BY.INTEREST_RATE) {
-            return b.dailyInterestRate - a.dailyInterestRate
+            return a.dailyInterestRate - b.dailyInterestRate
           } else if (sortPoolBy === SORT_POOL_BY.DELEVERAGE_RISK) {
-            return b.deleverageRisk - a.deleverageRisk
+            return a.deleverageRisk - b.deleverageRisk
           }
           return b.size - a.size
         })
@@ -103,5 +106,5 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
     })
 
     return data
-  }, [pools, tradeType, minLiquidity, deleverageChance, minInterestRate, sortPoolBy])
+  }, [pools, tradeType, minLiquidityShare, maxDeleverageRisk, maxInterestRate, sortPoolBy])
 }

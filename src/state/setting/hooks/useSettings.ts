@@ -22,17 +22,17 @@ export const useSettings = () => {
   const setSlippage = (slippage: number) => {
     dispatch(setSlippageReduce({ slippage }))
   }
-  const setDeleverageChance = (deleverageChance: number) => {
-    dispatch(setDeleverageChanceReduce({ deleverageChance }))
+  const setMaxDeleverageRisk = (maxDeleverageRisk: number) => {
+    dispatch(setDeleverageChanceReduce({ maxDeleverageRisk }))
   }
-  const setMinInterestRate = (minInterestRate: number) => {
-    dispatch(setMinInterestRateReduce({ minInterestRate }))
+  const setMaxInterestRate = (maxInterestRate: number) => {
+    dispatch(setMinInterestRateReduce({ maxInterestRate }))
   }
-  const setPayoffMinRate = (payoffMinRate: number) => {
-    dispatch(setPayoffMinRateReduce({ payoffMinRate }))
+  const setMinPayoffRate = (minPayoffRate: number) => {
+    dispatch(setPayoffMinRateReduce({ minPayoffRate }))
   }
-  const setMinLiquidity = (minLiquidity: number) => {
-    dispatch(setMinLiquidityReduce({ minLiquidity }))
+  const setMinLiquidityShare = (minLiquidityShare: number) => {
+    dispatch(setMinLiquidityReduce({ minLiquidityShare }))
   }
   const setScanApi = (scanApiKey: string) => {
     dispatch(setScanApiKeyReduce({ chainId, scanApiKey }))
@@ -45,9 +45,9 @@ export const useSettings = () => {
     setSortPoolBuy,
     setSlippage,
     setScanApi,
-    setDeleverageChance,
-    setMinInterestRate,
-    setPayoffMinRate,
-    setMinLiquidity
+    setMaxDeleverageRisk,
+    setMaxInterestRate,
+    setMinPayoffRate,
+    setMinLiquidityShare
   }
 }

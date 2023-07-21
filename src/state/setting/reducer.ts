@@ -17,38 +17,38 @@ export const tokens = createSlice({
     setPayoffMinRateReduce: (
       state,
       action: PayloadAction<{
-        payoffMinRate: any
+        minPayoffRate: any
       }>
     ) => {
-      localStorage.setItem('payoffMinRate', action.payload.payoffMinRate)
-      state.payoffMinRate = action.payload.payoffMinRate
+      localStorage.setItem('minPayoffRate', action.payload.minPayoffRate)
+      state.minPayoffRate = action.payload.minPayoffRate
     },
     setMinInterestRateReduce: (
       state,
       action: PayloadAction<{
-        minInterestRate: any
+        maxInterestRate: any
       }>
     ) => {
-      localStorage.setItem('minInterestRate', action.payload.minInterestRate)
-      state.minInterestRate = action.payload.minInterestRate
+      localStorage.setItem('maxInterestRate', action.payload.maxInterestRate)
+      state.maxInterestRate = action.payload.maxInterestRate
     },
     setMinLiquidityReduce: (
       state,
       action: PayloadAction<{
-        minLiquidity: any
+        minLiquidityShare: any
       }>
     ) => {
-      localStorage.setItem('minLiquidity', action.payload.minLiquidity)
-      state.minLiquidity = action.payload.minLiquidity
+      localStorage.setItem('minLiquidityShare', action.payload.minLiquidityShare)
+      state.minLiquidityShare = action.payload.minLiquidityShare
     },
     setDeleverageChanceReduce: (
       state,
       action: PayloadAction<{
-        deleverageChance: any
+        maxDeleverageRisk: any
       }>
     ) => {
-      localStorage.setItem('deleverageChance', action.payload.deleverageChance)
-      state.deleverageChance = action.payload.deleverageChance
+      localStorage.setItem('maxDeleverageRisk', action.payload.maxDeleverageRisk)
+      state.maxDeleverageRisk = action.payload.maxDeleverageRisk
     },
     setScanApiKeyReduce: (
       state,

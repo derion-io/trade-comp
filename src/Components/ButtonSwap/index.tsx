@@ -46,7 +46,7 @@ export const ButtonSwap = ({
   const { account, showConnectModal } = useWeb3React()
   const { balances, fetchBalanceAndAllowance } = useWalletBalance()
   const { ddlEngine } = useConfigs()
-  const { settings: { slippage, payoffMinRate } } = useSettings()
+  const { settings: { slippage, minPayoffRate } } = useSettings()
   const { chainId } = useWeb3React()
 
   const { updateSwapTxsHandle } = useSwapHistory()
@@ -77,7 +77,7 @@ export const ButtonSwap = ({
       return <ButtonExecute className='swap-button' disabled>{callError}</ButtonExecute>
     } else {
       return <ButtonExecute
-        disabled={Number(payoffRate) < payoffMinRate}
+        disabled={Number(payoffRate) < minPayoffRate}
         className='swap-button'
         onClick={async () => {
           try {

@@ -8,10 +8,10 @@ export enum SORT_POOL_BY {
 
 export interface settingsState {
   slippage: number
-  payoffMinRate: number
-  minInterestRate: number
-  minLiquidity: number
-  deleverageChance: number
+  minPayoffRate: number
+  maxInterestRate: number
+  minLiquidityShare: number
+  maxDeleverageRisk: number
   scanApiKey: { [key: number]: string }
   sortPoolBy: SORT_POOL_BY
 }
@@ -23,8 +23,8 @@ export const initialState: settingsState = {
     [CHAINS.GANACHE]: localStorage.getItem(`scanApiKey-${CHAINS.GANACHE}`) || ''
   },
   slippage: Number(localStorage.getItem('slippage') || 3),
-  payoffMinRate: Number(localStorage.getItem('payoffMinRate') || 97),
-  minInterestRate: Number(localStorage.getItem('minInterestRate') || 0.02),
-  minLiquidity: Number(localStorage.getItem('minLiquidity') || 1),
-  deleverageChance: Number(localStorage.getItem('deleverageChance') || 80)
+  minPayoffRate: Number(localStorage.getItem('minPayoffRate') || 97),
+  maxInterestRate: Number(localStorage.getItem('maxInterestRate') || 0.02),
+  minLiquidityShare: Number(localStorage.getItem('minLiquidityShare') || 1),
+  maxDeleverageRisk: Number(localStorage.getItem('maxDeleverageRisk') || 80)
 }

@@ -27,19 +27,20 @@
 
     &__item {
       display: flex;
+      text-align: center;
       align-items: center;
       justify-content: center;
       background: none;
-      border: 1px solid #565656;
-      padding: 1rem;
-      border-radius: 1.5rem;
+      border: 2px solid #565656;
+      padding: .5rem;
+      border-radius: .5rem;
 
       &.active {
-        border: 1px solid $color-primary;
+        border: 2px solid $color-primary;
       }
 
       &:hover {
-        border: 1px solid rgba($color-primary, 0.6);
+        border: 2px solid rgba($color-primary, 0.5);
       }
     }
   }

@@ -19,10 +19,10 @@ const Component = ({
   const {
     settings,
     setSlippage,
-    setDeleverageChance,
-    setMinInterestRate,
-    setPayoffMinRate,
-    setMinLiquidity,
+    setMaxDeleverageRisk,
+    setMaxInterestRate,
+    setMinPayoffRate,
+    setMinLiquidityShare,
     setScanApi
   } = useSettings()
   const { chainId } = useConfigs()
@@ -49,21 +49,21 @@ const Component = ({
         </div>
         <div className='mb-1'>
           <div className='mb-05'>
-            <Text>Pay-Off Min Rate</Text>
+            <Text>Min Pay-Off Rate</Text>
           </div>
           <InputWithValidate
-            defaultValue={settings.payoffMinRate}
+            defaultValue={settings.minPayoffRate}
             min={0}
             max={100}
-            setter={setPayoffMinRate}
-            errorMessage='Invalid Pay-Off Min Rate'
+            setter={setMinPayoffRate}
+            errorMessage='Invalid Min Pay-Off Rate'
           />
         </div>
         {
           visible &&
           <div className='mb-1'>
             <div className='mb-05'>
-              <Text>Scan api Key</Text>
+              <Text>Scan API Key</Text>
             </div>
             <InputApiKey
               setter={setScanApi}
@@ -73,48 +73,48 @@ const Component = ({
         }
 
         <div className='mb-05'>
-          <Text>Pool Filter: </Text>
+          <Text>Pools Filter</Text>
         </div>
         <Box borderColor='default p-1'>
           <div className='mb-1'>
             <div className='mb-05'>
-              <Text>Min Interest Rate:</Text>
+              <Text>Max Interest Rate</Text>
             </div>
             <InputWithValidate
-              defaultValue={settings.minInterestRate}
+              defaultValue={settings.maxInterestRate}
               min={0}
               max={100}
-              setter={setMinInterestRate}
-              errorMessage='Invalid Min Interest Rate'
+              setter={setMaxInterestRate}
+              errorMessage='Invalid Max Interest Rate'
             />
           </div>
           <div className='mb-1'>
             <div className='mb-05'>
-              <Text>Min Liquidity:</Text>
+              <Text>Max Deleverage Risk</Text>
             </div>
             <InputWithValidate
-              defaultValue={settings.minLiquidity}
+              defaultValue={settings.maxDeleverageRisk}
               min={0}
-              suffix='$'
-              setter={setMinLiquidity}
-              errorMessage='Invalid Min Liquidity'
+              max={100}
+              setter={setMaxDeleverageRisk}
+              errorMessage='Invalid Max Deleverage Risk'
             />
           </div>
           <div className='mb-1'>
             <div className='mb-05'>
-              <Text>Max Deleverage Chance:</Text>
+              <Text>Min Liquidity Share</Text>
             </div>
             <InputWithValidate
-              defaultValue={settings.deleverageChance}
+              defaultValue={settings.minLiquidityShare}
               min={0}
-              max={100}
-              setter={setDeleverageChance}
-              errorMessage='Invalid Max Deleverage Chance'
+              suffix='%'
+              setter={setMinLiquidityShare}
+              errorMessage='Invalid Min Liquidity Share'
             />
           </div>
           <div>
             <div className='mb-05'>
-              <Text>Sort By:</Text>
+              <Text>Sort</Text>
             </div>
             <div className='sort-by__items'>
               <BtnSortPool
