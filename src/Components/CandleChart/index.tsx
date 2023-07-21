@@ -1,11 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import './style.scss'
-import {
-  ChartingLibraryWidgetOptions,
-  IChartingLibraryWidget,
-  ResolutionString, TimeFrameType,
-  widget
-} from '../../lib/charting_library'
+// eslint-disable-next-line no-unused-vars
+import { ChartingLibraryWidgetOptions, IChartingLibraryWidget, ResolutionString, TimeFrameType, widget } from '../../lib/charting_library'
 import { Datafeed, TIME_IN_RESOLUTION } from '../../lib/datafeed'
 import { useListTokens } from '../../state/token/hook'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
@@ -30,12 +26,6 @@ export interface ChartContainerProps {
   containerId: ChartingLibraryWidgetOptions['container_id']
   logo?: any
 }
-
-let cToken: any, baseToken: any, quoteToken: any
-// const cToken = '0x905dfCD5649217c42684f23958568e533C711Aa3'
-// const baseToken = '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1'
-// const quoteToken = '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8'
-
 // TODO: need to fix chart decimal
 
 const Component = ({
@@ -48,7 +38,7 @@ const Component = ({
   autosize,
   studiesOverrides
 }: ChartContainerProps) => {
-  const [tradingviewWidget, setTradingviewWidget] = useState<any>(null)
+  const [tradingviewWidget, setTradingviewWidget] = useState<any>()
   const { tokens } = useListTokens()
   const {
     id,
@@ -61,25 +51,26 @@ const Component = ({
   } = useCurrentPoolGroup()
   const { chainId } = useConfigs()
   const { formartedSwapLogs: swapTxs } = useSwapHistory()
-  const timeRangeRef = useRef<any>(null)
+  const timeRangeRef = useRef<any>()
   const [currentChart, setCurrentChart] = useState<string>('')
   const { poolGroups } = useResource()
-  baseToken = poolGroups[id]?.baseToken
-  quoteToken = poolGroups[id]?.quoteToken
-  cToken = id
+  const baseToken = poolGroups[id]?.baseToken
+  const quoteToken = poolGroups[id]?.quoteToken
+  const cToken = id
 
   useEffect(() => {
     if (tokens[baseToken] && tokens[quoteToken] && cToken && currentChart !== baseToken + cToken + quoteToken) {
       setTimeout(initChart)
       setCurrentChart(baseToken + cToken + quoteToken)
     }
-  }, [tokens[baseToken], tokens[quoteToken], cToken])
+  }, [baseToken, quoteToken, cToken])
 
   useEffect(() => {
     if (tradingviewWidget) {
       try {
-        tradingviewWidget.activeChart().clearMarks()
-        tradingviewWidget.activeChart().refreshMarks()
+        tradingviewWidget.onChartReady(() => {
+          tradingviewWidget.activeChart().clearMarks()
+        })
       } catch (e) {
         console.error(e)
       }
@@ -89,8 +80,10 @@ const Component = ({
   useEffect(() => {
     if (tradingviewWidget && chartTimeFocus) {
       try {
-        const resolution = tradingviewWidget.activeChart().resolution()
-        tradingviewWidget.activeChart().setVisibleRange(detectRange(resolution, chartTimeFocus, chartTimeFocus))
+        tradingviewWidget.onChartReady(() => {
+          const resolution = tradingviewWidget.activeChart().resolution()
+          tradingviewWidget.activeChart().setVisibleRange(detectRange(resolution, chartTimeFocus, chartTimeFocus))
+        })
       } catch (e) {
         console.error(e)
       }
@@ -100,10 +93,12 @@ const Component = ({
   useEffect(() => {
     if (tradingviewWidget && chartResolutionIsUpdated) {
       try {
-        const resolution = tradingviewWidget.activeChart().resolution()
-        const data = timeRangeRef.current.value
-        const [from, to] = data.split(',').map(Number)
-        tradingviewWidget.activeChart().setVisibleRange(detectRange(resolution, from, to))
+        tradingviewWidget.onChartReady(() => {
+          const resolution = tradingviewWidget.activeChart().resolution()
+          const data = timeRangeRef.current.value
+          const [from, to] = data.split(',').map(Number)
+          tradingviewWidget.activeChart().setVisibleRange(detectRange(resolution, from, to))
+        })
       } catch (e) {
         console.error(e)
       }
@@ -149,8 +144,9 @@ const Component = ({
         backgroundColor: 'transparent'
       }
     }
-
+    // eslint-disable-next-line new-cap
     const tvWidget: IChartingLibraryWidget = new widget(widgetOptions)
+    setTradingviewWidget(tvWidget)
     tvWidget.onChartReady(() => {
       setTradingviewWidget(tvWidget)
       tvWidget.activeChart().onVisibleRangeChanged().subscribe(null, ({ from, to }) => {
@@ -187,8 +183,6 @@ const Component = ({
       to: middleTime + timePerCandle * 50
     }
   }
-
-  // eslint-disable-next-line no-constant-condition
 
   return (
     <Card className='candle-chart-wrap'>
