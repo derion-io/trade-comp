@@ -46,3 +46,22 @@ export const LINE_CHART_CONFIG = {
     limit: 180
   }
 }
+
+export const LINE_CHART_ARBI_CONFIG = {
+  [I_1D]: {
+    type: 'hourlySnapshots',
+    limit: 24
+  },
+  [I_1W]: {
+    type: 'hourlySnapshots',
+    limit: 168
+  },
+  [I_1M]: {
+    type: 'hourlySnapshots',
+    limit: 720
+  },
+  [I_6M]: {
+    type: 'dailySnapshots',
+    limit: 180
+  }
+}

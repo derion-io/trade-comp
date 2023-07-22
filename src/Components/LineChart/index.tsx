@@ -7,18 +7,16 @@ import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoo
 import moment from 'moment'
 import { useListTokens } from '../../state/token/hook'
 import { Text, TextBuy, TextGrey, TextSell } from '../ui/Text'
-import { formatFloat } from '../../utils/helpers'
+// eslint-disable-next-line no-unused-vars
 import { DATE_FORMATS, I_1D, I_1W, INTERVALS_TAB, LineChartIntervalType } from '../../utils/lineChartConstant'
 import { Tabs } from '../ui/Tabs'
 import { COLORS } from '../../utils/constant'
 import isEqual from 'react-fast-compare'
 import { useConfigs } from '../../state/config/useConfigs'
 
-const cToken = '0x905dfCD5649217c42684f23958568e533C711Aa3'
-
 const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const { getLineChartData } = useExchangeData()
-  const { baseToken, quoteToken, basePrice } = useCurrentPoolGroup()
+  const { baseToken, quoteToken, id } = useCurrentPoolGroup()
   const { tokens } = useListTokens()
   const [hoverValue, setHoverValue] = useState<number>()
   const [chartData, setChartData] = useState<{ [key: string]: any[] }>({})
@@ -26,8 +24,9 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const [hoverDate, setHoverDate] = useState<string>()
   const [interval, setInterval] = useState<LineChartIntervalType>(I_1W)
   const { chainId } = useConfigs()
+  const cToken = id
   useEffect(() => {
-    if (!chartData[chainId + interval + cToken] && cToken) {
+    if (!chartData[chainId + interval + cToken] || cToken) {
       setIsLoading(true)
       getLineChartData({ chainId, pair: cToken.toLowerCase(), baseToken, interval })
         .then((data) => {
@@ -43,10 +42,6 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const finalData = useMemo(() => {
     const data = [
       ...chartData[chainId + interval + cToken]
-      // {
-      //   time: new Date().getTime(),
-      //   value: formatFloat(basePrice)
-      // }
     ]
     return data
   }, [chartData, interval, chainId])

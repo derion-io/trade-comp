@@ -1,7 +1,9 @@
 import { gql, GraphQLClient } from 'graphql-request'
 import { useConfigs } from '../state/config/useConfigs'
+import { ethers } from 'ethers'
 import { bn, formatFloat, numberToWei, weiToNumber } from '../utils/helpers'
-import { LINE_CHART_CONFIG, LineChartIntervalType } from '../utils/lineChartConstant'
+// eslint-disable-next-line no-unused-vars
+import { LINE_CHART_CONFIG, LINE_CHART_ARBI_CONFIG, LineChartIntervalType } from '../utils/lineChartConstant'
 
 type PairHourDataType = {
   reserve0: string,
@@ -17,6 +19,32 @@ type PairHourDataType = {
       id: string
     }
   }
+}
+
+type LiquidityPool = {
+  hourlySnapshots: Array<HourlySnapshots>,
+  dailySnapshots: Array<DailySnapshots>,
+}
+
+type HourlySnapshots = {
+  timestamp: number
+  pool: {
+    inputTokens: Array<InputTokens>
+  },
+  hourlyVolumeByTokenAmount: Array<any>
+}
+
+type DailySnapshots = {
+  timestamp: number
+  pool: {
+    inputTokens: Array<InputTokens>
+  },
+  dailyVolumeByTokenAmount: Array<any>
+}
+
+type InputTokens = {
+  id: string,
+  decimals: number
 }
 
 type PairDayDataType = {
@@ -44,20 +72,25 @@ export const useExchangeData = () => {
     baseToken: string
   }) => {
     try {
-      if (!configs.theGraphExchange) {
+      if (!configs.theGraphArbitrum) {
         return []
       }
-      const client = new GraphQLClient(configs.theGraphExchange)
+      const client = new GraphQLClient(configs.theGraphArbitrum)
       const query = getQueryArbitrumHourDatas(pair, interval)
-      const res: { pairHourDatas: PairHourDataType[]} = await client.request(query)
-      const a = res.pairHourDatas?.map((item) => {
-        const [baseReserve, quoteReserve] = item.pair.token0.id.toLowerCase() === baseToken.toLowerCase()
-          ? [item.reserve0, item.reserve1]
-          : [item.reserve1, item.reserve0]
-        const value = weiToNumber(bn(numberToWei(quoteReserve, 36)).div(numberToWei(baseReserve, 18)))
+      const res: { liquidityPool: LiquidityPool} = await client.request(query)
+      const a = res.liquidityPool.hourlySnapshots?.map((item) => {
+        const [baseAmount, quoteAmount] = item.pool.inputTokens[0]?.id.toLowerCase() === baseToken.toLowerCase()
+          ? [item.hourlyVolumeByTokenAmount[0], item.hourlyVolumeByTokenAmount[1]]
+          : [item.hourlyVolumeByTokenAmount[1], item.hourlyVolumeByTokenAmount[0]]
+        const [baseDecimal, quoteDecimal] = item.pool.inputTokens[0]?.id.toLowerCase() === baseToken.toLowerCase()
+          ? [item.pool.inputTokens[0]?.decimals, item.pool.inputTokens[1]?.decimals]
+          : [item.pool.inputTokens[1]?.decimals, item.pool.inputTokens[0]?.decimals]
+        const baseConverted = parseFloat(ethers.utils.formatUnits(baseAmount, baseDecimal))
+        const quoteConverted = parseFloat(ethers.utils.formatUnits(quoteAmount, quoteDecimal))
+        const value = quoteConverted / baseConverted
         return {
-          time: item.date * 1000,
-          value: Number(formatFloat(value))
+          time: item.timestamp * 1000,
+          value: formatFloat(value.toFixed(18))
         }
       }).sort((a, b) => a.time - b.time)
       return a
@@ -118,20 +151,25 @@ export const useExchangeData = () => {
     baseToken: string
   }) => {
     try {
-      if (!configs.theGraphExchange) {
+      if (!configs.theGraphArbitrum) {
         return []
       }
-      const client = new GraphQLClient(configs.theGraphExchange)
-      const query = getQueryDayDatas(pair, interval)
-      const res: { pairDayDatas: PairDayDataType[]} = await client.request(query)
-      return res.pairDayDatas?.map((item) => {
-        const [baseReserve, quoteReserve] = item.token0.id.toLowerCase() === baseToken.toLowerCase()
-          ? [item.reserve0, item.reserve1]
-          : [item.reserve1, item.reserve0]
-        const value = weiToNumber(bn(numberToWei(quoteReserve, 36)).div(numberToWei(baseReserve, 18)))
+      const client = new GraphQLClient(configs.theGraphArbitrum)
+      const query = getQueryArbitrumDayDatas(pair, interval)
+      const res: { liquidityPool: LiquidityPool} = await client.request(query)
+      return res.liquidityPool?.dailySnapshots.map((item) => {
+        const [baseAmount, quoteAmount] = item.pool.inputTokens[0]?.id.toLowerCase() === baseToken.toLowerCase()
+          ? [item.dailyVolumeByTokenAmount[0], item.dailyVolumeByTokenAmount[1]]
+          : [item.dailyVolumeByTokenAmount[1], item.dailyVolumeByTokenAmount[0]]
+        const [baseDecimal, quoteDecimal] = item.pool.inputTokens[0]?.id.toLowerCase() === baseToken.toLowerCase()
+          ? [item.pool.inputTokens[0]?.decimals, item.pool.inputTokens[1]?.decimals]
+          : [item.pool.inputTokens[1]?.decimals, item.pool.inputTokens[0]?.decimals]
+        const baseConverted = parseFloat(ethers.utils.formatUnits(baseAmount, baseDecimal))
+        const quoteConverted = parseFloat(ethers.utils.formatUnits(quoteAmount, quoteDecimal))
+        const value = quoteConverted / baseConverted
         return {
-          time: item.date * 1000,
-          value: Number(formatFloat(value))
+          time: item.timestamp * 1000,
+          value: formatFloat(value.toFixed(18))
         }
       }).sort((a, b) => a.time - b.time)
     } catch (error) {
@@ -151,7 +189,7 @@ export const useExchangeData = () => {
     pair: string
     baseToken: string
   }) => {
-    return LINE_CHART_CONFIG[interval].type === 'pairHourDatas'
+    return LINE_CHART_ARBI_CONFIG[interval].type === 'hourlySnapshots'
       ? await getPairHourData({ interval, pair, baseToken, chainId })
       : await getPairDayData({ interval, pair, baseToken })
   }
@@ -161,44 +199,39 @@ export const useExchangeData = () => {
   }
 }
 
-const getQueryDayDatas = (pair: string, interval: LineChartIntervalType) => gql`{
-    ${LINE_CHART_CONFIG[interval].type}(
-      first: ${LINE_CHART_CONFIG[interval].limit}
-      where: {pair: "${pair}"}
-      orderBy: date
+const getQueryArbitrumDayDatas = (pair: string, interval: LineChartIntervalType) => gql`{
+  liquidityPool(id: "${pair}") {
+    ${LINE_CHART_ARBI_CONFIG[interval].type}(
+      first: ${LINE_CHART_ARBI_CONFIG[interval].limit},
+      orderBy: timestamp,
       orderDirection: desc
     ) {
-      date
-      id
-      reserve0
-      reserve1
-      token0 {
-        id
-      }
-      token1 {
-        id
+        dailyVolumeByTokenAmount
+        timestamp
+        pool {
+          inputTokens {
+            id,
+            decimals
+          }
+        }
       }
     }
   }
 `
 
 const getQueryArbitrumHourDatas = (pair: string, interval: LineChartIntervalType) => gql`{
-    ${LINE_CHART_CONFIG[interval].type}(
-      first: ${LINE_CHART_CONFIG[interval].limit}
-      where: {pair: "${pair}"}
-      orderBy: date
-      orderDirection: desc
-    ) {
-      date,
-      id
-      reserve0
-      reserve1
-      pair {
-        token0 {
-          id
-        }
-        token1 {
-          id
+  liquidityPool(id: "${pair}") {
+    ${LINE_CHART_ARBI_CONFIG[interval].type}(
+      first: ${LINE_CHART_ARBI_CONFIG[interval].limit},
+      orderBy: timestamp,
+      orderDirection: desc) {
+        hourlyVolumeByTokenAmount
+        timestamp
+        pool {
+          inputTokens {
+            id,
+            decimals
+          }
         }
       }
     }
