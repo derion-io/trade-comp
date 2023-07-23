@@ -296,13 +296,11 @@ const Component = ({
           className='estimate-box swap-info-box mt-1 mb-1'
         >
           <span className={`estimate-box__leverage ${getTitleBuyTradeType(tradeType).toLowerCase()}`}>
-            {getTitleBuyTradeType(tradeType)}
-            &nbsp;
-            {barData?.x}x
+            <TokenSymbol token={outputTokenAddress} />
           </span>
           <div className='position-delta--box'>
             <div className='position-delta--left'>
-              <div><TokenSymbol token={outputTokenAddress} /></div>
+              <div>Balance</div>
               <div>Net Value</div>
               <div>Expiration</div>
             </div>
