@@ -237,8 +237,9 @@ export const getTokenPower = (
   TOKEN_R: string,
   baseToken: string,
   id: number, k: number) => {
-  if (id === POOL_IDS.C) return k / 2
-  return (TOKEN_R === baseToken && id !== POOL_IDS.C ? 1 : 0) + (id === POOL_IDS.B ? -1 : 1) * k / 2
+  return k/2
+  // if (id === POOL_IDS.C) return k / 2
+  // return (TOKEN_R === baseToken && id !== POOL_IDS.C ? 1 : 0) + (id === POOL_IDS.B ? -1 : 1) * k / 2
 }
 
 export const getTitleBuyTradeType = (type: TRADE_TYPE) : string => {
