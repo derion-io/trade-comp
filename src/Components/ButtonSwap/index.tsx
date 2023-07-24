@@ -25,7 +25,8 @@ export const ButtonSwap = ({
   isSwap,
   isClose,
   title,
-  payoffRate
+  payoffRate,
+  tokenOutMaturity
 }: {
   inputTokenAddress: string
   outputTokenAddress: string
@@ -40,6 +41,7 @@ export const ButtonSwap = ({
   isClose?: boolean
   title: any
   payoffRate?: number
+  tokenOutMaturity: BigNumber
 }) => {
   const { tokens } = useListTokens()
   const [loading, setLoading] = useState<boolean>(false)
@@ -89,7 +91,9 @@ export const ButtonSwap = ({
                   tokenIn: inputTokenAddress,
                   tokenOut: outputTokenAddress,
                   amountIn: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18)),
-                  amountOutMin
+                  amountOutMin,
+                  useSweep: tokenOutMaturity?.gt(0) && balances[outputTokenAddress],
+                  currentBalanceOut: balances[outputTokenAddress]
                 }],
                 gasUsed && gasUsed.gt(0) ? gasUsed.mul(2) : undefined
               )
@@ -133,7 +137,8 @@ export const ButtonSwap = ({
     amountIn,
     callError,
     gasUsed,
-    account
+    account,
+    tokenOutMaturity
   ])
 
   return <React.Fragment>

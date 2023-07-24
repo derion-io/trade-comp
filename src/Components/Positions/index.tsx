@@ -28,7 +28,7 @@ type Position = {
   netValue: BigNumber
 }
 
-export const Positions = ({ setOutputTokenAddressToBuy }: { setOutputTokenAddressToBuy: any }) => {
+export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { setOutputTokenAddressToBuy: any, tokenOutMaturity: BigNumber }) => {
   const { pools, tradeType } = useCurrentPoolGroup()
   const { balances } = useWalletBalance()
   const { tokens } = useListTokens()
@@ -160,6 +160,7 @@ export const Positions = ({ setOutputTokenAddressToBuy }: { setOutputTokenAddres
       setVisible={setVisible}
       inputTokenAddress={inputTokenAddress}
       outputTokenAddress={outputTokenAddress}
+      tokenOutMaturity={tokenOutMaturity}
       title={
         Number(decodeErc1155Address(inputTokenAddress).id) === POOL_IDS.C
           ? <Text>Remove <TokenSymbol token={inputTokenAddress} textWrap={Text} /> </Text>

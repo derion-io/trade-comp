@@ -15,7 +15,7 @@ import {
   decodeErc1155Address, div,
   formatFloat, formatPercent,
   getTitleBuyTradeType,
-  isErc1155Address,
+  isErc1155Address, max,
   weiToNumber
 } from '../../utils/helpers'
 import { TokenSymbol } from '../ui/TokenSymbol'
@@ -35,19 +35,22 @@ import LeverageSlider from 'leverage-slider/dist/component'
 import { CHART_TABS } from '../../state/currentPool/type'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
+import { BigNumber } from 'ethers'
 
 const Component = ({
   tradeType = TRADE_TYPE.LONG,
   inputTokenAddress,
   outputTokenAddress,
   setInputTokenAddress,
-  setOutputTokenAddress
+  setOutputTokenAddress,
+  tokenOutMaturity
 }: {
   tradeType?: TRADE_TYPE,
   inputTokenAddress: string
   outputTokenAddress: string
   setInputTokenAddress: any
   setOutputTokenAddress: any
+  tokenOutMaturity: BigNumber
 }) => {
   const [barData, setBarData] = useState<any>({})
   const { configs } = useConfigs()
@@ -62,10 +65,6 @@ const Component = ({
   const { setCurrentPoolAddress, setDr } = useCurrentPool()
 
   const leverageData = useGenerateLeverageData(tradeType)
-
-  // TODO: load this
-  const expiration = 0
-  const expirationDelta = 0
 
   useEffect(() => {
     if (tradeType === TRADE_TYPE.LIQUIDITY && chartTab !== CHART_TABS.FUNC_PLOT) {
@@ -104,7 +103,8 @@ const Component = ({
   const { callError, loading, gasUsed, amountOut } = useCalculateSwap({
     amountIn,
     inputTokenAddress,
-    outputTokenAddress
+    outputTokenAddress,
+    tokenOutMaturity
   })
 
   useEffect(() => {
@@ -229,6 +229,10 @@ const Component = ({
     tokenAddress: poolToShow?.TOKEN_R
   })
 
+  // TODO: load this
+  const expiration = max(tokenOutMaturity.toNumber() - Math.floor(new Date().getTime() / 1000), 0)
+  const expirationDelta = poolToShow?.MATURITY?.sub(expiration).toNumber()
+
   return (
     <div className='long-short-box'>
       <div className='amount-input-box'>
@@ -302,7 +306,7 @@ const Component = ({
             <div className='position-delta--left'>
               <div>Balance</div>
               <div>Net Value</div>
-              <div>Expiration</div>
+              <div>Maturity</div>
             </div>
             <SkeletonLoader loading={balances[outputTokenAddress] == null}>
               {!Number(valueOutBefore) ? ''
@@ -433,10 +437,11 @@ const Component = ({
           gasUsed={gasUsed}
           tradeType={tradeType}
           loadingAmountOut={loading}
+          tokenOutMaturity={tokenOutMaturity}
           title={
-            Number(decodeErc1155Address(outputTokenAddress).id) === POOL_IDS.A ? <Text><TokenSymbol token={outputTokenAddress} textWrap={Text} /> </Text> :
-            Number(decodeErc1155Address(outputTokenAddress).id) === POOL_IDS.B ? <Text><TokenSymbol token={outputTokenAddress} textWrap={Text} /> </Text> :
-            <Text>Add <TokenSymbol token={outputTokenAddress} textWrap={Text} /> </Text>
+            Number(decodeErc1155Address(outputTokenAddress).id) === POOL_IDS.A ? <Text><TokenSymbol token={outputTokenAddress} textWrap={Text} /> </Text>
+              : Number(decodeErc1155Address(outputTokenAddress).id) === POOL_IDS.B ? <Text><TokenSymbol token={outputTokenAddress} textWrap={Text} /> </Text>
+                : <Text>Add <TokenSymbol token={outputTokenAddress} textWrap={Text} /> </Text>
           }
         />
       </div>

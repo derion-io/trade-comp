@@ -20,19 +20,22 @@ import { TxFee } from '../SwapBox/components/TxFee'
 import { useCalculateSwap } from '../SwapBox/hooks/useCalculateSwap'
 import { ButtonSwap } from '../ButtonSwap'
 import { POOL_IDS } from '../../utils/constant'
+import { BigNumber } from 'ethers'
 
 const Component = ({
   visible,
   setVisible,
   inputTokenAddress,
   outputTokenAddress,
-  title
+  title,
+  tokenOutMaturity
 }: {
   visible: boolean,
   setVisible: any,
   inputTokenAddress: string,
   outputTokenAddress: string,
   title: any
+  tokenOutMaturity: BigNumber
 }) => {
   const { tokens } = useListTokens()
   const { balances, accFetchBalance } = useWalletBalance()
@@ -42,7 +45,8 @@ const Component = ({
   const { callError, gasUsed, amountOut } = useCalculateSwap({
     amountIn,
     inputTokenAddress,
-    outputTokenAddress
+    outputTokenAddress,
+    tokenOutMaturity
   })
 
   const { value: valueIn } = useTokenValue({
@@ -165,6 +169,7 @@ const Component = ({
           amountOut={amountOut}
           callError={callError}
           gasUsed={gasUsed}
+          tokenOutMaturity={tokenOutMaturity}
           callback={() => {
             setVisible(false)
           }}

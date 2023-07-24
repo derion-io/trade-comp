@@ -33,6 +33,10 @@ export const numberToWei = (number: any, decimal: number = 18) => {
   return utils.parseUnits(number, decimal).toString()
 }
 
+export const max = (a: number, b: number) => {
+  return a > b ? a : b
+}
+
 export const maxBN = (a: BigNumber, b: BigNumber) => {
   if (a.gt(b)) {
     return a

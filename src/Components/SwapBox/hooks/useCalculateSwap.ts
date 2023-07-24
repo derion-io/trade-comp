@@ -3,15 +3,18 @@ import { useEffect, useState } from 'react'
 import { useListTokens } from '../../../state/token/hook'
 import { BigNumber } from 'ethers'
 import { useConfigs } from '../../../state/config/useConfigs'
+import { useWalletBalance } from '../../../state/wallet/hooks/useBalances'
 
 export const useCalculateSwap = ({
   amountIn,
   inputTokenAddress,
-  outputTokenAddress
+  outputTokenAddress,
+  tokenOutMaturity
 }: {
   amountIn: string
   inputTokenAddress: string,
   outputTokenAddress: string
+  tokenOutMaturity: BigNumber
 }) => {
   const { tokens } = useListTokens()
   const [callError, setCallError] = useState<string>('')
@@ -21,6 +24,7 @@ export const useCalculateSwap = ({
   const [amountOutWei, setAmountOutWei] = useState<BigNumber>(bn(0))
   const [loading, setLoading] = useState<boolean>(false)
   const { ddlEngine } = useConfigs()
+  const { balances } = useWalletBalance()
 
   useEffect(() => {
     if (tokens[inputTokenAddress] && tokens[outputTokenAddress] && amountIn && Number(amountIn)) {
@@ -31,7 +35,7 @@ export const useCalculateSwap = ({
       setGasUsed(bn(0))
       setAmountOutWei(bn(0))
     }
-  }, [tokens[inputTokenAddress] && tokens[outputTokenAddress], amountIn])
+  }, [tokens[inputTokenAddress] && tokens[outputTokenAddress], tokenOutMaturity, amountIn])
 
   const calcAmountOut = async () => {
     if (!amountOut) {
@@ -42,7 +46,9 @@ export const useCalculateSwap = ({
     ddlEngine.SWAP.calculateAmountOuts([{
       tokenIn: inputTokenAddress,
       tokenOut: outputTokenAddress,
-      amountIn: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))
+      amountIn: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18)),
+      useSweep: tokenOutMaturity?.gt(0) && balances[outputTokenAddress],
+      currentBalanceOut: balances[outputTokenAddress]
     }]).then((res: any) => {
       const [aOuts, gasLeft] = res
       setAmountOutWei(aOuts[0]?.amountOut || bn(0))

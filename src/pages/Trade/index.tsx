@@ -16,6 +16,7 @@ import { WalletHistoryTable } from '../../Components/WalletHistoryTable'
 import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 import { SettingIcon } from '../../Components/ui/Icon'
 import { SettingModal } from '../../Components/SettingModal'
+import { useMaturity } from '../../hooks/useMaturity'
 
 const TAB_2 = {
   POSITION: Symbol('position'),
@@ -44,6 +45,7 @@ export const Trade = ({ tab, pool }: {
   const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
   const [visibleSettingModal, setVisibleSettingModal] = useState<boolean>(false)
+  const tokenOutMaturity = useMaturity(outputTokenAddress)
 
   // useEffect(() => {
   //   if (tokens[baseToken] && tokens[quoteToken] && cToken && ddlEngine) {
@@ -110,6 +112,7 @@ export const Trade = ({ tab, pool }: {
               <Card className='card-in-tab'>
                 <Positions
                   setOutputTokenAddressToBuy={setOutputTokenAddress}
+                  tokenOutMaturity={tokenOutMaturity}
                 />
               </Card>
             </TabPanel>
@@ -159,6 +162,7 @@ export const Trade = ({ tab, pool }: {
                   outputTokenAddress={outputTokenAddress}
                   setOutputTokenAddress={setOutputTokenAddress}
                   tradeType={TRADE_TYPE.LONG}
+                  tokenOutMaturity={tokenOutMaturity}
                 />
               </Card>
             </TabPanel>
@@ -170,6 +174,7 @@ export const Trade = ({ tab, pool }: {
                   outputTokenAddress={outputTokenAddress}
                   setOutputTokenAddress={setOutputTokenAddress}
                   tradeType={TRADE_TYPE.SHORT}
+                  tokenOutMaturity={tokenOutMaturity}
                 />
               </Card>
             </TabPanel>
@@ -180,6 +185,7 @@ export const Trade = ({ tab, pool }: {
                   setInputTokenAddress={setInputTokenAddress}
                   outputTokenAddress={outputTokenAddress}
                   setOutputTokenAddress={setOutputTokenAddress}
+                  tokenOutMaturity={tokenOutMaturity}
                 />
               </Card>
             </TabPanel>
@@ -191,6 +197,8 @@ export const Trade = ({ tab, pool }: {
                   outputTokenAddress={outputTokenAddress}
                   setOutputTokenAddress={setOutputTokenAddress}
                   tradeType={TRADE_TYPE.LIQUIDITY}
+                  tokenOutMaturity={tokenOutMaturity}
+
                 />
               </Card>
             </TabPanel>

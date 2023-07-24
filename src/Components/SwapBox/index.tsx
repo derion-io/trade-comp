@@ -37,7 +37,8 @@ const Component = ({
   inputTokenAddress,
   setInputTokenAddress,
   outputTokenAddress,
-  setOutputTokenAddress
+  setOutputTokenAddress,
+  tokenOutMaturity
 }: any) => {
   const { account } = useWeb3React()
   const { configs } = useConfigs()
@@ -51,7 +52,8 @@ const Component = ({
   const { callError, gasUsed, amountOut } = useCalculateSwap({
     amountIn,
     inputTokenAddress,
-    outputTokenAddress
+    outputTokenAddress,
+    tokenOutMaturity
   })
 
   const { value: valueIn } = useTokenValue({
@@ -249,6 +251,7 @@ const Component = ({
           amountOut={amountOut}
           callError={callError}
           gasUsed={gasUsed}
+          tokenOutMaturity={tokenOutMaturity}
           isSwap
           title='Swap'
         />
