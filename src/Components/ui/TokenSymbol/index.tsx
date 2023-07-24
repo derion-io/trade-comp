@@ -22,25 +22,33 @@ export const TokenSymbol = ({ token, textWrap }: { token: string, textWrap?: any
         return <span className='font-size-14'>{symbol}</span>
       }
 
-      const TextComp = textWrap || (Number(id) === POOL_IDS.C
-        ? TextBlue
-        : Number(id) === POOL_IDS.A
-          ? TextBuy
-          : Number(id) === POOL_IDS.B
-            ? TextSell
-            : Text)
+      const TextComp = textWrap || (
+        Number(id) === POOL_IDS.C ? TextBlue :
+        Number(id) === POOL_IDS.A ? TextBuy :
+        Number(id) === POOL_IDS.B ? TextSell :
+        Text
+      )
 
-      return <TextComp>
-        <span
-          className='font-size-14'>{Number(id) === POOL_IDS.C && 'LP-'}{tokens[wrapToNativeAddress(baseToken)]?.symbol}</span>
-        <sup className='font-size-12'>
-          {Number(id) === POOL_IDS.C && '±'}{getTokenPower(pool.TOKEN_R, baseToken, Number(id), pool?.k.toNumber())}
-        </sup>
-        {
-          (pool.TOKEN_R !== baseToken || Number(id) === POOL_IDS.C) &&
-          <span className='font-size-14'>·{tokens[wrapToNativeAddress(pool.TOKEN_R)]?.symbol}</span>
-        }
-      </TextComp>
+      const side =
+        Number(id) === POOL_IDS.A ? 'Long' :
+        Number(id) === POOL_IDS.B ? 'Short' :
+        'LP'
+      const power = getTokenPower(pool.TOKEN_R, baseToken, Number(id), pool?.k.toNumber())
+      const base = tokens[wrapToNativeAddress(baseToken)]?.symbol
+
+      return <TextComp>{side} {power}x {base}</TextComp>
+
+      // return <TextComp>
+      //   <span
+      //     className='font-size-14'>{Number(id) === POOL_IDS.C && 'LP-'}{tokens[wrapToNativeAddress(baseToken)]?.symbol}</span>
+      //   <sup className='font-size-12'>
+      //     {Number(id) === POOL_IDS.C && '±'}{getTokenPower(pool.TOKEN_R, baseToken, Number(id), pool?.k.toNumber())}
+      //   </sup>
+      //   {
+      //     (pool.TOKEN_R !== baseToken || Number(id) === POOL_IDS.C) &&
+      //     <span className='font-size-14'>·{tokens[wrapToNativeAddress(pool.TOKEN_R)]?.symbol}</span>
+      //   }
+      // </TextComp>
     }
     return <TextPink className='font-size-14'>{symbol}</TextPink>
   }, [tokens, token, pools])
