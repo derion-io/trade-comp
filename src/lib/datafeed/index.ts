@@ -125,7 +125,7 @@ export const Datafeed = {
           if (periodParams.firstDataRequest) {
             store.dispatch(setCandleChartIsLoadingReduce({ status: false }))
             store.dispatch(setChartIntervalIsUpdated({ status: true }))
-            detectChartIsOutdate(bars[bars.length - 1], interval)
+            detectChartIsOutdate(bars)
           }
 
           onHistoryCallback(bars, { noData: false })
@@ -183,7 +183,7 @@ export const Datafeed = {
               this.lastCandle[baseAddress + '-' + quoteAddress + '-' + resolution] = { ...candle }
             }
 
-            detectChartIsOutdate(candle, resolution)
+            detectChartIsOutdate(data)
             onRealtimeCallback(candle)
           }
         })
@@ -365,14 +365,22 @@ const getAmountChange = ({ amountChange, address, tokens }: {
   </span>`
 }
 
-const detectChartIsOutdate = (lastCandle: CandleType, resolution: string) => {
-  // const state = store.getState()
-  const nextCandleTime = Number(lastCandle.time) + TIME_IN_RESOLUTION[resolution] * 1000
-  const now = new Date().getTime()
+const detectChartIsOutdate = (candles: CandleType[]) => {
+  if (candles.length < 2) {
+    return
+  }
+  const range = candles.length - 1
+  const first = candles[0]
+  const last = candles[range]
 
-  const isOutDate = nextCandleTime + 60000 < now
+  const duration = Number(last.time) - Number(first.time)
+  const avg = duration / range
 
-  store.dispatch(setChartIsOutDate({ status: isOutDate }))
+  // twice the average tx time
+  const nextTime = Number(last.time) + 2 * avg;
+  const status = nextTime < new Date().getTime()
+
+  store.dispatch(setChartIsOutDate({ status }))
 }
 
 const calcLimitCandle = (
