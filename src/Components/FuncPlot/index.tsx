@@ -3,8 +3,10 @@ import { Expression, GraphingCalculator } from 'desmos-react'
 import './style.scss'
 import { Card } from '../ui/Card'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
-import { bn, formatFloat, weiToNumber } from '../../utils/helpers'
+import { bn, formatFloat, isUSD, weiToNumber } from '../../utils/helpers'
 import { CandleChartLoader } from '../ChartLoaders'
+import { useListTokens } from '../../state/token/hook'
+import { useHelper } from '../../state/config/useHelper'
 
 const FX = 'f(P,x,v,R)=\\{vx^P<R/2:vx^P,R-R^2/(4vx^P)\\}'
 const GX = 'g(P,x,v,R)=\\{vx^{-P}<R/2:R-vx^{-P},R^2/(4vx^{-P})\\}'
@@ -28,21 +30,29 @@ function _v(xk: number, r: number, R: number) {
 }
 
 export const FunctionPlot = (props: any) => {
+  const { tokens } = useListTokens()
   const { currentPool, drA, drB, drC } = useCurrentPool()
+  const { wrapToNativeAddress } = useHelper()
   const calc = React.useRef() as React.MutableRefObject<Desmos.Calculator>
 
-  const { PX, a, b, TOKEN_R, R, P, X, MARK, R1, a1, b1, drAChange, drBChange } = useMemo(() => {
-    const P = currentPool.k?.toNumber() / 2 // = K/2
-    const R = formatFloat(weiToNumber(currentPool.states?.R))
-    const a = formatFloat(weiToNumber(currentPool.states?.a))
-    const b = formatFloat(weiToNumber(currentPool.states?.b))
-    const MARK = currentPool.MARK ? currentPool.MARK.mul(currentPool.MARK).mul((bn(10).pow(12))).shr(256) : 1
-    const X = (!currentPool.states?.twap || !currentPool.MARK) ? 1 :
-      bn(currentPool.states?.twap).mul(currentPool.states?.twap)
+  const { PX, a, b, priceIndex, R, P, X, mark, R1, a1, b1, drAChange, drBChange } = useMemo(() => {
+    const { k, baseToken, quoteToken, states, MARK } = currentPool ?? {}
+    const decimalsOffset = (tokens[baseToken]?.decimal ?? 18) - (tokens[quoteToken]?.decimal ?? 18)
+    const P = k?.toNumber() / 2 // = K/2
+    const R = formatFloat(weiToNumber(states?.R))
+    const a = formatFloat(weiToNumber(states?.a))
+    const b = formatFloat(weiToNumber(states?.b))
+    const mark = MARK ? MARK.mul(MARK).mul((bn(10).pow(decimalsOffset))).shr(256) : 1
+    const X = (!states?.twap || !MARK) ? 1 :
+      bn(states?.twap).mul(states?.twap)
       .mul(1000)
-      .div(currentPool.MARK).div(currentPool.MARK)
+      .div(MARK).div(MARK)
       .toNumber() / 1000
-    const TOKEN_R = 'ETH'
+
+    let priceIndex = tokens[wrapToNativeAddress(baseToken)]?.symbol
+    if (!isUSD(tokens[quoteToken]?.symbol)) {
+      priceIndex += '/' + tokens[wrapToNativeAddress(quoteToken)]?.symbol
+    }
     const PX = X * 0.01
     const R1 = R + drA + drB + drC
 
@@ -57,7 +67,7 @@ export const FunctionPlot = (props: any) => {
     const drAChange = rA1 != rA ? `x=X\\{${Math.min(rA,rA1)}<y<${Math.max(rA,rA1)}\\}` : null
     const drBChange = (R1-rB1) != (R-rB) ? `x=X\\{${Math.min(R-rB,R1-rB1)}<y<${Math.max(R-rB,R1-rB1)}\\}` : null
 
-    return { PX, a, b, TOKEN_R, R, P, X, MARK, R1, a1, b1, drAChange, drBChange }
+    return { PX, a, b, priceIndex, R, P, X, mark, R1, a1, b1, drAChange, drBChange }
   }, [currentPool, drA, drB, drC])
 
 
@@ -100,7 +110,7 @@ export const FunctionPlot = (props: any) => {
             ref={calc}
             xAxisArrowMode='POSITIVE'
             yAxisArrowMode='POSITIVE'
-            xAxisLabel={TOKEN_R}
+            xAxisLabel={priceIndex}
             yAxisLabel='Value'
           >
             <Expression id='f' latex={FX} hidden />
@@ -147,7 +157,7 @@ export const FunctionPlot = (props: any) => {
             />
             <Expression
               id='p'
-              latex={`p=\\operatorname{round}(X*${MARK})`}
+              latex={`p=\\operatorname{round}(X*${mark})`}
               hidden
             />
             <Expression
