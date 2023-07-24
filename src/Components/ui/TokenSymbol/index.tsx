@@ -1,14 +1,14 @@
 import React, { useMemo } from 'react'
 import { useCurrentPoolGroup } from '../../../state/currentPool/hooks/useCurrentPoolGroup'
 import { useListTokens } from '../../../state/token/hook'
-import { decodeErc1155Address, getTokenPower, isErc1155Address } from '../../../utils/helpers'
+import { decodeErc1155Address, getTokenPower, isErc1155Address, isUSD } from '../../../utils/helpers'
 import { useResource } from '../../../state/resources/hooks/useResource'
 import { POOL_IDS } from '../../../utils/constant'
 import { useHelper } from '../../../state/config/useHelper'
 import { Text, TextBlue, TextBuy, TextPink, TextSell } from '../Text'
 
 export const TokenSymbol = ({ token, textWrap }: { token: string, textWrap?: any }) => {
-  const { baseToken } = useCurrentPoolGroup()
+  const { baseToken, quoteToken } = useCurrentPoolGroup()
   const { tokens } = useListTokens()
   const { pools } = useResource()
   const { wrapToNativeAddress } = useHelper()
@@ -35,8 +35,10 @@ export const TokenSymbol = ({ token, textWrap }: { token: string, textWrap?: any
         'LP'
       const power = getTokenPower(pool.TOKEN_R, baseToken, Number(id), pool?.k.toNumber())
       const base = tokens[wrapToNativeAddress(baseToken)]?.symbol
+      const quote = tokens[wrapToNativeAddress(quoteToken)]?.symbol
+      const indexPrefix = isUSD(quote ?? '') ? '' : `/${quote}`
 
-      return <TextComp>{side} {power}x {base}</TextComp>
+      return <TextComp>{side} {power}x {base}{indexPrefix}</TextComp>
 
       // return <TextComp>
       //   <span

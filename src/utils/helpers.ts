@@ -263,3 +263,9 @@ export const tradeTypeToId = (type: TRADE_TYPE) : number => {
       return POOL_IDS.C
   }
 }
+
+export const isUSD = (symbol: string): boolean => {
+  return symbol.includes('USD') ||
+    symbol.includes('DAI') ||
+    symbol.includes('SAI')
+}
