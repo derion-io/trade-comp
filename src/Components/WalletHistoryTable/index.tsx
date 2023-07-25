@@ -8,7 +8,6 @@ import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import moment from 'moment'
 import { Text, TextBlue, TextBuy, TextLink, TextPink, TextSell } from '../ui/Text'
 import { useConfigs } from '../../state/config/useConfigs'
-import { shortenAddressString } from '../../utils/helpers'
 import { NATIVE_ADDRESS, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
 import isEqual from 'react-fast-compare'
 
