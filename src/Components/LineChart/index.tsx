@@ -92,8 +92,8 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
             data={finalData}
             margin={{
               top: 5,
-              right: 0,
-              left: 0,
+              right: 10,
+              left: 20,
               bottom: 5
             }}
             onMouseLeave={() => {
@@ -116,6 +116,14 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
             />
             <YAxis
               dataKey='value'
+              tickFormatter={tick => {
+                const x = tick
+                const countZeroAfterDot = -Math.floor(Math.log10(x) + 1)
+                if (countZeroAfterDot !== Infinity && countZeroAfterDot >= 2) {
+                  return x.toLocaleString('fullwide', { maximumFractionDigits: 12 }).replace(/\.0+/, '.0..')
+                }
+                return tick.toLocaleString('fullwide', { maximumFractionDigits: 12 })
+              }}
               axisLine={false}
               tickLine={false}
               domain={['auto', 'auto']}
@@ -143,7 +151,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
 
 const HoverUpdater = ({ payload, setHoverValue, setHoverDate }: any) => {
   useEffect(() => {
-    setHoverValue(payload.value)
+    setHoverValue(payload.value.toLocaleString('fullwide', { maximumFractionDigits: 12 }))
     setHoverDate(payload.time)
   }, [payload.value, payload.time, setHoverValue, setHoverDate])
 
