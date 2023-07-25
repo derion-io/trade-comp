@@ -191,7 +191,7 @@ const InputWithValidate = ({ suffix = '%', defaultValue, setter, min, max, error
   const [slippageState, setSlippageState] = useState(defaultValue)
 
   useEffect(() => {
-    if ((!min || slippageState > min) && (!max || slippageState < max)) {
+    if ((!min || slippageState >= min) && (!max || slippageState <= max)) {
       setter(slippageState)
     }
   }, [slippageState])
