@@ -220,7 +220,7 @@ const Component = ({
           : Math.max(poolToShow.deleverageRiskA, poolToShow.deleverageRiskB)
     const deleverageRiskDisplay: string =
       deleverageRisk == null ? ''
-        : formatPercent(Math.min(100, deleverageRisk), 0, true) + '%'
+        : formatPercent(Math.min(1, deleverageRisk), 0, true) + '%'
     return deleverageRiskDisplay
   }, [poolToShow, tradeType])
 

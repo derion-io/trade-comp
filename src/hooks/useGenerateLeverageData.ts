@@ -22,15 +22,16 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
       const minR = sumR.mul(Math.round(minLiquidityShare * 1000)).div(100*1000)
 
       Object.values(pools).forEach((pool) => {
-        const deleverageRisk = tradeType === TRADE_TYPE.LONG
+        let deleverageRisk = tradeType === TRADE_TYPE.LONG
           ? pool!.deleverageRiskA
           : tradeType === TRADE_TYPE.SHORT
             ? pool!.deleverageRiskB
             : Math.max(pool!.deleverageRiskA, pool!.deleverageRiskB)
+        deleverageRisk = Math.min(1, deleverageRisk)
 
         if (pool.states.R.lt(minR) ||
           (Number(pool.dailyInterestRate) * 99) > (maxInterestRate * pool.k.toNumber()) ||
-          (deleverageRisk * 99) > maxDeleverageRisk
+          (deleverageRisk * 99) > (maxDeleverageRisk ?? 100)
         ) {
           return
         }
