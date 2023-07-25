@@ -269,7 +269,7 @@ export const tradeTypeToId = (type: TRADE_TYPE) : number => {
 }
 
 export const isUSD = (symbol: string): boolean => {
-  return symbol.includes('USD') ||
-    symbol.includes('DAI') ||
-    symbol.includes('SAI')
+  return symbol?.includes('USD') ||
+    symbol?.includes('DAI') ||
+    symbol?.includes('SAI')
 }
