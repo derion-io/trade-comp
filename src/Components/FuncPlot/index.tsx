@@ -204,7 +204,7 @@ export const FunctionPlot = (props: any) => {
             <Expression
               id='lC'
               latex={`(X,(1.1g(${P},X,${b},${R})+f(${P},X,${a},${R}))/2.1)`}
-              color={Desmos.Colors.BLACK}
+              color='BLACK'
               hidden
               showLabel
               label='LP'
@@ -213,7 +213,7 @@ export const FunctionPlot = (props: any) => {
             <Expression
               id='lB'
               latex={`(X*0.9,(g(${P},X,${b},${R})+${R})/2)`}
-              color={Desmos.Colors.GREEN}
+              color='GREEN'
               hidden
               showLabel
               label='Short'
@@ -222,7 +222,7 @@ export const FunctionPlot = (props: any) => {
             <Expression
               id='lA'
               latex={`(X*1.1,0.55f(${P},X,${a},${R}))`}
-              color={Desmos.Colors.PURPLE}
+              color='PURPLE'
               hidden
               showLabel
               label='Long'
