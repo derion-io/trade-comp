@@ -5,15 +5,12 @@ import {
   setCandleChartIsLoadingReduce, setChartIntervalIsUpdated,
   setChartIsOutDate
 } from '../../state/currentPool/reducer'
-// import { getErc20AmountChange } from '../../utils/swapHistoryHelper'
-// import { SwapTxType } from '../../state/wallet/type'
-// import moment from 'moment'
-import { BigNumber } from 'ethers'
 import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
-// import { currentPoolState } from '../../state/currentPool/type'
-import { formatFloat } from '../../utils/helpers'
+import { formatFloat, isErc1155Address } from '../../utils/helpers'
 import { TokenType } from '../../state/token/type'
-// import allConfigs from '../../state/config/configs'
+import { SwapTxType } from '../../state/wallet/type'
+import { currentPoolState } from '../../state/currentPool/type'
+import moment from 'moment'
 
 const COLORS = {
   PINK: '#FF98E5',
@@ -197,172 +194,151 @@ export const Datafeed = {
     if (this.subscribeBarsInterval[subscriberUID]) {
       clearInterval(this.subscribeBarsInterval[subscriberUID])
     }
+  },
+
+  getTimescaleMarks: async function(
+    symbolInfo: any,
+    from: any,
+    to: any,
+    onDataCallback: any,
+    resolution: any
+  ) {
+    const state = store.getState()
+    const walletTxs = state.wallet.formartedSwapLogs
+    const currentPool = state.currentPool
+    const configs = state.configs
+    const tokens = state.tokens.tokens[configs.chainId]
+
+    const result = walletTxs.map((t: any) => {
+      return detectMarkInfo(
+        t,
+        resolution,
+        currentPool,
+        tokens,
+        configs.configs,
+        true
+      )
+    })
+    onDataCallback(result)
+  },
+  getMarks: async function(
+    symbolInfo: any,
+    from: any,
+    to: any,
+    onDataCallback: any,
+    resolution: any
+  ) {
+    const state = store.getState()
+    const walletTxs = state.wallet.formartedSwapLogs
+    const currentPool = state.currentPool
+    const configs = state.configs
+    const tokens = state.tokens.tokens[configs.chainId]
+
+    const result = walletTxs.map((t: any) => {
+      return detectMarkInfo(
+        t,
+        resolution,
+        currentPool,
+        tokens,
+        configs.configs
+      )
+    })
+    onDataCallback(result)
   }
-
-  // getTimescaleMarks: async function (
-  //   symbolInfo: any,
-  //   from: any,
-  //   to: any,
-  //   onDataCallback: any,
-  //   resolution: any
-  // ) {
-  //   const state = store.getState()
-  //   const walletTxs = state.wallet.formartedSwapLogs
-  //   const currentPool = state.currentPool
-  //   const configs = state.configs
-  //   const tokens = state.tokens.tokens[configs.chainId]
-  //
-  //   const result = walletTxs.map((t: any) => {
-  //     return detectMarkInfo(
-  //       t,
-  //       resolution,
-  //       currentPool,
-  //       tokens,
-  //       allConfigs[configs.chainId],
-  //       true
-  //     )
-  //   })
-  //   onDataCallback(result)
-  // },
-  // getMarks: async function (
-  //   symbolInfo: any,
-  //   from: any,
-  //   to: any,
-  //   onDataCallback: any,
-  //   resolution: any
-  // ) {
-  //   const state = store.getState()
-  //   const walletTxs = state.wallet.formartedSwapLogs
-  //   const currentPool = state.currentPool
-  //   const configs = state.configs
-  //   const tokens = state.tokens.tokens[configs.chainId]
-  //
-  //   const result = walletTxs.map((t: any) => {
-  //     return detectMarkInfo(
-  //       t,
-  //       resolution,
-  //       currentPool,
-  //       tokens,
-  //       allConfigs[configs.chainId]
-  //     )
-  //   })
-  //   onDataCallback(result)
-  // }
 }
 //
-// const detectMarkInfo = (
-//   swapTx: SwapTxType,
-//   resolution: any,
-//   currentPool: currentPoolState,
-//   tokens: { [key: string]: TokenType },
-//   configs: any,
-//   timescaleMark = false
-// ) => {
-//   const { baseId, quoteId, cToken, quoteToken, baseToken } = currentPool
-//   const cChange = getErc20AmountChange(swapTx.oldBalances, swapTx.newBalances, POOL_IDS.cToken)
-//   const nativeChange = getErc20AmountChange(swapTx.oldBalances, swapTx.newBalances, POOL_IDS.native)
-//   const cpChange = getErc20AmountChange(swapTx.newBalances, swapTx.oldBalances, POOL_IDS.cp)
-//   const baseChange = getErc20AmountChange(swapTx.oldBalances, swapTx.newBalances, baseId)
-//   const quoteChange = getErc20AmountChange(swapTx.oldBalances, swapTx.newBalances, quoteId)
-//   const time = moment(swapTx.timeStamp * 1000).format('DD/MM/YYYY, hh:mm a')
-//
-//   const amountChange = `<span>
-//     ${getAmountChange({ tokens, amountChange: cChange, address: cToken })}
-//     ${getAmountChange({ tokens, amountChange: nativeChange, address: NATIVE_ADDRESS })}
-//     ${getAmountChange({ tokens, amountChange: baseChange, address: baseToken })}
-//     ${getAmountChange({ tokens, amountChange: quoteChange, address: quoteToken })}
-//   </span>`
-//
-//   const arrow = (cChange.gt(0) || nativeChange.gt(0) || quoteChange.gt(0) || baseChange.gt(0))
-//     ? `<span style='color: ${COLORS.BUY}'>-></span>`
-//     : (cChange.isNegative() || nativeChange.isNegative() || quoteChange.isNegative() || baseChange.isNegative())
-//       ? `<span style='color: ${COLORS.SELL}'><-</span>` : ''
-//
-//   const cpChangeText = !cpChange.isZero()
-//     ? `<span>
-//       <span style='color: ${COLORS.BLUE}'>CP </span>
-//       ${formatWeiToDisplayNumber(cpChange, 4, tokens[cToken]?.decimal || 18)}
-//   </span>` : ''
-//
-//   const leverageChange = swapTx.oldLeverage !== swapTx.newLeverage
-//     ? `<span>
-//       ${swapTx.oldLeverage ? getLeverageText(swapTx.oldLeverage) : leverageText0}
-//       ${swapTx.newLeverage || swapTx.oldLeverage ? ' -> ' : ''}
-//       ${swapTx.newLeverage ? getLeverageText(swapTx.newLeverage) : leverageText0}
-//     </span>`
-//     : ''
-//
-//   const explorerLink = `<a style='color: ${COLORS.BLUE}' target='_blank' href='${configs.explorer}/tx/${swapTx.transactionHash}'>View on Scan</a>`
-//
-//   const l =
-//     resolution === '1D' || resolution === '1W' || resolution === '1M'
-//       ? 1
-//       : parseInt(resolution)
-//
-//   const result: any = {
-//     id: swapTx.transactionHash,
-//     time: timescaleMark
-//       ? Math.floor(swapTx.timeStamp)
-//       : Math.floor(swapTx.timeStamp) - 60 * l
-//   }
-//   let label = 'E'
-//
-//   result.color = 'pink'
-//   if (!cpChange.isZero()) {
-//     result.color = 'blue'
-//   } else if (swapTx.oldLeverage && swapTx.newLeverage && swapTx.newLeverage !== swapTx.oldLeverage) {
-//     result.color = swapTx.newLeverage > swapTx.oldLeverage ? 'green' : 'red'
-//   }
-//
-//   if (timescaleMark) {
-//     result.tooltip = [
-//       'Execute at ' + time,
-//       `<div>
-//         ${amountChange}
-//         ${arrow}
-//         ${cpChangeText}
-//         ${leverageChange}
-//       </div>`,
-//       `<div>
-//         ${explorerLink}
-//       </div>`
-//     ]
-//   } else {
-//     label = label.slice(0, 1)
-//     result.labelFontColor = '#ffffff'
-//     result.text = `<div>
-//       <p>Execute at ${time}</p>
-//       <div>
-//         ${amountChange}
-//         ${arrow}
-//         ${cpChangeText}
-//         ${leverageChange}
-//       </div>
-//       <div>
-//         ${explorerLink}
-//       </div>
-//     </div>`
-//   }
-//   result.label = label
-//   return result
-// }
-
-const getLeverageText = (leverage: number) => {
-  return `<span style='color: ${leverage > 0 ? COLORS.BUY : COLORS.SELL}'>${leverage > 0 ? 'Long ' : 'Short '} ${formatFloat(leverage, 1)}</span>`
-}
-
-const leverageText0 = `<span style='color: ${COLORS.PINK}'>0</span>`
-
-const getAmountChange = ({ amountChange, address, tokens }: {
+const detectMarkInfo = (
+  swapTx: SwapTxType,
+  resolution: any,
+  currentPool: currentPoolState,
   tokens: { [key: string]: TokenType },
-  amountChange: BigNumber,
-  address: string
-}) => {
-  if (amountChange.isZero()) return ''
-  return `<span>
-    <span style='color: ${COLORS.PINK}'>${tokens[address]?.symbol}</span>
-  <span>${formatWeiToDisplayNumber(amountChange.abs(), 4, tokens[address]?.decimal || 18)}</span>
-  </span>`
+  configs: any,
+  timescaleMark = false
+) => {
+  const time = moment(swapTx.timeStamp * 1000).format('DD/MM/YYYY, hh:mm a')
+
+  const arrow = `<span style='color: ${getColor(swapTx.tokenOut)}'>-></span>`
+
+  const explorerLink = `<a style='color: ${COLORS.BLUE}' target='_blank' href='${configs.explorer}/tx/${swapTx.transactionHash}'>View on Scan</a>`
+
+  const l =
+    resolution === '1D' || resolution === '1W' || resolution === '1M'
+      ? 1
+      : parseInt(resolution)
+
+  const result: any = {
+    id: swapTx.transactionHash,
+    time: timescaleMark
+      ? Math.floor(swapTx.timeStamp)
+      : Math.floor(swapTx.timeStamp) - 60 * l
+  }
+  let label = 'E'
+
+  result.color = getMarkColor(swapTx.tokenOut)
+
+  if (timescaleMark) {
+    result.tooltip = [
+      'Execute at ' + time,
+      `<div>
+      <span style='color: ${getColor(swapTx.tokenIn)}'>${tokens[swapTx.tokenIn]?.symbol || 'unknown'}</span>
+        ${formatWeiToDisplayNumber(swapTx.amountIn, 4, tokens[swapTx.tokenIn]?.decimal || 18)}
+        ${arrow}
+        <span style='color: ${getColor(swapTx.tokenOut)}'>${tokens[swapTx.tokenOut]?.symbol || 'unknown'}</span>
+        ${formatWeiToDisplayNumber(swapTx.amountOut, 4, tokens[swapTx.tokenIn]?.decimal || 18)}
+      </div>`
+    ]
+  } else {
+    label = label.slice(0, 1)
+    result.labelFontColor = '#ffffff'
+    result.text = `<div>
+      <p>Execute at ${time}</p>
+      <div>
+        <span style='color: ${getColor(swapTx.tokenIn)}'>${tokens[swapTx.tokenIn]?.symbol || 'unknown'}</span>
+        ${formatWeiToDisplayNumber(swapTx.amountIn, 4, tokens[swapTx.tokenIn]?.decimal || 18)}
+        ${arrow}
+        <span style='color: ${getColor(swapTx.tokenOut)}'>${tokens[swapTx.tokenOut]?.symbol || 'unknown'}</span>
+        ${formatWeiToDisplayNumber(swapTx.amountOut, 4, tokens[swapTx.tokenIn]?.decimal || 18)}
+      </div>
+      <div>
+        ${explorerLink}
+      </div>
+    </div>`
+  }
+  result.label = label
+  return result
+}
+
+const getColor = (address: string) => {
+  console.log(address)
+  if (address === NATIVE_ADDRESS || !isErc1155Address(address)) {
+    return COLORS.PINK
+  }
+  const id = address.split('-')[1]
+  if (Number(id) === POOL_IDS.C) {
+    return COLORS.BLUE
+  } else if (Number(id) === POOL_IDS.B) {
+    return COLORS.SELL
+  } else if (Number(id) === POOL_IDS.A) {
+    return COLORS.BUY
+  } else {
+    return 'white'
+  }
+}
+
+const getMarkColor = (address: string) => {
+  if (address === NATIVE_ADDRESS || !isErc1155Address(address)) {
+    return 'pink'
+  }
+  const id = address.split('-')[1]
+  if (Number(id) === POOL_IDS.C) {
+    return 'blue'
+  } else if (Number(id) === POOL_IDS.B) {
+    return 'red'
+  } else if (Number(id) === POOL_IDS.A) {
+    return 'green'
+  } else {
+    return 'white'
+  }
 }
 
 const detectChartIsOutdate = (candles: CandleType[]) => {
@@ -377,7 +353,7 @@ const detectChartIsOutdate = (candles: CandleType[]) => {
   const avg = duration / range
 
   // twice the average tx time
-  const nextTime = Number(last.time) + 2 * avg;
+  const nextTime = Number(last.time) + 2 * avg
   const status = nextTime < new Date().getTime()
 
   store.dispatch(setChartIsOutDate({ status }))

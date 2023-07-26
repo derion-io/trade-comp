@@ -75,7 +75,7 @@ const Component = ({
         console.error(e)
       }
     }
-  }, [swapTxs])
+  }, [JSON.stringify(swapTxs)])
 
   useEffect(() => {
     if (tradingviewWidget && chartTimeFocus) {
