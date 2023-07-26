@@ -2,7 +2,7 @@
 .select-pool-group {
   background: $color-card-bg;
   border: 1px solid $color-primary;
-  position: absolute;
+  position: relative;
   border-radius: 10px;
 
   &__wrap {

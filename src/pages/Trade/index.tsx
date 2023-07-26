@@ -5,7 +5,6 @@ import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoo
 import { Chart } from '../../Components/Chart'
 import { TRADE_TYPE } from '../../utils/constant'
 import { SwapBox } from '../../Components/SwapBox'
-import { useWindowSize } from '../../hooks/useWindowSize'
 import { Tabs, TabPanel, TabList, Tab } from 'react-tabs'
 import 'react-tabs/style/react-tabs.css'
 import { Card } from '../../Components/ui/Card'
@@ -17,6 +16,7 @@ import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 import { SettingIcon } from '../../Components/ui/Icon'
 import { SettingModal } from '../../Components/SettingModal'
 import { useMaturity } from '../../hooks/useMaturity'
+import { useListTokens } from '../../state/token/hook'
 
 const TAB_2 = {
   POSITION: Symbol('position'),
@@ -34,53 +34,33 @@ export const Trade = ({ tab, pool }: {
   pool?: string,
   tab: TRADE_TYPE
 }) => {
-  const { chainId, useHistory } = useConfigs()
+  const { chainId, useHistory, ddlEngine } = useConfigs()
   const history = useHistory()
   const [changedIn24h, setChangedIn24h] = useState<number>(0)
-  const { width } = useWindowSize()
   const { poolGroups } = useResource()
-  const { updateCurrentPoolGroup, id } = useCurrentPoolGroup()
+  const { updateCurrentPoolGroup, id, baseToken, quoteToken, basePrice } = useCurrentPoolGroup()
   const [tab2, setTab2] = useState<Symbol>(TAB_2.POSITION)
   const { formartedSwapLogs: swapTxs } = useSwapHistory()
   const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
   const [visibleSettingModal, setVisibleSettingModal] = useState<boolean>(false)
   const tokenOutMaturity = useMaturity(outputTokenAddress)
+  const { tokens } = useListTokens()
 
-  // useEffect(() => {
-  //   if (tokens[baseToken] && tokens[quoteToken] && cToken && ddlEngine) {
-  //     ddlEngine.PRICE.get24hChange({
-  //       baseToken: tokens[baseToken],
-  //       cToken,
-  //       chainId: chainId.toString(),
-  //       quoteToken: tokens[quoteToken],
-  //       currentPrice: weiToNumber(numberToWei(basePrice), 18 + tokens[quoteToken].decimal - tokens[baseToken].decimal)
-  //     }).then((value1) => {
-  //       setChangedIn24h(value1)
-  //     })
-  //     // ddlEngine.PRICE.get24hChangeByLog({
-  //     //   baseId,
-  //     //   currentPrice: basePrice,
-  //     //   baseToken: tokens[baseToken],
-  //     //   quoteToken: tokens[quoteToken],
-  //     //   cToken
-  //     // }).then((value) => {
-  //     //   setChangedIn24h(value)
-  //     // }).catch((e) => {
-  //     //   console.error(e)
-  //     //   ddlEngine.PRICE.get24hChange({
-  //     //     baseToken: tokens[baseToken],
-  //     //     cToken,
-  //     //     chainId: chainId.toString(),
-  //     //     quoteToken: tokens[quoteToken],
-  //     //     currentPrice: basePrice
-  //     //   })
-  //     //     .then((value1) => {
-  //     //       setChangedIn24h(value1)
-  //     //     })
-  //     // })
-  //   }
-  // }, [chainId, tokens, ddlEngine, cToken, quoteToken, baseToken])
+  useEffect(() => {
+    if (tokens[baseToken] && tokens[quoteToken] && id && ddlEngine) {
+      ddlEngine.PRICE.get24hChange({
+        baseToken: tokens[baseToken],
+        cToken: id,
+        chainId: chainId.toString(),
+        quoteToken: tokens[quoteToken],
+        currentPrice: basePrice.toString()
+      }).then((value1) => {
+        setChangedIn24h(Number(value1))
+      })
+    }
+  }, [chainId, tokens, ddlEngine, id, quoteToken, baseToken])
+  console.log('changedIn24h', changedIn24h)
 
   useEffect(() => {
     if (poolGroups && Object.keys(poolGroups).length > 0) {

@@ -3,36 +3,37 @@ import { Tabs } from '../ui/Tabs'
 import './style.scss'
 import { CandleChart } from '../CandleChart'
 import { LineChart } from '../LineChart'
-import { IconArrowLeft } from '../ui/Icon'
-import { TextBlue } from '../ui/Text'
+import { Text, TextBuy, TextSell } from '../ui/Text'
 import { useConfigs } from '../../state/config/useConfigs'
 import isEqual from 'react-fast-compare'
 import { SelectPoolGroup } from '../SelectPoolGroup'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 import { FunctionPlot } from '../FuncPlot'
 import { CHART_TABS } from '../../state/currentPool/type'
+import formatLocalisedCompactNumber from '../../utils/formatBalance'
+import { formatFloat } from '../../utils/helpers'
 
 const Component = ({ changedIn24h }: { changedIn24h: number }) => {
-  const { chainId, useHistory, configs } = useConfigs()
-  const { chartTab, setChartTab } = useCurrentPoolGroup()
-  const history = useHistory()
-  // const [targetReached, setTargetReached] = useState(checkInnerWidth())
+  const { chainId, configs } = useConfigs()
+  const { chartTab, setChartTab, basePrice, id } = useCurrentPoolGroup()
 
   return (
     <div className='chart-box'>
       <div className='chart__head'>
         <div className='chart__head--left'>
-          {/* 
-          <div
-            className='exposure-page__head--back-btn'
-            onClick={() => {
-              history.push('pools')
-            }}
-          >
-            <IconArrowLeft fill='#01A7FA' /> <TextBlue>Back</TextBlue>
-          </div>
-          */}
           <SelectPoolGroup />
+          {
+            id &&
+            <span>
+              <Text>{formatLocalisedCompactNumber(formatFloat(basePrice))}</Text>
+              {
+                changedIn24h > 0
+                  ? <TextBuy>(+{changedIn24h}%)</TextBuy>
+                  : <TextSell>({changedIn24h}%)</TextSell>
+              }
+            </span>
+          }
+
         </div>
         {chainId !== 1337 && (
           <Tabs
@@ -52,12 +53,12 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
         <div />
       )} */}
       {chainId !== 1337 &&
-        (chartTab === CHART_TABS.LINE_CHART && configs.theGraphExchange
-          ? <LineChart changedIn24h={changedIn24h} />
-          : chartTab === CHART_TABS.FUNC_PLOT
-            ? <FunctionPlot />
-            : <CandleChart />
-        )
+      (chartTab === CHART_TABS.LINE_CHART && configs.theGraphExchange
+        ? <LineChart changedIn24h={changedIn24h} />
+        : chartTab === CHART_TABS.FUNC_PLOT
+          ? <FunctionPlot />
+          : <CandleChart />
+      )
       }
     </div>
   )
