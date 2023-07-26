@@ -93,7 +93,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
             margin={{
               top: 5,
               right: 10,
-              left: 20,
+              left: 16,
               bottom: 5
             }}
             onMouseLeave={() => {
@@ -120,7 +120,8 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
                 const x = tick
                 const countZeroAfterDot = -Math.floor(Math.log10(x) + 1)
                 if (countZeroAfterDot !== Infinity && countZeroAfterDot >= 2) {
-                  return x.toLocaleString('fullwide', { maximumFractionDigits: 12 }).replace(/\.0+/, '.0..')
+                  const ucZeros = String.fromCharCode(parseInt(`+208${countZeroAfterDot}`, 16))
+                  return x.toLocaleString('fullwide', { maximumFractionDigits: 12 }).replace(/\.0+/, `.0${ucZeros}`)
                 }
                 return tick.toLocaleString('fullwide', { maximumFractionDigits: 12 })
               }}
