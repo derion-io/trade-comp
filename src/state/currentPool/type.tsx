@@ -30,6 +30,8 @@ export interface currentPoolState {
   dTokens: string[]
   allTokens: string[]
   states: {
+    twap?: BigNumber
+    spot?: BigNumber
     twapBase?: BigNumber
     spotBase?: BigNumber
     supplyDetails?: {[key: number]: BigNumber}

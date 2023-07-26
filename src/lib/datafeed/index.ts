@@ -66,7 +66,8 @@ export const Datafeed = {
     extension: any
   ) {
     console.log('======resolveSymbol running====')
-    const [, , , name] = symbolInfo.split('-')
+    const [, , , name, , priceScale] = symbolInfo.split('-')
+    console.log(priceScale, Math.pow(10, priceScale))
     var symbolStub = {
       name: name,
       description: '',
@@ -75,7 +76,7 @@ export const Datafeed = {
       session: '24x7',
       exchange: '',
       minmov: 1,
-      pricescale: 100,
+      pricescale: Math.pow(10, priceScale),
       has_intraday: true,
       supported_resolution: supportedResolutions,
       volume_precision: 8,

@@ -1,7 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react'
 import './style.scss'
 // eslint-disable-next-line no-unused-vars
-import { ChartingLibraryWidgetOptions, IChartingLibraryWidget, ResolutionString, TimeFrameType, widget } from '../../lib/charting_library'
+import {
+  ChartingLibraryWidgetOptions,
+  IChartingLibraryWidget,
+  ResolutionString,
+  TimeFrameType,
+  widget
+} from '../../lib/charting_library'
 import { Datafeed, TIME_IN_RESOLUTION } from '../../lib/datafeed'
 import { useListTokens } from '../../state/token/hook'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
@@ -11,6 +17,7 @@ import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 import { CandleChartLoader } from '../ChartLoaders'
 import isEqual from 'react-fast-compare'
 import { useConfigs } from '../../state/config/useConfigs'
+import { detectDecimalFromPrice } from '../../utils/helpers'
 
 export interface ChartContainerProps {
   interval: ChartingLibraryWidgetOptions['interval']
@@ -26,6 +33,7 @@ export interface ChartContainerProps {
   containerId: ChartingLibraryWidgetOptions['container_id']
   logo?: any
 }
+
 // TODO: need to fix chart decimal
 
 const Component = ({
@@ -47,6 +55,7 @@ const Component = ({
     chartResolutionIsUpdated,
     setCandleChartIsLoading,
     chartTimeFocus,
+    basePrice,
     setChartTimeFocus
   } = useCurrentPoolGroup()
   const { chainId } = useConfigs()
@@ -110,7 +119,14 @@ const Component = ({
     setCandleChartIsLoading(true)
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
     const widgetOptions: any = {
-      symbol: [baseToken, cToken, quoteToken, tokens[baseToken]?.symbol + '/' + tokens[quoteToken]?.symbol, chainId].join('-'),
+      symbol: [
+        baseToken,
+        cToken,
+        quoteToken,
+        tokens[baseToken]?.symbol + '/' + tokens[quoteToken]?.symbol,
+        chainId,
+        detectDecimalFromPrice(basePrice)
+      ].join('-'),
       datafeed: Datafeed,
       interval: (interval as ChartingLibraryWidgetOptions['interval']),
       container_id: containerId as ChartingLibraryWidgetOptions['container_id'],
@@ -186,10 +202,10 @@ const Component = ({
 
   return (
     <Card className='candle-chart-wrap'>
-      { candleChartIsLoading &&
-        <div className='loading'>
-          <CandleChartLoader />
-        </div>
+      {candleChartIsLoading &&
+      <div className='loading'>
+        <CandleChartLoader />
+      </div>
       }
       <input type='text' ref={timeRangeRef} className='hidden' />
       <div className={`candle-chart-box ${candleChartIsLoading && 'transparent'}`}>
