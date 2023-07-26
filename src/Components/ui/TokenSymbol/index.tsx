@@ -32,7 +32,7 @@ export const TokenSymbol = ({ token, textWrap }: { token: string, textWrap?: any
       const side =
         Number(id) === POOL_IDS.A ? 'Long' :
         Number(id) === POOL_IDS.B ? 'Short' :
-        'LP'
+        'Liquidity'
       const power = getTokenPower(pool.TOKEN_R, baseToken, Number(id), pool?.k.toNumber())
       const base = tokens[wrapToNativeAddress(baseToken)]?.symbol
       const quote = tokens[wrapToNativeAddress(quoteToken)]?.symbol
