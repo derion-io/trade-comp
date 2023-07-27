@@ -13,31 +13,31 @@ import { Tabs } from '../ui/Tabs'
 import { COLORS } from '../../utils/constant'
 import isEqual from 'react-fast-compare'
 import { useConfigs } from '../../state/config/useConfigs'
+import { formatFloat, formatZeroDecimal } from '../../utils/helpers'
+import { ReloadIcon } from '../../Components/ui/Icon'
 
 const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const { getLineChartData } = useExchangeData()
-  const { baseToken, quoteToken, id } = useCurrentPoolGroup()
+  const { baseToken, quoteToken, id, basePrice } = useCurrentPoolGroup()
   const { tokens } = useListTokens()
-  const [hoverValue, setHoverValue] = useState<number>()
+  const [hoverValue, setHoverValue] = useState<string>()
   const [chartData, setChartData] = useState<{ [key: string]: any[] }>({})
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [hoverDate, setHoverDate] = useState<string>()
-  const [interval, setInterval] = useState<LineChartIntervalType>(I_1W)
+  const [hoverDate, setHoverDate] = useState<number>()
+  const [interval, setInterval] = useState<LineChartIntervalType>(I_1D)
   const { chainId } = useConfigs()
+
   const cToken = id
   useEffect(() => {
     if (!chartData[chainId + interval + cToken] || cToken) {
-      setIsLoading(true)
-      getLineChartData({ chainId, pair: cToken.toLowerCase(), baseToken, interval })
-        .then((data) => {
-          setChartData({
-            ...chartData,
-            [chainId + interval + cToken]: data
-          })
-          setIsLoading(false)
-        })
+      loadData()
     }
   }, [cToken, chainId, interval])
+
+  useEffect(() => {
+    setHoverValue(formatZeroDecimal(formatFloat(basePrice)))
+    setHoverDate(new Date().getTime())
+  }, [basePrice])
 
   const finalData = useMemo(() => {
     const data = [
@@ -52,14 +52,26 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
       : COLORS.SELL
   }, [changedIn24h])
 
+  const loadData = () => {
+    setIsLoading(true)
+    getLineChartData({ chainId, pair: cToken.toLowerCase(), baseToken, interval })
+      .then((data) => {
+        setChartData({
+          ...chartData,
+          [chainId + interval + cToken]: data
+        })
+        setIsLoading(false)
+      })
+  }
+
   return <div className='line-chart-wrap'>
     <div className='line-chart__head'>
       <div className='line-chart__head--left'>
         <div>
-          <Text fontSize={24} fontWeight={700} className='mr-05'>
+          <Text fontSize={18} fontWeight={700} className='mr-05'>
             {hoverValue}
           </Text>
-          {/* 
+          {/*
           <TextGrey className='mr-05' fontWeight={700}>
             {tokens[baseToken]?.symbol}/{tokens[quoteToken]?.symbol}
           </TextGrey>
@@ -71,7 +83,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
           */}
         </div>
         <div>
-          <TextGrey>{moment(hoverDate || new Date().getTime()).format(DATE_FORMATS.FULL)}</TextGrey>
+          <TextGrey>{moment(hoverDate).format(DATE_FORMATS.FULL)}</TextGrey>
         </div>
       </div>
       <div className='line-chart__head--right'>
@@ -83,24 +95,27 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
       </div>
     </div>
     <div className='line-chart-box'>
-      {(isLoading || !chartData[chainId + interval + cToken]) &&
-        <div className='line-chart__loading'>
+      {(isLoading || !chartData[chainId + interval + cToken])
+        ? <div className='line-chart__loading'>
           <LineChartLoader />
         </div>
+        : <div
+          className='line-chart__reload-icon'
+          onClick={loadData}
+          style={{ display: chartData[chainId + interval + cToken].length > 0 ? 'none' : '' }}
+        >
+          <ReloadIcon />
+        </div>
       }
-      {chartData[chainId + interval + cToken] && chartData[chainId + interval + cToken].length > 0 &&
+      {(chartData[chainId + interval + cToken] && chartData[chainId + interval + cToken].length > 0) &&
         <ResponsiveContainer>
           <AreaChart
             data={finalData}
             margin={{
               top: 5,
-              right: 10,
-              left: 16,
+              right: 0,
+              left: 10,
               bottom: 5
-            }}
-            onMouseLeave={() => {
-              if (setHoverDate) setHoverDate(undefined)
-              if (setHoverValue) setHoverValue(undefined)
             }}
           >
             <defs>
@@ -119,18 +134,13 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
             <YAxis
               dataKey='value'
               tickFormatter={tick => {
-                const x = tick
-                const countZeroAfterDot = -Math.floor(Math.log10(x) + 1)
-                if (countZeroAfterDot !== Infinity && countZeroAfterDot >= 2) {
-                  const ucZeros = String.fromCharCode(parseInt(`+208${countZeroAfterDot}`, 16))
-                  return x.toLocaleString('fullwide', { maximumFractionDigits: 12 }).replace(/\.0+/, `.0${ucZeros}`)
-                }
-                return tick.toLocaleString('fullwide', { maximumFractionDigits: 12 })
+                return formatZeroDecimal(tick)
               }}
               axisLine={false}
               tickLine={false}
               domain={['auto', 'auto']}
               minTickGap={8}
+              orientation='right'
             />
             <Tooltip
               cursor={{ stroke: '#a6a6a6' }}
@@ -154,7 +164,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
 
 const HoverUpdater = ({ payload, setHoverValue, setHoverDate }: any) => {
   useEffect(() => {
-    setHoverValue(payload.value.toLocaleString('fullwide', { maximumFractionDigits: 12 }))
+    setHoverValue(formatZeroDecimal(payload.value))
     setHoverDate(payload.time)
   }, [payload.value, payload.time, setHoverValue, setHoverDate])
 

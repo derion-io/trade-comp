@@ -53,6 +53,7 @@ export const minBN = (a: BigNumber, b: BigNumber) => {
 
 export function overrideContract(provider: any, deployedBytecode: string) {
   if (typeof provider.setStateOverride === 'undefined') {
+    // eslint-disable-next-line no-throw-literal
     throw 'provider: state override not supported'
   }
   const address = ethers.utils.keccak256(deployedBytecode).substring(0, 42)
@@ -68,19 +69,19 @@ export const parseCallStaticError = (error: any) => {
 }
 
 function _extractErrorReason(err: any) {
-  if (typeof err?.error?.body == 'string') {
-      try {
-          const rre = JSON.parse(err?.error?.body)
-          if (!_.isEmpty(rre)) {
-              let reason = rre?.error?.message
-              if (reason.startsWith('execution reverted: ')) {
-                  reason = reason.substr(20)
-              }
-              return { reason, err: rre }
-          }
-      } catch (eee) {
-          console.error(eee)
+  if (typeof err?.error?.body === 'string') {
+    try {
+      const rre = JSON.parse(err?.error?.body)
+      if (!_.isEmpty(rre)) {
+        let reason = rre?.error?.message
+        if (reason.startsWith('execution reverted: ')) {
+          reason = reason.substr(20)
+        }
+        return { reason, err: rre }
       }
+    } catch (eee) {
+      console.error(eee)
+    }
   }
   const reason = err?.reason ?? err?.error?.body ?? err
   return { reason, err }
@@ -113,8 +114,8 @@ export const cutDecimal = (number: string, decimal?: number) => {
 }
 
 export const mul = (a: any, b: any) => {
-  a = a.toLocaleString('fullwide', {useGrouping:false})
-  b = b.toLocaleString('fullwide', {useGrouping:false})
+  a = a.toLocaleString('fullwide', { useGrouping: false })
+  b = b.toLocaleString('fullwide', { useGrouping: false })
   const result = weiToNumber(
     BigNumber.from(numberToWei(a)).mul(numberToWei(b)),
     36
@@ -125,29 +126,29 @@ export const mul = (a: any, b: any) => {
 }
 
 export const sub = (a: any, b: any) => {
-  a = a.toLocaleString('fullwide', {useGrouping:false})
-  b = b.toLocaleString('fullwide', {useGrouping:false})
+  a = a.toLocaleString('fullwide', { useGrouping: false })
+  b = b.toLocaleString('fullwide', { useGrouping: false })
   return weiToNumber(BigNumber.from(numberToWei(a)).sub(numberToWei(b)))
 }
 
 export const div = (a: any, b: any) => {
-  if (b.toLocaleString('fullwide', {useGrouping:false}) == '0') {
-    return weiToNumber(BigNumber.from(numberToWei((Number(a)/Number(b)).toLocaleString('fullwide', {useGrouping:false}))))
+  if (b.toLocaleString('fullwide', { useGrouping: false }) === '0') {
+    return weiToNumber(BigNumber.from(numberToWei((Number(a) / Number(b)).toLocaleString('fullwide', { useGrouping: false }))))
   }
-  a = a.toLocaleString('fullwide', {useGrouping:false})
-  b = b.toLocaleString('fullwide', {useGrouping:false})
+  a = a.toLocaleString('fullwide', { useGrouping: false })
+  b = b.toLocaleString('fullwide', { useGrouping: false })
   return weiToNumber(BigNumber.from(numberToWei(a, 36)).div(numberToWei(b)))
 }
 
 export const add = (a: any, b: any) => {
-  a = a.toLocaleString('fullwide', {useGrouping:false})
-  b = b.toLocaleString('fullwide', {useGrouping:false})
+  a = a.toLocaleString('fullwide', { useGrouping: false })
+  b = b.toLocaleString('fullwide', { useGrouping: false })
   return weiToNumber(BigNumber.from(numberToWei(a)).add(numberToWei(b)))
 }
 
 export const formatPercent = (floatNumber: any, decimal: number = 2, rounding: boolean = false) => {
   if (rounding) {
-    return Math.round(Number(floatNumber) * 10**(decimal+2)) / 10**decimal
+    return Math.round(Number(floatNumber) * 10 ** (decimal + 2)) / 10 ** decimal
   }
   floatNumber = floatNumber.toString()
   return formatFloat(weiToNumber(numberToWei(floatNumber), 16), decimal)
@@ -250,7 +251,7 @@ export const getTokenPower = (
   TOKEN_R: string,
   baseToken: string,
   id: number, k: number) => {
-  return k/2
+  return k / 2
   // if (id === POOL_IDS.C) return k / 2
   // return (TOKEN_R === baseToken && id !== POOL_IDS.C ? 1 : 0) + (id === POOL_IDS.B ? -1 : 1) * k / 2
 }
@@ -281,4 +282,14 @@ export const isUSD = (symbol: string): boolean => {
   return symbol?.includes('USD') ||
     symbol?.includes('DAI') ||
     symbol?.includes('SAI')
+}
+
+export const formatZeroDecimal = (value: number): string => {
+  const x = value
+  const countZeroAfterDot = -Math.floor(Math.log10(x) + 1)
+  if (countZeroAfterDot !== Infinity && countZeroAfterDot >= 5) {
+    const ucZeros = String.fromCharCode(parseInt(`+208${countZeroAfterDot}`, 16))
+    return x.toLocaleString('fullwide', { maximumFractionDigits: 18 }).replace(/\.0+/, `.0${ucZeros}`)
+  }
+  return value.toLocaleString('fullwide', { maximumFractionDigits: 18 })
 }
