@@ -18,7 +18,7 @@ export const Tabs = (props: TabProps) => {
   const { width } = useWindowSize()
 
   useEffect(() => {
-    if (!width || width <= 720) {
+    if (!width || width <= 480) {
       return
     }
     const item: any = document.querySelector('.derivable-tabs__item.' + id + '.active')
@@ -29,7 +29,7 @@ export const Tabs = (props: TabProps) => {
     })
   }, [currentTab, width])
 
-  if (!width || width <= 720) {
+  if (!width || width <= 480) {
     return (
       <React.Fragment>
       <div className={`derivable-tabs ${props.className}`} ref={ref}>
