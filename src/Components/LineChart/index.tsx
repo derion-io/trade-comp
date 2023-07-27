@@ -35,8 +35,10 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   }, [cToken, chainId, interval])
 
   useEffect(() => {
-    setHoverValue(formatZeroDecimal(formatFloat(basePrice)))
-    setHoverDate(new Date().getTime())
+    if (basePrice) {
+      setHoverValue(formatZeroDecimal(formatFloat(basePrice)))
+      setHoverDate(new Date().getTime())
+    }
   }, [basePrice])
 
   const finalData = useMemo(() => {

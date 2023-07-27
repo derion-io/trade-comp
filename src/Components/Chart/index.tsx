@@ -22,7 +22,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
         <div className='chart__head--left'>
           <SelectPoolGroup />
           {
-            id &&
+            !!id && basePrice &&
             <span>
               <Text>{formatZeroDecimal(formatFloat(basePrice))}</Text>
               {

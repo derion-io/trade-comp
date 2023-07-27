@@ -48,7 +48,7 @@ export const Trade = ({ tab, pool }: {
   const { tokens } = useListTokens()
 
   useEffect(() => {
-    if (tokens[baseToken] && tokens[quoteToken] && id && ddlEngine) {
+    if (tokens[baseToken] && tokens[quoteToken] && id && ddlEngine && basePrice) {
       ddlEngine.PRICE.get24hChange({
         baseToken: tokens[baseToken],
         cToken: id,
@@ -59,7 +59,7 @@ export const Trade = ({ tab, pool }: {
         setChangedIn24h(Number(value1))
       })
     }
-  }, [chainId, tokens, ddlEngine, id, quoteToken, baseToken])
+  }, [chainId, tokens, ddlEngine, id, quoteToken, baseToken, basePrice])
 
   useEffect(() => {
     if (poolGroups && Object.keys(poolGroups).length > 0) {
