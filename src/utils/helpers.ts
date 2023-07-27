@@ -113,6 +113,8 @@ export const cutDecimal = (number: string, decimal?: number) => {
 }
 
 export const mul = (a: any, b: any) => {
+  a = a.toLocaleString('fullwide', {useGrouping:false})
+  b = b.toLocaleString('fullwide', {useGrouping:false})
   const result = weiToNumber(
     BigNumber.from(numberToWei(a)).mul(numberToWei(b)),
     36
@@ -123,17 +125,23 @@ export const mul = (a: any, b: any) => {
 }
 
 export const sub = (a: any, b: any) => {
+  a = a.toLocaleString('fullwide', {useGrouping:false})
+  b = b.toLocaleString('fullwide', {useGrouping:false})
   return weiToNumber(BigNumber.from(numberToWei(a)).sub(numberToWei(b)))
 }
 
 export const div = (a: any, b: any) => {
-  if (!b || b.toString() === '0') {
-    return '0'
+  if (b.toLocaleString('fullwide', {useGrouping:false}) == '0') {
+    return weiToNumber(BigNumber.from(numberToWei((Number(a)/Number(b)).toLocaleString('fullwide', {useGrouping:false}))))
   }
+  a = a.toLocaleString('fullwide', {useGrouping:false})
+  b = b.toLocaleString('fullwide', {useGrouping:false})
   return weiToNumber(BigNumber.from(numberToWei(a, 36)).div(numberToWei(b)))
 }
 
 export const add = (a: any, b: any) => {
+  a = a.toLocaleString('fullwide', {useGrouping:false})
+  b = b.toLocaleString('fullwide', {useGrouping:false})
   return weiToNumber(BigNumber.from(numberToWei(a)).add(numberToWei(b)))
 }
 
