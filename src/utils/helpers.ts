@@ -233,8 +233,9 @@ export const formatTime = (timestamp: number) => {
 }
 
 export const detectDecimalFromPrice = (price: number | string) => {
-  if (Number(price || 0) === 0 || Number(price || 0) >= 1) {
-    return 4
+  if (Number(price || 0) >= 1) {
+    const len = Math.floor(Number(price ?? 0)).toString().length
+    return 4 - Math.min(len, 4)
   } else {
     const rate = !bn(numberToWei(price)).isZero()
       ? weiToNumber(
