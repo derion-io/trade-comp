@@ -59,6 +59,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
           <Text fontSize={24} fontWeight={700} className='mr-05'>
             {hoverValue}
           </Text>
+          {/* 
           <TextGrey className='mr-05' fontWeight={700}>
             {tokens[baseToken]?.symbol}/{tokens[quoteToken]?.symbol}
           </TextGrey>
@@ -67,6 +68,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
               ? <TextBuy>(+{changedIn24h}%)</TextBuy>
               : <TextSell>({changedIn24h}%)</TextSell>
           }
+          */}
         </div>
         <div>
           <TextGrey>{moment(hoverDate || new Date().getTime()).format(DATE_FORMATS.FULL)}</TextGrey>

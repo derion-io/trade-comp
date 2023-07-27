@@ -18,6 +18,9 @@ export const Tabs = (props: TabProps) => {
   const { width } = useWindowSize()
 
   useEffect(() => {
+    if (!width || width <= 720) {
+      return
+    }
     const item: any = document.querySelector('.derivable-tabs__item.' + id + '.active')
     setSliderStyle({
       left: item.offsetLeft,
@@ -25,6 +28,27 @@ export const Tabs = (props: TabProps) => {
       height: item.offsetHeight
     })
   }, [currentTab, width])
+
+  if (!width || width <= 720) {
+    return (
+      <React.Fragment>
+      <div className={`derivable-tabs ${props.className}`} ref={ref}>
+        <span
+          key='tab-circler'
+          className={`derivable-tabs__item active`}
+          onClick={() => {
+            const currentIndex = tabs.findIndex((tab: { value: any }) => tab.value == currentTab)
+            console.log(currentTab, currentIndex, tabs)
+            setTab(tabs[(currentIndex+1) % tabs.length].value)
+          }}
+        >
+          <span>{tabs.find((tab: { value: any }) => tab.value == currentTab)?.name}</span>
+        </span>
+      </div>
+    </React.Fragment>
+
+    )
+  }
 
   return (
     <React.Fragment>

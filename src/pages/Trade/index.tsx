@@ -60,7 +60,6 @@ export const Trade = ({ tab, pool }: {
       })
     }
   }, [chainId, tokens, ddlEngine, id, quoteToken, baseToken])
-  console.log('changedIn24h', changedIn24h)
 
   useEffect(() => {
     if (poolGroups && Object.keys(poolGroups).length > 0) {
