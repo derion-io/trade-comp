@@ -256,11 +256,11 @@ const detectMarkInfo = (
   configs: any,
   timescaleMark = false
 ) => {
-  const time = moment(swapTx.timeStamp * 1000).format('DD/MM/YYYY, hh:mm a')
+  const time = moment(swapTx.timeStamp * 1000).format('YYYY-MM-DD, HH:mm')
 
-  const arrow = `<span style='color: ${getColor(swapTx.tokenOut)}'>-></span>`
+  const arrow = `<span style='color: ${getColor(swapTx.tokenOut)}'>⇒</span>`
 
-  const explorerLink = `<a style='color: ${COLORS.BLUE}' target='_blank' href='${configs.explorer}/tx/${swapTx.transactionHash}'>View on Scan</a>`
+  const explorerLink = `<a style='color: ${COLORS.BLUE}; margin-bottom: 1em' target='_blank' href='${configs.explorer}/tx/${swapTx.transactionHash}'>${time} (View)</a>`
 
   const l =
     resolution === '1D' || resolution === '1W' || resolution === '1M'
@@ -273,18 +273,18 @@ const detectMarkInfo = (
       ? Math.floor(swapTx.timeStamp)
       : Math.floor(swapTx.timeStamp) - 60 * l
   }
-  let label = 'E'
+  let label = getMarkLabel(swapTx.tokenOut)
 
   result.color = getMarkColor(swapTx.tokenOut)
 
   if (timescaleMark) {
     result.tooltip = [
-      'Execute at ' + time,
+      time,
       `<div>
-      <span style='color: ${getColor(swapTx.tokenIn)}'>${tokens[swapTx.tokenIn]?.symbol || 'unknown'}</span>
+      <span style='color: ${getColor(swapTx.tokenIn)}'>${getMarkPosition(swapTx.tokenIn, tokens) ?? tokens[swapTx.tokenIn]?.symbol ?? 'unknown'}</span>
         ${formatWeiToDisplayNumber(swapTx.amountIn, 4, tokens[swapTx.tokenIn]?.decimal || 18)}
         ${arrow}
-        <span style='color: ${getColor(swapTx.tokenOut)}'>${tokens[swapTx.tokenOut]?.symbol || 'unknown'}</span>
+        <span style='color: ${getColor(swapTx.tokenOut)}'>${getMarkPosition(swapTx.tokenOut, tokens) ?? tokens[swapTx.tokenOut]?.symbol ?? 'unknown'}</span>
         ${formatWeiToDisplayNumber(swapTx.amountOut, 4, tokens[swapTx.tokenIn]?.decimal || 18)}
       </div>`
     ]
@@ -292,16 +292,13 @@ const detectMarkInfo = (
     label = label.slice(0, 1)
     result.labelFontColor = '#ffffff'
     result.text = `<div>
-      <p>Execute at ${time}</p>
+      <div>${explorerLink}</div>
       <div>
-        <span style='color: ${getColor(swapTx.tokenIn)}'>${tokens[swapTx.tokenIn]?.symbol || 'unknown'}</span>
+        <span style='color: ${getColor(swapTx.tokenIn)}'>${getMarkPosition(swapTx.tokenIn, tokens) ?? tokens[swapTx.tokenIn]?.symbol ?? 'unknown'}</span>
         ${formatWeiToDisplayNumber(swapTx.amountIn, 4, tokens[swapTx.tokenIn]?.decimal || 18)}
         ${arrow}
-        <span style='color: ${getColor(swapTx.tokenOut)}'>${tokens[swapTx.tokenOut]?.symbol || 'unknown'}</span>
+        <span style='color: ${getColor(swapTx.tokenOut)}'>${getMarkPosition(swapTx.tokenOut, tokens) ?? tokens[swapTx.tokenOut]?.symbol ?? 'unknown'}</span>
         ${formatWeiToDisplayNumber(swapTx.amountOut, 4, tokens[swapTx.tokenIn]?.decimal || 18)}
-      </div>
-      <div>
-        ${explorerLink}
       </div>
     </div>`
   }
@@ -310,7 +307,6 @@ const detectMarkInfo = (
 }
 
 const getColor = (address: string) => {
-  console.log(address)
   if (address === NATIVE_ADDRESS || !isErc1155Address(address)) {
     return COLORS.PINK
   }
@@ -323,6 +319,38 @@ const getColor = (address: string) => {
     return COLORS.BUY
   } else {
     return 'white'
+  }
+}
+
+const getMarkLabel = (address: string) => {
+  if (address === NATIVE_ADDRESS || !isErc1155Address(address)) {
+    return 'C'
+  }
+  const id = address.split('-')[1]
+  if (Number(id) === POOL_IDS.C) {
+    return 'P'
+  } else if (Number(id) === POOL_IDS.B) {
+    return 'S'
+  } else if (Number(id) === POOL_IDS.A) {
+    return 'L'
+  } else {
+    return '-'
+  }
+}
+
+const getMarkPosition = (address: string, tokens: { [key: string]: TokenType; }) => {
+  if (address === NATIVE_ADDRESS || !isErc1155Address(address)) {
+    return tokens[address]?.symbol ?? 'ETH'
+  }
+  const id = address.split('-')[1]
+  if (Number(id) === POOL_IDS.C) {
+    return 'Liquidity'
+  } else if (Number(id) === POOL_IDS.B) {
+    return 'Short'
+  } else if (Number(id) === POOL_IDS.A) {
+    return 'Long'
+  } else {
+    return '-'
   }
 }
 
