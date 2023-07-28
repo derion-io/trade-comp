@@ -36,6 +36,7 @@ import { CHART_TABS } from '../../state/currentPool/type'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { BigNumber } from 'ethers'
+import { useSettings } from '../../state/setting/hooks/useSettings'
 
 const Component = ({
   tradeType = TRADE_TYPE.LONG,
@@ -63,6 +64,7 @@ const Component = ({
   const { tokens } = useListTokens()
   const { wrapToNativeAddress } = useHelper()
   const { setCurrentPoolAddress, setDr } = useCurrentPool()
+  const { settings } = useSettings()
 
   const leverageData = useGenerateLeverageData(tradeType)
 
@@ -304,7 +306,9 @@ const Component = ({
           </span>
           <div className='position-delta--box'>
             <div className='position-delta--left'>
+              {settings.showBalance &&
               <div>Balance</div>
+              }
               <div>Net Value</div>
               <div>Maturity</div>
             </div>
@@ -312,6 +316,7 @@ const Component = ({
               {!Number(valueOutBefore) ? ''
                 : <div className='position-delta--group'>
                   <div className='position-delta--right'>
+                    {settings.showBalance &&
                     <div>{
                       formatWeiToDisplayNumber(
                         balances[outputTokenAddress] ?? bn(0),
@@ -319,10 +324,12 @@ const Component = ({
                         tokens[outputTokenAddress]?.decimal || 18
                       ).split('.')[0]
                     }</div>
+                    }
                     <div>${formatLocalisedCompactNumber(formatFloat(valueOutBefore)).split('.')[0]}</div>
                     <div>{expiration || '\u00A0'}</div>
                   </div>
                   <div className='position-delta--left'>
+                    {settings.showBalance &&
                     <div>{
                       formatWeiToDisplayNumber(
                         balances[outputTokenAddress] ?? bn(0),
@@ -330,6 +337,7 @@ const Component = ({
                         tokens[outputTokenAddress]?.decimal || 18
                       ).match(/\.\d+$/g) || '\u00A0'
                     }</div>
+                    }
                     <div>{formatLocalisedCompactNumber(formatFloat(valueOutBefore)).match(/\.\d+$/g) || '\u00A0'}</div>
                     <div>{expiration ? '(s)' : '\u00A0'}</div>
                   </div>
@@ -338,7 +346,9 @@ const Component = ({
             </SkeletonLoader>
             {!Number(amountIn) ? ''
               : <div className='position-delta--left'>
+                {settings.showBalance &&
                 <div>+</div>
+                }
                 <div>+</div>
                 <div>+</div>
               </div>
@@ -347,12 +357,16 @@ const Component = ({
               : <SkeletonLoader loading={!Number(valueOut)}>
                 <div className='position-delta--group'>
                   <div className='position-delta--right'>
+                    {settings.showBalance &&
                     <div>{formatLocalisedCompactNumber(formatFloat(amountOut)).split('.')[0]}</div>
+                    }
                     <div>${formatLocalisedCompactNumber(formatFloat(valueOut)).split('.')[0]}</div>
                     <div>{expirationDelta || '\u00A0'}</div>
                   </div>
                   <div className='position-delta--left'>
+                    {settings.showBalance &&
                     <div>{formatLocalisedCompactNumber(formatFloat(amountOut)).match(/\.\d+$/g) || '\u00A0'}</div>
+                    }
                     <div>{formatLocalisedCompactNumber(formatFloat(valueOut)).match(/\.\d+$/g) || '\u00A0'}</div>
                     <div>{expirationDelta ? '(s)' : '\u00A0'}</div>
                   </div>
