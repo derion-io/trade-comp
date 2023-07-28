@@ -82,6 +82,8 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
     return []
   }, [positions, tradeType])
 
+  const showSize = tradeType != TRADE_TYPE.LIQUIDITY
+
   return <div className='positions-table'>
     <table>
       <thead>
@@ -95,6 +97,9 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
           <th>Balance</th>
           }
           <th>Value</th>
+          {showSize &&
+          <th>Size</th>
+          }
           <th />
         </tr>
       </thead>
@@ -108,6 +113,8 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
             if (Number(value) < MIN_POSITON_VALUE_TO_DISPLAY && chainId !== 1337) {
               return ''
             }
+            const sizeDisplay = (position.poolId === POOL_IDS.A || position.poolId === POOL_IDS.B) ?
+              '$'+formatLocalisedCompactNumber(formatFloat(Number(value)*position.pool.k.toNumber()/2)) : ''
 
             return <tr
               className='position-row'
@@ -145,6 +152,9 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
               <td>
                 <Text>${formatLocalisedCompactNumber(formatFloat(value))}</Text>
               </td>
+              {showSize &&
+              <td><Text>{sizeDisplay}</Text></td>
+              }
               <td className='text-right'>
                 <ButtonSell
                   size='small'
