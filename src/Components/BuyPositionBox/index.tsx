@@ -264,13 +264,10 @@ const Component = ({
               onClick={() => {
                 setAmountIn(weiToNumber(balances[inputTokenAddress], tokens[inputTokenAddress]?.decimal || 18))
               }}
-            >Balance: {balances && balances[inputTokenAddress]
-                ? formatWeiToDisplayNumber(
-                  balances[inputTokenAddress],
-                  4,
-                tokens[inputTokenAddress]?.decimal || 18
-                )
-                : 0
+              >Balance: {!balances || !balances[inputTokenAddress] ? 0 :
+                formatLocalisedCompactNumber(formatFloat(
+                  weiToNumber(balances[inputTokenAddress], tokens[inputTokenAddress]?.decimal ?? 18)
+                ))
               }
             </Text>
           </div>

@@ -93,7 +93,7 @@ const Option = ({ onSelectToken, address, setVisible }: {
       {
         (lp && Number(lp) > 0)
           ? <div>
-            <TextGrey>${formatLocalisedCompactNumber(formatFloat(lp, 2))}</TextGrey>
+            <TextGrey>${formatLocalisedCompactNumber(formatFloat(lp))}</TextGrey>
           </div>
           : ''
       }
@@ -101,8 +101,12 @@ const Option = ({ onSelectToken, address, setVisible }: {
     {
       (balances[address] && balances[address].gt(0)) &&
       <div className='option__balance'>
-        <Text>{formatWeiToDisplayNumber(balances[address] || 0, 4, tokens[address]?.decimal || 18)}</Text>
-        <TextGrey>${formatLocalisedCompactNumber(formatFloat(value, 2))}</TextGrey>
+        <Text>{
+          formatLocalisedCompactNumber(formatFloat(
+            weiToNumber(balances[address], tokens[address]?.decimal ?? 18)
+          ))
+        }</Text>
+        <TextGrey>${formatLocalisedCompactNumber(formatFloat(value))}</TextGrey>
       </div>
     }
 
