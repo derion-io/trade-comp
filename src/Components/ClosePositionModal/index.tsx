@@ -67,7 +67,7 @@ const Component = ({
     }
   }, [valueInput, balance, valueBalance])
 
-  const { callError, gasUsed, amountOut } = useCalculateSwap({
+  const { callError, gasUsed, amountOut, loading } = useCalculateSwap({
     amountIn,
     inputTokenAddress,
     outputTokenAddress,
@@ -209,10 +209,11 @@ const Component = ({
         />
       </div>
 
-      <TxFee gasUsed={gasUsed} payoffRate={payoffRate} />
+      <TxFee gasUsed={gasUsed} payoffRate={payoffRate} loading={loading} />
 
       <div className='actions'>
         <ButtonSwap
+          loadingAmountOut={loading}
           payoffRate={payoffRate}
           inputTokenAddress={inputTokenAddress}
           outputTokenAddress={outputTokenAddress}
