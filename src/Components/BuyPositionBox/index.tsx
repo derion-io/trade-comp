@@ -226,6 +226,15 @@ const Component = ({
     return deleverageRiskDisplay
   }, [poolToShow, tradeType])
 
+  const power = useMemo(() => {
+    if (!poolToShow) {
+      return 1
+    }
+    return poolToShow.k.toNumber() / 2
+  }, [poolToShow])
+
+  const showSize = tradeType === TRADE_TYPE.LONG || tradeType === TRADE_TYPE.SHORT
+
   const { value: liquidity } = useTokenValue({
     amount: weiToNumber(poolToShow?.states?.R, tokens[poolToShow?.TOKEN_R]?.decimals),
     tokenAddress: poolToShow?.TOKEN_R
@@ -309,7 +318,10 @@ const Component = ({
               {settings.showBalance &&
               <div>Balance</div>
               }
-              <div>Net Value</div>
+              <div>Value</div>
+              {showSize &&
+              <div>Size</div>
+              }
               <div>Maturity</div>
             </div>
             <SkeletonLoader loading={balances[outputTokenAddress] == null}>
@@ -326,6 +338,9 @@ const Component = ({
                     }</div>
                     }
                     <div>${formatLocalisedCompactNumber(formatFloat(valueOutBefore)).split('.')[0]}</div>
+                    {showSize &&
+                    <div>${formatLocalisedCompactNumber(formatFloat(Number(valueOutBefore)*power)).split('.')[0]}</div>
+                    }
                     <div>{expiration || '\u00A0'}</div>
                   </div>
                   <div className='position-delta--left'>
@@ -339,6 +354,9 @@ const Component = ({
                     }</div>
                     }
                     <div>{formatLocalisedCompactNumber(formatFloat(valueOutBefore)).match(/\.\d+$/g) || '\u00A0'}</div>
+                    {showSize &&
+                    <div>{formatLocalisedCompactNumber(formatFloat(Number(valueOutBefore)*power)).match(/\.\d+$/g) || '\u00A0'}</div>
+                    }
                     <div>{expiration ? '(s)' : '\u00A0'}</div>
                   </div>
                 </div>
@@ -347,6 +365,9 @@ const Component = ({
             {!Number(amountIn) ? ''
               : <div className='position-delta--left'>
                 {settings.showBalance &&
+                <div>+</div>
+                }
+                {showSize &&
                 <div>+</div>
                 }
                 <div>+</div>
@@ -361,6 +382,9 @@ const Component = ({
                     <div>{formatLocalisedCompactNumber(formatFloat(amountOut)).split('.')[0]}</div>
                     }
                     <div>${formatLocalisedCompactNumber(formatFloat(valueOut)).split('.')[0]}</div>
+                    {showSize &&
+                    <div>${formatLocalisedCompactNumber(formatFloat(Number(valueOut)*power)).split('.')[0]}</div>
+                    }
                     <div>{expirationDelta || '\u00A0'}</div>
                   </div>
                   <div className='position-delta--left'>
@@ -368,6 +392,9 @@ const Component = ({
                     <div>{formatLocalisedCompactNumber(formatFloat(amountOut)).match(/\.\d+$/g) || '\u00A0'}</div>
                     }
                     <div>{formatLocalisedCompactNumber(formatFloat(valueOut)).match(/\.\d+$/g) || '\u00A0'}</div>
+                    {showSize &&
+                    <div>{formatLocalisedCompactNumber(formatFloat(Number(valueOut)*power)).match(/\.\d+$/g) || '\u00A0'}</div>
+                    }
                     <div>{expirationDelta ? '(s)' : '\u00A0'}</div>
                   </div>
                 </div>
@@ -391,7 +418,7 @@ const Component = ({
         <InfoRow>
           <TextGrey>Daily Interest Rate</TextGrey>
           <SkeletonLoader loading={!poolToShow}>
-            {formatPercent((poolToShow?.dailyInterestRate ?? 0) / (poolToShow?.k.toNumber() ?? 1), 3, true)}%
+            {formatPercent((poolToShow?.dailyInterestRate ?? 0) / power / 2, 3, true)}%
           </SkeletonLoader>
         </InfoRow>
         {
@@ -403,7 +430,7 @@ const Component = ({
             : <InfoRow>
               <TextGrey>Leverage:</TextGrey>
               <SkeletonLoader loading={!poolToShow}>
-                <Text>{poolToShow?.k.toNumber() / 2}x</Text>
+                <Text>{power}x</Text>
               </SkeletonLoader>
             </InfoRow>
         }
