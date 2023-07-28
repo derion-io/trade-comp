@@ -1,10 +1,13 @@
 import { useDispatch, useSelector } from 'react-redux'
 import {
   setDeleverageChanceReduce,
-  setMinInterestRateReduce,
+  setMaxInterestRateReduce,
   setMinLiquidityReduce,
-  setPayoffMinRateReduce, setScanApiKeyReduce,
-  setSlippageReduce, setSortPoolBuyReduce
+  setMinPayoffRateReduce,
+  setScanApiKeyReduce,
+  setSlippageReduce,
+  setSortPoolBuyReduce,
+  setShowBalanceReduce,
 } from '../reducer'
 import { State } from '../../types'
 import { useConfigs } from '../../config/useConfigs'
@@ -26,10 +29,10 @@ export const useSettings = () => {
     dispatch(setDeleverageChanceReduce({ maxDeleverageRisk }))
   }
   const setMaxInterestRate = (maxInterestRate: number) => {
-    dispatch(setMinInterestRateReduce({ maxInterestRate }))
+    dispatch(setMaxInterestRateReduce({ maxInterestRate }))
   }
   const setMinPayoffRate = (minPayoffRate: number) => {
-    dispatch(setPayoffMinRateReduce({ minPayoffRate }))
+    dispatch(setMinPayoffRateReduce({ minPayoffRate }))
   }
   const setMinLiquidityShare = (minLiquidityShare: number) => {
     dispatch(setMinLiquidityReduce({ minLiquidityShare }))
@@ -40,6 +43,9 @@ export const useSettings = () => {
   const setSortPoolBuy = (sortPoolBy: SORT_POOL_BY) => {
     dispatch(setSortPoolBuyReduce({ chainId, sortPoolBy }))
   }
+  const setShowBalance = (showBalance: boolean) => {
+    dispatch(setShowBalanceReduce({ showBalance }))
+  }
   return {
     settings,
     setSortPoolBuy,
@@ -48,6 +54,7 @@ export const useSettings = () => {
     setMaxDeleverageRisk,
     setMaxInterestRate,
     setMinPayoffRate,
-    setMinLiquidityShare
+    setMinLiquidityShare,
+    setShowBalance,
   }
 }
