@@ -61,9 +61,9 @@ const Component = ({
       return
     }
     if (a > 0.999*b) {
-      setAmountIn(b.toString())
+      setAmountIn(balance)
     } else {
-      setAmountIn(a.toString())
+      setAmountIn(String(a))
     }
   }, [valueInput, balance, valueBalance])
 
