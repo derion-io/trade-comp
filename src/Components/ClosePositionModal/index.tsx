@@ -172,6 +172,14 @@ const Component = ({
           onChange={(e) => {
             const value = (e.target as HTMLInputElement).value
             if (value != null) {
+              try {
+                if (Number(valueBalance) < Number(value)) {
+                  setValueInput(valueBalance)
+                  return
+                }
+              } catch(err) {
+                console.error(err)
+              }
               setValueInput(value)
             }
           }}
