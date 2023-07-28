@@ -1,9 +1,9 @@
 {
-  "name": "derivable-comp",
+  "name": "exposure-comp",
   "version": "1.0.0",
-  "author": "LaunchZone",
+  "author": "Derivable",
   "license": "MIT",
-  "repository": "ezDeFi/lz-comp",
+  "repository": "derivable-labs/exposure-comp",
   "main": "dist/index.js",
   "module": "dist/index.modern.js",
   "source": "src/index.tsx",
