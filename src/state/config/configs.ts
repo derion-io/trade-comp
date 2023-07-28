@@ -40,7 +40,7 @@ export default {
     rpcToGetLogs: 'https://arb1.arbitrum.io/rpc',
     explorer: 'https://arbiscan.io',
     scanApi: 'https://api.arbiscan.io/api',
-    candleChartApi: 'https://api.lz.finance/56/chart/',
+    candleChartApi: 'https://api.derivable.org/56/chart/',
     theGraphExchange: 'https://api.thegraph.com/subgraphs/name/sushi-v2/sushiswap-arbitrum',
     theGraphArbitrum: 'https://api.thegraph.com/subgraphs/name/messari/uniswap-v3-arbitrum',
     scanName: 'Arbitrum Scan',
