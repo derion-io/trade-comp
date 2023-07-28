@@ -84,8 +84,8 @@ export const Trade = ({ tab, pool }: {
             }}
           >
             <TabList>
-              <Tab>Positions</Tab>
-              <Tab>Histories</Tab>
+              <Tab>Position</Tab>
+              <Tab>History</Tab>
             </TabList>
             <TabPanel>
               <Card className='card-in-tab'>

@@ -109,7 +109,7 @@ export const ButtonSwap = ({
           } catch (e) {
             console.error(e)
             setLoading(false)
-            toast.error(e.message ?? String(e))
+            toast.error(String(e.message ?? e))
           }
         }}
       >

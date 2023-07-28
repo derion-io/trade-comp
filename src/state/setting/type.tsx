@@ -24,6 +24,7 @@ export interface settingsState {
   maxDeleverageRisk: number
   scanApiKey: { [key: number]: string }
   sortPoolBy: SORT_POOL_BY
+  showBalance: boolean
 }
 
 export const initialState: settingsState = {
@@ -34,4 +35,5 @@ export const initialState: settingsState = {
   maxInterestRate: Number(localStorage.getItem('maxInterestRate') ?? 0.1),
   minLiquidityShare: Number(localStorage.getItem('minLiquidityShare') ?? 1),
   maxDeleverageRisk: Number(localStorage.getItem('maxDeleverageRisk') ?? 100),
+  showBalance: Boolean(localStorage.getItem('showBalance') ?? false),
 }

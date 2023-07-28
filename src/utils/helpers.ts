@@ -83,7 +83,7 @@ function _extractErrorReason(err: any) {
       console.error(eee)
     }
   }
-  const reason = err?.reason ?? err?.error?.body ?? err
+  const reason = String(err?.reason ?? err?.error?.body ?? err)
   return { reason, err }
 }
 

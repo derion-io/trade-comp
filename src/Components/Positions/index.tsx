@@ -16,6 +16,7 @@ import { TokenSymbol } from '../ui/TokenSymbol'
 import { ClosePosition } from '../ClosePositionModal'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
 import { useHelper } from '../../state/config/useHelper'
+import { useSettings } from '../../state/setting/hooks/useSettings'
 
 const MIN_POSITON_VALUE_TO_DISPLAY = 0.0001
 
@@ -35,6 +36,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
   const { configs, chainId } = useConfigs()
   const { getTokenValue } = useTokenValue({})
   const { wrapToNativeAddress } = useHelper()
+  const { settings } = useSettings()
 
   const [visible, setVisible] = useState<boolean>(false)
   const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
@@ -89,7 +91,9 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
           <th className='hidden-on-phone'>Index</th>
           <th className='hidden-on-phone'>Leverage</th>
           <th className='hidden-on-phone'>Reserve</th>
+          {settings.showBalance &&
           <th>Balance</th>
+          }
           <th>Value</th>
           <th />
         </tr>
@@ -133,9 +137,11 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                   <Text>{tokens[position.pool.TOKEN_R]?.symbol}</Text>
                 </div>
               </td>
+              {settings.showBalance &&
               <td>
                 <Text>{formatWeiToDisplayNumber(position.balance, 4, tokens[position.token].decimals)}</Text>
               </td>
+              }
               <td>
                 <Text>${formatLocalisedCompactNumber(formatFloat(value))}</Text>
               </td>

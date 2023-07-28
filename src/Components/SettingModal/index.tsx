@@ -23,7 +23,7 @@ const Component = ({
     setMaxInterestRate,
     setMinPayoffRate,
     setMinLiquidityShare,
-    setScanApi
+    setScanApi,
   } = useSettings()
   const { chainId } = useConfigs()
 

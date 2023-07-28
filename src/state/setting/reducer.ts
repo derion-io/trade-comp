@@ -14,7 +14,7 @@ export const tokens = createSlice({
       localStorage.setItem('slippage', action.payload.slippage)
       state.slippage = action.payload.slippage
     },
-    setPayoffMinRateReduce: (
+    setMinPayoffRateReduce: (
       state,
       action: PayloadAction<{
         minPayoffRate: any
@@ -23,7 +23,7 @@ export const tokens = createSlice({
       localStorage.setItem('minPayoffRate', action.payload.minPayoffRate)
       state.minPayoffRate = action.payload.minPayoffRate
     },
-    setMinInterestRateReduce: (
+    setMaxInterestRateReduce: (
       state,
       action: PayloadAction<{
         maxInterestRate: any
@@ -69,7 +69,16 @@ export const tokens = createSlice({
     ) => {
       localStorage.setItem('sortPoolBy', action.payload.sortPoolBy.toString())
       state.sortPoolBy = action.payload.sortPoolBy
-    }
+    },
+    setShowBalanceReduce: (
+      state,
+      action: PayloadAction<{
+        showBalance: boolean
+      }>
+    ) => {
+      localStorage.setItem('showBalance', action.payload.showBalance.toString())
+      state.showBalance = action.payload.showBalance
+    },
   }
 })
 
@@ -78,10 +87,11 @@ export const {
   setScanApiKeyReduce,
   setSlippageReduce,
   setDeleverageChanceReduce,
-  setMinInterestRateReduce,
-  setPayoffMinRateReduce,
+  setMaxInterestRateReduce,
+  setMinPayoffRateReduce,
   setMinLiquidityReduce,
-  setSortPoolBuyReduce
+  setSortPoolBuyReduce,
+  setShowBalanceReduce,
 } = tokens.actions
 
 export default tokens.reducer

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Modal } from '../ui/Modal'
 import { useListTokens } from '../../state/token/hook'
 import { TokenIcon } from '../ui/TokenIcon'
@@ -21,6 +21,7 @@ import { useCalculateSwap } from '../SwapBox/hooks/useCalculateSwap'
 import { ButtonSwap } from '../ButtonSwap'
 import { POOL_IDS } from '../../utils/constant'
 import { BigNumber } from 'ethers'
+import { useSettings } from '../../state/setting/hooks/useSettings'
 
 const Component = ({
   visible,
@@ -41,8 +42,32 @@ const Component = ({
   const { balances, accFetchBalance } = useWalletBalance()
   const { account } = useWeb3React()
   const [amountIn, setAmountIn] = useState<string>('')
+  const { settings } = useSettings()
+  const [valueInput, setValueInput] = useState<string>('')
 
-  const { callError, gasUsed, amountOut } = useCalculateSwap({
+  const balance: string = useMemo(() => {
+    return weiToNumber(balances[inputTokenAddress] ?? 0, tokens[inputTokenAddress]?.decimal ?? 18)
+  }, [tokens, balances, inputTokenAddress])
+
+  const { value: valueBalance } = useTokenValue({
+    amount: balance,
+    tokenAddress: inputTokenAddress,
+  })
+
+  useEffect(() => {
+    const b = Number(balance)
+    const a = b * Number(valueInput) / Number(valueBalance)
+    if (a == null || Number.isNaN(a)) {
+      return
+    }
+    if (a > 0.999*b) {
+      setAmountIn(balance)
+    } else {
+      setAmountIn(String(a))
+    }
+  }, [valueInput, balance, valueBalance])
+
+  const { callError, gasUsed, amountOut, loading } = useCalculateSwap({
     amountIn,
     inputTokenAddress,
     outputTokenAddress,
@@ -84,25 +109,36 @@ const Component = ({
               <Text><TokenSymbol token={inputTokenAddress} /></Text>
             </span>
           </SkeletonLoader>
-          <SkeletonLoader loading={accFetchBalance !== account}>
+          <SkeletonLoader loading={accFetchBalance !== account && valueBalance == null}>
+            {settings.showBalance ?
             <Text
               className='amount-input-box__head--balance'
               onClick={() => {
                 setAmountIn(weiToNumber(balances[inputTokenAddress], tokens[inputTokenAddress]?.decimal || 18))
               }}
-            >Balance: {balances && balances[inputTokenAddress]
-                ? formatWeiToDisplayNumber(
+            >Balance: {balances && balances[inputTokenAddress] ?
+                formatWeiToDisplayNumber(
                   balances[inputTokenAddress],
                   4,
-                tokens[inputTokenAddress]?.decimal || 18
+                  tokens[inputTokenAddress]?.decimal || 18,
                 )
                 : 0
               }
             </Text>
+            :
+            <Text
+              className='amount-input-box__head--balance'
+              onClick={() => {
+                setValueInput(valueBalance)
+              }}
+            >${formatLocalisedCompactNumber(formatFloat(valueBalance ?? 0))}
+            </Text>
+            }
           </SkeletonLoader>
         </InfoRow>
+        {settings.showBalance ?
         <Input
-          placeholder='0.0'
+          placeholder='0'
           suffix={Number(valueIn) > 0 ? <TextGrey>${formatLocalisedCompactNumber(formatFloat(valueIn))}</TextGrey> : ''}
           className='fs-24'
           // @ts-ignore
@@ -114,6 +150,21 @@ const Component = ({
             }
           }}
         />
+        :
+        <Input
+          placeholder='0'
+          prefix='$'
+          suffix={Number(amountIn) > 0 ? <TextGrey>{formatPercent(Number(amountIn)/Number(balance), 2, true)}%</TextGrey> : ''}
+          className='fs-24'
+          value={valueInput}
+          onChange={(e) => {
+            const value = (e.target as HTMLInputElement).value
+            if (value != null) {
+              setValueInput(value)
+            }
+          }}
+        />
+        }
       </div>
 
       <PoolInfo
@@ -158,10 +209,11 @@ const Component = ({
         />
       </div>
 
-      <TxFee gasUsed={gasUsed} payoffRate={payoffRate} />
+      <TxFee gasUsed={gasUsed} payoffRate={payoffRate} loading={loading} />
 
       <div className='actions'>
         <ButtonSwap
+          loadingAmountOut={loading}
           payoffRate={payoffRate}
           inputTokenAddress={inputTokenAddress}
           outputTokenAddress={outputTokenAddress}
