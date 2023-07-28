@@ -106,3 +106,5 @@ build
 .tern-port
 
 .idea
+src/lib/charting_library/yarn.lock
+mockup/public/charting_library/yarn.lock
