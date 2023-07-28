@@ -22,6 +22,7 @@ import { ButtonSwap } from '../ButtonSwap'
 import { POOL_IDS } from '../../utils/constant'
 import { BigNumber } from 'ethers'
 import { useSettings } from '../../state/setting/hooks/useSettings'
+import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 
 const Component = ({
   visible,
@@ -38,6 +39,7 @@ const Component = ({
   title: any
   tokenOutMaturity: BigNumber
 }) => {
+  const { pools } = useCurrentPoolGroup()
   const { tokens } = useListTokens()
   const { balances, accFetchBalance } = useWalletBalance()
   const { account } = useWeb3React()
@@ -45,12 +47,22 @@ const Component = ({
   const { settings } = useSettings()
   const [valueInput, setValueInput] = useState<string>('')
 
+  const [pool, power] = useMemo(() => {
+    if (!inputTokenAddress || !pools) {
+      return [null, 1]
+    }
+    const { address, id } = decodeErc1155Address(inputTokenAddress)
+    const pool = pools[address]
+    const power = Number(id) == POOL_IDS.C ? 1 : pool.k.toNumber() / 2
+    return [pool, power]
+  }, [inputTokenAddress, pools])
+
   const balance: string = useMemo(() => {
     return weiToNumber(balances[inputTokenAddress] ?? 0, tokens[inputTokenAddress]?.decimal ?? 18)
   }, [tokens, balances, inputTokenAddress])
 
   const { value: valueBalance } = useTokenValue({
-    amount: balance,
+    amount: String(Number(balance) * power),
     tokenAddress: inputTokenAddress,
   })
 
@@ -131,7 +143,7 @@ const Component = ({
               onClick={() => {
                 setValueInput(valueBalance)
               }}
-            >${formatLocalisedCompactNumber(formatFloat(valueBalance ?? 0))}
+            >{power > 1 ? 'Size:' : 'Value:'} ${formatLocalisedCompactNumber(formatFloat(valueBalance ?? 0))}
             </Text>
             }
           </SkeletonLoader>
