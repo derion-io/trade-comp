@@ -23,7 +23,7 @@ export const TxFee = ({
 
   return <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
     <InfoRow>
-      <TextGrey>Payoff Rate</TextGrey>
+      <TextGrey>Return Rate</TextGrey>
       <SkeletonLoader loading={!!loading}>
         <span>
           {

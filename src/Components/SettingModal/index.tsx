@@ -49,7 +49,7 @@ const Component = ({
         </div>
         <div className='mb-1'>
           <div className='mb-05'>
-            <Text>Min Pay-Off Rate</Text>
+            <Text>Min Return Rate</Text>
           </div>
           <InputWithValidate
             defaultValue={settings.minPayoffRate}
