@@ -9,7 +9,7 @@ import { useNativePrice } from '../../../hooks/useTokenPrice'
 import { BigNumber } from 'ethers'
 import { useConfigs } from '../../../state/config/useConfigs'
 import { SkeletonLoader } from '../../ui/SkeletonLoader'
-import { useFeeData } from '../../../hooks/useFeeData'
+import { useFeeData } from '../../../state/resources/hooks/useFeeData'
 
 export const TxFee = ({
   gasUsed,
@@ -23,12 +23,10 @@ export const TxFee = ({
   const { chainId } = useConfigs()
   const { data: nativePrice } = useNativePrice()
   const [gasPrice, setGasPrice] = useState<any>(BigNumber.from(1))
-  const { getFeeData } = useFeeData()
+  const { feeData } = useFeeData()
   useEffect(() => {
-    getFeeData().then((data) => {
-      setGasPrice(data.gasPrice)
-    })
-  }, [gasUsed])
+    setGasPrice(feeData.gasPrice)
+  }, [feeData])
 
   return <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
     <InfoRow>
