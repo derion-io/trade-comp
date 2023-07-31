@@ -1,10 +1,10 @@
-import { ethers } from 'ethers'
 import { useConfigs } from '../../config/useConfigs'
 // eslint-disable-next-line no-unused-vars
 import { State } from '../../types'
 import { useDispatch, useSelector } from 'react-redux'
 import { useEffect } from 'react'
 import { addFeeDataWithChain } from '../reducer'
+import { useWeb3React } from '../../customWeb3React/hook'
 
 export const useFeeData = () => {
   const { chainId } = useConfigs()
@@ -19,20 +19,22 @@ export const useFeeData = () => {
 }
 
 export const useFetchFeeData = () => {
-  const { chainId, configs } = useConfigs()
+  const { chainId } = useConfigs()
+  const { provider } = useWeb3React()
   const dispatch = useDispatch()
 
   useEffect(() => {
     fetchFeeData()
-  }, [configs, chainId])
+  }, [chainId, provider])
 
   const fetchFeeData = () => {
-    const provider = new ethers.providers.JsonRpcProvider(configs.rpcUrl)
-    provider.getFeeData().then((data:any) => {
-      dispatch(addFeeDataWithChain({
-        feeData: data,
-        chainId
-      }))
-    })
+    if (provider) {
+      provider.getFeeData().then((data:any) => {
+        dispatch(addFeeDataWithChain({
+          feeData: data,
+          chainId
+        }))
+      })
+    }
   }
 }
