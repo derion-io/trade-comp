@@ -1,5 +1,4 @@
 import { useConfigs } from '../../config/useConfigs'
-// eslint-disable-next-line no-unused-vars
 import { State } from '../../types'
 import { useDispatch, useSelector } from 'react-redux'
 import { useEffect } from 'react'
@@ -10,11 +9,11 @@ export const useFeeData = () => {
   const { chainId } = useConfigs()
   const { feeData } = useSelector((state: State) => {
     return {
-      feeData: state.resources.feeData
+      feeData: state.resources.feeData,
     }
   })
   return {
-    feeData: feeData[chainId]
+    feeData: feeData[chainId],
   }
 }
 
@@ -29,10 +28,10 @@ export const useFetchFeeData = () => {
 
   const fetchFeeData = () => {
     if (provider) {
-      provider.getFeeData().then((data:any) => {
+      provider.getFeeData().then((feeData:any) => {
         dispatch(addFeeDataWithChain({
-          feeData: data,
-          chainId
+          feeData,
+          chainId,
         }))
       })
     }

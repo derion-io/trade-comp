@@ -17,7 +17,7 @@ export type FeeDataType = {
   gasPrice: BigNumber,
   lastBaseFeePerGas: BigNumber,
   maxFeePerGas: BigNumber,
-  maxPriorityFeePerGas: BigNumber
+  maxPriorityFeePerGas: BigNumber,
 }
 // export type PoolType = {
 //   pool: string,

@@ -38,12 +38,12 @@ export const tokens = createSlice({
     },
     addFeeDataWithChain: (state, action: PayloadAction<{
       feeData: {[key: string]: BigNumber},
-      chainId: number
+      chainId: number,
     }>) => {
       if (Object.keys(action.payload.feeData).length === 0) return
       state.feeData[action.payload.chainId] = {
         ...state[action.payload.chainId],
-        ...action.payload.feeData
+        ...action.payload.feeData,
       }
     }
   }
@@ -54,7 +54,7 @@ export const {
   addPoolsWithChain,
   addPoolGroupsWithChain,
   addTokenPriceWithChain,
-  addFeeDataWithChain
+  addFeeDataWithChain,
 } = tokens.actions
 
 export default tokens.reducer
