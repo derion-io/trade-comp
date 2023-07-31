@@ -13,6 +13,7 @@ import { TIME_TO_REFRESH_STATE, TRADE_TYPE } from '../../utils/constant'
 import { useSwapHistoryFormated } from '../../state/wallet/hooks/useSwapHistory'
 import { Trade } from '../../pages/Trade'
 import { useFetchTokenPrice } from '../../state/resources/hooks/useTokenPrice'
+import { useFetchFeeData } from '../../state/resources/hooks/useFeeData'
 
 export const App = () => {
   const { id } = useCurrentPoolGroup()
@@ -24,6 +25,7 @@ export const App = () => {
   const chainIdRef = useRef(null)
   const { initResource } = useResource()
 
+  useFetchFeeData()
   useFetchTokenPrice()
   useSwapHistoryFormated()
 

@@ -1,13 +1,14 @@
 import { Text, TextError, TextGreen, TextGrey, TextWarning } from '../../ui/Text'
 import { formatWeiToDisplayNumber } from '../../../utils/formatBalance'
-import { div, formatPercent, numberToWei, weiToNumber } from '../../../utils/helpers'
+import { numberToWei, weiToNumber } from '../../../utils/helpers'
 import { Box } from '../../ui/Box'
-import React, { useMemo } from 'react'
+import React, { useEffect, useState } from 'react'
 import { InfoRow } from '../../ui/InfoRow'
 import { useNativePrice } from '../../../hooks/useTokenPrice'
 import { BigNumber } from 'ethers'
 import { useConfigs } from '../../../state/config/useConfigs'
 import { SkeletonLoader } from '../../ui/SkeletonLoader'
+import { useFeeData } from '../../../state/resources/hooks/useFeeData'
 
 export const TxFee = ({
   gasUsed,
@@ -20,6 +21,11 @@ export const TxFee = ({
 }) => {
   const { chainId } = useConfigs()
   const { data: nativePrice } = useNativePrice()
+  const [gasPrice, setGasPrice] = useState<any>(BigNumber.from(10**8))
+  const { feeData } = useFeeData()
+  useEffect(() => {
+    setGasPrice(feeData.gasPrice)
+  }, [feeData])
 
   return <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
     <InfoRow>
@@ -49,11 +55,11 @@ export const TxFee = ({
       <TextGrey>Estimated Fee</TextGrey>
       <SkeletonLoader loading={!!loading}>
         {(!nativePrice || !gasUsed || gasUsed?.isZero()) ?
-          <Text>&nbsp;</Text> :
-          <Text>
-            {weiToNumber(gasUsed.mul(0.1 * 10 ** 9), 18, 5)}
+        <Text>&nbsp;</Text> :
+        <Text>
+            {weiToNumber(gasUsed.mul(gasPrice), 18, 5)}
             <TextGrey> {chainId === 56 ? 'BNB' : 'ETH'} </TextGrey>
-            (${weiToNumber(gasUsed.mul(0.1 * 10 ** 9).mul(numberToWei(nativePrice)), 36, 2)})
+            (${weiToNumber(gasUsed.mul(gasPrice).mul(numberToWei(nativePrice)), 36, 2)})
           </Text>
         }
       </SkeletonLoader>
