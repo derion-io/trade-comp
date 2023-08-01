@@ -90,8 +90,9 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
     const token = poolAddress + '-' + side
 
     if (balances[token]?.gt(0)) {
-      const positionEntry = positionsWithEntry[token]
-      const entryValue = positionEntry?.entry ?? 0
+      const posWithEntry = positionsWithEntry[token]
+      const entryPrice = posWithEntry?.entryPrice
+      const entryValue = posWithEntry?.entry ?? 0
       const value = getTokenValue(
         token,
         weiToNumber(balances[token], tokens[token]?.decimal || 18)
@@ -119,7 +120,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
         side,
         balance: balances[token],
         entryValue,
-        entryPrice: positionEntry.entryPrice,
+        entryPrice,
         vested,
         matured,
         sizeDisplay,
