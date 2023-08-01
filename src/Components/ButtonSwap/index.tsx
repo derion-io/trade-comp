@@ -1,5 +1,5 @@
 import { ButtonExecute } from '../ui/Button'
-import { bn, div, mul, numberToWei } from '../../utils/helpers'
+import { bn, div, isErc1155Address, mul, numberToWei } from '../../utils/helpers'
 import { toast } from 'react-toastify'
 import React, { useMemo, useState } from 'react'
 import { useListTokens } from '../../state/token/hook'
@@ -92,8 +92,9 @@ export const ButtonSwap = ({
                   tokenOut: outputTokenAddress,
                   amountIn: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18)),
                   amountOutMin,
-                  useSweep: tokenOutMaturity?.gt(0) && balances[outputTokenAddress],
+                  useSweep: !!(tokenOutMaturity?.gt(0) && balances[outputTokenAddress] && isErc1155Address(inputTokenAddress)),
                   currentBalanceOut: balances[outputTokenAddress],
+                  // TODO: need to update index_R dynamic
                   index_R: bn(ethers.utils.hexZeroPad(
                     bn(1).shl(255)
                       .add('0xC31E54c7a869B9FcBEcc14363CF510d1c41fa443')
