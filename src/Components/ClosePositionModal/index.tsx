@@ -53,6 +53,9 @@ const Component = ({
     }
     const { address, id } = decodeErc1155Address(inputTokenAddress)
     const pool = pools[address]
+    if (!pool) {
+      return [null, 1]
+    }
     const power = Number(id) == POOL_IDS.C ? 1 : pool.k.toNumber() / 2
     return [pool, power]
   }, [inputTokenAddress, pools])
