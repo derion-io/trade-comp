@@ -1,7 +1,7 @@
 @import "src/styles/abstracts/mixins";
 @import "src/styles/abstracts/variables";
 
-.positions-table {
+.positions-box {
   padding: 1rem !important;
   border-collapse: collapse;
   border-radius: 8px;
@@ -41,5 +41,20 @@
   .net-value-and-pnl {
     display: flex;
     flex-direction: column;
+  }
+
+  .positions-list {
+    &__item {
+      border-bottom: 1px solid #333;
+      padding: 1rem;
+
+      & > div {
+        padding: 0.5rem 0;
+      }
+
+      .btn-close {
+        width: 100%;
+      }
+    }
   }
 }

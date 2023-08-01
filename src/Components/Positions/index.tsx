@@ -7,7 +7,6 @@ import {
   decodeErc1155Address, div,
   formatFloat, formatPercent,
   max,
-  numberToWei,
   shortenAddressString, sub,
   weiToNumber
 } from '../../utils/helpers'
@@ -28,6 +27,7 @@ import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 import _ from 'lodash'
 import { Cowntdown } from '../ui/CountDown'
 import { useWindowSize } from '../../hooks/useWindowSize'
+import { InfoRow } from '../ui/InfoRow'
 
 const MIN_POSITON_VALUE_TO_DISPLAY = 0.0001
 
@@ -39,13 +39,15 @@ type Position = {
   balance: BigNumber
   netValue: string
   maturity: number
+  sizeDisplay: string
+  value: string
+  pnl: number
 }
 
 export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { setOutputTokenAddressToBuy: any, tokenOutMaturity: BigNumber }) => {
   const { pools, tradeType } = useCurrentPoolGroup()
   const { balances, maturities } = useWalletBalance()
   const { tokens } = useListTokens()
-  const { configs, chainId } = useConfigs()
   const { getTokenValue } = useTokenValue({})
   const { wrapToNativeAddress } = useHelper()
   const { settings } = useSettings()
@@ -70,17 +72,33 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
   }, [sls, pools, ddlEngine?.CURRENT_POOL, id, tokens])
 
   const generatePositionData = (poolAddress: string, poolId: number): Position | null => {
-    if (balances[poolAddress + '-' + poolId] && balances[poolAddress + '-' + poolId].gt(0)) {
-      const positionEntry = positionsWithEntry[poolAddress + '-' + poolId]
+    const token = poolAddress + '-' + poolId
 
+    if (balances[token] && balances[token].gt(0)) {
+      const positionEntry = positionsWithEntry[token]
+      const netValue = positionEntry?.entry || 0
+      const value = getTokenValue(
+        token,
+        weiToNumber(balances[token], tokens[token]?.decimal || 18)
+      )
+      if (Number(value) < MIN_POSITON_VALUE_TO_DISPLAY) {
+        return null
+      }
+      const sizeDisplay = (poolId === POOL_IDS.A || poolId === POOL_IDS.B)
+        ? '$' + formatLocalisedCompactNumber(formatFloat(Number(value) * pools[poolAddress].k.toNumber() / 2)) : ''
+
+      const pnl = netValue && value ? Number(div(sub(netValue, value), value)) : 0
       return {
         poolAddress,
         pool: pools[poolAddress],
         token: poolAddress + '-' + poolId,
         poolId,
         balance: balances[poolAddress + '-' + poolId],
-        netValue: positionEntry?.entry || 0,
-        maturity: max(maturities[poolAddress + '-' + poolId]?.toNumber() - Math.floor(new Date().getTime() / 1000), 0)
+        netValue,
+        maturity: max(maturities[poolAddress + '-' + poolId]?.toNumber() - Math.floor(new Date().getTime() / 1000), 0),
+        sizeDisplay,
+        value,
+        pnl
       }
     }
     return null
@@ -114,43 +132,87 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
 
   const showSize = tradeType !== TRADE_TYPE.LIQUIDITY
 
-  return <div className='positions-table'>
+  return <div className='positions-box'>
     {
       isPhone
-        ? <div />
-        : <table>
+        ? <div className='positions-list' >
+          {
+            displayPositions.map((position, key: number) => {
+              return <div className='positions-list__item' key={key}>
+                <InfoRow>
+                  <Text>Pool</Text>
+                  <ExplorerLink poolAddress={position.poolAddress}/>
+                </InfoRow>
+                <InfoRow>
+                  <Text>Token</Text>
+                  <Token token={position.token} />
+                </InfoRow>
+                <InfoRow>
+                  <Text>Net Value</Text>
+                  <NetValue netValue={position.netValue}/>
+                </InfoRow>
+                <InfoRow>
+                  <Text>Pnl</Text>
+                  <Pnl pnl={position.pnl}/>
+                </InfoRow>
+                <InfoRow>
+                  <Text>Maturity</Text>
+                  <Maturity maturity={position.maturity}/>
+                </InfoRow>
+                <InfoRow>
+                  <Text>Reserve</Text>
+                  <Reserve pool={position.pool}/>
+                </InfoRow>
+                {
+                  settings.showBalance && <InfoRow>
+                    <Text>Balance</Text>
+                    <td>
+                      <Text>{formatWeiToDisplayNumber(position.balance, 4, tokens[position.token].decimals)}</Text>
+                    </td>
+                  </InfoRow>
+                }
+                <InfoRow>
+                  <Text>Value</Text>
+                  <Text>${formatLocalisedCompactNumber(formatFloat(position.value))}</Text>
+                </InfoRow>
+                {
+                  showSize && (
+                    <InfoRow>
+                      <Text>Size</Text>
+                      <td><Text>{position.sizeDisplay}</Text></td>
+                    </InfoRow>
+                  )
+                }
+
+                <ButtonSell
+                  className='btn-close'
+                  onClick={() => {
+                    setInputTokenAddress(position.token)
+                    setOutputTokenAddress(wrapToNativeAddress(position.pool.TOKEN_R))
+                    setVisible(true)
+                  }}
+                >{position.poolId === POOL_IDS.C ? 'Remove' : 'Close'}</ButtonSell>
+              </div>
+            })
+          }
+        </div>
+        : <table className='positions-table'>
           <thead>
             <tr>
-              <th className='hidden-on-phone'>Pool</th>
+              <th>Pool</th>
               <th>Token</th>
               <th>Net value</th>
-              <th className='hidden-on-phone'>Maturity</th>
-              <th className='hidden-on-phone'>Reserve</th>
-              {settings.showBalance &&
-            <th>Balance</th>
-              }
+              <th>Maturity</th>
+              <th>Reserve</th>
+              {settings.showBalance && <th>Balance</th>}
               <th>Value</th>
-              {showSize &&
-            <th>Size</th>
-              }
+              {showSize && <th>Size</th>}
               <th />
             </tr>
           </thead>
           <tbody>
             {
               displayPositions.map((position, key: number) => {
-                const value = getTokenValue(
-                  position.token,
-                  weiToNumber(position.balance, tokens[position.token]?.decimal || 18)
-                )
-                if (Number(value) < MIN_POSITON_VALUE_TO_DISPLAY && chainId !== 1337) {
-                  return ''
-                }
-                const sizeDisplay = (position.poolId === POOL_IDS.A || position.poolId === POOL_IDS.B)
-                  ? '$' + formatLocalisedCompactNumber(formatFloat(Number(value) * position.pool.k.toNumber() / 2)) : ''
-
-                const pnl = position.netValue && value ? Number(div(sub(position.netValue, value), value)) : 0
-
                 return <tr
                   className='position-row'
                   onClick={() => {
@@ -158,56 +220,32 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                   }}
                   key={key}
                 >
-                  <td className='hidden-on-phone'>
-                    <TextLink href={configs.explorer + '/address/' + position.poolAddress}>
-                      {shortenAddressString(position.poolAddress)}
-                    </TextLink>
-                  </td>
-                  <td>
-                    <div className='d-flex gap-05 align-items-center'>
-                      <TokenIcon size={24} tokenAddress={position.token} />
-                      <span><TokenSymbol token={position.token} /></span>
-                    </div>
-                  </td>
+                  <td><ExplorerLink poolAddress={position.poolAddress}/></td>
+                  <td><Token token={position.token} /></td>
                   <td>
                     {
-                      position.netValue ? <div className='net-value-and-pnl'>
-                        <Text>${formatLocalisedCompactNumber(formatFloat(position.netValue))}</Text>
-                        {
-                          pnl >= 0
-                            ? <TextBuy>{formatPercent(pnl, 2)}%</TextBuy>
-                            : <TextSell>{formatPercent(pnl, 2)}%</TextSell>
-                        }
-                      </div>
+                      position.netValue
+                        ? <div className='net-value-and-pnl'>
+                          <NetValue netValue={position.netValue}/>
+                          <Pnl pnl={position.pnl} />
+                        </div>
                         : '---'
                     }
                   </td>
-                  <td>
-                    {position.maturity
-                      ? <Text>
-                        <Cowntdown
-                          second={position.maturity}
-                        /> (s)
-                      </Text>
-                      : '---'
-                    }
-                  </td>
-                  <td className='hidden-on-phone'>
-                    <div className='d-flex gap-05 align-items-center'>
-                      <TokenIcon size={24} tokenAddress={position.pool.TOKEN_R} />
-                      <Text>{tokens[position.pool.TOKEN_R]?.symbol}</Text>
-                    </div>
-                  </td>
-                  {settings.showBalance &&
-                <td>
-                  <Text>{formatWeiToDisplayNumber(position.balance, 4, tokens[position.token].decimals)}</Text>
-                </td>
+                  <td><Maturity maturity={position.maturity} /></td>
+                  <td><Reserve pool={position.pool}/></td>
+                  {
+                    settings.showBalance && <td>
+                      <Text>{formatWeiToDisplayNumber(position.balance, 4, tokens[position.token].decimals)}</Text>
+                    </td>
                   }
                   <td>
-                    <Text>${formatLocalisedCompactNumber(formatFloat(value))}</Text>
+                    <Text>${formatLocalisedCompactNumber(formatFloat(position.value))}</Text>
                   </td>
-                  {showSize &&
-                <td><Text>{sizeDisplay}</Text></td>
+                  {
+                    showSize && (
+                      <td><Text>{position.sizeDisplay}</Text></td>
+                    )
                   }
                   <td className='text-right'>
                     <ButtonSell
@@ -237,5 +275,54 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
           : <Text>Close <TokenSymbol token={inputTokenAddress} textWrap={Text} /> </Text>
       }
     />
+  </div>
+}
+
+export const NetValue = ({ netValue }: {netValue: string}) => {
+  return <Text>${formatLocalisedCompactNumber(formatFloat(netValue))}</Text>
+}
+
+export const Pnl = ({ pnl }: { pnl: number}) => {
+  return pnl >= 0
+    ? <TextBuy>{formatPercent(pnl, 2)}%</TextBuy>
+    : <TextSell>{formatPercent(pnl, 2)}%</TextSell>
+}
+
+export const Maturity = ({ maturity }: { maturity?: number}) => {
+  return maturity
+    ? <Text>
+      <Cowntdown
+        second={maturity}
+      /> (s)
+    </Text>
+    : <Text>---</Text>
+}
+
+export const Reserve = ({ pool }: { pool: any}) => {
+  const { tokens } = useListTokens()
+  const { width } = useWindowSize()
+  const isPhone = width && width < 992
+
+  return <div className='d-flex gap-05 align-items-center'>
+    <TokenIcon size={isPhone ? 18 : 24} tokenAddress={pool.TOKEN_R} />
+    <Text>{tokens[pool.TOKEN_R]?.symbol}</Text>
+  </div>
+}
+
+export const ExplorerLink = ({ poolAddress }: { poolAddress: string}) => {
+  const { configs } = useConfigs()
+
+  return <TextLink href={configs.explorer + '/address/' + poolAddress}>
+    {shortenAddressString(poolAddress)}
+  </TextLink>
+}
+
+export const Token = ({ token }: { token: string}) => {
+  const { width } = useWindowSize()
+  const isPhone = width && width < 992
+
+  return <div className='d-flex gap-05 align-items-center'>
+    <TokenIcon size={isPhone ? 18 : 24} tokenAddress={token} />
+    <span><TokenSymbol token={token} /></span>
   </div>
 }
