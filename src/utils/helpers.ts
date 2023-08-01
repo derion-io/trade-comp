@@ -2,6 +2,8 @@ import { BigNumber, ethers, utils } from 'ethers'
 import { POOL_IDS, TRADE_TYPE } from './constant'
 import _ from 'lodash'
 
+const mdp = require('move-decimal-point')
+
 export const bn = ethers.BigNumber.from
 
 export const shortenAddressString = (address: string) => {
@@ -11,31 +13,22 @@ export const shortenAddressString = (address: string) => {
 export const weiToNumber = (wei: any, decimal: number = 18, decimalToDisplay?: number): string => {
   if (!wei || !Number(wei)) return '0'
   wei = wei.toString()
-  const result = utils.formatUnits(wei, decimal)
-  const num = result.indexOf('.') === result.length - 1
-    ? result.slice(0, -1)
-    : result
-  if (decimalToDisplay) {
-    return num.slice(0, result.indexOf('.') + decimalToDisplay)
+  const num = mdp(wei, -decimal)
+  if (decimalToDisplay != null) {
+    if (decimalToDisplay > 0) {
+      return num.slice(0, num.indexOf('.') + decimalToDisplay + 1)
+    }
+    return num.slice(0, num.indexOf('.'))
   }
   return num
 }
+
 export const numberToWei = (number: any, decimal: number = 18) => {
   if (!number) return '0'
-  try {
+  if (Number.isFinite(number)) {
     number = number.toLocaleString('fullwide', { useGrouping: false })
-
-    const arr = number.split('.')
-    if (arr[1] && arr[1].length > decimal) {
-      arr[1] = arr[1].slice(0, decimal)
-      number = arr.join('.')
-    }
-
-    return utils.parseUnits(number, decimal).toString()
-  } catch (err) {
-    console.error(err)
-    return '0'
   }
+  return mdp(number, decimal).split('.')[0]
 }
 
 export const max = (a: number, b: number) => {

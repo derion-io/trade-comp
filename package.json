@@ -49,6 +49,7 @@
     "leverage-slider": "git+ssh://git@github.com:derivable-labs/leverage-slider-comp.git",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
+    "move-decimal-point": "^0.0.4",
     "rc-slider": "^10.0.1",
     "react-collapse": "^5.1.1",
     "react-fast-compare": "^3.2.0",
