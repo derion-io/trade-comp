@@ -33,7 +33,7 @@ type Position = {
   poolAddress: string
   token: string
   pool: PoolType
-  poolId: number
+  size: number
   balance: BigNumber
   entryValue: string
   maturity: number
@@ -68,8 +68,8 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
     return {}
   }, [sls, pools, ddlEngine?.CURRENT_POOL, id, tokens])
 
-  const generatePositionData = (poolAddress: string, poolId: number): Position | null => {
-    const token = poolAddress + '-' + poolId
+  const generatePositionData = (poolAddress: string, side: number): Position | null => {
+    const token = poolAddress + '-' + side
 
     if (balances[token] && balances[token].gt(0)) {
       const positionEntry = positionsWithEntry[token]
@@ -81,17 +81,19 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
       if (Number(value) < MIN_POSITON_VALUE_TO_DISPLAY) {
         return null
       }
-      const sizeDisplay = (poolId === POOL_IDS.A || poolId === POOL_IDS.B)
+      const sizeDisplay = (side === POOL_IDS.A || side === POOL_IDS.B)
         ? '$' + formatLocalisedCompactNumber(formatFloat(Number(value) * pools[poolAddress].k.toNumber() / 2)) : ''
+
+      const pool = pools[poolAddress]
 
       return {
         poolAddress,
-        pool: pools[poolAddress],
-        token: poolAddress + '-' + poolId,
-        poolId,
-        balance: balances[poolAddress + '-' + poolId],
+        pool,
+        token: poolAddress + '-' + side,
+        size: side,
+        balance: balances[poolAddress + '-' + side],
         entryValue,
-        maturity: max(maturities[poolAddress + '-' + poolId]?.toNumber() - Math.floor(new Date().getTime() / 1000), 0),
+        maturity: max(maturities[poolAddress + '-' + side]?.toNumber() - Math.floor(new Date().getTime() / 1000), 0),
         sizeDisplay,
         value,
       }
@@ -114,10 +116,10 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
     if (positions && positions.length > 0) {
       return positions.filter((p) => {
         if (tradeType === TRADE_TYPE.LIQUIDITY) {
-          return p.poolId === POOL_IDS.C
+          return p.size === POOL_IDS.C
         }
         if (tradeType === TRADE_TYPE.LONG || tradeType === TRADE_TYPE.SHORT) {
-          return p.poolId === POOL_IDS.A || p.poolId === POOL_IDS.B
+          return p.size === POOL_IDS.A || p.size === POOL_IDS.B
         }
         return true
       })
@@ -186,7 +188,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                     setOutputTokenAddress(wrapToNativeAddress(position.pool.TOKEN_R))
                     setVisible(true)
                   }}
-                >{position.poolId === POOL_IDS.C ? 'Remove' : 'Close'}</ButtonSell>
+                >{position.size === POOL_IDS.C ? 'Remove' : 'Close'}</ButtonSell>
               </div>
             })
           }
@@ -242,7 +244,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                         setOutputTokenAddress(wrapToNativeAddress(position.pool.TOKEN_R))
                         setVisible(true)
                       }}
-                    >{position.poolId === POOL_IDS.C ? 'Remove' : 'Close'}</ButtonSell>
+                    >{position.size === POOL_IDS.C ? 'Remove' : 'Close'}</ButtonSell>
                   </td>
                 </tr>
               })
