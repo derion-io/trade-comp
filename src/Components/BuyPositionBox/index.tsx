@@ -145,7 +145,7 @@ const Component = ({
 
   const { value: valueOutBefore } = useTokenValue({
     amount: weiToNumber(balances[outputTokenAddress], tokens[outputTokenAddress]?.decimal || 18),
-    tokenAddress: outputTokenAddress
+    tokenAddress: outputTokenAddress,
   })
 
   const payoffRate = useMemo(() => {
@@ -369,7 +369,9 @@ const Component = ({
                 <div>+</div>
                 }
                 <div>+</div>
+                {expirationDelta > 0 &&
                 <div>+</div>
+                }
               </div>
             }
             {!Number(amountIn) ? ''
