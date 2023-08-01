@@ -2,6 +2,7 @@ import { BigNumber } from 'ethers'
 
 export type BalancesType = { [key: string]: BigNumber }
 export type AllowancesType = { [key: string]: BigNumber }
+export type MaturitiesType = { [key: string]: BigNumber }
 export type SwapTxType = {
   transactionHash: string,
   timeStamp: number,
@@ -21,6 +22,7 @@ export type SwapTxType = {
 export interface walletState {
   account: string
   balances: BalancesType
+  maturities: MaturitiesType
   swapLogs: {[key: string]: any[] }
   formartedSwapLogs: any[]
   routerAllowances: AllowancesType
@@ -29,6 +31,7 @@ export interface walletState {
 export const initialState: walletState = {
   account: '',
   balances: {},
+  maturities: {},
   swapLogs: {},
   formartedSwapLogs: [],
   routerAllowances: {}

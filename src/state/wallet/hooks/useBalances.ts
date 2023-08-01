@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import {
   updateBalanceAndAllowancesReduce
 } from '../reducer'
-import { AllowancesType, BalancesType } from '../type'
+import { AllowancesType, BalancesType, MaturitiesType } from '../type'
 import { useWeb3React } from '../../customWeb3React/hook'
 import { useConfigs } from '../../config/useConfigs'
 import { ethers } from 'ethers'
@@ -22,8 +22,9 @@ import { useCurrentPoolGroup } from '../../currentPool/hooks/useCurrentPoolGroup
 export const useWalletBalance = () => {
   const { getPoolContract } = useContract()
   const { powers } = useCurrentPoolGroup()
-  const { balances, accFetchBalance, routerAllowances } = useSelector((state: any) => {
+  const { balances, maturities, accFetchBalance, routerAllowances } = useSelector((state: any) => {
     return {
+      maturities: state.wallet.maturities,
       balances: state.wallet.balances,
       routerAllowances: state.wallet.routerAllowances,
       accFetchBalance: state.wallet.account
@@ -36,15 +37,18 @@ export const useWalletBalance = () => {
 
   const updateBalanceAndAllowances = ({
     balances,
-    routerAllowances
+    routerAllowances,
+    maturities
   }: {
     balances: BalancesType,
     routerAllowances: AllowancesType
+    maturities: MaturitiesType
   }) => {
     dispatch(
       updateBalanceAndAllowancesReduce({
         account,
         balances,
+        maturities,
         routerAllowances
       })
     )
@@ -74,6 +78,7 @@ export const useWalletBalance = () => {
 
           updateBalanceAndAllowances({
             balances: {},
+            maturities: {},
             routerAllowances
           })
         } else {
@@ -81,7 +86,11 @@ export const useWalletBalance = () => {
           const txRes = await contract.approve(configs.addresses.router, LARGE_VALUE)
           await txRes.wait(1)
           hash = txRes.hash
-          updateBalanceAndAllowances({ balances: {}, routerAllowances: { [tokenAddress]: bn(LARGE_VALUE) } })
+          updateBalanceAndAllowances({
+            balances: {},
+            maturities: {},
+            routerAllowances: { [tokenAddress]: bn(LARGE_VALUE) }
+          })
         }
         toast.success(
           messageAndViewOnBsc({
@@ -99,11 +108,12 @@ export const useWalletBalance = () => {
 
   const fetchBalanceAndAllowance = async (tokensArr: string[]) => {
     if (!ddlEngine) return
-    const { balances, allowances } = await ddlEngine.BNA.getBalanceAndAllowance({
+    const { balances, allowances, maturity: maturities } = await ddlEngine.BNA.getBalanceAndAllowance({
       tokens: tokensArr
     })
     updateBalanceAndAllowances({
       balances,
+      maturities,
       routerAllowances: {
         ...allowances,
         [NATIVE_ADDRESS]: bn(LARGE_VALUE)
@@ -114,6 +124,7 @@ export const useWalletBalance = () => {
   return {
     accFetchBalance,
     routerAllowances,
+    maturities,
     balances,
     fetchBalanceAndAllowance,
     approveRouter,

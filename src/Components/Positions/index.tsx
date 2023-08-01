@@ -3,7 +3,14 @@ import './style.scss'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { POOL_IDS, TRADE_TYPE } from '../../utils/constant'
-import { decodeErc1155Address, formatFloat, numberToWei, shortenAddressString, weiToNumber } from '../../utils/helpers'
+import {
+  decodeErc1155Address,
+  formatFloat,
+  max,
+  numberToWei,
+  shortenAddressString,
+  weiToNumber
+} from '../../utils/helpers'
 import { useListTokens } from '../../state/token/hook'
 import { PoolType } from '../../state/resources/type'
 import { ButtonSell } from '../ui/Button'
@@ -19,6 +26,7 @@ import { useHelper } from '../../state/config/useHelper'
 import { useSettings } from '../../state/setting/hooks/useSettings'
 import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 import _ from 'lodash'
+import { Cowndown } from '../ui/CountDown'
 
 const MIN_POSITON_VALUE_TO_DISPLAY = 0.0001
 
@@ -29,11 +37,12 @@ type Position = {
   poolId: number
   balance: BigNumber
   netValue: string
+  maturity: number
 }
 
 export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { setOutputTokenAddressToBuy: any, tokenOutMaturity: BigNumber }) => {
   const { pools, tradeType } = useCurrentPoolGroup()
-  const { balances } = useWalletBalance()
+  const { balances, maturities } = useWalletBalance()
   const { tokens } = useListTokens()
   const { configs, chainId } = useConfigs()
   const { getTokenValue } = useTokenValue({})
@@ -67,7 +76,8 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
         token: poolAddress + '-' + poolId,
         poolId,
         balance: balances[poolAddress + '-' + poolId],
-        netValue: positionEntry?.entry || 0
+        netValue: positionEntry?.entry || 0,
+        maturity: max(maturities[poolAddress + '-' + poolId]?.toNumber() - Math.floor(new Date().getTime() / 1000), 0)
       }
     }
     return null
@@ -82,7 +92,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
     })
 
     return result.filter((r: any) => r !== null)
-  }, [positionsWithEntry, balances, pools])
+  }, [positionsWithEntry, balances, maturities, pools])
 
   const displayPositions = useMemo(() => {
     if (positions && positions.length > 0) {
@@ -108,15 +118,14 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
           <th className='hidden-on-phone'>Pool</th>
           <th>Token</th>
           <th>Net value</th>
-          <th className='hidden-on-phone'>Index</th>
-          <th className='hidden-on-phone'>Leverage</th>
+          <th className='hidden-on-phone'>Maturity</th>
           <th className='hidden-on-phone'>Reserve</th>
           {settings.showBalance &&
-          <th>Balance</th>
+        <th>Balance</th>
           }
           <th>Value</th>
           {showSize &&
-          <th>Size</th>
+        <th>Size</th>
           }
           <th />
         </tr>
@@ -155,10 +164,20 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
               <td>
                 <Text>${formatLocalisedCompactNumber(formatFloat(position.netValue))}</Text>
               </td>
-              <td className='hidden-on-phone'>
-                <Text>{tokens[position.pool.baseToken]?.symbol}/{tokens[position.pool.quoteToken]?.symbol}</Text>
+              <td>
+                {position.maturity
+                  ? <Text>
+                    <Cowndown
+                      second={position.maturity}
+                    /> (s)
+                  </Text>
+                  : '---'
+                }
               </td>
-              <td className='hidden-on-phone'>{position.pool.k.toNumber() / 2}</td>
+              {/* <td className='hidden-on-phone'> */}
+              {/*  <Text>{tokens[position.pool.baseToken]?.symbol}/{tokens[position.pool.quoteToken]?.symbol}</Text> */}
+              {/* </td> */}
+              {/* <td className='hidden-on-phone'>{position.pool.k.toNumber() / 2}</td> */}
               <td className='hidden-on-phone'>
                 <div className='d-flex gap-05 align-items-center'>
                   <TokenIcon size={24} tokenAddress={position.pool.TOKEN_R} />
@@ -166,15 +185,15 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                 </div>
               </td>
               {settings.showBalance &&
-              <td>
-                <Text>{formatWeiToDisplayNumber(position.balance, 4, tokens[position.token].decimals)}</Text>
-              </td>
+            <td>
+              <Text>{formatWeiToDisplayNumber(position.balance, 4, tokens[position.token].decimals)}</Text>
+            </td>
               }
               <td>
                 <Text>${formatLocalisedCompactNumber(formatFloat(value))}</Text>
               </td>
               {showSize &&
-              <td><Text>{sizeDisplay}</Text></td>
+            <td><Text>{sizeDisplay}</Text></td>
               }
               <td className='text-right'>
                 <ButtonSell

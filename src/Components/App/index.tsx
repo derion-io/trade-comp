@@ -56,7 +56,8 @@ export const App = () => {
     if (!account) {
       updateBalanceAndAllowances({
         balances: {},
-        routerAllowances: {}
+        routerAllowances: {},
+        maturities: {}
       })
     } else if (tokens && Object.keys(tokens).length > 0) {
       fetchBalanceAndAllowance(Object.keys(tokens))
