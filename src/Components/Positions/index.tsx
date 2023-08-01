@@ -15,7 +15,7 @@ import { PoolType } from '../../state/resources/type'
 import { ButtonSell } from '../ui/Button'
 import formatLocalisedCompactNumber, { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import { BigNumber } from 'ethers'
-import { Text, TextBuy, TextLink, TextSell } from '../ui/Text'
+import { Text, TextBuy, TextLink, TextSell, TextWarning } from '../ui/Text'
 import { useConfigs } from '../../state/config/useConfigs'
 import { TokenIcon } from '../ui/TokenIcon'
 import { TokenSymbol } from '../ui/TokenSymbol'
@@ -25,9 +25,9 @@ import { useHelper } from '../../state/config/useHelper'
 import { useSettings } from '../../state/setting/hooks/useSettings'
 import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 import _ from 'lodash'
-import { Cowntdown } from '../ui/CountDown'
 import { useWindowSize } from '../../hooks/useWindowSize'
 import { InfoRow } from '../ui/InfoRow'
+import moment from 'moment'
 
 type Position = {
   poolAddress: string
@@ -36,10 +36,14 @@ type Position = {
   size: number
   balance: BigNumber
   entryValue: string
-  maturity: number
+  vested: number
+  matured: number
   sizeDisplay: string
   value: string
+  closingFee: number
 }
+
+const Q128 = BigNumber.from(1).shl(128)
 
 export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { setOutputTokenAddressToBuy: any, tokenOutMaturity: BigNumber }) => {
   const { pools, tradeType } = useCurrentPoolGroup()
@@ -57,6 +61,18 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
   const { swapLogs: sls } = useSwapHistory()
   const { width } = useWindowSize()
   const isPhone = width && width < 992
+
+  const [now, setNow] = React.useState(new Date().getTime());
+
+  // TODO: put this to App, and pass down to each comp
+  React.useEffect(() => {
+    const timer = setInterval(() => {
+      setNow(new Date().getTime());
+    }, 1000);
+    return () => {
+      clearInterval(timer);
+    }
+  }, []);
 
   const positionsWithEntry = useMemo(() => {
     if (Object.values(pools).length > 0 && ddlEngine?.CURRENT_POOL.pools && id) {
@@ -85,6 +101,14 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
         ? '$' + formatLocalisedCompactNumber(formatFloat(Number(value) * pools[poolAddress].k.toNumber() / 2)) : ''
 
       const pool = pools[poolAddress]
+      const MATURITY = pool.MATURITY.toNumber() * 1000
+      const MATURITY_VEST = pool.MATURITY_VEST.toNumber() * 1000
+      const maturity = maturities[poolAddress + '-' + side]?.toNumber() ?? 0
+      const matured = max(maturity * 1000, now)
+      const vested = max(matured - MATURITY + MATURITY_VEST, now)
+
+      const closingFee = pool.MATURITY_RATE.isZero() ? 0 :
+        Q128.sub(pool.MATURITY_RATE).mul(10000).div(Q128).toNumber() / 10000
 
       return {
         poolAddress,
@@ -93,9 +117,11 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
         size: side,
         balance: balances[poolAddress + '-' + side],
         entryValue,
-        maturity: max(maturities[poolAddress + '-' + side]?.toNumber() - Math.floor(new Date().getTime() / 1000), 0),
+        vested,
+        matured,
         sizeDisplay,
         value,
+        closingFee,
       }
     }
     return null
@@ -158,10 +184,10 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                     </InfoRow>
                   )
                 }
-                { !position.maturity ||
+                { !position.matured ||
                 <InfoRow>
-                  <Text>Maturity</Text>
-                  <Maturity maturity={position.maturity}/>
+                  <Text>Closing Fee</Text>
+                  <ClosingFee now={now} position={position}/>
                 </InfoRow>
                 }
                 <InfoRow>
@@ -199,7 +225,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
               <th>Position</th>
               <th>Net Value</th>
               {showSize && <th>Size</th>}
-              <th>Maturity</th>
+              <th>Closing Fee</th>
               <th>Reserve</th>
               {settings.showBalance && <th>Balance</th>}
               <th>Pool</th>
@@ -228,7 +254,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                       <td><Text>{position.sizeDisplay}</Text></td>
                     )
                   }
-                  <td><Maturity maturity={position.maturity} /></td>
+                  <td><ClosingFee now={now} position={position}/></td>
                   <td><Reserve pool={position.pool}/></td>
                   {
                     settings.showBalance && <td>
@@ -286,12 +312,26 @@ export const Pnl = ({ position }: { position: Position}) => {
     : <TextSell>{valueChangeDisplay} ({formatPercent(pnl)}%)</TextSell>
 }
 
-export const Maturity = ({ maturity }: { maturity?: number}) => {
-  return maturity
-    ? <Text>
-      <Cowntdown second={maturity} />(s)
-    </Text>
-    : <React.Fragment />
+export const ClosingFee = ({ now, position }: { now: number, position: Position}) => {
+  const { vested, matured, closingFee, pool } = position
+  const MATURITY_VEST = pool.MATURITY_VEST.toNumber()
+
+  if (MATURITY_VEST > 0 && vested > now) {
+    const fee = closingFee + (1-closingFee) * (vested - now) / MATURITY_VEST / 1000
+    return <div>
+      <div><TextSell>{formatPercent(fee, 2, true)}%</TextSell></div>
+      <div><TextSell>for {moment(vested).fromNow(true)}</TextSell></div>
+    </div>
+  }
+
+  if (pool.MATURITY.toNumber() > 0 && matured > now) {
+    return <div>
+      <div><TextWarning>{formatPercent(closingFee, 2, true)}%</TextWarning></div>
+      <div><TextWarning>for {moment(matured).fromNow(true)}</TextWarning></div>
+    </div>
+  }
+
+  return <React.Fragment />
 }
 
 export const Reserve = ({ pool }: { pool: any}) => {
