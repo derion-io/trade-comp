@@ -3,7 +3,7 @@ import './style.scss'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { POOL_IDS, TRADE_TYPE } from '../../utils/constant'
-import { decodeErc1155Address, formatFloat, shortenAddressString, weiToNumber } from '../../utils/helpers'
+import { decodeErc1155Address, formatFloat, numberToWei, shortenAddressString, weiToNumber } from '../../utils/helpers'
 import { useListTokens } from '../../state/token/hook'
 import { PoolType } from '../../state/resources/type'
 import { ButtonSell } from '../ui/Button'
@@ -17,6 +17,8 @@ import { ClosePosition } from '../ClosePositionModal'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
 import { useHelper } from '../../state/config/useHelper'
 import { useSettings } from '../../state/setting/hooks/useSettings'
+import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
+import _ from 'lodash'
 
 const MIN_POSITON_VALUE_TO_DISPLAY = 0.0001
 
@@ -26,7 +28,7 @@ type Position = {
   pool: PoolType
   poolId: number
   balance: BigNumber
-  netValue: BigNumber
+  netValue: string
 }
 
 export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { setOutputTokenAddressToBuy: any, tokenOutMaturity: BigNumber }) => {
@@ -41,16 +43,31 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
   const [visible, setVisible] = useState<boolean>(false)
   const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
+  const { ddlEngine } = useConfigs()
+  const { id } = useCurrentPoolGroup()
+  const { swapLogs: sls } = useSwapHistory()
+
+  const positionsWithEntry = useMemo(() => {
+    if (Object.values(pools).length > 0 && ddlEngine?.CURRENT_POOL.pools && id) {
+      return ddlEngine?.HISTORY.generatePositions({
+        tokens: Object.values(tokens),
+        logs: _.cloneDeep(sls)
+      })
+    }
+    return {}
+  }, [sls, pools, ddlEngine?.CURRENT_POOL, id, tokens])
 
   const generatePositionData = (poolAddress: string, poolId: number): Position | null => {
     if (balances[poolAddress + '-' + poolId] && balances[poolAddress + '-' + poolId].gt(0)) {
+      const positionEntry = positionsWithEntry[poolAddress + '-' + poolId]
+
       return {
         poolAddress,
         pool: pools[poolAddress],
         token: poolAddress + '-' + poolId,
         poolId,
         balance: balances[poolAddress + '-' + poolId],
-        netValue: balances[poolAddress + '-' + poolId]
+        netValue: positionEntry?.entry || 0
       }
     }
     return null
@@ -65,7 +82,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
     })
 
     return result.filter((r: any) => r !== null)
-  }, [balances, pools])
+  }, [positionsWithEntry, balances, pools])
 
   const displayPositions = useMemo(() => {
     if (positions && positions.length > 0) {
@@ -82,7 +99,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
     return []
   }, [positions, tradeType])
 
-  const showSize = tradeType != TRADE_TYPE.LIQUIDITY
+  const showSize = tradeType !== TRADE_TYPE.LIQUIDITY
 
   return <div className='positions-table'>
     <table>
@@ -90,6 +107,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
         <tr>
           <th className='hidden-on-phone'>Pool</th>
           <th>Token</th>
+          <th>Net value</th>
           <th className='hidden-on-phone'>Index</th>
           <th className='hidden-on-phone'>Leverage</th>
           <th className='hidden-on-phone'>Reserve</th>
@@ -113,8 +131,8 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
             if (Number(value) < MIN_POSITON_VALUE_TO_DISPLAY && chainId !== 1337) {
               return ''
             }
-            const sizeDisplay = (position.poolId === POOL_IDS.A || position.poolId === POOL_IDS.B) ?
-              '$'+formatLocalisedCompactNumber(formatFloat(Number(value)*position.pool.k.toNumber()/2)) : ''
+            const sizeDisplay = (position.poolId === POOL_IDS.A || position.poolId === POOL_IDS.B)
+              ? '$' + formatLocalisedCompactNumber(formatFloat(Number(value) * position.pool.k.toNumber() / 2)) : ''
 
             return <tr
               className='position-row'
@@ -133,6 +151,9 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                   <TokenIcon size={24} tokenAddress={position.token} />
                   <span><TokenSymbol token={position.token} /></span>
                 </div>
+              </td>
+              <td>
+                <Text>${formatLocalisedCompactNumber(formatFloat(position.netValue))}</Text>
               </td>
               <td className='hidden-on-phone'>
                 <Text>{tokens[position.pool.baseToken]?.symbol}/{tokens[position.pool.quoteToken]?.symbol}</Text>

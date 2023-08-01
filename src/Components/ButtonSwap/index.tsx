@@ -7,7 +7,7 @@ import { useWeb3React } from '../../state/customWeb3React/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useConfigs } from '../../state/config/useConfigs'
 import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
-import { BigNumber } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
 import { CHAINS, TRADE_TYPE } from '../../utils/constant'
 import { TextError } from '../ui/Text'
 import { useSettings } from '../../state/setting/hooks/useSettings'
@@ -93,7 +93,13 @@ export const ButtonSwap = ({
                   amountIn: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18)),
                   amountOutMin,
                   useSweep: tokenOutMaturity?.gt(0) && balances[outputTokenAddress],
-                  currentBalanceOut: balances[outputTokenAddress]
+                  currentBalanceOut: balances[outputTokenAddress],
+                  index_R: bn(ethers.utils.hexZeroPad(
+                    bn(1).shl(255)
+                      .add('0xC31E54c7a869B9FcBEcc14363CF510d1c41fa443')
+                      .toHexString(),
+                    32
+                  ))
                 }],
                 gasUsed && gasUsed.gt(0) ? gasUsed.mul(2) : undefined
               )
