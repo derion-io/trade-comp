@@ -92,7 +92,7 @@ export const ButtonSwap = ({
                   tokenOut: outputTokenAddress,
                   amountIn: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18)),
                   amountOutMin,
-                  useSweep: !!(tokenOutMaturity?.gt(0) && balances[outputTokenAddress] && isErc1155Address(inputTokenAddress)),
+                  useSweep: !!(tokenOutMaturity?.gt(0) && balances[outputTokenAddress] && isErc1155Address(outputTokenAddress)),
                   currentBalanceOut: balances[outputTokenAddress],
                   // TODO: need to update index_R dynamic
                   index_R: bn(ethers.utils.hexZeroPad(
