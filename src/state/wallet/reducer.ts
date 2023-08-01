@@ -3,7 +3,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import {
   AllowancesType,
   BalancesType,
-  initialState
+  initialState, MaturitiesType
 } from './type'
 import _ from 'lodash'
 
@@ -38,12 +38,14 @@ export const tokens = createSlice({
       action: PayloadAction<{
         balances: BalancesType,
         routerAllowances: AllowancesType,
+        maturities: MaturitiesType,
         account: string,
       }>
     ) => {
       if (action.payload.account !== state.account) {
         state.balances = action.payload.balances
         state.routerAllowances = action.payload.routerAllowances
+        state.maturities = action.payload.maturities
         state.account = action.payload.account
       } else {
         state.balances = {
@@ -53,6 +55,10 @@ export const tokens = createSlice({
         state.routerAllowances = {
           ...state.routerAllowances,
           ...action.payload.routerAllowances
+        }
+        state.maturities = {
+          ...state.maturities,
+          ...action.payload.maturities
         }
       }
     }

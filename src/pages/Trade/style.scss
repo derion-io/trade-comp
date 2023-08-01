@@ -19,11 +19,15 @@ $element-gap: 2rem;
 
   &__content {
     display: grid;
-    grid-template-columns: 1fr auto;
     gap: $element-gap;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: 'chart trade'
+                          'history trade';
 
     @include respond(phone) {
+      grid-template-areas: 'chart' 'trade' 'history';
       grid-template-columns: 1fr;
+      //grid-template-rows: 1fr 1fr 1fr;
     }
 
     &--left, &--right {
@@ -34,15 +38,32 @@ $element-gap: 2rem;
         margin-bottom: $element-gap;
       }
     }
-  }
 
-  .trade-box {
-    width: 400px;
+    .chart-box {
+      grid-area: chart;
+    }
 
-    @include respond(phone) {
-      width: 100%;
+    &--trade-box {
+      grid-area: trade;
+      width: 400px;
+
+      @include respond(phone) {
+        width: 100%;
+      }
+    }
+
+    &--position-and-history {
+      grid-area: history;
     }
   }
+
+  //.trade-box {
+  //  width: 400px;
+  //
+  //  @include respond(phone) {
+  //    width: 100%;
+  //  }
+  //}
 
   &__content--right {
     .react-tabs__tab-list {

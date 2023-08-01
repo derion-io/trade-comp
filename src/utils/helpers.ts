@@ -22,15 +22,20 @@ export const weiToNumber = (wei: any, decimal: number = 18, decimalToDisplay?: n
 }
 export const numberToWei = (number: any, decimal: number = 18) => {
   if (!number) return '0'
-  number = number.toString()
+  try {
+    number = number.toLocaleString('fullwide', { useGrouping: false })
 
-  const arr = number.split('.')
-  if (arr[1] && arr[1].length > decimal) {
-    arr[1] = arr[1].slice(0, decimal)
-    number = arr.join('.')
+    const arr = number.split('.')
+    if (arr[1] && arr[1].length > decimal) {
+      arr[1] = arr[1].slice(0, decimal)
+      number = arr.join('.')
+    }
+
+    return utils.parseUnits(number, decimal).toString()
+  } catch (err) {
+    console.error(err)
+    return '0'
   }
-
-  return utils.parseUnits(number, decimal).toString()
 }
 
 export const max = (a: number, b: number) => {
@@ -284,10 +289,10 @@ export const isUSD = (symbol: string): boolean => {
     symbol?.includes('SAI')
 }
 
-export const formatZeroDecimal = (value: number): string => {
+export const formatZeroDecimal = (value: number, minZeroDecimal: number = 5): string => {
   const x = value
   const countZeroAfterDot = -Math.floor(Math.log10(x) + 1)
-  if (countZeroAfterDot !== Infinity && countZeroAfterDot >= 5) {
+  if (Number.isFinite(countZeroAfterDot) && countZeroAfterDot >= minZeroDecimal) {
     const ucZeros = String.fromCharCode(parseInt(`+208${countZeroAfterDot}`, 16))
     return x.toLocaleString('fullwide', { maximumFractionDigits: 18 }).replace(/\.0+/, `.0${ucZeros}`)
   }

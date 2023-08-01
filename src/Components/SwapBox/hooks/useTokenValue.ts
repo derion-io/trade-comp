@@ -66,7 +66,11 @@ export const useTokenValue = ({
         bn(numberToWei(_amount)).mul(numberToWei(tokenPrice))
         , 54)
     }
-    return cutDecimal(value, 18)
+    value = cutDecimal(value, 18)
+    if (value == null || Number.isNaN(value)) {
+      return '0'
+    }
+    return value
   }
 
   const value = useMemo(() => {

@@ -36,7 +36,7 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
           return
         }
 
-        const opacity = 1 - 0.95 * Math.sqrt(deleverageRisk)
+        const opacity = 1 - 0.95 * deleverageRisk
         const color = 'rgb(0, 180, 255)'
         const power = Math.abs(Number(getTokenPower(pool.TOKEN_R, pool.baseToken, tradeTypeToId(tradeType), pool.k.toNumber())))
         const size = pool.states.R

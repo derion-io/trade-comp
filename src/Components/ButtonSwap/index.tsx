@@ -1,5 +1,5 @@
 import { ButtonExecute } from '../ui/Button'
-import { bn, div, mul, numberToWei } from '../../utils/helpers'
+import { bn, div, isErc1155Address, mul, numberToWei } from '../../utils/helpers'
 import { toast } from 'react-toastify'
 import React, { useMemo, useState } from 'react'
 import { useListTokens } from '../../state/token/hook'
@@ -7,7 +7,7 @@ import { useWeb3React } from '../../state/customWeb3React/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useConfigs } from '../../state/config/useConfigs'
 import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
-import { BigNumber } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
 import { CHAINS, TRADE_TYPE } from '../../utils/constant'
 import { TextError } from '../ui/Text'
 import { useSettings } from '../../state/setting/hooks/useSettings'
@@ -92,8 +92,15 @@ export const ButtonSwap = ({
                   tokenOut: outputTokenAddress,
                   amountIn: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18)),
                   amountOutMin,
-                  useSweep: tokenOutMaturity?.gt(0) && balances[outputTokenAddress],
-                  currentBalanceOut: balances[outputTokenAddress]
+                  useSweep: !!(tokenOutMaturity?.gt(0) && balances[outputTokenAddress] && isErc1155Address(outputTokenAddress)),
+                  currentBalanceOut: balances[outputTokenAddress],
+                  // TODO: need to update index_R dynamic
+                  index_R: bn(ethers.utils.hexZeroPad(
+                    bn(1).shl(255)
+                      .add('0xC31E54c7a869B9FcBEcc14363CF510d1c41fa443')
+                      .toHexString(),
+                    32
+                  ))
                 }],
                 gasUsed && gasUsed.gt(0) ? gasUsed.mul(2) : undefined
               )
@@ -146,11 +153,9 @@ export const ButtonSwap = ({
       payoffRate && payoffRate < 94 && !loadingAmountOut
         ? <div className='text-center mb-1'>
           {
-            tradeType === TRADE_TYPE.LONG
-              ? <TextError>The Premium Rate is too high due to an imbalance between the Long and Short positions in the pool.</TextError>
-              : tradeType === TRADE_TYPE.SHORT
-                ? <TextError>The Premium Rate is too high due to an imbalance between the  Short and Long positions in the pool.</TextError>
-                : <TextError>The Payoff Rate is too low because your position has not yet fully matured.</TextError>
+            tradeType === TRADE_TYPE.LONG ? <TextError>The Premium Rate is too high due to an imbalance between the Long and Short positions in the pool.</TextError> :
+            tradeType === TRADE_TYPE.SHORT ? <TextError>The Premium Rate is too high due to an imbalance between the Short and Long positions in the pool.</TextError> :
+            <TextError>The Closing Fee is too high because your position has not yet fully vested.</TextError>
           }
         </div>
         : ''
