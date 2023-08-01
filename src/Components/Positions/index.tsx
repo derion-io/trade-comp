@@ -6,6 +6,7 @@ import { MIN_POSITON_VALUE_TO_DISPLAY, POOL_IDS, TRADE_TYPE } from '../../utils/
 import {
   decodeErc1155Address, div,
   formatFloat, formatPercent,
+  formatZeroDecimal,
   max,
   shortenAddressString, sub,
   weiToNumber
@@ -178,19 +179,17 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                   <Pnl position={position}/>
                 </InfoRow>
                 }
-                { position.entryPrice &&
+                { !showSize || !position.sizeDisplay ||
                   <InfoRow>
-                    <Text>Entry Price</Text>
-                    <Text>{formatLocalisedCompactNumber(formatFloat(position.entryPrice))}</Text>
+                    <Text>Size</Text>
+                    <Text>{position.sizeDisplay}</Text>
                   </InfoRow>
                 }
-                {
-                  showSize && !!position.sizeDisplay && (
-                    <InfoRow>
-                      <Text>Size</Text>
-                      <td><Text>{position.sizeDisplay}</Text></td>
-                    </InfoRow>
-                  )
+                { !position.entryPrice ||
+                  <InfoRow>
+                    <Text>Entry Price</Text>
+                    <Text>{formatZeroDecimal(formatFloat(position.entryPrice))}</Text>
+                  </InfoRow>
                 }
                 { !position.matured || position.matured <= now ||
                 <InfoRow>
@@ -234,8 +233,8 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
             <tr>
               <th>Position</th>
               <th>Net Value</th>
-              <th>Entry Price</th>
               {showSize && <th>Size</th>}
+              <th>Entry Price</th>
               <th>Closing Fee</th>
               <th>Reserve</th>
               {settings.showBalance && <th>Balance</th>}
@@ -260,17 +259,16 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                       <Pnl position={position} />
                     </div>
                   </td>
-                  <td>
-                    {
-                      position.entryPrice &&
-                      <Text>{formatLocalisedCompactNumber(formatFloat(position.entryPrice))}</Text>
-                    }
-                  </td>
                   {
                     showSize && (
                       <td><Text>{position.sizeDisplay}</Text></td>
                     )
                   }
+                  <td>
+                  { !position.entryPrice ||
+                    <Text>{formatZeroDecimal(formatFloat(position.entryPrice))}</Text>
+                  }
+                  </td>
                   <td><ClosingFee now={now} position={position}/></td>
                   <td><Reserve pool={position.pool}/></td>
                   {

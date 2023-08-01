@@ -289,10 +289,10 @@ export const isUSD = (symbol: string): boolean => {
     symbol?.includes('SAI')
 }
 
-export const formatZeroDecimal = (value: number): string => {
+export const formatZeroDecimal = (value: number, minZeroDecimal: number = 5): string => {
   const x = value
   const countZeroAfterDot = -Math.floor(Math.log10(x) + 1)
-  if (countZeroAfterDot !== Infinity && countZeroAfterDot >= 5) {
+  if (Number.isFinite(countZeroAfterDot) && countZeroAfterDot >= minZeroDecimal) {
     const ucZeros = String.fromCharCode(parseInt(`+208${countZeroAfterDot}`, 16))
     return x.toLocaleString('fullwide', { maximumFractionDigits: 18 }).replace(/\.0+/, `.0${ucZeros}`)
   }
