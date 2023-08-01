@@ -41,7 +41,7 @@ type Position = {
   maturity: number
   sizeDisplay: string
   value: string
-  pnl: number
+  pnl: string
 }
 
 export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { setOutputTokenAddressToBuy: any, tokenOutMaturity: BigNumber }) => {
@@ -87,7 +87,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
       const sizeDisplay = (poolId === POOL_IDS.A || poolId === POOL_IDS.B)
         ? '$' + formatLocalisedCompactNumber(formatFloat(Number(value) * pools[poolAddress].k.toNumber() / 2)) : ''
 
-      const pnl = netValue && value ? Number(div(sub(netValue, value), value)) : 0
+      const pnl = netValue && value ? div(sub(netValue, value), value) : '0'
       return {
         poolAddress,
         pool: pools[poolAddress],
@@ -282,8 +282,8 @@ export const NetValue = ({ netValue }: {netValue: string}) => {
   return <Text>${formatLocalisedCompactNumber(formatFloat(netValue))}</Text>
 }
 
-export const Pnl = ({ pnl }: { pnl: number}) => {
-  return pnl >= 0
+export const Pnl = ({ pnl }: { pnl: string}) => {
+  return Number(pnl) >= 0
     ? <TextBuy>{formatPercent(pnl, 2)}%</TextBuy>
     : <TextSell>{formatPercent(pnl, 2)}%</TextSell>
 }
