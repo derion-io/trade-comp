@@ -16,7 +16,7 @@ import { BlurBackground } from '../BlurBackground'
 const LS_CONNECTOR = 'web3connector'
 
 export const AppLayout = (props: any) => {
-  const { activate, active, account, deactivate, chainId, library } = useWeb3React()
+  const { activate, active, account, deactivate, chainId, library, error } = useWeb3React()
   const [balance, setBalance] = useState<any>()
   const [visibleWalletModal, setVisibleWalletModal] = useState<any>()
   const [visibleUserWalletModal, setVisibleUserWalletModal] = useState<any>()
@@ -35,6 +35,30 @@ export const AppLayout = (props: any) => {
       }
     }
   }, [activate])
+
+  useEffect(() => {
+    const initConnector = localStorage.getItem(LS_CONNECTOR)
+    if (initConnector) {
+      const connector: any = Object.values(connectors)
+        .map(({ connector }) => connector)
+        .find(connector => connector?.constructor?.name === initConnector)
+      const handleAccountsChanged = (accounts: any) => {
+        if (accounts.length > 0) {
+          activate(connector)
+        }
+      }
+      const { ethereum } = window
+      if(ethereum && ethereum.on && connector && !active && !error) {
+        ethereum.on("accountsChanged", handleAccountsChanged)
+        return () => {
+          if (ethereum.removeListener) {
+            ethereum.removeListener("accountsChanged", handleAccountsChanged);
+          }
+        }
+      }
+    }
+    return
+  }, [activate, active, error])
 
 
   useEffect(() => {
