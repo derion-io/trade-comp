@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Text } from '../Text'
 
-export const Cowndown = ({ second, render }: {second: number, render?: any}) => {
+export const Cowntdown = ({ second, render }: {second: number, render?: any}) => {
   const [counter, setCounter] = useState(second)
 
   useEffect(() => {
