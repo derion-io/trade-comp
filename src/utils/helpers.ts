@@ -22,7 +22,7 @@ export const weiToNumber = (wei: any, decimal: number = 18, decimalToDisplay?: n
 }
 export const numberToWei = (number: any, decimal: number = 18) => {
   if (!number) return '0'
-  number = number.toString()
+  number = number.toLocaleString('fullwide', { useGrouping: false })
 
   const arr = number.split('.')
   if (arr[1] && arr[1].length > decimal) {
