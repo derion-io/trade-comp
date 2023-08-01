@@ -36,6 +36,7 @@ type Position = {
   side: number
   balance: BigNumber
   entryValue: string
+  entryPrice: string
   vested: number
   matured: number
   sizeDisplay: string
@@ -62,17 +63,17 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
   const { width } = useWindowSize()
   const isPhone = width && width < 992
 
-  const [now, setNow] = React.useState(new Date().getTime());
+  const [now, setNow] = React.useState(new Date().getTime())
 
   // TODO: put this to App, and pass down to each comp
   React.useEffect(() => {
     const timer = setInterval(() => {
-      setNow(new Date().getTime());
-    }, 1000);
+      setNow(new Date().getTime())
+    }, 1000)
     return () => {
-      clearInterval(timer);
+      clearInterval(timer)
     }
-  }, []);
+  }, [])
 
   const positionsWithEntry = useMemo(() => {
     if (Object.values(pools).length > 0 && ddlEngine?.CURRENT_POOL.pools && id) {
@@ -107,8 +108,8 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
       const matured = max(maturity * 1000, now)
       const vested = max(matured - MATURITY + MATURITY_VEST, now)
 
-      const closingFee = pool.MATURITY_RATE.isZero() ? 0 :
-        Q128.sub(pool.MATURITY_RATE).mul(10000).div(Q128).toNumber() / 10000
+      const closingFee = pool.MATURITY_RATE.isZero() ? 0
+        : Q128.sub(pool.MATURITY_RATE).mul(10000).div(Q128).toNumber() / 10000
 
       return {
         poolAddress,
@@ -117,11 +118,12 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
         side,
         balance: balances[poolAddress + '-' + side],
         entryValue,
+        entryPrice: positionEntry.entryPrice,
         vested,
         matured,
         sizeDisplay,
         value,
-        closingFee,
+        closingFee
       }
     }
     return null
@@ -176,6 +178,12 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                   <Pnl position={position}/>
                 </InfoRow>
                 }
+                { position.entryPrice &&
+                  <InfoRow>
+                    <Text>Entry Price</Text>
+                    <Text>{formatLocalisedCompactNumber(formatFloat(position.entryPrice))}</Text>
+                  </InfoRow>
+                }
                 {
                   showSize && !!position.sizeDisplay && (
                     <InfoRow>
@@ -226,6 +234,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
             <tr>
               <th>Position</th>
               <th>Net Value</th>
+              <th>Entry Price</th>
               {showSize && <th>Size</th>}
               <th>Closing Fee</th>
               <th>Reserve</th>
@@ -250,6 +259,12 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                       <NetValue value={position.value}/>
                       <Pnl position={position} />
                     </div>
+                  </td>
+                  <td>
+                    {
+                      position.entryPrice &&
+                      <Text>{formatLocalisedCompactNumber(formatFloat(position.entryPrice))}</Text>
+                    }
                   </td>
                   {
                     showSize && (
@@ -305,9 +320,9 @@ export const Pnl = ({ position }: { position: Position}) => {
     return <React.Fragment />
   }
   const valueChange = sub(value, entryValue)
-  const valueChangeDisplay = Number(valueChange) >= 0 ?
-    `+$${formatLocalisedCompactNumber(formatFloat(valueChange, 2))}` :
-    `-$${formatLocalisedCompactNumber(-formatFloat(valueChange, 2))}`
+  const valueChangeDisplay = Number(valueChange) >= 0
+    ? `+$${formatLocalisedCompactNumber(formatFloat(valueChange, 2))}`
+    : `-$${formatLocalisedCompactNumber(-formatFloat(valueChange, 2))}`
   const pnl = div(valueChange, entryValue)
   return Number(pnl) >= 0
     ? <TextBuy>{valueChangeDisplay} (+{formatPercent(pnl)}%)</TextBuy>
@@ -319,7 +334,7 @@ export const ClosingFee = ({ now, position }: { now: number, position: Position}
   const MATURITY_VEST = pool.MATURITY_VEST.toNumber()
 
   if (MATURITY_VEST > 0 && vested > now) {
-    const fee = closingFee + (1-closingFee) * (vested - now) / MATURITY_VEST / 1000
+    const fee = closingFee + (1 - closingFee) * (vested - now) / MATURITY_VEST / 1000
     return <div>
       <div><TextSell>{formatPercent(fee, 2, true)}%</TextSell></div>
       <div><TextSell>for {moment(vested).fromNow(true)}</TextSell></div>

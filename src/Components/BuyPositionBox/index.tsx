@@ -280,6 +280,7 @@ const Component = ({
           onChange={(e) => {
             // @ts-ignore
             if (Number(e.target.value) >= 0) {
+              console.log(Number(e.target.value))
               setAmountIn((e.target as HTMLInputElement).value)
             }
           }}
