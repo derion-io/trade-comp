@@ -276,11 +276,11 @@ export const Pnl = ({ position }: { position: Position}) => {
   }
   const valueChange = sub(value, entryValue)
   const valueChangeDisplay = Number(valueChange) >= 0 ?
-    `$${formatLocalisedCompactNumber(formatFloat(valueChange, 2))}` :
+    `+$${formatLocalisedCompactNumber(formatFloat(valueChange, 2))}` :
     `-$${formatLocalisedCompactNumber(-formatFloat(valueChange, 2))}`
   const pnl = div(valueChange, entryValue)
   return Number(pnl) >= 0
-    ? <TextBuy>{valueChangeDisplay} ({formatPercent(pnl)}%)</TextBuy>
+    ? <TextBuy>{valueChangeDisplay} (+{formatPercent(pnl)}%)</TextBuy>
     : <TextSell>{valueChangeDisplay} ({formatPercent(pnl)}%)</TextSell>
 }
 
