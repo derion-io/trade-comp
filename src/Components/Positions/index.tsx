@@ -33,7 +33,7 @@ type Position = {
   poolAddress: string
   token: string
   pool: PoolType
-  size: number
+  side: number
   balance: BigNumber
   entryValue: string
   vested: number
@@ -114,7 +114,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
         poolAddress,
         pool,
         token: poolAddress + '-' + side,
-        size: side,
+        side,
         balance: balances[poolAddress + '-' + side],
         entryValue,
         vested,
@@ -142,10 +142,10 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
     if (positions && positions.length > 0) {
       return positions.filter((p) => {
         if (tradeType === TRADE_TYPE.LIQUIDITY) {
-          return p.size === POOL_IDS.C
+          return p.side === POOL_IDS.C
         }
         if (tradeType === TRADE_TYPE.LONG || tradeType === TRADE_TYPE.SHORT) {
-          return p.size === POOL_IDS.A || p.size === POOL_IDS.B
+          return p.side === POOL_IDS.A || p.side === POOL_IDS.B
         }
         return true
       })
@@ -214,7 +214,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                     setOutputTokenAddress(wrapToNativeAddress(position.pool.TOKEN_R))
                     setVisible(true)
                   }}
-                >{position.size === POOL_IDS.C ? 'Remove' : 'Close'}</ButtonSell>
+                >{position.side === POOL_IDS.C ? 'Remove' : 'Close'}</ButtonSell>
               </div>
             })
           }
@@ -270,7 +270,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                         setOutputTokenAddress(wrapToNativeAddress(position.pool.TOKEN_R))
                         setVisible(true)
                       }}
-                    >{position.size === POOL_IDS.C ? 'Remove' : 'Close'}</ButtonSell>
+                    >{position.side === POOL_IDS.C ? 'Remove' : 'Close'}</ButtonSell>
                   </td>
                 </tr>
               })
