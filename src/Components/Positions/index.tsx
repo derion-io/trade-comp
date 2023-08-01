@@ -118,7 +118,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
         side,
         balance: balances[poolAddress + '-' + side],
         entryValue,
-        entryPrice: positionEntry.entryPrice,
+        entryPrice: '0',
         vested,
         matured,
         sizeDisplay,
@@ -178,12 +178,6 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                   <Pnl position={position}/>
                 </InfoRow>
                 }
-                { position.entryPrice &&
-                  <InfoRow>
-                    <Text>Entry Price</Text>
-                    <Text>{formatLocalisedCompactNumber(formatFloat(position.entryPrice))}</Text>
-                  </InfoRow>
-                }
                 {
                   showSize && !!position.sizeDisplay && (
                     <InfoRow>
@@ -234,7 +228,6 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
             <tr>
               <th>Position</th>
               <th>Net Value</th>
-              <th>Entry Price</th>
               {showSize && <th>Size</th>}
               <th>Closing Fee</th>
               <th>Reserve</th>
@@ -259,12 +252,6 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                       <NetValue value={position.value}/>
                       <Pnl position={position} />
                     </div>
-                  </td>
-                  <td>
-                    {
-                      position.entryPrice &&
-                      <Text>{formatLocalisedCompactNumber(formatFloat(position.entryPrice))}</Text>
-                    }
                   </td>
                   {
                     showSize && (
