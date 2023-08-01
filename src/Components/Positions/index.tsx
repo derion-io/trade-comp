@@ -37,11 +37,10 @@ type Position = {
   pool: PoolType
   poolId: number
   balance: BigNumber
-  netValue: string
+  entryValue: string
   maturity: number
   sizeDisplay: string
   value: string
-  pnl: string
 }
 
 export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { setOutputTokenAddressToBuy: any, tokenOutMaturity: BigNumber }) => {
@@ -76,7 +75,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
 
     if (balances[token] && balances[token].gt(0)) {
       const positionEntry = positionsWithEntry[token]
-      const netValue = positionEntry?.entry || 0
+      const entryValue = positionEntry?.entry ?? 0
       const value = getTokenValue(
         token,
         weiToNumber(balances[token], tokens[token]?.decimal || 18)
@@ -87,18 +86,16 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
       const sizeDisplay = (poolId === POOL_IDS.A || poolId === POOL_IDS.B)
         ? '$' + formatLocalisedCompactNumber(formatFloat(Number(value) * pools[poolAddress].k.toNumber() / 2)) : ''
 
-      const pnl = netValue && value ? div(sub(netValue, value), value) : '0'
       return {
         poolAddress,
         pool: pools[poolAddress],
         token: poolAddress + '-' + poolId,
         poolId,
         balance: balances[poolAddress + '-' + poolId],
-        netValue,
+        entryValue,
         maturity: max(maturities[poolAddress + '-' + poolId]?.toNumber() - Math.floor(new Date().getTime() / 1000), 0),
         sizeDisplay,
         value,
-        pnl
       }
     }
     return null
@@ -140,25 +137,33 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
             displayPositions.map((position, key: number) => {
               return <div className='positions-list__item' key={key}>
                 <InfoRow>
-                  <Text>Pool</Text>
-                  <ExplorerLink poolAddress={position.poolAddress}/>
-                </InfoRow>
-                <InfoRow>
-                  <Text>Token</Text>
+                  <Text>Position</Text>
                   <Token token={position.token} />
                 </InfoRow>
                 <InfoRow>
                   <Text>Net Value</Text>
-                  <NetValue netValue={position.netValue}/>
+                  <NetValue value={position.value}/>
                 </InfoRow>
+                { !position.entryValue ||
                 <InfoRow>
-                  <Text>Pnl</Text>
-                  <Pnl pnl={position.pnl}/>
+                  <Text>PnL</Text>
+                  <Pnl position={position}/>
                 </InfoRow>
+                }
+                {
+                  showSize && (
+                    <InfoRow>
+                      <Text>Size</Text>
+                      <td><Text>{position.sizeDisplay}</Text></td>
+                    </InfoRow>
+                  )
+                }
+                { !position.maturity ||
                 <InfoRow>
                   <Text>Maturity</Text>
                   <Maturity maturity={position.maturity}/>
                 </InfoRow>
+                }
                 <InfoRow>
                   <Text>Reserve</Text>
                   <Reserve pool={position.pool}/>
@@ -172,17 +177,9 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                   </InfoRow>
                 }
                 <InfoRow>
-                  <Text>Value</Text>
-                  <Text>${formatLocalisedCompactNumber(formatFloat(position.value))}</Text>
+                  <Text>Pool</Text>
+                  <ExplorerLink poolAddress={position.poolAddress}/>
                 </InfoRow>
-                {
-                  showSize && (
-                    <InfoRow>
-                      <Text>Size</Text>
-                      <td><Text>{position.sizeDisplay}</Text></td>
-                    </InfoRow>
-                  )
-                }
 
                 <ButtonSell
                   className='btn-close'
@@ -199,14 +196,13 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
         : <table className='positions-table'>
           <thead>
             <tr>
-              <th>Pool</th>
-              <th>Token</th>
-              <th>Net value</th>
+              <th>Position</th>
+              <th>Net Value</th>
+              {showSize && <th>Size</th>}
               <th>Maturity</th>
               <th>Reserve</th>
               {settings.showBalance && <th>Balance</th>}
-              <th>Value</th>
-              {showSize && <th>Size</th>}
+              <th>Pool</th>
               <th />
             </tr>
           </thead>
@@ -220,18 +216,18 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                   }}
                   key={key}
                 >
-                  <td><ExplorerLink poolAddress={position.poolAddress}/></td>
                   <td><Token token={position.token} /></td>
                   <td>
-                    {
-                      position.netValue
-                        ? <div className='net-value-and-pnl'>
-                          <NetValue netValue={position.netValue}/>
-                          <Pnl pnl={position.pnl} />
-                        </div>
-                        : '---'
-                    }
+                    <div className='net-value-and-pnl'>
+                      <NetValue value={position.value}/>
+                      <Pnl position={position} />
+                    </div>
                   </td>
+                  {
+                    showSize && (
+                      <td><Text>{position.sizeDisplay}</Text></td>
+                    )
+                  }
                   <td><Maturity maturity={position.maturity} /></td>
                   <td><Reserve pool={position.pool}/></td>
                   {
@@ -239,14 +235,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                       <Text>{formatWeiToDisplayNumber(position.balance, 4, tokens[position.token].decimals)}</Text>
                     </td>
                   }
-                  <td>
-                    <Text>${formatLocalisedCompactNumber(formatFloat(position.value))}</Text>
-                  </td>
-                  {
-                    showSize && (
-                      <td><Text>{position.sizeDisplay}</Text></td>
-                    )
-                  }
+                  <td><ExplorerLink poolAddress={position.poolAddress}/></td>
                   <td className='text-right'>
                     <ButtonSell
                       size='small'
@@ -278,24 +267,31 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
   </div>
 }
 
-export const NetValue = ({ netValue }: {netValue: string}) => {
-  return <Text>${formatLocalisedCompactNumber(formatFloat(netValue))}</Text>
+export const NetValue = ({ value }: {value: string}) => {
+  return <Text>${formatLocalisedCompactNumber(formatFloat(value))}</Text>
 }
 
-export const Pnl = ({ pnl }: { pnl: string}) => {
+export const Pnl = ({ position }: { position: Position}) => {
+  const { value, entryValue } = position
+  if (!entryValue) {
+    return <React.Fragment></React.Fragment>
+  }
+  const valueChange = sub(value, entryValue)
+  const valueChangeDisplay = Number(valueChange) >= 0 ?
+    `$${formatLocalisedCompactNumber(formatFloat(valueChange, 2))}` :
+    `-$${formatLocalisedCompactNumber(-formatFloat(valueChange, 2))}`
+  const pnl = div(valueChange, entryValue)
   return Number(pnl) >= 0
-    ? <TextBuy>{formatPercent(pnl, 2)}%</TextBuy>
-    : <TextSell>{formatPercent(pnl, 2)}%</TextSell>
+    ? <TextBuy>{valueChangeDisplay} ({formatPercent(pnl)}%)</TextBuy>
+    : <TextSell>{valueChangeDisplay} ({formatPercent(pnl)}%)</TextSell>
 }
 
 export const Maturity = ({ maturity }: { maturity?: number}) => {
   return maturity
     ? <Text>
-      <Cowntdown
-        second={maturity}
-      /> (s)
+      <Cowntdown second={maturity} />(s)
     </Text>
-    : <Text>---</Text>
+    : <React.Fragment />
 }
 
 export const Reserve = ({ pool }: { pool: any}) => {
