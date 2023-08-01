@@ -12,6 +12,8 @@ export const CHAINS = {
 }
 export const DEFAULT_CHAIN = CHAINS.ARBITRUM
 
+export const MIN_POSITON_VALUE_TO_DISPLAY = 0.0001
+
 export enum TRADE_TYPE {
   LONG,
   SHORT,

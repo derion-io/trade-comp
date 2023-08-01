@@ -19,7 +19,7 @@ import {
   weiToNumber
 } from '../../utils/helpers'
 import { TokenSymbol } from '../ui/TokenSymbol'
-import { NATIVE_ADDRESS, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
+import { MIN_POSITON_VALUE_TO_DISPLAY, NATIVE_ADDRESS, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
 import { useConfigs } from '../../state/config/useConfigs'
 import formatLocalisedCompactNumber, { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import isEqual from 'react-fast-compare'
@@ -323,7 +323,7 @@ const Component = ({
               <div>Maturity</div>
             </div>
             <SkeletonLoader loading={balances[outputTokenAddress] == null}>
-              {!Number(valueOutBefore) ? ''
+              {Number(valueOutBefore) < MIN_POSITON_VALUE_TO_DISPLAY ? ''
                 : <div className='position-delta--group'>
                   <div className='position-delta--right'>
                     {settings.showBalance &&

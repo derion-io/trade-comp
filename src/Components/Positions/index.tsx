@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react'
 import './style.scss'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
-import { POOL_IDS, TRADE_TYPE } from '../../utils/constant'
+import { MIN_POSITON_VALUE_TO_DISPLAY, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
 import {
   decodeErc1155Address, div,
   formatFloat, formatPercent,
@@ -28,8 +28,6 @@ import _ from 'lodash'
 import { Cowntdown } from '../ui/CountDown'
 import { useWindowSize } from '../../hooks/useWindowSize'
 import { InfoRow } from '../ui/InfoRow'
-
-const MIN_POSITON_VALUE_TO_DISPLAY = 0.0001
 
 type Position = {
   poolAddress: string
