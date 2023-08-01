@@ -14,7 +14,6 @@
 
   @include respond(phone) {
     height: inherit;
-    max-height: 250px;
   }
 
   @include scrollBar;
@@ -53,7 +52,8 @@
       }
 
       .btn-close {
-        width: 100%;
+        margin-right: 0;
+        margin-left: auto;
       }
     }
   }

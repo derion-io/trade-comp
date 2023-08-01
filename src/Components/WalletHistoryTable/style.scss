@@ -50,7 +50,6 @@
 
     @include respond(phone) {
       height: inherit;
-      max-height: 250px;
     }
 
     @include scrollBar;

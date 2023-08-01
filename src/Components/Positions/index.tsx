@@ -177,14 +177,14 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                 </InfoRow>
                 }
                 {
-                  showSize && (
+                  showSize && !!position.sizeDisplay && (
                     <InfoRow>
                       <Text>Size</Text>
                       <td><Text>{position.sizeDisplay}</Text></td>
                     </InfoRow>
                   )
                 }
-                { !position.matured ||
+                { !position.matured || position.matured <= now ||
                 <InfoRow>
                   <Text>Closing Fee</Text>
                   <ClosingFee now={now} position={position}/>
@@ -207,14 +207,16 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                   <ExplorerLink poolAddress={position.poolAddress}/>
                 </InfoRow>
 
-                <ButtonSell
-                  className='btn-close'
-                  onClick={() => {
-                    setInputTokenAddress(position.token)
-                    setOutputTokenAddress(wrapToNativeAddress(position.pool.TOKEN_R))
-                    setVisible(true)
-                  }}
-                >{position.side === POOL_IDS.C ? 'Remove' : 'Close'}</ButtonSell>
+                <InfoRow>
+                  <ButtonSell
+                    className='btn-close'
+                    onClick={() => {
+                      setInputTokenAddress(position.token)
+                      setOutputTokenAddress(wrapToNativeAddress(position.pool.TOKEN_R))
+                      setVisible(true)
+                    }}
+                  >{position.side === POOL_IDS.C ? 'Remove' : 'Close'}</ButtonSell>
+                </InfoRow>
               </div>
             })
           }
