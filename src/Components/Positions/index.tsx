@@ -299,8 +299,8 @@ export const NetValue = ({ value }: {value: string}) => {
 
 export const Pnl = ({ position }: { position: Position}) => {
   const { value, entryValue } = position
-  if (!entryValue) {
-    return <React.Fragment></React.Fragment>
+  if (!entryValue || !Number(entryValue)) {
+    return <React.Fragment />
   }
   const valueChange = sub(value, entryValue)
   const valueChangeDisplay = Number(valueChange) >= 0 ?
