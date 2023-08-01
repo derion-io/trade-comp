@@ -21,16 +21,22 @@ export const weiToNumber = (wei: any, decimal: number = 18, decimalToDisplay?: n
   return num
 }
 export const numberToWei = (number: any, decimal: number = 18) => {
-  if (!number) return '0'
-  number = number.toLocaleString('fullwide', { useGrouping: false })
+  try {
+    if (!number || !Number(number)) return '0'
 
-  const arr = number.split('.')
-  if (arr[1] && arr[1].length > decimal) {
-    arr[1] = arr[1].slice(0, decimal)
-    number = arr.join('.')
+    number = Number(number).toLocaleString('fullwide', { useGrouping: false })
+
+    const arr = number.split('.')
+    if (arr[1] && arr[1].length > decimal) {
+      arr[1] = arr[1].slice(0, decimal)
+      number = arr.join('.')
+    }
+
+    return utils.parseUnits(number, decimal).toString()
+  } catch (err) {
+    console.error(err)
+    return '0'
   }
-
-  return utils.parseUnits(number, decimal).toString()
 }
 
 export const max = (a: number, b: number) => {
