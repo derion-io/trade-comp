@@ -15,8 +15,8 @@ import {
   decodeErc1155Address, div,
   formatFloat, formatPercent,
   getTitleBuyTradeType,
-  isErc1155Address, max,
-  weiToNumber
+  isErc1155Address,
+  weiToNumber,
 } from '../../utils/helpers'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { MIN_POSITON_VALUE_TO_DISPLAY, NATIVE_ADDRESS, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
@@ -37,7 +37,9 @@ import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { BigNumber } from 'ethers'
 import { useSettings } from '../../state/setting/hooks/useSettings'
-import { Cowntdown } from '../ui/CountDown'
+import moment from 'moment'
+
+const Q128 = BigNumber.from(1).shl(128)
 
 const Component = ({
   tradeType = TRADE_TYPE.LONG,
@@ -241,10 +243,6 @@ const Component = ({
     tokenAddress: poolToShow?.TOKEN_R
   })
 
-  // TODO: load this
-  const expiration = max(tokenOutMaturity.toNumber() - Math.floor(new Date().getTime() / 1000), 0)
-  const expirationDelta = poolToShow?.MATURITY?.sub(expiration).toNumber()
-
   return (
     <div className='long-short-box'>
       <div className='amount-input-box'>
@@ -320,7 +318,6 @@ const Component = ({
               {showSize &&
               <div>Size</div>
               }
-              <div>Maturity</div>
             </div>
             <SkeletonLoader loading={balances[outputTokenAddress] == null}>
               {Number(valueOutBefore) < MIN_POSITON_VALUE_TO_DISPLAY ? ''
@@ -339,7 +336,6 @@ const Component = ({
                     {showSize &&
                     <div>${formatLocalisedCompactNumber(formatFloat(Number(valueOutBefore) * power)).split('.')[0]}</div>
                     }
-                    <div>{expiration ? <Cowntdown second={expiration} /> : '\u00A0'}</div>
                   </div>
                   <div className='position-delta--left'>
                     {settings.showBalance &&
@@ -355,7 +351,6 @@ const Component = ({
                     {showSize &&
                     <div>{formatLocalisedCompactNumber(formatFloat(Number(valueOutBefore) * power)).match(/\.\d+$/g) || '\u00A0'}</div>
                     }
-                    <div>{expiration ? '(s)' : '\u00A0'}</div>
                   </div>
                 </div>
               }
@@ -369,9 +364,6 @@ const Component = ({
                 <div>+</div>
                 }
                 <div>+</div>
-                {expirationDelta > 0 &&
-                <div>+</div>
-                }
               </div>
             }
             {!Number(amountIn) ? ''
@@ -385,7 +377,6 @@ const Component = ({
                     {showSize &&
                     <div>${formatLocalisedCompactNumber(formatFloat(Number(valueOut) * power)).split('.')[0]}</div>
                     }
-                    <div>{expirationDelta ? <Cowntdown second={expirationDelta} /> : '\u00A0'}</div>
                   </div>
                   <div className='position-delta--left'>
                     {settings.showBalance &&
@@ -395,7 +386,6 @@ const Component = ({
                     {showSize &&
                     <div>{formatLocalisedCompactNumber(formatFloat(Number(valueOut) * power)).match(/\.\d+$/g) || '\u00A0'}</div>
                     }
-                    <div>{expirationDelta ? '(s)' : '\u00A0'}</div>
                   </div>
                 </div>
               </SkeletonLoader>
@@ -416,11 +406,34 @@ const Component = ({
 
       <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
         <InfoRow>
+          <TextGrey>Liquidity</TextGrey>
+          <SkeletonLoader loading={!liquidity || liquidity == '0'}>
+            <Text>${formatLocalisedCompactNumber(formatFloat(liquidity, 2))}</Text>
+          </SkeletonLoader>
+        </InfoRow>
+        <InfoRow>
           <TextGrey>Daily Interest Rate</TextGrey>
           <SkeletonLoader loading={!poolToShow}>
             {formatPercent((poolToShow?.dailyInterestRate ?? 0) / power / 2, 3, true)}%
           </SkeletonLoader>
         </InfoRow>
+        { !poolToShow?.MATURITY_VEST?.toNumber() ||
+        <InfoRow>
+          <TextGrey>Position Vesting</TextGrey>
+          <SkeletonLoader loading={!poolToShow}>
+            {moment.duration(poolToShow?.MATURITY_VEST.toNumber(), 'seconds').humanize()}
+          </SkeletonLoader>
+        </InfoRow>
+        }
+        { !poolToShow?.MATURITY?.toNumber() || !poolToShow?.MATURITY_RATE?.gt(0) ||
+        <InfoRow>
+          <TextGrey>Closing Fee</TextGrey>
+          <SkeletonLoader loading={!poolToShow}>
+            {formatPercent(Q128.sub(poolToShow?.MATURITY_RATE).mul(10000).div(Q128).toNumber() / 10000, 2, true)}%
+            for {moment.duration(poolToShow?.MATURITY.toNumber(), 'seconds').humanize()}
+          </SkeletonLoader>
+        </InfoRow>
+        }
         {
           deleverageRiskDisplay !== '100%'
             ? <InfoRow>
@@ -434,12 +447,6 @@ const Component = ({
               </SkeletonLoader>
             </InfoRow>
         }
-        <InfoRow>
-          <TextGrey>Liquidity</TextGrey>
-          <SkeletonLoader loading={!liquidity || liquidity == '0'}>
-            <Text>${formatLocalisedCompactNumber(formatFloat(liquidity, 2))}</Text>
-          </SkeletonLoader>
-        </InfoRow>
       </Box>
 
       <TxFee
