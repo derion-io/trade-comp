@@ -152,11 +152,9 @@ export const ButtonSwap = ({
       payoffRate && payoffRate < 94 && !loadingAmountOut
         ? <div className='text-center mb-1'>
           {
-            tradeType === TRADE_TYPE.LONG
-              ? <TextError>The Premium Rate is too high due to an imbalance between the Long and Short positions in the pool.</TextError>
-              : tradeType === TRADE_TYPE.SHORT
-                ? <TextError>The Premium Rate is too high due to an imbalance between the  Short and Long positions in the pool.</TextError>
-                : <TextError>The Payoff Rate is too low because your position has not yet fully matured.</TextError>
+            tradeType === TRADE_TYPE.LONG ? <TextError>The Premium Rate is too high due to an imbalance between the Long and Short positions in the pool.</TextError> :
+            tradeType === TRADE_TYPE.SHORT ? <TextError>The Premium Rate is too high due to an imbalance between the Short and Long positions in the pool.</TextError> :
+            <TextError>The Closing Fee is too high because your position has not yet fully vested.</TextError>
           }
         </div>
         : ''
