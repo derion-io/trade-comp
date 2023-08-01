@@ -74,35 +74,35 @@ export const Trade = ({ tab, pool }: {
   return (
     <div className='exposure-page'>
       <div className='exposure-page__content'>
-        <div className='exposure-page__content--left'>
-          <Chart changedIn24h={changedIn24h} />
-
-          <Tabs
-            selectedIndex={tab2 === TAB_2.POSITION ? 0 : 1}
-            onSelect={(index) => {
-              setTab2(index === 0 ? TAB_2.POSITION : TAB_2.HISTORY)
-            }}
-          >
-            <TabList>
-              <Tab>Position</Tab>
-              <Tab>History</Tab>
-            </TabList>
-            <TabPanel>
-              <Card className='card-in-tab'>
-                <Positions
-                  setOutputTokenAddressToBuy={setOutputTokenAddress}
-                  tokenOutMaturity={tokenOutMaturity}
-                />
-              </Card>
-            </TabPanel>
-            <TabPanel>
-              <Card className='card-in-tab'>
-                <WalletHistoryTable swapTxs={swapTxs} />
-              </Card>
-            </TabPanel>
-          </Tabs>
-        </div>
-        <div className='exposure-page__content--right'>
+        {/* <div className='exposure-page__content--left'> */}
+        <Chart changedIn24h={changedIn24h} />
+        <Tabs
+          className='exposure-page__content--position-and-history'
+          selectedIndex={tab2 === TAB_2.POSITION ? 0 : 1}
+          onSelect={(index) => {
+            setTab2(index === 0 ? TAB_2.POSITION : TAB_2.HISTORY)
+          }}
+        >
+          <TabList>
+            <Tab>Position</Tab>
+            <Tab>History</Tab>
+          </TabList>
+          <TabPanel>
+            <Card className='card-in-tab'>
+              <Positions
+                setOutputTokenAddressToBuy={setOutputTokenAddress}
+                tokenOutMaturity={tokenOutMaturity}
+              />
+            </Card>
+          </TabPanel>
+          <TabPanel>
+            <Card className='card-in-tab'>
+              <WalletHistoryTable swapTxs={swapTxs} />
+            </Card>
+          </TabPanel>
+        </Tabs>
+        {/* </div> */}
+        <div className='exposure-page__content--trade-box'>
           <div
             className='settings-button'
             style={{
