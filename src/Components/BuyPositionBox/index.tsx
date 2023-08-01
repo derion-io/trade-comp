@@ -3,7 +3,7 @@ import { Text, TextGrey } from '../ui/Text'
 import './style.scss'
 import { Box } from '../ui/Box'
 import 'rc-slider/assets/index.css'
-import { IconArrowDown, SettingIcon } from '../ui/Icon'
+import { IconArrowDown } from '../ui/Icon'
 import { Input } from '../ui/Input'
 import { TokenIcon } from '../ui/TokenIcon'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
@@ -37,6 +37,7 @@ import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { BigNumber } from 'ethers'
 import { useSettings } from '../../state/setting/hooks/useSettings'
+import { Cowntdown } from '../ui/CountDown'
 
 const Component = ({
   tradeType = TRADE_TYPE.LONG,
@@ -264,8 +265,8 @@ const Component = ({
               onClick={() => {
                 setAmountIn(weiToNumber(balances[inputTokenAddress], tokens[inputTokenAddress]?.decimal || 18))
               }}
-              >Balance: {!balances || !balances[inputTokenAddress] ? 0 :
-                formatLocalisedCompactNumber(formatFloat(
+            >Balance: {!balances || !balances[inputTokenAddress] ? 0
+                : formatLocalisedCompactNumber(formatFloat(
                   weiToNumber(balances[inputTokenAddress], tokens[inputTokenAddress]?.decimal ?? 18)
                 ))
               }
@@ -336,9 +337,9 @@ const Component = ({
                     }
                     <div>${formatLocalisedCompactNumber(formatFloat(valueOutBefore)).split('.')[0]}</div>
                     {showSize &&
-                    <div>${formatLocalisedCompactNumber(formatFloat(Number(valueOutBefore)*power)).split('.')[0]}</div>
+                    <div>${formatLocalisedCompactNumber(formatFloat(Number(valueOutBefore) * power)).split('.')[0]}</div>
                     }
-                    <div>{expiration || '\u00A0'}</div>
+                    <div>{expiration ? <Cowntdown second={expiration} /> : '\u00A0'}</div>
                   </div>
                   <div className='position-delta--left'>
                     {settings.showBalance &&
@@ -352,7 +353,7 @@ const Component = ({
                     }
                     <div>{formatLocalisedCompactNumber(formatFloat(valueOutBefore)).match(/\.\d+$/g) || '\u00A0'}</div>
                     {showSize &&
-                    <div>{formatLocalisedCompactNumber(formatFloat(Number(valueOutBefore)*power)).match(/\.\d+$/g) || '\u00A0'}</div>
+                    <div>{formatLocalisedCompactNumber(formatFloat(Number(valueOutBefore) * power)).match(/\.\d+$/g) || '\u00A0'}</div>
                     }
                     <div>{expiration ? '(s)' : '\u00A0'}</div>
                   </div>
@@ -380,9 +381,9 @@ const Component = ({
                     }
                     <div>${formatLocalisedCompactNumber(formatFloat(valueOut)).split('.')[0]}</div>
                     {showSize &&
-                    <div>${formatLocalisedCompactNumber(formatFloat(Number(valueOut)*power)).split('.')[0]}</div>
+                    <div>${formatLocalisedCompactNumber(formatFloat(Number(valueOut) * power)).split('.')[0]}</div>
                     }
-                    <div>{expirationDelta || '\u00A0'}</div>
+                    <div>{expirationDelta ? <Cowntdown second={expirationDelta} /> : '\u00A0'}</div>
                   </div>
                   <div className='position-delta--left'>
                     {settings.showBalance &&
@@ -390,7 +391,7 @@ const Component = ({
                     }
                     <div>{formatLocalisedCompactNumber(formatFloat(valueOut)).match(/\.\d+$/g) || '\u00A0'}</div>
                     {showSize &&
-                    <div>{formatLocalisedCompactNumber(formatFloat(Number(valueOut)*power)).match(/\.\d+$/g) || '\u00A0'}</div>
+                    <div>{formatLocalisedCompactNumber(formatFloat(Number(valueOut) * power)).match(/\.\d+$/g) || '\u00A0'}</div>
                     }
                     <div>{expirationDelta ? '(s)' : '\u00A0'}</div>
                   </div>
