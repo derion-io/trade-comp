@@ -76,11 +76,11 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
   }, [])
 
   const positionsWithEntry = useMemo(() => {
-    if (Object.values(pools).length > 0 && ddlEngine?.CURRENT_POOL.pools && id) {
-      return ddlEngine?.HISTORY.generatePositions({
+    if (ddlEngine?.HISTORY && Object.values(pools).length > 0 && ddlEngine?.CURRENT_POOL.pools && id) {
+      return ddlEngine.HISTORY.generatePositions?.({
         tokens: Object.values(tokens),
         logs: _.cloneDeep(sls)
-      })
+      }) ?? {}
     }
     return {}
   }, [sls, pools, ddlEngine?.CURRENT_POOL, id, tokens])
@@ -88,7 +88,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
   const generatePositionData = (poolAddress: string, side: number): Position | null => {
     const token = poolAddress + '-' + side
 
-    if (balances[token] && balances[token].gt(0)) {
+    if (balances[token]?.gt(0)) {
       const positionEntry = positionsWithEntry[token]
       const entryValue = positionEntry?.entry ?? 0
       const value = getTokenValue(
@@ -104,7 +104,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
       const pool = pools[poolAddress]
       const MATURITY = pool.MATURITY.toNumber() * 1000
       const MATURITY_VEST = pool.MATURITY_VEST.toNumber() * 1000
-      const maturity = maturities[poolAddress + '-' + side]?.toNumber() ?? 0
+      const maturity = maturities?.[token]?.toNumber() ?? 0
       const matured = max(maturity * 1000, now)
       const vested = max(matured - MATURITY + MATURITY_VEST, now)
 
@@ -114,9 +114,9 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
       return {
         poolAddress,
         pool,
-        token: poolAddress + '-' + side,
+        token,
         side,
-        balance: balances[poolAddress + '-' + side],
+        balance: balances[token],
         entryValue,
         entryPrice: '0',
         vested,
