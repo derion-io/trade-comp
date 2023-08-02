@@ -19,6 +19,12 @@
     }
   }
 
+  .advance-setting-row {
+    margin-top: 10px;
+    display: flex;
+    justify-content: end;
+  }
+
   .sort-by {
     &__items {
       display: flex;

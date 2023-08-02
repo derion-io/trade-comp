@@ -3,7 +3,7 @@ import './style.scss'
 import isEqual from 'react-fast-compare'
 import { Modal } from '../ui/Modal'
 import { Input } from '../ui/Input'
-import { Text, TextError } from '../ui/Text'
+import { Text, TextError, TextBlue } from '../ui/Text'
 import { Box } from '../ui/Box'
 import { useSettings } from '../../state/setting/hooks/useSettings'
 import { useConfigs } from '../../state/config/useConfigs'
@@ -23,9 +23,10 @@ const Component = ({
     setMaxInterestRate,
     setMinPayoffRate,
     setMinLiquidityShare,
-    setScanApi,
+    setScanApi
   } = useSettings()
   const { chainId } = useConfigs()
+  const [visibleAdvance, setVisibleAdvance] = useState<Boolean>(false)
 
   return (
     <Modal
@@ -59,18 +60,6 @@ const Component = ({
             errorMessage='Invalid Min Pay-Off Rate'
           />
         </div>
-        {
-          visible &&
-          <div className='mb-1'>
-            <div className='mb-05'>
-              <Text>Scan API Key</Text>
-            </div>
-            <InputApiKey
-              setter={setScanApi}
-              defaultValue={settings.scanApiKey[chainId]}
-            />
-          </div>
-        }
 
         <div className='mb-05'>
           <Text>Pools Filter</Text>
@@ -132,6 +121,21 @@ const Component = ({
             </div>
           </div>
         </Box>
+        <div className='advance-setting-row' onClick={() => setVisibleAdvance(!visibleAdvance)}>
+          <TextBlue>Go to Advanced Settings</TextBlue>
+        </div>
+        {
+          visible && visibleAdvance &&
+          <div className='mb-1'>
+            <div className='mb-05'>
+              <Text>Scan API Key</Text>
+            </div>
+            <InputApiKey
+              setter={setScanApi}
+              defaultValue={settings.scanApiKey[chainId]}
+            />
+          </div>
+        }
       </div>
     </Modal>
   )
