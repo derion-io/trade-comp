@@ -17,6 +17,8 @@ import {
   formatZeroDecimal,
   getTitleBuyTradeType,
   isErc1155Address,
+  kx,
+  xr,
   weiToNumber,
 } from '../../utils/helpers'
 import { TokenSymbol } from '../ui/TokenSymbol'
@@ -218,20 +220,7 @@ const Component = ({
     return [ null, null ]
   }, [pools, inputTokenAddress, outputTokenAddress])
 
-  function _x(k: number, r: BigNumber, v: BigNumber): number {
-    const x = r.mul(1000000000000).div(v).toNumber() / 1000000000000
-    return Math.pow(x, 1/k)
-  }
-
-  function _k(k: number, R: BigNumber, v: BigNumber, spot: BigNumber, MARK: BigNumber): number {
-    const xk = Math.pow(spot.mul(1000000000000).div(MARK).toNumber() / 1000000000000, k)
-    const vxk4 = v.mul(Math.round(xk * 1000000000000)).shl(2).div(1000000000000)
-    const denom = vxk4.gt(R) ? vxk4.sub(R) : R.sub(vxk4)
-    const num = R.mul(k)
-    return num.mul(1000000000000).div(denom).toNumber() / 1000000000000
-  }
-
-  // TODO: share this with SwapBox
+  // TODO: kA, kB, xA, xB can be calculated in derivable-tools for each pool
   const [leverageKey, leverageValue] = useMemo(() => {
     if (!poolToShow) {
       return ['', null]
@@ -239,11 +228,9 @@ const Component = ({
 
     const { states: { a, b, R, spot }, MARK, baseToken, quoteToken } = poolToShow
     const k = poolToShow.k.toNumber()
-
-    const ek =
-      sideToShow === POOL_IDS.A ? _k(k, R, a, spot, MARK) :
-      sideToShow === POOL_IDS.B ? -_k(-k, R, b, spot, MARK) :
-      k
+    const kA = kx(k, R, a, spot, MARK)
+    const kB = -kx(-k, R, b, spot, MARK)
+    const ek = sideToShow === POOL_IDS.A ? kA : sideToShow === POOL_IDS.B ? kB : k
 
     if (ek < k) {
       const power = (ek / 2).toLocaleString('fullwide', { maximumSignificantDigits: 2})
@@ -256,8 +243,8 @@ const Component = ({
     const decimalsOffset = (tokens?.[baseToken]?.decimal ?? 18) - (tokens?.[quoteToken]?.decimal ?? 18)
     const mark = MARK ? MARK.mul(MARK).mul((bn(10).pow(decimalsOffset+12))).shr(256).toNumber() / 1000000000000 : 1
 
-    const xA = _x(k, R.shr(1), a)
-    const xB = _x(-k, R.shr(1), b)
+    const xA = xr(k, R.shr(1), a)
+    const xB = xr(-k, R.shr(1), b)
     const dgA = xA * xA * mark
     const dgB = xB * xB * mark
 

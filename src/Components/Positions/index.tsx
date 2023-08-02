@@ -4,9 +4,12 @@ import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoo
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { MIN_POSITON_VALUE_TO_DISPLAY, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
 import {
+  bn,
   decodeErc1155Address, div,
   formatFloat, formatPercent,
   formatZeroDecimal,
+  kx,
+  xr,
   max,
   shortenAddressString, sub,
   weiToNumber
@@ -16,7 +19,7 @@ import { PoolType } from '../../state/resources/type'
 import { ButtonSell } from '../ui/Button'
 import formatLocalisedCompactNumber, { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import { BigNumber } from 'ethers'
-import { Text, TextBuy, TextLink, TextSell, TextWarning } from '../ui/Text'
+import { Text, TextBuy, TextError, TextLink, TextSell, TextWarning } from '../ui/Text'
 import { useConfigs } from '../../state/config/useConfigs'
 import { TokenIcon } from '../ui/TokenIcon'
 import { TokenSymbol } from '../ui/TokenSymbol'
@@ -43,6 +46,9 @@ type Position = {
   sizeDisplay: string
   value: string
   closingFee: number
+  leverage: number
+  effectiveLeverage: number
+  deleveragePrice: string
 }
 
 const Q128 = BigNumber.from(1).shl(128)
@@ -100,10 +106,32 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
       if (Number(value) < MIN_POSITON_VALUE_TO_DISPLAY) {
         return null
       }
-      const sizeDisplay = (side === POOL_IDS.A || side === POOL_IDS.B)
-        ? '$' + formatLocalisedCompactNumber(formatFloat(Number(value) * pools[poolAddress].k.toNumber() / 2)) : ''
-
       const pool = pools[poolAddress]
+      const { states: { a, b, R, spot }, MARK, baseToken, quoteToken } = pool
+      const k = pool.k.toNumber()
+      const kA = kx(k, R, a, spot, MARK)
+      const kB = -kx(-k, R, b, spot, MARK)
+      const ek =
+        side === POOL_IDS.A ? kA :
+        side === POOL_IDS.B ? kB :
+        Math.min(kA, kB)
+      const effectiveLeverage = Math.min(ek, k) / 2
+
+      const decimalsOffset = (tokens?.[baseToken]?.decimal ?? 18) - (tokens?.[quoteToken]?.decimal ?? 18)
+      const mark = MARK ? MARK.mul(MARK).mul((bn(10).pow(decimalsOffset+12))).shr(256).toNumber() / 1000000000000 : 1
+
+      const xA = xr(k, R.shr(1), a)
+      const xB = xr(-k, R.shr(1), b)
+      const dgA = xA * xA * mark
+      const dgB = xB * xB * mark
+      const deleveragePrice =
+        side === POOL_IDS.A ? formatZeroDecimal(dgA) :
+        side === POOL_IDS.B ? formatZeroDecimal(dgB) :
+        `${formatZeroDecimal(dgB)}-${formatZeroDecimal(dgA)}`
+
+      const sizeDisplay = (side === POOL_IDS.A || side === POOL_IDS.B)
+        ? '$' + formatLocalisedCompactNumber(formatFloat(Number(value) * ek / 2)) : ''
+
       const MATURITY = pool.MATURITY.toNumber() * 1000
       const MATURITY_VEST = pool.MATURITY_VEST.toNumber() * 1000
       const maturity = maturities?.[token]?.toNumber() ?? 0
@@ -125,7 +153,10 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
         matured,
         sizeDisplay,
         value,
-        closingFee
+        closingFee,
+        leverage: k / 2,
+        effectiveLeverage,
+        deleveragePrice,
       }
     }
     return null
@@ -183,7 +214,13 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                 { !showSize || !position.sizeDisplay ||
                   <InfoRow>
                     <Text>Size</Text>
-                    <Text>{position.sizeDisplay}</Text>
+                    {
+                      position.effectiveLeverage < position.leverage / 2 ?
+                        <TextError>{position.sizeDisplay}</TextError> :
+                      position.effectiveLeverage < position.leverage ?
+                        <TextWarning>{position.sizeDisplay}</TextWarning> :
+                      <Text>{position.sizeDisplay}</Text>
+                    }
                   </InfoRow>
                 }
                 { !position.entryPrice ||
@@ -192,6 +229,16 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                     <Text>{formatZeroDecimal(formatFloat(position.entryPrice))}</Text>
                   </InfoRow>
                 }
+                <InfoRow>
+                  <Text>Deleverage Price</Text>
+                  {
+                    position.effectiveLeverage < position.leverage / 2 ?
+                      <TextError>{position.deleveragePrice}</TextError> :
+                    position.effectiveLeverage < position.leverage ?
+                      <TextWarning>{position.deleveragePrice}</TextWarning> :
+                    <Text>{position.deleveragePrice}</Text>
+                  }
+                </InfoRow>
                 { !position.matured || position.matured <= now ||
                 <InfoRow>
                   <Text>Closing Fee</Text>
@@ -236,6 +283,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
               <th>Net Value</th>
               {showSize && <th>Size</th>}
               <th>Entry Price</th>
+              <th>Delev. Price</th>
               <th>Closing Fee</th>
               <th>Reserve</th>
               {settings.showBalance && <th>Balance</th>}
@@ -261,13 +309,29 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                     </div>
                   </td>
                   {
-                    showSize && (
-                      <td><Text>{position.sizeDisplay}</Text></td>
-                    )
+                    !showSize ||
+                    <td>
+                    {
+                      position.effectiveLeverage < position.leverage / 2 ?
+                        <TextError>{position.sizeDisplay}</TextError> :
+                      position.effectiveLeverage < position.leverage ?
+                        <TextWarning>{position.sizeDisplay}</TextWarning> :
+                      <Text>{position.sizeDisplay}</Text>
+                    }
+                    </td>
                   }
                   <td>
                   { !position.entryPrice ||
                     <Text>{formatZeroDecimal(formatFloat(position.entryPrice))}</Text>
+                  }
+                  </td>
+                  <td>
+                  {
+                    position.effectiveLeverage < position.leverage / 2 ?
+                      <TextError>{position.deleveragePrice}</TextError> :
+                    position.effectiveLeverage < position.leverage ?
+                      <TextWarning>{position.deleveragePrice}</TextWarning> :
+                    <Text>{position.deleveragePrice}</Text>
                   }
                   </td>
                   <td><ClosingFee now={now} position={position}/></td>
