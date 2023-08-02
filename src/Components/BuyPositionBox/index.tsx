@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Text, TextGrey } from '../ui/Text'
+import { Text, TextError, TextGrey, TextWarning } from '../ui/Text'
 import './style.scss'
 import { Box } from '../ui/Box'
 import 'rc-slider/assets/index.css'
@@ -14,8 +14,11 @@ import {
   bn,
   decodeErc1155Address, div,
   formatFloat, formatPercent,
+  formatZeroDecimal,
   getTitleBuyTradeType,
   isErc1155Address,
+  kx,
+  xr,
   weiToNumber,
 } from '../../utils/helpers'
 import { TokenSymbol } from '../ui/TokenSymbol'
@@ -206,28 +209,53 @@ const Component = ({
     }
   }, [pools, inputTokenAddress, outputTokenAddress, tokenTypeToSelect, configs])
 
-  const poolToShow = useMemo(() => {
+  const [ poolToShow, sideToShow ] = useMemo(() => {
     if (isErc1155Address(outputTokenAddress)) {
-      return pools[decodeErc1155Address(outputTokenAddress).address]
+      const { address, id } = decodeErc1155Address(outputTokenAddress)
+      return [pools[address], Number(id)]
     } else if (isErc1155Address(inputTokenAddress)) {
-      return pools[decodeErc1155Address(inputTokenAddress).address]
+      const { address, id } = decodeErc1155Address(inputTokenAddress)
+      return [pools[address], Number(id)]
     }
-    return null
+    return [ null, null ]
   }, [pools, inputTokenAddress, outputTokenAddress])
 
-  const deleverageRiskDisplay = useMemo(() => {
+  // TODO: kA, kB, xA, xB can be calculated in derivable-tools for each pool
+  const [leverageKey, leverageValue] = useMemo(() => {
     if (!poolToShow) {
-      return ''
+      return ['', null]
     }
-    const deleverageRisk: number | null =
-      tradeType === TRADE_TYPE.LONG ? poolToShow.deleverageRiskA
-        : tradeType === TRADE_TYPE.SHORT ? poolToShow.deleverageRiskB
-          : Math.max(poolToShow.deleverageRiskA, poolToShow.deleverageRiskB)
-    const deleverageRiskDisplay: string =
-      deleverageRisk == null ? ''
-        : formatPercent(Math.min(1, deleverageRisk), 0, true) + '%'
-    return deleverageRiskDisplay
-  }, [poolToShow, tradeType])
+
+    const { states: { a, b, R, spot }, MARK, baseToken, quoteToken } = poolToShow
+    const k = poolToShow.k.toNumber()
+    const kA = kx(k, R, a, spot, MARK)
+    const kB = -kx(-k, R, b, spot, MARK)
+    const ek = sideToShow === POOL_IDS.A ? kA : sideToShow === POOL_IDS.B ? kB : k
+
+    if (ek < k) {
+      const power = (ek / 2).toLocaleString('fullwide', { maximumSignificantDigits: 2})
+      return [
+        'Effective Leverage',
+        ek < k / 2 ? <TextError>{power}</TextError> : <TextWarning>{power}</TextWarning>,
+      ]
+    }
+
+    const decimalsOffset = (tokens?.[baseToken]?.decimal ?? 18) - (tokens?.[quoteToken]?.decimal ?? 18)
+    const mark = MARK ? MARK.mul(MARK).mul((bn(10).pow(decimalsOffset+12))).shr(256).toNumber() / 1000000000000 : 1
+
+    const xA = xr(k, R.shr(1), a)
+    const xB = xr(-k, R.shr(1), b)
+    const dgA = xA * xA * mark
+    const dgB = xB * xB * mark
+
+    if (sideToShow === POOL_IDS.A) {
+      return ['Deleverage Price', <Text>{formatZeroDecimal(dgA)}</Text>]
+    }
+    if (sideToShow === POOL_IDS.B) {
+      return ['Deleverage Price', <Text>{formatZeroDecimal(dgB)}</Text>]
+    }
+    return ['Full Leverage Range', <Text>{formatZeroDecimal(dgB)}-{formatZeroDecimal(dgA)}</Text>]
+  }, [poolToShow, sideToShow, tokens])
 
   const power = useMemo(() => {
     if (!poolToShow) {
@@ -418,6 +446,12 @@ const Component = ({
             {formatPercent((poolToShow?.dailyInterestRate ?? 0) / power / 2, 3, true)}%
           </SkeletonLoader>
         </InfoRow>
+        <InfoRow>
+          <TextGrey>{leverageKey ?? 'Leverage'}</TextGrey>
+          <SkeletonLoader loading={!poolToShow || !leverageValue}>
+            {leverageValue}
+          </SkeletonLoader>
+        </InfoRow>
         { !poolToShow?.MATURITY_VEST?.toNumber() ||
         <InfoRow>
           <TextGrey>Position Vesting</TextGrey>
@@ -434,19 +468,6 @@ const Component = ({
             for {moment.duration(poolToShow?.MATURITY.toNumber(), 'seconds').humanize()}
           </SkeletonLoader>
         </InfoRow>
-        }
-        {
-          deleverageRiskDisplay !== '100%'
-            ? <InfoRow>
-              <TextGrey>Deleverage Risk</TextGrey>
-              <Text>{deleverageRiskDisplay}</Text>
-            </InfoRow>
-            : <InfoRow>
-              <TextGrey>Leverage:</TextGrey>
-              <SkeletonLoader loading={!poolToShow}>
-                <Text>{power}x</Text>
-              </SkeletonLoader>
-            </InfoRow>
         }
       </Box>
 
