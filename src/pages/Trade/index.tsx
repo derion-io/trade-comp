@@ -15,8 +15,9 @@ import { WalletHistoryTable } from '../../Components/WalletHistoryTable'
 import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 import { SettingIcon } from '../../Components/ui/Icon'
 import { SettingModal } from '../../Components/SettingModal'
-import { useMaturity } from '../../hooks/useMaturity'
 import { useListTokens } from '../../state/token/hook'
+import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
+import { bn } from '../../utils/helpers'
 
 const TAB_2 = {
   POSITION: Symbol('position'),
@@ -44,8 +45,9 @@ export const Trade = ({ tab, pool }: {
   const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
   const [visibleSettingModal, setVisibleSettingModal] = useState<boolean>(false)
-  const tokenOutMaturity = useMaturity(outputTokenAddress)
   const { tokens } = useListTokens()
+  const { maturities } = useWalletBalance()
+  const tokenOutMaturity = maturities[outputTokenAddress] || bn(0)
 
   useEffect(() => {
     if (tokens[baseToken] && tokens[quoteToken] && id && ddlEngine && basePrice) {
