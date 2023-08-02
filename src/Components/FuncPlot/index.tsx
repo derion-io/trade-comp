@@ -11,7 +11,7 @@ import { useHelper } from '../../state/config/useHelper'
 const FX = 'f(P,x,v,R)=\\{vx^P<R/2:vx^P,R-R^2/(4vx^P)\\}'
 const GX = 'g(P,x,v,R)=\\{vx^{-P}<R/2:R-vx^{-P},R^2/(4vx^{-P})\\}'
 
-function _r(xk: number, v: number, R: number) {
+function _r(xk: number, v: number, R: number): number {
   const r = v * xk
   if (r <= R/2) {
     return r
@@ -21,12 +21,20 @@ function _r(xk: number, v: number, R: number) {
   return R - minuend
 }
 
-function _v(xk: number, r: number, R: number) {
+function _v(xk: number, r: number, R: number): number {
   if (r <= R/2) {
     return r / xk
   }
   const denominator = (R-r) * xk * 4
   return R*R / denominator
+}
+
+function _x(k: number, r: number, v: number): number {
+  return (r/v)^(1/k)
+}
+
+function _k(k: number, x: number, v: number, R: number): number {
+  return k*R/Math.abs(4*v*(x**k)-R)
 }
 
 export const FunctionPlot = (props: any) => {
@@ -38,16 +46,15 @@ export const FunctionPlot = (props: any) => {
   const { PX, a, b, priceIndex, R, P, X, mark, R1, a1, b1, drAChange, drBChange } = useMemo(() => {
     const { k, baseToken, quoteToken, states, MARK } = currentPool ?? {}
     const decimalsOffset = (tokens[baseToken]?.decimal ?? 18) - (tokens[quoteToken]?.decimal ?? 18)
-    const P = k?.toNumber() / 2 // = K/2
+    const K = k.toNumber()
+    const P = K/2
     const R = formatFloat(weiToNumber(states?.R))
     const a = formatFloat(weiToNumber(states?.a))
     const b = formatFloat(weiToNumber(states?.b))
     const mark = MARK ? MARK.mul(MARK).mul((bn(10).pow(decimalsOffset))).shr(256) : 1
-    const X = (!states?.twap || !MARK) ? 1 :
-      bn(states?.twap).mul(states?.twap)
-      .mul(1000)
-      .div(MARK).div(MARK)
-      .toNumber() / 1000
+    const x = (!states?.spot || !MARK) ? 1 :
+      bn(states?.spot).mul(1000).div(MARK).toNumber() / 1000
+    const X = x*x
 
     let priceIndex = tokens[wrapToNativeAddress(baseToken)]?.symbol
     if (!isUSD(tokens[quoteToken]?.symbol)) {
@@ -56,7 +63,7 @@ export const FunctionPlot = (props: any) => {
     const PX = X * 0.01
     const R1 = R + drA + drB + drC
 
-    const xk = X**P
+    const xk = x**K
     const rA = _r(xk, a, R)
     const rB = _r(1/xk, b, R)
     const rA1 = rA + drA
