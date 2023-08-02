@@ -14,6 +14,7 @@ import {
   bn,
   decodeErc1155Address, div,
   formatFloat, formatPercent,
+  formatZeroDecimal,
   getTitleBuyTradeType,
   isErc1155Address,
   weiToNumber,
@@ -215,19 +216,37 @@ const Component = ({
     return null
   }, [pools, inputTokenAddress, outputTokenAddress])
 
-  const deleverageRiskDisplay = useMemo(() => {
-    if (!poolToShow) {
-      return ''
+  function _x(k: number, r: BigNumber, v: BigNumber): number {
+    const x = r.mul(1000000000000).div(v).toNumber() / 1000000000000
+    return Math.pow(x, 1/k)
+  }
+
+  const [leverageKey, leverageValue] = useMemo(() => {
+    if (!poolToShow || !tokens) {
+      return ['', '']
     }
-    const deleverageRisk: number | null =
-      tradeType === TRADE_TYPE.LONG ? poolToShow.deleverageRiskA
-        : tradeType === TRADE_TYPE.SHORT ? poolToShow.deleverageRiskB
-          : Math.max(poolToShow.deleverageRiskA, poolToShow.deleverageRiskB)
-    const deleverageRiskDisplay: string =
-      deleverageRisk == null ? ''
-        : formatPercent(Math.min(1, deleverageRisk), 0, true) + '%'
-    return deleverageRiskDisplay
-  }, [poolToShow, tradeType])
+
+    const { states: { a, b, R}, MARK, baseToken, quoteToken } = poolToShow
+    const k = poolToShow.k.toNumber()
+    const decimalsOffset = (tokens[baseToken]?.decimal ?? 18) - (tokens[quoteToken]?.decimal ?? 18)
+    const mark = MARK ? MARK.mul(MARK).mul((bn(10).pow(decimalsOffset+12))).shr(256).toNumber() / 1000000000000 : 1
+
+    const xA = _x(k, R.shr(1), a)
+    const xB = _x(-k, R.shr(1), b)
+
+    const dgA = xA * xA * mark
+    const dgB = xB * xB * mark
+
+    if (tradeType === TRADE_TYPE.LONG) {
+      return ['Deleverage Price', `$${formatZeroDecimal(dgA)}`]
+    }
+    
+    if (tradeType === TRADE_TYPE.SHORT) {
+      return ['Deleverage Price', `$${formatZeroDecimal(dgB)}`]
+    }
+
+    return ['Full Leverage Range', `$${formatZeroDecimal(dgB)}-$${formatZeroDecimal(dgA)}`]
+  }, [poolToShow, tradeType, tokens])
 
   const power = useMemo(() => {
     if (!poolToShow) {
@@ -436,10 +455,10 @@ const Component = ({
         </InfoRow>
         }
         {
-          deleverageRiskDisplay !== '100%'
+          !!leverageValue
             ? <InfoRow>
-              <TextGrey>Deleverage Risk</TextGrey>
-              <Text>{deleverageRiskDisplay}</Text>
+              <TextGrey>{leverageKey}</TextGrey>
+              <Text>{leverageValue}</Text>
             </InfoRow>
             : <InfoRow>
               <TextGrey>Leverage:</TextGrey>
