@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Text, TextGrey } from '../ui/Text'
+import { Text, TextError, TextGrey, TextWarning } from '../ui/Text'
 import './style.scss'
 import { Box } from '../ui/Box'
 import 'rc-slider/assets/index.css'
@@ -207,13 +207,15 @@ const Component = ({
     }
   }, [pools, inputTokenAddress, outputTokenAddress, tokenTypeToSelect, configs])
 
-  const poolToShow = useMemo(() => {
+  const [ poolToShow, sideToShow ] = useMemo(() => {
     if (isErc1155Address(outputTokenAddress)) {
-      return pools[decodeErc1155Address(outputTokenAddress).address]
+      const { address, id } = decodeErc1155Address(outputTokenAddress)
+      return [pools[address], Number(id)]
     } else if (isErc1155Address(inputTokenAddress)) {
-      return pools[decodeErc1155Address(inputTokenAddress).address]
+      const { address, id } = decodeErc1155Address(inputTokenAddress)
+      return [pools[address], Number(id)]
     }
-    return null
+    return [ null, null ]
   }, [pools, inputTokenAddress, outputTokenAddress])
 
   function _x(k: number, r: BigNumber, v: BigNumber): number {
@@ -221,32 +223,52 @@ const Component = ({
     return Math.pow(x, 1/k)
   }
 
+  function _k(k: number, R: BigNumber, v: BigNumber, spot: BigNumber, MARK: BigNumber): number {
+    const xk = Math.pow(spot.mul(1000000000000).div(MARK).toNumber() / 1000000000000, k)
+    const vxk4 = v.mul(Math.round(xk * 1000000000000)).shl(2).div(1000000000000)
+    const denom = vxk4.gt(R) ? vxk4.sub(R) : R.sub(vxk4)
+    const num = R.mul(k)
+    return num.mul(1000000000000).div(denom).toNumber() / 1000000000000
+  }
+
+  // TODO: share this with SwapBox
   const [leverageKey, leverageValue] = useMemo(() => {
-    if (!poolToShow || !tokens) {
-      return ['', '']
+    if (!poolToShow) {
+      return ['', null]
     }
 
-    const { states: { a, b, R}, MARK, baseToken, quoteToken } = poolToShow
+    const { states: { a, b, R, spot }, MARK, baseToken, quoteToken } = poolToShow
     const k = poolToShow.k.toNumber()
-    const decimalsOffset = (tokens[baseToken]?.decimal ?? 18) - (tokens[quoteToken]?.decimal ?? 18)
+
+    const ek =
+      sideToShow === POOL_IDS.A ? _k(k, R, a, spot, MARK) :
+      sideToShow === POOL_IDS.B ? -_k(-k, R, b, spot, MARK) :
+      k
+
+    if (ek < k) {
+      const power = (ek / 2).toLocaleString('fullwide', { maximumSignificantDigits: 2})
+      return [
+        'Effective Leverage',
+        ek < k / 2 ? <TextError>{power}</TextError> : <TextWarning>{power}</TextWarning>,
+      ]
+    }
+
+    const decimalsOffset = (tokens?.[baseToken]?.decimal ?? 18) - (tokens?.[quoteToken]?.decimal ?? 18)
     const mark = MARK ? MARK.mul(MARK).mul((bn(10).pow(decimalsOffset+12))).shr(256).toNumber() / 1000000000000 : 1
 
     const xA = _x(k, R.shr(1), a)
     const xB = _x(-k, R.shr(1), b)
-
     const dgA = xA * xA * mark
     const dgB = xB * xB * mark
 
-    if (tradeType === TRADE_TYPE.LONG) {
-      return ['Deleverage Price', `$${formatZeroDecimal(dgA)}`]
+    if (sideToShow === POOL_IDS.A) {
+      return ['Deleverage Price', <Text>{formatZeroDecimal(dgA)}</Text>]
     }
-    
-    if (tradeType === TRADE_TYPE.SHORT) {
-      return ['Deleverage Price', `$${formatZeroDecimal(dgB)}`]
+    if (sideToShow === POOL_IDS.B) {
+      return ['Deleverage Price', <Text>{formatZeroDecimal(dgB)}</Text>]
     }
-
-    return ['Full Leverage Range', `$${formatZeroDecimal(dgB)}-$${formatZeroDecimal(dgA)}`]
-  }, [poolToShow, tradeType, tokens])
+    return ['Full Leverage Range', <Text>{formatZeroDecimal(dgB)}-{formatZeroDecimal(dgA)}</Text>]
+  }, [poolToShow, sideToShow, tokens])
 
   const power = useMemo(() => {
     if (!poolToShow) {
@@ -437,6 +459,12 @@ const Component = ({
             {formatPercent((poolToShow?.dailyInterestRate ?? 0) / power / 2, 3, true)}%
           </SkeletonLoader>
         </InfoRow>
+        <InfoRow>
+          <TextGrey>{leverageKey ?? 'Leverage'}</TextGrey>
+          <SkeletonLoader loading={!poolToShow || !leverageValue}>
+            {leverageValue}
+          </SkeletonLoader>
+        </InfoRow>
         { !poolToShow?.MATURITY_VEST?.toNumber() ||
         <InfoRow>
           <TextGrey>Position Vesting</TextGrey>
@@ -453,19 +481,6 @@ const Component = ({
             for {moment.duration(poolToShow?.MATURITY.toNumber(), 'seconds').humanize()}
           </SkeletonLoader>
         </InfoRow>
-        }
-        {
-          !!leverageValue
-            ? <InfoRow>
-              <TextGrey>{leverageKey}</TextGrey>
-              <Text>{leverageValue}</Text>
-            </InfoRow>
-            : <InfoRow>
-              <TextGrey>Leverage:</TextGrey>
-              <SkeletonLoader loading={!poolToShow}>
-                <Text>{power}x</Text>
-              </SkeletonLoader>
-            </InfoRow>
         }
       </Box>
 
