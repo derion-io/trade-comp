@@ -213,7 +213,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                 }
                 { !showSize || !position.sizeDisplay ||
                   <InfoRow>
-                    <Text>Size</Text>
+                    <Text>Position Size</Text>
                     {
                       position.effectiveLeverage < position.leverage / 2 ?
                         <TextError>{position.sizeDisplay}</TextError> :
@@ -245,10 +245,10 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                   <ClosingFee now={now} position={position}/>
                 </InfoRow>
                 }
-                <InfoRow>
+                {/* <InfoRow>
                   <Text>Reserve</Text>
                   <Reserve pool={position.pool}/>
-                </InfoRow>
+                </InfoRow> */}
                 {
                   settings.showBalance && <InfoRow>
                     <Text>Balance</Text>
@@ -257,10 +257,10 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                     </td>
                   </InfoRow>
                 }
-                <InfoRow>
+                {/* <InfoRow>
                   <Text>Pool</Text>
                   <ExplorerLink poolAddress={position.poolAddress}/>
-                </InfoRow>
+                </InfoRow> */}
 
                 <InfoRow>
                   <ButtonSell
@@ -281,13 +281,13 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
             <tr>
               <th>Position</th>
               <th>Net Value</th>
-              {showSize && <th>Size</th>}
+              {showSize && <th>Pos. Size</th>}
               <th>Entry Price</th>
               <th>Delev. Price</th>
               <th>Closing Fee</th>
-              <th>Reserve</th>
+              {/* <th>Reserve</th> */}
               {settings.showBalance && <th>Balance</th>}
-              <th>Pool</th>
+              {/* <th>Pool</th> */}
               <th />
             </tr>
           </thead>
@@ -335,13 +335,13 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                   }
                   </td>
                   <td><ClosingFee now={now} position={position}/></td>
-                  <td><Reserve pool={position.pool}/></td>
+                  {/* <td><Reserve pool={position.pool}/></td> */}
                   {
                     settings.showBalance && <td>
                       <Text>{formatWeiToDisplayNumber(position.balance, 4, tokens[position.token].decimals)}</Text>
                     </td>
                   }
-                  <td><ExplorerLink poolAddress={position.poolAddress}/></td>
+                  {/* <td><ExplorerLink poolAddress={position.poolAddress}/></td> */}
                   <td className='text-right'>
                     <ButtonSell
                       size='small'
