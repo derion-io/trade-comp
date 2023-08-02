@@ -287,7 +287,7 @@ export const formatZeroDecimal = (value: number, minZeroDecimal: number = 5): st
   const countZeroAfterDot = -Math.floor(Math.log10(x) + 1)
   if (Number.isFinite(countZeroAfterDot) && countZeroAfterDot >= minZeroDecimal) {
     const ucZeros = String.fromCharCode(parseInt(`+208${countZeroAfterDot}`, 16))
-    return x.toLocaleString('fullwide', { maximumFractionDigits: 18 }).replace(/\.0+/, `.0${ucZeros}`)
+    return x.toLocaleString('fullwide', { maximumSignificantDigits: 4, maximumFractionDigits: 18 }).replace(/\.0+/, `.0${ucZeros}`)
   }
-  return value.toLocaleString('fullwide', { maximumFractionDigits: 18 })
+  return value.toLocaleString('fullwide', { maximumSignificantDigits: 4, maximumFractionDigits: 18 })
 }
