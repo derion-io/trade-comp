@@ -11,6 +11,7 @@ import {
   kx,
   xr,
   max,
+  mul,
   shortenAddressString, sub,
   weiToNumber
 } from '../../utils/helpers'
@@ -98,7 +99,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
     if (balances[token]?.gt(0)) {
       const posWithEntry = positionsWithEntry[token]
       const entryPrice = posWithEntry?.entryPrice
-      const entryValue = posWithEntry?.entry ?? 0
+      const entryValue = posWithEntry?.balance?.gt(0) ? div(mul(balances[token], posWithEntry?.entry ?? 0), posWithEntry.balance) : '0'
       const value = getTokenValue(
         token,
         weiToNumber(balances[token], tokens[token]?.decimal || 18)
