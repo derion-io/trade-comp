@@ -3,9 +3,7 @@ import {
   decodeErc1155Address,
   formatFloat,
   formatPercent,
-  getTokenPower,
   isErc1155Address,
-  mul,
   weiToNumber
 } from '../../../utils/helpers'
 import { Box } from '../../ui/Box'
@@ -15,7 +13,6 @@ import { useCurrentPoolGroup } from '../../../state/currentPool/hooks/useCurrent
 import { useTokenValue } from '../hooks/useTokenValue'
 import { useListTokens } from '../../../state/token/hook'
 import formatLocalisedCompactNumber from '../../../utils/formatBalance'
-import { POOL_IDS } from '../../../utils/constant'
 import { SkeletonLoader } from '../../ui/SkeletonLoader'
 
 export const PoolInfo = ({
@@ -28,26 +25,15 @@ export const PoolInfo = ({
   const { pools } = useCurrentPoolGroup()
   const { tokens } = useListTokens()
 
-  const [poolToShow, id, deleverageRiskDisplay] = useMemo(() => {
+  const poolToShow = useMemo(() => {
     const tokenAddress = isErc1155Address(outputTokenAddress) ? outputTokenAddress :
       isErc1155Address(inputTokenAddress) ? inputTokenAddress :
       null
     if (!tokenAddress) {
-      return [null, null, '']
+      return null
     }
-    const { address, id } = decodeErc1155Address(tokenAddress)
-    const poolToShow = pools[address]
-    if (!poolToShow) {
-      return [null, null, null]
-    }
-    const deleverageRisk: number|null =
-      Number(id) == POOL_IDS.A ? poolToShow.deleverageRiskA :
-      Number(id) == POOL_IDS.B ? poolToShow.deleverageRiskB :
-      Math.max(poolToShow.deleverageRiskA, poolToShow.deleverageRiskB)
-    const deleverageRiskDisplay: string =
-      deleverageRisk == null ? '' :
-      formatPercent(Math.min(1, deleverageRisk), 0, true)+'%'
-    return [poolToShow, id, deleverageRiskDisplay ]
+    const { address } = decodeErc1155Address(tokenAddress)
+    return pools[address]
   }, [pools, inputTokenAddress, outputTokenAddress])
 
   const { value: liquidity } = useTokenValue({
@@ -68,21 +54,5 @@ export const PoolInfo = ({
         {formatPercent((poolToShow?.dailyInterestRate ?? 0) / (poolToShow?.k.toNumber() ?? 1), 3, true)}%
       </SkeletonLoader>
     </InfoRow>
-    {
-      deleverageRiskDisplay != '100%' ?
-      <InfoRow>
-        <TextGrey>Deleverage Risk</TextGrey>
-        <Text>
-          {deleverageRiskDisplay}
-        </Text>
-      </InfoRow>
-      :
-      <InfoRow>
-        <TextGrey>Leverage:</TextGrey>
-        <Text>
-            {!id ? 0 : Math.abs(getTokenPower(poolToShow.TOKEN_R, poolToShow.baseToken, Number(id), poolToShow.k.toNumber()))}x
-        </Text>
-      </InfoRow>
-    }
   </Box>
 }
