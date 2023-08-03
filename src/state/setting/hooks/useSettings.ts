@@ -55,6 +55,6 @@ export const useSettings = () => {
     setMaxInterestRate,
     setMinPayoffRate,
     setMinLiquidityShare,
-    setShowBalance,
+    setShowBalance
   }
 }
