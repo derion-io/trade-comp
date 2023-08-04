@@ -8,6 +8,7 @@ import { Box } from '../ui/Box'
 import { useSettings } from '../../state/setting/hooks/useSettings'
 import { useConfigs } from '../../state/config/useConfigs'
 import { SORT_POOL_BY } from '../../state/setting/type'
+import { ToggleSwitch } from '../ui/ToggleSwitch'
 
 const Component = ({
   visible,
@@ -28,15 +29,6 @@ const Component = ({
   } = useSettings()
   const { chainId } = useConfigs()
   const [visibleAdvance, setVisibleAdvance] = useState<Boolean>(false)
-  const [isShowBalanceToggled, setIsShowBalanceToggled] = useState<boolean>(true)
-  useEffect(() => {
-    setIsShowBalanceToggled(settings.showBalance)
-  }, [settings.showBalance])
-
-  const toggleShowBalanceHandler = () => {
-    setIsShowBalanceToggled(!isShowBalanceToggled)
-    setShowBalance(!isShowBalanceToggled)
-  }
 
   return (
     <Modal
@@ -231,8 +223,7 @@ const Component = ({
               visible &&
               <div className='mb-1'>
                 <div className='mb-05'>
-                  <input type='checkbox' defaultChecked={isShowBalanceToggled} onClick={toggleShowBalanceHandler} />
-                  <Text>Show Balance</Text>
+                  <ToggleSwitch label='Show Balance' defaultChecked={settings.showBalance} setter={setShowBalance} />
                 </div>
                 <div className='mb-05'>
                   <Text>Scan API Key</Text>
