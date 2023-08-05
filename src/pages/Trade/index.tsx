@@ -119,8 +119,7 @@ export const Trade = ({ tab, pool }: {
           >
             <SettingIcon style={{
               float: 'right',
-              marginTop: '0.4rem',
-              marginRight: '0.8rem'
+              margin: '0.4rem',
             }} />
           </div>
           <Tabs
