@@ -7,7 +7,7 @@ export const ToggleSwitch = ({ label, defaultChecked, setter }: {
   defaultChecked: boolean,
   setter: any,
 }) => {
-  const [isShowBalanceToggled, setIsShowBalanceToggled] = useState<boolean>(true)
+  const [isShowBalanceToggled, setIsShowBalanceToggled] = useState<boolean>()
   useEffect(() => {
     setIsShowBalanceToggled(defaultChecked)
   }, [defaultChecked])
