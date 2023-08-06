@@ -7,6 +7,7 @@ import { useCurrentPoolGroup } from '../../currentPool/hooks/useCurrentPoolGroup
 import { useConfigs } from '../../config/useConfigs'
 import _ from 'lodash'
 import { useResource } from '../../resources/hooks/useResource'
+import { useListTokens } from '../../token/hook'
 
 export const useSwapHistory = () => {
   const { swapLogs, formartedSwapLogs } = useSelector((state: State) => {
@@ -40,11 +41,14 @@ export const useSwapHistoryFormated = () => {
   const { ddlEngine } = useConfigs()
   const dispatch = useDispatch()
   const { pools } = useResource()
+  const { tokens } = useListTokens()
   const { account } = useWeb3React()
 
   useEffect(() => {
-    if (Object.values(pools).length > 0 && ddlEngine?.CURRENT_POOL.pools && id) {
+    if (Object.values(pools).length > 0 && ddlEngine?.CURRENT_POOL.pools && id && Object.values(tokens).length > 0) {
       const swapTxs = ddlEngine?.HISTORY.formatSwapHistory({
+        // @ts-ignore
+        tokens: Object.values(tokens),
         logs: sls
       })
       dispatch(updateFormatedSwapTxs({ swapTxs }))
@@ -52,5 +56,5 @@ export const useSwapHistoryFormated = () => {
     if (!account) {
       dispatch(updateFormatedSwapTxs({ swapTxs: [] }))
     }
-  }, [sls, pools, ddlEngine?.CURRENT_POOL, id, states, account])
+  }, [sls, pools, ddlEngine?.CURRENT_POOL, id, states, tokens, account])
 }

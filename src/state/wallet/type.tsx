@@ -17,6 +17,8 @@ export type SwapTxType = {
   sideOut: BigNumber,
   amountIn: BigNumber,
   amountOut: BigNumber
+  entryPrice: string
+  entryValue: string
 }
 
 export interface walletState {

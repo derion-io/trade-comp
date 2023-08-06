@@ -4,12 +4,13 @@ import { SwapTxType } from '../../state/wallet/type'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { useListTokens } from '../../state/token/hook'
-import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
+import formatLocalisedCompactNumber, { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import moment from 'moment'
 import { Text, TextBlue, TextBuy, TextLink, TextPink, TextSell } from '../ui/Text'
 import { useConfigs } from '../../state/config/useConfigs'
 import { NATIVE_ADDRESS, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
 import isEqual from 'react-fast-compare'
+import { formatFloat } from '../../utils/helpers'
 
 const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
   const { setChartTimeFocus, TOKEN_R, tradeType } = useCurrentPoolGroup()
@@ -59,6 +60,9 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
               <th>From</th>
               <th/>
               <th>To</th>
+              <th>Entry Price</th>
+              <th>Entry Value</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -86,6 +90,21 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
                     <TextOut><TokenSymbol token={swapTx.tokenOut} /></TextOut>
                     <Text> {formatWeiToDisplayNumber(swapTx.amountOut, 4, tokens[swapTx.tokenOut]?.decimal || 18)}</Text>
                   </td>
+                  <td>
+                    {
+                      swapTx.entryPrice &&
+                    <Text> {formatLocalisedCompactNumber(formatFloat(swapTx.entryPrice))}</Text>
+                    }
+                  </td>
+                  <td>
+                    {
+                      swapTx.entryValue &&
+                    <Text> {formatLocalisedCompactNumber(formatFloat(swapTx.entryValue))}</Text>
+                    }
+                  </td>
+                  <td>
+                    <ActionTag swapTx={swapTx}/>
+                  </td>
                 </tr>
               })
             }
@@ -95,6 +114,18 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
     </div>
   )
 }
+
+export const ActionTag = React.memo(({ swapTx }: {swapTx: SwapTxType}) => {
+  return useMemo(() => {
+    if ([POOL_IDS.R, POOL_IDS.native].includes(swapTx.sideIn.toNumber())) {
+      return POOL_IDS.C === swapTx.sideOut.toNumber() ? <div className='action-tag action-tag__add'>Add</div> : <div className='action-tag action-tag__open'>Open</div>
+    } else {
+      return POOL_IDS.C === swapTx.sideIn.toNumber() ? <div className='action-tag action-tag__remove'>Remove</div> : <div className='action-tag action-tag__close'>Close</div>
+    }
+  }, [swapTx])
+}, (prevProps, nextProps) =>
+  isEqual(prevProps, nextProps)
+)
 
 export const WalletHistoryTable = React.memo(Component, (prevProps, nextProps) =>
   isEqual(prevProps, nextProps)
