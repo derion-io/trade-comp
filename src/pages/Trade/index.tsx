@@ -3,9 +3,9 @@ import './style.scss'
 import { useConfigs } from '../../state/config/useConfigs'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 import { Chart } from '../../Components/Chart'
-import { TRADE_TYPE } from '../../utils/constant'
+import { POOL_IDS, TRADE_TYPE } from '../../utils/constant'
 import { SwapBox } from '../../Components/SwapBox'
-import { Tabs, TabPanel, TabList, Tab } from 'react-tabs'
+import { Tab, TabList, TabPanel, Tabs } from 'react-tabs'
 import 'react-tabs/style/react-tabs.css'
 import { Card } from '../../Components/ui/Card'
 import { useResource } from '../../state/resources/hooks/useResource'
@@ -17,7 +17,7 @@ import { SettingIcon } from '../../Components/ui/Icon'
 import { SettingModal } from '../../Components/SettingModal'
 import { useListTokens } from '../../state/token/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
-import { bn } from '../../utils/helpers'
+import { bn, decodeErc1155Address, isErc1155Address } from '../../utils/helpers'
 
 const TAB_2 = {
   POSITION: Symbol('position'),
@@ -31,8 +31,7 @@ const TAB_INDEX_TO_PATH = {
   [TRADE_TYPE.LIQUIDITY]: '/liquidity'
 }
 
-export const Trade = ({ tab, pool }: {
-  pool?: string,
+export const Trade = ({ tab }: {
   tab: TRADE_TYPE
 }) => {
   const { chainId, useHistory, ddlEngine } = useConfigs()
@@ -50,6 +49,21 @@ export const Trade = ({ tab, pool }: {
   const tokenOutMaturity = maturities[outputTokenAddress] || bn(0)
 
   useEffect(() => {
+    const url = location.href
+    const urlSearchParams = new URL(`https://1.com?${url.split('?')[1]}`).searchParams
+    if (id) {
+      urlSearchParams.set('index', id)
+    }
+    if (outputTokenAddress && isErc1155Address(outputTokenAddress)) {
+      urlSearchParams.set('pool', decodeErc1155Address(outputTokenAddress).address)
+    }
+
+    history.push({
+      search: '?' + urlSearchParams.toString()
+    })
+  }, [outputTokenAddress, id])
+
+  useEffect(() => {
     if (tokens[baseToken] && tokens[quoteToken] && id && ddlEngine && basePrice) {
       ddlEngine.PRICE.get24hChange({
         baseToken: tokens[baseToken],
@@ -65,13 +79,25 @@ export const Trade = ({ tab, pool }: {
 
   useEffect(() => {
     if (poolGroups && Object.keys(poolGroups).length > 0) {
-      if (pool && poolGroups[pool]) {
-        updateCurrentPoolGroup(pool)
+      const url = location.href
+      const urlSearchParams = new URL(`https://1.com?${url.split('?')[1]}`).searchParams
+      const index = urlSearchParams.get('index')
+      const pool = urlSearchParams.get('pool')
+      if (pool && tab === TRADE_TYPE.LONG) {
+        setOutputTokenAddress(pool + '-' + POOL_IDS.A)
+      } else if (pool && tab === TRADE_TYPE.SHORT) {
+        setOutputTokenAddress(pool + '-' + POOL_IDS.B)
+      } else if (pool && tab === TRADE_TYPE.LIQUIDITY) {
+        setOutputTokenAddress(pool + '-' + POOL_IDS.C)
+      }
+
+      if (index && poolGroups[index]) {
+        updateCurrentPoolGroup(index)
       } else if (Object.keys(poolGroups)[0] && !id) {
         updateCurrentPoolGroup(Object.keys(poolGroups)[0])
       }
     }
-  }, [chainId, poolGroups, pool])
+  }, [chainId, poolGroups])
 
   return (
     <div className='exposure-page'>
@@ -119,7 +145,7 @@ export const Trade = ({ tab, pool }: {
           >
             <SettingIcon style={{
               float: 'right',
-              margin: '0.4rem',
+              margin: '0.4rem'
             }} />
           </div>
           <Tabs
