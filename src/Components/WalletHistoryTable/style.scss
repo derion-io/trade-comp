@@ -109,27 +109,4 @@
       margin-right: 0.5rem;
     }
   }
-
-  .action-tag {
-    text-align: center;
-    padding: 0.25rem 1rem;
-    border-radius: 0.5rem;
-
-    &__open {
-      background: rgba($color-buy, 0.25);
-      border: 1px solid $color-buy;
-    }
-    &__close {
-      background: rgba($color-sell, 0.25);
-      border: 1px solid $color-sell;
-    }
-    &__add {
-      background: rgba($color-blue, 0.25);
-      border: 1px solid $color-blue;
-    }
-    &__remove {
-      background: rgba($color-pink, 0.25);
-      border: 1px solid $color-pink;
-    }
-  }
 }

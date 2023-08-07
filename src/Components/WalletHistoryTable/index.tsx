@@ -99,7 +99,7 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
                   <td>
                     {
                       swapTx.entryValue &&
-                    <Text> {formatLocalisedCompactNumber(formatFloat(swapTx.entryValue))}</Text>
+                    <Text>${formatLocalisedCompactNumber(formatFloat(swapTx.entryValue))}</Text>
                     }
                   </td>
                   <td>
@@ -118,9 +118,9 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
 export const ActionTag = React.memo(({ swapTx }: {swapTx: SwapTxType}) => {
   return useMemo(() => {
     if ([POOL_IDS.R, POOL_IDS.native].includes(swapTx.sideIn.toNumber())) {
-      return POOL_IDS.C === swapTx.sideOut.toNumber() ? <div className='action-tag action-tag__add'>Add</div> : <div className='action-tag action-tag__open'>Open</div>
+      return POOL_IDS.C === swapTx.sideOut.toNumber() ? <TextBlue>Add</TextBlue> : <TextBuy>Open</TextBuy>
     } else {
-      return POOL_IDS.C === swapTx.sideIn.toNumber() ? <div className='action-tag action-tag__remove'>Remove</div> : <div className='action-tag action-tag__close'>Close</div>
+      return POOL_IDS.C === swapTx.sideIn.toNumber() ? <TextPink>Remove</TextPink> : <TextSell>Close</TextSell>
     }
   }, [swapTx])
 }, (prevProps, nextProps) =>
