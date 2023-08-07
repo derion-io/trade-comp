@@ -67,7 +67,7 @@ export const App = () => {
   const renderAppContent = () => {
     switch (true) {
       case isMatchWithPath('/:tab(long|short|liquidity|swap)/:pool?'):
-        return <Trade tab={detectTradeTab(location.pathname)} pool={detectPool(location.pathname)} />
+        return <Trade tab={detectTradeTab(location.pathname)} />
       default:
         return <Trade tab={TRADE_TYPE.LONG} />
     }
@@ -91,14 +91,6 @@ export const App = () => {
       return TRADE_TYPE.SWAP
     }
     return TRADE_TYPE.LONG
-  }
-
-  const detectPool = (path: string) => {
-    if (path.includes('long') || path.includes('short') || path.includes('swap')) {
-      const arr = path.split('/')
-      return arr[arr.length - 1]
-    }
-    return ''
   }
 
   const isMatchWithPath = (path: string) => {
