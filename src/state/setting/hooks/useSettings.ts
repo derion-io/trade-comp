@@ -7,7 +7,7 @@ import {
   setScanApiKeyReduce,
   setSlippageReduce,
   setSortPoolBuyReduce,
-  setShowBalanceReduce,
+  setShowBalanceReduce
 } from '../reducer'
 import { State } from '../../types'
 import { useConfigs } from '../../config/useConfigs'
@@ -55,6 +55,6 @@ export const useSettings = () => {
     setMaxInterestRate,
     setMinPayoffRate,
     setMinLiquidityShare,
-    setShowBalance,
+    setShowBalance
   }
 }

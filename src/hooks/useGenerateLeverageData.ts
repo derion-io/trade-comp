@@ -36,8 +36,12 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
           return
         }
 
-        const opacity = 1 - 0.95 * deleverageRisk
-        const color = 'rgb(0, 180, 255)'
+        // const opacity = 1 - 0.95 * deleverageRisk
+        // const color = 'rgb(0, 180, 255)'
+        // const bgColor = 'rgb(27, 29, 33)'
+        // const color = opacity === 0 ? bgColor : `rgb(0, ${opacity * 180}, ${opacity * 255})`
+        const opacity = 1 - Math.sqrt(deleverageRisk)
+        const color = `rgb(${0 + (1 - opacity) * 27}, ${opacity * 180 + (1 - opacity) * 29}, ${opacity * 255 + (1 - opacity) * 33})`
         const power = Math.abs(Number(getTokenPower(pool.TOKEN_R, pool.baseToken, tradeTypeToId(tradeType), pool.k.toNumber())))
         const size = pool.states.R
 
@@ -52,7 +56,7 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
                 token: pool.poolAddress + '-' + tradeTypeToId(tradeType),
                 size,
                 color,
-                opacity,
+                // opacity,
                 dailyInterestRate: pool.dailyInterestRate,
                 deleverageRisk
               }

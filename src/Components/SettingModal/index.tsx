@@ -8,6 +8,7 @@ import { Box } from '../ui/Box'
 import { useSettings } from '../../state/setting/hooks/useSettings'
 import { useConfigs } from '../../state/config/useConfigs'
 import { SORT_POOL_BY } from '../../state/setting/type'
+import { ToggleSwitch } from '../ui/ToggleSwitch'
 
 const Component = ({
   visible,
@@ -23,7 +24,8 @@ const Component = ({
     setMaxInterestRate,
     setMinPayoffRate,
     setMinLiquidityShare,
-    setScanApi
+    setScanApi,
+    setShowBalance
   } = useSettings()
   const { chainId } = useConfigs()
   const [visibleAdvance, setVisibleAdvance] = useState<Boolean>(false)
@@ -31,112 +33,209 @@ const Component = ({
   return (
     <Modal
       setVisible={setVisible} visible={visible}
-      title='Setting'
+      title={visibleAdvance ? 'Advanced Setting' : 'Setting'}
     >
-      <div
-        className='swap-setting-modal'
-      >
-        <div className='mb-1'>
-          <div className='mb-05'>
-            <Text>Slippage Tolerance</Text>
-          </div>
-          <InputWithValidate
-            defaultValue={settings.slippage}
-            min={0}
-            max={100}
-            setter={setSlippage}
-            errorMessage='Invalid Slippage'
-          />
-        </div>
-        <div className='mb-1'>
-          <div className='mb-05'>
-            <Text>Min Return Rate</Text>
-          </div>
-          <InputWithValidate
-            defaultValue={settings.minPayoffRate}
-            min={0}
-            max={100}
-            setter={setMinPayoffRate}
-            errorMessage='Invalid Min Pay-Off Rate'
-          />
-        </div>
+      {
+        !visibleAdvance
+          ? <div
+            className='swap-setting-modal'
+          >
+            <div className='mb-1'>
+              <div className='mb-05'>
+                <Text>Slippage Tolerance</Text>
+              </div>
+              <InputWithValidate
+                defaultValue={settings.slippage}
+                min={0}
+                max={100}
+                setter={setSlippage}
+                errorMessage='Invalid Slippage'
+              />
+            </div>
+            <div className='mb-1'>
+              <div className='mb-05'>
+                <Text>Min Return Rate</Text>
+              </div>
+              <InputWithValidate
+                defaultValue={settings.minPayoffRate}
+                min={0}
+                max={100}
+                setter={setMinPayoffRate}
+                errorMessage='Invalid Min Pay-Off Rate'
+              />
+            </div>
 
-        <div className='mb-05'>
-          <Text>Pools Filter</Text>
-        </div>
-        <Box borderColor='default p-1'>
-          <div className='mb-1'>
             <div className='mb-05'>
-              <Text>Max Interest Rate</Text>
+              <Text>Pools Filter</Text>
             </div>
-            <InputWithValidate
-              defaultValue={settings.maxInterestRate}
-              min={0}
-              max={100}
-              setter={setMaxInterestRate}
-              errorMessage='Invalid Max Interest Rate'
-            />
+            <Box borderColor='default p-1'>
+              <div className='mb-1'>
+                <div className='mb-05'>
+                  <Text>Max Interest Rate</Text>
+                </div>
+                <InputWithValidate
+                  defaultValue={settings.maxInterestRate}
+                  min={0}
+                  max={100}
+                  setter={setMaxInterestRate}
+                  errorMessage='Invalid Max Interest Rate'
+                />
+              </div>
+              <div className='mb-1'>
+                <div className='mb-05'>
+                  <Text>Max Deleverage Risk</Text>
+                </div>
+                <InputWithValidate
+                  defaultValue={settings.maxDeleverageRisk}
+                  min={0}
+                  max={100}
+                  setter={setMaxDeleverageRisk}
+                  errorMessage='Invalid Max Deleverage Risk'
+                />
+              </div>
+              <div className='mb-1'>
+                <div className='mb-05'>
+                  <Text>Min Liquidity Share</Text>
+                </div>
+                <InputWithValidate
+                  defaultValue={settings.minLiquidityShare}
+                  min={0}
+                  suffix='%'
+                  setter={setMinLiquidityShare}
+                  errorMessage='Invalid Min Liquidity Share'
+                />
+              </div>
+              <div>
+                <div className='mb-05'>
+                  <Text>Sort</Text>
+                </div>
+                <div className='sort-by__items'>
+                  <BtnSortPool
+                    type={SORT_POOL_BY.LIQUIDITY}
+                    title='Liquidity'
+                  />
+                  <BtnSortPool
+                    type={SORT_POOL_BY.INTEREST_RATE}
+                    title='Interest Rate'
+                  />
+                  <BtnSortPool
+                    type={SORT_POOL_BY.DELEVERAGE_RISK}
+                    title='Deleverage Risk'
+                  />
+                </div>
+                <div className='mb-1'>
+                  <div className='mb-05'>
+                    <Text>Min Return Rate</Text>
+                  </div>
+                  <InputWithValidate
+                    defaultValue={settings.minPayoffRate}
+                    min={0}
+                    max={100}
+                    setter={setMinPayoffRate}
+                    errorMessage='Invalid Min Pay-Off Rate'
+                  />
+                </div>
+                <div className='mb-05'>
+                  <Text>Pools Filter</Text>
+                </div>
+                <Box borderColor='default p-1'>
+                  <div className='mb-1'>
+                    <div className='mb-05'>
+                      <Text>Max Interest Rate</Text>
+                    </div>
+                    <InputWithValidate
+                      defaultValue={settings.maxInterestRate}
+                      min={0}
+                      max={100}
+                      setter={setMaxInterestRate}
+                      errorMessage='Invalid Max Interest Rate'
+                    />
+                  </div>
+                  <div className='mb-1'>
+                    <div className='mb-05'>
+                      <Text>Max Deleverage Risk</Text>
+                    </div>
+                    <InputWithValidate
+                      defaultValue={settings.maxDeleverageRisk}
+                      min={0}
+                      max={100}
+                      setter={setMaxDeleverageRisk}
+                      errorMessage='Invalid Max Deleverage Risk'
+                    />
+                  </div>
+                  <div className='mb-1'>
+                    <div className='mb-05'>
+                      <Text>Min Liquidity Share</Text>
+                    </div>
+                    <InputWithValidate
+                      defaultValue={settings.minLiquidityShare}
+                      min={0}
+                      suffix='%'
+                      setter={setMinLiquidityShare}
+                      errorMessage='Invalid Min Liquidity Share'
+                    />
+                  </div>
+                  <div>
+                    <div className='mb-05'>
+                      <Text>Sort</Text>
+                    </div>
+                    <div className='sort-by__items'>
+                      <BtnSortPool
+                        type={SORT_POOL_BY.LIQUIDITY}
+                        title='Liquidity'
+                      />
+                      <BtnSortPool
+                        type={SORT_POOL_BY.INTEREST_RATE}
+                        title='Interest Rate'
+                      />
+                      <BtnSortPool
+                        type={SORT_POOL_BY.DELEVERAGE_RISK}
+                        title='Deleverage Risk'
+                      />
+                    </div>
+                  </div>
+                </Box>
+              </div>
+            </Box>
+            <div className='advance-setting-row' onClick={() => setVisibleAdvance(!visibleAdvance)}>
+              <TextBlue>Go to Advanced Setting</TextBlue>
+            </div>
+            {
+              visible && visibleAdvance &&
+              <div className='mb-1'>
+                <div className='mb-05'>
+                  <Text>Scan API Key</Text>
+                </div>
+                <InputApiKey
+                  setter={setScanApi}
+                  defaultValue={settings.scanApiKey[chainId]}
+                />
+              </div>
+            }
           </div>
-          <div className='mb-1'>
-            <div className='mb-05'>
-              <Text>Max Deleverage Risk</Text>
-            </div>
-            <InputWithValidate
-              defaultValue={settings.maxDeleverageRisk}
-              min={0}
-              max={100}
-              setter={setMaxDeleverageRisk}
-              errorMessage='Invalid Max Deleverage Risk'
-            />
+          : <div
+            className='swap-setting-modal'
+          >
+            {
+              visible &&
+              <div className='mb-1'>
+                <div className='mb-05'>
+                  <ToggleSwitch label='Show Balance' defaultChecked={settings.showBalance} setter={setShowBalance} />
+                </div>
+                <div className='mb-05'>
+                  <Text>Scan API Key</Text>
+                </div>
+                <InputApiKey
+                  setter={setScanApi}
+                  defaultValue={settings.scanApiKey[chainId]}
+                />
+                <div className='advance-setting-row' onClick={() => setVisibleAdvance(!visibleAdvance)}>
+                  <TextBlue>Go to Setting</TextBlue>
+                </div>
+              </div>
+            }
           </div>
-          <div className='mb-1'>
-            <div className='mb-05'>
-              <Text>Min Liquidity Share</Text>
-            </div>
-            <InputWithValidate
-              defaultValue={settings.minLiquidityShare}
-              min={0}
-              suffix='%'
-              setter={setMinLiquidityShare}
-              errorMessage='Invalid Min Liquidity Share'
-            />
-          </div>
-          <div>
-            <div className='mb-05'>
-              <Text>Sort</Text>
-            </div>
-            <div className='sort-by__items'>
-              <BtnSortPool
-                type={SORT_POOL_BY.LIQUIDITY}
-                title='Liquidity'
-              />
-              <BtnSortPool
-                type={SORT_POOL_BY.INTEREST_RATE}
-                title='Interest Rate'
-              />
-              <BtnSortPool
-                type={SORT_POOL_BY.DELEVERAGE_RISK}
-                title='Deleverage Risk'
-              />
-            </div>
-          </div>
-        </Box>
-        <div className='advance-setting-row' onClick={() => setVisibleAdvance(!visibleAdvance)}>
-          <TextBlue>Go to Advanced Settings</TextBlue>
-        </div>
-        {
-          visible && visibleAdvance &&
-          <div className='mb-1'>
-            <div className='mb-05'>
-              <Text>Scan API Key</Text>
-            </div>
-            <InputApiKey
-              setter={setScanApi}
-              defaultValue={settings.scanApiKey[chainId]}
-            />
-          </div>
-        }
-      </div>
+      }
     </Modal>
   )
 }
