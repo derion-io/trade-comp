@@ -132,7 +132,8 @@ const Component = ({
           // console.log(inputTokenAddress, pools, address, pools[address]?.TOKEN_R)
           setInputTokenAddress(wrapToNativeAddress(pools[address]?.TOKEN_R))
         }
-      } else if (Object.values(pools).length > 0) {
+      }
+      if (!inputTokenAddress) {
         setInputTokenAddress(wrapToNativeAddress(Object.values(pools)[0].TOKEN_R))
       }
     }
@@ -426,7 +427,10 @@ const Component = ({
         leverageData.length > 0 &&
         <LeverageSlider
           barData={barData}
-          setBarData={setBarData}
+          setBarData={(e: any) => {
+            console.log(e?.token)
+            setBarData(e)
+          }}
           leverageData={leverageData}
           height={100}
           key={id}

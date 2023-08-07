@@ -31,6 +31,8 @@ const TAB_INDEX_TO_PATH = {
   [TRADE_TYPE.LIQUIDITY]: '/liquidity'
 }
 
+const SIMULATE_URL = 'https://1.com'
+
 export const Trade = ({ tab }: {
   tab: TRADE_TYPE
 }) => {
@@ -49,8 +51,8 @@ export const Trade = ({ tab }: {
   const tokenOutMaturity = maturities[outputTokenAddress] || bn(0)
 
   useEffect(() => {
-    const url = location.href
-    const urlSearchParams = new URL(`https://1.com?${url.split('?')[1]}`).searchParams
+    const url = location.href.split('?').length > 1 ? `${SIMULATE_URL}?${location.href.split('?')[1]}` : SIMULATE_URL
+    const urlSearchParams = new URL(url).searchParams
     if (id) {
       urlSearchParams.set('index', id)
     }
@@ -83,16 +85,19 @@ export const Trade = ({ tab }: {
       const urlSearchParams = new URL(`https://1.com?${url.split('?')[1]}`).searchParams
       const index = urlSearchParams.get('index')
       const pool = urlSearchParams.get('pool')
-      if (pool && tab === TRADE_TYPE.LONG) {
-        setOutputTokenAddress(pool + '-' + POOL_IDS.A)
-      } else if (pool && tab === TRADE_TYPE.SHORT) {
-        setOutputTokenAddress(pool + '-' + POOL_IDS.B)
-      } else if (pool && tab === TRADE_TYPE.LIQUIDITY) {
-        setOutputTokenAddress(pool + '-' + POOL_IDS.C)
-      }
 
       if (index && poolGroups[index]) {
         updateCurrentPoolGroup(index)
+
+        if (pool && poolGroups[index].pools[pool]) {
+          if (tab === TRADE_TYPE.LONG) {
+            setOutputTokenAddress(pool + '-' + POOL_IDS.A)
+          } else if (tab === TRADE_TYPE.SHORT) {
+            setOutputTokenAddress(pool + '-' + POOL_IDS.B)
+          } else if (tab === TRADE_TYPE.LIQUIDITY) {
+            setOutputTokenAddress(pool + '-' + POOL_IDS.C)
+          }
+        }
       } else if (Object.keys(poolGroups)[0] && !id) {
         updateCurrentPoolGroup(Object.keys(poolGroups)[0])
       }
@@ -151,7 +156,10 @@ export const Trade = ({ tab }: {
           <Tabs
             selectedIndex={tab}
             onSelect={(index) => {
-              history.push(TAB_INDEX_TO_PATH[index])
+              history.push({
+                pathname: TAB_INDEX_TO_PATH[index],
+                search: location.href.split('?').length > 1 ? `?${location.href.split('?')[1]}` : ''
+              })
             }}
           >
             <TabList>

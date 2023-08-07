@@ -67,7 +67,6 @@ export const Datafeed = {
   ) {
     console.log('======resolveSymbol running====')
     const [, , , name, , priceScale] = symbolInfo.split('-')
-    console.log(priceScale, Math.pow(10, priceScale))
     var symbolStub = {
       name: name,
       description: '',
