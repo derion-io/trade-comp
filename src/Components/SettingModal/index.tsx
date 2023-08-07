@@ -195,13 +195,10 @@ const Component = ({
                     </div>
                   </div>
                 </Box>
-                <div className='advance-setting-row' onClick={() => setVisibleAdvance(!visibleAdvance)}>
-                  <TextBlue>Go to Advanced Setting</TextBlue>
-                </div>
               </div>
             </Box>
             <div className='advance-setting-row' onClick={() => setVisibleAdvance(!visibleAdvance)}>
-              <TextBlue>Go to Advanced Settings</TextBlue>
+              <TextBlue>Go to Advanced Setting</TextBlue>
             </div>
             {
               visible && visibleAdvance &&
