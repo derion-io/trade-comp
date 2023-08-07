@@ -205,9 +205,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                 {
                   !settings.showBalance || <InfoRow>
                     <Text>Balance</Text>
-                    <td>
-                      <Text>{formatWeiToDisplayNumber(position.balance, 4, tokens[position.token].decimals)}</Text>
-                    </td>
+                    <Text>{formatWeiToDisplayNumber(position.balance, 4, tokens[position.token].decimals)}</Text>
                   </InfoRow>
                 }
                 <InfoRow>
