@@ -202,6 +202,14 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                   <Text>Position</Text>
                   <Token token={position.token} />
                 </InfoRow>
+                {
+                  !settings.showBalance || <InfoRow>
+                    <Text>Balance</Text>
+                    <td>
+                      <Text>{formatWeiToDisplayNumber(position.balance, 4, tokens[position.token].decimals)}</Text>
+                    </td>
+                  </InfoRow>
+                }
                 <InfoRow>
                   <Text>Net Value</Text>
                   <NetValue value={position.value}/>
@@ -250,14 +258,6 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                   <Text>Reserve</Text>
                   <Reserve pool={position.pool}/>
                 </InfoRow> */}
-                {
-                  settings.showBalance && <InfoRow>
-                    <Text>Balance</Text>
-                    <td>
-                      <Text>{formatWeiToDisplayNumber(position.balance, 4, tokens[position.token].decimals)}</Text>
-                    </td>
-                  </InfoRow>
-                }
                 {/* <InfoRow>
                   <Text>Pool</Text>
                   <ExplorerLink poolAddress={position.poolAddress}/>
@@ -287,7 +287,6 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
               <th>Delev. Price</th>
               <th>Closing Fee</th>
               {/* <th>Reserve</th> */}
-              {settings.showBalance && <th>Balance</th>}
               {/* <th>Pool</th> */}
               <th />
             </tr>
@@ -302,7 +301,15 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                   }}
                   key={key}
                 >
-                  <td><Token token={position.token} /></td>
+                  <td>
+                      <Token
+                        token={position.token}
+                        balance={!settings.showBalance ?
+                          undefined :
+                          formatWeiToDisplayNumber(position.balance, 4, tokens[position.token].decimals)
+                        }
+                      />
+                  </td>
                   <td>
                     <div className='net-value-and-pnl'>
                       <NetValue value={position.value}/>
@@ -337,11 +344,6 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                   </td>
                   <td><ClosingFee now={now} position={position}/></td>
                   {/* <td><Reserve pool={position.pool}/></td> */}
-                  {
-                    settings.showBalance && <td>
-                      <Text>{formatWeiToDisplayNumber(position.balance, 4, tokens[position.token].decimals)}</Text>
-                    </td>
-                  }
                   {/* <td><ExplorerLink poolAddress={position.poolAddress}/></td> */}
                   <td className='text-right'>
                     <ButtonSell
@@ -434,12 +436,15 @@ export const ExplorerLink = ({ poolAddress }: { poolAddress: string}) => {
   </TextLink>
 }
 
-export const Token = ({ token }: { token: string}) => {
+export const Token = ({ token, balance }: { token: string, balance?: string }) => {
   const { width } = useWindowSize()
   const isPhone = width && width < 992
 
   return <div className='d-flex gap-05 align-items-center'>
     <TokenIcon size={isPhone ? 18 : 24} tokenAddress={token} />
-    <span><TokenSymbol token={token} /></span>
+    <div>
+      <div><TokenSymbol token={token} /></div>
+      {!balance || <div><Text>{balance}</Text></div>}
+    </div>
   </div>
 }
