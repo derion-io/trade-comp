@@ -7,6 +7,7 @@ import { TextBlue } from '../ui/Text'
 import { useConfigs } from '../../state/config/useConfigs'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { toast } from 'react-toastify'
+import { useListTokens } from '../../state/token/hook'
 
 const Component = ({
   visible,
@@ -22,6 +23,7 @@ const Component = ({
   const { approveRouter } = useWalletBalance()
   const { configs } = useConfigs()
   const [loading, setLoading] = useState<boolean>(false)
+  const {tokens} = useListTokens()
 
   const onApprove = async () => {
     try {
@@ -57,7 +59,7 @@ const Component = ({
             ? <ButtonExecute disabled>Loading...</ButtonExecute>
             : <ButtonExecute
               onClick={onApprove}
-            >Approve BUSD to EIP-6120</ButtonExecute>
+            >Approve {tokens[inputTokenAddress]?.symbol} to EIP-6120</ButtonExecute>
         }
       </div>
     </div>

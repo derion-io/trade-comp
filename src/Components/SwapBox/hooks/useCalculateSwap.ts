@@ -24,10 +24,17 @@ export const useCalculateSwap = ({
   const [amountOutWei, setAmountOutWei] = useState<BigNumber>(bn(0))
   const [loading, setLoading] = useState<boolean>(false)
   const { ddlEngine } = useConfigs()
-  const { balances } = useWalletBalance()
+  const { balances, routerAllowances } = useWalletBalance()
 
   useEffect(() => {
-    if (tokens[inputTokenAddress] && tokens[outputTokenAddress] && amountIn && Number(amountIn)) {
+    if (tokens[inputTokenAddress] &&
+      tokens[outputTokenAddress] &&
+      amountIn && Number(amountIn) &&
+      (
+        isErc1155Address(inputTokenAddress) ||
+        routerAllowances[inputTokenAddress].gt(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))
+      )
+    ) {
       calcAmountOut()
     } else if (Number(amountIn) === 0) {
       setAmountOut('')
@@ -35,7 +42,13 @@ export const useCalculateSwap = ({
       setGasUsed(bn(0))
       setAmountOutWei(bn(0))
     }
-  }, [tokens[inputTokenAddress] && tokens[outputTokenAddress], tokenOutMaturity, amountIn])
+  }, [
+    tokens[inputTokenAddress],
+    tokens[outputTokenAddress],
+    tokenOutMaturity,
+    amountIn,
+    routerAllowances[inputTokenAddress]
+  ])
 
   const calcAmountOut = async () => {
     if (!amountOut) {
@@ -54,7 +67,7 @@ export const useCalculateSwap = ({
         bn(1).shl(255)
           .add('0xC31E54c7a869B9FcBEcc14363CF510d1c41fa443')
           .toHexString(),
-        32,
+        32
       ))
     }]).then((res: any) => {
       const [aOuts, gasLeft] = res

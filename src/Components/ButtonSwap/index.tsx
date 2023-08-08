@@ -11,6 +11,7 @@ import { BigNumber, ethers } from 'ethers'
 import { CHAINS, TRADE_TYPE } from '../../utils/constant'
 import { TextError } from '../ui/Text'
 import { useSettings } from '../../state/setting/hooks/useSettings'
+import { ApproveUtrModal } from '../ApproveUtrModal'
 
 export const ButtonSwap = ({
   inputTokenAddress,
@@ -45,8 +46,9 @@ export const ButtonSwap = ({
 }) => {
   const { tokens } = useListTokens()
   const [loading, setLoading] = useState<boolean>(false)
+  const [visibleApproveModal, setVisibleApproveModal] = useState<boolean>(false)
   const { account, showConnectModal } = useWeb3React()
-  const { balances, fetchBalanceAndAllowance } = useWalletBalance()
+  const { balances, fetchBalanceAndAllowance, routerAllowances } = useWalletBalance()
   const { ddlEngine } = useConfigs()
   const { settings: { slippage, minPayoffRate } } = useSettings()
   const { chainId } = useWeb3React()
@@ -70,11 +72,11 @@ export const ButtonSwap = ({
     } else if (!balances[inputTokenAddress] || balances[inputTokenAddress].lt(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))) {
       return <ButtonExecute className='swap-button'
         disabled> Insufficient {tokens[inputTokenAddress].symbol} Amount </ButtonExecute>
-      // } else if (!routerAllowances[address] || routerAllowances[address].lt(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))) {
-      //   return <ButtonExecute
-      //     className='swap-button'
-      //     onClick={() => { setVisibleApproveModal(true) }}
-      //   >Use EIP-6120</ButtonExecute>
+    } else if (!isErc1155Address(inputTokenAddress) && routerAllowances[inputTokenAddress].lt(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18))) {
+      return <ButtonExecute
+        className='swap-button'
+        onClick={() => { setVisibleApproveModal(true) }}
+      >Use EIP-6120</ButtonExecute>
     } else if (callError) {
       return <ButtonExecute className='swap-button' disabled>{callError}</ButtonExecute>
     } else {
@@ -145,7 +147,8 @@ export const ButtonSwap = ({
     callError,
     gasUsed,
     account,
-    tokenOutMaturity
+    tokenOutMaturity,
+    routerAllowances[inputTokenAddress]
   ])
 
   return <React.Fragment>
@@ -153,13 +156,20 @@ export const ButtonSwap = ({
       payoffRate && payoffRate < 94 && !loadingAmountOut
         ? <div className='text-center mb-1'>
           {
-            tradeType === TRADE_TYPE.LONG ? <TextError>The Premium Rate is too high due to an imbalance between the Long and Short positions in the pool.</TextError> :
-            tradeType === TRADE_TYPE.SHORT ? <TextError>The Premium Rate is too high due to an imbalance between the Short and Long positions in the pool.</TextError> :
-            <TextError>The Closing Fee is too high because your position has not yet fully vested.</TextError>
+            tradeType === TRADE_TYPE.LONG ? <TextError>The Premium Rate is too high due to an imbalance between the Long and Short positions in the pool.</TextError>
+              : tradeType === TRADE_TYPE.SHORT ? <TextError>The Premium Rate is too high due to an imbalance between the Short and Long positions in the pool.</TextError>
+                : <TextError>The Closing Fee is too high because your position has not yet fully vested.</TextError>
           }
         </div>
         : ''
     }
     {button}
+    <ApproveUtrModal
+      callBack={() => {
+      }}
+      visible={visibleApproveModal}
+      setVisible={setVisibleApproveModal}
+      inputTokenAddress={inputTokenAddress}
+    />
   </React.Fragment>
 }

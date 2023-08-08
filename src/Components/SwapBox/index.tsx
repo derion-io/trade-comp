@@ -24,7 +24,6 @@ import { NATIVE_ADDRESS, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
 import { useConfigs } from '../../state/config/useConfigs'
 import formatLocalisedCompactNumber, { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import isEqual from 'react-fast-compare'
-import { ApproveUtrModal } from '../ApproveUtrModal'
 import _ from 'lodash'
 import { useCalculateSwap } from './hooks/useCalculateSwap'
 import { useTokenValue } from './hooks/useTokenValue'
@@ -47,7 +46,6 @@ const Component = ({
   const [tokenTypeToSelect, setTokenTypeToSelect] = useState<'input' | 'output'>('input')
   const [amountIn, setAmountIn] = useState<string>('')
   const { balances, accFetchBalance } = useWalletBalance()
-  const [visibleApproveModal, setVisibleApproveModal] = useState<boolean>(false)
   const { tokens } = useListTokens()
   const { callError, gasUsed, amountOut } = useCalculateSwap({
     amountIn,
@@ -256,14 +254,6 @@ const Component = ({
           title='Swap'
         />
       </div>
-
-      <ApproveUtrModal
-        callBack={() => {
-        }}
-        visible={visibleApproveModal}
-        setVisible={setVisibleApproveModal}
-        inputTokenAddress={inputTokenAddress}
-      />
     </div>
   )
 }
