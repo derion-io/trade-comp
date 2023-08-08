@@ -72,7 +72,7 @@
   }
 
   td, th {
-    padding: 0.5rem 0.25rem;
+    padding: 0.5rem;
   }
 
   &__ctoken-col {
@@ -87,10 +87,6 @@
   &__time {
     & span {
       display: inline-block;
-    }
-
-    & span::first-letter {
-      text-transform: uppercase;
     }
   }
 

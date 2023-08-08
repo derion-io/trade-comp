@@ -10,7 +10,7 @@ import { Text, TextBlue, TextBuy, TextLink, TextPink, TextSell } from '../ui/Tex
 import { useConfigs } from '../../state/config/useConfigs'
 import { NATIVE_ADDRESS, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
 import isEqual from 'react-fast-compare'
-import { formatFloat } from '../../utils/helpers'
+import { formatFloat, formatZeroDecimal } from '../../utils/helpers'
 
 const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
   const { setChartTimeFocus, TOKEN_R, tradeType } = useCurrentPoolGroup()
@@ -57,12 +57,12 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
           <thead>
             <tr>
               <th>Time</th>
+              <th>Type</th>
+              <th>Value</th>
+              <th>Price</th>
               <th>From</th>
               <th/>
               <th>To</th>
-              <th>Entry Price</th>
-              <th>Entry Value</th>
-              <th>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -78,8 +78,23 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
                 }}>
                   <td className='wallet-history-table__time'>
                     <TextLink href={configs.explorer + '/tx/' + swapTx.transactionHash}>
-                      {moment.unix(swapTx.timeStamp).fromNow()}
+                      {moment.unix(swapTx.timeStamp).fromNow().toLocaleLowerCase()}
                     </TextLink>
+                  </td>
+                  <td>
+                    <ActionTag swapTx={swapTx}/>
+                  </td>
+                  <td>
+                    {
+                      swapTx.entryValue &&
+                    <Text>${formatLocalisedCompactNumber(formatFloat(swapTx.entryValue))}</Text>
+                    }
+                  </td>
+                  <td>
+                    {
+                      swapTx.entryPrice &&
+                    <Text> {formatZeroDecimal(formatFloat(swapTx.entryPrice))}</Text>
+                    }
                   </td>
                   <td className='wallet-history-table__ctoken-change'>
                     <TextIn><TokenSymbol token={swapTx.tokenIn} /></TextIn>
@@ -89,21 +104,6 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
                   <td>
                     <TextOut><TokenSymbol token={swapTx.tokenOut} /></TextOut>
                     <Text> {formatWeiToDisplayNumber(swapTx.amountOut, 4, tokens[swapTx.tokenOut]?.decimal || 18)}</Text>
-                  </td>
-                  <td>
-                    {
-                      swapTx.entryPrice &&
-                    <Text> {formatLocalisedCompactNumber(formatFloat(swapTx.entryPrice))}</Text>
-                    }
-                  </td>
-                  <td>
-                    {
-                      swapTx.entryValue &&
-                    <Text>${formatLocalisedCompactNumber(formatFloat(swapTx.entryValue))}</Text>
-                    }
-                  </td>
-                  <td>
-                    <ActionTag swapTx={swapTx}/>
                   </td>
                 </tr>
               })
@@ -118,9 +118,11 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
 export const ActionTag = React.memo(({ swapTx }: {swapTx: SwapTxType}) => {
   return useMemo(() => {
     if ([POOL_IDS.R, POOL_IDS.native].includes(swapTx.sideIn.toNumber())) {
-      return POOL_IDS.C === swapTx.sideOut.toNumber() ? <TextBlue>Add</TextBlue> : <TextBuy>Open</TextBuy>
+      return POOL_IDS.C === swapTx.sideOut.toNumber() ? <TextBlue>Add</TextBlue> :
+        POOL_IDS.A === swapTx.sideOut.toNumber() ? <TextBuy>Long</TextBuy> :
+        <TextSell>Short</TextSell>
     } else {
-      return POOL_IDS.C === swapTx.sideIn.toNumber() ? <TextPink>Remove</TextPink> : <TextSell>Close</TextSell>
+      return POOL_IDS.C === swapTx.sideIn.toNumber() ? <TextPink>Remove</TextPink> : <TextPink>Close</TextPink>
     }
   }, [swapTx])
 }, (prevProps, nextProps) =>
