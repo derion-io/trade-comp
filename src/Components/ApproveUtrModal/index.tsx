@@ -41,22 +41,26 @@ const Component = ({
   return <Modal
     setVisible={setVisible}
     visible={visible}
-    title='Use EIP-6120'
+    title='Enable EIP-6120'
+    width='48rem'
   >
     <div className='approve-utr-modal'>
       <p className='mb-2'>
-        Derivable use the Universal Token Router (EIP-6120) for token routing and allowance.
-        You only need to approve your token to this contract once. You can review the verified
-        contract here: <TextBlue>{configs.addresses.router}</TextBlue>
+        The Universal Token Router (EIP-6120) is used by Derivable for token routing and allowance.
+        You only need to approve your token to this contract once.
       </p>
       <div className='text-center mb-2'>
-        <span>EIP-6120 is publicly accessible from here: </span>
+        <p>The contract code is verified here:</p>
+        <a href={`${configs.explorer}/address/${configs.addresses.router}#code`} target='_blank' rel='noreferrer'>{configs.addresses.router}</a>.
+      </div>
+      <div className='text-center mb-2'>
+        <p>EIP-6120 is open for public review at the following link:</p>
         <a href='https://eips.ethereum.org/EIPS/eip-6120' target='_blank' rel='noreferrer'>https://eips.ethereum.org/EIPS/eip-6120.</a>
       </div>
       <div className='text-center'>
         {
           loading
-            ? <ButtonExecute disabled>Loading...</ButtonExecute>
+            ? <ButtonExecute disabled>Requesting Wallet...</ButtonExecute>
             : <ButtonExecute
               onClick={onApprove}
             >Approve {tokens[inputTokenAddress]?.symbol} to EIP-6120</ButtonExecute>

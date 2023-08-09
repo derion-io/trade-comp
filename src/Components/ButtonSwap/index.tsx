@@ -76,7 +76,7 @@ export const ButtonSwap = ({
       return <ButtonExecute
         className='swap-button'
         onClick={() => { setVisibleApproveModal(true) }}
-      >Use EIP-6120</ButtonExecute>
+      >Enable EIP-6120</ButtonExecute>
     } else if (callError) {
       return <ButtonExecute className='swap-button' disabled>{callError}</ButtonExecute>
     } else {
