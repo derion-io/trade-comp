@@ -87,7 +87,7 @@ export const AddLiquidityBox = ({ totalSupplyCP }: {totalSupplyCP: BigNumber}) =
       setAmountOut('0')
       setTxFee(bn(0))
       setCallError(error ?? e)
-      console.log(e)
+      console.error(e)
     })
   }
 

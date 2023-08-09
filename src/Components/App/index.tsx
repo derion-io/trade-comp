@@ -40,7 +40,7 @@ export const App = () => {
         }
       })
     } catch (e) {
-      console.log(e)
+      console.error(e)
     }
   }, [ddlEngine, poolGroups, id])
 

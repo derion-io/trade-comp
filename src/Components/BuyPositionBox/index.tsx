@@ -129,7 +129,6 @@ const Component = ({
         }
         const { address } = decodeErc1155Address(outputTokenAddress)
         if (inputTokenAddress && pools[address]?.TOKEN_R && wrapToNativeAddress(inputTokenAddress) !== wrapToNativeAddress(pools[address]?.TOKEN_R)) {
-          // console.log(inputTokenAddress, pools, address, pools[address]?.TOKEN_R)
           setInputTokenAddress(wrapToNativeAddress(pools[address]?.TOKEN_R))
         }
       }
@@ -309,7 +308,6 @@ const Component = ({
           onChange={(e) => {
             // @ts-ignore
             if (Number(e.target.value) >= 0) {
-              console.log(Number(e.target.value))
               setAmountIn((e.target as HTMLInputElement).value)
             }
           }}
@@ -428,7 +426,6 @@ const Component = ({
         <LeverageSlider
           barData={barData}
           setBarData={(e: any) => {
-            console.log(e?.token)
             setBarData(e)
           }}
           leverageData={leverageData}

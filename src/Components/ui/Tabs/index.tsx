@@ -38,7 +38,6 @@ export const Tabs = (props: TabProps) => {
           className={`derivable-tabs__item active`}
           onClick={() => {
             const currentIndex = tabs.findIndex((tab: { value: any }) => tab.value == currentTab)
-            console.log(currentTab, currentIndex, tabs)
             setTab(tabs[(currentIndex+1) % tabs.length].value)
           }}
         >
