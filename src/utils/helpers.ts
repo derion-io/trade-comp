@@ -63,7 +63,7 @@ export function overrideContract(provider: any, deployedBytecode: string) {
 }
 
 export const parseCallStaticError = (error: any) => {
-  return _extractErrorReason(error)?.reason ?? 'ERROR'
+  return error?.message ?? _extractErrorReason(error)?.reason ?? 'ERROR'
 }
 
 function _extractErrorReason(err: any) {
