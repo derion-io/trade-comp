@@ -10,7 +10,7 @@ export const useCurrentPool = () => {
       currentPoolAddress: state.currentPool.currentPoolAddress,
       drA: state.currentPool.drA,
       drB: state.currentPool.drB,
-      drC: state.currentPool.drC,
+      drC: state.currentPool.drC
     }
   })
   const dispatch = useDispatch()
@@ -24,9 +24,11 @@ export const useCurrentPool = () => {
   }
 
   return {
-    drA, drB, drC,
-    currentPool: pools[currentPoolAddress] || {},
+    drA,
+    drB,
+    drC,
+    currentPool: pools && pools[currentPoolAddress] ? pools[currentPoolAddress] : {},
     setCurrentPoolAddress,
-    setDr,
+    setDr
   }
 }

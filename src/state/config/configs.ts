@@ -73,5 +73,44 @@ export default {
       '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
       '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1'
     ]
+  },
+  [CHAINS.BASE]: {
+    rpcUrl: 'https://mainnet.base.org',
+    rpcToGetLogs: 'https://mainnet.base.org',
+    explorer: 'https://basescan.org',
+    scanApi: 'https://api.basescan.org/api',
+    candleChartApi: 'https://api.derivable.org/56/chart/',
+    theGraphExchange: 'https://api.thegraph.com/subgraphs/name/sushi-v2/sushiswap-arbitrum',
+    theGraphArbitrum: 'https://api.thegraph.com/subgraphs/name/messari/uniswap-v3-arbitrum',
+    scanName: 'Arbitrum Scan',
+    ddlGenesisBlock: 70615018,
+    timePerBlock: 1000,
+    nativeToken: {
+      name: 'ETH',
+      symbol: 'ETH',
+      decimal: 18,
+      address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+    },
+    addresses: {
+      nativeToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+      reserveTokenPrice: '0x0772BD1981f6092329F12FC041B83b2faBBB1A25',
+      uniswapFactory: '0x33128a8fC17869897dcE68Ed026d694621f6FDfD',
+      token: '0x2257157D2473A27c46DB6Cd25e36010D41cA36f1',
+      stateCalHelper: '0xC6a8ABdCd1dCA7EF4727C50259F9dD4562B341F3',
+      multiCall: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      pairsInfo: '0x81C8f6bC2a602B9Ad403116ab4c0EC1a0e5B49B1',
+      pairsV3Info: '0x81C8f6bC2a602B9Ad403116ab4c0EC1a0e5B49B1',
+      bnA: '0x357FF35761979254F93a21995b20d9071904603d',
+      tokensInfo: '0x696630d3aE600147902c71bF967ec3eb7a2C8b44',
+      router: '0xb29647dd03F9De2a9Fe9e32DF431dA5015c60353',
+      poolFactory: '0x3B202cef7108C2b13dDbEfDCd9d3df9FBafa5c7b',
+      logic: '0x44B364Ce68381138d271D58e639C5AC41e770F25',
+      wrapToken: '0x4200000000000000000000000000000000000006',
+      wrapUsdPair: '0x0000000000000000000000000000000000000000'
+    },
+    stableCoins: [
+      '0xd9aaec86b65d86f6a7b5b1b0c42ffa531710b6ca',
+      '0x50c5725949a6f0c72e6c4a641f24049a917db0cb'
+    ]
   }
 }

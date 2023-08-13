@@ -7,6 +7,7 @@ import { useConfigs } from '../../config/useConfigs'
 import { isAddress } from 'ethers/lib/utils'
 import { NATIVE_ADDRESS } from '../../../utils/constant'
 import _ from 'lodash'
+import { bn } from '../../../utils/helpers'
 
 export const useTokenPrice = () => {
   const { chainId } = useConfigs()
@@ -47,6 +48,17 @@ export const useFetchTokenPrice = () => {
             prices: data,
             chainId
           }))
+        })
+        .catch((e) => {
+          console.error(e)
+          const data = {}
+          tokenAddress.map((a: string) => {
+            data[a] = bn('0x02d198f44116169890a410')
+          })
+          addTokenPriceWithChain({
+            prices: data,
+            chainId
+          })
         })
     }
   }

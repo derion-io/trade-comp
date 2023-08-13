@@ -16,6 +16,10 @@ export const SelectPoolGroup = () => {
   const wrapperRef = useRef(null)
   useOutsideAlerter(wrapperRef, () => setActive(false))
 
+  if (!poolGroups || Object.values(poolGroups).length === 0) {
+    return <div/>
+  }
+
   return <div
     onClick={() => {
       setActive(!active)

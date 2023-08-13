@@ -59,6 +59,8 @@ export const useInitConfig = ({
     if (!account) {
       console.log('=======await sync account========')
     }
+
+    console.log('chainId', chainId)
     const engine = new Engine(
       account || ZERO_ADDRESS,
       {
@@ -75,6 +77,7 @@ export const useInitConfig = ({
       },
       chainId
     )
+    console.log('engine', engine)
     dispatch(setEngine({ engine }))
   }, [library, account, chainId, currentScanApiKey])
 }

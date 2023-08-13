@@ -63,8 +63,8 @@ const Component = ({
   const timeRangeRef = useRef<any>()
   const [currentChart, setCurrentChart] = useState<string>('')
   const { poolGroups } = useResource()
-  const baseToken = poolGroups[id]?.baseToken
-  const quoteToken = poolGroups[id]?.quoteToken
+  const baseToken = poolGroups ? poolGroups[id]?.baseToken : ''
+  const quoteToken = poolGroups ? poolGroups[id]?.quoteToken : ''
   const cToken = id
 
   useEffect(() => {

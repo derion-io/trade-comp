@@ -8,7 +8,8 @@ export const LP_PRICE_UNIT = 10000
 export const TIME_TO_REFRESH_STATE = 30000
 export const CHAINS = {
   GANACHE: 1337,
-  ARBITRUM: 42161
+  ARBITRUM: 42161,
+  BASE: 8453
 }
 export const DEFAULT_CHAIN = CHAINS.ARBITRUM
 

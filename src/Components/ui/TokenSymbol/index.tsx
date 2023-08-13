@@ -14,6 +14,7 @@ export const TokenSymbol = ({ token, textWrap }: { token: string, textWrap?: any
   const { wrapToNativeAddress } = useHelper()
 
   const result = useMemo(() => {
+    if (!pools) return ''
     const symbol = tokens[token]?.symbol
     if (isErc1155Address(token)) {
       const { address: poolAddress, id } = decodeErc1155Address(token)
@@ -23,16 +24,16 @@ export const TokenSymbol = ({ token, textWrap }: { token: string, textWrap?: any
       }
 
       const TextComp = textWrap || (
-        Number(id) === POOL_IDS.C ? TextBlue :
-        Number(id) === POOL_IDS.A ? TextBuy :
-        Number(id) === POOL_IDS.B ? TextSell :
-        Text
+        Number(id) === POOL_IDS.C ? TextBlue
+          : Number(id) === POOL_IDS.A ? TextBuy
+            : Number(id) === POOL_IDS.B ? TextSell
+              : Text
       )
 
       const side =
-        Number(id) === POOL_IDS.A ? 'Long' :
-        Number(id) === POOL_IDS.B ? 'Short' :
-        'Liquidity'
+        Number(id) === POOL_IDS.A ? 'Long'
+          : Number(id) === POOL_IDS.B ? 'Short'
+            : 'Liquidity'
       const power = getTokenPower(pool.TOKEN_R, baseToken, Number(id), pool?.k.toNumber())
       const base = tokens[wrapToNativeAddress(baseToken)]?.symbol
       const quote = tokens[wrapToNativeAddress(quoteToken)]?.symbol

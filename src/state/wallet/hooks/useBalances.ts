@@ -107,7 +107,7 @@ export const useWalletBalance = () => {
   }
 
   const fetchBalanceAndAllowance = async (tokensArr: string[]) => {
-    if (!ddlEngine) return
+    if (!ddlEngine || tokensArr.length <= 1) return
     const { balances, allowances, maturity: maturities } = await ddlEngine.BNA.getBalanceAndAllowance({
       tokens: tokensArr
     })

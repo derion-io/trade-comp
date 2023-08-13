@@ -98,11 +98,11 @@ export const Trade = ({ tab }: {
             setOutputTokenAddress(pool + '-' + POOL_IDS.C)
           }
         }
-      } else if (Object.keys(poolGroups)[0] && !id) {
+      } else if (Object.keys(poolGroups)[0]) {
         updateCurrentPoolGroup(Object.keys(poolGroups)[0])
       }
     }
-  }, [chainId, poolGroups])
+  }, [chainId, JSON.stringify(Object.keys(poolGroups))])
 
   return (
     <div className='exposure-page'>

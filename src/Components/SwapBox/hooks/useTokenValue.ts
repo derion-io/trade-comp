@@ -30,6 +30,7 @@ export const useTokenValue = ({
   const getTokenValue = (_tokenAddress: string, _amount: string) => {
     let value = '0'
     const address = convertNativeAddressToWrapAddress(_tokenAddress)
+    if (!prices || !pools) return value
 
     if (isErc1155Address(address)) {
       const { address: poolAddress, id } = decodeErc1155Address(address)

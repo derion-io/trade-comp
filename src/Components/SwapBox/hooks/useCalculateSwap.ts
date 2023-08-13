@@ -55,6 +55,17 @@ export const useCalculateSwap = ({
       setCallError('Calculating...')
     }
     setLoading(true)
+
+    console.log([{
+      tokenIn: inputTokenAddress,
+      tokenOut: outputTokenAddress,
+      amountIn: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18)),
+      useSweep: !!(tokenOutMaturity?.gt(0) && balances[outputTokenAddress] && isErc1155Address(outputTokenAddress)),
+      currentBalanceOut: balances[outputTokenAddress],
+      // TODO: need to update index_R dynamic
+      index_R: bn(0)
+    }])
+
     // @ts-ignore
     ddlEngine.SWAP.calculateAmountOuts([{
       tokenIn: inputTokenAddress,
@@ -63,12 +74,7 @@ export const useCalculateSwap = ({
       useSweep: !!(tokenOutMaturity?.gt(0) && balances[outputTokenAddress] && isErc1155Address(outputTokenAddress)),
       currentBalanceOut: balances[outputTokenAddress],
       // TODO: need to update index_R dynamic
-      index_R: bn(ethers.utils.hexZeroPad(
-        bn(1).shl(255)
-          .add('0xC31E54c7a869B9FcBEcc14363CF510d1c41fa443')
-          .toHexString(),
-        32
-      ))
+      index_R: bn(0)
     }]).then((res: any) => {
       const [aOuts, gasLeft] = res
       setAmountOutWei(aOuts[0]?.amountOut || bn(0))

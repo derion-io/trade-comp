@@ -32,7 +32,7 @@ export const App = () => {
   useEffect(() => {
     try {
       setTimeout(() => {
-        if (ddlEngine?.CURRENT_POOL && poolGroups[id]) {
+        if (ddlEngine?.CURRENT_POOL && poolGroups && poolGroups[id]) {
           // @ts-ignore
           ddlEngine.setCurrentPool({
             ...poolGroups[id]
@@ -65,12 +65,8 @@ export const App = () => {
   }, [tokens, account])
 
   const renderAppContent = () => {
-    switch (true) {
-      case isMatchWithPath('/:tab(long|short|liquidity|swap)/:pool?'):
-        return <Trade tab={detectTradeTab(location.pathname)} />
-      default:
-        return <Trade tab={TRADE_TYPE.LONG} />
-    }
+    if (!poolGroups) return ''
+    return <Trade tab={detectTradeTab(location.pathname)} />
   }
 
   // const detectLiquidityTab = (path: string) => {
@@ -93,13 +89,13 @@ export const App = () => {
     return TRADE_TYPE.LONG
   }
 
-  const isMatchWithPath = (path: string) => {
-    return !!matchPath(location.pathname, {
-      path,
-      exact: true,
-      strict: false
-    })
-  }
+  // const isMatchWithPath = (path: string) => {
+  //   return !!matchPath(location.pathname, {
+  //     path,
+  //     exact: true,
+  //     strict: false
+  //   })
+  // }
 
   return (
     <div className='exposure-interface app'>

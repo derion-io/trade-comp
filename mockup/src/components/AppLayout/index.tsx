@@ -60,6 +60,11 @@ export const AppLayout = (props: any) => {
     return
   }, [activate, active, error])
 
+  useEffect(() => {
+    if(chainId) {
+      setChainIdToDisPlay(chainId)
+    }
+  }, [chainId])
 
   useEffect(() => {
     if (!!account && !!library) {
