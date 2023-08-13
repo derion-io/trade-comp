@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from 'react'
 import './style.scss'
 import 'react-toastify/dist/ReactToastify.css'
-import { matchPath } from 'react-router-dom'
 import { useListTokens } from '../../state/token/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useWeb3React } from '../../state/customWeb3React/hook'
@@ -14,6 +13,7 @@ import { useSwapHistoryFormated } from '../../state/wallet/hooks/useSwapHistory'
 import { Trade } from '../../pages/Trade'
 import { useFetchTokenPrice } from '../../state/resources/hooks/useTokenPrice'
 import { useFetchFeeData } from '../../state/resources/hooks/useFeeData'
+import { PageLoadingIndicator } from '../PageLoadingIndicator'
 
 export const App = () => {
   const { id } = useCurrentPoolGroup()
@@ -65,7 +65,7 @@ export const App = () => {
   }, [tokens, account])
 
   const renderAppContent = () => {
-    if (!poolGroups) return ''
+    if (!poolGroups) return <PageLoadingIndicator />
     return <Trade tab={detectTradeTab(location.pathname)} />
   }
 

@@ -33,5 +33,5 @@ export const InitConfig = ({
   if (initialledConfig) {
     return <Fragment>{children}</Fragment>
   }
-  return <div>loading</div>
+  return <div />
 }
