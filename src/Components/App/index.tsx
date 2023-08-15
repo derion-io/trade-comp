@@ -65,7 +65,7 @@ export const App = () => {
   }, [tokens, account])
 
   const renderAppContent = () => {
-    if (!poolGroups) return <PageLoadingIndicator />
+    if (!poolGroups || Object.keys(poolGroups).length === 0) return <PageLoadingIndicator />
     return <Trade tab={detectTradeTab(location.pathname)} />
   }
 
