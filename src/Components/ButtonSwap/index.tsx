@@ -49,7 +49,7 @@ export const ButtonSwap = ({
   const [visibleApproveModal, setVisibleApproveModal] = useState<boolean>(false)
   const { account, showConnectModal } = useWeb3React()
   const { balances, fetchBalanceAndAllowance, routerAllowances } = useWalletBalance()
-  const { ddlEngine } = useConfigs()
+  const { ddlEngine, configs } = useConfigs()
   const { settings: { slippage, minPayoffRate } } = useSettings()
   const { chainId } = useWeb3React()
 
@@ -97,7 +97,12 @@ export const ButtonSwap = ({
                   useSweep: !!(tokenOutMaturity?.gt(0) && balances[outputTokenAddress] && isErc1155Address(outputTokenAddress)),
                   currentBalanceOut: balances[outputTokenAddress],
                   // TODO: need to update index_R dynamic
-                  index_R: bn(0)
+                  index_R: bn(ethers.utils.hexZeroPad(
+                    bn(1).shl(255)
+                      .add(configs.addresses.wrapUsdPair)
+                      .toHexString(),
+                    32
+                  ))
                 }],
                 gasUsed && gasUsed.gt(0) ? gasUsed.mul(2) : undefined
               )

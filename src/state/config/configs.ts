@@ -66,7 +66,7 @@ export default {
       router: '0xbc9a257e43f7b3b1a03aEBE909f15e95A4928834',
       poolFactory: '0xF817EBA38BebD48a58AE38360306ea0E243077cd',
       wrapToken: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
-      wrapUsdPair: '0xCB0E5bFa72bBb4d16AB5aA0c60601c438F04b4ad'
+      wrapUsdPair: '0xC31E54c7a869B9FcBEcc14363CF510d1c41fa443'
     },
     stableCoins: [
       '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
@@ -106,7 +106,7 @@ export default {
       poolFactory: '0x3B202cef7108C2b13dDbEfDCd9d3df9FBafa5c7b',
       logic: '0x44B364Ce68381138d271D58e639C5AC41e770F25',
       wrapToken: '0x4200000000000000000000000000000000000006',
-      wrapUsdPair: '0x0000000000000000000000000000000000000000'
+      wrapUsdPair: '0x4C36388bE6F416A29C8d8Eee81C771cE6bE14B18'
     },
     stableCoins: [
       '0xd9aaec86b65d86f6a7b5b1b0c42ffa531710b6ca',
