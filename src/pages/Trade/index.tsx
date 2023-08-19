@@ -33,8 +33,9 @@ const TAB_INDEX_TO_PATH = {
 
 const SIMULATE_URL = 'https://1.com'
 
-export const Trade = ({ tab }: {
+export const Trade = ({ tab, loadingData }: {
   tab: TRADE_TYPE
+  loadingData: boolean
 }) => {
   const { chainId, useHistory, ddlEngine } = useConfigs()
   const history = useHistory()
@@ -105,7 +106,7 @@ export const Trade = ({ tab }: {
   }, [chainId, JSON.stringify(Object.keys(poolGroups))])
 
   return (
-    <div className='exposure-page'>
+    <div className={`exposure-page ${loadingData && 'blur-2'}`}>
       <div className='exposure-page__content'>
         {/* <div className='exposure-page__content--left'> */}
         <Chart changedIn24h={changedIn24h} />

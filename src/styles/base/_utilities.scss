@@ -245,6 +245,10 @@
   }
 }
 
+.blur-2 {
+  filter: blur(2px);
+}
+
 @keyframes loading {
   0% {
     transform: translateX(-100%);

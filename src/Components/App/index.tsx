@@ -64,11 +64,6 @@ export const App = () => {
     }
   }, [tokens, account])
 
-  const renderAppContent = () => {
-    if (!poolGroups || Object.keys(poolGroups).length === 0) return <PageLoadingIndicator />
-    return <Trade tab={detectTradeTab(location.pathname)} />
-  }
-
   // const detectLiquidityTab = (path: string) => {
   //   if (path.includes('add-liquidity')) {
   //     return LIQUIDITY_TAB.ADD
@@ -100,7 +95,12 @@ export const App = () => {
   return (
     <div className='exposure-interface app'>
       <input type='hidden' value={chainId} ref={chainIdRef} />
-      {renderAppContent()}
+      {
+        !poolGroups || Object.keys(poolGroups).length === 0
+          ? <PageLoadingIndicator />
+          : ''
+      }
+      <Trade tab={detectTradeTab(location.pathname)} loadingData={!poolGroups || Object.keys(poolGroups).length === 0} />
       <ToastContainer
         position='top-right'
         autoClose={5000}
