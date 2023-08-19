@@ -106,7 +106,7 @@ export const Trade = ({ tab, loadingData }: {
   }, [chainId, JSON.stringify(Object.keys(poolGroups))])
 
   return (
-    <div className={`exposure-page ${loadingData && 'blur-2'}`}>
+    <div className={`exposure-page ${loadingData && 'blur-3'}`}>
       <div className='exposure-page__content'>
         {/* <div className='exposure-page__content--left'> */}
         <Chart changedIn24h={changedIn24h} />
