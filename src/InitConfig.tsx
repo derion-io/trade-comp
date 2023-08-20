@@ -20,8 +20,9 @@ export const InitConfig = ({
   const { initialledConfig } = useConfigs()
   const { chainId, library, account } = useWeb3React()
   useInitWeb3React(useWeb3React, showConnectWalletModal)
+  console.log(chainId && configs[chainId] ? chainId : chainIdNotConnect || DEFAULT_CHAIN)
   useInitConfig({
-    chainId: chainId && configs[chainId] ? chainId : DEFAULT_CHAIN,
+    chainId: chainId && configs[chainId] ? chainId : chainIdNotConnect || DEFAULT_CHAIN,
     library,
     env,
     language,

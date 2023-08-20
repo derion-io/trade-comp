@@ -22,7 +22,7 @@ export const AppLayout = (props: any) => {
   const [visibleUserWalletModal, setVisibleUserWalletModal] = useState<any>()
   const location = useLocation()
   const { configs, Component } = props
-  const [chainIdToDisPlay, setChainIdToDisPlay] = useState<number>(1337);
+  const [chainIdToDisPlay, setChainIdToDisPlay] = useState<number>(8453);
 
   useEffect(() => {
     const initConnector = localStorage.getItem(LS_CONNECTOR)
@@ -88,8 +88,7 @@ export const AppLayout = (props: any) => {
         <select name="" id="select-chain" value={chainIdToDisPlay} onChange={(e) => {
           setChainIdToDisPlay(Number(e.target.value))
         }}>
-          <option value="1337">ganache</option>
-          <option value="56">BSC</option>
+          <option value="8453">Base</option>
           <option value="42161">Arbitrum</option>
         </select>
       </div>
