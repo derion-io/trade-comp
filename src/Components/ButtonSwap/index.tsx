@@ -12,6 +12,7 @@ import { CHAINS, TRADE_TYPE } from '../../utils/constant'
 import { TextError } from '../ui/Text'
 import { useSettings } from '../../state/setting/hooks/useSettings'
 import { ApproveUtrModal } from '../ApproveUtrModal'
+import { useResource } from '../../state/resources/hooks/useResource'
 
 export const ButtonSwap = ({
   inputTokenAddress,
@@ -52,6 +53,7 @@ export const ButtonSwap = ({
   const { ddlEngine, configs } = useConfigs()
   const { settings: { slippage, minPayoffRate } } = useSettings()
   const { chainId } = useWeb3React()
+  const { initResource } = useResource()
 
   const { updateSwapTxsHandle } = useSwapHistory()
 
@@ -107,8 +109,9 @@ export const ButtonSwap = ({
                 gasUsed && gasUsed.gt(0) ? gasUsed.mul(2) : undefined
               )
               const swapLogs = ddlEngine.RESOURCE.parseDdlLogs(tx && tx?.logs ? tx.logs : [])
-              updateSwapTxsHandle(account, swapLogs.filter((l: any) => l.transactionHash))
+              updateSwapTxsHandle(account, swapLogs.filter((l: any) => l.transactionHash && l.args?.name === 'Swap'))
               await fetchBalanceAndAllowance(Object.keys(tokens))
+              await initResource(account)
             }
             setLoading(false)
 
