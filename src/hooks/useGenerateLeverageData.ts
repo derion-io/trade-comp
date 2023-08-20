@@ -9,8 +9,6 @@ import { SORT_POOL_BY } from '../state/setting/type'
 
 export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
   const { pools } = useCurrentPoolGroup()
-  const { tokens } = useListTokens()
-  const { getTokenValue } = useTokenValue({})
   const { settings: { minLiquidityShare, maxDeleverageRisk, maxInterestRate, sortPoolBy } } = useSettings()
 
   return useMemo(() => {
@@ -19,7 +17,7 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
       const sumR = Object.values(pools).reduce((sumR, pool) => {
         return sumR = sumR.add(pool.states.R)
       }, bn(0))
-      const minR = sumR.mul(Math.round(minLiquidityShare * 1000)).div(100*1000)
+      const minR = sumR.mul(Math.round(minLiquidityShare * 1000)).div(100 * 1000)
 
       Object.values(pools).forEach((pool) => {
         let deleverageRisk = tradeType === TRADE_TYPE.LONG
@@ -57,6 +55,8 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
                 color,
                 // opacity,
                 dailyInterestRate: pool.dailyInterestRate,
+                premium: pool.premium,
+                maxPremiumRate: pool.maxPremiumRate,
                 deleverageRisk
               }
             ]
@@ -70,6 +70,8 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
             color,
             opacity: transparency,
             dailyInterestRate: pool.dailyInterestRate,
+            premium: pool.premium,
+            maxPremiumRate: pool.maxPremiumRate,
             deleverageRisk
           })
           result[power].bars = bars

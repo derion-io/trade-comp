@@ -12,14 +12,16 @@ import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../state/token/hook'
 import {
   bn,
-  decodeErc1155Address, div,
-  formatFloat, formatPercent,
+  decodeErc1155Address,
+  div,
+  formatFloat,
+  formatPercent,
   formatZeroDecimal,
   getTitleBuyTradeType,
   isErc1155Address,
   kx,
-  xr,
   weiToNumber,
+  xr
 } from '../../utils/helpers'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { MIN_POSITON_VALUE_TO_DISPLAY, NATIVE_ADDRESS, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
@@ -150,7 +152,7 @@ const Component = ({
 
   const { value: valueOutBefore } = useTokenValue({
     amount: weiToNumber(balances[outputTokenAddress], tokens[outputTokenAddress]?.decimal || 18),
-    tokenAddress: outputTokenAddress,
+    tokenAddress: outputTokenAddress
   })
 
   const payoffRate = useMemo(() => {
@@ -209,7 +211,7 @@ const Component = ({
     }
   }, [pools, inputTokenAddress, outputTokenAddress, tokenTypeToSelect, configs])
 
-  const [ poolToShow, sideToShow ] = useMemo(() => {
+  const [poolToShow, sideToShow] = useMemo(() => {
     if (isErc1155Address(outputTokenAddress)) {
       const { address, id } = decodeErc1155Address(outputTokenAddress)
       return [pools[address], Number(id)]
@@ -217,7 +219,7 @@ const Component = ({
       const { address, id } = decodeErc1155Address(inputTokenAddress)
       return [pools[address], Number(id)]
     }
-    return [ null, null ]
+    return [null, null]
   }, [pools, inputTokenAddress, outputTokenAddress])
 
   // TODO: kA, kB, xA, xB can be calculated in derivable-tools for each pool
@@ -233,15 +235,15 @@ const Component = ({
     const ek = sideToShow === POOL_IDS.A ? kA : sideToShow === POOL_IDS.B ? kB : k
 
     if (ek < k) {
-      const power = (ek / 2).toLocaleString('fullwide', { maximumSignificantDigits: 2})
+      const power = (ek / 2).toLocaleString('fullwide', { maximumSignificantDigits: 2 })
       return [
         'Effective Leverage',
-        ek < k / 2 ? <TextError>{power}</TextError> : <TextWarning>{power}</TextWarning>,
+        ek < k / 2 ? <TextError>{power}</TextError> : <TextWarning>{power}</TextWarning>
       ]
     }
 
     const decimalsOffset = (tokens?.[baseToken]?.decimal ?? 18) - (tokens?.[quoteToken]?.decimal ?? 18)
-    const mark = MARK ? MARK.mul(MARK).mul((bn(10).pow(decimalsOffset+12))).shr(256).toNumber() / 1000000000000 : 1
+    const mark = MARK ? MARK.mul(MARK).mul((bn(10).pow(decimalsOffset + 12))).shr(256).toNumber() / 1000000000000 : 1
 
     const xA = xr(k, R.shr(1), a)
     const xB = xr(-k, R.shr(1), b)
@@ -270,6 +272,14 @@ const Component = ({
     amount: weiToNumber(poolToShow?.states?.R, tokens[poolToShow?.TOKEN_R]?.decimals),
     tokenAddress: poolToShow?.TOKEN_R
   })
+
+  const [maxFundingRate, fundingRate, fundingField] = useMemo(() => {
+    const _interest = ((poolToShow?.dailyInterestRate ?? 0) / power / 2)
+    const _maxFundingRate = _interest + Number(poolToShow?.maxPremiumRate ?? 0)
+    const _fundingRate = _interest + Number(poolToShow?.premium[tradeType === TRADE_TYPE.LONG ? 'A' : tradeType === TRADE_TYPE.SHORT ? 'B' : 'C'] ?? 0)
+    const _yield = _interest - Number(poolToShow?.premium?.C ?? 0)
+    return [_maxFundingRate, _fundingRate, _yield]
+  }, [poolToShow])
 
   return (
     <div className='long-short-box'>
@@ -441,12 +451,38 @@ const Component = ({
             <Text>${formatLocalisedCompactNumber(formatFloat(liquidity, 2))}</Text>
           </SkeletonLoader>
         </InfoRow>
-        <InfoRow>
-          <TextGrey>Daily Interest Rate</TextGrey>
-          <SkeletonLoader loading={!poolToShow}>
-            {formatPercent((poolToShow?.dailyInterestRate ?? 0) / power / 2, 3, true)}%
-          </SkeletonLoader>
-        </InfoRow>
+        {/* <InfoRow> */}
+        {/*  <TextGrey>Daily Interest Rate</TextGrey> */}
+        {/*  <SkeletonLoader loading={!poolToShow}> */}
+        {/*    {formatPercent((poolToShow?.dailyInterestRate ?? 0) / power / 2, 3, true)}% */}
+        {/*  </SkeletonLoader> */}
+        {/* </InfoRow> */}
+
+        {
+          tradeType === TRADE_TYPE.LIQUIDITY
+            ? <InfoRow>
+              <TextGrey>Yield</TextGrey>
+              <SkeletonLoader loading={!poolToShow}>
+                {formatPercent(fundingField, 3, true)}%
+              </SkeletonLoader>
+            </InfoRow>
+            : <React.Fragment>
+              <InfoRow>
+                <TextGrey>Max Funding Rate</TextGrey>
+                <SkeletonLoader loading={!poolToShow}>
+                  {formatPercent(maxFundingRate, 3, true)}%
+                </SkeletonLoader>
+              </InfoRow>
+
+              <InfoRow>
+                <TextGrey>Funding Rate</TextGrey>
+                <SkeletonLoader loading={!poolToShow}>
+                  <Text className={fundingRate < 0 ? 'text-buy' : ''}>{formatPercent(fundingRate, 3, true)}%</Text>
+                </SkeletonLoader>
+              </InfoRow>
+            </React.Fragment>
+        }
+
         <InfoRow>
           <TextGrey>{leverageKey ?? 'Leverage'}</TextGrey>
           <SkeletonLoader loading={!poolToShow || !leverageValue}>
