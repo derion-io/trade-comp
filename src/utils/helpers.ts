@@ -62,8 +62,12 @@ export function overrideContract(provider: any, deployedBytecode: string) {
   return address
 }
 
+const CALL_REVERT_REGEX = /reason string "(.*?)"/gm
+
 export const parseCallStaticError = (error: any) => {
-  return error?.message ?? _extractErrorReason(error)?.reason ?? 'ERROR'
+  const reason = error?.message ?? _extractErrorReason(error)?.reason ?? 'ERROR'
+  const matches = Array.from(reason.matchAll(CALL_REVERT_REGEX), (m: string[]) => m[1])
+  return matches?.[0] ?? reason
 }
 
 function _extractErrorReason(err: any) {
