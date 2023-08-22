@@ -165,7 +165,12 @@ export const AddLiquidityBox = ({ totalSupplyCP }: {totalSupplyCP: BigNumber}) =
           <Text
             className='amount-input-box__head--balance cursor-pointer'
             onClick={() => {
-              setAmountIn(weiToNumber(balances[tokenAdd], tokens[tokenAdd]?.decimal || 18))
+              const balance = weiToNumber(balances[tokenAdd], tokens[tokenAdd]?.decimal || 18)
+              if (balance == amountIn) {
+                setAmountIn('')
+              } else {
+                setAmountIn(balance)
+              }
             }}
           >Balance: {balances && balances[tokenAdd]
               ? formatWeiToDisplayNumber(

@@ -129,7 +129,12 @@ const Component = ({
             <Text
               className='amount-input-box__head--balance'
               onClick={() => {
-                setAmountIn(weiToNumber(balances[inputTokenAddress], tokens[inputTokenAddress]?.decimal || 18))
+                const balance = weiToNumber(balances[inputTokenAddress], tokens[inputTokenAddress]?.decimal || 18)
+                if (amountIn == balance) {
+                  setAmountIn('')
+                } else {
+                  setAmountIn(balance)
+                }
               }}
             >Balance: {balances && balances[inputTokenAddress] ?
                 formatWeiToDisplayNumber(
@@ -144,7 +149,7 @@ const Component = ({
             <Text
               className='amount-input-box__head--balance'
               onClick={() => {
-                setValueInput(valueBalance)
+                setValueInput(valueBalance == valueIn ? '' : valueBalance)
               }}
             >{power > 1 ? 'Size:' : 'Value:'} ${formatLocalisedCompactNumber(formatFloat(valueBalance ?? 0))}
             </Text>

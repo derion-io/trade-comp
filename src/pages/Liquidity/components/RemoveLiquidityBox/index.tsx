@@ -194,8 +194,14 @@ export const RemoveLiquidityBox = ({ totalSupplyCP }: { totalSupplyCP: BigNumber
           <Text
             className='amount-input-box__head--balance cursor-pointer'
             onClick={() => {
-              setAmountIn(weiToNumber(balances[cpAddress], tokens[cpAddress]?.decimal || 18))
-              setPercent(100)
+              const balance = weiToNumber(balances[cpAddress], tokens[cpAddress]?.decimal || 18)
+              if (balance == amountIn) {
+                setAmountIn('')
+                setPercent(0)
+              } else {
+                setAmountIn(balance)
+                setPercent(100)
+              }
             }}
           >Balance: {balances && balances[cpAddress]
               ? formatWeiToDisplayNumber(
