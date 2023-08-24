@@ -49,6 +49,7 @@ const Component = ({
   const { tokens } = useListTokens()
   const { callError, gasUsed, amountOut } = useCalculateSwap({
     amountIn,
+    setAmountIn,
     inputTokenAddress,
     outputTokenAddress,
     tokenOutMaturity

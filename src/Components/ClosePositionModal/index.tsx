@@ -84,6 +84,7 @@ const Component = ({
 
   const { callError, gasUsed, amountOut, loading } = useCalculateSwap({
     amountIn,
+    setAmountIn,
     inputTokenAddress,
     outputTokenAddress,
     tokenOutMaturity

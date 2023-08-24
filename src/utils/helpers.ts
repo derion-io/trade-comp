@@ -66,6 +66,9 @@ const CALL_REVERT_REGEX = /reason string "(.*?)"/gm
 
 export const parseCallStaticError = (error: any) => {
   const reason = error?.message ?? _extractErrorReason(error)?.reason ?? 'ERROR'
+  if (reason.includes('SERVER_ERROR')) {
+    return 'SERVER_ERROR'
+  }
   const matches = Array.from(reason.matchAll(CALL_REVERT_REGEX), (m: string[]) => m[1])
   return matches?.[0] ?? reason
 }
@@ -298,7 +301,7 @@ export const formatZeroDecimal = (value: number, minZeroDecimal: number = 5): st
 
 export const xr = (k: number, r: BigNumber, v: BigNumber): number => {
   const x = r.mul(1000000000000).div(v).toNumber() / 1000000000000
-  return Math.pow(x, 1/k)
+  return Math.pow(x, 1 / k)
 }
 
 export const kx = (k: number, R: BigNumber, v: BigNumber, spot: BigNumber, MARK: BigNumber): number => {
