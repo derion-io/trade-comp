@@ -355,7 +355,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                     }
                   </td>
                   {
-                    [POOL_IDS.A, POOL_IDS.B].includes(position.side) && <td><Text className={position.fundingRatePerYeild < 0 ? 'text-buy' : ''}>{formatFloat(position.fundingRatePerYeild, 3)}</Text></td>
+                    [TRADE_TYPE.LONG, TRADE_TYPE.SHORT].includes(tradeType) && <td><Text className={position.fundingRatePerYeild < 0 ? 'text-buy' : ''}>{formatFloat(position.fundingRatePerYeild, 3)}</Text></td>
                   }
                   <td><ClosingFee now={now} position={position}/></td>
                   {/* <td><Reserve pool={position.pool}/></td> */}
