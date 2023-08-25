@@ -24,6 +24,7 @@ export const ButtonSwap = ({
   callback,
   tradeType,
   loadingAmountOut,
+  payloadAmountIn,
   isSwap,
   isClose,
   title,
@@ -35,6 +36,7 @@ export const ButtonSwap = ({
   amountIn: string
   amountOut: string
   callError: string
+  payloadAmountIn?: BigNumber
   gasUsed: BigNumber
   callback?: any
   loadingAmountOut?: boolean
@@ -90,12 +92,17 @@ export const ButtonSwap = ({
             setLoading(true)
             if (ddlEngine) {
               const amountOutMin = numberToWei(div(mul(amountOut, 100 - slippage), 100), tokens[outputTokenAddress]?.decimals || 18)
+              console.log({
+                amountIn: numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18),
+                payloadAmountIn: payloadAmountIn?.toString()
+              })
               const tx: any = await ddlEngine.SWAP.multiSwap(
                 [{
                   tokenIn: inputTokenAddress,
                   tokenOut: outputTokenAddress,
                   amountIn: bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18)),
                   amountOutMin,
+                  payloadAmountIn,
                   useSweep: !!(tokenOutMaturity?.gt(0) && balances[outputTokenAddress] && isErc1155Address(outputTokenAddress)),
                   currentBalanceOut: balances[outputTokenAddress],
                   // TODO: need to update index_R dynamic

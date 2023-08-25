@@ -110,7 +110,7 @@ const Component = ({
     }
   }, [amountIn, tradeType])
 
-  const { callError, loading, gasUsed, amountOut } = useCalculateSwap({
+  const { callError, loading, gasUsed, amountOut, payloadAmountIn } = useCalculateSwap({
     amountIn,
     setAmountIn,
     inputTokenAddress,
@@ -555,6 +555,7 @@ const Component = ({
           inputTokenAddress={inputTokenAddress}
           outputTokenAddress={outputTokenAddress}
           amountIn={amountIn}
+          payloadAmountIn={payloadAmountIn}
           amountOut={amountOut}
           callError={callError}
           gasUsed={gasUsed}

@@ -23,7 +23,7 @@ export const useCalculateSwap = ({
   const { tokens } = useListTokens()
   const [callError, setCallError] = useState<string>('')
   const [amountOut, setAmountOut] = useState<string>('')
-  const [amountInExecute, setAmountInExecute] = useState<BigNumber>(bn(0))
+  const [payloadAmountIn, setPayloadAmountIn] = useState<BigNumber>()
   const [txFee, setTxFee] = useState<BigNumber>(bn(0))
   const [gasUsed, setGasUsed] = useState<BigNumber>(bn(0))
   const [amountOutWei, setAmountOutWei] = useState<BigNumber>(bn(0))
@@ -64,17 +64,18 @@ export const useCalculateSwap = ({
       if (i > ITERATION) {
         throw new Error('INSUFFICIENT_PAYMENT')
       }
-      const _amountIn = bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18)).mul(numberToWei(1 - 2 ** (i - ITERATION), 5)).div(100000)
+      const _payloadAmountIn = bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18)).mul(numberToWei(1 - 2 ** (i - ITERATION), 5)).div(100000)
       console.log({
         i,
         inputAmount: numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18),
-        utrAmount: _amountIn.toString()
+        payloadAmount: _payloadAmountIn.toString()
       })
       // @ts-ignore
       const res = await ddlEngine.SWAP.calculateAmountOuts([{
         tokenIn: inputTokenAddress,
         tokenOut: outputTokenAddress,
-        amountIn: bn(_amountIn),
+        amountIn: numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18),
+        payloadAmountIn: _payloadAmountIn,
         useSweep: !!(tokenOutMaturity?.gt(0) && balances[outputTokenAddress] && isErc1155Address(outputTokenAddress)),
         currentBalanceOut: balances[outputTokenAddress],
         // TODO: need to update index_R dynamic
@@ -88,13 +89,13 @@ export const useCalculateSwap = ({
       console.log('calculate amountOut response', res)
       const [aOuts, gasLeft] = res
       setAmountOutWei(aOuts[0]?.amountOut || bn(0))
+      setPayloadAmountIn(_payloadAmountIn)
       setAmountOut(weiToNumber(aOuts[0]?.amountOut || 0, tokens[outputTokenAddress].decimal || 18))
       // @ts-ignore
       setTxFee(detectTxFee(gasLeft))
       // @ts-ignore
       setGasUsed(gasLeft)
       setCallError('')
-      setAmountIn(weiToNumber(_amountIn, tokens[inputTokenAddress]?.decimal || 18))
     } catch (e) {
       const error = parseCallStaticError(e)
       if (error.includes('INSUFFICIENT_PAYMENT') && i <= ITERATION) {
@@ -104,7 +105,7 @@ export const useCalculateSwap = ({
       setTxFee(bn(0))
       setGasUsed(bn(0))
       setCallError(error ?? e)
-      setAmountInExecute(bn(0))
+      setPayloadAmountIn(undefined)
     }
     setLoading(false)
   }
@@ -119,7 +120,7 @@ export const useCalculateSwap = ({
     txFee,
     gasUsed,
     amountOutWei,
-    amountInExecute,
+    payloadAmountIn,
     amountOut
   }
 }
