@@ -56,7 +56,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
 
   const loadData = () => {
     setIsLoading(true)
-    getLineChartData({ chainId, pair: cToken.toLowerCase(), baseToken, interval })
+    getLineChartData({ pair: cToken.toLowerCase(), baseToken, interval })
       .then((data) => {
         setChartData({
           ...chartData,

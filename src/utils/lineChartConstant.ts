@@ -30,25 +30,6 @@ export const INTERVALS_TAB = [
 
 export const LINE_CHART_CONFIG = {
   [I_1D]: {
-    type: 'pairHourDatas',
-    limit: 24
-  },
-  [I_1W]: {
-    type: 'pairHourDatas',
-    limit: 168
-  },
-  [I_1M]: {
-    type: 'pairHourDatas',
-    limit: 720
-  },
-  [I_6M]: {
-    type: 'pairDayDatas',
-    limit: 180
-  }
-}
-
-export const LINE_CHART_ARBI_CONFIG = {
-  [I_1D]: {
     type: 'hourlySnapshots',
     limit: 24
   },

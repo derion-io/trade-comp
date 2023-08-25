@@ -1,25 +1,9 @@
 import { gql, GraphQLClient } from 'graphql-request'
 import { useConfigs } from '../state/config/useConfigs'
 import { ethers } from 'ethers'
-import { bn, formatFloat, numberToWei, weiToNumber } from '../utils/helpers'
+import { formatFloat } from '../utils/helpers'
 // eslint-disable-next-line no-unused-vars
-import { LINE_CHART_CONFIG, LINE_CHART_ARBI_CONFIG, LineChartIntervalType } from '../utils/lineChartConstant'
-
-type PairHourDataType = {
-  reserve0: string,
-  reserve1: string
-  hourStartUnix: number
-  dayStartUnix: number
-  date: number
-  pair: {
-    token0: {
-      id: string
-    }
-    token1: {
-      id: string
-    }
-  }
-}
+import { LINE_CHART_CONFIG, LineChartIntervalType } from '../utils/lineChartConstant'
 
 type LiquidityPool = {
   hourlySnapshots: Array<HourlySnapshots>,
@@ -62,7 +46,7 @@ type PairDayDataType = {
 export const useExchangeData = () => {
   const { configs } = useConfigs()
 
-  const getArbitrumPairHourData = async ({
+  const getPairHourData = async ({
     interval,
     pair,
     baseToken
@@ -72,11 +56,11 @@ export const useExchangeData = () => {
     baseToken: string
   }) => {
     try {
-      if (!configs.theGraphArbitrum) {
+      if (!configs.theGraphMessari) {
         return []
       }
-      const client = new GraphQLClient(configs.theGraphArbitrum)
-      const query = getQueryArbitrumHourDatas(pair, interval)
+      const client = new GraphQLClient(configs.theGraphMessari)
+      const query = getQueryHourDatas(pair, interval)
       const res: { liquidityPool: LiquidityPool} = await client.request(query)
       const a = res.liquidityPool.hourlySnapshots?.map((item) => {
         const [baseAmount, quoteAmount] = item.pool.inputTokens[0]?.id.toLowerCase() === baseToken.toLowerCase()
@@ -100,47 +84,6 @@ export const useExchangeData = () => {
     }
   }
 
-  const getPairHourData = async ({
-    chainId,
-    interval,
-    pair,
-    baseToken
-  }: {
-    chainId: number,
-    interval: LineChartIntervalType,
-    pair: string
-    baseToken: string
-  }) => {
-    if (chainId === 42161) {
-      return getArbitrumPairHourData({
-        interval,
-        pair,
-        baseToken
-      })
-    }
-    try {
-      if (!configs.theGraphExchange) {
-        return []
-      }
-      const client = new GraphQLClient(configs.theGraphExchange)
-      const query = getQueryHourDatas(pair, interval)
-      const res: { pairHourDatas: PairHourDataType[]} = await client.request(query)
-      return res.pairHourDatas?.map((item) => {
-        const [baseReserve, quoteReserve] = item.pair.token0.id.toLowerCase() === baseToken.toLowerCase()
-          ? [item.reserve0, item.reserve1]
-          : [item.reserve1, item.reserve0]
-        const value = weiToNumber(bn(numberToWei(quoteReserve, 36)).div(numberToWei(baseReserve, 18)))
-        return {
-          time: item.hourStartUnix * 1000,
-          value: Number(formatFloat(value))
-        }
-      }).sort((a, b) => a.time - b.time)
-    } catch (error) {
-      console.error(error)
-      return []
-    }
-  }
-
   const getPairDayData = async ({
     interval,
     pair,
@@ -151,11 +94,11 @@ export const useExchangeData = () => {
     baseToken: string
   }) => {
     try {
-      if (!configs.theGraphArbitrum) {
+      if (!configs.theGraphMessari) {
         return []
       }
-      const client = new GraphQLClient(configs.theGraphArbitrum)
-      const query = getQueryArbitrumDayDatas(pair, interval)
+      const client = new GraphQLClient(configs.theGraphMessari)
+      const query = getQueryDayDatas(pair, interval)
       const res: { liquidityPool: LiquidityPool} = await client.request(query)
       return res.liquidityPool?.dailySnapshots.map((item) => {
         const [baseAmount, quoteAmount] = item.pool.inputTokens[0]?.id.toLowerCase() === baseToken.toLowerCase()
@@ -179,18 +122,16 @@ export const useExchangeData = () => {
   }
 
   const getLineChartData = async ({
-    chainId,
     interval,
     pair,
     baseToken
   }: {
-    chainId: number,
     interval: LineChartIntervalType,
     pair: string
     baseToken: string
   }) => {
-    return LINE_CHART_ARBI_CONFIG[interval].type === 'hourlySnapshots'
-      ? await getPairHourData({ interval, pair, baseToken, chainId })
+    return LINE_CHART_CONFIG[interval].type === 'hourlySnapshots'
+      ? await getPairHourData({ interval, pair, baseToken })
       : await getPairDayData({ interval, pair, baseToken })
   }
 
@@ -199,10 +140,10 @@ export const useExchangeData = () => {
   }
 }
 
-const getQueryArbitrumDayDatas = (pair: string, interval: LineChartIntervalType) => gql`{
+const getQueryDayDatas = (pair: string, interval: LineChartIntervalType) => gql`{
   liquidityPool(id: "${pair}") {
-    ${LINE_CHART_ARBI_CONFIG[interval].type}(
-      first: ${LINE_CHART_ARBI_CONFIG[interval].limit},
+    ${LINE_CHART_CONFIG[interval].type}(
+      first: ${LINE_CHART_CONFIG[interval].limit},
       orderBy: timestamp,
       orderDirection: desc
     ) {
@@ -219,10 +160,10 @@ const getQueryArbitrumDayDatas = (pair: string, interval: LineChartIntervalType)
   }
 `
 
-const getQueryArbitrumHourDatas = (pair: string, interval: LineChartIntervalType) => gql`{
+const getQueryHourDatas = (pair: string, interval: LineChartIntervalType) => gql`{
   liquidityPool(id: "${pair}") {
-    ${LINE_CHART_ARBI_CONFIG[interval].type}(
-      first: ${LINE_CHART_ARBI_CONFIG[interval].limit},
+    ${LINE_CHART_CONFIG[interval].type}(
+      first: ${LINE_CHART_CONFIG[interval].limit},
       orderBy: timestamp,
       orderDirection: desc) {
         hourlyVolumeByTokenAmount
@@ -232,29 +173,6 @@ const getQueryArbitrumHourDatas = (pair: string, interval: LineChartIntervalType
             id,
             decimals
           }
-        }
-      }
-    }
-  }
-`
-
-const getQueryHourDatas = (pair: string, interval: LineChartIntervalType) => gql`{
-    ${LINE_CHART_CONFIG[interval].type}(
-      first: ${LINE_CHART_CONFIG[interval].limit}
-      where: {pair: "${pair}"}
-      orderBy: hourStartUnix
-      orderDirection: desc
-    ) {
-      hourStartUnix,
-      id
-      reserve0
-      reserve1
-      pair {
-        token0 {
-          id
-        }
-        token1 {
-          id
         }
       }
     }

@@ -29,10 +29,10 @@ export default {
       wrapUsdPair: '0x215bfCCF305135AbCAa18b9C0e9738924a53A0E6',
       poolFactory: '0x964fD9F84e0e543648Bd1835A6A3A33DEbC7E0f8',
       stateCalHelper: '0x270bf3040041160e309130d6AF61c1a7aBf2497D',
-      logic: '0xE1550e06C6759b48cD0a6f5851029A30a6Fee735',
+      logic: '0xE1550e06C6759b48cD0a6f5851029A30a6Fee735'
     },
     stableCoins: [
-      '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d',
+      '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d'
     ]
   },
   [CHAINS.ARBITRUM]: {
@@ -41,8 +41,7 @@ export default {
     explorer: 'https://arbiscan.io',
     scanApi: 'https://api.arbiscan.io/api',
     candleChartApi: 'https://api.derivable.org/56/chart/',
-    theGraphExchange: 'https://api.thegraph.com/subgraphs/name/sushi-v2/sushiswap-arbitrum',
-    theGraphArbitrum: 'https://api.thegraph.com/subgraphs/name/messari/uniswap-v3-arbitrum',
+    theGraphMessari: 'https://api.thegraph.com/subgraphs/name/messari/uniswap-v3-arbitrum',
     scanName: 'Arbitrum Scan',
     ddlGenesisBlock: 70615018,
     timePerBlock: 1000,
@@ -80,9 +79,8 @@ export default {
     explorer: 'https://basescan.org',
     scanApi: 'https://api.basescan.org/api',
     candleChartApi: 'https://api.derivable.org/56/chart/',
-    theGraphExchange: 'https://api.thegraph.com/subgraphs/name/sushi-v2/sushiswap-arbitrum',
-    theGraphArbitrum: 'https://api.thegraph.com/subgraphs/name/messari/uniswap-v3-arbitrum',
-    scanName: 'Arbitrum Scan',
+    theGraphMessari: 'https://api.thegraph.com/subgraphs/name/messari/uniswap-v3-base',
+    scanName: 'Base Scan',
     ddlGenesisBlock: 70615018,
     timePerBlock: 1000,
     nativeToken: {
