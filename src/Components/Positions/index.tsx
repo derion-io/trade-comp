@@ -50,7 +50,7 @@ type Position = {
   leverage: number
   effectiveLeverage: number
   deleveragePrice: string
-  fundingRatePerYeild: number,
+  funding: number,
 }
 
 const Q128 = BigNumber.from(1).shl(128)
@@ -143,15 +143,14 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
       const closingFee = pool.MATURITY_RATE.isZero() ? 0
         : Q128.sub(pool.MATURITY_RATE).mul(10000).div(Q128).toNumber() / 10000
 
-      const _interest = ((pool?.dailyInterestRate ?? 0) / k / 2 / 2)
-      const _fundingRate = _interest + Number(pool?.premium[side === POOL_IDS.A ? 'A' : side === POOL_IDS.B ? 'B' : 'C'] ?? 0)
-      const _yield = _interest - Number(pool?.premium?.C ?? 0)
-      const fundingRatePerYeild = _fundingRate / _yield
+      const _interest = ((pool?.dailyInterestRate ?? 0) / k)
+      const funding = side === POOL_IDS.C ?
+        _interest - Number(pool?.premium?.C ?? 0) :
+        _interest + Number(pool?.premium[side === POOL_IDS.A ? 'A' : side === POOL_IDS.B ? 'B' : 'C'] ?? 0)
 
       return {
         poolAddress,
         pool,
-        fundingRatePerYeild,
         token,
         side,
         balance: balances[token],
@@ -164,7 +163,8 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
         closingFee,
         leverage: k / 2,
         effectiveLeverage,
-        deleveragePrice
+        deleveragePrice,
+        funding,
       }
     }
     return null
@@ -253,11 +253,10 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                         : <Text>{position.deleveragePrice}</Text>
                   }
                 </InfoRow>
-                {
-                  [TRADE_TYPE.SHORT, TRADE_TYPE.LONG].includes(tradeType) && <InfoRow>
-                    <Text>Funding</Text>
-                    <Text className={position.fundingRatePerYeild < 0 ? 'text-buy' : ''}>{formatFloat(position.fundingRatePerYeild, 3)}</Text>
-                  </InfoRow>}
+                <InfoRow>
+                  {tradeType == TRADE_TYPE.LIQUIDITY ? <Text>Funding Yield</Text> : <Text>Funding Rate</Text>}
+                  <Text className={position.funding < 0 ? 'text-green' : ''}>{formatPercent(position.funding, 3, true)}%</Text>
+                </InfoRow>
 
                 { !position.matured || position.matured <= now ||
                 <InfoRow>
@@ -296,7 +295,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
               {showSize && <th>Pos. Size</th>}
               <th>Entry Price</th>
               <th>Delev. Price</th>
-              {[TRADE_TYPE.SHORT, TRADE_TYPE.LONG].includes(tradeType) && <th>Funding</th>}
+              <th>Funding</th>
               <th>Closing Fee</th>
               {/* <th>Reserve</th> */}
               {/* <th>Pool</th> */}
@@ -354,9 +353,9 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                           : <Text>{position.deleveragePrice}</Text>
                     }
                   </td>
-                  {
-                    [TRADE_TYPE.LONG, TRADE_TYPE.SHORT].includes(tradeType) && <td><Text className={position.fundingRatePerYeild < 0 ? 'text-buy' : ''}>{formatFloat(position.fundingRatePerYeild, 3)}</Text></td>
-                  }
+                  <td>
+                    <Text className={position.funding < 0 ? 'text-green' : ''}>{formatPercent(position.funding, 3)}%</Text>
+                  </td>
                   <td><ClosingFee now={now} position={position}/></td>
                   {/* <td><Reserve pool={position.pool}/></td> */}
                   {/* <td><ExplorerLink poolAddress={position.poolAddress}/></td> */}

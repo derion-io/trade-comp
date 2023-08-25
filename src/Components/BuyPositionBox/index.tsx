@@ -273,12 +273,12 @@ const Component = ({
     tokenAddress: poolToShow?.TOKEN_R
   })
 
-  const [maxFundingRate, fundingRate, fundingField] = useMemo(() => {
+  const [interest, maxFundingRate, fundingRate, fundingYield] = useMemo(() => {
     const _interest = ((poolToShow?.dailyInterestRate ?? 0) / power / 2)
     const _maxFundingRate = _interest + Number(poolToShow?.maxPremiumRate ?? 0)
     const _fundingRate = _interest + Number(poolToShow?.premium[tradeType === TRADE_TYPE.LONG ? 'A' : tradeType === TRADE_TYPE.SHORT ? 'B' : 'C'] ?? 0)
     const _yield = _interest - Number(poolToShow?.premium?.C ?? 0)
-    return [_maxFundingRate, _fundingRate, _yield]
+    return [_interest, _maxFundingRate, _fundingRate, _yield]
   }, [poolToShow])
 
   return (
@@ -463,37 +463,47 @@ const Component = ({
         {/*  </SkeletonLoader> */}
         {/* </InfoRow> */}
 
-        {
-          tradeType === TRADE_TYPE.LIQUIDITY
-            ? <InfoRow>
-              <TextGrey>Yield</TextGrey>
-              <SkeletonLoader loading={!poolToShow}>
-                {formatPercent(fundingField, 3, true)}%
-              </SkeletonLoader>
-            </InfoRow>
-            : <React.Fragment>
-              <InfoRow>
-                <TextGrey>Max Funding Rate</TextGrey>
-                <SkeletonLoader loading={!poolToShow}>
-                  {formatPercent(maxFundingRate, 3, true)}%
-                </SkeletonLoader>
-              </InfoRow>
-
-              <InfoRow>
-                <TextGrey>Funding Rate</TextGrey>
-                <SkeletonLoader loading={!poolToShow}>
-                  <Text className={fundingRate < 0 ? 'text-buy' : ''}>{formatPercent(fundingRate, 3, true)}%</Text>
-                </SkeletonLoader>
-              </InfoRow>
-            </React.Fragment>
-        }
-
         <InfoRow>
           <TextGrey>{leverageKey ?? 'Leverage'}</TextGrey>
           <SkeletonLoader loading={!poolToShow || !leverageValue}>
             {leverageValue}
           </SkeletonLoader>
         </InfoRow>
+
+        {tradeType === TRADE_TYPE.LIQUIDITY ?
+        <InfoRow>
+          <TextGrey>Funding Yield</TextGrey>
+          <SkeletonLoader loading={!poolToShow}>
+            {formatPercent(fundingYield, 3, true)}%
+          </SkeletonLoader>
+        </InfoRow>
+        :
+        <InfoRow>
+          <TextGrey>Funding Rate</TextGrey>
+          <SkeletonLoader loading={!poolToShow}>
+            <Text className={fundingRate < 0 ? 'text-green' : ''}>{formatPercent(fundingRate, 3, true)}%</Text>
+          </SkeletonLoader>
+        </InfoRow>
+        }
+
+        <hr/>
+
+        {tradeType === TRADE_TYPE.LIQUIDITY ?
+        <InfoRow>
+          <TextGrey>Funding Yield (Min)</TextGrey>
+          <SkeletonLoader loading={!poolToShow}>
+            {formatPercent(interest, 3, true)}%
+          </SkeletonLoader>
+        </InfoRow>
+        :
+        <InfoRow>
+          <TextGrey>Funding Rate (Max)</TextGrey>
+          <SkeletonLoader loading={!poolToShow}>
+            {formatPercent(maxFundingRate, 3, true)}%
+          </SkeletonLoader>
+        </InfoRow>
+        }
+
         { !poolToShow?.MATURITY_VEST?.toNumber() ||
         <InfoRow>
           <TextGrey>Position Vesting</TextGrey>

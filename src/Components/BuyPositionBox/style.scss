@@ -134,6 +134,11 @@
 
   .swap-info-box {
     padding: 1rem;
+    hr {
+      border: 0;
+      margin: 5px 0;
+      border-top: 1px solid #3a3a3a;
+    }
   }
 
   .swap-button {
