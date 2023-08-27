@@ -64,12 +64,13 @@ export const useCalculateSwap = ({
       if (i > ITERATION) {
         throw new Error('INSUFFICIENT_PAYMENT')
       }
-      const _payloadAmountIn = bn(numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18)).mul(numberToWei(1 - 2 ** (i - ITERATION), 5)).div(100000)
-      console.log({
-        i,
-        inputAmount: numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18),
-        payloadAmount: _payloadAmountIn.toString()
-      })
+      const inputAmount = numberToWei(amountIn, tokens[inputTokenAddress]?.decimal ?? 18)
+      let _payloadAmountIn = bn(inputAmount)
+      if (i > 0) {
+        const redution = 2**(i-ITERATION)
+        _payloadAmountIn = _payloadAmountIn.mul(numberToWei(1 - redution, 6)).div(1000000)
+        console.log({i, redution, inputAmount, payloadAmount: _payloadAmountIn.toString()})
+      }
       // @ts-ignore
       const res = await ddlEngine.SWAP.calculateAmountOuts([{
         tokenIn: inputTokenAddress,
