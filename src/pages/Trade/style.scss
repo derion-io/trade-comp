@@ -21,6 +21,7 @@ $element-gap: 2rem;
     display: grid;
     gap: $element-gap;
     grid-template-columns: 1fr auto;
+    grid-template-rows: min-content 1fr;
     grid-template-areas: 'chart trade'
                           'history trade';
 
