@@ -402,15 +402,15 @@ export const NetValue = ({ value, pool }: {value: string, pool: PoolType}) => {
 }
 
 export const Pnl = ({ position }: { position: Position}) => {
-  const {isShowValueInUsd} = useHelper()
+  const { isShowValueInUsd } = useHelper()
   const { value, entryValue } = position
   if (!entryValue || !Number(entryValue)) {
     return <React.Fragment />
   }
   const valueChange = sub(value, entryValue)
   const valueChangeDisplay = Number(valueChange) >= 0
-    ? <React.Fragment>+{isShowValueInUsd(position?.pool) ? '$' : <TokenIcon tokenAddress={position?.pool?.TOKEN_R} size={16}/>}{formatLocalisedCompactNumber(formatFloat(valueChange))}</React.Fragment>
-    : <React.Fragment>-{isShowValueInUsd(position?.pool) ? '$' : <TokenIcon tokenAddress={position?.pool?.TOKEN_R} size={16}/>}{formatLocalisedCompactNumber(-formatFloat(valueChange))} </React.Fragment>
+    ? <div className='d-flex align-items-center'>+{isShowValueInUsd(position?.pool) ? '$' : <TokenIcon tokenAddress={position?.pool?.TOKEN_R} size={16}/>}{formatLocalisedCompactNumber(formatFloat(valueChange))}</div>
+    : <div className='d-flex align-items-center'>-{isShowValueInUsd(position?.pool) ? '$' : <TokenIcon tokenAddress={position?.pool?.TOKEN_R} size={16}/>}{formatLocalisedCompactNumber(-formatFloat(valueChange))} </div>
   const pnl = div(valueChange, entryValue)
   return Number(pnl) >= 0
     ? <TextBuy>{valueChangeDisplay} (+{formatPercent(pnl)}%)</TextBuy>
