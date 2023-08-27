@@ -1,5 +1,6 @@
 import { useConfigs } from './useConfigs'
-import { NATIVE_ADDRESS } from '../../utils/constant'
+import { CHAINS, NATIVE_ADDRESS } from '../../utils/constant'
+import BASE_TOKEN_ICON_LINKS from '../../assets/tokenIconLinks/base.json'
 
 export const useHelper = () => {
   const { configs, chainId } = useConfigs()
@@ -20,7 +21,10 @@ export const useHelper = () => {
   }
 
   const getTokenIconUrl = (address: string) => {
-    if (chainId === 42161) {
+    if (chainId === CHAINS.BASE) {
+      return BASE_TOKEN_ICON_LINKS[convertNativeAddressToWrapAddress(address || '')?.toLowerCase()]
+    }
+    if (chainId === CHAINS.ARBITRUM) {
       return `https://cdn.arken.finance/token/arbitrum/${convertNativeAddressToWrapAddress(
         address || ''
       )?.toLowerCase()}.png`
