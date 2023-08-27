@@ -1,6 +1,6 @@
 // eslint-disable-next-line no-unused-vars
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { initialState, SORT_POOL_BY } from './type'
+import { initialState, SORT_POOL_BY, VALUE_IN_USD_STATUS } from './type'
 export const tokens = createSlice({
   name: 'settings',
   initialState,
@@ -79,6 +79,15 @@ export const tokens = createSlice({
       localStorage.setItem('showBalance', action.payload.showBalance.toString())
       state.showBalance = action.payload.showBalance
     },
+    setShowValueInUsdReduce: (
+      state,
+      action: PayloadAction<{
+        status: VALUE_IN_USD_STATUS
+      }>
+    ) => {
+      localStorage.setItem('showValueInUsd', action.payload.status.toString())
+      state.showValueInUsd = action.payload.status
+    }
   }
 })
 
@@ -92,6 +101,7 @@ export const {
   setMinLiquidityReduce,
   setSortPoolBuyReduce,
   setShowBalanceReduce,
+  setShowValueInUsdReduce
 } = tokens.actions
 
 export default tokens.reducer

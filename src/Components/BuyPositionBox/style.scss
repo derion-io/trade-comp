@@ -63,6 +63,11 @@
 
     .position-delta--right {
       text-align: right;
+      &>div {
+        display: flex;
+        align-items: center;
+        justify-content: end;
+      }
     }
 
     .position-delta--left {

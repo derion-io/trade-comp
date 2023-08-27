@@ -73,6 +73,7 @@ const Component = ({
   const { wrapToNativeAddress } = useHelper()
   const { setCurrentPoolAddress, setDr } = useCurrentPool()
   const { settings } = useSettings()
+  const {isShowValueInUsd} = useHelper()
 
   const leverageData = useGenerateLeverageData(tradeType)
 
@@ -117,6 +118,7 @@ const Component = ({
     outputTokenAddress,
     tokenOutMaturity
   })
+
 
   useEffect(() => {
     if (Object.values(pools).length > 0) {
@@ -317,7 +319,9 @@ const Component = ({
         </div>
         <Input
           placeholder='0.0'
-          suffix={Number(valueIn) > 0 ? <TextGrey>${formatLocalisedCompactNumber(formatFloat(valueIn))}</TextGrey> : ''}
+          suffix={Number(valueIn) > 0
+            ? <TextGrey><div className='d-flex'>{isShowValueInUsd(poolToShow) ? '$' : <TokenIcon size={16} tokenAddress={poolToShow?.TOKEN_R} />}{formatLocalisedCompactNumber(formatFloat(valueIn))}</div></TextGrey>
+            : ''}
           className='fs-24'
           // @ts-ignore
           value={amountIn}
@@ -376,9 +380,9 @@ const Component = ({
                       ).split('.')[0]
                     }</div>
                     }
-                    <div>${formatLocalisedCompactNumber(formatFloat(valueOutBefore)).split('.')[0]}</div>
+                    <div>{isShowValueInUsd(poolToShow) ? '$' : <TokenIcon size={16} tokenAddress={poolToShow?.TOKEN_R} />}{formatLocalisedCompactNumber(formatFloat(valueOutBefore)).split('.')[0]}</div>
                     {showSize &&
-                    <div>${formatLocalisedCompactNumber(formatFloat(Number(valueOutBefore) * power)).split('.')[0]}</div>
+                    <div>{isShowValueInUsd(poolToShow) ? '$' : <TokenIcon size={16} tokenAddress={poolToShow?.TOKEN_R} />}{formatLocalisedCompactNumber(formatFloat(Number(valueOutBefore) * power)).split('.')[0]}</div>
                     }
                   </div>
                   <div className='position-delta--left'>
@@ -417,9 +421,9 @@ const Component = ({
                     {settings.showBalance &&
                     <div>{formatLocalisedCompactNumber(formatFloat(amountOut)).split('.')[0]}</div>
                     }
-                    <div>${formatLocalisedCompactNumber(formatFloat(valueOut)).split('.')[0]}</div>
+                    <div>{isShowValueInUsd(poolToShow) ? '$' : <TokenIcon size={16} tokenAddress={poolToShow?.TOKEN_R} />}{formatLocalisedCompactNumber(formatFloat(valueOut)).split('.')[0]}</div>
                     {showSize &&
-                    <div>${formatLocalisedCompactNumber(formatFloat(Number(valueOut) * power)).split('.')[0]}</div>
+                    <div>{isShowValueInUsd(poolToShow) ? '$' : <TokenIcon size={16} tokenAddress={poolToShow?.TOKEN_R} />}{formatLocalisedCompactNumber(formatFloat(Number(valueOut) * power)).split('.')[0]}</div>
                     }
                   </div>
                   <div className='position-delta--left'>
@@ -454,7 +458,11 @@ const Component = ({
         <InfoRow>
           <TextGrey>Liquidity</TextGrey>
           <SkeletonLoader loading={!liquidity || liquidity == '0'}>
-            <Text>${formatLocalisedCompactNumber(formatFloat(liquidity, 2))}</Text>
+            {
+              isShowValueInUsd(poolToShow)
+                ? <Text>${formatLocalisedCompactNumber(formatFloat(liquidity, 2))}</Text>
+                : <Text><div className='d-flex'><TokenIcon size={16} tokenAddress={poolToShow?.TOKEN_R} />{formatWeiToDisplayNumber(poolToShow?.states?.R || bn(0), 4, tokens[poolToShow?.TOKEN_R]?.decimals)}</div></Text>
+            }
           </SkeletonLoader>
         </InfoRow>
         {/* <InfoRow> */}

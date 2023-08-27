@@ -5,15 +5,18 @@ import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { MIN_POSITON_VALUE_TO_DISPLAY, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
 import {
   bn,
-  decodeErc1155Address, div,
-  formatFloat, formatPercent,
+  decodeErc1155Address,
+  div,
+  formatFloat,
+  formatPercent,
   formatZeroDecimal,
   kx,
-  xr,
   max,
   mul,
-  shortenAddressString, sub,
-  weiToNumber
+  shortenAddressString,
+  sub,
+  weiToNumber,
+  xr
 } from '../../utils/helpers'
 import { useListTokens } from '../../state/token/hook'
 import { PoolType } from '../../state/resources/type'
@@ -88,11 +91,12 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
     if (ddlEngine?.HISTORY && Object.values(pools).length > 0 && ddlEngine?.CURRENT_POOL.pools && id) {
       return ddlEngine.HISTORY.generatePositions?.({
         tokens: Object.values(tokens),
-        logs: _.cloneDeep(sls)
+        logs: _.cloneDeep(sls),
+        valueInUsd: settings.showValueInUsd
       }) ?? {}
     }
     return {}
-  }, [sls, pools, ddlEngine?.CURRENT_POOL, id, tokens])
+  }, [sls, pools, ddlEngine?.CURRENT_POOL, id, tokens, settings])
 
   const generatePositionData = (poolAddress: string, side: number): Position | null => {
     const token = poolAddress + '-' + side
@@ -144,9 +148,9 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
         : Q128.sub(pool.MATURITY_RATE).mul(10000).div(Q128).toNumber() / 10000
 
       const _interest = ((pool?.dailyInterestRate ?? 0) / k)
-      const funding = side === POOL_IDS.C ?
-        _interest - Number(pool?.premium?.C ?? 0) :
-        _interest + Number(pool?.premium[side === POOL_IDS.A ? 'A' : side === POOL_IDS.B ? 'B' : 'C'] ?? 0)
+      const funding = side === POOL_IDS.C
+        ? _interest - Number(pool?.premium?.C ?? 0)
+        : _interest + Number(pool?.premium[side === POOL_IDS.A ? 'A' : side === POOL_IDS.B ? 'B' : 'C'] ?? 0)
 
       return {
         poolAddress,
@@ -164,7 +168,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
         leverage: k / 2,
         effectiveLeverage,
         deleveragePrice,
-        funding,
+        funding
       }
     }
     return null
@@ -217,7 +221,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                 }
                 <InfoRow>
                   <Text>Net Value</Text>
-                  <NetValue value={position.value}/>
+                  <NetValue value={position.value} pool={position.pool} />
                 </InfoRow>
                 { !position.entryValue ||
                 <InfoRow>
@@ -323,7 +327,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                   </td>
                   <td>
                     <div className='net-value-and-pnl'>
-                      <NetValue value={position.value}/>
+                      <NetValue value={position.value} pool={position.pool}/>
                       <Pnl position={position} />
                     </div>
                   </td>
@@ -390,19 +394,23 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
   </div>
 }
 
-export const NetValue = ({ value }: {value: string}) => {
-  return <Text>${formatLocalisedCompactNumber(formatFloat(value))}</Text>
+export const NetValue = ({ value, pool }: {value: string, pool: PoolType}) => {
+  const { isShowValueInUsd } = useHelper()
+  return <Text>
+    <div className='d-flex'>{isShowValueInUsd(pool) ? '$' : <TokenIcon tokenAddress={pool?.TOKEN_R} size={16}/>}{formatLocalisedCompactNumber(formatFloat(value))}</div>
+  </Text>
 }
 
 export const Pnl = ({ position }: { position: Position}) => {
+  const {isShowValueInUsd} = useHelper()
   const { value, entryValue } = position
   if (!entryValue || !Number(entryValue)) {
     return <React.Fragment />
   }
   const valueChange = sub(value, entryValue)
   const valueChangeDisplay = Number(valueChange) >= 0
-    ? `+$${formatLocalisedCompactNumber(formatFloat(valueChange, 2))}`
-    : `-$${formatLocalisedCompactNumber(-formatFloat(valueChange, 2))}`
+    ? <React.Fragment>+{isShowValueInUsd(position?.pool) ? '$' : <TokenIcon tokenAddress={position?.pool?.TOKEN_R} size={16}/>}{formatLocalisedCompactNumber(formatFloat(valueChange))}</React.Fragment>
+    : <React.Fragment>-{isShowValueInUsd(position?.pool) ? '$' : <TokenIcon tokenAddress={position?.pool?.TOKEN_R} size={16}/>}{formatLocalisedCompactNumber(-formatFloat(valueChange))} </React.Fragment>
   const pnl = div(valueChange, entryValue)
   return Number(pnl) >= 0
     ? <TextBuy>{valueChangeDisplay} (+{formatPercent(pnl)}%)</TextBuy>

@@ -1,9 +1,13 @@
 import { useConfigs } from './useConfigs'
 import { CHAINS, NATIVE_ADDRESS } from '../../utils/constant'
 import BASE_TOKEN_ICON_LINKS from '../../assets/tokenIconLinks/base.json'
+import { PoolType } from '../resources/type'
+import { VALUE_IN_USD_STATUS } from '../setting/type'
+import { useSettings } from '../setting/hooks/useSettings'
 
 export const useHelper = () => {
   const { configs, chainId } = useConfigs()
+  const { settings } = useSettings()
 
   const convertNativeAddressToWrapAddress = (address: string) => {
     if (!address) return address
@@ -34,5 +38,9 @@ export const useHelper = () => {
     )?.toLowerCase()}.webp`
   }
 
-  return { wrapToNativeAddress, convertNativeAddressToWrapAddress, getTokenIconUrl }
+  const isShowValueInUsd = (pool: PoolType) => {
+    return settings.showValueInUsd === VALUE_IN_USD_STATUS.USD || (settings.showValueInUsd = VALUE_IN_USD_STATUS.AUTO && pool?.baseToken === pool?.TOKEN_R)
+  }
+
+  return { wrapToNativeAddress, convertNativeAddressToWrapAddress, getTokenIconUrl, isShowValueInUsd }
 }

@@ -7,8 +7,9 @@ import { Text, TextError, TextBlue } from '../ui/Text'
 import { Box } from '../ui/Box'
 import { useSettings } from '../../state/setting/hooks/useSettings'
 import { useConfigs } from '../../state/config/useConfigs'
-import { SORT_POOL_BY } from '../../state/setting/type'
+import { SORT_POOL_BY, VALUE_IN_USD_STATUS } from '../../state/setting/type'
 import { ToggleSwitch } from '../ui/ToggleSwitch'
+import { Select } from 'antd'
 
 const Component = ({
   visible,
@@ -25,7 +26,8 @@ const Component = ({
     setMinPayoffRate,
     setMinLiquidityShare,
     setScanApi,
-    setShowBalance
+    setShowBalance,
+    setShowValueInUsd
   } = useSettings()
   const { chainId } = useConfigs()
   const [visibleAdvance, setVisibleAdvance] = useState<Boolean>(false)
@@ -147,6 +149,29 @@ const Component = ({
             {
               visible &&
               <div className='mb-1'>
+                <div className='mb-05 d-flex justify-content-between align-items-center'>
+                  <Text>Show Value in USD</Text>
+                  <Select
+                    value={settings.showValueInUsd}
+                    onChange={(e) => {
+                      setShowValueInUsd(e)
+                    }}
+                    options={[
+                      {
+                        value: VALUE_IN_USD_STATUS.AUTO,
+                        label: 'Auto'
+                      },
+                      {
+                        value: VALUE_IN_USD_STATUS.USD,
+                        label: 'USD'
+                      },
+                      {
+                        value: VALUE_IN_USD_STATUS.TOKEN_R,
+                        label: 'Token R'
+                      }
+                    ]}
+                  />
+                </div>
                 <div className='mb-05'>
                   <ToggleSwitch label='Show Balance' defaultChecked={settings.showBalance} setter={setShowBalance} />
                 </div>
@@ -171,7 +196,9 @@ const Component = ({
 const BtnSortPool = ({ type, title }: any) => {
   const { settings, setSortPoolBuy } = useSettings()
   return <span
-    onClick={() => { setSortPoolBuy(type) }}
+    onClick={() => {
+      setSortPoolBuy(type)
+    }}
     className={`sort-by__item ${settings.sortPoolBy === type && 'active'}`}
   >{title}</span>
 }

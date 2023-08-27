@@ -6,6 +6,7 @@ import { App } from './Components/App'
 import './styles/main.scss'
 import 'leverage-slider/dist/component.css'
 import { SWRConfig } from 'swr/_internal'
+import { ConfigProvider, theme as antdTheme } from 'antd'
 
 export default ({
   chainId,
@@ -30,6 +31,8 @@ export default ({
   env?: 'production' | 'development'
   useHistory?: any
 }) => {
+  const { darkAlgorithm } = antdTheme
+
   return (
     <Provider store={store}>
       <SWRConfig
@@ -50,7 +53,17 @@ export default ({
           showConnectWalletModal={showConnectWalletModal}
           env={env}
         >
-          <App />
+          <ConfigProvider theme={{
+            algorithm: darkAlgorithm,
+            token: {
+              colorBgBase: '#242731',
+              colorTextBase: '#fff',
+              colorPrimaryBg: '#292b33'
+            }
+          }}
+          >
+            <App />
+          </ConfigProvider>
         </InitConfig>
       </SWRConfig>
     </Provider>

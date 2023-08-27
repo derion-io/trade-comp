@@ -7,11 +7,13 @@ import {
   setScanApiKeyReduce,
   setSlippageReduce,
   setSortPoolBuyReduce,
-  setShowBalanceReduce
+  setShowBalanceReduce,
+  setShowValueInUsdReduce
 } from '../reducer'
 import { State } from '../../types'
 import { useConfigs } from '../../config/useConfigs'
-import { SORT_POOL_BY } from '../type'
+import { SORT_POOL_BY, VALUE_IN_USD_STATUS } from '../type'
+import { PoolType } from '../../resources/type'
 
 export const useSettings = () => {
   const { chainId } = useConfigs()
@@ -46,6 +48,10 @@ export const useSettings = () => {
   const setShowBalance = (showBalance: boolean) => {
     dispatch(setShowBalanceReduce({ showBalance }))
   }
+  const setShowValueInUsd = (status: VALUE_IN_USD_STATUS) => {
+    dispatch(setShowValueInUsdReduce({ status }))
+  }
+
   return {
     settings,
     setSortPoolBuy,
@@ -55,6 +61,7 @@ export const useSettings = () => {
     setMaxInterestRate,
     setMinPayoffRate,
     setMinLiquidityShare,
-    setShowBalance
+    setShowBalance,
+    setShowValueInUsd
   }
 }

@@ -16,6 +16,12 @@ export enum SORT_POOL_BY {
   DELEVERAGE_RISK
 }
 
+export enum VALUE_IN_USD_STATUS {
+  AUTO,
+  USD,
+  TOKEN_R,
+}
+
 export interface settingsState {
   slippage: number
   minPayoffRate: number
@@ -25,6 +31,7 @@ export interface settingsState {
   scanApiKey: { [key: number]: string }
   sortPoolBy: SORT_POOL_BY
   showBalance: boolean
+  showValueInUsd: VALUE_IN_USD_STATUS
 }
 
 export const initialState: settingsState = {
@@ -35,5 +42,6 @@ export const initialState: settingsState = {
   maxInterestRate: Number(localStorage.getItem('maxInterestRate') ?? 0.1),
   minLiquidityShare: Number(localStorage.getItem('minLiquidityShare') ?? 1),
   maxDeleverageRisk: Number(localStorage.getItem('maxDeleverageRisk') ?? 100),
-  showBalance: Boolean(localStorage.getItem('showBalance') ?? false)
+  showBalance: Boolean(localStorage.getItem('showBalance') ?? false),
+  showValueInUsd: Number(localStorage.getItem('showValueInUsd') ?? 0)
 }
