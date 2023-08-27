@@ -14,6 +14,7 @@ import { Trade } from '../../pages/Trade'
 import { useFetchTokenPrice } from '../../state/resources/hooks/useTokenPrice'
 import { useFetchFeeData } from '../../state/resources/hooks/useFeeData'
 import { PageLoadingIndicator } from '../PageLoadingIndicator'
+import { ErrorBoundary } from '../ErrorBoundary'
 
 export const App = () => {
   const { id } = useCurrentPoolGroup()
@@ -100,7 +101,10 @@ export const App = () => {
           ? <PageLoadingIndicator />
           : ''
       }
-      <Trade tab={detectTradeTab(location.pathname)} loadingData={!poolGroups || Object.keys(poolGroups).length === 0} />
+      {/* @ts-ignore */}
+      <ErrorBoundary>
+        <Trade tab={detectTradeTab(location.pathname)} loadingData={!poolGroups || Object.keys(poolGroups).length === 0} />
+      </ErrorBoundary>
       <ToastContainer
         position='top-right'
         autoClose={5000}

@@ -18,6 +18,7 @@ import { SettingModal } from '../../Components/SettingModal'
 import { useListTokens } from '../../state/token/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { bn, decodeErc1155Address, isErc1155Address } from '../../utils/helpers'
+import { ErrorBoundary } from '../../Components/ErrorBoundary'
 
 const TAB_2 = {
   POSITION: Symbol('position'),
@@ -108,8 +109,10 @@ export const Trade = ({ tab, loadingData }: {
   return (
     <div className={`exposure-page ${loadingData && 'blur-3'}`}>
       <div className='exposure-page__content'>
-        {/* <div className='exposure-page__content--left'> */}
-        <Chart changedIn24h={changedIn24h} />
+        {/* @ts-ignore */}
+        <ErrorBoundary>
+          <Chart changedIn24h={changedIn24h} />
+        </ErrorBoundary>
         <Tabs
           className='exposure-page__content--position-and-history'
           selectedIndex={tab2 === TAB_2.POSITION ? 0 : 1}
@@ -123,15 +126,21 @@ export const Trade = ({ tab, loadingData }: {
           </TabList>
           <TabPanel>
             <Card className='card-in-tab'>
-              <Positions
-                setOutputTokenAddressToBuy={setOutputTokenAddress}
-                tokenOutMaturity={tokenOutMaturity}
-              />
+              {/* @ts-ignore */}
+              <ErrorBoundary>
+                <Positions
+                  setOutputTokenAddressToBuy={setOutputTokenAddress}
+                  tokenOutMaturity={tokenOutMaturity}
+                />
+              </ErrorBoundary>
             </Card>
           </TabPanel>
           <TabPanel>
             <Card className='card-in-tab'>
-              <WalletHistoryTable swapTxs={swapTxs} />
+              {/* @ts-ignore */}
+              <ErrorBoundary>
+                <WalletHistoryTable swapTxs={swapTxs} />
+              </ErrorBoundary>
             </Card>
           </TabPanel>
         </Tabs>
@@ -183,47 +192,58 @@ export const Trade = ({ tab, loadingData }: {
             </TabPanel>
             <TabPanel>
               <Card className='trade-box card-in-tab'>
-                <BuyPositionBox
-                  inputTokenAddress={inputTokenAddress}
-                  setInputTokenAddress={setInputTokenAddress}
-                  outputTokenAddress={outputTokenAddress}
-                  setOutputTokenAddress={setOutputTokenAddress}
-                  tradeType={TRADE_TYPE.SHORT}
-                  tokenOutMaturity={tokenOutMaturity}
-                />
+                {/* @ts-ignore */}
+                <ErrorBoundary>
+                  <BuyPositionBox
+                    inputTokenAddress={inputTokenAddress}
+                    setInputTokenAddress={setInputTokenAddress}
+                    outputTokenAddress={outputTokenAddress}
+                    setOutputTokenAddress={setOutputTokenAddress}
+                    tradeType={TRADE_TYPE.SHORT}
+                    tokenOutMaturity={tokenOutMaturity}
+                  />
+                </ErrorBoundary>
               </Card>
             </TabPanel>
             <TabPanel>
               <Card className='trade-box card-in-tab'>
-                <SwapBox
-                  inputTokenAddress={inputTokenAddress}
-                  setInputTokenAddress={setInputTokenAddress}
-                  outputTokenAddress={outputTokenAddress}
-                  setOutputTokenAddress={setOutputTokenAddress}
-                  tokenOutMaturity={tokenOutMaturity}
-                />
+                {/* @ts-ignore */}
+                <ErrorBoundary>
+                  <SwapBox
+                    inputTokenAddress={inputTokenAddress}
+                    setInputTokenAddress={setInputTokenAddress}
+                    outputTokenAddress={outputTokenAddress}
+                    setOutputTokenAddress={setOutputTokenAddress}
+                    tokenOutMaturity={tokenOutMaturity}
+                  />
+                </ErrorBoundary>
               </Card>
             </TabPanel>
             <TabPanel>
               <Card className='trade-box card-in-tab'>
-                <BuyPositionBox
-                  inputTokenAddress={inputTokenAddress}
-                  setInputTokenAddress={setInputTokenAddress}
-                  outputTokenAddress={outputTokenAddress}
-                  setOutputTokenAddress={setOutputTokenAddress}
-                  tradeType={TRADE_TYPE.LIQUIDITY}
-                  tokenOutMaturity={tokenOutMaturity}
-
-                />
+                {/* @ts-ignore */}
+                <ErrorBoundary>
+                  <BuyPositionBox
+                    inputTokenAddress={inputTokenAddress}
+                    setInputTokenAddress={setInputTokenAddress}
+                    outputTokenAddress={outputTokenAddress}
+                    setOutputTokenAddress={setOutputTokenAddress}
+                    tradeType={TRADE_TYPE.LIQUIDITY}
+                    tokenOutMaturity={tokenOutMaturity}
+                  />
+                </ErrorBoundary>
               </Card>
             </TabPanel>
           </Tabs>
         </div>
       </div>
-      <SettingModal
-        visible={visibleSettingModal}
-        setVisible={setVisibleSettingModal}
-      />
+      {/* @ts-ignore */}
+      <ErrorBoundary>
+        <SettingModal
+          visible={visibleSettingModal}
+          setVisible={setVisibleSettingModal}
+        />
+      </ErrorBoundary>
     </div>
   )
 }
