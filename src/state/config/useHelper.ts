@@ -39,7 +39,7 @@ export const useHelper = () => {
   }
 
   const isShowValueInUsd = (pool: PoolType) => {
-    return settings.showValueInUsd === VALUE_IN_USD_STATUS.USD || (settings.showValueInUsd = VALUE_IN_USD_STATUS.AUTO && pool?.baseToken === pool?.TOKEN_R)
+    return settings.showValueInUsd === VALUE_IN_USD_STATUS.USD || (settings.showValueInUsd === VALUE_IN_USD_STATUS.AUTO && pool?.baseToken === pool?.TOKEN_R)
   }
 
   return { wrapToNativeAddress, convertNativeAddressToWrapAddress, getTokenIconUrl, isShowValueInUsd }
