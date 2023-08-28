@@ -358,7 +358,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                     }
                   </td>
                   <td>
-                    <Text className={position.funding < 0 ? 'text-green' : ''}>{formatPercent(position.funding, 3)}%</Text>
+                    <Text className={position.funding < 0 ? 'text-green' : ''}>{formatPercent(position.funding, 2, true)}%</Text>
                   </td>
                   <td><ClosingFee now={now} position={position}/></td>
                   {/* <td><Reserve pool={position.pool}/></td> */}
