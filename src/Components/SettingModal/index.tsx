@@ -150,7 +150,7 @@ const Component = ({
               visible &&
               <div className='mb-1'>
                 <div className='mb-05 d-flex justify-content-between align-items-center'>
-                  <Text>Show Value in USD</Text>
+                  <Text>Value Unit</Text>
                   <Select
                     value={settings.showValueInUsd}
                     onChange={(e) => {
@@ -159,15 +159,15 @@ const Component = ({
                     options={[
                       {
                         value: VALUE_IN_USD_STATUS.AUTO,
-                        label: 'Auto'
+                        label: 'Auto   '
                       },
                       {
                         value: VALUE_IN_USD_STATUS.USD,
-                        label: 'USD'
+                        label: 'USD    '
                       },
                       {
                         value: VALUE_IN_USD_STATUS.TOKEN_R,
-                        label: 'Token R'
+                        label: 'Reserve'
                       }
                     ]}
                   />
