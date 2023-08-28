@@ -35,7 +35,7 @@ const Component = ({
   return (
     <Modal
       setVisible={setVisible} visible={visible}
-      title={visibleAdvance ? 'Advanced Setting' : 'Setting'}
+      title={visibleAdvance ? 'Advanced Settings' : 'Settings'}
     >
       {
         !visibleAdvance
@@ -128,7 +128,7 @@ const Component = ({
               </div>
             </Box>
             <div className='advance-setting-row' onClick={() => setVisibleAdvance(!visibleAdvance)}>
-              <TextBlue>Go to Advanced Setting</TextBlue>
+              <TextBlue>Go to Advanced Settings</TextBlue>
             </div>
             {
               visible && visibleAdvance &&
@@ -183,7 +183,7 @@ const Component = ({
                   defaultValue={settings.scanApiKey[chainId]}
                 />
                 <div className='advance-setting-row' onClick={() => setVisibleAdvance(!visibleAdvance)}>
-                  <TextBlue>Go to Setting</TextBlue>
+                  <TextBlue>Back to Settings</TextBlue>
                 </div>
               </div>
             }
