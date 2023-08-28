@@ -40,6 +40,10 @@
   .net-value-and-pnl {
     display: flex;
     flex-direction: column;
+    .pnl {
+      display: inline;
+      margin-left: -0.8ch;
+    }
   }
 
   .positions-list {

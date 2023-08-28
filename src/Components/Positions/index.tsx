@@ -409,12 +409,12 @@ export const Pnl = ({ position }: { position: Position}) => {
   }
   const valueChange = sub(value, entryValue)
   const valueChangeDisplay = Number(valueChange) >= 0
-    ? <div className='d-flex align-items-center'>+{isShowValueInUsd(position?.pool) ? '$' : <TokenIcon tokenAddress={position?.pool?.TOKEN_R} size={16}/>}{formatLocalisedCompactNumber(formatFloat(valueChange))}</div>
-    : <div className='d-flex align-items-center'>-{isShowValueInUsd(position?.pool) ? '$' : <TokenIcon tokenAddress={position?.pool?.TOKEN_R} size={16}/>}{formatLocalisedCompactNumber(-formatFloat(valueChange))} </div>
+    ? <span>+{isShowValueInUsd(position?.pool) ? '$' : <TokenIcon tokenAddress={position?.pool?.TOKEN_R} size={16}/>}{formatLocalisedCompactNumber(formatFloat(valueChange))}</span>
+    : <span>-{isShowValueInUsd(position?.pool) ? '$' : <TokenIcon tokenAddress={position?.pool?.TOKEN_R} size={16}/>}{formatLocalisedCompactNumber(-formatFloat(valueChange))} </span>
   const pnl = div(valueChange, entryValue)
   return Number(pnl) >= 0
-    ? <TextBuy>{valueChangeDisplay} (+{formatPercent(pnl)}%)</TextBuy>
-    : <TextSell>{valueChangeDisplay} ({formatPercent(pnl)}%)</TextSell>
+    ? <TextBuy className='pnl'>{valueChangeDisplay} (+{formatPercent(pnl)}%)</TextBuy>
+    : <TextSell className='pnl'>{valueChangeDisplay} ({formatPercent(pnl)}%)</TextSell>
 }
 
 export const ClosingFee = ({ now, position }: { now: number, position: Position}) => {
