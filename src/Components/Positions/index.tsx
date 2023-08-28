@@ -226,7 +226,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                 { !position.entryValue ||
                 <InfoRow>
                   <Text>PnL</Text>
-                  <Pnl position={position}/>
+                  <Pnl position={position} mobile={true}/>
                 </InfoRow>
                 }
                 { !showSize || !position.sizeDisplay ||
@@ -401,7 +401,7 @@ export const NetValue = ({ value, pool }: {value: string, pool: PoolType}) => {
   </Text>
 }
 
-export const Pnl = ({ position }: { position: Position}) => {
+export const Pnl = ({ position, mobile }: { position: Position, mobile?: boolean }) => {
   const { isShowValueInUsd } = useHelper()
   const { value, entryValue } = position
   if (!entryValue || !Number(entryValue)) {
@@ -412,6 +412,11 @@ export const Pnl = ({ position }: { position: Position}) => {
     ? <span>+{isShowValueInUsd(position?.pool) ? '$' : <TokenIcon tokenAddress={position?.pool?.TOKEN_R} size={16}/>}{formatLocalisedCompactNumber(formatFloat(valueChange))}</span>
     : <span>-{isShowValueInUsd(position?.pool) ? '$' : <TokenIcon tokenAddress={position?.pool?.TOKEN_R} size={16}/>}{formatLocalisedCompactNumber(-formatFloat(valueChange))} </span>
   const pnl = div(valueChange, entryValue)
+  if (!!mobile) {
+    return Number(pnl) >= 0
+    ? <TextBuy className='pnl'>(+{formatPercent(pnl)}%) {valueChangeDisplay}</TextBuy>
+    : <TextSell className='pnl'>({formatPercent(pnl)}%) {valueChangeDisplay}</TextSell>
+  }
   return Number(pnl) >= 0
     ? <TextBuy className='pnl'>{valueChangeDisplay} (+{formatPercent(pnl)}%)</TextBuy>
     : <TextSell className='pnl'>{valueChangeDisplay} ({formatPercent(pnl)}%)</TextSell>
