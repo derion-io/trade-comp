@@ -396,8 +396,8 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
 
 export const NetValue = ({ value, pool }: {value: string, pool: PoolType}) => {
   const { isShowValueInUsd } = useHelper()
-  return <Text>
-    <div className='d-flex'>{isShowValueInUsd(pool) ? '$' : <TokenIcon tokenAddress={pool?.TOKEN_R} size={16}/>}{formatLocalisedCompactNumber(formatFloat(value))}</div>
+  return <Text className='d-flex align-item-center'>
+    {isShowValueInUsd(pool) ? '$' : <TokenIcon tokenAddress={pool?.TOKEN_R} size={16}/>}{formatLocalisedCompactNumber(formatFloat(value))}
   </Text>
 }
 
@@ -409,8 +409,8 @@ export const Pnl = ({ position, mobile }: { position: Position, mobile?: boolean
   }
   const valueChange = sub(value, entryValue)
   const valueChangeDisplay = Number(valueChange) >= 0
-    ? <span>+{isShowValueInUsd(position?.pool) ? '$' : <TokenIcon tokenAddress={position?.pool?.TOKEN_R} size={16}/>}{formatLocalisedCompactNumber(formatFloat(valueChange))}</span>
-    : <span>-{isShowValueInUsd(position?.pool) ? '$' : <TokenIcon tokenAddress={position?.pool?.TOKEN_R} size={16}/>}{formatLocalisedCompactNumber(-formatFloat(valueChange))} </span>
+    ? <Text className='d-flex align-item-center'>+{isShowValueInUsd(position?.pool) ? '$' : <TokenIcon tokenAddress={position?.pool?.TOKEN_R} size={16}/>}{formatLocalisedCompactNumber(formatFloat(valueChange))}</Text>
+    : <Text className='d-flex align-item-center'>-{isShowValueInUsd(position?.pool) ? '$' : <TokenIcon tokenAddress={position?.pool?.TOKEN_R} size={16}/>}{formatLocalisedCompactNumber(-formatFloat(valueChange))} </Text>
   const pnl = div(valueChange, entryValue)
   if (!!mobile) {
     return Number(pnl) >= 0
