@@ -240,7 +240,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                       onClick={() => {
                         setValueInUsdStatus(valueInUsdStatus === VALUE_IN_USD_STATUS.USD ? VALUE_IN_USD_STATUS.TOKEN_R : VALUE_IN_USD_STATUS.USD)
                       }}
-                    >{valueInUsdStatus === VALUE_IN_USD_STATUS.USD ? 'In USD' : 'In Token'}</Text>
+                    >{valueInUsdStatus === VALUE_IN_USD_STATUS.USD ? 'In Token' : 'In USD'}</Text>
                   </Text>
                   <NetValue valueInUsdStatus={valueInUsdStatus} valueUsd={position.valueUsd} value={position.value} pool={position.pool} />
                 </InfoRow>
