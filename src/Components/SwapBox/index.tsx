@@ -146,8 +146,6 @@ const Component = ({
     ]
   }, [inputTokenAddress, outputTokenAddress])
 
-  console.log(pools[poolOut], poolOut, pools)
-
   return (
     <div className='swap-box'>
       <div className='amount-input-box'>
