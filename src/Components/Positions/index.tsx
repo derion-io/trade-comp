@@ -259,7 +259,9 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                 </InfoRow>
                 <InfoRow>
                   {tradeType == TRADE_TYPE.LIQUIDITY ? <Text>Funding Yield</Text> : <Text>Funding Rate</Text>}
-                  <Text className={position.funding < 0 ? 'text-green' : ''}>{formatPercent(position.funding, 3, true)}%</Text>
+                  <Text className={(position.funding < 0 || position.side == POOL_IDS.C) ? 'text-green' : ''}>
+                    {formatPercent(position.funding, 3, true)}%
+                  </Text>
                 </InfoRow>
 
                 { !position.matured || position.matured <= now ||
@@ -358,7 +360,9 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                     }
                   </td>
                   <td>
-                    <Text className={position.funding < 0 ? 'text-green' : ''}>{formatPercent(position.funding, 2, true)}%</Text>
+                    <Text className={(position.funding < 0 || position.side == POOL_IDS.C) ? 'text-green' : ''}>
+                      {formatPercent(position.funding, 2, true)}%
+                    </Text>
                   </td>
                   <td><ClosingFee now={now} position={position}/></td>
                   {/* <td><Reserve pool={position.pool}/></td> */}

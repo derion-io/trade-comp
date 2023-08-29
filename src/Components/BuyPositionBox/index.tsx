@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Text, TextError, TextGrey, TextWarning } from '../ui/Text'
+import { Text, TextError, TextGreen, TextGrey, TextWarning } from '../ui/Text'
 import './style.scss'
 import { Box } from '../ui/Box'
 import 'rc-slider/assets/index.css'
@@ -483,14 +483,16 @@ const Component = ({
         <InfoRow>
           <TextGrey>Funding Yield</TextGrey>
           <SkeletonLoader loading={!poolToShow}>
-            {formatPercent(fundingYield, 3, true)}%
+            <TextGreen>{formatPercent(fundingYield, 3, true)}%</TextGreen>
           </SkeletonLoader>
         </InfoRow>
         :
         <InfoRow>
           <TextGrey>Funding Rate</TextGrey>
           <SkeletonLoader loading={!poolToShow}>
-            <Text className={fundingRate < 0 ? 'text-green' : ''}>{formatPercent(fundingRate, 3, true)}%</Text>
+            <Text className={fundingRate < 0 ? 'text-green' : ''}>
+              {formatPercent(fundingRate, 3, true)}%
+            </Text>
           </SkeletonLoader>
         </InfoRow>
         }
