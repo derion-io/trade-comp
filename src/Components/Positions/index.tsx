@@ -49,6 +49,7 @@ type Position = {
   matured: number
   sizeDisplay: string
   value: string
+  valueUsd: string
   closingFee: number
   leverage: number
   effectiveLeverage: number
@@ -58,6 +59,12 @@ type Position = {
 
 const Q128 = BigNumber.from(1).shl(128)
 
+export enum VALUE_IN_USD_STATUS {
+  AUTO,
+  USD,
+  TOKEN_R,
+}
+
 export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { setOutputTokenAddressToBuy: any, tokenOutMaturity: BigNumber }) => {
   const { pools, tradeType } = useCurrentPoolGroup()
   const { balances, maturities } = useWalletBalance()
@@ -65,7 +72,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
   const { getTokenValue } = useTokenValue({})
   const { wrapToNativeAddress } = useHelper()
   const { settings } = useSettings()
-
+  const [valueInUsdStatus, setValueInUsdStatus] = useState<VALUE_IN_USD_STATUS>(VALUE_IN_USD_STATUS.TOKEN_R)
   const [visible, setVisible] = useState<boolean>(false)
   const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
@@ -92,11 +99,11 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
       return ddlEngine.HISTORY.generatePositions?.({
         tokens: Object.values(tokens),
         logs: _.cloneDeep(sls),
-        valueInUsd: settings.showValueInUsd
+        valueInUsd: valueInUsdStatus
       }) ?? {}
     }
     return {}
-  }, [sls, pools, ddlEngine?.CURRENT_POOL, id, tokens, settings])
+  }, [sls, pools, ddlEngine?.CURRENT_POOL, id, tokens, valueInUsdStatus])
 
   const generatePositionData = (poolAddress: string, side: number): Position | null => {
     const token = poolAddress + '-' + side
@@ -107,8 +114,14 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
       const entryValue = posWithEntry?.balance?.gt(0) ? div(mul(balances[token], posWithEntry?.entry ?? 0), posWithEntry.balance) : '0'
       const value = getTokenValue(
         token,
+        weiToNumber(balances[token], tokens[token]?.decimal || 18),
+        isShowValueInUsd(valueInUsdStatus, pools[poolAddress])
+      )
+      const valueUsd = isShowValueInUsd(valueInUsdStatus, pools[poolAddress]) ? value : getTokenValue(
+        token,
         weiToNumber(balances[token], tokens[token]?.decimal || 18)
       )
+
       if (Number(value) < MIN_POSITON_VALUE_TO_DISPLAY) {
         return null
       }
@@ -164,6 +177,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
         matured,
         sizeDisplay,
         value,
+        valueUsd,
         closingFee,
         leverage: k / 2,
         effectiveLeverage,
@@ -220,13 +234,20 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                   </InfoRow>
                 }
                 <InfoRow>
-                  <Text>Net Value</Text>
-                  <NetValue value={position.value} pool={position.pool} />
+                  <Text>
+                    Net Value <Text
+                      className='text-link'
+                      onClick={() => {
+                        setValueInUsdStatus(valueInUsdStatus === VALUE_IN_USD_STATUS.USD ? VALUE_IN_USD_STATUS.TOKEN_R : VALUE_IN_USD_STATUS.USD)
+                      }}
+                    >{valueInUsdStatus === VALUE_IN_USD_STATUS.USD ? 'In USD' : 'In Token'}</Text>
+                  </Text>
+                  <NetValue valueInUsdStatus={valueInUsdStatus} valueUsd={position.valueUsd} value={position.value} pool={position.pool} />
                 </InfoRow>
                 { !position.entryValue ||
                 <InfoRow>
                   <Text>PnL</Text>
-                  <Pnl position={position} mobile={true}/>
+                  <Pnl valueInUsdStatus={valueInUsdStatus} position={position} mobile/>
                 </InfoRow>
                 }
                 { !showSize || !position.sizeDisplay ||
@@ -297,7 +318,14 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
           <thead>
             <tr>
               <th>Position</th>
-              <th>Net Value</th>
+              <th className='no-wrap'>
+                Net Value <Text
+                  className='text-link'
+                  onClick={() => {
+                    setValueInUsdStatus(valueInUsdStatus === VALUE_IN_USD_STATUS.USD ? VALUE_IN_USD_STATUS.TOKEN_R : VALUE_IN_USD_STATUS.USD)
+                  }}
+                >{valueInUsdStatus === VALUE_IN_USD_STATUS.USD ? 'In Token' : 'In USD'}</Text>
+              </th>
               {showSize && <th>Pos. Size</th>}
               <th>Entry Price</th>
               <th>Delev. Price</th>
@@ -329,8 +357,8 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                   </td>
                   <td>
                     <div className='net-value-and-pnl'>
-                      <NetValue value={position.value} pool={position.pool}/>
-                      <Pnl position={position} />
+                      <NetValue valueInUsdStatus={valueInUsdStatus} valueUsd={position.valueUsd} value={position.value} pool={position.pool}/>
+                      <Pnl valueInUsdStatus={valueInUsdStatus} position={position} />
                     </div>
                   </td>
                   {
@@ -398,29 +426,29 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
   </div>
 }
 
-export const NetValue = ({ value, pool }: {value: string, pool: PoolType}) => {
-  const { isShowValueInUsd } = useHelper()
+export const NetValue = ({ value, valueUsd, pool, valueInUsdStatus }: {value: string, valueUsd: string, pool: PoolType, valueInUsdStatus: VALUE_IN_USD_STATUS}) => {
   return <Text className='d-flex align-item-center'>
-    {isShowValueInUsd(pool) ? '$' : <TokenIcon tokenAddress={pool?.TOKEN_R} size={16}/>}{formatLocalisedCompactNumber(formatFloat(value))}
+    {isShowValueInUsd(valueInUsdStatus, pool) ? '$' : <TokenIcon tokenAddress={pool?.TOKEN_R} size={16}/>}
+    {formatLocalisedCompactNumber(formatFloat(value))}
+    {isShowValueInUsd(valueInUsdStatus, pool) ? '' : `($${formatLocalisedCompactNumber(formatFloat(valueUsd, 2))})`}
   </Text>
 }
 
-export const Pnl = ({ position, mobile }: { position: Position, mobile?: boolean }) => {
-  const { isShowValueInUsd } = useHelper()
+export const Pnl = ({ position, mobile, valueInUsdStatus }: { position: Position, mobile?: boolean, valueInUsdStatus: VALUE_IN_USD_STATUS }) => {
   const { value, entryValue } = position
   if (!entryValue || !Number(entryValue)) {
     return <React.Fragment />
   }
   const valueChange = sub(value, entryValue)
   const valueChangeDisplay = Number(valueChange) >= 0
-    ? <Text className='d-flex align-item-center'>+{isShowValueInUsd(position?.pool) ? '$' : <TokenIcon tokenAddress={position?.pool?.TOKEN_R} size={16}/>}{formatLocalisedCompactNumber(formatFloat(valueChange))}</Text>
-    : <Text className='d-flex align-item-center'>-{isShowValueInUsd(position?.pool) ? '$' : <TokenIcon tokenAddress={position?.pool?.TOKEN_R} size={16}/>}{formatLocalisedCompactNumber(-formatFloat(valueChange))} </Text>
+    ? <Text className='d-flex align-item-center'>+{isShowValueInUsd(valueInUsdStatus, position?.pool) ? '$' : <TokenIcon tokenAddress={position?.pool?.TOKEN_R} size={16}/>}{formatLocalisedCompactNumber(formatFloat(valueChange))}</Text>
+    : <Text className='d-flex align-item-center'>-{isShowValueInUsd(valueInUsdStatus, position?.pool) ? '$' : <TokenIcon tokenAddress={position?.pool?.TOKEN_R} size={16}/>}{formatLocalisedCompactNumber(-formatFloat(valueChange))} </Text>
   const pnl = div(valueChange, entryValue)
 
-  if (!!mobile) {
+  if (mobile) {
     return Number(pnl) >= 0
-    ? <TextBuy className='pnl'>(+{formatPercent(pnl)}%)&nbsp;{valueChangeDisplay}</TextBuy>
-    : <TextSell className='pnl'>({formatPercent(pnl)}%)&nbsp;{valueChangeDisplay}</TextSell>
+      ? <TextBuy className='pnl'>(+{formatPercent(pnl)}%)&nbsp;{valueChangeDisplay}</TextBuy>
+      : <TextSell className='pnl'>({formatPercent(pnl)}%)&nbsp;{valueChangeDisplay}</TextSell>
   }
   return Number(pnl) >= 0
     ? <TextBuy className='pnl'>{valueChangeDisplay}&nbsp;(+{formatPercent(pnl)}%)</TextBuy>
@@ -479,4 +507,8 @@ export const Token = ({ token, balance }: { token: string, balance?: string }) =
       {!balance || <div><Text>{balance}</Text></div>}
     </div>
   </div>
+}
+
+const isShowValueInUsd = (valueInUsdStatus: VALUE_IN_USD_STATUS, pool: PoolType) => {
+  return valueInUsdStatus === VALUE_IN_USD_STATUS.USD || (valueInUsdStatus === VALUE_IN_USD_STATUS.AUTO && pool?.baseToken === pool?.TOKEN_R)
 }

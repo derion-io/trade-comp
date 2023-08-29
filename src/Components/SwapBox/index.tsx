@@ -47,7 +47,6 @@ const Component = ({
   const [tokenTypeToSelect, setTokenTypeToSelect] = useState<'input' | 'output'>('input')
   const [amountIn, setAmountIn] = useState<string>('')
   const { balances, accFetchBalance } = useWalletBalance()
-  const { isShowValueInUsd } = useHelper()
   const { tokens } = useListTokens()
   const { callError, gasUsed, amountOut, payloadAmountIn } = useCalculateSwap({
     amountIn,
@@ -139,13 +138,6 @@ const Component = ({
     }
   }, [pools, inputTokenAddress, outputTokenAddress, tokenTypeToSelect, configs])
 
-  const [poolIn, poolOut] = useMemo(() => {
-    return [
-      isErc1155Address(inputTokenAddress) ? decodeErc1155Address(inputTokenAddress).address : '',
-      isErc1155Address(outputTokenAddress) ? decodeErc1155Address(outputTokenAddress).address : ''
-    ]
-  }, [inputTokenAddress, outputTokenAddress])
-
   return (
     <div className='swap-box'>
       <div className='amount-input-box'>
@@ -189,7 +181,7 @@ const Component = ({
         <Input
           placeholder='0.0'
           suffix={Number(valueIn) > 0
-            ? <TextGrey>{isShowValueInUsd(pools[poolIn]) ? '$' : <TokenIcon size={16} tokenAddress={pools[poolIn]?.TOKEN_R || inputTokenAddress} />}{formatLocalisedCompactNumber(formatFloat(valueIn))}</TextGrey>
+            ? <TextGrey>${formatLocalisedCompactNumber(formatFloat(valueIn))}</TextGrey>
             : ''
           }
           className='fs-24'
@@ -240,7 +232,7 @@ const Component = ({
           value={Number(amountOut) > 0 ? amountOut : ''}
           placeholder='0.0'
           suffix={Number(valueOut) > 0
-            ? <TextGrey>{isShowValueInUsd(pools[poolOut]) ? '$' : <TokenIcon size={16} tokenAddress={pools[poolOut]?.TOKEN_R || outputTokenAddress} />}{formatLocalisedCompactNumber(formatFloat(valueOut))}</TextGrey>
+            ? <TextGrey>${formatLocalisedCompactNumber(formatFloat(valueOut))}</TextGrey>
             : ''}
           className='fs-24'
         />

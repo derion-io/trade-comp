@@ -29,9 +29,9 @@ export const useTokenValue = ({
   const { pools } = useResource()
   const { convertNativeAddressToWrapAddress } = useHelper()
   const { settings } = useSettings()
-  const { isShowValueInUsd } = useHelper()
+  // const { isShowValueInUsd } = useHelper()
 
-  const getTokenValue = (_tokenAddress: string, _amount: string) => {
+  const getTokenValue = (_tokenAddress: string, _amount: string, valueInUsd: boolean = true) => {
     let value = '0'
     const address = convertNativeAddressToWrapAddress(_tokenAddress)
     if (!prices || !pools) return value
@@ -49,7 +49,7 @@ export const useTokenValue = ({
           : Number(id) === POOL_IDS.B ? pool.states.sB : pool.states.sC
 
         // TOTO: need remove mul(numberToWei(1, 9) after fix parseSqrtX96 function
-        const tokenPrice = prices[pool.TOKEN_R] && prices[pool.TOKEN_R].gt(0) && isShowValueInUsd(pool)
+        const tokenPrice = prices[pool.TOKEN_R] && prices[pool.TOKEN_R].gt(0) && valueInUsd
           ? parseSqrtX96(
             prices[pool.TOKEN_R]?.mul(numberToWei(1, 9)) || bn(0),
             tokens[pool.TOKEN_R] || {},
@@ -63,7 +63,7 @@ export const useTokenValue = ({
       }
     } else {
       // TOTO: need remove mul(numberToWei(1, 9) after fix parseSqrtX96 function
-      const tokenPrice = prices[address] && prices[address].gt(0) && isShowValueInUsd(null) ? parseSqrtX96(
+      const tokenPrice = prices[address] && prices[address].gt(0) && valueInUsd ? parseSqrtX96(
         prices[address]?.mul(numberToWei(1, 9)) || bn(0),
         tokens[address] || {},
         tokens[configs.stableCoins[0]] || {}

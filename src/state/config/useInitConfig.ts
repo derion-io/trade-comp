@@ -37,7 +37,7 @@ export const useInitConfig = ({
   useEffect(() => {
     dispatch(
       addTokensReduce({
-        tokens: [configs[chainId || DEFAULT_CHAIN].nativeToken],
+        tokens: [configs[chainId || DEFAULT_CHAIN]?.nativeToken],
         chainId: chainId || DEFAULT_CHAIN
       })
     )
