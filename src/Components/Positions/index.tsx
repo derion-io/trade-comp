@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react'
 import './style.scss'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
-import { MIN_POSITON_VALUE_TO_DISPLAY, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
+import { MIN_POSITON_VALUE_USD_TO_DISPLAY, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
 import {
   bn,
   decodeErc1155Address,
@@ -122,7 +122,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
         weiToNumber(balances[token], tokens[token]?.decimal || 18)
       )
 
-      if (Number(value) < MIN_POSITON_VALUE_TO_DISPLAY) {
+      if (Number(valueUsd) < MIN_POSITON_VALUE_USD_TO_DISPLAY) {
         return null
       }
       const pool = pools[poolAddress]

@@ -24,7 +24,7 @@ import {
   xr
 } from '../../utils/helpers'
 import { TokenSymbol } from '../ui/TokenSymbol'
-import { MIN_POSITON_VALUE_TO_DISPLAY, NATIVE_ADDRESS, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
+import { NATIVE_ADDRESS, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
 import { useConfigs } from '../../state/config/useConfigs'
 import formatLocalisedCompactNumber, { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import isEqual from 'react-fast-compare'
@@ -367,40 +367,38 @@ const Component = ({
               }
             </div>
             <SkeletonLoader loading={balances[outputTokenAddress] == null}>
-              {Number(valueOutBefore) < MIN_POSITON_VALUE_TO_DISPLAY ? ''
-                : <div className='position-delta--group'>
-                  <div className='position-delta--right'>
-                    {settings.showBalance &&
-                    <div>{
-                      formatWeiToDisplayNumber(
-                        balances[outputTokenAddress] ?? bn(0),
-                        4,
-                        tokens[outputTokenAddress]?.decimal || 18
-                      ).split('.')[0]
-                    }</div>
-                    }
-                    <div>${formatLocalisedCompactNumber(formatFloat(valueOutBefore)).split('.')[0]}</div>
-                    {showSize &&
-                    <div>${formatLocalisedCompactNumber(formatFloat(Number(valueOutBefore) * power)).split('.')[0]}</div>
-                    }
-                  </div>
-                  <div className='position-delta--left'>
-                    {settings.showBalance &&
-                    <div>{
-                      formatWeiToDisplayNumber(
-                        balances[outputTokenAddress] ?? bn(0),
-                        4,
-                        tokens[outputTokenAddress]?.decimal || 18
-                      ).match(/\.\d+$/g) || '\u00A0'
-                    }</div>
-                    }
-                    <div>{formatLocalisedCompactNumber(formatFloat(valueOutBefore)).match(/\.\d+$/g) || '\u00A0'}</div>
-                    {showSize &&
-                    <div>{formatLocalisedCompactNumber(formatFloat(Number(valueOutBefore) * power)).match(/\.\d+$/g) || '\u00A0'}</div>
-                    }
-                  </div>
+              <div className='position-delta--group'>
+                <div className='position-delta--right'>
+                  {settings.showBalance &&
+                  <div>{
+                    formatWeiToDisplayNumber(
+                      balances[outputTokenAddress] ?? bn(0),
+                      4,
+                      tokens[outputTokenAddress]?.decimal || 18
+                    ).split('.')[0]
+                  }</div>
+                  }
+                  <div>${formatLocalisedCompactNumber(formatFloat(valueOutBefore)).split('.')[0]}</div>
+                  {showSize &&
+                  <div>${formatLocalisedCompactNumber(formatFloat(Number(valueOutBefore) * power)).split('.')[0]}</div>
+                  }
                 </div>
-              }
+                <div className='position-delta--left'>
+                  {settings.showBalance &&
+                  <div>{
+                    formatWeiToDisplayNumber(
+                      balances[outputTokenAddress] ?? bn(0),
+                      4,
+                      tokens[outputTokenAddress]?.decimal || 18
+                    ).match(/\.\d+$/g) || '\u00A0'
+                  }</div>
+                  }
+                  <div>{formatLocalisedCompactNumber(formatFloat(valueOutBefore)).match(/\.\d+$/g) || '\u00A0'}</div>
+                  {showSize &&
+                  <div>{formatLocalisedCompactNumber(formatFloat(Number(valueOutBefore) * power)).match(/\.\d+$/g) || '\u00A0'}</div>
+                  }
+                </div>
+              </div>
             </SkeletonLoader>
             {!Number(amountIn) ? ''
               : <div className='position-delta--left'>
