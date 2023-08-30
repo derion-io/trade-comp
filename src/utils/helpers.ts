@@ -300,14 +300,24 @@ export const formatZeroDecimal = (value: number, minZeroDecimal: number = 5): st
 }
 
 export const xr = (k: number, r: BigNumber, v: BigNumber): number => {
-  const x = r.mul(1000000000000).div(v).toNumber() / 1000000000000
-  return Math.pow(x, 1 / k)
+  try {
+    const x = r.mul(1000000).div(v).toNumber() / 1000000
+    return Math.pow(x, 1 / k)
+  } catch(err) {
+    console.warn(err)
+    return 0
+  }
 }
 
 export const kx = (k: number, R: BigNumber, v: BigNumber, spot: BigNumber, MARK: BigNumber): number => {
-  const xk = Math.pow(spot.mul(1000000000000).div(MARK).toNumber() / 1000000000000, k)
-  const vxk4 = v.mul(Math.round(xk * 1000000000000)).shl(2).div(1000000000000)
-  const denom = vxk4.gt(R) ? vxk4.sub(R) : R.sub(vxk4)
-  const num = R.mul(k)
-  return num.mul(1000000000000).div(denom).toNumber() / 1000000000000
+  try {
+    const xk = Math.pow(spot.mul(1000000).div(MARK).toNumber() / 1000000, k)
+    const vxk4 = v.mul(Math.round(xk * 1000000)).shl(2).div(1000000)
+    const denom = vxk4.gt(R) ? vxk4.sub(R) : R.sub(vxk4)
+    const num = R.mul(k)
+    return num.mul(1000000).div(denom).toNumber() / 1000000
+  } catch (err) {
+    console.warn(err)
+    return 0
+  }
 }
