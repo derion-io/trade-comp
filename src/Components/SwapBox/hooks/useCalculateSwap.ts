@@ -6,6 +6,11 @@ import { useConfigs } from '../../../state/config/useConfigs'
 import { useWalletBalance } from '../../../state/wallet/hooks/useBalances'
 
 const ITERATION = 10
+const REASONS_TO_RETRY = [
+  'INSUFFICIENT_PAYMENT',
+  'MINIMUM_SUPPLY',
+  'MINIMUM_RESERVE',
+]
 
 export const useCalculateSwap = ({
   amountIn,
@@ -61,9 +66,6 @@ export const useCalculateSwap = ({
 
   const calcAmountOut = async (i: number = 0):Promise<any> => {
     try {
-      if (i > ITERATION) {
-        throw new Error('INSUFFICIENT_PAYMENT')
-      }
       const inputAmount = numberToWei(amountIn, tokens[inputTokenAddress]?.decimal ?? 18)
       let _payloadAmountIn = bn(inputAmount)
       if (i > 0) {
@@ -98,15 +100,18 @@ export const useCalculateSwap = ({
       setGasUsed(gasLeft)
       setCallError('')
     } catch (e) {
-      const error = parseCallStaticError(e)
-      if (error.includes('INSUFFICIENT_PAYMENT') && i <= ITERATION) {
+      const reason = parseCallStaticError(e)
+      if (i < ITERATION && REASONS_TO_RETRY.some(R => reason.includes(R))) {
         return calcAmountOut(i + 1)
       }
       setAmountOut('0')
       setTxFee(bn(0))
       setGasUsed(bn(0))
-      setCallError(error ?? e)
+      setCallError(reason ?? e)
       setPayloadAmountIn(undefined)
+      if (i >= ITERATION) {
+        throw e
+      }
     }
     setLoading(false)
   }
