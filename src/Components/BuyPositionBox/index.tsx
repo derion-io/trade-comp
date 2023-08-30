@@ -378,9 +378,9 @@ const Component = ({
                     ).split('.')[0]
                   }</div>
                   }
-                  <div>${formatLocalisedCompactNumber(formatFloat(valueOutBefore)).split('.')[0]}</div>
+                  <div>${formatZeroDecimal(formatFloat(valueOutBefore)).split('.')[0]}</div>
                   {showSize &&
-                  <div>${formatLocalisedCompactNumber(formatFloat(Number(valueOutBefore) * power)).split('.')[0]}</div>
+                  <div>${formatZeroDecimal(formatFloat(Number(valueOutBefore) * power)).split('.')[0]}</div>
                   }
                 </div>
                 <div className='position-delta--left'>
@@ -393,9 +393,9 @@ const Component = ({
                     ).match(/\.\d+$/g) || '\u00A0'
                   }</div>
                   }
-                  <div>{formatLocalisedCompactNumber(formatFloat(valueOutBefore)).match(/\.\d+$/g) || '\u00A0'}</div>
+                  <div>{formatZeroDecimal(formatFloat(valueOutBefore)).match(/\.\d+$/g) || '\u00A0'}</div>
                   {showSize &&
-                  <div>{formatLocalisedCompactNumber(formatFloat(Number(valueOutBefore) * power)).match(/\.\d+$/g) || '\u00A0'}</div>
+                  <div>{formatZeroDecimal(formatFloat(Number(valueOutBefore) * power)).match(/\.\d+$/g) || '\u00A0'}</div>
                   }
                 </div>
               </div>
