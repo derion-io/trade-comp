@@ -256,7 +256,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                 }
                 { !showSize || !position.sizeDisplay ||
                   <InfoRow>
-                    <Text>Position Size</Text>
+                    <Text>Size</Text>
                     {
                       position.effectiveLeverage < position.leverage / 2
                         ? <TextError>{position.sizeDisplay}</TextError>
@@ -333,7 +333,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                 >{valueInUsdStatus === VALUE_IN_USD_STATUS.USD ? ` ⇄ ${tokens[wrapToNativeAddress(positions?.[0].pool.TOKEN_R)]?.symbol}` : ' ⇄ USD'}
                 </Text>
               </th>
-              {showSize && <th>Pos. Size</th>}
+              {showSize && <th>Size</th>}
               <th>Entry Price</th>
               <th>Delev. Price</th>
               <th>Funding</th>
