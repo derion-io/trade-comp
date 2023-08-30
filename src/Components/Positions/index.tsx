@@ -43,6 +43,7 @@ type Position = {
   pool: PoolType
   side: number
   balance: BigNumber
+  entryValueR: string
   entryValue: string
   entryPrice: string
   vested: number
@@ -99,7 +100,6 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
       return ddlEngine.HISTORY.generatePositions?.({
         tokens: Object.values(tokens),
         logs: _.cloneDeep(sls),
-        valueInUsd: valueInUsdStatus
       }) ?? {}
     }
     return {}
@@ -109,23 +109,25 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
     const token = poolAddress + '-' + side
 
     if (balances[token]?.gt(0)) {
+      const pool = pools[poolAddress]
       const posWithEntry = positionsWithEntry[token]
       const entryPrice = posWithEntry?.entryPrice
       const entryValue = posWithEntry?.balance?.gt(0) ? div(mul(balances[token], posWithEntry?.entry ?? 0), posWithEntry.balance) : '0'
+      const entryValueR = weiToNumber(posWithEntry?.totalEntryR ?? 0, tokens[pool.TOKEN_R]?.decimal ?? 18)
       const value = getTokenValue(
         token,
         weiToNumber(balances[token], tokens[token]?.decimal || 18),
-        isShowValueInUsd(valueInUsdStatus, pools[poolAddress])
+        false,
       )
-      const valueUsd = isShowValueInUsd(valueInUsdStatus, pools[poolAddress]) ? value : getTokenValue(
+      const valueUsd = getTokenValue(
         token,
-        weiToNumber(balances[token], tokens[token]?.decimal || 18)
+        weiToNumber(balances[token], tokens[token]?.decimal || 18),
+        true,
       )
 
       if (Number(valueUsd) < MIN_POSITON_VALUE_USD_TO_DISPLAY) {
         return null
       }
-      const pool = pools[poolAddress]
       const { states: { a, b, R, spot }, MARK, baseToken, quoteToken } = pool
       const k = pool.k.toNumber()
       const kA = kx(k, R, a, spot, MARK)
@@ -171,6 +173,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
         token,
         side,
         balance: balances[token],
+        entryValueR,
         entryValue,
         entryPrice,
         vested,
@@ -182,7 +185,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
         leverage: k / 2,
         effectiveLeverage,
         deleveragePrice,
-        funding
+        funding,
       }
     }
     return null
@@ -435,20 +438,24 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
 
 export const NetValue = ({ value, valueUsd, pool, valueInUsdStatus, isPhone }: {value: string, valueUsd: string, pool: PoolType, valueInUsdStatus: VALUE_IN_USD_STATUS, isPhone?: boolean}) => {
   const valueR = <React.Fragment>
-    {isShowValueInUsd(valueInUsdStatus, pool) ? '$' : <TokenIcon tokenAddress={pool?.TOKEN_R} size={16}/>}
+    <TokenIcon tokenAddress={pool?.TOKEN_R} size={16}/>
     {formatLocalisedCompactNumber(formatFloat(value))}
   </React.Fragment>
-  const valueUSD = <React.Fragment>
-    {isShowValueInUsd(valueInUsdStatus, pool) ? '' : `($${formatLocalisedCompactNumber(formatFloat(valueUsd))})`}
+  const valueUSD = '$' + formatLocalisedCompactNumber(formatFloat(valueUsd))
+  const valueMain = <React.Fragment>
+    {isShowValueInUsd(valueInUsdStatus, pool) ? valueUSD : valueR}
   </React.Fragment>
+  const valueSub = isShowValueInUsd(valueInUsdStatus, pool) ? '' : `(${valueUSD})`
   if (isPhone) {
-    return <Text className='d-flex align-item-center'>{valueUSD}&nbsp;{valueR}</Text>
+    return <Text className='d-flex align-item-center'>{valueSub}&nbsp;{valueMain}</Text>
   }
-  return <Text className='d-flex align-item-center'>{valueR}&nbsp;{valueUSD}</Text>
+  return <Text className='d-flex align-item-center'>{valueMain}&nbsp;{valueSub}</Text>
 }
 
 export const Pnl = ({ position, isPhone, valueInUsdStatus }: { position: Position, isPhone?: boolean, valueInUsdStatus: VALUE_IN_USD_STATUS }) => {
-  const { value, entryValue } = position
+  const [value, entryValue ] = isShowValueInUsd(valueInUsdStatus, position?.pool) ?
+    [position.valueUsd, position.entryValue ] :
+    [position.value, position.entryValueR ]
   if (!entryValue || !Number(entryValue)) {
     return <React.Fragment />
   }
