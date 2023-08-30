@@ -234,20 +234,22 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                   </InfoRow>
                 }
                 <InfoRow>
+                  <Text>Net Value</Text>
+                  <NetValue valueInUsdStatus={valueInUsdStatus} valueUsd={position.valueUsd} value={position.value} pool={position.pool} isPhone />
+                </InfoRow>
+                { !position.entryValue ||
+                <InfoRow>
                   <Text>
-                    Net Value <Text
+                    PnL
+                    <Text
                       className='text-link'
                       onClick={() => {
                         setValueInUsdStatus(valueInUsdStatus === VALUE_IN_USD_STATUS.USD ? VALUE_IN_USD_STATUS.TOKEN_R : VALUE_IN_USD_STATUS.USD)
                       }}
-                    >{valueInUsdStatus === VALUE_IN_USD_STATUS.USD ? 'In Token' : 'In USD'}</Text>
+                    >{valueInUsdStatus === VALUE_IN_USD_STATUS.USD ? ` ⇄ ${tokens[wrapToNativeAddress(position.pool.TOKEN_R)]?.symbol}` : ' ⇄ USD'}
+                    </Text>
                   </Text>
-                  <NetValue valueInUsdStatus={valueInUsdStatus} valueUsd={position.valueUsd} value={position.value} pool={position.pool} />
-                </InfoRow>
-                { !position.entryValue ||
-                <InfoRow>
-                  <Text>PnL</Text>
-                  <Pnl valueInUsdStatus={valueInUsdStatus} position={position} mobile/>
+                  <Pnl valueInUsdStatus={valueInUsdStatus} position={position} isPhone/>
                 </InfoRow>
                 }
                 { !showSize || !position.sizeDisplay ||
@@ -319,12 +321,14 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
             <tr>
               <th>Position</th>
               <th className='no-wrap'>
-                Net Value <Text
+                Net Value
+                <Text
                   className='text-link'
                   onClick={() => {
                     setValueInUsdStatus(valueInUsdStatus === VALUE_IN_USD_STATUS.USD ? VALUE_IN_USD_STATUS.TOKEN_R : VALUE_IN_USD_STATUS.USD)
                   }}
-                >{valueInUsdStatus === VALUE_IN_USD_STATUS.USD ? 'In Token' : 'In USD'}</Text>
+                >{valueInUsdStatus === VALUE_IN_USD_STATUS.USD ? ` ⇄ ${tokens[wrapToNativeAddress(positions?.[0].pool.TOKEN_R)]?.symbol}` : ' ⇄ USD'}
+                </Text>
               </th>
               {showSize && <th>Pos. Size</th>}
               <th>Entry Price</th>
@@ -426,15 +430,21 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
   </div>
 }
 
-export const NetValue = ({ value, valueUsd, pool, valueInUsdStatus }: {value: string, valueUsd: string, pool: PoolType, valueInUsdStatus: VALUE_IN_USD_STATUS}) => {
-  return <Text className='d-flex align-item-center'>
+export const NetValue = ({ value, valueUsd, pool, valueInUsdStatus, isPhone }: {value: string, valueUsd: string, pool: PoolType, valueInUsdStatus: VALUE_IN_USD_STATUS, isPhone?: boolean}) => {
+  const valueR = <React.Fragment>
     {isShowValueInUsd(valueInUsdStatus, pool) ? '$' : <TokenIcon tokenAddress={pool?.TOKEN_R} size={16}/>}
     {formatLocalisedCompactNumber(formatFloat(value))}
-    {isShowValueInUsd(valueInUsdStatus, pool) ? '' : `($${formatLocalisedCompactNumber(formatFloat(valueUsd, 2))})`}
-  </Text>
+  </React.Fragment>
+  const valueUSD = <React.Fragment>
+    {isShowValueInUsd(valueInUsdStatus, pool) ? '' : `($${formatLocalisedCompactNumber(formatFloat(valueUsd))})`}
+  </React.Fragment>
+  if (isPhone) {
+    return <Text className='d-flex align-item-center'>{valueUSD}&nbsp;{valueR}</Text>
+  }
+  return <Text className='d-flex align-item-center'>{valueR}&nbsp;{valueUSD}</Text>
 }
 
-export const Pnl = ({ position, mobile, valueInUsdStatus }: { position: Position, mobile?: boolean, valueInUsdStatus: VALUE_IN_USD_STATUS }) => {
+export const Pnl = ({ position, isPhone, valueInUsdStatus }: { position: Position, isPhone?: boolean, valueInUsdStatus: VALUE_IN_USD_STATUS }) => {
   const { value, entryValue } = position
   if (!entryValue || !Number(entryValue)) {
     return <React.Fragment />
@@ -445,7 +455,7 @@ export const Pnl = ({ position, mobile, valueInUsdStatus }: { position: Position
     : <Text className='d-flex align-item-center'>-{isShowValueInUsd(valueInUsdStatus, position?.pool) ? '$' : <TokenIcon tokenAddress={position?.pool?.TOKEN_R} size={16}/>}{formatLocalisedCompactNumber(-formatFloat(valueChange))} </Text>
   const pnl = div(valueChange, entryValue)
 
-  if (mobile) {
+  if (isPhone) {
     return Number(pnl) >= 0
       ? <TextBuy className='pnl'>(+{formatPercent(pnl)}%)&nbsp;{valueChangeDisplay}</TextBuy>
       : <TextSell className='pnl'>({formatPercent(pnl)}%)&nbsp;{valueChangeDisplay}</TextSell>

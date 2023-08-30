@@ -44,7 +44,12 @@
 
   .pnl {
     display: flex;
-    margin-left: -0.8ch;
+    &.text-sell {
+      margin-left: -0.75ch;
+    }
+    &.text-buy {
+      margin-left: -1.05ch;
+    }
   }
 
   .positions-list {
