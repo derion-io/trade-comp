@@ -305,6 +305,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                 <InfoRow>
                   <ButtonSell
                     className='btn-close'
+                    size='small'
                     onClick={() => {
                       setInputTokenAddress(position.token)
                       setOutputTokenAddress(wrapToNativeAddress(position.pool.TOKEN_R))

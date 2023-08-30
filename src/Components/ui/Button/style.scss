@@ -64,3 +64,17 @@
     border-width: 1px;
   }
 }
+
+.positions-box .derivable-button {
+  &.sell {
+    background: transparent;
+    border: 1px solid $color-text-grey;
+    font-weight: normal;
+    color: $color-sell;
+    border-radius: 0.7em;
+
+    &:hover {
+      border-color: white;
+    }
+  }
+}
