@@ -199,9 +199,10 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
     return result.filter((r: any) => r !== null)
   }, [positionsWithEntry, balances, maturities, pools])
 
-  const displayPositions = useMemo(() => {
+  const [displayPositions, hasClosingFee] = useMemo(() => {
+    let displayPositions: Position[] = []
     if (positions && positions.length > 0) {
-      return positions.filter((p) => {
+      displayPositions = positions.filter((p) => {
         if (tradeType === TRADE_TYPE.LIQUIDITY) {
           return p.side === POOL_IDS.C
         }
@@ -211,7 +212,8 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
         return true
       })
     }
-    return []
+    const hasClosingFee = displayPositions.some(p => p.matured && p.matured > now)
+    return [displayPositions, hasClosingFee]
   }, [positions, tradeType])
 
   const showSize = tradeType !== TRADE_TYPE.LIQUIDITY
@@ -335,7 +337,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
               <th>Entry Price</th>
               <th>Delev. Price</th>
               <th>Funding</th>
-              <th>Closing Fee</th>
+              {!hasClosingFee || <th>Closing Fee</th>}
               {/* <th>Reserve</th> */}
               {/* <th>Pool</th> */}
               <th />
@@ -397,7 +399,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
                       {formatPercent(position.funding, 2, true)}%
                     </Text>
                   </td>
-                  <td><ClosingFee now={now} position={position}/></td>
+                  {!hasClosingFee || <td><ClosingFee now={now} position={position}/></td>}
                   {/* <td><Reserve pool={position.pool}/></td> */}
                   {/* <td><ExplorerLink poolAddress={position.poolAddress}/></td> */}
                   <td className='text-right'>
