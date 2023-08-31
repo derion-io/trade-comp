@@ -66,8 +66,9 @@ const CALL_REVERT_REGEX = /reason string "(.*?)"/gm
 
 export const parseCallStaticError = (error: any) => {
   const reason = error?.message ?? _extractErrorReason(error)?.reason ?? 'ERROR'
-  if (reason.includes('SERVER_ERROR')) {
-    return 'SERVER_ERROR'
+  if (reason.includes('missing revert data in call exception')) {
+    console.error(reason)
+    return 'Execution Reverted'
   }
   const matches = Array.from(reason.matchAll(CALL_REVERT_REGEX), (m: string[]) => m[1])
   return matches?.[0] ?? reason
