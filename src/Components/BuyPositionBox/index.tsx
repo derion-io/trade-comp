@@ -317,7 +317,8 @@ const Component = ({
           </div>
         </div>
         <Input
-          placeholder='0.0'
+          placeholder='0.0' 
+          isNumber
           suffix={Number(valueIn) > 0
             ? <TextGrey><div className='d-flex'>${formatLocalisedCompactNumber(formatFloat(valueIn))}</div></TextGrey>
             : ''}

@@ -185,6 +185,7 @@ export const AddLiquidityBox = ({ totalSupplyCP }: {totalSupplyCP: BigNumber}) =
       </InfoRow>
       <Input
         placeholder='0.0'
+        isNumber
         className='fs-24'
         // @ts-ignore
         value={amountIn}
@@ -227,6 +228,7 @@ export const AddLiquidityBox = ({ totalSupplyCP }: {totalSupplyCP: BigNumber}) =
       </InfoRow>
       <Input
         placeholder='0.0'
+        isNumber
         className='fs-24'
         // @ts-ignore
         value={amountOut}

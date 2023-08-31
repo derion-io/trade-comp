@@ -6,9 +6,17 @@ type InputType = InputProps & {
   inputWrapProps?: React.HTMLAttributes<HTMLDivElement>
   prefix?: any
   suffix?: any
+  isNumber?:boolean
 }
 
 export const Input = (props: InputType) => {
+  const isNumber = props?.isNumber || false;
+  const inputProps = isNumber ? {
+    type: 'number',
+    pattern: '[0-9]*',
+    inputMode: 'numeric',
+    placeholder: 'Nhập số'
+  } : {};
   const [isFocusing, setIsFocusing] = useState<boolean>(false)
   return (
     <div
@@ -19,7 +27,7 @@ export const Input = (props: InputType) => {
         <div className='derivable-input__prefix'>{props.prefix}</div>
       )}
       <input
-        type='text'
+        {...inputProps}
         {...props}
         onFocus={(e) => {
           setIsFocusing(true)
