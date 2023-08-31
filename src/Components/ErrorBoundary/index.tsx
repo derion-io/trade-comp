@@ -1,4 +1,5 @@
 import React from 'react'
+import './style.scss'
 
 export class ErrorBoundary extends React.Component {
   constructor(props: any) {
@@ -28,7 +29,7 @@ export class ErrorBoundary extends React.Component {
     // @ts-ignore
     if (this.state.hasError) {
       // You can render any custom fallback UI
-      return <h1 className='text-center'>Something went wrong. Please reload and try again.</h1>
+      return <h1 className='text-center error-boundary'>Something went wrong. Please reload and try again.</h1>
     }
 
     // @ts-ignore
