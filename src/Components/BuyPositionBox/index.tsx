@@ -367,6 +367,7 @@ const Component = ({
               }
             </div>
             <SkeletonLoader loading={balances[outputTokenAddress] == null}>
+              { balances[outputTokenAddress]?.gt(0) &&
               <div className='position-delta--group'>
                 <div className='position-delta--right'>
                   {settings.showBalance &&
@@ -399,6 +400,7 @@ const Component = ({
                   }
                 </div>
               </div>
+              }
             </SkeletonLoader>
             {!Number(amountIn) ? ''
               : <div className='position-delta--left'>
