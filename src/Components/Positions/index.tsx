@@ -151,7 +151,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
             : `${formatZeroDecimal(dgB)}-${formatZeroDecimal(dgA)}`
 
       const sizeDisplay = (side === POOL_IDS.A || side === POOL_IDS.B)
-        ? '$' + formatLocalisedCompactNumber(formatFloat(Number(value) * effectiveLeverage)) : ''
+        ? '$' + formatLocalisedCompactNumber(formatFloat(Number(valueUsd) * k / 2)) : ''
 
       const MATURITY = pool.MATURITY.toNumber() * 1000
       const MATURITY_VEST = pool.MATURITY_VEST.toNumber() * 1000
