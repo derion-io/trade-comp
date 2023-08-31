@@ -1,6 +1,5 @@
 import { Text, TextGrey } from '../../ui/Text'
 import {
-  bn,
   decodeErc1155Address,
   formatFloat,
   formatPercent,
@@ -15,8 +14,6 @@ import { useTokenValue } from '../hooks/useTokenValue'
 import { useListTokens } from '../../../state/token/hook'
 import formatLocalisedCompactNumber, { formatWeiToDisplayNumber } from '../../../utils/formatBalance'
 import { SkeletonLoader } from '../../ui/SkeletonLoader'
-import { TokenIcon } from '../../ui/TokenIcon'
-import { useHelper } from '../../../state/config/useHelper'
 
 export const PoolInfo = ({
   inputTokenAddress,
@@ -27,7 +24,6 @@ export const PoolInfo = ({
 }) => {
   const { pools } = useCurrentPoolGroup()
   const { tokens } = useListTokens()
-  const { isShowValueInUsd } = useHelper()
 
   const poolToShow = useMemo(() => {
     const tokenAddress = isErc1155Address(outputTokenAddress) ? outputTokenAddress
@@ -49,17 +45,13 @@ export const PoolInfo = ({
     <InfoRow>
       <TextGrey>Liquidity</TextGrey>
       <SkeletonLoader loading={!liquidity || liquidity == '0'}>
-        {
-          isShowValueInUsd(poolToShow)
-            ? <Text>${formatLocalisedCompactNumber(formatFloat(liquidity, 2))}</Text>
-            : <Text><div className='d-flex'><TokenIcon size={16} tokenAddress={poolToShow?.TOKEN_R} />{formatWeiToDisplayNumber(poolToShow?.states?.R || bn(0), 4, tokens[poolToShow?.TOKEN_R]?.decimals)}</div></Text>
-        }
+        <Text>${formatLocalisedCompactNumber(formatFloat(liquidity, 2))}</Text>
       </SkeletonLoader>
     </InfoRow>
     <InfoRow>
       <TextGrey>Daily Interest Rate</TextGrey>
       <SkeletonLoader loading={!poolToShow}>
-        {formatPercent((poolToShow?.dailyInterestRate ?? 0) / (poolToShow?.k.toNumber() ?? 1), 3, true)}%
+        <Text>{formatPercent((poolToShow?.dailyInterestRate ?? 0) / (poolToShow?.k.toNumber() ?? 1), 3, true)}%</Text>
       </SkeletonLoader>
     </InfoRow>
   </Box>
