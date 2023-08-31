@@ -290,7 +290,7 @@ export const isUSD = (symbol: string): boolean => {
     symbol?.includes('SAI')
 }
 
-export const formatZeroDecimal = (value: number, minZeroDecimal: number = 5): string => {
+export const formatZeroDecimal = (value: number, minZeroDecimal: number = 4): string => {
   const x = value
   const countZeroAfterDot = -Math.floor(Math.log10(x) + 1)
   if (Number.isFinite(countZeroAfterDot) && countZeroAfterDot >= minZeroDecimal) {
