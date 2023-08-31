@@ -169,7 +169,7 @@ export const FunctionPlot = (props: any) => {
               color='BLACK'
               hidden
               showLabel
-              label={`$${pX(X,mark)}`}
+              label={`${pX(X,mark)}`}
               labelOrientation={Desmos.LabelOrientations.BELOW}
             />
             <Expression
@@ -179,7 +179,7 @@ export const FunctionPlot = (props: any) => {
               pointSize={20}
               pointOpacity={0.5}
               showLabel
-              label={`$${pX(AD,mark)}`}
+              label={`${pX(AD,mark)}`}
               labelOrientation={Desmos.LabelOrientations.RIGHT}
             />
             <Expression
@@ -189,7 +189,7 @@ export const FunctionPlot = (props: any) => {
               pointSize={20}
               pointOpacity={0.5}
               showLabel
-              label={`$${pX(BD,mark)}`}
+              label={`${pX(BD,mark)}`}
               labelOrientation={Desmos.LabelOrientations.LEFT}
             />
             <Expression id='S' latex={`(${X},g(${P},${X},${b},${R}))`} color='GREEN' />
