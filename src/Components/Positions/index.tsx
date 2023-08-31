@@ -162,7 +162,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
       const closingFee = pool.MATURITY_RATE.isZero() ? 0
         : Q128.sub(pool.MATURITY_RATE).mul(10000).div(Q128).toNumber() / 10000
 
-      const _interest = ((pool?.dailyInterestRate ?? 0) / k)
+      const _interest = pool?.dailyInterestRate ?? 0
       const funding = side === POOL_IDS.C
         ? _interest - Number(pool?.premium?.C ?? 0)
         : _interest + Number(pool?.premium[side === POOL_IDS.A ? 'A' : side === POOL_IDS.B ? 'B' : 'C'] ?? 0)

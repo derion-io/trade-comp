@@ -276,7 +276,7 @@ const Component = ({
   })
 
   const [interest, maxFundingRate, fundingRate, fundingYield] = useMemo(() => {
-    const _interest = ((poolToShow?.dailyInterestRate ?? 0) / power / 2)
+    const _interest = ((poolToShow?.dailyInterestRate ?? 0))
     const _maxFundingRate = _interest + Number(poolToShow?.maxPremiumRate ?? 0)
     const _fundingRate = _interest + Number(poolToShow?.premium[tradeType === TRADE_TYPE.LONG ? 'A' : tradeType === TRADE_TYPE.SHORT ? 'B' : 'C'] ?? 0)
     const _yield = _interest - Number(poolToShow?.premium?.C ?? 0)
