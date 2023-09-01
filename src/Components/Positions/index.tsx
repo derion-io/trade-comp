@@ -436,6 +436,7 @@ export const Positions = ({
               <th>Position</th>
               <th className='no-wrap'>
                 Net Value
+                {positions?.length > 0 && (
                 <Text
                   className='text-link'
                   onClick={() => {
@@ -453,6 +454,7 @@ export const Positions = ({
                       }`
                     : ' ⇄ USD'}
                 </Text>
+                )}
               </th>
               {showSize && <th>Size</th>}
               <th>Entry Price</th>

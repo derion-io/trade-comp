@@ -213,6 +213,7 @@ const Component = ({
         </div>
         <Input
           placeholder='0.0'
+          isNumber
           suffix={
             Number(valueIn) > 0 ? (
               <TextGrey>
@@ -278,6 +279,7 @@ const Component = ({
           // @ts-ignore
           value={Number(amountOut) > 0 ? amountOut : ''}
           placeholder='0.0'
+          isNumber
           suffix={
             Number(valueOut) > 0 ? (
               <TextGrey>

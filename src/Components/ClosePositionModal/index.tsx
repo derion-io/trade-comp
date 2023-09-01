@@ -270,6 +270,7 @@ const Component = ({
           </InfoRow>
           <Input
             placeholder='0.0'
+            isNumber
             suffix={
               Number(valueOut) > 0 ? (
                 <TextGrey>

@@ -303,6 +303,7 @@ export const RemoveLiquidityBox = ({
         </InfoRow>
         <Input
           placeholder='0.0'
+          isNumber
           className='fs-24'
           // @ts-ignore
           value={amountIn}
