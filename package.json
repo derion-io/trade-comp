@@ -26,6 +26,7 @@
     "test:watch": "react-scripts test --env=jsdom",
     "predeploy": "cd example && yarn install && yarn run build",
     "delock": "sed -i '/resolved.*derivable.*/d' yarn.lock",
+    "format": "eslint --ext ts,tsx src --fix; prettier --write 'src/**/*.{ts,tsx}'",
     "deploy": "gh-pages -d example/build"
   },
   "peerDependencies": {
