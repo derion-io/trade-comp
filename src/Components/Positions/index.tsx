@@ -328,7 +328,7 @@ export const Positions = ({ setOutputTokenAddressToBuy, tokenOutMaturity }: { se
               <th>Position</th>
               <th className='no-wrap'>
                 Net Value
-                {wrapToNativeAddress(positions?.[0]?.pool?.TOKEN_R) ? <Text
+                {positions?.length > 0 ? <Text
                   className='text-link'
                   onClick={() => {
                     setValueInUsdStatus(valueInUsdStatus === VALUE_IN_USD_STATUS.USD ? VALUE_IN_USD_STATUS.TOKEN_R : VALUE_IN_USD_STATUS.USD)
