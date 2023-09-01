@@ -77,6 +77,7 @@ export const useCalculateSwap = ({
       const res = await ddlEngine.SWAP.calculateAmountOuts([{
         tokenIn: inputTokenAddress,
         tokenOut: outputTokenAddress,
+        amountOutMin: 0,
         amountIn: numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18),
         payloadAmountIn: _payloadAmountIn,
         useSweep: !!(tokenOutMaturity?.gt(0) && balances[outputTokenAddress] && isErc1155Address(outputTokenAddress)),
