@@ -1,11 +1,9 @@
 import { PoolType } from '../../../state/resources/type'
 import { useWalletBalance } from '../../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../../state/token/hook'
-import React, { useMemo } from 'react'
+import React from 'react'
 import { useCurrentPoolGroup } from '../../../state/currentPool/hooks/useCurrentPoolGroup'
-import { bn, formatFloat, weiToNumber } from '../../../utils/helpers'
-import { PowerState } from 'powerLib'
-import { Text, TextBlue, TextBuy, TextSell } from '../../ui/Text'
+import { Text } from '../../ui/Text'
 import { TokenIcon } from '../../ui/TokenIcon'
 import isEqual from 'react-fast-compare'
 

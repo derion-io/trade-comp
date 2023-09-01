@@ -21,7 +21,6 @@ import { useListTokens } from '../../../state/token/hook'
 import { TokenSymbol } from '../../ui/TokenSymbol'
 import { useConfigs } from '../../../state/config/useConfigs'
 import { ButtonExecute } from '../../ui/Button'
-import { PowerState } from 'powerLib'
 import isEqual from 'react-fast-compare'
 import { Divider } from '../../ui/Divider'
 
@@ -74,15 +73,6 @@ const Component = ({ visible, pool }: { visible: boolean; pool: PoolType }) => {
     // const rate = bn(numberToWei(1, 36)).div(numberToWei(deleverageRate, 18))
     // return cr.gt(0) && cr.lt(rate)
     return false
-  }, [pool])
-
-  const powerState = useMemo(() => {
-    if (powers && states) {
-      const p = new PowerState({ powers })
-      p.loadStates(states)
-      return p
-    }
-    return null
   }, [pool])
 
   const getPowerRows = (powersIsPositive: boolean) => {

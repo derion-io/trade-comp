@@ -10,7 +10,6 @@ import {
   shortenAddressString,
   weiToNumber
 } from '../../../utils/helpers'
-import { PowerState } from 'powerLib'
 import { Text, TextBuy, TextSell } from '../../ui/Text'
 import { TokenSymbol } from '../../ui/TokenSymbol'
 import { ButtonGrey } from '../../ui/Button'
