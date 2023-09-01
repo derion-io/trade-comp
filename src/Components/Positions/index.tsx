@@ -436,23 +436,25 @@ export const Positions = ({
               <th>Position</th>
               <th className='no-wrap'>
                 Net Value
-                <Text
-                  className='text-link'
-                  onClick={() => {
-                    setValueInUsdStatus(
-                      valueInUsdStatus === VALUE_IN_USD_STATUS.USD
-                        ? VALUE_IN_USD_STATUS.TOKEN_R
-                        : VALUE_IN_USD_STATUS.USD
-                    )
-                  }}
-                >
-                  {valueInUsdStatus === VALUE_IN_USD_STATUS.USD
-                    ? ` ⇄ ${
-                        tokens[wrapToNativeAddress(positions?.[0].pool.TOKEN_R)]
-                          ?.symbol
-                      }`
-                    : ' ⇄ USD'}
-                </Text>
+                {positions?.length > 0 && (
+                  <Text
+                    className='text-link'
+                    onClick={() => {
+                      setValueInUsdStatus(
+                        valueInUsdStatus === VALUE_IN_USD_STATUS.USD
+                          ? VALUE_IN_USD_STATUS.TOKEN_R
+                          : VALUE_IN_USD_STATUS.USD
+                      )
+                    }}
+                  >
+                    {valueInUsdStatus === VALUE_IN_USD_STATUS.USD
+                      ? ` ⇄ ${
+                          tokens[wrapToNativeAddress(positions?.[0].pool.TOKEN_R)]
+                            ?.symbol
+                        }`
+                      : ' ⇄ USD'}
+                  </Text>
+                )}
               </th>
               {showSize && <th>Size</th>}
               <th>Entry Price</th>
