@@ -2,34 +2,52 @@ import { useMemo } from 'react'
 import { TRADE_TYPE } from '../utils/constant'
 import { useCurrentPoolGroup } from '../state/currentPool/hooks/useCurrentPoolGroup'
 import { useTokenValue } from '../Components/SwapBox/hooks/useTokenValue'
-import { bn, getTokenPower, numberToWei, tradeTypeToId, weiToNumber } from '../utils/helpers'
+import {
+  bn,
+  getTokenPower,
+  numberToWei,
+  tradeTypeToId,
+  weiToNumber
+} from '../utils/helpers'
 import { useListTokens } from '../state/token/hook'
 import { useSettings } from '../state/setting/hooks/useSettings'
 import { SORT_POOL_BY } from '../state/setting/type'
 
 export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
   const { pools } = useCurrentPoolGroup()
-  const { settings: { minLiquidityShare, maxDeleverageRisk, maxInterestRate, sortPoolBy } } = useSettings()
+  const {
+    settings: {
+      minLiquidityShare,
+      maxDeleverageRisk,
+      maxInterestRate,
+      sortPoolBy
+    }
+  } = useSettings()
 
   return useMemo(() => {
     const result = {}
     if (Object.values(pools).length > 0) {
       const sumR = Object.values(pools).reduce((sumR, pool) => {
-        return sumR = sumR.add(pool.states.R)
+        return (sumR = sumR.add(pool.states.R))
       }, bn(0))
-      const minR = sumR.mul(Math.round(minLiquidityShare * 1000)).div(100 * 1000)
+      const minR = sumR
+        .mul(Math.round(minLiquidityShare * 1000))
+        .div(100 * 1000)
 
       Object.values(pools).forEach((pool) => {
-        let deleverageRisk = tradeType === TRADE_TYPE.LONG
-          ? pool!.deleverageRiskA
-          : tradeType === TRADE_TYPE.SHORT
+        let deleverageRisk =
+          tradeType === TRADE_TYPE.LONG
+            ? pool!.deleverageRiskA
+            : tradeType === TRADE_TYPE.SHORT
             ? pool!.deleverageRiskB
             : Math.max(pool!.deleverageRiskA, pool!.deleverageRiskB)
         deleverageRisk = Math.min(1, deleverageRisk)
 
-        if (pool.states.R.lt(minR) ||
-          (Number(pool.dailyInterestRate) * 99) > (maxInterestRate * pool.k.toNumber()) ||
-          (deleverageRisk * 99) > (maxDeleverageRisk ?? 100)
+        if (
+          pool.states.R.lt(minR) ||
+          Number(pool.dailyInterestRate) * 99 >
+            maxInterestRate * pool.k.toNumber() ||
+          deleverageRisk * 99 > (maxDeleverageRisk ?? 100)
         ) {
           return
         }
@@ -38,14 +56,25 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
         // const bgColor = 'rgb(27, 29, 33)'
         // const color = opacity === 0 ? bgColor : `rgb(0, ${opacity * 180}, ${opacity * 255})`
         const transparency = 1 - 0.95 * deleverageRisk
-        const color = `rgb(${0 + (1 - transparency) * 27}, ${transparency * 180 + (1 - transparency) * 29}, ${transparency * 255 + (1 - transparency) * 33})`
-        const power = Math.abs(Number(getTokenPower(pool.TOKEN_R, pool.baseToken, tradeTypeToId(tradeType), pool.k.toNumber())))
+        const color = `rgb(${0 + (1 - transparency) * 27}, ${
+          transparency * 180 + (1 - transparency) * 29
+        }, ${transparency * 255 + (1 - transparency) * 33})`
+        const power = Math.abs(
+          Number(
+            getTokenPower(
+              pool.TOKEN_R,
+              pool.baseToken,
+              tradeTypeToId(tradeType),
+              pool.k.toNumber()
+            )
+          )
+        )
         const size = pool.states.R
 
         if (!result[power]) {
           result[power] = {
             x: power,
-            xDisplay: (power) + 'x',
+            xDisplay: power + 'x',
             totalSize: size,
             bars: [
               {
@@ -112,5 +141,12 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
     })
 
     return data
-  }, [pools, tradeType, minLiquidityShare, maxDeleverageRisk, maxInterestRate, sortPoolBy])
+  }, [
+    pools,
+    tradeType,
+    minLiquidityShare,
+    maxDeleverageRisk,
+    maxInterestRate,
+    sortPoolBy
+  ])
 }

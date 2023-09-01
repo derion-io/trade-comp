@@ -20,7 +20,8 @@ export const App = () => {
   const { id } = useCurrentPoolGroup()
   const { tokens } = useListTokens()
   const { poolGroups } = useResource()
-  const { fetchBalanceAndAllowance, updateBalanceAndAllowances } = useWalletBalance()
+  const { fetchBalanceAndAllowance, updateBalanceAndAllowances } =
+    useWalletBalance()
   const { account } = useWeb3React()
   const { ddlEngine, chainId, location } = useConfigs()
   const chainIdRef = useRef(null)
@@ -96,14 +97,17 @@ export const App = () => {
   return (
     <div className='exposure-interface app'>
       <input type='hidden' value={chainId} ref={chainIdRef} />
-      {
-        !poolGroups || Object.keys(poolGroups).length === 0
-          ? <PageLoadingIndicator />
-          : ''
-      }
+      {!poolGroups || Object.keys(poolGroups).length === 0 ? (
+        <PageLoadingIndicator />
+      ) : (
+        ''
+      )}
       {/* @ts-ignore */}
       <ErrorBoundary>
-        <Trade tab={detectTradeTab(location.pathname)} loadingData={!poolGroups || Object.keys(poolGroups).length === 0} />
+        <Trade
+          tab={detectTradeTab(location.pathname)}
+          loadingData={!poolGroups || Object.keys(poolGroups).length === 0}
+        />
       </ErrorBoundary>
       <ToastContainer
         position='top-right'

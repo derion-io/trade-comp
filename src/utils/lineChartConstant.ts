@@ -9,20 +9,26 @@ export const I_1W = '1w'
 export const I_1M = '1m'
 export const I_6M = '6m'
 
-export type LineChartIntervalType = typeof I_1D | typeof I_1W | typeof I_1M | typeof I_6M
+export type LineChartIntervalType =
+  | typeof I_1D
+  | typeof I_1W
+  | typeof I_1M
+  | typeof I_6M
 
 export const INTERVALS_TAB = [
   {
     name: '1D',
     value: I_1D
-  }, {
+  },
+  {
     name: '1W',
     value: I_1W
   },
   {
     name: '1M',
     value: I_1M
-  }, {
+  },
+  {
     name: '6M',
     value: I_6M
   }

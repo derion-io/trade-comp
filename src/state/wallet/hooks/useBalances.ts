@@ -1,7 +1,5 @@
 import { useDispatch, useSelector } from 'react-redux'
-import {
-  updateBalanceAndAllowancesReduce
-} from '../reducer'
+import { updateBalanceAndAllowancesReduce } from '../reducer'
 import { AllowancesType, BalancesType, MaturitiesType } from '../type'
 import { useWeb3React } from '../../customWeb3React/hook'
 import { useConfigs } from '../../config/useConfigs'
@@ -22,14 +20,15 @@ import { useCurrentPoolGroup } from '../../currentPool/hooks/useCurrentPoolGroup
 export const useWalletBalance = () => {
   const { getPoolContract } = useContract()
   const { powers } = useCurrentPoolGroup()
-  const { balances, maturities, accFetchBalance, routerAllowances } = useSelector((state: any) => {
-    return {
-      maturities: state.wallet.maturities,
-      balances: state.wallet.balances,
-      routerAllowances: state.wallet.routerAllowances,
-      accFetchBalance: state.wallet.account
-    }
-  })
+  const { balances, maturities, accFetchBalance, routerAllowances } =
+    useSelector((state: any) => {
+      return {
+        maturities: state.wallet.maturities,
+        balances: state.wallet.balances,
+        routerAllowances: state.wallet.routerAllowances,
+        accFetchBalance: state.wallet.account
+      }
+    })
   const { configs, ddlEngine } = useConfigs()
   const { library, account } = useWeb3React()
 
@@ -40,7 +39,7 @@ export const useWalletBalance = () => {
     routerAllowances,
     maturities
   }: {
-    balances: BalancesType,
+    balances: BalancesType
     routerAllowances: AllowancesType
     maturities: MaturitiesType
   }) => {
@@ -54,9 +53,7 @@ export const useWalletBalance = () => {
     )
   }
 
-  const approveRouter = async ({
-    tokenAddress
-  }: { tokenAddress: string }) => {
+  const approveRouter = async ({ tokenAddress }: { tokenAddress: string }) => {
     if (account && library) {
       try {
         const signer = library.getSigner()
@@ -64,7 +61,10 @@ export const useWalletBalance = () => {
         if (isErc1155Address(tokenAddress)) {
           const poolAddress = decodeErc1155Address(tokenAddress).address
           const contract = getPoolContract(poolAddress, signer)
-          const txRes = await contract.setApprovalForAll(configs.addresses.router, true)
+          const txRes = await contract.setApprovalForAll(
+            configs.addresses.router,
+            true
+          )
           await txRes.wait(1)
           hash = txRes.hash
 
@@ -83,7 +83,10 @@ export const useWalletBalance = () => {
           })
         } else {
           const contract = new ethers.Contract(tokenAddress, ERC20Abi, signer)
-          const txRes = await contract.approve(configs.addresses.router, LARGE_VALUE)
+          const txRes = await contract.approve(
+            configs.addresses.router,
+            LARGE_VALUE
+          )
           await txRes.wait(1)
           hash = txRes.hash
           updateBalanceAndAllowances({
@@ -108,7 +111,11 @@ export const useWalletBalance = () => {
 
   const fetchBalanceAndAllowance = async (tokensArr: string[]) => {
     if (!ddlEngine || tokensArr.length <= 1) return
-    const { balances, allowances, maturity: maturities } = await ddlEngine.BNA.getBalanceAndAllowance({
+    const {
+      balances,
+      allowances,
+      maturity: maturities
+    } = await ddlEngine.BNA.getBalanceAndAllowance({
       tokens: tokensArr
     })
     updateBalanceAndAllowances({

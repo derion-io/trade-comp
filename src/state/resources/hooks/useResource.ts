@@ -20,13 +20,17 @@ export const useResource = () => {
     if (ddlEngine) {
       ddlEngine.RESOURCE.getResourceCached(account).then((data: any) => {
         dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
-        dispatch(addPoolGroupsWithChain({ poolGroups: data.poolGroups, chainId }))
+        dispatch(
+          addPoolGroupsWithChain({ poolGroups: data.poolGroups, chainId })
+        )
         dispatch(addPoolsWithChain({ pools: data.pools, chainId }))
         updateSwapTxsHandle(account, data.swapLogs)
       })
       ddlEngine.RESOURCE.getNewResource(account).then((data: any) => {
         dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
-        dispatch(addPoolGroupsWithChain({ poolGroups: data.poolGroups, chainId }))
+        dispatch(
+          addPoolGroupsWithChain({ poolGroups: data.poolGroups, chainId })
+        )
         dispatch(addPoolsWithChain({ pools: data.pools, chainId }))
         updateSwapTxsHandle(account, data.swapLogs)
       })

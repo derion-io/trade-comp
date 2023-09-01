@@ -7,10 +7,18 @@ import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { Text, TextGrey } from '../ui/Text'
 import './style.scss'
-import formatLocalisedCompactNumber, { formatWeiToDisplayNumber } from '../../utils/formatBalance'
+import formatLocalisedCompactNumber, {
+  formatWeiToDisplayNumber
+} from '../../utils/formatBalance'
 import isEqual from 'react-fast-compare'
 import { useResource } from '../../state/resources/hooks/useResource'
-import { decodeErc1155Address, div, formatFloat, isErc1155Address, weiToNumber } from '../../utils/helpers'
+import {
+  decodeErc1155Address,
+  div,
+  formatFloat,
+  isErc1155Address,
+  weiToNumber
+} from '../../utils/helpers'
 import { ZERO_ADDRESS } from '../../utils/constant'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
 
@@ -21,35 +29,37 @@ const Component = ({
   onSelectToken,
   displayFee = false
 }: {
-  visible: boolean,
-  setVisible: any,
-  tokens: string[],
-  onSelectToken: any,
+  visible: boolean
+  setVisible: any
+  tokens: string[]
+  onSelectToken: any
   displayFee?: boolean
 }) => {
-  return <Modal
-    setVisible={setVisible}
-    visible={visible}
-    title='Select token'
-  >
-    <div className='select-token-modal'>
-      {
-        tokensToSelect.map((address: any, key: number) => {
-          return <Option
-            key={key}
-            address={address}
-            setVisible={setVisible}
-            onSelectToken={onSelectToken}
-          />
-        })
-      }
-    </div>
-  </Modal>
+  return (
+    <Modal setVisible={setVisible} visible={visible} title='Select token'>
+      <div className='select-token-modal'>
+        {tokensToSelect.map((address: any, key: number) => {
+          return (
+            <Option
+              key={key}
+              address={address}
+              setVisible={setVisible}
+              onSelectToken={onSelectToken}
+            />
+          )
+        })}
+      </div>
+    </Modal>
+  )
 }
 
-const Option = ({ onSelectToken, address, setVisible }: {
-  setVisible: any,
-  address: string,
+const Option = ({
+  onSelectToken,
+  address,
+  setVisible
+}: {
+  setVisible: any
+  address: string
   onSelectToken: any
 }) => {
   const { tokens } = useListTokens()
@@ -80,37 +90,43 @@ const Option = ({ onSelectToken, address, setVisible }: {
   })
 
   const symbol = <TokenSymbol token={address} />
-  return <Box
-    className='option'
-    onClick={() => {
-      onSelectToken(address)
-      setVisible(false)
-    }}
-  >
-    <TokenIcon size={24} tokenAddress={address} />
-    <div className='option__name-and-lp'>
-      <Text>{symbol}</Text>
-      {
-        (lp && Number(lp) > 0)
-          ? <div>
-            <TextGrey>${formatLocalisedCompactNumber(formatFloat(lp))}</TextGrey>
+  return (
+    <Box
+      className='option'
+      onClick={() => {
+        onSelectToken(address)
+        setVisible(false)
+      }}
+    >
+      <TokenIcon size={24} tokenAddress={address} />
+      <div className='option__name-and-lp'>
+        <Text>{symbol}</Text>
+        {lp && Number(lp) > 0 ? (
+          <div>
+            <TextGrey>
+              ${formatLocalisedCompactNumber(formatFloat(lp))}
+            </TextGrey>
           </div>
-          : ''
-      }
-    </div>
-    {
-      (balances[address] && balances[address].gt(0)) &&
-      <div className='option__balance'>
-        <Text>{
-          formatLocalisedCompactNumber(formatFloat(
-            weiToNumber(balances[address], tokens[address]?.decimal ?? 18)
-          ))
-        }</Text>
-        <TextGrey>${formatLocalisedCompactNumber(formatFloat(value))}</TextGrey>
+        ) : (
+          ''
+        )}
       </div>
-    }
-
-  </Box>
+      {balances[address] && balances[address].gt(0) && (
+        <div className='option__balance'>
+          <Text>
+            {formatLocalisedCompactNumber(
+              formatFloat(
+                weiToNumber(balances[address], tokens[address]?.decimal ?? 18)
+              )
+            )}
+          </Text>
+          <TextGrey>
+            ${formatLocalisedCompactNumber(formatFloat(value))}
+          </TextGrey>
+        </div>
+      )}
+    </Box>
+  )
 }
 
 export const SelectTokenModal = React.memo(Component, (prevProps, nextProps) =>

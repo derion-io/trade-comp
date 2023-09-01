@@ -1,13 +1,24 @@
 import React, { useMemo } from 'react'
 import { useCurrentPoolGroup } from '../../../state/currentPool/hooks/useCurrentPoolGroup'
 import { useListTokens } from '../../../state/token/hook'
-import { decodeErc1155Address, getTokenPower, isErc1155Address, isUSD } from '../../../utils/helpers'
+import {
+  decodeErc1155Address,
+  getTokenPower,
+  isErc1155Address,
+  isUSD
+} from '../../../utils/helpers'
 import { useResource } from '../../../state/resources/hooks/useResource'
 import { POOL_IDS } from '../../../utils/constant'
 import { useHelper } from '../../../state/config/useHelper'
 import { Text, TextBlue, TextBuy, TextPink, TextSell } from '../Text'
 
-export const TokenSymbol = ({ token, textWrap }: { token: string, textWrap?: any }) => {
+export const TokenSymbol = ({
+  token,
+  textWrap
+}: {
+  token: string
+  textWrap?: any
+}) => {
   const { baseToken, quoteToken } = useCurrentPoolGroup()
   const { tokens } = useListTokens()
   const { pools } = useResource()
@@ -23,23 +34,38 @@ export const TokenSymbol = ({ token, textWrap }: { token: string, textWrap?: any
         return <span className='font-size-14'>{symbol}</span>
       }
 
-      const TextComp = textWrap || (
-        Number(id) === POOL_IDS.C ? TextBlue
-          : Number(id) === POOL_IDS.A ? TextBuy
-            : Number(id) === POOL_IDS.B ? TextSell
-              : Text
-      )
+      const TextComp =
+        textWrap ||
+        (Number(id) === POOL_IDS.C
+          ? TextBlue
+          : Number(id) === POOL_IDS.A
+          ? TextBuy
+          : Number(id) === POOL_IDS.B
+          ? TextSell
+          : Text)
 
       const side =
-        Number(id) === POOL_IDS.A ? 'Long'
-          : Number(id) === POOL_IDS.B ? 'Short'
-            : 'Liquidity'
-      const power = getTokenPower(pool.TOKEN_R, baseToken, Number(id), pool?.k.toNumber())
+        Number(id) === POOL_IDS.A
+          ? 'Long'
+          : Number(id) === POOL_IDS.B
+          ? 'Short'
+          : 'Liquidity'
+      const power = getTokenPower(
+        pool.TOKEN_R,
+        baseToken,
+        Number(id),
+        pool?.k.toNumber()
+      )
       const base = tokens[wrapToNativeAddress(baseToken)]?.symbol
       const quote = tokens[wrapToNativeAddress(quoteToken)]?.symbol
       const indexPrefix = isUSD(quote ?? '') ? '' : `/${quote}`
 
-      return <TextComp>{side} {power}x {base}{indexPrefix}</TextComp>
+      return (
+        <TextComp>
+          {side} {power}x {base}
+          {indexPrefix}
+        </TextComp>
+      )
 
       // return <TextComp>
       //   <span

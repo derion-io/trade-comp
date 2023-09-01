@@ -68,7 +68,12 @@ const Component = ({
   const cToken = id
 
   useEffect(() => {
-    if (tokens[baseToken] && tokens[quoteToken] && cToken && currentChart !== baseToken + cToken + quoteToken) {
+    if (
+      tokens[baseToken] &&
+      tokens[quoteToken] &&
+      cToken &&
+      currentChart !== baseToken + cToken + quoteToken
+    ) {
       setTimeout(initChart)
       setCurrentChart(baseToken + cToken + quoteToken)
     }
@@ -91,7 +96,11 @@ const Component = ({
       try {
         tradingviewWidget.onChartReady(() => {
           const resolution = tradingviewWidget.activeChart().resolution()
-          tradingviewWidget.activeChart().setVisibleRange(detectRange(resolution, chartTimeFocus, chartTimeFocus))
+          tradingviewWidget
+            .activeChart()
+            .setVisibleRange(
+              detectRange(resolution, chartTimeFocus, chartTimeFocus)
+            )
         })
       } catch (e) {
         console.error(e)
@@ -106,7 +115,9 @@ const Component = ({
           const resolution = tradingviewWidget.activeChart().resolution()
           const data = timeRangeRef.current.value
           const [from, to] = data.split(',').map(Number)
-          tradingviewWidget.activeChart().setVisibleRange(detectRange(resolution, from, to))
+          tradingviewWidget
+            .activeChart()
+            .setVisibleRange(detectRange(resolution, from, to))
         })
       } catch (e) {
         console.error(e)
@@ -128,7 +139,7 @@ const Component = ({
         detectDecimalFromPrice(basePrice)
       ].join('-'),
       datafeed: Datafeed,
-      interval: (interval as ChartingLibraryWidgetOptions['interval']),
+      interval: interval as ChartingLibraryWidgetOptions['interval'],
       container_id: containerId as ChartingLibraryWidgetOptions['container_id'],
       library_path: libraryPath as string,
       locale: 'en',
@@ -165,21 +176,27 @@ const Component = ({
     setTradingviewWidget(tvWidget)
     tvWidget.onChartReady(() => {
       setTradingviewWidget(tvWidget)
-      tvWidget.activeChart().onVisibleRangeChanged().subscribe(null, ({ from, to }) => {
-        if (timeRangeRef) {
-          timeRangeRef.current.value = from + ',' + to
-        }
-      })
-      tvWidget.activeChart().onIntervalChanged().subscribe(null, (resolution, timeframeObj) => {
-        const data = timeRangeRef.current.value
-        const [from, to] = data.split(',').map(Number)
-        if (resolution && from && to) {
-          timeframeObj.timeframe = {
-            type: TimeFrameType.TimeRange,
-            ...detectRange(resolution, from, to)
+      tvWidget
+        .activeChart()
+        .onVisibleRangeChanged()
+        .subscribe(null, ({ from, to }) => {
+          if (timeRangeRef) {
+            timeRangeRef.current.value = from + ',' + to
           }
-        }
-      })
+        })
+      tvWidget
+        .activeChart()
+        .onIntervalChanged()
+        .subscribe(null, (resolution, timeframeObj) => {
+          const data = timeRangeRef.current.value
+          const [from, to] = data.split(',').map(Number)
+          if (resolution && from && to) {
+            timeframeObj.timeframe = {
+              type: TimeFrameType.TimeRange,
+              ...detectRange(resolution, from, to)
+            }
+          }
+        })
       tvWidget.applyOverrides({
         'paneProperties.backgroundType': 'solid',
         'paneProperties.background': '#1E2026',
@@ -202,13 +219,15 @@ const Component = ({
 
   return (
     <Card className='candle-chart-wrap'>
-      {candleChartIsLoading &&
-      <div className='loading'>
-        <CandleChartLoader />
-      </div>
-      }
+      {candleChartIsLoading && (
+        <div className='loading'>
+          <CandleChartLoader />
+        </div>
+      )}
       <input type='text' ref={timeRangeRef} className='hidden' />
-      <div className={`candle-chart-box ${candleChartIsLoading && 'transparent'}`}>
+      <div
+        className={`candle-chart-box ${candleChartIsLoading && 'transparent'}`}
+      >
         <div
           id={containerId}
           className='TVChartContainer'
@@ -218,11 +237,7 @@ const Component = ({
           }}
         />
       </div>
-      {
-        chartIsOutDate && <div className='outdate-message'>
-          OUTDATED
-        </div>
-      }
+      {chartIsOutDate && <div className='outdate-message'>OUTDATED</div>}
     </Card>
   )
 }

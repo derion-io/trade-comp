@@ -33,11 +33,9 @@ const Component = () => {
               />
             </td>
           </tr> */}
-          {
-            Object.keys(poolGroups).map((id, key) => {
-              return <PoolRow pool={poolGroups[id]} id={id} key={key} />
-            })
-          }
+          {Object.keys(poolGroups).map((id, key) => {
+            return <PoolRow pool={poolGroups[id]} id={id} key={key} />
+          })}
         </tbody>
       </table>
     </div>
@@ -58,11 +56,9 @@ export const PoolTableCompact = () => {
           </tr>
         </thead>
         <tbody>
-          {
-            Object.values(poolGroups).map((pool, key) => {
-              return <PoolRowCompact pool={pool} key={key} />
-            })
-          }
+          {Object.values(poolGroups).map((pool, key) => {
+            return <PoolRowCompact pool={pool} key={key} />
+          })}
         </tbody>
       </table>
     </div>

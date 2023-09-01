@@ -21,18 +21,16 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
       <div className='chart__head'>
         <div className='chart__head--left'>
           <SelectPoolGroup />
-          {
-            !!id && basePrice &&
+          {!!id && basePrice && (
             <span>
               <Text>{formatZeroDecimal(formatFloat(basePrice))}</Text>
-              {
-                changedIn24h > 0
-                  ? <TextBuy>(+{changedIn24h}%)</TextBuy>
-                  : <TextSell>({changedIn24h}%)</TextSell>
-              }
+              {changedIn24h > 0 ? (
+                <TextBuy>(+{changedIn24h}%)</TextBuy>
+              ) : (
+                <TextSell>({changedIn24h}%)</TextSell>
+              )}
             </span>
-          }
-
+          )}
         </div>
         {chainId !== 1337 && (
           <Tabs
@@ -52,13 +50,13 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
         <div />
       )} */}
       {chainId !== 1337 &&
-      (chartTab === CHART_TABS.LINE_CHART && configs.theGraphMessari
-        ? <LineChart changedIn24h={changedIn24h} />
-        : chartTab === CHART_TABS.FUNC_PLOT
-          ? <FunctionPlot />
-          : <CandleChart />
-      )
-      }
+        (chartTab === CHART_TABS.LINE_CHART && configs.theGraphMessari ? (
+          <LineChart changedIn24h={changedIn24h} />
+        ) : chartTab === CHART_TABS.FUNC_PLOT ? (
+          <FunctionPlot />
+        ) : (
+          <CandleChart />
+        ))}
     </div>
   )
 }

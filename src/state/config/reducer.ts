@@ -28,9 +28,12 @@ export const tokens = createSlice({
       state.initialledConfig = true
     },
 
-    setEngine: (state, action: PayloadAction<{
-      engine: Engine
-    }>) => {
+    setEngine: (
+      state,
+      action: PayloadAction<{
+        engine: Engine
+      }>
+    ) => {
       state.engine = action.payload.engine
     }
   }

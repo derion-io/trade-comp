@@ -45,7 +45,13 @@ export const useSwapHistoryFormated = () => {
   const { account } = useWeb3React()
 
   useEffect(() => {
-    if (pools && Object.values(pools).length > 0 && ddlEngine?.CURRENT_POOL.pools && id && Object.values(tokens).length > 0) {
+    if (
+      pools &&
+      Object.values(pools).length > 0 &&
+      ddlEngine?.CURRENT_POOL.pools &&
+      id &&
+      Object.values(tokens).length > 0
+    ) {
       const swapTxs = ddlEngine?.HISTORY.formatSwapHistory({
         // @ts-ignore
         tokens: Object.values(tokens),

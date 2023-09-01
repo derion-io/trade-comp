@@ -27,7 +27,8 @@ export const useCurrentPool = () => {
     drA,
     drB,
     drC,
-    currentPool: pools && pools[currentPoolAddress] ? pools[currentPoolAddress] : {},
+    currentPool:
+      pools && pools[currentPoolAddress] ? pools[currentPoolAddress] : {},
     setCurrentPoolAddress,
     setDr
   }

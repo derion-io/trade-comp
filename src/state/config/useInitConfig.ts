@@ -28,7 +28,9 @@ export const useInitConfig = ({
 }) => {
   const dispatch = useDispatch()
   const location = useLocation()
-  const { settings: { scanApiKey } } = useSettings()
+  const {
+    settings: { scanApiKey }
+  } = useSettings()
 
   const currentScanApiKey = useMemo(() => {
     return scanApiKey[chainId]

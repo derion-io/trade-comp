@@ -2,8 +2,8 @@ import React from 'react'
 import './style.scss'
 
 type TextType = React.HTMLAttributes<HTMLSpanElement> & {
-  children: any,
-  fontSize?: number,
+  children: any
+  fontSize?: number
   fontWeight?: number
   whiteSpace?: 'nowrap'
 }

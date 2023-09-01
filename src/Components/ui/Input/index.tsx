@@ -13,7 +13,9 @@ export const Input = (props: InputType) => {
   return (
     <div
       {...props.inputWrapProps}
-      className={`derivable-input-wrap ${isFocusing && 'focus'} ${props.inputWrapProps?.className} `}
+      className={`derivable-input-wrap ${isFocusing && 'focus'} ${
+        props.inputWrapProps?.className
+      } `}
     >
       {props.prefix && (
         <div className='derivable-input__prefix'>{props.prefix}</div>

@@ -14,10 +14,10 @@ export type ParseLogType = {
 export type PoolGroupType = any
 export type PoolType = any
 export type FeeDataType = {
-  gasPrice: BigNumber,
-  lastBaseFeePerGas: BigNumber,
-  maxFeePerGas: BigNumber,
-  maxPriorityFeePerGas: BigNumber,
+  gasPrice: BigNumber
+  lastBaseFeePerGas: BigNumber
+  maxFeePerGas: BigNumber
+  maxPriorityFeePerGas: BigNumber
 }
 // export type PoolType = {
 //   pool: string,
@@ -43,21 +43,21 @@ export type FeeDataType = {
 
 export interface resourcesState {
   poolGroups: {
-    [key: number]: {[key: string]: PoolGroupType}
-  },
+    [key: number]: { [key: string]: PoolGroupType }
+  }
   pools: {
-    [key: number]: {[key: string]: PoolType}
-  },
+    [key: number]: { [key: string]: PoolType }
+  }
   tokens: {
     [key: string]: ListTokensType
-  },
+  }
   prices: {
-    [key: number]: {[key: string]: BigNumber}
-  },
+    [key: number]: { [key: string]: BigNumber }
+  }
   feeData: {
     [key: string]: { [key: string]: FeeDataType }
-  },
-  swapLogs: {[key: string]: any[] }
+  }
+  swapLogs: { [key: string]: any[] }
 }
 
 const initDataEachChain = {
@@ -71,6 +71,5 @@ export const initialState: resourcesState = {
   tokens: initDataEachChain,
   prices: initDataEachChain,
   feeData: initDataEachChain,
-  swapLogs: {
-  }
+  swapLogs: {}
 }

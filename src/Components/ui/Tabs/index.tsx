@@ -21,7 +21,9 @@ export const Tabs = (props: TabProps) => {
     if (!width || width <= 480) {
       return
     }
-    const item: any = document.querySelector('.derivable-tabs__item.' + id + '.active')
+    const item: any = document.querySelector(
+      '.derivable-tabs__item.' + id + '.active'
+    )
     setSliderStyle({
       left: item.offsetLeft,
       width: item.offsetWidth,
@@ -32,20 +34,26 @@ export const Tabs = (props: TabProps) => {
   if (!width || width <= 480) {
     return (
       <React.Fragment>
-      <div className={`derivable-tabs ${props.className}`} ref={ref}>
-        <span
-          key='tab-circler'
-          className={`derivable-tabs__item active`}
-          onClick={() => {
-            const currentIndex = tabs.findIndex((tab: { value: any }) => tab.value == currentTab)
-            setTab(tabs[(currentIndex+1) % tabs.length].value)
-          }}
-        >
-          <span>{tabs.find((tab: { value: any }) => tab.value == currentTab)?.name}</span>
-        </span>
-      </div>
-    </React.Fragment>
-
+        <div className={`derivable-tabs ${props.className}`} ref={ref}>
+          <span
+            key='tab-circler'
+            className='derivable-tabs__item active'
+            onClick={() => {
+              const currentIndex = tabs.findIndex(
+                (tab: { value: any }) => tab.value == currentTab
+              )
+              setTab(tabs[(currentIndex + 1) % tabs.length].value)
+            }}
+          >
+            <span>
+              {
+                tabs.find((tab: { value: any }) => tab.value == currentTab)
+                  ?.name
+              }
+            </span>
+          </span>
+        </div>
+      </React.Fragment>
     )
   }
 

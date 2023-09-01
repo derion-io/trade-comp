@@ -1,14 +1,12 @@
 import React from 'react'
 import './style.scss'
 
-type LabelType =React.HTMLAttributes<HTMLSpanElement> & {
+type LabelType = React.HTMLAttributes<HTMLSpanElement> & {
   children: any
   background?: string
 }
 
-export const Label = (
-  props: LabelType
-) => {
+export const Label = (props: LabelType) => {
   return (
     <div
       {...props}

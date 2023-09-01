@@ -17,9 +17,7 @@ import { BigNumber } from 'ethers'
 import { bn } from '../../utils/helpers'
 import { useContract } from '../../hooks/useContract'
 
-export const Liquidity = ({ tab }: {
-  tab: Symbol
-}) => {
+export const Liquidity = ({ tab }: { tab: Symbol }) => {
   // const { poolAddress } = useCurrentPool()
   const { useHistory } = useConfigs()
   const history = useHistory()
@@ -39,7 +37,7 @@ export const Liquidity = ({ tab }: {
 
   return (
     <div className='exposure-page'>
-      {/* 
+      {/*
       <div className='exposure-page__head'>
         <div
           className='exposure-page__head--back-btn'
@@ -53,11 +51,11 @@ export const Liquidity = ({ tab }: {
       */}
       <div className='exposure-page__content'>
         <div className='exposure-page__content--left'>
-          {
-            !isPhone && <div className='hidden-on-phone'>
-              {/*<PoolDetailAndHistory poolAddress={poolAddress}/>*/}
+          {!isPhone && (
+            <div className='hidden-on-phone'>
+              {/* <PoolDetailAndHistory poolAddress={poolAddress}/> */}
             </div>
-          }
+          )}
         </div>
         <div className='exposure-page__content--right'>
           <Tabs
@@ -84,11 +82,11 @@ export const Liquidity = ({ tab }: {
           <Card>
             <PoolTableCompact />
           </Card>
-          {
-            isPhone && <div className='hidden-on-desktop'>
-              {/*<PoolDetailAndHistory poolAddress={poolAddress}/>*/}
+          {isPhone && (
+            <div className='hidden-on-desktop'>
+              {/* <PoolDetailAndHistory poolAddress={poolAddress}/> */}
             </div>
-          }
+          )}
         </div>
       </div>
     </div>

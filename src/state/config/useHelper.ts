@@ -12,21 +12,25 @@ export const useHelper = () => {
   const convertNativeAddressToWrapAddress = (address: string) => {
     if (!address) return address
 
-    return address?.toLowerCase() === configs.addresses?.nativeToken?.toLowerCase()
+    return address?.toLowerCase() ===
+      configs.addresses?.nativeToken?.toLowerCase()
       ? configs.addresses?.wrapToken
       : address
   }
 
   const wrapToNativeAddress = (address: string) => {
     if (!address) return address
-    return address?.toLowerCase() === configs.addresses?.wrapToken?.toLowerCase()
+    return address?.toLowerCase() ===
+      configs.addresses?.wrapToken?.toLowerCase()
       ? NATIVE_ADDRESS
       : address
   }
 
   const getTokenIconUrl = (address: string) => {
     if (chainId === CHAINS.BASE) {
-      return BASE_TOKEN_ICON_LINKS[convertNativeAddressToWrapAddress(address || '')?.toLowerCase()]
+      return BASE_TOKEN_ICON_LINKS[
+        convertNativeAddressToWrapAddress(address || '')?.toLowerCase()
+      ]
     }
     if (chainId === CHAINS.ARBITRUM) {
       return `https://cdn.arken.finance/token/arbitrum/${convertNativeAddressToWrapAddress(
@@ -39,8 +43,17 @@ export const useHelper = () => {
   }
 
   const isShowValueInUsd = (pool: PoolType) => {
-    return settings.showValueInUsd === VALUE_IN_USD_STATUS.USD || (settings.showValueInUsd === VALUE_IN_USD_STATUS.AUTO && pool?.baseToken === pool?.TOKEN_R)
+    return (
+      settings.showValueInUsd === VALUE_IN_USD_STATUS.USD ||
+      (settings.showValueInUsd === VALUE_IN_USD_STATUS.AUTO &&
+        pool?.baseToken === pool?.TOKEN_R)
+    )
   }
 
-  return { wrapToNativeAddress, convertNativeAddressToWrapAddress, getTokenIconUrl, isShowValueInUsd }
+  return {
+    wrapToNativeAddress,
+    convertNativeAddressToWrapAddress,
+    getTokenIconUrl,
+    isShowValueInUsd
+  }
 }

@@ -10,7 +10,12 @@ type ButtonType = React.HTMLAttributes<HTMLButtonElement> & {
 
 export const Button = (props: ButtonType) => {
   return (
-    <button {...props} className={`derivable-button ${props.size ? ('size-' + props.size) : 'size-large'} ${props.className}`}>
+    <button
+      {...props}
+      className={`derivable-button ${
+        props.size ? 'size-' + props.size : 'size-large'
+      } ${props.className}`}
+    >
       {props.children}
     </button>
   )

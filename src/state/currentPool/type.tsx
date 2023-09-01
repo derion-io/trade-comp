@@ -12,13 +12,13 @@ export interface currentPoolState {
   id: string
   UTR: string
   TOKEN: string
-  pools: {[key: string]: any}
+  pools: { [key: string]: any }
   currentPoolAddress: string
   drA: number
   drB: number
   drC: number
   pair: {
-    token0?: TokenType,
+    token0?: TokenType
     token1?: TokenType
   }
   ORACLE: string
@@ -34,8 +34,8 @@ export interface currentPoolState {
     spot?: BigNumber
     twapBase?: BigNumber
     spotBase?: BigNumber
-    supplyDetails?: {[key: number]: BigNumber}
-    rDetails?: {[key: number]: BigNumber}
+    supplyDetails?: { [key: number]: BigNumber }
+    rDetails?: { [key: number]: BigNumber }
     R?: BigNumber
     rC?: BigNumber
     rDcLong?: BigNumber
@@ -47,9 +47,9 @@ export interface currentPoolState {
   chartIsOutDate: boolean
   candleChartIsLoading: boolean
   chartTimeRange: {
-    from: number,
+    from: number
     to: number
-  },
+  }
   chartTimeFocus: number
   chartResolutionIsUpdated: boolean
 }

@@ -5,7 +5,8 @@ import {
   setCandleChartIsLoadingReduce,
   setChartTabReduce,
   setChartTimeFocusReduce,
-  setCurrentPoolInfo, setSwapTabReduce
+  setCurrentPoolInfo,
+  setSwapTabReduce
 } from '../reducer'
 import { useResource } from '../../resources/hooks/useResource'
 import { CHART_TABS } from '../type'
@@ -42,12 +43,14 @@ export const useCurrentPoolGroup = () => {
       })
     }
 
-    dispatch(setCurrentPoolInfo({
-      ...poolGroup,
-      id: uniPoolAddress
-      // cTokenPrice: cPrice,
-      // logicAddress: pool.logic
-    }))
+    dispatch(
+      setCurrentPoolInfo({
+        ...poolGroup,
+        id: uniPoolAddress
+        // cTokenPrice: cPrice,
+        // logicAddress: pool.logic
+      })
+    )
   }
 
   const getTokenByPower = (power: number | string) => {

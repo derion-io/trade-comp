@@ -4,9 +4,18 @@ import { SwapTxType } from '../../state/wallet/type'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { useListTokens } from '../../state/token/hook'
-import formatLocalisedCompactNumber, { formatWeiToDisplayNumber } from '../../utils/formatBalance'
+import formatLocalisedCompactNumber, {
+  formatWeiToDisplayNumber
+} from '../../utils/formatBalance'
 import moment from 'moment'
-import { Text, TextBlue, TextBuy, TextLink, TextPink, TextSell } from '../ui/Text'
+import {
+  Text,
+  TextBlue,
+  TextBuy,
+  TextLink,
+  TextPink,
+  TextSell
+} from '../ui/Text'
 import { useConfigs } from '../../state/config/useConfigs'
 import { NATIVE_ADDRESS, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
 import isEqual from 'react-fast-compare'
@@ -39,7 +48,12 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
           return p.sideIn.eq(POOL_IDS.C) || p.sideOut.eq(POOL_IDS.C)
         }
         if (tradeType === TRADE_TYPE.LONG || tradeType === TRADE_TYPE.SHORT) {
-          return p.sideIn.eq(POOL_IDS.A) || p.sideIn.eq(POOL_IDS.B) || p.sideOut.eq(POOL_IDS.A) || p.sideOut.eq(POOL_IDS.B)
+          return (
+            p.sideIn.eq(POOL_IDS.A) ||
+            p.sideIn.eq(POOL_IDS.B) ||
+            p.sideOut.eq(POOL_IDS.A) ||
+            p.sideOut.eq(POOL_IDS.B)
+          )
         }
         return true
       })
@@ -61,53 +75,88 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
               <th>Value</th>
               <th>Price</th>
               <th>From</th>
-              <th/>
+              <th />
               <th>To</th>
             </tr>
           </thead>
           <tbody>
-            {
-              displaySwapTxs.map((swapTx, key) => {
-                const TextIn = getColor(swapTx.tokenIn)
-                const TextOut = getColor(swapTx.tokenOut)
-                return <tr className='wallet-history-table__row' key={key} onClick={() => {
-                  setChartTimeFocus(0)
-                  setTimeout(() => {
-                    setChartTimeFocus(swapTx.timeStamp)
-                  })
-                }}>
+            {displaySwapTxs.map((swapTx, key) => {
+              const TextIn = getColor(swapTx.tokenIn)
+              const TextOut = getColor(swapTx.tokenOut)
+              return (
+                <tr
+                  className='wallet-history-table__row'
+                  key={key}
+                  onClick={() => {
+                    setChartTimeFocus(0)
+                    setTimeout(() => {
+                      setChartTimeFocus(swapTx.timeStamp)
+                    })
+                  }}
+                >
                   <td className='wallet-history-table__time'>
-                    <TextLink href={configs.explorer + '/tx/' + swapTx.transactionHash}>
-                      {moment.unix(swapTx.timeStamp).fromNow().toLocaleLowerCase()}
+                    <TextLink
+                      href={configs.explorer + '/tx/' + swapTx.transactionHash}
+                    >
+                      {moment
+                        .unix(swapTx.timeStamp)
+                        .fromNow()
+                        .toLocaleLowerCase()}
                     </TextLink>
                   </td>
                   <td>
-                    <ActionTag swapTx={swapTx}/>
+                    <ActionTag swapTx={swapTx} />
                   </td>
                   <td>
-                    {
-                      swapTx.entryValue &&
-                    <Text>${formatLocalisedCompactNumber(formatFloat(swapTx.entryValue))}</Text>
-                    }
+                    {swapTx.entryValue && (
+                      <Text>
+                        $
+                        {formatLocalisedCompactNumber(
+                          formatFloat(swapTx.entryValue)
+                        )}
+                      </Text>
+                    )}
                   </td>
                   <td>
-                    {
-                      swapTx.entryPrice &&
-                    <Text> {formatZeroDecimal(formatFloat(swapTx.entryPrice))}</Text>
-                    }
+                    {swapTx.entryPrice && (
+                      <Text>
+                        {' '}
+                        {formatZeroDecimal(formatFloat(swapTx.entryPrice))}
+                      </Text>
+                    )}
                   </td>
                   <td className='wallet-history-table__ctoken-change'>
-                    <TextIn><TokenSymbol token={swapTx.tokenIn} /></TextIn>
-                    <Text> {formatWeiToDisplayNumber(swapTx.amountIn, 4, tokens[swapTx.tokenIn]?.decimal || 18)}</Text>
+                    <TextIn>
+                      <TokenSymbol token={swapTx.tokenIn} />
+                    </TextIn>
+                    <Text>
+                      {' '}
+                      {formatWeiToDisplayNumber(
+                        swapTx.amountIn,
+                        4,
+                        tokens[swapTx.tokenIn]?.decimal || 18
+                      )}
+                    </Text>
                   </td>
-                  <td className='text-center wallet-history-table__arrow'><TextOut> {'->'} </TextOut></td>
+                  <td className='text-center wallet-history-table__arrow'>
+                    <TextOut> {'->'} </TextOut>
+                  </td>
                   <td>
-                    <TextOut><TokenSymbol token={swapTx.tokenOut} /></TextOut>
-                    <Text> {formatWeiToDisplayNumber(swapTx.amountOut, 4, tokens[swapTx.tokenOut]?.decimal || 18)}</Text>
+                    <TextOut>
+                      <TokenSymbol token={swapTx.tokenOut} />
+                    </TextOut>
+                    <Text>
+                      {' '}
+                      {formatWeiToDisplayNumber(
+                        swapTx.amountOut,
+                        4,
+                        tokens[swapTx.tokenOut]?.decimal || 18
+                      )}
+                    </Text>
                   </td>
                 </tr>
-              })
-            }
+              )
+            })}
           </tbody>
         </table>
       </div>
@@ -115,20 +164,30 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
   )
 }
 
-export const ActionTag = React.memo(({ swapTx }: {swapTx: SwapTxType}) => {
-  return useMemo(() => {
-    if ([POOL_IDS.R, POOL_IDS.native].includes(swapTx.sideIn.toNumber())) {
-      return POOL_IDS.C === swapTx.sideOut.toNumber() ? <TextBlue>Add</TextBlue> :
-        POOL_IDS.A === swapTx.sideOut.toNumber() ? <TextBuy>Long</TextBuy> :
-        <TextSell>Short</TextSell>
-    } else {
-      return POOL_IDS.C === swapTx.sideIn.toNumber() ? <TextPink>Remove</TextPink> : <TextPink>Close</TextPink>
-    }
-  }, [swapTx])
-}, (prevProps, nextProps) =>
-  isEqual(prevProps, nextProps)
+export const ActionTag = React.memo(
+  ({ swapTx }: { swapTx: SwapTxType }) => {
+    return useMemo(() => {
+      if ([POOL_IDS.R, POOL_IDS.native].includes(swapTx.sideIn.toNumber())) {
+        return POOL_IDS.C === swapTx.sideOut.toNumber() ? (
+          <TextBlue>Add</TextBlue>
+        ) : POOL_IDS.A === swapTx.sideOut.toNumber() ? (
+          <TextBuy>Long</TextBuy>
+        ) : (
+          <TextSell>Short</TextSell>
+        )
+      } else {
+        return POOL_IDS.C === swapTx.sideIn.toNumber() ? (
+          <TextPink>Remove</TextPink>
+        ) : (
+          <TextPink>Close</TextPink>
+        )
+      }
+    }, [swapTx])
+  },
+  (prevProps, nextProps) => isEqual(prevProps, nextProps)
 )
 
-export const WalletHistoryTable = React.memo(Component, (prevProps, nextProps) =>
-  isEqual(prevProps, nextProps)
+export const WalletHistoryTable = React.memo(
+  Component,
+  (prevProps, nextProps) => isEqual(prevProps, nextProps)
 )

@@ -15,15 +15,15 @@ const Component = ({
   inputTokenAddress,
   callBack
 }: {
-  visible: boolean,
+  visible: boolean
   inputTokenAddress: string
-  setVisible: any,
-  callBack?: any,
+  setVisible: any
+  callBack?: any
 }) => {
   const { approveRouter } = useWalletBalance()
   const { configs } = useConfigs()
   const [loading, setLoading] = useState<boolean>(false)
-  const {tokens} = useListTokens()
+  const { tokens } = useListTokens()
 
   const onApprove = async () => {
     try {
@@ -38,36 +38,52 @@ const Component = ({
     }
   }
 
-  return <Modal
-    setVisible={setVisible}
-    visible={visible}
-    title='Enable EIP-6120'
-    width='48rem'
-  >
-    <div className='approve-utr-modal'>
-      <p className='mb-2'>
-        The Universal Token Router (EIP-6120) is used by Derivable for token routing and allowance.
-        You only need to approve your token to this contract once.
-      </p>
-      <div className='text-center mb-2'>
-        <p>The contract code is verified here:</p>
-        <a href={`${configs.explorer}/address/${configs.addresses.router}#code`} target='_blank' rel='noreferrer'>{configs.addresses.router}</a>.
+  return (
+    <Modal
+      setVisible={setVisible}
+      visible={visible}
+      title='Enable EIP-6120'
+      width='48rem'
+    >
+      <div className='approve-utr-modal'>
+        <p className='mb-2'>
+          The Universal Token Router (EIP-6120) is used by Derivable for token
+          routing and allowance. You only need to approve your token to this
+          contract once.
+        </p>
+        <div className='text-center mb-2'>
+          <p>The contract code is verified here:</p>
+          <a
+            href={`${configs.explorer}/address/${configs.addresses.router}#code`}
+            target='_blank'
+            rel='noreferrer'
+          >
+            {configs.addresses.router}
+          </a>
+          .
+        </div>
+        <div className='text-center mb-2'>
+          <p>EIP-6120 is open for public review at the following link:</p>
+          <a
+            href='https://eips.ethereum.org/EIPS/eip-6120'
+            target='_blank'
+            rel='noreferrer'
+          >
+            https://eips.ethereum.org/EIPS/eip-6120.
+          </a>
+        </div>
+        <div className='text-center'>
+          {loading ? (
+            <ButtonExecute disabled>Requesting Wallet...</ButtonExecute>
+          ) : (
+            <ButtonExecute onClick={onApprove}>
+              Approve {tokens[inputTokenAddress]?.symbol} to EIP-6120
+            </ButtonExecute>
+          )}
+        </div>
       </div>
-      <div className='text-center mb-2'>
-        <p>EIP-6120 is open for public review at the following link:</p>
-        <a href='https://eips.ethereum.org/EIPS/eip-6120' target='_blank' rel='noreferrer'>https://eips.ethereum.org/EIPS/eip-6120.</a>
-      </div>
-      <div className='text-center'>
-        {
-          loading
-            ? <ButtonExecute disabled>Requesting Wallet...</ButtonExecute>
-            : <ButtonExecute
-              onClick={onApprove}
-            >Approve {tokens[inputTokenAddress]?.symbol} to EIP-6120</ButtonExecute>
-        }
-      </div>
-    </div>
-  </Modal>
+    </Modal>
+  )
 }
 
 export const ApproveUtrModal = React.memo(Component, (prevProps, nextProps) =>

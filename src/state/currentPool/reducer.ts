@@ -8,24 +8,36 @@ export const tokens = createSlice({
   name: 'pool',
   initialState,
   reducers: {
-    setChartIsOutDate: (state, action: PayloadAction<{
-      status: boolean
-    }>) => {
+    setChartIsOutDate: (
+      state,
+      action: PayloadAction<{
+        status: boolean
+      }>
+    ) => {
       state.chartIsOutDate = action.payload.status
     },
-    setCandleChartIsLoadingReduce: (state, action: PayloadAction<{
-      status: boolean
-    }>) => {
+    setCandleChartIsLoadingReduce: (
+      state,
+      action: PayloadAction<{
+        status: boolean
+      }>
+    ) => {
       state.candleChartIsLoading = action.payload.status
     },
-    setChartTabReduce: (state, action: PayloadAction<{
-      tab: CHART_TABS
-    }>) => {
+    setChartTabReduce: (
+      state,
+      action: PayloadAction<{
+        tab: CHART_TABS
+      }>
+    ) => {
       state.chartTab = action.payload.tab
     },
-    setSwapTabReduce: (state, action: PayloadAction<{
-      tab: TRADE_TYPE
-    }>) => {
+    setSwapTabReduce: (
+      state,
+      action: PayloadAction<{
+        tab: TRADE_TYPE
+      }>
+    ) => {
       state.tradeType = action.payload.tab
     },
     setCurrentPoolInfo: (
@@ -37,17 +49,17 @@ export const tokens = createSlice({
         pools: any
         ORACLE: string
         TOKEN_R: string
-        states: any,
+        states: any
         powers: number[]
         dTokens: string[]
         allTokens: string[]
         pair: {
-          token0?: TokenType,
+          token0?: TokenType
           token1?: TokenType
-        },
-        baseToken: string,
-        quoteToken: string,
-        basePrice: number,
+        }
+        baseToken: string
+        quoteToken: string
+        basePrice: number
       }>
     ) => {
       state.id = action.payload.id
@@ -65,31 +77,46 @@ export const tokens = createSlice({
       state.quoteToken = action.payload.quoteToken
       state.basePrice = action.payload.basePrice
     },
-    setChartTimeRange: (state, action: PayloadAction<{
-      timeRange: { from: number, to: number }
-    }>) => {
+    setChartTimeRange: (
+      state,
+      action: PayloadAction<{
+        timeRange: { from: number; to: number }
+      }>
+    ) => {
       state.chartTimeRange = action.payload.timeRange
     },
-    setChartTimeFocusReduce: (state, action: PayloadAction<{
-      time: number
-    }>) => {
+    setChartTimeFocusReduce: (
+      state,
+      action: PayloadAction<{
+        time: number
+      }>
+    ) => {
       state.chartTimeFocus = action.payload.time
     },
-    setChartIntervalIsUpdated: (state, action: PayloadAction<{
-      status: boolean
-    }>) => {
+    setChartIntervalIsUpdated: (
+      state,
+      action: PayloadAction<{
+        status: boolean
+      }>
+    ) => {
       state.chartResolutionIsUpdated = action.payload.status
     },
-    setCurrentPoolAddressReduce: (state, action: PayloadAction<{
-      address: string
-    }>) => {
+    setCurrentPoolAddressReduce: (
+      state,
+      action: PayloadAction<{
+        address: string
+      }>
+    ) => {
       state.currentPoolAddress = action.payload.address
     },
-    setDrReduce: (state, action: PayloadAction<{
-      drA: number,
-      drB: number,
-      drC: number,
-    }>) => {
+    setDrReduce: (
+      state,
+      action: PayloadAction<{
+        drA: number
+        drB: number
+        drC: number
+      }>
+    ) => {
       state.drA = action.payload.drA
       state.drB = action.payload.drB
       state.drC = action.payload.drC

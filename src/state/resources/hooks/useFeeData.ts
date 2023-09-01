@@ -9,11 +9,11 @@ export const useFeeData = () => {
   const { chainId } = useConfigs()
   const { feeData } = useSelector((state: State) => {
     return {
-      feeData: state.resources.feeData,
+      feeData: state.resources.feeData
     }
   })
   return {
-    feeData: feeData[chainId],
+    feeData: feeData[chainId]
   }
 }
 
@@ -28,11 +28,13 @@ export const useFetchFeeData = () => {
 
   const fetchFeeData = () => {
     if (provider) {
-      provider.getFeeData().then((feeData:any) => {
-        dispatch(addFeeDataWithChain({
-          feeData,
-          chainId,
-        }))
+      provider.getFeeData().then((feeData: any) => {
+        dispatch(
+          addFeeDataWithChain({
+            feeData,
+            chainId
+          })
+        )
       })
     }
   }

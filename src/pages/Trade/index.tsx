@@ -34,7 +34,10 @@ const TAB_INDEX_TO_PATH = {
 
 const SIMULATE_URL = 'https://1.com'
 
-export const Trade = ({ tab, loadingData }: {
+export const Trade = ({
+  tab,
+  loadingData
+}: {
   tab: TRADE_TYPE
   loadingData: boolean
 }) => {
@@ -42,7 +45,8 @@ export const Trade = ({ tab, loadingData }: {
   const history = useHistory()
   const [changedIn24h, setChangedIn24h] = useState<number>(0)
   const { poolGroups } = useResource()
-  const { updateCurrentPoolGroup, id, baseToken, quoteToken, basePrice } = useCurrentPoolGroup()
+  const { updateCurrentPoolGroup, id, baseToken, quoteToken, basePrice } =
+    useCurrentPoolGroup()
   const [tab2, setTab2] = useState<Symbol>(TAB_2.POSITION)
   const { formartedSwapLogs: swapTxs } = useSwapHistory()
   const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
@@ -53,13 +57,19 @@ export const Trade = ({ tab, loadingData }: {
   const tokenOutMaturity = maturities[outputTokenAddress] || bn(0)
 
   useEffect(() => {
-    const url = location.href.split('?').length > 1 ? `${SIMULATE_URL}?${location.href.split('?')[1]}` : SIMULATE_URL
+    const url =
+      location.href.split('?').length > 1
+        ? `${SIMULATE_URL}?${location.href.split('?')[1]}`
+        : SIMULATE_URL
     const urlSearchParams = new URL(url).searchParams
     if (id) {
       urlSearchParams.set('index', id)
     }
     if (outputTokenAddress && isErc1155Address(outputTokenAddress)) {
-      urlSearchParams.set('pool', decodeErc1155Address(outputTokenAddress).address)
+      urlSearchParams.set(
+        'pool',
+        decodeErc1155Address(outputTokenAddress).address
+      )
     }
 
     history.push({
@@ -68,7 +78,13 @@ export const Trade = ({ tab, loadingData }: {
   }, [outputTokenAddress, id])
 
   useEffect(() => {
-    if (tokens[baseToken] && tokens[quoteToken] && id && ddlEngine && basePrice) {
+    if (
+      tokens[baseToken] &&
+      tokens[quoteToken] &&
+      id &&
+      ddlEngine &&
+      basePrice
+    ) {
       ddlEngine.PRICE.get24hChange({
         baseToken: tokens[baseToken],
         cToken: id,
@@ -84,7 +100,8 @@ export const Trade = ({ tab, loadingData }: {
   useEffect(() => {
     if (poolGroups && Object.keys(poolGroups).length > 0) {
       const url = location.href
-      const urlSearchParams = new URL(`https://1.com?${url.split('?')[1]}`).searchParams
+      const urlSearchParams = new URL(`https://1.com?${url.split('?')[1]}`)
+        .searchParams
       const index = urlSearchParams.get('index')
       const pool = urlSearchParams.get('pool')
 
@@ -158,17 +175,22 @@ export const Trade = ({ tab, loadingData }: {
               setVisibleSettingModal(true)
             }}
           >
-            <SettingIcon style={{
-              float: 'right',
-              margin: '0.4rem'
-            }} />
+            <SettingIcon
+              style={{
+                float: 'right',
+                margin: '0.4rem'
+              }}
+            />
           </div>
           <Tabs
             selectedIndex={tab}
             onSelect={(index) => {
               history.push({
                 pathname: TAB_INDEX_TO_PATH[index],
-                search: location.href.split('?').length > 1 ? `?${location.href.split('?')[1]}` : ''
+                search:
+                  location.href.split('?').length > 1
+                    ? `?${location.href.split('?')[1]}`
+                    : ''
               })
             }}
           >

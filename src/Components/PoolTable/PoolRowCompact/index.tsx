@@ -39,28 +39,32 @@ const Component = ({ pool }: { pool: PoolType }) => {
 
   // const TdText = leverage >= 0 ? TextBuy : TextSell
 
-  return <React.Fragment>
-    <tr
-      className='pool-tr'
-      onClick={(e) => {
-        updateCurrentPoolGroup(pool.poolAddress)
-      }}
-    >
-      <td className='pair-name'>
-        <span className='pair-logo'>
-          <TokenIcon size={24} tokenAddress={baseToken} />
-          <TokenIcon size={20} tokenAddress={quoteToken} />
-        </span>
-        <Text>{tokens[baseToken]?.symbol}/{tokens[quoteToken]?.symbol}</Text>
-      </td>
-      <td className='text-left'>
-        {/*<TextBlue>{weiToNumber(value, 18 + (tokens[quoteToken]?.decimal) || 18 - (tokens[baseToken]?.decimal || 18), 4)} {tokens[quoteToken]?.symbol}</TextBlue>*/}
-      </td>
-      <td className='text-left'>
-        {/*<TdText>{leverage >= 0 ? 'Long' : 'Short'} {formatFloat(leverage, 1)}</TdText>*/}
-      </td>
-    </tr>
-  </React.Fragment>
+  return (
+    <React.Fragment>
+      <tr
+        className='pool-tr'
+        onClick={(e) => {
+          updateCurrentPoolGroup(pool.poolAddress)
+        }}
+      >
+        <td className='pair-name'>
+          <span className='pair-logo'>
+            <TokenIcon size={24} tokenAddress={baseToken} />
+            <TokenIcon size={20} tokenAddress={quoteToken} />
+          </span>
+          <Text>
+            {tokens[baseToken]?.symbol}/{tokens[quoteToken]?.symbol}
+          </Text>
+        </td>
+        <td className='text-left'>
+          {/* <TextBlue>{weiToNumber(value, 18 + (tokens[quoteToken]?.decimal) || 18 - (tokens[baseToken]?.decimal || 18), 4)} {tokens[quoteToken]?.symbol}</TextBlue> */}
+        </td>
+        <td className='text-left'>
+          {/* <TdText>{leverage >= 0 ? 'Long' : 'Short'} {formatFloat(leverage, 1)}</TdText> */}
+        </td>
+      </tr>
+    </React.Fragment>
+  )
 }
 
 export const PoolRowCompact = React.memo(Component, (prevProps, nextProps) =>

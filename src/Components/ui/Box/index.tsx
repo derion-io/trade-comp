@@ -22,14 +22,17 @@ export const Box = (
 
   return (
     <div className='derivable-box__wrap'>
-      {
-        propsWithDefault.title &&
+      {propsWithDefault.title && (
         <div className='derivable-box__title'>{propsWithDefault.title}</div>
-      }
+      )}
 
       <div
         {...propsWithDefault}
-        className={`derivable-box ${propsWithDefault.className} ${propsWithDefault.borderColor ? ('border-' + propsWithDefault.borderColor) : ''} `}
+        className={`derivable-box ${propsWithDefault.className} ${
+          propsWithDefault.borderColor
+            ? 'border-' + propsWithDefault.borderColor
+            : ''
+        } `}
         style={{
           ...propsWithDefault.style,
           background: propsWithDefault.background || 'transparent',

@@ -31,9 +31,7 @@ export default {
       stateCalHelper: '0x270bf3040041160e309130d6AF61c1a7aBf2497D',
       logic: '0xE1550e06C6759b48cD0a6f5851029A30a6Fee735'
     },
-    stableCoins: [
-      '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d'
-    ]
+    stableCoins: ['0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d']
   },
   [CHAINS.ARBITRUM]: {
     rpcUrl: 'https://arb1.arbitrum.io/rpc',
@@ -41,7 +39,8 @@ export default {
     explorer: 'https://arbiscan.io',
     scanApi: 'https://api.arbiscan.io/api',
     candleChartApi: 'https://api.derivable.org/56/chart/',
-    theGraphMessari: 'https://api.thegraph.com/subgraphs/name/messari/uniswap-v3-arbitrum',
+    theGraphMessari:
+      'https://api.thegraph.com/subgraphs/name/messari/uniswap-v3-arbitrum',
     scanName: 'Arbitrum Scan',
     ddlGenesisBlock: 70615018,
     timePerBlock: 1000,
@@ -79,7 +78,8 @@ export default {
     explorer: 'https://basescan.org',
     scanApi: 'https://api.basescan.org/api',
     candleChartApi: 'https://api.derivable.org/56/chart/',
-    theGraphMessari: 'https://api.thegraph.com/subgraphs/name/messari/uniswap-v3-base',
+    theGraphMessari:
+      'https://api.thegraph.com/subgraphs/name/messari/uniswap-v3-base',
     scanName: 'Base Scan',
     ddlGenesisBlock: 70615018,
     timePerBlock: 1000,

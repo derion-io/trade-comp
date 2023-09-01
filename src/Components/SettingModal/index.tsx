@@ -25,162 +25,171 @@ const Component = ({
     setMinPayoffRate,
     setMinLiquidityShare,
     setScanApi,
-    setShowBalance,
+    setShowBalance
   } = useSettings()
   const { chainId } = useConfigs()
   const [visibleAdvance, setVisibleAdvance] = useState<Boolean>(false)
 
   return (
     <Modal
-      setVisible={setVisible} visible={visible}
+      setVisible={setVisible}
+      visible={visible}
       title={visibleAdvance ? 'Advanced Settings' : 'Settings'}
     >
-      {
-        !visibleAdvance
-          ? <div
-            className='swap-setting-modal'
-          >
-            <div className='mb-1'>
-              <div className='mb-05'>
-                <Text>Slippage Tolerance</Text>
-              </div>
-              <InputWithValidate
-                defaultValue={settings.slippage}
-                min={0}
-                max={100}
-                setter={setSlippage}
-                errorMessage='Invalid Slippage'
-              />
-            </div>
-            <div className='mb-1'>
-              <div className='mb-05'>
-                <Text>Min Return Rate</Text>
-              </div>
-              <InputWithValidate
-                defaultValue={settings.minPayoffRate}
-                min={0}
-                max={100}
-                setter={setMinPayoffRate}
-                errorMessage='Invalid Min Pay-Off Rate'
-              />
-            </div>
-
+      {!visibleAdvance ? (
+        <div className='swap-setting-modal'>
+          <div className='mb-1'>
             <div className='mb-05'>
-              <Text>Pools Filter</Text>
+              <Text>Slippage Tolerance</Text>
             </div>
-            <Box borderColor='default p-1'>
-              <div className='mb-1'>
-                <div className='mb-05'>
-                  <Text>Max Interest Rate</Text>
-                </div>
-                <InputWithValidate
-                  defaultValue={settings.maxInterestRate}
-                  min={0}
-                  max={100}
-                  setter={setMaxInterestRate}
-                  errorMessage='Invalid Max Interest Rate'
-                />
-              </div>
-              <div className='mb-1'>
-                <div className='mb-05'>
-                  <Text>Max Deleverage Risk</Text>
-                </div>
-                <InputWithValidate
-                  defaultValue={settings.maxDeleverageRisk}
-                  min={0}
-                  max={100}
-                  setter={setMaxDeleverageRisk}
-                  errorMessage='Invalid Max Deleverage Risk'
-                />
-              </div>
-              <div className='mb-1'>
-                <div className='mb-05'>
-                  <Text>Min Liquidity Share</Text>
-                </div>
-                <InputWithValidate
-                  defaultValue={settings.minLiquidityShare}
-                  min={0}
-                  suffix='%'
-                  setter={setMinLiquidityShare}
-                  errorMessage='Invalid Min Liquidity Share'
-                />
-              </div>
-              <div>
-                <div className='mb-05'>
-                  <Text>Sort</Text>
-                </div>
-                <div className='sort-by__items'>
-                  <BtnSortPool
-                    type={SORT_POOL_BY.LIQUIDITY}
-                    title='Liquidity'
-                  />
-                  <BtnSortPool
-                    type={SORT_POOL_BY.INTEREST_RATE}
-                    title='Interest Rate'
-                  />
-                  <BtnSortPool
-                    type={SORT_POOL_BY.DELEVERAGE_RISK}
-                    title='Deleverage Risk'
-                  />
-                </div>
-              </div>
-            </Box>
-            <div className='advance-setting-row' onClick={() => setVisibleAdvance(!visibleAdvance)}>
-              <TextBlue>Go to Advanced Settings</TextBlue>
-            </div>
-            {
-              visible && visibleAdvance &&
-              <div className='mb-1'>
-                <div className='mb-05'>
-                  <Text>Scan API Key</Text>
-                </div>
-                <InputApiKey
-                  setter={setScanApi}
-                  defaultValue={settings.scanApiKey[chainId]}
-                />
-              </div>
-            }
+            <InputWithValidate
+              defaultValue={settings.slippage}
+              min={0}
+              max={100}
+              setter={setSlippage}
+              errorMessage='Invalid Slippage'
+            />
           </div>
-          : <div
-            className='swap-setting-modal'
+          <div className='mb-1'>
+            <div className='mb-05'>
+              <Text>Min Return Rate</Text>
+            </div>
+            <InputWithValidate
+              defaultValue={settings.minPayoffRate}
+              min={0}
+              max={100}
+              setter={setMinPayoffRate}
+              errorMessage='Invalid Min Pay-Off Rate'
+            />
+          </div>
+
+          <div className='mb-05'>
+            <Text>Pools Filter</Text>
+          </div>
+          <Box borderColor='default p-1'>
+            <div className='mb-1'>
+              <div className='mb-05'>
+                <Text>Max Interest Rate</Text>
+              </div>
+              <InputWithValidate
+                defaultValue={settings.maxInterestRate}
+                min={0}
+                max={100}
+                setter={setMaxInterestRate}
+                errorMessage='Invalid Max Interest Rate'
+              />
+            </div>
+            <div className='mb-1'>
+              <div className='mb-05'>
+                <Text>Max Deleverage Risk</Text>
+              </div>
+              <InputWithValidate
+                defaultValue={settings.maxDeleverageRisk}
+                min={0}
+                max={100}
+                setter={setMaxDeleverageRisk}
+                errorMessage='Invalid Max Deleverage Risk'
+              />
+            </div>
+            <div className='mb-1'>
+              <div className='mb-05'>
+                <Text>Min Liquidity Share</Text>
+              </div>
+              <InputWithValidate
+                defaultValue={settings.minLiquidityShare}
+                min={0}
+                suffix='%'
+                setter={setMinLiquidityShare}
+                errorMessage='Invalid Min Liquidity Share'
+              />
+            </div>
+            <div>
+              <div className='mb-05'>
+                <Text>Sort</Text>
+              </div>
+              <div className='sort-by__items'>
+                <BtnSortPool type={SORT_POOL_BY.LIQUIDITY} title='Liquidity' />
+                <BtnSortPool
+                  type={SORT_POOL_BY.INTEREST_RATE}
+                  title='Interest Rate'
+                />
+                <BtnSortPool
+                  type={SORT_POOL_BY.DELEVERAGE_RISK}
+                  title='Deleverage Risk'
+                />
+              </div>
+            </div>
+          </Box>
+          <div
+            className='advance-setting-row'
+            onClick={() => setVisibleAdvance(!visibleAdvance)}
           >
-            {
-              visible &&
-              <div className='mb-1'>
-                <div className='mb-05'>
-                  <ToggleSwitch label='Show Balance' defaultChecked={settings.showBalance} setter={setShowBalance} />
-                </div>
-                <div className='mb-05'>
-                  <Text>Scan API Key</Text>
-                </div>
-                <InputApiKey
-                  setter={setScanApi}
-                  defaultValue={settings.scanApiKey[chainId]}
-                />
-                <div className='advance-setting-row' onClick={() => setVisibleAdvance(!visibleAdvance)}>
-                  <TextBlue>Back to Settings</TextBlue>
-                </div>
-              </div>
-            }
+            <TextBlue>Go to Advanced Settings</TextBlue>
           </div>
-      }
+          {visible && visibleAdvance && (
+            <div className='mb-1'>
+              <div className='mb-05'>
+                <Text>Scan API Key</Text>
+              </div>
+              <InputApiKey
+                setter={setScanApi}
+                defaultValue={settings.scanApiKey[chainId]}
+              />
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className='swap-setting-modal'>
+          {visible && (
+            <div className='mb-1'>
+              <div className='mb-05'>
+                <ToggleSwitch
+                  label='Show Balance'
+                  defaultChecked={settings.showBalance}
+                  setter={setShowBalance}
+                />
+              </div>
+              <div className='mb-05'>
+                <Text>Scan API Key</Text>
+              </div>
+              <InputApiKey
+                setter={setScanApi}
+                defaultValue={settings.scanApiKey[chainId]}
+              />
+              <div
+                className='advance-setting-row'
+                onClick={() => setVisibleAdvance(!visibleAdvance)}
+              >
+                <TextBlue>Back to Settings</TextBlue>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </Modal>
   )
 }
 
 const BtnSortPool = ({ type, title }: any) => {
   const { settings, setSortPoolBuy } = useSettings()
-  return <span
-    onClick={() => {
-      setSortPoolBuy(type)
-    }}
-    className={`sort-by__item ${settings.sortPoolBy === type && 'active'}`}
-  >{title}</span>
+  return (
+    <span
+      onClick={() => {
+        setSortPoolBuy(type)
+      }}
+      className={`sort-by__item ${settings.sortPoolBy === type && 'active'}`}
+    >
+      {title}
+    </span>
+  )
 }
 
-const InputApiKey = ({ defaultValue, setter }: {
-  defaultValue: string,
-  setter: any,
+const InputApiKey = ({
+  defaultValue,
+  setter
+}: {
+  defaultValue: string
+  setter: any
 }) => {
   const [value, setValue] = useState(defaultValue)
   const [error, setError] = useState('')
@@ -190,7 +199,10 @@ const InputApiKey = ({ defaultValue, setter }: {
   }, [value])
 
   const validateApiKey = async () => {
-    const res = await fetch('https://api.arbiscan.io/api?module=block&action=getblocknobytime&timestamp=1689517013&closest=before&apikey=' + value).then((r) => r.json())
+    const res = await fetch(
+      'https://api.arbiscan.io/api?module=block&action=getblocknobytime&timestamp=1689517013&closest=before&apikey=' +
+        value
+    ).then((r) => r.json())
     if (res.status === '0' && res.message === 'NOTOK' && res.result) {
       setError(res.result)
     } else {
@@ -199,26 +211,33 @@ const InputApiKey = ({ defaultValue, setter }: {
     }
   }
 
-  return <div>
-    <Input
-      value={value}
-      onChange={(e) => {
-        // @ts-ignore
-        setValue(e.target.value)
-      }}
-    />
-    {
-      error && <TextError>{error}</TextError>
-    }
-  </div>
+  return (
+    <div>
+      <Input
+        value={value}
+        onChange={(e) => {
+          // @ts-ignore
+          setValue(e.target.value)
+        }}
+      />
+      {error && <TextError>{error}</TextError>}
+    </div>
+  )
 }
 
-const InputWithValidate = ({ suffix = '%', defaultValue, setter, min, max, errorMessage }: {
-  defaultValue: number,
-  setter: any,
-  suffix?: string,
-  min?: number,
-  max?: number,
+const InputWithValidate = ({
+  suffix = '%',
+  defaultValue,
+  setter,
+  min,
+  max,
+  errorMessage
+}: {
+  defaultValue: number
+  setter: any
+  suffix?: string
+  min?: number
+  max?: number
   errorMessage: string
 }) => {
   const [slippageState, setSlippageState] = useState(defaultValue)
@@ -229,20 +248,24 @@ const InputWithValidate = ({ suffix = '%', defaultValue, setter, min, max, error
     }
   }, [slippageState])
 
-  return <div>
-    <Input
-      value={slippageState}
-      type='number'
-      onChange={(e) => {
-        // @ts-ignore
-        setSlippageState(e.target.value)
-      }}
-      suffix={suffix}
-    />
-    {
-      (min && slippageState < min) || (max && slippageState > max) ? <TextError>{errorMessage}</TextError> : ''
-    }
-  </div>
+  return (
+    <div>
+      <Input
+        value={slippageState}
+        type='number'
+        onChange={(e) => {
+          // @ts-ignore
+          setSlippageState(e.target.value)
+        }}
+        suffix={suffix}
+      />
+      {(min && slippageState < min) || (max && slippageState > max) ? (
+        <TextError>{errorMessage}</TextError>
+      ) : (
+        ''
+      )}
+    </div>
+  )
 }
 
 export const SettingModal = React.memo(Component, (prevProps, nextProps) =>

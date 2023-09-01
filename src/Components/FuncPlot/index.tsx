@@ -3,7 +3,13 @@ import { Expression, GraphingCalculator } from 'desmos-react'
 import './style.scss'
 import { Card } from '../ui/Card'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
-import { bn, formatFloat, formatZeroDecimal, isUSD, weiToNumber } from '../../utils/helpers'
+import {
+  bn,
+  formatFloat,
+  formatZeroDecimal,
+  isUSD,
+  weiToNumber
+} from '../../utils/helpers'
 import { CandleChartLoader } from '../ChartLoaders'
 import { useListTokens } from '../../state/token/hook'
 import { useHelper } from '../../state/config/useHelper'
@@ -13,32 +19,32 @@ const GX = 'g(P,x,v,R)=\\{vx^{-P}<R/2:R-vx^{-P},R^2/(4vx^{-P})\\}'
 
 function _r(xk: number, v: number, R: number): number {
   const r = v * xk
-  if (r <= R/2) {
+  if (r <= R / 2) {
     return r
   }
-  const denominator = v * xk  * 4
-  const minuend = R*R / denominator
+  const denominator = v * xk * 4
+  const minuend = (R * R) / denominator
   return R - minuend
 }
 
 function _v(xk: number, r: number, R: number): number {
-  if (r <= R/2) {
+  if (r <= R / 2) {
     return r / xk
   }
-  const denominator = (R-r) * xk * 4
-  return R*R / denominator
+  const denominator = (R - r) * xk * 4
+  return (R * R) / denominator
 }
 
 function _x(k: number, r: number, v: number): number {
-  return Math.pow(r/v, 1/k)
+  return Math.pow(r / v, 1 / k)
 }
 
 function _k(k: number, x: number, v: number, R: number): number {
-  return k*R/Math.abs(4*v*(x**k)-R)
+  return (k * R) / Math.abs(4 * v * x ** k - R)
 }
 
 function pX(x: number, mark: number): string {
-  return formatZeroDecimal(x*mark)
+  return formatZeroDecimal(x * mark)
 }
 
 export const FunctionPlot = (props: any) => {
@@ -47,18 +53,43 @@ export const FunctionPlot = (props: any) => {
   const { wrapToNativeAddress } = useHelper()
   const calc = React.useRef() as React.MutableRefObject<Desmos.Calculator>
 
-  const { PX, a, b, priceIndex, R, P, X, mark, R1, a1, b1, drAChange, drBChange, AD, BD } = useMemo(() => {
+  const {
+    PX,
+    a,
+    b,
+    priceIndex,
+    R,
+    P,
+    X,
+    mark,
+    R1,
+    a1,
+    b1,
+    drAChange,
+    drBChange,
+    AD,
+    BD
+  } = useMemo(() => {
     const { k, baseToken, quoteToken, states, MARK } = currentPool ?? {}
-    const decimalsOffset = (tokens[baseToken]?.decimal ?? 18) - (tokens[quoteToken]?.decimal ?? 18)
+    const decimalsOffset =
+      (tokens[baseToken]?.decimal ?? 18) - (tokens[quoteToken]?.decimal ?? 18)
     const K = k?.toNumber() ?? 2
-    const P = K/2
+    const P = K / 2
     const R = formatFloat(weiToNumber(states?.R))
     const a = formatFloat(weiToNumber(states?.a))
     const b = formatFloat(weiToNumber(states?.b))
-    const mark = MARK ? MARK.mul(MARK).mul((bn(10).pow(decimalsOffset+12))).shr(256).toNumber() / 1000000000000 : 1
-    const x = (!states?.spot || !MARK) ? 1 :
-      bn(states?.spot).mul(1000000000000).div(MARK).toNumber() / 1000000000000
-    const X = x*x
+    const mark = MARK
+      ? MARK.mul(MARK)
+          .mul(bn(10).pow(decimalsOffset + 12))
+          .shr(256)
+          .toNumber() / 1000000000000
+      : 1
+    const x =
+      !states?.spot || !MARK
+        ? 1
+        : bn(states?.spot).mul(1000000000000).div(MARK).toNumber() /
+          1000000000000
+    const X = x * x
 
     let priceIndex = tokens[wrapToNativeAddress(baseToken)]?.symbol
     if (!isUSD(tokens[quoteToken]?.symbol)) {
@@ -67,23 +98,47 @@ export const FunctionPlot = (props: any) => {
     const PX = X * 0.01
     const R1 = R + drA + drB + drC
 
-    const xk = x**K
+    const xk = x ** K
     const rA = _r(xk, a, R)
-    const rB = _r(1/xk, b, R)
+    const rB = _r(1 / xk, b, R)
     const rA1 = rA + drA
     const rB1 = rB + drB
     const a1 = _v(xk, rA1, R1)
-    const b1 = _v(1/xk, rB1, R1)
+    const b1 = _v(1 / xk, rB1, R1)
 
-    const drAChange = rA1 != rA ? `x=${X}\\{${Math.min(rA,rA1)}<y<${Math.max(rA,rA1)}\\}` : null
-    const drBChange = (R1-rB1) != (R-rB) ? `x=${X}\\{${Math.min(R-rB,R1-rB1)}<y<${Math.max(R-rB,R1-rB1)}\\}` : null
+    const drAChange =
+      rA1 != rA
+        ? `x=${X}\\{${Math.min(rA, rA1)}<y<${Math.max(rA, rA1)}\\}`
+        : null
+    const drBChange =
+      R1 - rB1 != R - rB
+        ? `x=${X}\\{${Math.min(R - rB, R1 - rB1)}<y<${Math.max(
+            R - rB,
+            R1 - rB1
+          )}\\}`
+        : null
 
-    const AD = _x(P, R1/2, a1)
-    const BD = _x(-P, R1/2, b1)
+    const AD = _x(P, R1 / 2, a1)
+    const BD = _x(-P, R1 / 2, b1)
 
-    return { PX, a, b, priceIndex, R, P, X, mark, R1, a1, b1, drAChange, drBChange, AD, BD }
+    return {
+      PX,
+      a,
+      b,
+      priceIndex,
+      R,
+      P,
+      X,
+      mark,
+      R1,
+      a1,
+      b1,
+      drAChange,
+      drBChange,
+      AD,
+      BD
+    }
   }, [currentPool, drA, drB, drC])
-
 
   React.useEffect(() => {
     if (calc && calc.current) {
@@ -97,9 +152,11 @@ export const FunctionPlot = (props: any) => {
   }, [calc, R, R1, X])
 
   if (!currentPool.states) {
-    return <Card className='p-1'>
-      <CandleChartLoader />
-    </Card>
+    return (
+      <Card className='p-1'>
+        <CandleChartLoader />
+      </Card>
+    )
   }
 
   return (
@@ -148,7 +205,7 @@ export const FunctionPlot = (props: any) => {
               id='R1'
               latex={`y=${R1}\\{${PX}<x\\}`}
               color='RED'
-              hidden={R==R1}
+              hidden={R == R1}
               lineWidth={1.5}
               lineStyle='DASHED'
             />
@@ -159,43 +216,81 @@ export const FunctionPlot = (props: any) => {
               lineStyle='DASHED'
               lineWidth={1.5}
             /> */}
-            <Expression id='short' latex={`g(${P},x,${b},${R})\\{${PX}<x\\}`} color='GREEN' />
-            <Expression id='long' latex={`f(${P},x,${a},${R})\\{${PX}<x\\}`} color='PURPLE' />
-            <Expression id='short1' latex={`g(${P},x,${b1},${R1})\\{${PX}<x\\}`} color='GREEN' lineStyle='DASHED' hidden={!drBChange&&R1==R} />
-            <Expression id='long1' latex={`f(${P},x,${a1},${R1})\\{${PX}<x\\}`} color='PURPLE' lineStyle='DASHED' hidden={!drAChange&&R1==R} />
+            <Expression
+              id='short'
+              latex={`g(${P},x,${b},${R})\\{${PX}<x\\}`}
+              color='GREEN'
+            />
+            <Expression
+              id='long'
+              latex={`f(${P},x,${a},${R})\\{${PX}<x\\}`}
+              color='PURPLE'
+            />
+            <Expression
+              id='short1'
+              latex={`g(${P},x,${b1},${R1})\\{${PX}<x\\}`}
+              color='GREEN'
+              lineStyle='DASHED'
+              hidden={!drBChange && R1 == R}
+            />
+            <Expression
+              id='long1'
+              latex={`f(${P},x,${a1},${R1})\\{${PX}<x\\}`}
+              color='PURPLE'
+              lineStyle='DASHED'
+              hidden={!drAChange && R1 == R}
+            />
             <Expression
               id='Price'
               latex={`(${X},0)`}
               color='BLACK'
               hidden
               showLabel
-              label={`${pX(X,mark)}`}
+              label={`${pX(X, mark)}`}
               labelOrientation={Desmos.LabelOrientations.BELOW}
             />
             <Expression
               id='AD'
-              latex={`(${AD},${R1/2})`}
+              latex={`(${AD},${R1 / 2})`}
               color='PURPLE'
               pointSize={20}
               pointOpacity={0.5}
               showLabel
-              label={`${pX(AD,mark)}`}
+              label={`${pX(AD, mark)}`}
               labelOrientation={Desmos.LabelOrientations.RIGHT}
             />
             <Expression
               id='BD'
-              latex={`(${BD},${R1/2})`}
+              latex={`(${BD},${R1 / 2})`}
               color='GREEN'
               pointSize={20}
               pointOpacity={0.5}
               showLabel
-              label={`${pX(BD,mark)}`}
+              label={`${pX(BD, mark)}`}
               labelOrientation={Desmos.LabelOrientations.LEFT}
             />
-            <Expression id='S' latex={`(${X},g(${P},${X},${b},${R}))`} color='GREEN' />
-            <Expression id='L' latex={`(${X},f(${P},${X},${a},${R}))`} color='PURPLE' />
-            <Expression id='S1' latex={`(${X},g(${P},${X},${b1},${R1}))`} color='GREEN' hidden={drBChange==null} />
-            <Expression id='L1' latex={`(${X},f(${P},${X},${a1},${R1}))`} color='PURPLE' hidden={drAChange==null} />
+            <Expression
+              id='S'
+              latex={`(${X},g(${P},${X},${b},${R}))`}
+              color='GREEN'
+            />
+            <Expression
+              id='L'
+              latex={`(${X},f(${P},${X},${a},${R}))`}
+              color='PURPLE'
+            />
+            <Expression
+              id='S1'
+              latex={`(${X},g(${P},${X},${b1},${R1}))`}
+              color='GREEN'
+              hidden={drBChange == null}
+            />
+            <Expression
+              id='L1'
+              latex={`(${X},f(${P},${X},${a1},${R1}))`}
+              color='PURPLE'
+              hidden={drAChange == null}
+            />
             {/*
             <Expression
               id='rB'

@@ -38,7 +38,10 @@ export const tokens = createSlice({
         minLiquidityShare: any
       }>
     ) => {
-      localStorage.setItem('minLiquidityShare', action.payload.minLiquidityShare)
+      localStorage.setItem(
+        'minLiquidityShare',
+        action.payload.minLiquidityShare
+      )
       state.minLiquidityShare = action.payload.minLiquidityShare
     },
     setDeleverageChanceReduce: (
@@ -47,7 +50,10 @@ export const tokens = createSlice({
         maxDeleverageRisk: any
       }>
     ) => {
-      localStorage.setItem('maxDeleverageRisk', action.payload.maxDeleverageRisk)
+      localStorage.setItem(
+        'maxDeleverageRisk',
+        action.payload.maxDeleverageRisk
+      )
       state.maxDeleverageRisk = action.payload.maxDeleverageRisk
     },
     setScanApiKeyReduce: (
@@ -58,7 +64,7 @@ export const tokens = createSlice({
       }>
     ) => {
       state.scanApiKey[action.payload.chainId] = action.payload.scanApiKey
-      localStorage.setItem(`scanApiKey`, JSON.stringify(state.scanApiKey))
+      localStorage.setItem('scanApiKey', JSON.stringify(state.scanApiKey))
     },
     setSortPoolBuyReduce: (
       state,

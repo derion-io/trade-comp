@@ -19,7 +19,7 @@ export enum SORT_POOL_BY {
 export enum VALUE_IN_USD_STATUS {
   AUTO,
   USD,
-  TOKEN_R,
+  TOKEN_R
 }
 
 export interface settingsState {
@@ -35,7 +35,9 @@ export interface settingsState {
 }
 
 export const initialState: settingsState = {
-  sortPoolBy: Number(localStorage.getItem('sortPoolBy') ?? SORT_POOL_BY.INTEREST_RATE),
+  sortPoolBy: Number(
+    localStorage.getItem('sortPoolBy') ?? SORT_POOL_BY.INTEREST_RATE
+  ),
   scanApiKey: loadJSON('scanApiKey', {}),
   slippage: Number(localStorage.getItem('slippage') ?? 3),
   minPayoffRate: Number(localStorage.getItem('minPayoffRate') ?? 97),

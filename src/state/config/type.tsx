@@ -6,9 +6,9 @@ export interface configsState {
   language: string
   location: any
   useHistory: any
-  env: 'development' | 'production',
+  env: 'development' | 'production'
   configs: {
-    addresses: {[key: string]: string}
+    addresses: { [key: string]: string }
     rpcUrl: string
     scanApi: string
     ddlGenesisBlock: number
@@ -16,7 +16,7 @@ export interface configsState {
     scanName: string
     dTokens: string[]
     powers: number[]
-  },
+  }
   initialledConfig: boolean
   engine?: Engine
 }

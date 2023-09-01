@@ -7,10 +7,18 @@ const mdp = require('move-decimal-point')
 export const bn = ethers.BigNumber.from
 
 export const shortenAddressString = (address: string) => {
-  return address.slice?.(0, 6) + '...' + address.slice?.(address.length - 4, address.length)
+  return (
+    address.slice?.(0, 6) +
+    '...' +
+    address.slice?.(address.length - 4, address.length)
+  )
 }
 
-export const weiToNumber = (wei: any, decimal: number = 18, decimalToDisplay?: number): string => {
+export const weiToNumber = (
+  wei: any,
+  decimal: number = 18,
+  decimalToDisplay?: number
+): string => {
   if (!wei || !Number(wei)) return '0'
   wei = wei.toString()
   const num = mdp(wei, -decimal)
@@ -70,7 +78,10 @@ export const parseCallStaticError = (error: any) => {
     console.error(reason)
     return 'Execution Reverted'
   }
-  const matches = Array.from(reason.matchAll(CALL_REVERT_REGEX), (m: string[]) => m[1])
+  const matches = Array.from(
+    reason.matchAll(CALL_REVERT_REGEX),
+    (m: string[]) => m[1]
+  )
   return matches?.[0] ?? reason
 }
 
@@ -139,7 +150,15 @@ export const sub = (a: any, b: any) => {
 
 export const div = (a: any, b: any) => {
   if (b.toLocaleString('fullwide', { useGrouping: false }) === '0') {
-    return weiToNumber(BigNumber.from(numberToWei((Number(a) / Number(b)).toLocaleString('fullwide', { useGrouping: false }))))
+    return weiToNumber(
+      BigNumber.from(
+        numberToWei(
+          (Number(a) / Number(b)).toLocaleString('fullwide', {
+            useGrouping: false
+          })
+        )
+      )
+    )
   }
   a = a.toLocaleString('fullwide', { useGrouping: false })
   b = b.toLocaleString('fullwide', { useGrouping: false })
@@ -152,7 +171,11 @@ export const add = (a: any, b: any) => {
   return weiToNumber(BigNumber.from(numberToWei(a)).add(numberToWei(b)))
 }
 
-export const formatPercent = (floatNumber: any, decimal: number = 2, rounding: boolean = false) => {
+export const formatPercent = (
+  floatNumber: any,
+  decimal: number = 2,
+  rounding: boolean = false
+) => {
   if (rounding) {
     return Math.round(Number(floatNumber) * 10 ** (decimal + 2)) / 10 ** decimal
   }
@@ -246,8 +269,8 @@ export const detectDecimalFromPrice = (price: number | string) => {
   } else {
     const rate = !bn(numberToWei(price)).isZero()
       ? weiToNumber(
-        BigNumber.from(numberToWei(1, 36)).div(numberToWei(price)).toString()
-      )
+          BigNumber.from(numberToWei(1, 36)).div(numberToWei(price)).toString()
+        )
       : '0'
     return rate.split('.')[0].length + 2
   }
@@ -256,13 +279,15 @@ export const detectDecimalFromPrice = (price: number | string) => {
 export const getTokenPower = (
   TOKEN_R: string,
   baseToken: string,
-  id: number, k: number) => {
+  id: number,
+  k: number
+) => {
   return k / 2
   // if (id === POOL_IDS.C) return k / 2
   // return (TOKEN_R === baseToken && id !== POOL_IDS.C ? 1 : 0) + (id === POOL_IDS.B ? -1 : 1) * k / 2
 }
 
-export const getTitleBuyTradeType = (type: TRADE_TYPE) : string => {
+export const getTitleBuyTradeType = (type: TRADE_TYPE): string => {
   switch (type) {
     case TRADE_TYPE.LONG:
       return 'Long'
@@ -273,7 +298,7 @@ export const getTitleBuyTradeType = (type: TRADE_TYPE) : string => {
   }
 }
 
-export const tradeTypeToId = (type: TRADE_TYPE) : number => {
+export const tradeTypeToId = (type: TRADE_TYPE): number => {
   switch (type) {
     case TRADE_TYPE.LONG:
       return POOL_IDS.A
@@ -285,35 +310,62 @@ export const tradeTypeToId = (type: TRADE_TYPE) : number => {
 }
 
 export const isUSD = (symbol: string): boolean => {
-  return symbol?.includes('USD') ||
+  return (
+    symbol?.includes('USD') ||
     symbol?.includes('DAI') ||
     symbol?.includes('SAI')
+  )
 }
 
-export const formatZeroDecimal = (value: number, minZeroDecimal: number = 4): string => {
+export const formatZeroDecimal = (
+  value: number,
+  minZeroDecimal: number = 4
+): string => {
   const x = value
   const countZeroAfterDot = -Math.floor(Math.log10(x) + 1)
-  if (Number.isFinite(countZeroAfterDot) && countZeroAfterDot >= minZeroDecimal) {
-    const ucZeros = String.fromCharCode(parseInt(`+208${countZeroAfterDot}`, 16))
-    return x.toLocaleString('fullwide', { maximumSignificantDigits: 4, maximumFractionDigits: 18 }).replace(/\.0+/, `.0${ucZeros}`)
+  if (
+    Number.isFinite(countZeroAfterDot) &&
+    countZeroAfterDot >= minZeroDecimal
+  ) {
+    const ucZeros = String.fromCharCode(
+      parseInt(`+208${countZeroAfterDot}`, 16)
+    )
+    return x
+      .toLocaleString('fullwide', {
+        maximumSignificantDigits: 4,
+        maximumFractionDigits: 18
+      })
+      .replace(/\.0+/, `.0${ucZeros}`)
   }
-  return value.toLocaleString('fullwide', { maximumSignificantDigits: 4, maximumFractionDigits: 18 })
+  return value.toLocaleString('fullwide', {
+    maximumSignificantDigits: 4,
+    maximumFractionDigits: 18
+  })
 }
 
 export const xr = (k: number, r: BigNumber, v: BigNumber): number => {
   try {
     const x = r.mul(1000000).div(v).toNumber() / 1000000
     return Math.pow(x, 1 / k)
-  } catch(err) {
+  } catch (err) {
     console.warn(err)
     return 0
   }
 }
 
-export const kx = (k: number, R: BigNumber, v: BigNumber, spot: BigNumber, MARK: BigNumber): number => {
+export const kx = (
+  k: number,
+  R: BigNumber,
+  v: BigNumber,
+  spot: BigNumber,
+  MARK: BigNumber
+): number => {
   try {
     const xk = Math.pow(spot.mul(1000000).div(MARK).toNumber() / 1000000, k)
-    const vxk4 = v.mul(Math.round(xk * 1000000)).shl(2).div(1000000)
+    const vxk4 = v
+      .mul(Math.round(xk * 1000000))
+      .shl(2)
+      .div(1000000)
     const denom = vxk4.gt(R) ? vxk4.sub(R) : R.sub(vxk4)
     const num = R.mul(k)
     return num.mul(1000000).div(denom).toNumber() / 1000000

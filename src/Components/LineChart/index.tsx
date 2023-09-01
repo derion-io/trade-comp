@@ -1,14 +1,27 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useExchangeData } from '../../hooks/useExchangeData'
 import { LineChartLoader } from '../ChartLoaders'
-import { ResponsiveContainer, XAxis, YAxis, Tooltip, AreaChart, Area } from 'recharts'
+import {
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+  Tooltip,
+  AreaChart,
+  Area
+} from 'recharts'
 import './style.scss'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 import moment from 'moment'
 import { useListTokens } from '../../state/token/hook'
 import { Text, TextBuy, TextGrey, TextSell } from '../ui/Text'
 // eslint-disable-next-line no-unused-vars
-import { DATE_FORMATS, I_1D, I_1W, INTERVALS_TAB, LineChartIntervalType } from '../../utils/lineChartConstant'
+import {
+  DATE_FORMATS,
+  I_1D,
+  I_1W,
+  INTERVALS_TAB,
+  LineChartIntervalType
+} from '../../utils/lineChartConstant'
 import { Tabs } from '../ui/Tabs'
 import { COLORS } from '../../utils/constant'
 import isEqual from 'react-fast-compare'
@@ -42,38 +55,36 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   }, [basePrice])
 
   const finalData = useMemo(() => {
-    const data = [
-      ...chartData[chainId + interval + cToken]
-    ]
+    const data = [...chartData[chainId + interval + cToken]]
     return data
   }, [chartData, interval, chainId])
 
   const color = useMemo(() => {
-    return changedIn24h > 0
-      ? COLORS.BUY
-      : COLORS.SELL
+    return changedIn24h > 0 ? COLORS.BUY : COLORS.SELL
   }, [changedIn24h])
 
   const loadData = () => {
     setIsLoading(true)
-    getLineChartData({ pair: cToken.toLowerCase(), baseToken, interval })
-      .then((data) => {
+    getLineChartData({ pair: cToken.toLowerCase(), baseToken, interval }).then(
+      (data) => {
         setChartData({
           ...chartData,
           [chainId + interval + cToken]: data
         })
         setIsLoading(false)
-      })
+      }
+    )
   }
 
-  return <div className='line-chart-wrap'>
-    <div className='line-chart__head'>
-      <div className='line-chart__head--left'>
-        <div>
-          <Text fontSize={18} fontWeight={700} className='mr-05'>
-            {hoverValue}
-          </Text>
-          {/*
+  return (
+    <div className='line-chart-wrap'>
+      <div className='line-chart__head'>
+        <div className='line-chart__head--left'>
+          <div>
+            <Text fontSize={18} fontWeight={700} className='mr-05'>
+              {hoverValue}
+            </Text>
+            {/*
           <TextGrey className='mr-05' fontWeight={700}>
             {tokens[baseToken]?.symbol}/{tokens[quoteToken]?.symbol}
           </TextGrey>
@@ -83,85 +94,95 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
               : <TextSell>({changedIn24h}%)</TextSell>
           }
           */}
+          </div>
+          <div>
+            <TextGrey>{moment(hoverDate).format(DATE_FORMATS.FULL)}</TextGrey>
+          </div>
         </div>
-        <div>
-          <TextGrey>{moment(hoverDate).format(DATE_FORMATS.FULL)}</TextGrey>
+        <div className='line-chart__head--right'>
+          <Tabs tab={interval} setTab={setInterval} tabs={INTERVALS_TAB} />
         </div>
       </div>
-      <div className='line-chart__head--right'>
-        <Tabs
-          tab={interval}
-          setTab={setInterval}
-          tabs={INTERVALS_TAB}
-        />
-      </div>
-    </div>
-    <div className='line-chart-box'>
-      {(isLoading || !chartData[chainId + interval + cToken])
-        ? <div className='line-chart__loading'>
-          <LineChartLoader />
-        </div>
-        : <div
-          className='line-chart__reload-icon'
-          onClick={loadData}
-          style={{ display: chartData[chainId + interval + cToken].length > 0 ? 'none' : '' }}
-        >
-          <ReloadIcon />
-        </div>
-      }
-      {(chartData[chainId + interval + cToken] && chartData[chainId + interval + cToken].length > 0) &&
-        <ResponsiveContainer>
-          <AreaChart
-            data={finalData}
-            margin={{
-              top: 5,
-              right: 0,
-              left: 10,
-              bottom: 5
+      <div className='line-chart-box'>
+        {isLoading || !chartData[chainId + interval + cToken] ? (
+          <div className='line-chart__loading'>
+            <LineChartLoader />
+          </div>
+        ) : (
+          <div
+            className='line-chart__reload-icon'
+            onClick={loadData}
+            style={{
+              display:
+                chartData[chainId + interval + cToken].length > 0 ? 'none' : ''
             }}
           >
-            <defs>
-              <linearGradient id='gradient' x1='0' y1='0' x2='0' y2='1'>
-                <stop offset='5%' stopColor={color} stopOpacity={0.34} />
-                <stop offset='100%' stopColor={color} stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <XAxis
-              dataKey='time'
-              axisLine={false}
-              tickLine={false}
-              tickFormatter={(time) => moment(time).format(interval === I_1D ? 'HH:mm' : 'DD/MM')}
-              minTickGap={8}
-            />
-            <YAxis
-              dataKey='value'
-              tickFormatter={tick => {
-                return formatZeroDecimal(tick)
-              }}
-              axisLine={false}
-              tickLine={false}
-              domain={['auto', 'auto']}
-              minTickGap={8}
-              orientation='right'
-            />
-            <Tooltip
-              cursor={{ stroke: '#a6a6a6' }}
-              contentStyle={{ display: 'none' }}
-              // @ts-ignore
-              formatter={(tooltipValue, name, props) => (
-                <HoverUpdater
-                  payload={props.payload}
-                  setHoverValue={setHoverValue}
-                  setHoverDate={setHoverDate}
+            <ReloadIcon />
+          </div>
+        )}
+        {chartData[chainId + interval + cToken] &&
+          chartData[chainId + interval + cToken].length > 0 && (
+            <ResponsiveContainer>
+              <AreaChart
+                data={finalData}
+                margin={{
+                  top: 5,
+                  right: 0,
+                  left: 10,
+                  bottom: 5
+                }}
+              >
+                <defs>
+                  <linearGradient id='gradient' x1='0' y1='0' x2='0' y2='1'>
+                    <stop offset='5%' stopColor={color} stopOpacity={0.34} />
+                    <stop offset='100%' stopColor={color} stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <XAxis
+                  dataKey='time'
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={(time) =>
+                    moment(time).format(interval === I_1D ? 'HH:mm' : 'DD/MM')
+                  }
+                  minTickGap={8}
                 />
-              )}
-            />
-            <Area dataKey='value' type='linear' stroke={color} fill='url(#gradient)' strokeWidth={2} />
-          </AreaChart>
-        </ResponsiveContainer>
-      }
+                <YAxis
+                  dataKey='value'
+                  tickFormatter={(tick) => {
+                    return formatZeroDecimal(tick)
+                  }}
+                  axisLine={false}
+                  tickLine={false}
+                  domain={['auto', 'auto']}
+                  minTickGap={8}
+                  orientation='right'
+                />
+                <Tooltip
+                  cursor={{ stroke: '#a6a6a6' }}
+                  contentStyle={{ display: 'none' }}
+                  // @ts-ignore
+                  formatter={(tooltipValue, name, props) => (
+                    <HoverUpdater
+                      payload={props.payload}
+                      setHoverValue={setHoverValue}
+                      setHoverDate={setHoverDate}
+                    />
+                  )}
+                />
+                <Area
+                  dataKey='value'
+                  type='linear'
+                  stroke={color}
+                  fill='url(#gradient)'
+                  strokeWidth={2}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          )}
+      </div>
     </div>
-  </div>
+  )
 }
 
 const HoverUpdater = ({ payload, setHoverValue, setHoverDate }: any) => {

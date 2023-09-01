@@ -33,10 +33,7 @@ export const useFetchTokenPrice = () => {
 
   const fetchPrice = async () => {
     const tokenAddress = _.uniq(
-      [
-        ...Object.keys(tokens),
-        configs.addresses.wrapToken
-      ].filter((a) => {
+      [...Object.keys(tokens), configs.addresses.wrapToken].filter((a) => {
         return isAddress(a) && a !== NATIVE_ADDRESS
       })
     )
@@ -44,10 +41,12 @@ export const useFetchTokenPrice = () => {
     if (ddlEngine && tokenAddress.length > 0) {
       ddlEngine.PRICE.getTokenPrices(tokenAddress)
         .then((data: any) => {
-          dispatch(addTokenPriceWithChain({
-            prices: data,
-            chainId
-          }))
+          dispatch(
+            addTokenPriceWithChain({
+              prices: data,
+              chainId
+            })
+          )
         })
         .catch((e) => {
           console.error(e)

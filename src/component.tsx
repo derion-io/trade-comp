@@ -53,14 +53,15 @@ export default ({
           showConnectWalletModal={showConnectWalletModal}
           env={env}
         >
-          <ConfigProvider theme={{
-            algorithm: darkAlgorithm,
-            token: {
-              colorBgBase: '#242731',
-              colorTextBase: '#fff',
-              colorPrimaryBg: '#292b33'
-            }
-          }}
+          <ConfigProvider
+            theme={{
+              algorithm: darkAlgorithm,
+              token: {
+                colorBgBase: '#242731',
+                colorTextBase: '#fff',
+                colorPrimaryBg: '#292b33'
+              }
+            }}
           >
             <App />
           </ConfigProvider>

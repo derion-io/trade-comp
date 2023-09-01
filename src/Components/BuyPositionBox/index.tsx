@@ -26,7 +26,9 @@ import {
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { NATIVE_ADDRESS, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
 import { useConfigs } from '../../state/config/useConfigs'
-import formatLocalisedCompactNumber, { formatWeiToDisplayNumber } from '../../utils/formatBalance'
+import formatLocalisedCompactNumber, {
+  formatWeiToDisplayNumber
+} from '../../utils/formatBalance'
 import isEqual from 'react-fast-compare'
 import { ApproveUtrModal } from '../ApproveUtrModal'
 import _ from 'lodash'
@@ -54,7 +56,7 @@ const Component = ({
   setOutputTokenAddress,
   tokenOutMaturity
 }: {
-  tradeType?: TRADE_TYPE,
+  tradeType?: TRADE_TYPE
   inputTokenAddress: string
   outputTokenAddress: string
   setInputTokenAddress: any
@@ -63,9 +65,13 @@ const Component = ({
 }) => {
   const [barData, setBarData] = useState<any>({})
   const { configs } = useConfigs()
-  const { allTokens, id, pools, chartTab, setChartTab, setTradeType } = useCurrentPoolGroup()
-  const [visibleSelectTokenModal, setVisibleSelectTokenModal] = useState<boolean>(false)
-  const [tokenTypeToSelect, setTokenTypeToSelect] = useState<'input' | 'output'>('input')
+  const { allTokens, id, pools, chartTab, setChartTab, setTradeType } =
+    useCurrentPoolGroup()
+  const [visibleSelectTokenModal, setVisibleSelectTokenModal] =
+    useState<boolean>(false)
+  const [tokenTypeToSelect, setTokenTypeToSelect] = useState<
+    'input' | 'output'
+  >('input')
   const [amountIn, setAmountIn] = useState<string>('')
   const { balances } = useWalletBalance()
   const [visibleApproveModal, setVisibleApproveModal] = useState<boolean>(false)
@@ -77,10 +83,16 @@ const Component = ({
   const leverageData = useGenerateLeverageData(tradeType)
 
   useEffect(() => {
-    if (tradeType === TRADE_TYPE.LIQUIDITY && chartTab !== CHART_TABS.FUNC_PLOT) {
+    if (
+      tradeType === TRADE_TYPE.LIQUIDITY &&
+      chartTab !== CHART_TABS.FUNC_PLOT
+    ) {
       setChartTab(CHART_TABS.FUNC_PLOT)
     }
-    if (tradeType !== TRADE_TYPE.LIQUIDITY && chartTab === CHART_TABS.FUNC_PLOT) {
+    if (
+      tradeType !== TRADE_TYPE.LIQUIDITY &&
+      chartTab === CHART_TABS.FUNC_PLOT
+    ) {
       setChartTab(CHART_TABS.CANDLE_CHART)
     }
 
@@ -110,14 +122,14 @@ const Component = ({
     }
   }, [amountIn, tradeType])
 
-  const { callError, loading, gasUsed, amountOut, payloadAmountIn } = useCalculateSwap({
-    amountIn,
-    setAmountIn,
-    inputTokenAddress,
-    outputTokenAddress,
-    tokenOutMaturity
-  })
-
+  const { callError, loading, gasUsed, amountOut, payloadAmountIn } =
+    useCalculateSwap({
+      amountIn,
+      setAmountIn,
+      inputTokenAddress,
+      outputTokenAddress,
+      tokenOutMaturity
+    })
 
   useEffect(() => {
     if (Object.values(pools).length > 0) {
@@ -132,12 +144,19 @@ const Component = ({
           }
         }
         const { address } = decodeErc1155Address(outputTokenAddress)
-        if (inputTokenAddress && pools[address]?.TOKEN_R && wrapToNativeAddress(inputTokenAddress) !== wrapToNativeAddress(pools[address]?.TOKEN_R)) {
+        if (
+          inputTokenAddress &&
+          pools[address]?.TOKEN_R &&
+          wrapToNativeAddress(inputTokenAddress) !==
+            wrapToNativeAddress(pools[address]?.TOKEN_R)
+        ) {
           setInputTokenAddress(wrapToNativeAddress(pools[address]?.TOKEN_R))
         }
       }
       if (!inputTokenAddress) {
-        setInputTokenAddress(wrapToNativeAddress(Object.values(pools)[0].TOKEN_R))
+        setInputTokenAddress(
+          wrapToNativeAddress(Object.values(pools)[0].TOKEN_R)
+        )
       }
     }
   }, [outputTokenAddress, pools, id])
@@ -153,7 +172,10 @@ const Component = ({
   })
 
   const { value: valueOutBefore } = useTokenValue({
-    amount: weiToNumber(balances[outputTokenAddress], tokens[outputTokenAddress]?.decimal || 18),
+    amount: weiToNumber(
+      balances[outputTokenAddress],
+      tokens[outputTokenAddress]?.decimal || 18
+    ),
     tokenAddress: outputTokenAddress
   })
 
@@ -172,13 +194,16 @@ const Component = ({
   const tokensToSelect = useMemo(() => {
     if (!id) return []
     const tokenRs = Object.values(pools).map((p: any) => p.TOKEN_R)
-    if (tokenRs.includes(configs.addresses.wrapToken)) tokenRs.push(configs.addresses.nativeToken)
+    if (tokenRs.includes(configs.addresses.wrapToken)) {
+      tokenRs.push(configs.addresses.nativeToken)
+    }
     return _.uniq(
-      [
-        ...tokenRs
-      ].filter((address) => {
+      [...tokenRs].filter((address) => {
         if (tokenRs.includes(address)) return true
-        if (tokenTypeToSelect === 'input' && (!balances[address] || balances[address].isZero())) {
+        if (
+          tokenTypeToSelect === 'input' &&
+          (!balances[address] || balances[address].isZero())
+        ) {
           return false
         }
         return true
@@ -186,32 +211,47 @@ const Component = ({
     )
   }, [tokenTypeToSelect, allTokens, pools, id])
 
-  const onSelectToken = useCallback((address: string) => {
-    if ((tokenTypeToSelect === 'input' && address === outputTokenAddress) ||
-      (tokenTypeToSelect === 'output' && address === inputTokenAddress)
-    ) {
-      // revertPairAddress()
-      return
-    }
-    if (tokenTypeToSelect === 'input') {
-      setInputTokenAddress(address)
-    } else {
-      if (isErc1155Address(address) && isErc1155Address(inputTokenAddress)) {
-        const poolOutAddress = decodeErc1155Address(address).address
-        const poolOut = pools[poolOutAddress]
-        const poolInAddress = decodeErc1155Address(inputTokenAddress).address
-        const poolIn = pools[poolInAddress]
-        if (poolInAddress !== poolOutAddress && poolOut.TOKEN_R !== poolIn.TOKEN_R) {
-          setInputTokenAddress(poolOut.TOKEN_R === configs.addresses.wrapToken ? NATIVE_ADDRESS : poolOut.TOKEN_R)
+  const onSelectToken = useCallback(
+    (address: string) => {
+      if (
+        (tokenTypeToSelect === 'input' && address === outputTokenAddress) ||
+        (tokenTypeToSelect === 'output' && address === inputTokenAddress)
+      ) {
+        // revertPairAddress()
+        return
+      }
+      if (tokenTypeToSelect === 'input') {
+        setInputTokenAddress(address)
+      } else {
+        if (isErc1155Address(address) && isErc1155Address(inputTokenAddress)) {
+          const poolOutAddress = decodeErc1155Address(address).address
+          const poolOut = pools[poolOutAddress]
+          const poolInAddress = decodeErc1155Address(inputTokenAddress).address
+          const poolIn = pools[poolInAddress]
+          if (
+            poolInAddress !== poolOutAddress &&
+            poolOut.TOKEN_R !== poolIn.TOKEN_R
+          ) {
+            setInputTokenAddress(
+              poolOut.TOKEN_R === configs.addresses.wrapToken
+                ? NATIVE_ADDRESS
+                : poolOut.TOKEN_R
+            )
+          }
         }
+        if (isErc1155Address(address) && !isErc1155Address(inputTokenAddress)) {
+          const poolOut = pools[decodeErc1155Address(address).address]
+          setInputTokenAddress(
+            poolOut.TOKEN_R === configs.addresses.wrapToken
+              ? NATIVE_ADDRESS
+              : poolOut.TOKEN_R
+          )
+        }
+        // setOutputTokenAddress(address)
       }
-      if (isErc1155Address(address) && !isErc1155Address(inputTokenAddress)) {
-        const poolOut = pools[decodeErc1155Address(address).address]
-        setInputTokenAddress(poolOut.TOKEN_R === configs.addresses.wrapToken ? NATIVE_ADDRESS : poolOut.TOKEN_R)
-      }
-      // setOutputTokenAddress(address)
-    }
-  }, [pools, inputTokenAddress, outputTokenAddress, tokenTypeToSelect, configs])
+    },
+    [pools, inputTokenAddress, outputTokenAddress, tokenTypeToSelect, configs]
+  )
 
   const [poolToShow, sideToShow] = useMemo(() => {
     if (isErc1155Address(outputTokenAddress)) {
@@ -230,22 +270,41 @@ const Component = ({
       return ['', null]
     }
 
-    const { states: { a, b, R, spot }, MARK, baseToken, quoteToken } = poolToShow
+    const {
+      states: { a, b, R, spot },
+      MARK,
+      baseToken,
+      quoteToken
+    } = poolToShow
     const k = poolToShow.k.toNumber()
     const kA = kx(k, R, a, spot, MARK)
     const kB = -kx(-k, R, b, spot, MARK)
-    const ek = sideToShow === POOL_IDS.A ? kA : sideToShow === POOL_IDS.B ? kB : k
+    const ek =
+      sideToShow === POOL_IDS.A ? kA : sideToShow === POOL_IDS.B ? kB : k
 
     if (ek < k) {
-      const power = (ek / 2).toLocaleString('fullwide', { maximumSignificantDigits: 2 })
+      const power = (ek / 2).toLocaleString('fullwide', {
+        maximumSignificantDigits: 2
+      })
       return [
         'Effective Leverage',
-        ek < k / 2 ? <TextError>{power}</TextError> : <TextWarning>{power}</TextWarning>
+        ek < k / 2 ? (
+          <TextError>{power}</TextError>
+        ) : (
+          <TextWarning>{power}</TextWarning>
+        )
       ]
     }
 
-    const decimalsOffset = (tokens?.[baseToken]?.decimal ?? 18) - (tokens?.[quoteToken]?.decimal ?? 18)
-    const mark = MARK ? MARK.mul(MARK).mul((bn(10).pow(decimalsOffset + 12))).shr(256).toNumber() / 1000000000000 : 1
+    const decimalsOffset =
+      (tokens?.[baseToken]?.decimal ?? 18) -
+      (tokens?.[quoteToken]?.decimal ?? 18)
+    const mark = MARK
+      ? MARK.mul(MARK)
+          .mul(bn(10).pow(decimalsOffset + 12))
+          .shr(256)
+          .toNumber() / 1000000000000
+      : 1
 
     const xA = xr(k, R.shr(1), a)
     const xB = xr(-k, R.shr(1), b)
@@ -258,7 +317,12 @@ const Component = ({
     if (sideToShow === POOL_IDS.B) {
       return ['Deleverage Price', <Text>{formatZeroDecimal(dgB)}</Text>]
     }
-    return ['Full Leverage Range', <Text>{formatZeroDecimal(dgB)}-{formatZeroDecimal(dgA)}</Text>]
+    return [
+      'Full Leverage Range',
+      <Text>
+        {formatZeroDecimal(dgB)}-{formatZeroDecimal(dgA)}
+      </Text>
+    ]
   }, [poolToShow, sideToShow, tokens])
 
   const power = useMemo(() => {
@@ -268,17 +332,31 @@ const Component = ({
     return poolToShow.k.toNumber() / 2
   }, [poolToShow])
 
-  const showSize = tradeType === TRADE_TYPE.LONG || tradeType === TRADE_TYPE.SHORT
+  const showSize =
+    tradeType === TRADE_TYPE.LONG || tradeType === TRADE_TYPE.SHORT
 
   const { value: liquidity } = useTokenValue({
-    amount: weiToNumber(poolToShow?.states?.R, tokens[poolToShow?.TOKEN_R]?.decimals),
+    amount: weiToNumber(
+      poolToShow?.states?.R,
+      tokens[poolToShow?.TOKEN_R]?.decimals
+    ),
     tokenAddress: poolToShow?.TOKEN_R
   })
 
   const [interest, maxFundingRate, fundingRate, fundingYield] = useMemo(() => {
-    const _interest = ((poolToShow?.dailyInterestRate ?? 0))
+    const _interest = poolToShow?.dailyInterestRate ?? 0
     const _maxFundingRate = _interest + Number(poolToShow?.maxPremiumRate ?? 0)
-    const _fundingRate = _interest + Number(poolToShow?.premium[tradeType === TRADE_TYPE.LONG ? 'A' : tradeType === TRADE_TYPE.SHORT ? 'B' : 'C'] ?? 0)
+    const _fundingRate =
+      _interest +
+      Number(
+        poolToShow?.premium[
+          tradeType === TRADE_TYPE.LONG
+            ? 'A'
+            : tradeType === TRADE_TYPE.SHORT
+            ? 'B'
+            : 'C'
+        ] ?? 0
+      )
     const _yield = _interest - Number(poolToShow?.premium?.C ?? 0)
     return [_interest, _maxFundingRate, _fundingRate, _yield]
   }, [poolToShow])
@@ -295,32 +373,52 @@ const Component = ({
             }}
           >
             <TokenIcon size={24} tokenAddress={inputTokenAddress} />
-            <Text><TokenSymbol token={inputTokenAddress} /></Text>
+            <Text>
+              <TokenSymbol token={inputTokenAddress} />
+            </Text>
           </span>
           <div className='d-flex align-item-center'>
             <Text
               className='amount-input-box__head--balance'
               onClick={() => {
-                const balance = weiToNumber(balances[inputTokenAddress], tokens[inputTokenAddress]?.decimal || 18)
+                const balance = weiToNumber(
+                  balances[inputTokenAddress],
+                  tokens[inputTokenAddress]?.decimal || 18
+                )
                 if (balance == amountIn) {
                   setAmountIn('')
                 } else {
                   setAmountIn(balance)
                 }
               }}
-            >Balance: {!balances || !balances[inputTokenAddress] ? 0
-                : formatLocalisedCompactNumber(formatFloat(
-                  weiToNumber(balances[inputTokenAddress], tokens[inputTokenAddress]?.decimal ?? 18)
-                ))
-              }
+            >
+              Balance:{' '}
+              {!balances || !balances[inputTokenAddress]
+                ? 0
+                : formatLocalisedCompactNumber(
+                    formatFloat(
+                      weiToNumber(
+                        balances[inputTokenAddress],
+                        tokens[inputTokenAddress]?.decimal ?? 18
+                      )
+                    )
+                  )}
             </Text>
           </div>
         </div>
         <Input
           placeholder='0.0'
-          suffix={Number(valueIn) > 0
-            ? <TextGrey><div className='d-flex'>${formatLocalisedCompactNumber(formatFloat(valueIn))}</div></TextGrey>
-            : ''}
+          suffix={
+            Number(valueIn) > 0 ? (
+              <TextGrey>
+                <div className='d-flex'>
+                  ${formatLocalisedCompactNumber(formatFloat(valueIn))}
+                </div>
+              </TextGrey>
+            ) : (
+              ''
+            )
+          }
           className='fs-24'
           // @ts-ignore
           value={amountIn}
@@ -341,107 +439,167 @@ const Component = ({
         onSelectToken={onSelectToken}
       />
 
-      {
-        outputTokenAddress &&
+      {outputTokenAddress && (
         <div className='pl-5 mt-1 mb-2'>
           <IconArrowDown fill='#01A7FA' />
         </div>
-      }
+      )}
 
-      {
-        outputTokenAddress && <Box
-          borderColor={tradeType === TRADE_TYPE.LONG ? 'buy' : tradeType === TRADE_TYPE.SHORT ? 'sell' : 'blue'}
+      {outputTokenAddress && (
+        <Box
+          borderColor={
+            tradeType === TRADE_TYPE.LONG
+              ? 'buy'
+              : tradeType === TRADE_TYPE.SHORT
+              ? 'sell'
+              : 'blue'
+          }
           className='estimate-box swap-info-box mt-1 mb-1'
         >
-          <span className={`estimate-box__leverage ${getTitleBuyTradeType(tradeType).toLowerCase()}`}>
+          <span
+            className={`estimate-box__leverage ${getTitleBuyTradeType(
+              tradeType
+            ).toLowerCase()}`}
+          >
             <TokenSymbol token={outputTokenAddress} />
           </span>
           <div className='position-delta--box'>
             <div className='position-delta--left'>
-              {settings.showBalance &&
-              <div>Balance</div>
-              }
+              {settings.showBalance && <div>Balance</div>}
               <div>Value</div>
-              {showSize &&
-              <div>Size</div>
-              }
+              {showSize && <div>Size</div>}
             </div>
             <SkeletonLoader loading={balances[outputTokenAddress] == null}>
-              { balances[outputTokenAddress]?.gt(0) &&
-              <div className='position-delta--group'>
-                <div className='position-delta--right'>
-                  {settings.showBalance &&
-                  <div>{
-                    formatWeiToDisplayNumber(
-                      balances[outputTokenAddress] ?? bn(0),
-                      4,
-                      tokens[outputTokenAddress]?.decimal || 18
-                    ).split('.')[0]
-                  }</div>
-                  }
-                  <div>${formatZeroDecimal(formatFloat(valueOutBefore)).split('.')[0]}</div>
-                  {showSize &&
-                  <div>${formatZeroDecimal(formatFloat(Number(valueOutBefore) * power)).split('.')[0]}</div>
-                  }
-                </div>
-                <div className='position-delta--left'>
-                  {settings.showBalance &&
-                  <div>{
-                    formatWeiToDisplayNumber(
-                      balances[outputTokenAddress] ?? bn(0),
-                      4,
-                      tokens[outputTokenAddress]?.decimal || 18
-                    ).match(/\.\d+$/g) || '\u00A0'
-                  }</div>
-                  }
-                  <div>{formatZeroDecimal(formatFloat(valueOutBefore)).match(/\.\d+$/g) || '\u00A0'}</div>
-                  {showSize &&
-                  <div>{formatZeroDecimal(formatFloat(Number(valueOutBefore) * power)).match(/\.\d+$/g) || '\u00A0'}</div>
-                  }
-                </div>
-              </div>
-              }
-            </SkeletonLoader>
-            {!Number(amountIn) ? ''
-              : <div className='position-delta--left'>
-                {settings.showBalance &&
-                <div>+</div>
-                }
-                {showSize &&
-                <div>+</div>
-                }
-                <div>+</div>
-              </div>
-            }
-            {!Number(amountIn) ? ''
-              : <SkeletonLoader loading={!Number(valueOut)}>
+              {balances[outputTokenAddress]?.gt(0) && (
                 <div className='position-delta--group'>
                   <div className='position-delta--right'>
-                    {settings.showBalance &&
-                    <div>{formatLocalisedCompactNumber(formatFloat(amountOut)).split('.')[0]}</div>
-                    }
-                    <div>${formatLocalisedCompactNumber(formatFloat(valueOut)).split('.')[0]}</div>
-                    {showSize &&
-                    <div>${formatLocalisedCompactNumber(formatFloat(Number(valueOut) * power)).split('.')[0]}</div>
-                    }
+                    {settings.showBalance && (
+                      <div>
+                        {
+                          formatWeiToDisplayNumber(
+                            balances[outputTokenAddress] ?? bn(0),
+                            4,
+                            tokens[outputTokenAddress]?.decimal || 18
+                          ).split('.')[0]
+                        }
+                      </div>
+                    )}
+                    <div>
+                      $
+                      {
+                        formatZeroDecimal(formatFloat(valueOutBefore)).split(
+                          '.'
+                        )[0]
+                      }
+                    </div>
+                    {showSize && (
+                      <div>
+                        $
+                        {
+                          formatZeroDecimal(
+                            formatFloat(Number(valueOutBefore) * power)
+                          ).split('.')[0]
+                        }
+                      </div>
+                    )}
                   </div>
                   <div className='position-delta--left'>
-                    {settings.showBalance &&
-                    <div>{formatLocalisedCompactNumber(formatFloat(amountOut)).match(/\.\d+$/g) || '\u00A0'}</div>
-                    }
-                    <div>{formatLocalisedCompactNumber(formatFloat(valueOut)).match(/\.\d+$/g) || '\u00A0'}</div>
-                    {showSize &&
-                    <div>{formatLocalisedCompactNumber(formatFloat(Number(valueOut) * power)).match(/\.\d+$/g) || '\u00A0'}</div>
-                    }
+                    {settings.showBalance && (
+                      <div>
+                        {formatWeiToDisplayNumber(
+                          balances[outputTokenAddress] ?? bn(0),
+                          4,
+                          tokens[outputTokenAddress]?.decimal || 18
+                        ).match(/\.\d+$/g) || '\u00A0'}
+                      </div>
+                    )}
+                    <div>
+                      {formatZeroDecimal(formatFloat(valueOutBefore)).match(
+                        /\.\d+$/g
+                      ) || '\u00A0'}
+                    </div>
+                    {showSize && (
+                      <div>
+                        {formatZeroDecimal(
+                          formatFloat(Number(valueOutBefore) * power)
+                        ).match(/\.\d+$/g) || '\u00A0'}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </SkeletonLoader>
+            {!Number(amountIn) ? (
+              ''
+            ) : (
+              <div className='position-delta--left'>
+                {settings.showBalance && <div>+</div>}
+                {showSize && <div>+</div>}
+                <div>+</div>
+              </div>
+            )}
+            {!Number(amountIn) ? (
+              ''
+            ) : (
+              <SkeletonLoader loading={!Number(valueOut)}>
+                <div className='position-delta--group'>
+                  <div className='position-delta--right'>
+                    {settings.showBalance && (
+                      <div>
+                        {
+                          formatLocalisedCompactNumber(
+                            formatFloat(amountOut)
+                          ).split('.')[0]
+                        }
+                      </div>
+                    )}
+                    <div>
+                      $
+                      {
+                        formatLocalisedCompactNumber(
+                          formatFloat(valueOut)
+                        ).split('.')[0]
+                      }
+                    </div>
+                    {showSize && (
+                      <div>
+                        $
+                        {
+                          formatLocalisedCompactNumber(
+                            formatFloat(Number(valueOut) * power)
+                          ).split('.')[0]
+                        }
+                      </div>
+                    )}
+                  </div>
+                  <div className='position-delta--left'>
+                    {settings.showBalance && (
+                      <div>
+                        {formatLocalisedCompactNumber(
+                          formatFloat(amountOut)
+                        ).match(/\.\d+$/g) || '\u00A0'}
+                      </div>
+                    )}
+                    <div>
+                      {formatLocalisedCompactNumber(
+                        formatFloat(valueOut)
+                      ).match(/\.\d+$/g) || '\u00A0'}
+                    </div>
+                    {showSize && (
+                      <div>
+                        {formatLocalisedCompactNumber(
+                          formatFloat(Number(valueOut) * power)
+                        ).match(/\.\d+$/g) || '\u00A0'}
+                      </div>
+                    )}
                   </div>
                 </div>
               </SkeletonLoader>
-            }
+            )}
           </div>
         </Box>
-      }
-      {
-        leverageData.length > 0 &&
+      )}
+      {leverageData.length > 0 && (
         <LeverageSlider
           barData={barData}
           setBarData={(e: any) => {
@@ -451,13 +609,15 @@ const Component = ({
           height={100}
           key={id}
         />
-      }
+      )}
 
       <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
         <InfoRow>
           <TextGrey>Liquidity</TextGrey>
           <SkeletonLoader loading={!liquidity || liquidity == '0'}>
-            <Text>${formatLocalisedCompactNumber(formatFloat(liquidity, 2))}</Text>
+            <Text>
+              ${formatLocalisedCompactNumber(formatFloat(liquidity, 2))}
+            </Text>
           </SkeletonLoader>
         </InfoRow>
         {/* <InfoRow> */}
@@ -474,59 +634,72 @@ const Component = ({
           </SkeletonLoader>
         </InfoRow>
 
-        {tradeType === TRADE_TYPE.LIQUIDITY ?
-        <InfoRow>
-          <TextGrey>Funding Yield</TextGrey>
-          <SkeletonLoader loading={!poolToShow}>
-            <TextGreen>{formatPercent(fundingYield, 3, true)}%</TextGreen>
-          </SkeletonLoader>
-        </InfoRow>
-        :
-        <InfoRow>
-          <TextGrey>Funding Rate</TextGrey>
-          <SkeletonLoader loading={!poolToShow}>
-            <Text className={fundingRate < 0 ? 'text-green' : ''}>
-              {formatPercent(fundingRate, 3, true)}%
-            </Text>
-          </SkeletonLoader>
-        </InfoRow>
-        }
+        {tradeType === TRADE_TYPE.LIQUIDITY ? (
+          <InfoRow>
+            <TextGrey>Funding Yield</TextGrey>
+            <SkeletonLoader loading={!poolToShow}>
+              <TextGreen>{formatPercent(fundingYield, 3, true)}%</TextGreen>
+            </SkeletonLoader>
+          </InfoRow>
+        ) : (
+          <InfoRow>
+            <TextGrey>Funding Rate</TextGrey>
+            <SkeletonLoader loading={!poolToShow}>
+              <Text className={fundingRate < 0 ? 'text-green' : ''}>
+                {formatPercent(fundingRate, 3, true)}%
+              </Text>
+            </SkeletonLoader>
+          </InfoRow>
+        )}
 
-        <hr/>
+        <hr />
 
-        {tradeType === TRADE_TYPE.LIQUIDITY ?
-        <InfoRow>
-          <TextGrey>Funding Yield (Min)</TextGrey>
-          <SkeletonLoader loading={!poolToShow}>
-            {formatPercent(interest, 3, true)}%
-          </SkeletonLoader>
-        </InfoRow>
-        :
-        <InfoRow>
-          <TextGrey>Funding Rate (Max)</TextGrey>
-          <SkeletonLoader loading={!poolToShow}>
-            {formatPercent(maxFundingRate, 3, true)}%
-          </SkeletonLoader>
-        </InfoRow>
-        }
+        {tradeType === TRADE_TYPE.LIQUIDITY ? (
+          <InfoRow>
+            <TextGrey>Funding Yield (Min)</TextGrey>
+            <SkeletonLoader loading={!poolToShow}>
+              {formatPercent(interest, 3, true)}%
+            </SkeletonLoader>
+          </InfoRow>
+        ) : (
+          <InfoRow>
+            <TextGrey>Funding Rate (Max)</TextGrey>
+            <SkeletonLoader loading={!poolToShow}>
+              {formatPercent(maxFundingRate, 3, true)}%
+            </SkeletonLoader>
+          </InfoRow>
+        )}
 
-        { !poolToShow?.MATURITY_VEST?.toNumber() ||
-        <InfoRow>
-          <TextGrey>Position Vesting</TextGrey>
-          <SkeletonLoader loading={!poolToShow}>
-            {moment.duration(poolToShow?.MATURITY_VEST.toNumber(), 'seconds').humanize()}
-          </SkeletonLoader>
-        </InfoRow>
-        }
-        { !poolToShow?.MATURITY?.toNumber() || !poolToShow?.MATURITY_RATE?.gt(0) ||
-        <InfoRow>
-          <TextGrey>Closing Fee</TextGrey>
-          <SkeletonLoader loading={!poolToShow}>
-            {formatPercent(Q128.sub(poolToShow?.MATURITY_RATE).mul(10000).div(Q128).toNumber() / 10000, 2, true)}%
-            for {moment.duration(poolToShow?.MATURITY.toNumber(), 'seconds').humanize()}
-          </SkeletonLoader>
-        </InfoRow>
-        }
+        {!poolToShow?.MATURITY_VEST?.toNumber() || (
+          <InfoRow>
+            <TextGrey>Position Vesting</TextGrey>
+            <SkeletonLoader loading={!poolToShow}>
+              {moment
+                .duration(poolToShow?.MATURITY_VEST.toNumber(), 'seconds')
+                .humanize()}
+            </SkeletonLoader>
+          </InfoRow>
+        )}
+        {!poolToShow?.MATURITY?.toNumber() ||
+          !poolToShow?.MATURITY_RATE?.gt(0) || (
+            <InfoRow>
+              <TextGrey>Closing Fee</TextGrey>
+              <SkeletonLoader loading={!poolToShow}>
+                {formatPercent(
+                  Q128.sub(poolToShow?.MATURITY_RATE)
+                    .mul(10000)
+                    .div(Q128)
+                    .toNumber() / 10000,
+                  2,
+                  true
+                )}
+                % for{' '}
+                {moment
+                  .duration(poolToShow?.MATURITY.toNumber(), 'seconds')
+                  .humanize()}
+              </SkeletonLoader>
+            </InfoRow>
+          )}
       </Box>
 
       <TxFee
@@ -568,16 +741,27 @@ const Component = ({
           loadingAmountOut={loading}
           tokenOutMaturity={tokenOutMaturity}
           title={
-            Number(decodeErc1155Address(outputTokenAddress).id) === POOL_IDS.A ? <Text><TokenSymbol token={outputTokenAddress} textWrap={Text} /> </Text>
-              : Number(decodeErc1155Address(outputTokenAddress).id) === POOL_IDS.B ? <Text><TokenSymbol token={outputTokenAddress} textWrap={Text} /> </Text>
-                : <Text>Add <TokenSymbol token={outputTokenAddress} textWrap={Text} /> </Text>
+            Number(decodeErc1155Address(outputTokenAddress).id) ===
+            POOL_IDS.A ? (
+              <Text>
+                <TokenSymbol token={outputTokenAddress} textWrap={Text} />{' '}
+              </Text>
+            ) : Number(decodeErc1155Address(outputTokenAddress).id) ===
+              POOL_IDS.B ? (
+              <Text>
+                <TokenSymbol token={outputTokenAddress} textWrap={Text} />{' '}
+              </Text>
+            ) : (
+              <Text>
+                Add <TokenSymbol token={outputTokenAddress} textWrap={Text} />{' '}
+              </Text>
+            )
           }
         />
       </div>
 
       <ApproveUtrModal
-        callBack={() => {
-        }}
+        callBack={() => {}}
         visible={visibleApproveModal}
         setVisible={setVisibleApproveModal}
         inputTokenAddress={inputTokenAddress}

@@ -20,7 +20,7 @@ export const useTokenValue = ({
   amount,
   tokenAddress
 }: {
-  amount?: string,
+  amount?: string
   tokenAddress?: string
 }) => {
   const { prices } = useTokenPrice()
@@ -31,7 +31,11 @@ export const useTokenValue = ({
   const { settings } = useSettings()
   // const { isShowValueInUsd } = useHelper()
 
-  const getTokenValue = (_tokenAddress: string, _amount: string, valueInUsd: boolean = true) => {
+  const getTokenValue = (
+    _tokenAddress: string,
+    _amount: string,
+    valueInUsd: boolean = true
+  ) => {
     let value = '0'
     const address = convertNativeAddressToWrapAddress(_tokenAddress)
     if (!prices || !pools) return value
@@ -40,38 +44,50 @@ export const useTokenValue = ({
       const { address: poolAddress, id } = decodeErc1155Address(address)
       const pool = pools[poolAddress]
       if (pool && pool.states) {
-        const rX = Number(id) === POOL_IDS.A
-          ? pool.states.rA
-          : Number(id) === POOL_IDS.B ? pool.states.rB : pool.states.rC
+        const rX =
+          Number(id) === POOL_IDS.A
+            ? pool.states.rA
+            : Number(id) === POOL_IDS.B
+            ? pool.states.rB
+            : pool.states.rC
 
-        const sX = Number(id) === POOL_IDS.A
-          ? pool.states.sA
-          : Number(id) === POOL_IDS.B ? pool.states.sB : pool.states.sC
+        const sX =
+          Number(id) === POOL_IDS.A
+            ? pool.states.sA
+            : Number(id) === POOL_IDS.B
+            ? pool.states.sB
+            : pool.states.sC
 
         // TOTO: need remove mul(numberToWei(1, 9) after fix parseSqrtX96 function
-        const tokenPrice = prices[pool.TOKEN_R] && prices[pool.TOKEN_R].gt(0) && valueInUsd
-          ? parseSqrtX96(
-            prices[pool.TOKEN_R]?.mul(numberToWei(1, 9)) || bn(0),
-            tokens[pool.TOKEN_R] || {},
-            tokens[configs.stableCoins[0]] || {}
-          )
-          : numberToWei(1, 18)
+        const tokenPrice =
+          prices[pool.TOKEN_R] && prices[pool.TOKEN_R].gt(0) && valueInUsd
+            ? parseSqrtX96(
+                prices[pool.TOKEN_R]?.mul(numberToWei(1, 9)) || bn(0),
+                tokens[pool.TOKEN_R] || {},
+                tokens[configs.stableCoins[0]] || {}
+              )
+            : numberToWei(1, 18)
 
         value = weiToNumber(
-          bn(numberToWei(_amount)).mul(numberToWei(tokenPrice)).mul(rX).div(sX)
-          , 54)
+          bn(numberToWei(_amount)).mul(numberToWei(tokenPrice)).mul(rX).div(sX),
+          54
+        )
       }
     } else {
       // TOTO: need remove mul(numberToWei(1, 9) after fix parseSqrtX96 function
-      const tokenPrice = prices[address] && prices[address].gt(0) && valueInUsd ? parseSqrtX96(
-        prices[address]?.mul(numberToWei(1, 9)) || bn(0),
-        tokens[address] || {},
-        tokens[configs.stableCoins[0]] || {}
-      ) : numberToWei(1, 18)
+      const tokenPrice =
+        prices[address] && prices[address].gt(0) && valueInUsd
+          ? parseSqrtX96(
+              prices[address]?.mul(numberToWei(1, 9)) || bn(0),
+              tokens[address] || {},
+              tokens[configs.stableCoins[0]] || {}
+            )
+          : numberToWei(1, 18)
 
       value = weiToNumber(
-        bn(numberToWei(_amount)).mul(numberToWei(tokenPrice))
-        , 54)
+        bn(numberToWei(_amount)).mul(numberToWei(tokenPrice)),
+        54
+      )
     }
     value = cutDecimal(value, 18)
     if (value == null || Number.isNaN(value)) {
