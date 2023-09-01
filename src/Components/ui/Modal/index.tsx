@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
 import './style.scss'
+import { CloseModalIcon } from '../Icon'
 
 export interface modalInterface {
   setVisible: any
@@ -45,7 +46,7 @@ export const Modal = ({
         <div className='btn-close-wrap'>
           <span className='title'>{title || ''}</span>
           <span className='btn-close' onClick={() => setVisible(false)}>
-            {/* <ExitIcon /> */}X
+            {/* <ExitIcon /> */}<CloseModalIcon/>
           </span>
         </div>
         {visible && <div className='modal-content'>{children}</div>}

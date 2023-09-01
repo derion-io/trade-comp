@@ -49,7 +49,7 @@ export const useCalculateSwap = ({
       amountIn &&
       Number(amountIn) &&
       (isErc1155Address(inputTokenAddress) ||
-        routerAllowances[inputTokenAddress].gt(
+        routerAllowances[inputTokenAddress]?.gt(
           numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18)
         ))
     ) {
