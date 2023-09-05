@@ -14,7 +14,6 @@ export const Input = (props: InputType) => {
   const inputProps = isNumber
     ? {
         type: 'number',
-        pattern: '[0-9]*',
         inputMode: 'decimal' as const
       }
     : {}
