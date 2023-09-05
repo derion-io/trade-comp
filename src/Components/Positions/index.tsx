@@ -211,6 +211,7 @@ export const Positions = ({
 
       const MATURITY = pool.MATURITY.toNumber() * 1000
       const MATURITY_VEST = pool.MATURITY_VEST.toNumber() * 1000
+      // const maturity = (now + MATURITY)/1000
       const maturity = maturities?.[token]?.toNumber() ?? 0
       const matured = max(maturity * 1000, now)
       const vested = max(matured - MATURITY + MATURITY_VEST, now)
@@ -394,7 +395,7 @@ export const Positions = ({
                 {!position.matured || position.matured <= now || (
                   <InfoRow>
                     <Text>Closing Fee</Text>
-                    <ClosingFee now={now} position={position} />
+                    <ClosingFee now={now} position={position} isPhone={isPhone} />
                   </InfoRow>
                 )}
                 {/* <InfoRow>
@@ -693,43 +694,39 @@ export const Pnl = ({
 
 export const ClosingFee = ({
   now,
-  position
+  position,
+  isPhone,
 }: {
   now: number
-  position: Position
+  position: Position,
+  isPhone?: boolean,
 }) => {
   const { vested, matured, closingFee, pool } = position
   const MATURITY_VEST = pool.MATURITY_VEST.toNumber()
 
+  let feeFormat
+  let timeFormat
+  let TextComp = TextSell
+
   if (MATURITY_VEST > 0 && vested > now) {
-    const fee =
-      closingFee + ((1 - closingFee) * (vested - now)) / MATURITY_VEST / 1000
-    return (
-      <div>
-        <div>
-          <TextSell>{formatPercent(fee, 2, true)}%</TextSell>
-        </div>
-        <div>
-          <TextSell>for {moment(vested).fromNow(true)}</TextSell>
-        </div>
-      </div>
-    )
+    const fee = closingFee + ((1 - closingFee) * (vested - now)) / MATURITY_VEST / 1000
+    feeFormat = formatPercent(Math.min(1, fee), 2, true)
+    timeFormat = moment(vested).fromNow(true)
+  } else if (pool.MATURITY.toNumber() > 0 && matured > now) {
+    feeFormat = formatPercent(closingFee, 2, true)
+    timeFormat = moment(matured).fromNow(true)
+    TextComp = TextWarning
+  } else {
+    return <React.Fragment />
   }
 
-  if (pool.MATURITY.toNumber() > 0 && matured > now) {
-    return (
-      <div>
-        <div>
-          <TextWarning>{formatPercent(closingFee, 2, true)}%</TextWarning>
-        </div>
-        <div>
-          <TextWarning>for {moment(matured).fromNow(true)}</TextWarning>
-        </div>
-      </div>
-    )
+  if (isPhone) {
+    return <div><TextComp>{feeFormat}% for {timeFormat}</TextComp></div>
   }
-
-  return <React.Fragment />
+  return <div>
+    <div><TextComp>{feeFormat}%</TextComp></div>
+    <div><TextComp>for {timeFormat}</TextComp></div>
+  </div>
 }
 
 export const Reserve = ({ pool }: { pool: any }) => {
