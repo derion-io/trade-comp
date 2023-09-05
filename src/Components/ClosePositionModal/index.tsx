@@ -152,7 +152,7 @@ const Component = ({
                       balances[inputTokenAddress],
                       tokens[inputTokenAddress]?.decimal || 18
                     )
-                      setAmountIn(balance)
+                    setAmountIn(balance)
                   }}
                 >
                   Balance:{' '}
@@ -182,7 +182,6 @@ const Component = ({
               placeholder='0.0'
               isNumber
               suffix={
-
                 Number(valueIn) > 0 ? (
                   <TextGrey>
                     ${formatLocalisedCompactNumber(formatFloat(valueIn))}

@@ -46,7 +46,8 @@ export const Modal = ({
         <div className='btn-close-wrap'>
           <span className='title'>{title || ''}</span>
           <span className='btn-close' onClick={() => setVisible(false)}>
-            {/* <ExitIcon /> */}<CloseModalIcon/>
+            {/* <ExitIcon /> */}
+            <CloseModalIcon />
           </span>
         </div>
         {visible && <div className='modal-content'>{children}</div>}
