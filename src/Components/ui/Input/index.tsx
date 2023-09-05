@@ -10,15 +10,12 @@ type InputType = InputProps & {
 }
 
 export const Input = (props: InputType) => {
-  const isNumber = props?.isNumber || false
-  const inputProps = isNumber
-    ? {
-        type: 'number',
-        pattern: '[0-9]*',
-        inputMode: 'numeric',
-        placeholder: 'Nhập số'
-      }
-    : {}
+  const isNumber = props?.isNumber || false;
+  const inputProps = isNumber ? {
+    type: 'number',
+    pattern: '[0-9]*',
+    inputMode: 'numeric'
+  } : {};
   const [isFocusing, setIsFocusing] = useState<boolean>(false)
   return (
     <div
