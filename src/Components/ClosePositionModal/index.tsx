@@ -81,9 +81,10 @@ const Component = ({
   })
 
   useEffect(() => {
+    if (settings.showBalance) return
     const b = Number(balance)
     const a = (b * Number(valueInput)) / Number(valueBalance)
-    if (a == null || a === 0 || Number.isNaN(a)) {
+    if (a == null || Number.isNaN(a)) {
       return
     }
     if (a > 0.999 * b) {
