@@ -446,8 +446,9 @@ export const Positions = ({
                   >
                     {valueInUsdStatus === VALUE_IN_USD_STATUS.USD
                       ? ` ⇄ ${
-                          tokens[wrapToNativeAddress(positions?.[0].pool.TOKEN_R)]
-                            ?.symbol
+                          tokens[
+                            wrapToNativeAddress(positions?.[0].pool.TOKEN_R)
+                          ]?.symbol
                         }`
                       : ' ⇄ USD'}
                   </Text>
