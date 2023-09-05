@@ -204,6 +204,7 @@ const Component = ({
           ) : (
             <Input
               placeholder='0'
+              isNumber
               prefix='$'
               suffix={
                 Number(amountIn) > 0 ? (
