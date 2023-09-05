@@ -151,11 +151,7 @@ const Component = ({
                       balances[inputTokenAddress],
                       tokens[inputTokenAddress]?.decimal || 18
                     )
-                    if (amountIn == balance) {
-                      setAmountIn('')
-                    } else {
                       setAmountIn(balance)
-                    }
                   }}
                 >
                   Balance:{' '}
@@ -182,8 +178,10 @@ const Component = ({
           </InfoRow>
           {settings.showBalance ? (
             <Input
-              placeholder='0'
+              placeholder='0.0'
+              isNumber
               suffix={
+
                 Number(valueIn) > 0 ? (
                   <TextGrey>
                     ${formatLocalisedCompactNumber(formatFloat(valueIn))}

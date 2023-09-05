@@ -281,13 +281,8 @@ export const RemoveLiquidityBox = ({
                   balances[cpAddress],
                   tokens[cpAddress]?.decimal || 18
                 )
-                if (balance == amountIn) {
-                  setAmountIn('')
-                  setPercent(0)
-                } else {
-                  setAmountIn(balance)
-                  setPercent(100)
-                }
+                setAmountIn(balance)
+                setPercent(100)
               }}
             >
               Balance:{' '}
