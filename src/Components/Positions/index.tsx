@@ -380,7 +380,11 @@ export const Positions = ({
                   )}
                 </InfoRow>
                 <InfoRow>
-                  <Text>{position.side == POOL_IDS.C ? 'Funding Yield' : 'Funding Rate'}</Text>
+                  <Text>
+                    {position.side == POOL_IDS.C
+                      ? 'Funding Yield'
+                      : 'Funding Rate'}
+                  </Text>
                   <Text
                     className={
                       position.funding < 0 || position.side == POOL_IDS.C
@@ -395,7 +399,11 @@ export const Positions = ({
                 {!position.matured || position.matured <= now || (
                   <InfoRow>
                     <Text>Closing Fee</Text>
-                    <ClosingFee now={now} position={position} isPhone={isPhone} />
+                    <ClosingFee
+                      now={now}
+                      position={position}
+                      isPhone={isPhone}
+                    />
                   </InfoRow>
                 )}
                 {/* <InfoRow>
@@ -446,8 +454,9 @@ export const Positions = ({
                   >
                     {valueInUsdStatus === VALUE_IN_USD_STATUS.USD
                       ? ` ⇄ ${
-                          tokens[wrapToNativeAddress(positions?.[0].pool.TOKEN_R)]
-                            ?.symbol
+                          tokens[
+                            wrapToNativeAddress(positions?.[0].pool.TOKEN_R)
+                          ]?.symbol
                         }`
                       : ' ⇄ USD'}
                   </Text>
@@ -695,11 +704,11 @@ export const Pnl = ({
 export const ClosingFee = ({
   now,
   position,
-  isPhone,
+  isPhone
 }: {
   now: number
-  position: Position,
-  isPhone?: boolean,
+  position: Position
+  isPhone?: boolean
 }) => {
   const { vested, matured, closingFee, pool } = position
   const MATURITY_VEST = pool.MATURITY_VEST.toNumber()
@@ -709,7 +718,8 @@ export const ClosingFee = ({
   let TextComp = TextSell
 
   if (MATURITY_VEST > 0 && vested > now) {
-    const fee = closingFee + ((1 - closingFee) * (vested - now)) / MATURITY_VEST / 1000
+    const fee =
+      closingFee + ((1 - closingFee) * (vested - now)) / MATURITY_VEST / 1000
     feeFormat = formatPercent(Math.min(1, fee), 2, true)
     timeFormat = moment(vested).fromNow(true)
   } else if (pool.MATURITY.toNumber() > 0 && matured > now) {
@@ -721,12 +731,24 @@ export const ClosingFee = ({
   }
 
   if (isPhone) {
-    return <div><TextComp>{feeFormat}% for {timeFormat}</TextComp></div>
+    return (
+      <div>
+        <TextComp>
+          {feeFormat}% for {timeFormat}
+        </TextComp>
+      </div>
+    )
   }
-  return <div>
-    <div><TextComp>{feeFormat}%</TextComp></div>
-    <div><TextComp>for {timeFormat}</TextComp></div>
-  </div>
+  return (
+    <div>
+      <div>
+        <TextComp>{feeFormat}%</TextComp>
+      </div>
+      <div>
+        <TextComp>for {timeFormat}</TextComp>
+      </div>
+    </div>
+  )
 }
 
 export const Reserve = ({ pool }: { pool: any }) => {

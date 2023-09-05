@@ -81,6 +81,7 @@ const Component = ({
   })
 
   useEffect(() => {
+    if (settings.showBalance) return
     const b = Number(balance)
     const a = (b * Number(valueInput)) / Number(valueBalance)
     if (a == null || Number.isNaN(a)) {
@@ -151,11 +152,7 @@ const Component = ({
                       balances[inputTokenAddress],
                       tokens[inputTokenAddress]?.decimal || 18
                     )
-                    if (amountIn == balance) {
-                      setAmountIn('')
-                    } else {
-                      setAmountIn(balance)
-                    }
+                    setAmountIn(balance)
                   }}
                 >
                   Balance:{' '}
@@ -182,7 +179,8 @@ const Component = ({
           </InfoRow>
           {settings.showBalance ? (
             <Input
-              placeholder='0'
+              placeholder='0.0'
+              isNumber
               suffix={
                 Number(valueIn) > 0 ? (
                   <TextGrey>
@@ -205,6 +203,7 @@ const Component = ({
           ) : (
             <Input
               placeholder='0'
+              isNumber
               prefix='$'
               suffix={
                 Number(amountIn) > 0 ? (
@@ -270,6 +269,7 @@ const Component = ({
           </InfoRow>
           <Input
             placeholder='0.0'
+            isNumber
             suffix={
               Number(valueOut) > 0 ? (
                 <TextGrey>

@@ -381,15 +381,12 @@ const Component = ({
             <Text
               className='amount-input-box__head--balance'
               onClick={() => {
-                const balance = weiToNumber(
-                  balances[inputTokenAddress],
-                  tokens[inputTokenAddress]?.decimal || 18
+                setAmountIn(
+                  weiToNumber(
+                    balances[inputTokenAddress],
+                    tokens[inputTokenAddress]?.decimal || 18
+                  )
                 )
-                if (balance == amountIn) {
-                  setAmountIn('')
-                } else {
-                  setAmountIn(balance)
-                }
               }}
             >
               Balance:{' '}
@@ -408,6 +405,7 @@ const Component = ({
         </div>
         <Input
           placeholder='0.0'
+          isNumber
           suffix={
             Number(valueIn) > 0 ? (
               <TextGrey>
