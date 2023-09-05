@@ -379,11 +379,7 @@ export const Positions = ({
                   )}
                 </InfoRow>
                 <InfoRow>
-                  {tradeType == TRADE_TYPE.LIQUIDITY ? (
-                    <Text>Funding Yield</Text>
-                  ) : (
-                    <Text>Funding Rate</Text>
-                  )}
+                  <Text>{position.side == POOL_IDS.C ? 'Funding Yield' : 'Funding Rate'}</Text>
                   <Text
                     className={
                       position.funding < 0 || position.side == POOL_IDS.C
