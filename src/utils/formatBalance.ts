@@ -1,6 +1,6 @@
 import { BigNumber, ethers } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
-import { bn, whatDecimalSeparator } from './helpers'
+import { bn, LDS } from './helpers'
 
 export const formatNumber = (
   number: number,
@@ -52,7 +52,7 @@ export const formatFixedNumber = (
   decimals = 18
 ) => {
   // Remove decimal
-  const [leftSide] = number.toString().split(whatDecimalSeparator())
+  const [leftSide] = number.toString().split(LDS())
   return formatBigNumber(
     ethers.BigNumber.from(leftSide),
     displayDecimals,

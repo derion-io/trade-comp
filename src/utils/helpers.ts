@@ -21,7 +21,7 @@ export const weiToNumber = (
 ): string => {
   if (!wei || !Number(wei)) return '0'
   wei = wei.toString()
-  const separator = whatDecimalSeparator()
+  const separator = LDS()
   const num = mdp(wei, -decimal, separator)
   if (decimalToDisplay != null) {
     if (decimalToDisplay > 0) {
@@ -38,7 +38,7 @@ export const numberToWei = (number: any, decimal: number = 18) => {
   if (Number.isFinite(number)) {
     number = number.toLocaleString('fullwide', { useGrouping: false })
   }
-  return mdp(number, decimal).split(whatDecimalSeparator())[0]
+  return mdp(number, decimal).split(LDS())[0]
 }
 
 export const max = (a: number, b: number) => {
@@ -112,11 +112,11 @@ export const formatFloat = (number: number | string, decimal?: number) => {
   }
 
   number = number.toString()
-  const arr = number.split(whatDecimalSeparator())
+  const arr = number.split(LDS())
   if (arr.length > 1) {
     arr[1] = arr[1].slice(0, decimal)
   }
-  return Number(arr.join(whatDecimalSeparator()))
+  return Number(arr.join(LDS()))
 }
 
 export const cutDecimal = (number: string, decimal?: number) => {
@@ -125,11 +125,11 @@ export const cutDecimal = (number: string, decimal?: number) => {
   }
 
   number = number.toString()
-  const arr = number.split(whatDecimalSeparator())
+  const arr = number.split(LDS())
   if (arr.length > 1) {
     arr[1] = arr[1].slice(0, decimal)
   }
-  return arr.join(whatDecimalSeparator())
+  return arr.join(LDS())
 }
 
 export const mul = (a: any, b: any) => {
@@ -139,9 +139,9 @@ export const mul = (a: any, b: any) => {
     BigNumber.from(numberToWei(a)).mul(numberToWei(b)),
     36
   )
-  const arr = result.split(whatDecimalSeparator())
+  const arr = result.split(LDS())
   arr[1] = arr[1]?.slice(0, 18)
-  return arr[1] ? arr.join(whatDecimalSeparator()) : arr.join('')
+  return arr[1] ? arr.join(LDS()) : arr.join('')
 }
 
 export const sub = (a: any, b: any) => {
@@ -274,7 +274,7 @@ export const detectDecimalFromPrice = (price: number | string) => {
         BigNumber.from(numberToWei(1, 36)).div(numberToWei(price)).toString()
       )
       : '0'
-    return rate.split(whatDecimalSeparator())[0].length + 2
+    return rate.split(LDS())[0].length + 2
   }
 }
 
@@ -337,7 +337,7 @@ export const formatZeroDecimal = (
         maximumSignificantDigits: 4,
         maximumFractionDigits: 18
       })
-      .replace(/[.,]{1}0+/, `${whatDecimalSeparator()}0${ucZeros}`)
+      .replace(/[.,]{1}0+/, `${LDS()}0${ucZeros}`)
   }
   return value.toLocaleString('fullwide', {
     maximumSignificantDigits: 4,
@@ -377,7 +377,7 @@ export const kx = (
   }
 }
 
-export const whatDecimalSeparator = () : string => {
+export const LDS = () : string => {
   const n = 1.1
   return n.toLocaleString().substring(1, 2)
 }

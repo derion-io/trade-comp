@@ -21,7 +21,7 @@ import {
   isErc1155Address,
   kx,
   weiToNumber,
-  whatDecimalSeparator,
+  LDS,
   xr
 } from '../../utils/helpers'
 import { TokenSymbol } from '../ui/TokenSymbol'
@@ -479,7 +479,7 @@ const Component = ({
                             balances[outputTokenAddress] ?? bn(0),
                             4,
                             tokens[outputTokenAddress]?.decimal || 18
-                          ).split(whatDecimalSeparator())[0]
+                          ).split(LDS())[0]
                         }
                       </div>
                     )}
@@ -487,7 +487,7 @@ const Component = ({
                       $
                       {
                         formatZeroDecimal(formatFloat(valueOutBefore)).split(
-                          whatDecimalSeparator()
+                          LDS()
                         )[0]
                       }
                     </div>
@@ -497,7 +497,7 @@ const Component = ({
                         {
                           formatZeroDecimal(
                             formatFloat(Number(valueOutBefore) * power)
-                          ).split(whatDecimalSeparator())[0]
+                          ).split(LDS())[0]
                         }
                       </div>
                     )}
@@ -548,7 +548,7 @@ const Component = ({
                         {
                           formatLocalisedCompactNumber(
                             formatFloat(amountOut)
-                          ).split(whatDecimalSeparator())[0]
+                          ).split(LDS())[0]
                         }
                       </div>
                     )}
@@ -557,7 +557,7 @@ const Component = ({
                       {
                         formatLocalisedCompactNumber(
                           formatFloat(valueOut)
-                        ).split(whatDecimalSeparator())[0]
+                        ).split(LDS())[0]
                       }
                     </div>
                     {showSize && (
@@ -566,7 +566,7 @@ const Component = ({
                         {
                           formatLocalisedCompactNumber(
                             formatFloat(Number(valueOut) * power)
-                          ).split(whatDecimalSeparator())[0]
+                          ).split(LDS())[0]
                         }
                       </div>
                     )}
