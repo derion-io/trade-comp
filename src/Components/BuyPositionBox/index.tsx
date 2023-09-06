@@ -479,7 +479,7 @@ const Component = ({
                             balances[outputTokenAddress] ?? bn(0),
                             4,
                             tokens[outputTokenAddress]?.decimal || 18
-                          ).split('.')[0]
+                          ).split(whatDecimalSeparator())[0]
                         }
                       </div>
                     )}
@@ -487,7 +487,7 @@ const Component = ({
                       $
                       {
                         formatZeroDecimal(formatFloat(valueOutBefore)).split(
-                          '.'
+                          whatDecimalSeparator()
                         )[0]
                       }
                     </div>
@@ -497,7 +497,7 @@ const Component = ({
                         {
                           formatZeroDecimal(
                             formatFloat(Number(valueOutBefore) * power)
-                          ).split('.')[0]
+                          ).split(whatDecimalSeparator())[0]
                         }
                       </div>
                     )}
@@ -566,7 +566,7 @@ const Component = ({
                         {
                           formatLocalisedCompactNumber(
                             formatFloat(Number(valueOut) * power)
-                          ).split('.')[0]
+                          ).split(whatDecimalSeparator())[0]
                         }
                       </div>
                     )}

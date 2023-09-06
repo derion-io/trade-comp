@@ -21,12 +21,13 @@ export const weiToNumber = (
 ): string => {
   if (!wei || !Number(wei)) return '0'
   wei = wei.toString()
-  const num = mdp(wei, -decimal)
+  const separator = whatDecimalSeparator()
+  const num = mdp(wei, -decimal, separator)
   if (decimalToDisplay != null) {
     if (decimalToDisplay > 0) {
-      return num.slice(0, num.indexOf('.') + decimalToDisplay + 1)
+      return num.slice(0, num.indexOf(separator) + decimalToDisplay + 1)
     }
-    return num.slice(0, num.indexOf('.'))
+    return num.slice(0, num.indexOf(separator))
   }
   return num
 }
@@ -35,9 +36,9 @@ export const numberToWei = (number: any, decimal: number = 18) => {
   if (!number) return '0'
   number = number.toString()
   if (Number.isFinite(number)) {
-    number = number.toLocaleString('en-US', { useGrouping: false })
+    number = number.toLocaleString('fullwide', { useGrouping: false })
   }
-  return mdp(number, decimal).split(number.indexOf('.') === -1 ? ',' : '.')[0]
+  return mdp(number, decimal).split(whatDecimalSeparator())[0]
 }
 
 export const max = (a: number, b: number) => {
@@ -111,11 +112,11 @@ export const formatFloat = (number: number | string, decimal?: number) => {
   }
 
   number = number.toString()
-  const arr = number.split('.')
+  const arr = number.split(whatDecimalSeparator())
   if (arr.length > 1) {
     arr[1] = arr[1].slice(0, decimal)
   }
-  return Number(arr.join('.'))
+  return Number(arr.join(whatDecimalSeparator()))
 }
 
 export const cutDecimal = (number: string, decimal?: number) => {
@@ -124,11 +125,11 @@ export const cutDecimal = (number: string, decimal?: number) => {
   }
 
   number = number.toString()
-  const arr = number.split('.')
+  const arr = number.split(whatDecimalSeparator())
   if (arr.length > 1) {
     arr[1] = arr[1].slice(0, decimal)
   }
-  return arr.join('.')
+  return arr.join(whatDecimalSeparator())
 }
 
 export const mul = (a: any, b: any) => {
@@ -138,9 +139,9 @@ export const mul = (a: any, b: any) => {
     BigNumber.from(numberToWei(a)).mul(numberToWei(b)),
     36
   )
-  const arr = result.split('.')
+  const arr = result.split(whatDecimalSeparator())
   arr[1] = arr[1]?.slice(0, 18)
-  return arr[1] ? arr.join('.') : arr.join('')
+  return arr[1] ? arr.join(whatDecimalSeparator()) : arr.join('')
 }
 
 export const sub = (a: any, b: any) => {
@@ -273,7 +274,7 @@ export const detectDecimalFromPrice = (price: number | string) => {
         BigNumber.from(numberToWei(1, 36)).div(numberToWei(price)).toString()
       )
       : '0'
-    return rate.split('.')[0].length + 2
+    return rate.split(whatDecimalSeparator())[0].length + 2
   }
 }
 
