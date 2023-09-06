@@ -21,6 +21,7 @@ import {
   isErc1155Address,
   kx,
   weiToNumber,
+  whatDecimalSeparator,
   xr
 } from '../../utils/helpers'
 import { TokenSymbol } from '../ui/TokenSymbol'
@@ -301,9 +302,9 @@ const Component = ({
       (tokens?.[quoteToken]?.decimal ?? 18)
     const mark = MARK
       ? MARK.mul(MARK)
-          .mul(bn(10).pow(decimalsOffset + 12))
-          .shr(256)
-          .toNumber() / 1000000000000
+        .mul(bn(10).pow(decimalsOffset + 12))
+        .shr(256)
+        .toNumber() / 1000000000000
       : 1
 
     const xA = xr(k, R.shr(1), a)
@@ -312,14 +313,14 @@ const Component = ({
     const dgB = xB * xB * mark
 
     if (sideToShow === POOL_IDS.A) {
-      return ['Deleverage Price', <Text>{formatZeroDecimal(dgA)}</Text>]
+      return ['Deleverage Price', <Text key={0}>{formatZeroDecimal(dgA)}</Text>]
     }
     if (sideToShow === POOL_IDS.B) {
-      return ['Deleverage Price', <Text>{formatZeroDecimal(dgB)}</Text>]
+      return ['Deleverage Price', <Text key={0}>{formatZeroDecimal(dgB)}</Text>]
     }
     return [
       'Full Leverage Range',
-      <Text>
+      <Text key={0}>
         {formatZeroDecimal(dgB)}-{formatZeroDecimal(dgA)}
       </Text>
     ]
@@ -449,8 +450,8 @@ const Component = ({
             tradeType === TRADE_TYPE.LONG
               ? 'buy'
               : tradeType === TRADE_TYPE.SHORT
-              ? 'sell'
-              : 'blue'
+                ? 'sell'
+                : 'blue'
           }
           className='estimate-box swap-info-box mt-1 mb-1'
         >
@@ -547,7 +548,7 @@ const Component = ({
                         {
                           formatLocalisedCompactNumber(
                             formatFloat(amountOut)
-                          ).split('.')[0]
+                          ).split(whatDecimalSeparator())[0]
                         }
                       </div>
                     )}
@@ -556,7 +557,7 @@ const Component = ({
                       {
                         formatLocalisedCompactNumber(
                           formatFloat(valueOut)
-                        ).split('.')[0]
+                        ).split(whatDecimalSeparator())[0]
                       }
                     </div>
                     {showSize && (
@@ -612,7 +613,7 @@ const Component = ({
       <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
         <InfoRow>
           <TextGrey>Liquidity</TextGrey>
-          <SkeletonLoader loading={!liquidity || liquidity == '0'}>
+          <SkeletonLoader loading={!liquidity || liquidity === '0'}>
             <Text>
               ${formatLocalisedCompactNumber(formatFloat(liquidity, 2))}
             </Text>
@@ -636,7 +637,7 @@ const Component = ({
           <InfoRow>
             <TextGrey>Funding Yield</TextGrey>
             <SkeletonLoader loading={!poolToShow}>
-              <TextGreen>{formatPercent(fundingYield, 3, true)}%</TextGreen>
+              <TextGreen>{formatLocalisedCompactNumber(formatPercent(fundingYield, 3, true))}%</TextGreen>
             </SkeletonLoader>
           </InfoRow>
         ) : (
@@ -644,7 +645,7 @@ const Component = ({
             <TextGrey>Funding Rate</TextGrey>
             <SkeletonLoader loading={!poolToShow}>
               <Text className={fundingRate < 0 ? 'text-green' : ''}>
-                {formatPercent(fundingRate, 3, true)}%
+                {formatLocalisedCompactNumber(formatPercent(fundingRate, 3, true))}%
               </Text>
             </SkeletonLoader>
           </InfoRow>
@@ -656,14 +657,14 @@ const Component = ({
           <InfoRow>
             <TextGrey>Funding Yield (Min)</TextGrey>
             <SkeletonLoader loading={!poolToShow}>
-              {formatPercent(interest, 3, true)}%
+              {formatLocalisedCompactNumber(formatPercent(interest, 3, true))}%
             </SkeletonLoader>
           </InfoRow>
         ) : (
           <InfoRow>
             <TextGrey>Funding Rate (Max)</TextGrey>
             <SkeletonLoader loading={!poolToShow}>
-              {formatPercent(maxFundingRate, 3, true)}%
+              {formatLocalisedCompactNumber(formatPercent(maxFundingRate, 3, true))}%
             </SkeletonLoader>
           </InfoRow>
         )}
@@ -680,24 +681,24 @@ const Component = ({
         )}
         {!poolToShow?.MATURITY?.toNumber() ||
           !poolToShow?.MATURITY_RATE?.gt(0) || (
-            <InfoRow>
-              <TextGrey>Closing Fee</TextGrey>
-              <SkeletonLoader loading={!poolToShow}>
-                {formatPercent(
-                  Q128.sub(poolToShow?.MATURITY_RATE)
-                    .mul(10000)
-                    .div(Q128)
-                    .toNumber() / 10000,
-                  2,
-                  true
-                )}
-                % for{' '}
-                {moment
-                  .duration(poolToShow?.MATURITY.toNumber(), 'seconds')
-                  .humanize()}
-              </SkeletonLoader>
-            </InfoRow>
-          )}
+          <InfoRow>
+            <TextGrey>Closing Fee</TextGrey>
+            <SkeletonLoader loading={!poolToShow}>
+              {formatPercent(
+                Q128.sub(poolToShow?.MATURITY_RATE)
+                  .mul(10000)
+                  .div(Q128)
+                  .toNumber() / 10000,
+                2,
+                true
+              )}
+              % for{' '}
+              {moment
+                .duration(poolToShow?.MATURITY.toNumber(), 'seconds')
+                .humanize()}
+            </SkeletonLoader>
+          </InfoRow>
+        )}
       </Box>
 
       <TxFee
@@ -739,21 +740,21 @@ const Component = ({
           loadingAmountOut={loading}
           tokenOutMaturity={tokenOutMaturity}
           title={
-            Number(decodeErc1155Address(outputTokenAddress).id) ===
-            POOL_IDS.A ? (
-              <Text>
-                <TokenSymbol token={outputTokenAddress} textWrap={Text} />{' '}
-              </Text>
-            ) : Number(decodeErc1155Address(outputTokenAddress).id) ===
-              POOL_IDS.B ? (
-              <Text>
-                <TokenSymbol token={outputTokenAddress} textWrap={Text} />{' '}
-              </Text>
-            ) : (
-              <Text>
-                Add <TokenSymbol token={outputTokenAddress} textWrap={Text} />{' '}
-              </Text>
-            )
+            Number(decodeErc1155Address(outputTokenAddress).id) === POOL_IDS.A
+              ? (
+                <Text>
+                  <TokenSymbol token={outputTokenAddress} textWrap={Text} />{' '}
+                </Text>
+              ) : Number(decodeErc1155Address(outputTokenAddress).id) === POOL_IDS.B
+                ? (
+                  <Text>
+                    <TokenSymbol token={outputTokenAddress} textWrap={Text} />{' '}
+                  </Text>
+                ) : (
+                  <Text>
+                    Add <TokenSymbol token={outputTokenAddress} textWrap={Text} />{' '}
+                  </Text>
+                )
           }
         />
       </div>

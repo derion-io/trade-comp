@@ -3,7 +3,9 @@ import {
   bn,
   cutDecimal,
   decodeErc1155Address,
+  div,
   isErc1155Address,
+  mul,
   numberToWei,
   weiToNumber
 } from '../../../utils/helpers'
@@ -48,26 +50,25 @@ export const useTokenValue = ({
           Number(id) === POOL_IDS.A
             ? pool.states.rA
             : Number(id) === POOL_IDS.B
-            ? pool.states.rB
-            : pool.states.rC
+              ? pool.states.rB
+              : pool.states.rC
 
         const sX =
           Number(id) === POOL_IDS.A
             ? pool.states.sA
             : Number(id) === POOL_IDS.B
-            ? pool.states.sB
-            : pool.states.sC
+              ? pool.states.sB
+              : pool.states.sC
 
         // TOTO: need remove mul(numberToWei(1, 9) after fix parseSqrtX96 function
         const tokenPrice =
           prices[pool.TOKEN_R] && prices[pool.TOKEN_R].gt(0) && valueInUsd
             ? parseSqrtX96(
-                prices[pool.TOKEN_R]?.mul(numberToWei(1, 9)) || bn(0),
-                tokens[pool.TOKEN_R] || {},
-                tokens[configs.stableCoins[0]] || {}
-              )
+              prices[pool.TOKEN_R]?.mul(numberToWei(1, 9)) || bn(0),
+              tokens[pool.TOKEN_R] || {},
+              tokens[configs.stableCoins[0]] || {}
+            )
             : numberToWei(1, 18)
-
         value = weiToNumber(
           bn(numberToWei(_amount)).mul(numberToWei(tokenPrice)).mul(rX).div(sX),
           54
@@ -78,10 +79,10 @@ export const useTokenValue = ({
       const tokenPrice =
         prices[address] && prices[address].gt(0) && valueInUsd
           ? parseSqrtX96(
-              prices[address]?.mul(numberToWei(1, 9)) || bn(0),
-              tokens[address] || {},
-              tokens[configs.stableCoins[0]] || {}
-            )
+            prices[address]?.mul(numberToWei(1, 9)) || bn(0),
+            tokens[address] || {},
+            tokens[configs.stableCoins[0]] || {}
+          )
           : numberToWei(1, 18)
 
       value = weiToNumber(

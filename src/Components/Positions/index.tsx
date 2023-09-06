@@ -145,9 +145,9 @@ export const Positions = ({
       const entryPrice = posWithEntry?.entryPrice
       const entryValue = posWithEntry?.balance?.gt(0)
         ? div(
-            mul(balances[token], posWithEntry?.entry ?? 0),
-            posWithEntry.balance
-          )
+          mul(balances[token], posWithEntry?.entry ?? 0),
+          posWithEntry.balance
+        )
         : '0'
       const entryValueR = weiToNumber(
         posWithEntry?.totalEntryR ?? 0,
@@ -185,9 +185,9 @@ export const Positions = ({
         (tokens?.[quoteToken]?.decimal ?? 18)
       const mark = MARK
         ? MARK.mul(MARK)
-            .mul(bn(10).pow(decimalsOffset + 12))
-            .shr(256)
-            .toNumber() / 1000000000000
+          .mul(bn(10).pow(decimalsOffset + 12))
+          .shr(256)
+          .toNumber() / 1000000000000
         : 1
 
       const xA = xr(k, R.shr(1), a)
@@ -198,8 +198,8 @@ export const Positions = ({
         side === POOL_IDS.A
           ? formatZeroDecimal(dgA)
           : side === POOL_IDS.B
-          ? formatZeroDecimal(dgB)
-          : `${formatZeroDecimal(dgB)}-${formatZeroDecimal(dgA)}`
+            ? formatZeroDecimal(dgB)
+            : `${formatZeroDecimal(dgB)}-${formatZeroDecimal(dgA)}`
 
       const sizeDisplay =
         side === POOL_IDS.A || side === POOL_IDS.B
@@ -489,10 +489,10 @@ export const Positions = ({
                         !settings.showBalance
                           ? undefined
                           : formatWeiToDisplayNumber(
-                              position.balance,
-                              4,
-                              tokens[position.token].decimals
-                            )
+                            position.balance,
+                            4,
+                            tokens[position.token].decimals
+                          )
                       }
                     />
                   </td>
@@ -540,12 +540,12 @@ export const Positions = ({
                   <td>
                     <Text
                       className={
-                        position.funding < 0 || position.side == POOL_IDS.C
+                        position.funding < 0 || position.side === POOL_IDS.C
                           ? 'text-green'
                           : ''
                       }
                     >
-                      {formatPercent(position.funding, 2, true)}%
+                      {formatLocalisedCompactNumber(formatPercent(position.funding, 2, true))}%
                     </Text>
                   </td>
                   {!hasClosingFee || (

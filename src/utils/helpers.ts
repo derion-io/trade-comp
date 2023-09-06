@@ -33,10 +33,11 @@ export const weiToNumber = (
 
 export const numberToWei = (number: any, decimal: number = 18) => {
   if (!number) return '0'
+  number = number.toString()
   if (Number.isFinite(number)) {
-    number = number.toLocaleString('fullwide', { useGrouping: false })
+    number = number.toLocaleString('en-US', { useGrouping: false })
   }
-  return mdp(number, decimal).split('.')[0]
+  return mdp(number, decimal).split(number.indexOf('.') === -1 ? ',' : '.')[0]
 }
 
 export const max = (a: number, b: number) => {
@@ -269,8 +270,8 @@ export const detectDecimalFromPrice = (price: number | string) => {
   } else {
     const rate = !bn(numberToWei(price)).isZero()
       ? weiToNumber(
-          BigNumber.from(numberToWei(1, 36)).div(numberToWei(price)).toString()
-        )
+        BigNumber.from(numberToWei(1, 36)).div(numberToWei(price)).toString()
+      )
       : '0'
     return rate.split('.')[0].length + 2
   }
@@ -335,7 +336,7 @@ export const formatZeroDecimal = (
         maximumSignificantDigits: 4,
         maximumFractionDigits: 18
       })
-      .replace(/\.0+/, `.0${ucZeros}`)
+      .replace(/[.,]{1}0+/, `${whatDecimalSeparator()}0${ucZeros}`)
   }
   return value.toLocaleString('fullwide', {
     maximumSignificantDigits: 4,
@@ -373,4 +374,9 @@ export const kx = (
     console.warn(err)
     return 0
   }
+}
+
+export const whatDecimalSeparator = () : string => {
+  const n = 1.1
+  return n.toLocaleString().substring(1, 2)
 }

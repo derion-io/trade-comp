@@ -61,8 +61,7 @@ export const formatFixedNumber = (
 }
 
 export const formatLocalisedCompactNumber = (number: number): string => {
-  const codeFromStorage = 'en-US'
-  return new Intl.NumberFormat(codeFromStorage, {
+  return new Intl.NumberFormat('fullwide', {
     // notation: 'compact',
     // @ts-ignore
     compactDisplay: 'long',

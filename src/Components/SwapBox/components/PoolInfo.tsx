@@ -52,7 +52,7 @@ export const PoolInfo = ({
     <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
       <InfoRow>
         <TextGrey>Liquidity</TextGrey>
-        <SkeletonLoader loading={!liquidity || liquidity == '0'}>
+        <SkeletonLoader loading={!liquidity || liquidity === '0'}>
           <Text>
             ${formatLocalisedCompactNumber(formatFloat(liquidity, 2))}
           </Text>
@@ -62,12 +62,12 @@ export const PoolInfo = ({
         <TextGrey>Daily Interest Rate</TextGrey>
         <SkeletonLoader loading={!poolToShow}>
           <Text>
-            {formatPercent(
+            {formatLocalisedCompactNumber(formatPercent(
               (poolToShow?.dailyInterestRate ?? 0) /
                 (poolToShow?.k.toNumber() ?? 1),
               3,
               true
-            )}
+            ))}
             %
           </Text>
         </SkeletonLoader>
