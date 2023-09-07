@@ -36,7 +36,7 @@ export const ButtonSwap = ({
   tokenOutMaturity,
   pairIndexR
 }: {
-  pairIndexR: string,
+  pairIndexR?: string,
   inputTokenAddress: string
   outputTokenAddress: string
   amountIn: string
@@ -57,7 +57,7 @@ export const ButtonSwap = ({
   const { account, showConnectModal } = useWeb3React()
   const { balances, fetchBalanceAndAllowance, routerAllowances } =
     useWalletBalance()
-  const { ddlEngine, configs } = useConfigs()
+  const { ddlEngine } = useConfigs()
   const {
     settings: { slippage, minPayoffRate }
   } = useSettings()
@@ -133,7 +133,7 @@ export const ButtonSwap = ({
     } else {
       return (
         <ButtonExecute
-          disabled={Number(payoffRate) < minPayoffRate}
+          disabled={Number(payoffRate) < minPayoffRate || !pairIndexR}
           className='swap-button'
           onClick={async () => {
             try {
@@ -169,7 +169,7 @@ export const ButtonSwap = ({
                         isErc1155Address(outputTokenAddress)
                       ),
                       currentBalanceOut: balances[outputTokenAddress],
-                      index_R: pairIndexR !== ZERO_ADDRESS ? bn(
+                      index_R: pairIndexR && pairIndexR !== ZERO_ADDRESS ? bn(
                         ethers.utils.hexZeroPad(
                           bn(1)
                             .shl(255)

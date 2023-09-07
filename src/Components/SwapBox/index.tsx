@@ -316,7 +316,6 @@ const Component = ({
           callError={callError}
           gasUsed={gasUsed}
           tokenOutMaturity={tokenOutMaturity}
-          isSwap
           title='Swap'
         />
       </div>

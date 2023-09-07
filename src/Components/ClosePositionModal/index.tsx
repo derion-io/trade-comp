@@ -303,7 +303,6 @@ const Component = ({
             callback={() => {
               setVisible(false)
             }}
-            isClose
             title={title}
           />
         </div>
