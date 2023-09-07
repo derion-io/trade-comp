@@ -174,11 +174,13 @@ export const useCalculateSwap = ({
       if (i < ITERATION && REASONS_TO_RETRY.some((R) => reason.includes(R))) {
         return calcAmountOut(i + 1)
       }
-      setAmountOut('0')
-      setTxFee(bn(0))
-      setGasUsed(bn(0))
-      setCallError(reason ?? e)
-      setPayloadAmountIn(undefined)
+      if (Number(amountIn) === Number(lastInput)) {
+        setAmountOut('0')
+        setTxFee(bn(0))
+        setGasUsed(bn(0))
+        setCallError(reason ?? e)
+        setPayloadAmountIn(undefined)
+      }
       if (i >= ITERATION) {
         throw e
       }
