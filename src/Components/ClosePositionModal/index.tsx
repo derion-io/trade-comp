@@ -94,14 +94,20 @@ const Component = ({
     }
   }, [valueInput, balance, valueBalance])
 
-  const { callError, gasUsed, amountOut, loading, payloadAmountIn, pairIndexR } =
-    useCalculateSwap({
-      amountIn,
-      setAmountIn,
-      inputTokenAddress,
-      outputTokenAddress,
-      tokenOutMaturity
-    })
+  const {
+    callError,
+    gasUsed,
+    amountOut,
+    loading,
+    payloadAmountIn,
+    pairIndexR
+  } = useCalculateSwap({
+    amountIn,
+    setAmountIn,
+    inputTokenAddress,
+    outputTokenAddress,
+    tokenOutMaturity
+  })
 
   const { value: valueIn } = useTokenValue({
     amount: amountIn,
@@ -158,10 +164,10 @@ const Component = ({
                   Balance:{' '}
                   {balances && balances[inputTokenAddress]
                     ? formatWeiToDisplayNumber(
-                      balances[inputTokenAddress],
-                      4,
+                        balances[inputTokenAddress],
+                        4,
                         tokens[inputTokenAddress]?.decimal || 18
-                    )
+                      )
                     : 0}
                 </Text>
               ) : (
@@ -259,10 +265,10 @@ const Component = ({
                 Balance:{' '}
                 {balances && balances[outputTokenAddress]
                   ? formatWeiToDisplayNumber(
-                    balances[outputTokenAddress],
-                    4,
+                      balances[outputTokenAddress],
+                      4,
                       tokens[outputTokenAddress]?.decimal || 18
-                  )
+                    )
                   : 0}
               </Text>
             </SkeletonLoader>

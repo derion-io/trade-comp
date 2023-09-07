@@ -62,12 +62,14 @@ export const PoolInfo = ({
         <TextGrey>Daily Interest Rate</TextGrey>
         <SkeletonLoader loading={!poolToShow}>
           <Text>
-            {formatLocalisedCompactNumber(formatPercent(
-              (poolToShow?.dailyInterestRate ?? 0) /
-                (poolToShow?.k.toNumber() ?? 1),
-              3,
-              true
-            ))}
+            {formatLocalisedCompactNumber(
+              formatPercent(
+                (poolToShow?.dailyInterestRate ?? 0) /
+                  (poolToShow?.k.toNumber() ?? 1),
+                3,
+                true
+              )
+            )}
             %
           </Text>
         </SkeletonLoader>

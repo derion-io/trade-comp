@@ -36,7 +36,7 @@ export const ButtonSwap = ({
   tokenOutMaturity,
   pairIndexR
 }: {
-  pairIndexR?: string,
+  pairIndexR?: string
   inputTokenAddress: string
   outputTokenAddress: string
   amountIn: string
@@ -169,15 +169,15 @@ export const ButtonSwap = ({
                         isErc1155Address(outputTokenAddress)
                       ),
                       currentBalanceOut: balances[outputTokenAddress],
-                      index_R: pairIndexR && pairIndexR !== ZERO_ADDRESS ? bn(
-                        ethers.utils.hexZeroPad(
-                          bn(1)
-                            .shl(255)
-                            .add(pairIndexR)
-                            .toHexString(),
-                          32
-                        )
-                      ) : bn(0)
+                      index_R:
+                        pairIndexR && pairIndexR !== ZERO_ADDRESS
+                          ? bn(
+                              ethers.utils.hexZeroPad(
+                                bn(1).shl(255).add(pairIndexR).toHexString(),
+                                32
+                              )
+                            )
+                          : bn(0)
                     }
                   ],
                   gasUsed && gasUsed.gt(0) ? gasUsed.mul(2) : undefined

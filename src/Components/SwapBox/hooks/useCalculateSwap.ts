@@ -1,5 +1,6 @@
 import {
-  bn, decodeErc1155Address,
+  bn,
+  decodeErc1155Address,
   isErc1155Address,
   numberToWei,
   parseCallStaticError,
@@ -47,15 +48,24 @@ export const useCalculateSwap = ({
   const [pairIndexR, setPairIndexR] = useState<string>()
 
   useEffect(() => {
-    const poolAddress = isErc1155Address(inputTokenAddress) ? decodeErc1155Address(inputTokenAddress).address : isErc1155Address(outputTokenAddress) ? decodeErc1155Address(outputTokenAddress).address : ''
+    const poolAddress = isErc1155Address(inputTokenAddress)
+      ? decodeErc1155Address(inputTokenAddress).address
+      : isErc1155Address(outputTokenAddress)
+      ? decodeErc1155Address(outputTokenAddress).address
+      : ''
     const TOKEN_R = pools[poolAddress]?.TOKEN_R
     if (ddlEngine && TOKEN_R) {
       // eslint-disable-next-line no-unused-expressions
-      ddlEngine?.UNIV3PAIR?.getLargestPoolAddress({ baseToken: TOKEN_R, quoteTokens: configs.stableCoins }).then((uniPairAddress) => {
-        setPairIndexR(uniPairAddress)
-      }).catch(() => {
-        setPairIndexR(ZERO_ADDRESS)
+      ddlEngine?.UNIV3PAIR?.getLargestPoolAddress({
+        baseToken: TOKEN_R,
+        quoteTokens: configs.stableCoins
       })
+        .then((uniPairAddress) => {
+          setPairIndexR(uniPairAddress)
+        })
+        .catch(() => {
+          setPairIndexR(ZERO_ADDRESS)
+        })
     }
   }, [inputTokenAddress, outputTokenAddress, JSON.stringify(pools)])
 
@@ -127,12 +137,15 @@ export const useCalculateSwap = ({
             isErc1155Address(outputTokenAddress)
           ),
           currentBalanceOut: balances[outputTokenAddress],
-          index_R: pairIndexR && pairIndexR !== ZERO_ADDRESS ? bn(
-            ethers.utils.hexZeroPad(
-              bn(1).shl(255).add(pairIndexR).toHexString(),
-              32
-            )
-          ) : bn(0)
+          index_R:
+            pairIndexR && pairIndexR !== ZERO_ADDRESS
+              ? bn(
+                  ethers.utils.hexZeroPad(
+                    bn(1).shl(255).add(pairIndexR).toHexString(),
+                    32
+                  )
+                )
+              : bn(0)
         }
       ])
       console.log('calculate amountOut response', res)
