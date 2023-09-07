@@ -52,13 +52,8 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
           return
         }
 
-        // const color = 'rgb(0, 180, 255)'
-        // const bgColor = 'rgb(27, 29, 33)'
-        // const color = opacity === 0 ? bgColor : `rgb(0, ${opacity * 180}, ${opacity * 255})`
-        const transparency = 1 - 0.95 * deleverageRisk
-        const color = `rgb(${0 + (1 - transparency) * 27}, ${
-          transparency * 180 + (1 - transparency) * 29
-        }, ${transparency * 255 + (1 - transparency) * 33})`
+        const color = '#01A7FA'
+        const opacity = 1 - 0.95 * deleverageRisk
         const power = Math.abs(
           Number(
             getTokenPower(
@@ -82,7 +77,7 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
                 token: pool.poolAddress + '-' + tradeTypeToId(tradeType),
                 size,
                 color,
-                // opacity,
+                opacity,
                 dailyInterestRate: pool.dailyInterestRate,
                 premium: pool.premium,
                 maxPremiumRate: pool.maxPremiumRate,
@@ -97,7 +92,7 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
             token: pool.poolAddress + '-' + tradeTypeToId(tradeType),
             size,
             color,
-            opacity: transparency,
+            opacity,
             dailyInterestRate: pool.dailyInterestRate,
             premium: pool.premium,
             maxPremiumRate: pool.maxPremiumRate,
