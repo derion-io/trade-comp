@@ -20,7 +20,7 @@ const REASONS_TO_RETRY = [
   'MINIMUM_SUPPLY',
   'MINIMUM_RESERVE'
 ]
-
+let lastInput:number = 0
 export const useCalculateSwap = ({
   amountIn,
   setAmountIn,
@@ -84,6 +84,7 @@ export const useCalculateSwap = ({
       if (!amountOut) {
         setCallError('Calculating...')
       }
+      lastInput = Number(amountIn)
       setLoading(true)
       calcAmountOut()
     } else if (Number(amountIn) === 0) {
@@ -149,20 +150,25 @@ export const useCalculateSwap = ({
         }
       ])
       console.log('calculate amountOut response', res)
-      const [aOuts, gasLeft] = res
-      setAmountOutWei(aOuts[0]?.amountOut || bn(0))
-      setPayloadAmountIn(_payloadAmountIn)
-      setAmountOut(
-        weiToNumber(
-          aOuts[0]?.amountOut || 0,
-          tokens[outputTokenAddress].decimal || 18
+      if (Number(amountIn) === Number(lastInput)) {
+        const [aOuts, gasLeft] = res
+        setAmountOutWei(aOuts[0]?.amountOut || bn(0))
+        setPayloadAmountIn(_payloadAmountIn)
+        setAmountOut(
+          weiToNumber(
+            aOuts[0]?.amountOut || 0,
+            tokens[outputTokenAddress].decimal || 18
+          )
         )
-      )
-      // @ts-ignore
-      setTxFee(detectTxFee(gasLeft))
-      // @ts-ignore
-      setGasUsed(gasLeft)
-      setCallError('')
+        // @ts-ignore
+        setTxFee(detectTxFee(gasLeft))
+        // @ts-ignore
+        setGasUsed(gasLeft)
+        setCallError('')
+        setLoading(false)
+      } else {
+        setLoading(true)
+      }
     } catch (e) {
       const reason = parseCallStaticError(e)
       if (i < ITERATION && REASONS_TO_RETRY.some((R) => reason.includes(R))) {
@@ -177,7 +183,6 @@ export const useCalculateSwap = ({
         throw e
       }
     }
-    setLoading(false)
   }
 
   const detectTxFee = (gasUsed: BigNumber) => {
