@@ -54,13 +54,14 @@ const Component = ({
   const [amountIn, setAmountIn] = useState<string>('')
   const { balances, accFetchBalance } = useWalletBalance()
   const { tokens } = useListTokens()
-  const { callError, gasUsed, amountOut, payloadAmountIn } = useCalculateSwap({
-    amountIn,
-    setAmountIn,
-    inputTokenAddress,
-    outputTokenAddress,
-    tokenOutMaturity
-  })
+  const { callError, gasUsed, amountOut, payloadAmountIn, pairIndexR } =
+    useCalculateSwap({
+      amountIn,
+      setAmountIn,
+      inputTokenAddress,
+      outputTokenAddress,
+      tokenOutMaturity
+    })
 
   const { value: valueIn } = useTokenValue({
     amount: amountIn,
@@ -306,6 +307,7 @@ const Component = ({
 
       <div className='actions'>
         <ButtonSwap
+          pairIndexR={pairIndexR}
           payoffRate={payoffRate}
           payloadAmountIn={payloadAmountIn}
           inputTokenAddress={inputTokenAddress}
@@ -315,7 +317,6 @@ const Component = ({
           callError={callError}
           gasUsed={gasUsed}
           tokenOutMaturity={tokenOutMaturity}
-          isSwap
           title='Swap'
         />
       </div>

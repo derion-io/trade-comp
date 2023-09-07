@@ -14,7 +14,7 @@ import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useConfigs } from '../../state/config/useConfigs'
 import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 import { BigNumber, ethers } from 'ethers'
-import { CHAINS, TRADE_TYPE } from '../../utils/constant'
+import { CHAINS, TRADE_TYPE, ZERO_ADDRESS } from '../../utils/constant'
 import { TextError } from '../ui/Text'
 import { useSettings } from '../../state/setting/hooks/useSettings'
 import { ApproveUtrModal } from '../ApproveUtrModal'
@@ -31,12 +31,12 @@ export const ButtonSwap = ({
   tradeType,
   loadingAmountOut,
   payloadAmountIn,
-  isSwap,
-  isClose,
   title,
   payoffRate,
-  tokenOutMaturity
+  tokenOutMaturity,
+  pairIndexR
 }: {
+  pairIndexR?: string
   inputTokenAddress: string
   outputTokenAddress: string
   amountIn: string
@@ -47,8 +47,6 @@ export const ButtonSwap = ({
   callback?: any
   loadingAmountOut?: boolean
   tradeType?: TRADE_TYPE
-  isSwap?: boolean
-  isClose?: boolean
   title: any
   payoffRate?: number
   tokenOutMaturity: BigNumber
@@ -59,7 +57,7 @@ export const ButtonSwap = ({
   const { account, showConnectModal } = useWeb3React()
   const { balances, fetchBalanceAndAllowance, routerAllowances } =
     useWalletBalance()
-  const { ddlEngine, configs } = useConfigs()
+  const { ddlEngine } = useConfigs()
   const {
     settings: { slippage, minPayoffRate }
   } = useSettings()
@@ -135,7 +133,7 @@ export const ButtonSwap = ({
     } else {
       return (
         <ButtonExecute
-          disabled={Number(payoffRate) < minPayoffRate}
+          disabled={Number(payoffRate) < minPayoffRate || !pairIndexR}
           className='swap-button'
           onClick={async () => {
             try {
@@ -171,16 +169,15 @@ export const ButtonSwap = ({
                         isErc1155Address(outputTokenAddress)
                       ),
                       currentBalanceOut: balances[outputTokenAddress],
-                      // TODO: need to update index_R dynamic
-                      index_R: bn(
-                        ethers.utils.hexZeroPad(
-                          bn(1)
-                            .shl(255)
-                            .add(configs.addresses.wrapUsdPair)
-                            .toHexString(),
-                          32
-                        )
-                      )
+                      index_R:
+                        pairIndexR && pairIndexR !== ZERO_ADDRESS
+                          ? bn(
+                              ethers.utils.hexZeroPad(
+                                bn(1).shl(255).add(pairIndexR).toHexString(),
+                                32
+                              )
+                            )
+                          : bn(0)
                     }
                   ],
                   gasUsed && gasUsed.gt(0) ? gasUsed.mul(2) : undefined
@@ -223,6 +220,7 @@ export const ButtonSwap = ({
       )
     }
   }, [
+    pairIndexR,
     chainId,
     amountOut,
     slippage,

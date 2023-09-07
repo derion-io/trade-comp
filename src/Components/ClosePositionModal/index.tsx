@@ -94,14 +94,20 @@ const Component = ({
     }
   }, [valueInput, balance, valueBalance])
 
-  const { callError, gasUsed, amountOut, loading, payloadAmountIn } =
-    useCalculateSwap({
-      amountIn,
-      setAmountIn,
-      inputTokenAddress,
-      outputTokenAddress,
-      tokenOutMaturity
-    })
+  const {
+    callError,
+    gasUsed,
+    amountOut,
+    loading,
+    payloadAmountIn,
+    pairIndexR
+  } = useCalculateSwap({
+    amountIn,
+    setAmountIn,
+    inputTokenAddress,
+    outputTokenAddress,
+    tokenOutMaturity
+  })
 
   const { value: valueIn } = useTokenValue({
     amount: amountIn,
@@ -289,6 +295,7 @@ const Component = ({
 
         <div className='actions'>
           <ButtonSwap
+            pairIndexR={pairIndexR}
             loadingAmountOut={loading}
             payoffRate={payoffRate}
             inputTokenAddress={inputTokenAddress}
@@ -302,7 +309,6 @@ const Component = ({
             callback={() => {
               setVisible(false)
             }}
-            isClose
             title={title}
           />
         </div>
