@@ -52,9 +52,7 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
           return
         }
 
-        const color = '#01A7FA' // #sfsijig
-        // const bgColor = 'rgb(27, 29, 33)'
-        // const color = opacity === 0 ? bgColor : `rgb(0, ${opacity * 180}, ${opacity * 255})`
+        const color = '#01A7FA'
         const opacity = 1 - 0.95 * deleverageRisk
         const power = Math.abs(
           Number(
