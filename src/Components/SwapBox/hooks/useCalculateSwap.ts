@@ -1,5 +1,5 @@
 import {
-  bn,
+  bn, decodeErc1155Address,
   isErc1155Address,
   numberToWei,
   parseCallStaticError,
@@ -10,6 +10,8 @@ import { useListTokens } from '../../../state/token/hook'
 import { BigNumber, ethers } from 'ethers'
 import { useConfigs } from '../../../state/config/useConfigs'
 import { useWalletBalance } from '../../../state/wallet/hooks/useBalances'
+import { useResource } from '../../../state/resources/hooks/useResource'
+import { ZERO_ADDRESS } from '../../../utils/constant'
 
 const ITERATION = 10
 const REASONS_TO_RETRY = [
@@ -32,6 +34,7 @@ export const useCalculateSwap = ({
   tokenOutMaturity: BigNumber
 }) => {
   const { tokens } = useListTokens()
+  const { pools } = useResource()
   const [callError, setCallError] = useState<string>('')
   const [amountOut, setAmountOut] = useState<string>('')
   const [payloadAmountIn, setPayloadAmountIn] = useState<BigNumber>()
@@ -41,9 +44,24 @@ export const useCalculateSwap = ({
   const [loading, setLoading] = useState<boolean>(false)
   const { ddlEngine, configs } = useConfigs()
   const { balances, routerAllowances } = useWalletBalance()
+  const [pairIndexR, setPairIndexR] = useState<string>()
+
+  useEffect(() => {
+    const poolAddress = isErc1155Address(inputTokenAddress) ? decodeErc1155Address(inputTokenAddress).address : isErc1155Address(outputTokenAddress) ? decodeErc1155Address(outputTokenAddress).address : ''
+    const TOKEN_R = pools[poolAddress]?.TOKEN_R
+    if (ddlEngine && TOKEN_R) {
+      // eslint-disable-next-line no-unused-expressions
+      ddlEngine?.UNIV3PAIR?.getLargestPoolAddress({ baseToken: TOKEN_R, quoteTokens: configs.stableCoins }).then((uniPairAddress) => {
+        setPairIndexR(uniPairAddress)
+      }).catch(() => {
+        setPairIndexR(ZERO_ADDRESS)
+      })
+    }
+  }, [inputTokenAddress, outputTokenAddress, JSON.stringify(pools)])
 
   useEffect(() => {
     if (
+      pairIndexR &&
       tokens[inputTokenAddress] &&
       tokens[outputTokenAddress] &&
       amountIn &&
@@ -65,6 +83,7 @@ export const useCalculateSwap = ({
       setAmountOutWei(bn(0))
     }
   }, [
+    pairIndexR,
     tokens[inputTokenAddress]?.address,
     tokens[outputTokenAddress]?.address,
     tokenOutMaturity.toString(),
@@ -108,13 +127,12 @@ export const useCalculateSwap = ({
             isErc1155Address(outputTokenAddress)
           ),
           currentBalanceOut: balances[outputTokenAddress],
-          // TODO: need to update index_R dynamic
-          index_R: bn(
+          index_R: pairIndexR && pairIndexR !== ZERO_ADDRESS ? bn(
             ethers.utils.hexZeroPad(
-              bn(1).shl(255).add(configs.addresses.wrapUsdPair).toHexString(),
+              bn(1).shl(255).add(pairIndexR).toHexString(),
               32
             )
-          )
+          ) : bn(0)
         }
       ])
       console.log('calculate amountOut response', res)
@@ -157,6 +175,7 @@ export const useCalculateSwap = ({
   }
 
   return {
+    pairIndexR,
     loading,
     callError,
     txFee,

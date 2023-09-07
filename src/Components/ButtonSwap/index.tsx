@@ -14,7 +14,7 @@ import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useConfigs } from '../../state/config/useConfigs'
 import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 import { BigNumber, ethers } from 'ethers'
-import { CHAINS, TRADE_TYPE } from '../../utils/constant'
+import { CHAINS, TRADE_TYPE, ZERO_ADDRESS } from '../../utils/constant'
 import { TextError } from '../ui/Text'
 import { useSettings } from '../../state/setting/hooks/useSettings'
 import { ApproveUtrModal } from '../ApproveUtrModal'
@@ -31,12 +31,12 @@ export const ButtonSwap = ({
   tradeType,
   loadingAmountOut,
   payloadAmountIn,
-  isSwap,
-  isClose,
   title,
   payoffRate,
-  tokenOutMaturity
+  tokenOutMaturity,
+  pairIndexR
 }: {
+  pairIndexR: string,
   inputTokenAddress: string
   outputTokenAddress: string
   amountIn: string
@@ -47,8 +47,6 @@ export const ButtonSwap = ({
   callback?: any
   loadingAmountOut?: boolean
   tradeType?: TRADE_TYPE
-  isSwap?: boolean
-  isClose?: boolean
   title: any
   payoffRate?: number
   tokenOutMaturity: BigNumber
@@ -171,16 +169,15 @@ export const ButtonSwap = ({
                         isErc1155Address(outputTokenAddress)
                       ),
                       currentBalanceOut: balances[outputTokenAddress],
-                      // TODO: need to update index_R dynamic
-                      index_R: bn(
+                      index_R: pairIndexR !== ZERO_ADDRESS ? bn(
                         ethers.utils.hexZeroPad(
                           bn(1)
                             .shl(255)
-                            .add(configs.addresses.wrapUsdPair)
+                            .add(pairIndexR)
                             .toHexString(),
                           32
                         )
-                      )
+                      ) : bn(0)
                     }
                   ],
                   gasUsed && gasUsed.gt(0) ? gasUsed.mul(2) : undefined
@@ -223,6 +220,7 @@ export const ButtonSwap = ({
       )
     }
   }, [
+    pairIndexR,
     chainId,
     amountOut,
     slippage,

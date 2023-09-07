@@ -54,7 +54,7 @@ const Component = ({
   const [amountIn, setAmountIn] = useState<string>('')
   const { balances, accFetchBalance } = useWalletBalance()
   const { tokens } = useListTokens()
-  const { callError, gasUsed, amountOut, payloadAmountIn } = useCalculateSwap({
+  const { callError, gasUsed, amountOut, payloadAmountIn, pairIndexR } = useCalculateSwap({
     amountIn,
     setAmountIn,
     inputTokenAddress,
@@ -199,10 +199,10 @@ const Component = ({
                 Balance:{' '}
                 {balances && balances[inputTokenAddress]
                   ? formatWeiToDisplayNumber(
-                      balances[inputTokenAddress],
-                      4,
+                    balances[inputTokenAddress],
+                    4,
                       tokens[inputTokenAddress]?.decimal || 18
-                    )
+                  )
                   : 0}
               </Text>
             </SkeletonLoader>
@@ -264,10 +264,10 @@ const Component = ({
               Balance:{' '}
               {balances && balances[outputTokenAddress]
                 ? formatWeiToDisplayNumber(
-                    balances[outputTokenAddress],
-                    4,
+                  balances[outputTokenAddress],
+                  4,
                     tokens[outputTokenAddress]?.decimal || 18
-                  )
+                )
                 : 0}
             </Text>
           </SkeletonLoader>
@@ -306,6 +306,7 @@ const Component = ({
 
       <div className='actions'>
         <ButtonSwap
+          pairIndexR={pairIndexR}
           payoffRate={payoffRate}
           payloadAmountIn={payloadAmountIn}
           inputTokenAddress={inputTokenAddress}
