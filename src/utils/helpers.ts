@@ -268,6 +268,7 @@ export const detectDecimalFromPrice = (price: number | string) => {
     const len = Math.floor(Number(price ?? 0)).toString().length
     return 4 - Math.min(len, 4)
   } else {
+    price = price.toLocaleString('fullwide', { useGrouping: false })
     const rate = !bn(numberToWei(price)).isZero()
       ? weiToNumber(
           BigNumber.from(numberToWei(1, 36)).div(numberToWei(price)).toString()
