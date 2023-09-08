@@ -205,7 +205,7 @@ export const ButtonSwap = ({
             }
           }}
         >
-          {Number(payoffRate) < minPayoffRate || !pairIndexR || loadingAmountOut ? 'Calculating...' : title }
+          {loadingAmountOut ? 'Calculating...' : title }
           {/* { */}
           {/*  tradeType !== undefined */}
           {/*    ? tradeType === TRADE_TYPE.LONG */}

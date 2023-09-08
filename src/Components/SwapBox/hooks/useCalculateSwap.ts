@@ -20,7 +20,9 @@ const REASONS_TO_RETRY = [
   'MINIMUM_SUPPLY',
   'MINIMUM_RESERVE'
 ]
-let lastInput:number = 0
+
+let amountInLast:string = ''
+
 export const useCalculateSwap = ({
   amountIn,
   setAmountIn,
@@ -84,7 +86,7 @@ export const useCalculateSwap = ({
       if (!amountOut) {
         setCallError('Calculating...')
       }
-      lastInput = Number(amountIn)
+      amountInLast = amountIn
       setLoading(true)
       calcAmountOut()
     } else if (Number(amountIn) === 0) {
@@ -150,41 +152,41 @@ export const useCalculateSwap = ({
         }
       ])
       console.log('calculate amountOut response', res)
-      if (Number(amountIn) === Number(lastInput)) {
-        const [aOuts, gasLeft] = res
-        setAmountOutWei(aOuts[0]?.amountOut || bn(0))
-        setPayloadAmountIn(_payloadAmountIn)
-        setAmountOut(
-          weiToNumber(
-            aOuts[0]?.amountOut || 0,
-            tokens[outputTokenAddress].decimal || 18
-          )
-        )
-        // @ts-ignore
-        setTxFee(detectTxFee(gasLeft))
-        // @ts-ignore
-        setGasUsed(gasLeft)
-        setCallError('')
-        setLoading(false)
-      } else {
-        setLoading(true)
+      if (amountIn != amountInLast) {
+        return // skip the calcuation and update for outdated input
       }
+      const [aOuts, gasLeft] = res
+      setAmountOutWei(aOuts[0]?.amountOut || bn(0))
+      setPayloadAmountIn(_payloadAmountIn)
+      setAmountOut(
+        weiToNumber(
+          aOuts[0]?.amountOut || 0,
+          tokens[outputTokenAddress].decimal || 18
+        )
+      )
+      // @ts-ignore
+      setTxFee(detectTxFee(gasLeft))
+      // @ts-ignore
+      setGasUsed(gasLeft)
+      setCallError('')
     } catch (e) {
+      if (amountIn != amountInLast) {
+        return // skip the calcuation and update for outdated input
+      }
       const reason = parseCallStaticError(e)
       if (i < ITERATION && REASONS_TO_RETRY.some((R) => reason.includes(R))) {
         return calcAmountOut(i + 1)
       }
-      if (Number(amountIn) === Number(lastInput)) {
-        setAmountOut('0')
-        setTxFee(bn(0))
-        setGasUsed(bn(0))
-        setCallError(reason ?? e)
-        setPayloadAmountIn(undefined)
-      }
+      setAmountOut('0')
+      setTxFee(bn(0))
+      setGasUsed(bn(0))
+      setCallError(reason ?? e)
+      setPayloadAmountIn(undefined)
       if (i >= ITERATION) {
         throw e
       }
     }
+    setLoading(false)
   }
 
   const detectTxFee = (gasUsed: BigNumber) => {
