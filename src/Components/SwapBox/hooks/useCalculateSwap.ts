@@ -21,6 +21,8 @@ const REASONS_TO_RETRY = [
   'MINIMUM_RESERVE'
 ]
 
+let amountInLast:string = ''
+
 export const useCalculateSwap = ({
   amountIn,
   setAmountIn,
@@ -84,6 +86,7 @@ export const useCalculateSwap = ({
       if (!amountOut) {
         setCallError('Calculating...')
       }
+      amountInLast = amountIn
       setLoading(true)
       calcAmountOut()
     } else if (Number(amountIn) === 0) {
@@ -149,6 +152,9 @@ export const useCalculateSwap = ({
         }
       ])
       console.log('calculate amountOut response', res)
+      if (amountIn != amountInLast) {
+        return // skip the calcuation and update for outdated input
+      }
       const [aOuts, gasLeft] = res
       setAmountOutWei(aOuts[0]?.amountOut || bn(0))
       setPayloadAmountIn(_payloadAmountIn)
@@ -164,6 +170,9 @@ export const useCalculateSwap = ({
       setGasUsed(gasLeft)
       setCallError('')
     } catch (e) {
+      if (amountIn != amountInLast) {
+        return // skip the calcuation and update for outdated input
+      }
       const reason = parseCallStaticError(e)
       if (i < ITERATION && REASONS_TO_RETRY.some((R) => reason.includes(R))) {
         return calcAmountOut(i + 1)

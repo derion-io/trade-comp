@@ -65,7 +65,6 @@ export const ButtonSwap = ({
   const { initResource } = useResource()
 
   const { updateSwapTxsHandle } = useSwapHistory()
-
   const button = useMemo(() => {
     if (!tokens[inputTokenAddress] || loading) {
       return (
@@ -133,7 +132,7 @@ export const ButtonSwap = ({
     } else {
       return (
         <ButtonExecute
-          disabled={Number(payoffRate) < minPayoffRate || !pairIndexR}
+          disabled={Number(payoffRate) < minPayoffRate || !pairIndexR || loadingAmountOut}
           className='swap-button'
           onClick={async () => {
             try {
@@ -206,7 +205,7 @@ export const ButtonSwap = ({
             }
           }}
         >
-          {title}
+          {loadingAmountOut ? 'Calculating...' : title }
           {/* { */}
           {/*  tradeType !== undefined */}
           {/*    ? tradeType === TRADE_TYPE.LONG */}
@@ -229,6 +228,7 @@ export const ButtonSwap = ({
     tokens,
     inputTokenAddress,
     outputTokenAddress,
+    loadingAmountOut,
     amountIn,
     callError,
     gasUsed,

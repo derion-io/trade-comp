@@ -578,24 +578,25 @@ export const Positions = ({
           </tbody>
         </table>
       )}
-      <ClosePosition
-        visible={visible}
-        setVisible={setVisible}
-        inputTokenAddress={inputTokenAddress}
-        outputTokenAddress={outputTokenAddress}
-        tokenOutMaturity={tokenOutMaturity}
-        title={
-          Number(decodeErc1155Address(inputTokenAddress).id) === POOL_IDS.C ? (
-            <Text>
-              Remove <TokenSymbol token={inputTokenAddress} textWrap={Text} />{' '}
-            </Text>
-          ) : (
-            <Text>
-              Close <TokenSymbol token={inputTokenAddress} textWrap={Text} />{' '}
-            </Text>
-          )
-        }
-      />
+      {visible ?
+        <ClosePosition
+          visible={visible}
+          setVisible={setVisible}
+          inputTokenAddress={inputTokenAddress}
+          outputTokenAddress={outputTokenAddress}
+          tokenOutMaturity={tokenOutMaturity}
+          title={
+            Number(decodeErc1155Address(inputTokenAddress).id) === POOL_IDS.C ? (
+              <Text>
+                Remove <TokenSymbol token={inputTokenAddress} textWrap={Text} />{' '}
+              </Text>
+            ) : (
+              <Text>
+                Close <TokenSymbol token={inputTokenAddress} textWrap={Text} />{' '}
+              </Text>
+            )
+          }
+        /> : ''}
     </div>
   )
 }
