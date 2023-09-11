@@ -6,7 +6,7 @@ import {
   TextWarning
 } from '../../ui/Text'
 import { formatWeiToDisplayNumber } from '../../../utils/formatBalance'
-import { numberToWei, weiToNumber } from '../../../utils/helpers'
+import { WEI, IEW } from '../../../utils/helpers'
 import { Box } from '../../ui/Box'
 import React, { useEffect, useState } from 'react'
 import { InfoRow } from '../../ui/InfoRow'
@@ -70,15 +70,10 @@ export const TxFee = ({
             <Text>&nbsp;</Text>
           ) : (
             <Text>
-              {weiToNumber(gasUsed.mul(gasPrice), 18, 5)}
+              {IEW(gasUsed.mul(gasPrice), 18, 5)}
               <TextGrey> {chainId === 56 ? 'BNB' : 'ETH'} </TextGrey>
               ($
-              {weiToNumber(
-                gasUsed.mul(gasPrice).mul(numberToWei(nativePrice)),
-                36,
-                2
-              )}
-              )
+              {IEW(gasUsed.mul(gasPrice).mul(WEI(nativePrice)), 36, 2)})
             </Text>
           )}
         </SkeletonLoader>

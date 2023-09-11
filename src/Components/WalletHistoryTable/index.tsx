@@ -19,7 +19,7 @@ import {
 import { useConfigs } from '../../state/config/useConfigs'
 import { NATIVE_ADDRESS, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
 import isEqual from 'react-fast-compare'
-import { formatFloat, formatZeroDecimal } from '../../utils/helpers'
+import { formatFloat, zerofy } from '../../utils/helpers'
 
 const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
   const { setChartTimeFocus, TOKEN_R, tradeType } = useCurrentPoolGroup()
@@ -119,10 +119,7 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
                   </td>
                   <td>
                     {swapTx.entryPrice && (
-                      <Text>
-                        {' '}
-                        {formatZeroDecimal(formatFloat(swapTx.entryPrice))}
-                      </Text>
+                      <Text> {zerofy(formatFloat(swapTx.entryPrice))}</Text>
                     )}
                   </td>
                   <td className='wallet-history-table__ctoken-change'>

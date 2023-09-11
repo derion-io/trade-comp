@@ -17,7 +17,7 @@ import {
   div,
   formatFloat,
   isErc1155Address,
-  weiToNumber
+  IEW
 } from '../../utils/helpers'
 import { ZERO_ADDRESS } from '../../utils/constant'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
@@ -68,7 +68,7 @@ const Option = ({
 
   const { value } = useTokenValue({
     tokenAddress: address,
-    amount: weiToNumber(balances[address], tokens[address]?.decimal || 18)
+    amount: IEW(balances[address], tokens[address]?.decimal || 18)
   })
 
   const [reserve, tokenR] = useMemo(() => {
@@ -76,10 +76,7 @@ const Option = ({
       const { address: poolAddress } = decodeErc1155Address(address)
       const pool = pools[poolAddress]
 
-      return [
-        weiToNumber(pool.states.R, tokens[pool.TOKEN_R].decimals),
-        pool.TOKEN_R
-      ]
+      return [IEW(pool.states.R, tokens[pool.TOKEN_R].decimals), pool.TOKEN_R]
     }
     return ['0', ZERO_ADDRESS]
   }, [])
@@ -116,7 +113,7 @@ const Option = ({
           <Text>
             {formatLocalisedCompactNumber(
               formatFloat(
-                weiToNumber(balances[address], tokens[address]?.decimal ?? 18)
+                IEW(balances[address], tokens[address]?.decimal ?? 18)
               )
             )}
           </Text>

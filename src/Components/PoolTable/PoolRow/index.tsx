@@ -8,7 +8,7 @@ import {
   bn,
   formatFloat,
   shortenAddressString,
-  weiToNumber
+  IEW
 } from '../../../utils/helpers'
 import { Text, TextBuy, TextSell } from '../../ui/Text'
 import { TokenSymbol } from '../../ui/TokenSymbol'
@@ -84,11 +84,7 @@ const Component = ({ pool, id }: { pool: PoolType; id: string }) => {
               return (
                 <div key={key}>
                   <Text>
-                    {weiToNumber(
-                      balances[dToken],
-                      tokens[dToken]?.decimal || 18,
-                      4
-                    )}{' '}
+                    {IEW(balances[dToken], tokens[dToken]?.decimal || 18, 4)}{' '}
                   </Text>
                   <SymBolText>
                     <TokenSymbol token={dToken} />
@@ -101,7 +97,7 @@ const Component = ({ pool, id }: { pool: PoolType; id: string }) => {
         </td>
         <td className='text-left'>
           {/* TODO: display as decimal and symbol of quote Token */}
-          <TdText>{weiToNumber(value, 18, 4)} BUSD</TdText>
+          <TdText>{IEW(value, 18, 4)} BUSD</TdText>
         </td>
         <td className='text-left'>
           <TdText>{formatFloat(leverage, 1)}x</TdText>

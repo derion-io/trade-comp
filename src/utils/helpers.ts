@@ -1,4 +1,4 @@
-import { BigNumber, ethers, utils } from 'ethers'
+import { BigNumber, Signer, ethers, utils } from 'ethers'
 import { POOL_IDS, TRADE_TYPE } from './constant'
 import _ from 'lodash'
 
@@ -14,30 +14,73 @@ export const shortenAddressString = (address: string) => {
   )
 }
 
-export const weiToNumber = (
-  wei: any,
-  decimal: number = 18,
-  decimalToDisplay?: number
+export const STR = (num: number | string | BigNumber): string => {
+  if (!num) {
+    return '0'
+  }
+  switch (typeof num) {
+    case 'string':
+      return num
+    case 'number':
+      return num.toLocaleString('fullwide', { useGrouping: false })
+    default:
+      return String(num)
+  }
+}
+
+export const NUM = (num: number | string | BigNumber): number => {
+  if (!num) {
+    return 0
+  }
+  switch (typeof num) {
+    case 'number':
+      return num
+    case 'string':
+      return Number.parseFloat(num)
+    default:
+      return num.toNumber()
+  }
+}
+
+export const BIG = (num: number | string | BigNumber): BigNumber => {
+  if (!num) {
+    return BigNumber.from(0)
+  }
+  switch (typeof num) {
+    case 'number':
+      return BigNumber.from(Math.floor(num))
+    case 'string':
+      return BigNumber.from(num || 0)
+    default:
+      return num
+  }
+}
+
+export const truncate = (num: string, decimals: number = 0): string => {
+  let index = Math.max(num.lastIndexOf('.'), num.lastIndexOf(','))
+  if (index < 0) {
+    index = num.length
+  }
+  index += decimals + (decimals > 0 ? 1 : 0)
+  return num.substring(0, index)
+}
+
+/// revert of WEI: weiToNumber
+export const IEW = (
+  wei: BigNumber | string,
+  decimals: number = 18,
+  decimalsToDisplay?: number
 ): string => {
-  if (!wei || !Number(wei)) return '0'
-  wei = wei.toString()
-  const num = mdp(wei, -decimal)
-  if (decimalToDisplay != null) {
-    if (decimalToDisplay > 0) {
-      return num.slice(0, num.indexOf('.') + decimalToDisplay + 1)
-    }
-    return num.slice(0, num.indexOf('.'))
+  let num = mdp(STR(wei), -decimals)
+  if (decimalsToDisplay != null) {
+    num = truncate(num, decimalsToDisplay)
   }
   return num
 }
 
-export const numberToWei = (number: any, decimal: number = 18) => {
-  if (!number) return '0'
-  number = number.toString()
-  if (Number.isFinite(number)) {
-    number = number.toLocaleString('en-US', { useGrouping: false })
-  }
-  return mdp(number, decimal).split(number.indexOf('.') === -1 ? ',' : '.')[0]
+/// numberToWei
+export const WEI = (num: number | string, decimals: number = 18): string => {
+  return truncate(mdp(STR(num), decimals))
 }
 
 export const max = (a: number, b: number) => {
@@ -105,71 +148,41 @@ function _extractErrorReason(err: any) {
   return { reason, err }
 }
 
-export const formatFloat = (number: number | string, decimal?: number) => {
-  if (!decimal) {
-    decimal = detectDecimalFromPrice(number)
+export const formatFloat = (
+  number: number | string,
+  decimals?: number
+): number => {
+  if (!decimals) {
+    decimals = decimalsBySignificantDigits(number)
   }
-
-  number = number.toString()
-  const arr = number.split('.')
-  if (arr.length > 1) {
-    arr[1] = arr[1].slice(0, decimal)
-  }
-  return Number(arr.join('.'))
+  return NUM(truncate(STR(number), decimals))
 }
 
-export const cutDecimal = (number: string, decimal?: number) => {
-  if (!decimal) {
-    decimal = detectDecimalFromPrice(number)
+export const cutDecimal = (num: string, decimals?: number): string => {
+  if (!decimals) {
+    decimals = decimalsBySignificantDigits(num)
   }
-
-  number = number.toString()
-  const arr = number.split('.')
-  if (arr.length > 1) {
-    arr[1] = arr[1].slice(0, decimal)
-  }
-  return arr.join('.')
+  return truncate(num, decimals)
 }
 
 export const mul = (a: any, b: any) => {
-  a = a.toLocaleString('fullwide', { useGrouping: false })
-  b = b.toLocaleString('fullwide', { useGrouping: false })
-  const result = weiToNumber(
-    BigNumber.from(numberToWei(a)).mul(numberToWei(b)),
-    36
-  )
-  const arr = result.split('.')
-  arr[1] = arr[1]?.slice(0, 18)
-  return arr[1] ? arr.join('.') : arr.join('')
+  const result = IEW(BIG(WEI(a)).mul(WEI(b)), 36)
+  return truncate(result, 18)
 }
 
 export const sub = (a: any, b: any) => {
-  a = a.toLocaleString('fullwide', { useGrouping: false })
-  b = b.toLocaleString('fullwide', { useGrouping: false })
-  return weiToNumber(BigNumber.from(numberToWei(a)).sub(numberToWei(b)))
+  return IEW(BIG(WEI(a)).sub(WEI(b)))
 }
 
 export const div = (a: any, b: any) => {
-  if (b.toLocaleString('fullwide', { useGrouping: false }) === '0') {
-    return weiToNumber(
-      BigNumber.from(
-        numberToWei(
-          (Number(a) / Number(b)).toLocaleString('fullwide', {
-            useGrouping: false
-          })
-        )
-      )
-    )
+  if (STR(b) == '0') {
+    return IEW(WEI(NUM(a) / NUM(b)))
   }
-  a = a.toLocaleString('fullwide', { useGrouping: false })
-  b = b.toLocaleString('fullwide', { useGrouping: false })
-  return weiToNumber(BigNumber.from(numberToWei(a, 36)).div(numberToWei(b)))
+  return IEW(BIG(WEI(a, 36)).div(WEI(b)))
 }
 
 export const add = (a: any, b: any) => {
-  a = a.toLocaleString('fullwide', { useGrouping: false })
-  b = b.toLocaleString('fullwide', { useGrouping: false })
-  return weiToNumber(BigNumber.from(numberToWei(a)).add(numberToWei(b)))
+  return IEW(BIG(WEI(a)).add(WEI(b)))
 }
 
 export const formatPercent = (
@@ -181,7 +194,7 @@ export const formatPercent = (
     return Math.round(Number(floatNumber) * 10 ** (decimal + 2)) / 10 ** decimal
   }
   floatNumber = floatNumber.toString()
-  return formatFloat(weiToNumber(numberToWei(floatNumber), 16), decimal)
+  return formatFloat(IEW(WEI(floatNumber), 16), decimal)
 }
 
 export const getNormalAddress = (addresses: string[]) => {
@@ -263,19 +276,20 @@ export const formatTime = (timestamp: number) => {
   )
 }
 
-export const detectDecimalFromPrice = (price: number | string) => {
-  if (Number(price || 0) >= 1) {
-    const len = Math.floor(Number(price ?? 0)).toString().length
-    return 4 - Math.min(len, 4)
-  } else {
-    price = price.toLocaleString('fullwide', { useGrouping: false })
-    const rate = !bn(numberToWei(price)).isZero()
-      ? weiToNumber(
-          BigNumber.from(numberToWei(1, 36)).div(numberToWei(price)).toString()
-        )
-      : '0'
-    return rate.split('.')[0].length + 2
+export const decimalsBySignificantDigits = (
+  num: number | string,
+  significantDigits: number = 4
+): number => {
+  num = Math.abs(NUM(num))
+  if (num == 0) {
+    return 0
   }
+  const decimals =
+    num >= 1
+      ? significantDigits - STR(Math.floor(num)).length
+      : significantDigits + STR(Math.floor(1 / num)).length - 1
+
+  return Math.max(0, decimals)
 }
 
 export const getTokenPower = (
@@ -319,10 +333,7 @@ export const isUSD = (symbol: string): boolean => {
   )
 }
 
-export const formatZeroDecimal = (
-  value: number,
-  minZeroDecimal: number = 4
-): string => {
+export const zerofy = (value: number, minZeroDecimal: number = 4): string => {
   const x = value
   const countZeroAfterDot = -Math.floor(Math.log10(x) + 1)
   if (

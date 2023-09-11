@@ -16,7 +16,8 @@ import {
   formatFloat,
   formatPercent,
   isErc1155Address,
-  weiToNumber
+  IEW,
+  zerofy
 } from '../../utils/helpers'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
@@ -190,21 +191,22 @@ const Component = ({
                 className='amount-input-box__head--balance'
                 onClick={() => {
                   setAmountIn(
-                    weiToNumber(
+                    IEW(
                       balances[inputTokenAddress],
                       tokens[inputTokenAddress]?.decimal || 18
                     )
                   )
                 }}
               >
-                Balance:{' '}
-                {balances && balances[inputTokenAddress]
-                  ? formatWeiToDisplayNumber(
-                      balances[inputTokenAddress],
-                      4,
-                      tokens[inputTokenAddress]?.decimal || 18
+                {'Balance: '}
+                {zerofy(
+                  formatFloat(
+                    IEW(
+                      balances?.[inputTokenAddress] ?? 0,
+                      tokens[inputTokenAddress]?.decimal ?? 18
                     )
-                  : 0}
+                  )
+                )}
               </Text>
             </SkeletonLoader>
           </div>
@@ -262,14 +264,15 @@ const Component = ({
           </SkeletonLoader>
           <SkeletonLoader loading={accFetchBalance !== account && account}>
             <Text>
-              Balance:{' '}
-              {balances && balances[outputTokenAddress]
-                ? formatWeiToDisplayNumber(
-                    balances[outputTokenAddress],
-                    4,
-                    tokens[outputTokenAddress]?.decimal || 18
+              {'Balance: '}
+              {zerofy(
+                formatFloat(
+                  IEW(
+                    balances?.[outputTokenAddress] ?? 0,
+                    tokens[outputTokenAddress]?.decimal ?? 18
                   )
-                : 0}
+                )
+              )}
             </Text>
           </SkeletonLoader>
         </div>

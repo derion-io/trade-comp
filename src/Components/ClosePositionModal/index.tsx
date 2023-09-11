@@ -15,7 +15,8 @@ import {
   div,
   formatFloat,
   formatPercent,
-  weiToNumber
+  zerofy,
+  IEW
 } from '../../utils/helpers'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { Input } from '../ui/Input'
@@ -69,7 +70,7 @@ const Component = ({
   }, [inputTokenAddress, pools])
 
   const balance: string = useMemo(() => {
-    return weiToNumber(
+    return IEW(
       balances[inputTokenAddress] ?? 0,
       tokens[inputTokenAddress]?.decimal ?? 18
     )
@@ -154,21 +155,22 @@ const Component = ({
                 <Text
                   className='amount-input-box__head--balance'
                   onClick={() => {
-                    const balance = weiToNumber(
+                    const balance = IEW(
                       balances[inputTokenAddress],
                       tokens[inputTokenAddress]?.decimal || 18
                     )
                     setAmountIn(balance)
                   }}
                 >
-                  Balance:{' '}
-                  {balances && balances[inputTokenAddress]
-                    ? formatWeiToDisplayNumber(
-                        balances[inputTokenAddress],
-                        4,
-                        tokens[inputTokenAddress]?.decimal || 18
+                  {'Balance: '}
+                  {zerofy(
+                    formatFloat(
+                      IEW(
+                        balances?.[inputTokenAddress] ?? 0,
+                        tokens[inputTokenAddress]?.decimal ?? 18
                       )
-                    : 0}
+                    )
+                  )}
                 </Text>
               ) : (
                 <Text
@@ -262,14 +264,15 @@ const Component = ({
             </SkeletonLoader>
             <SkeletonLoader loading={accFetchBalance !== account}>
               <Text className='amount-input-box__head--balance'>
-                Balance:{' '}
-                {balances && balances[outputTokenAddress]
-                  ? formatWeiToDisplayNumber(
-                      balances[outputTokenAddress],
-                      4,
-                      tokens[outputTokenAddress]?.decimal || 18
+                {'Balance: '}
+                {zerofy(
+                  formatFloat(
+                    IEW(
+                      balances?.[outputTokenAddress] ?? 0,
+                      tokens[outputTokenAddress]?.decimal ?? 18
                     )
-                  : 0}
+                  )
+                )}
               </Text>
             </SkeletonLoader>
           </InfoRow>

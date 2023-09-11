@@ -13,13 +13,13 @@ import {
   div,
   formatFloat,
   formatPercent,
-  formatZeroDecimal,
+  zerofy,
   kx,
   max,
   mul,
   shortenAddressString,
   sub,
-  weiToNumber,
+  IEW,
   xr
 } from '../../utils/helpers'
 import { useListTokens } from '../../state/token/hook'
@@ -149,18 +149,18 @@ export const Positions = ({
             posWithEntry.balance
           )
         : '0'
-      const entryValueR = weiToNumber(
+      const entryValueR = IEW(
         posWithEntry?.totalEntryR ?? 0,
         tokens[pool.TOKEN_R]?.decimal ?? 18
       )
       const value = getTokenValue(
         token,
-        weiToNumber(balances[token], tokens[token]?.decimal || 18),
+        IEW(balances[token], tokens[token]?.decimal || 18),
         false
       )
       const valueUsd = getTokenValue(
         token,
-        weiToNumber(balances[token], tokens[token]?.decimal || 18),
+        IEW(balances[token], tokens[token]?.decimal || 18),
         true
       )
 
@@ -196,10 +196,10 @@ export const Positions = ({
       const dgB = xB * xB * mark
       const deleveragePrice =
         side === POOL_IDS.A
-          ? formatZeroDecimal(dgA)
+          ? zerofy(dgA)
           : side === POOL_IDS.B
-          ? formatZeroDecimal(dgB)
-          : `${formatZeroDecimal(dgB)}-${formatZeroDecimal(dgA)}`
+          ? zerofy(dgB)
+          : `${zerofy(dgB)}-${zerofy(dgA)}`
 
       const sizeDisplay =
         side === POOL_IDS.A || side === POOL_IDS.B
@@ -364,9 +364,7 @@ export const Positions = ({
                 {!position.entryPrice || (
                   <InfoRow>
                     <Text>Entry Price</Text>
-                    <Text>
-                      {formatZeroDecimal(formatFloat(position.entryPrice))}
-                    </Text>
+                    <Text>{zerofy(formatFloat(position.entryPrice))}</Text>
                   </InfoRow>
                 )}
                 <InfoRow>
@@ -523,9 +521,7 @@ export const Positions = ({
                   )}
                   <td>
                     {!position.entryPrice || (
-                      <Text>
-                        {formatZeroDecimal(formatFloat(position.entryPrice))}
-                      </Text>
+                      <Text>{zerofy(formatFloat(position.entryPrice))}</Text>
                     )}
                   </td>
                   <td>
@@ -578,7 +574,7 @@ export const Positions = ({
           </tbody>
         </table>
       )}
-      {visible ?
+      {visible ? (
         <ClosePosition
           visible={visible}
           setVisible={setVisible}
@@ -586,7 +582,8 @@ export const Positions = ({
           outputTokenAddress={outputTokenAddress}
           tokenOutMaturity={tokenOutMaturity}
           title={
-            Number(decodeErc1155Address(inputTokenAddress).id) === POOL_IDS.C ? (
+            Number(decodeErc1155Address(inputTokenAddress).id) ===
+            POOL_IDS.C ? (
               <Text>
                 Remove <TokenSymbol token={inputTokenAddress} textWrap={Text} />{' '}
               </Text>
@@ -596,7 +593,10 @@ export const Positions = ({
               </Text>
             )
           }
-        /> : ''}
+        />
+      ) : (
+        ''
+      )}
     </div>
   )
 }
