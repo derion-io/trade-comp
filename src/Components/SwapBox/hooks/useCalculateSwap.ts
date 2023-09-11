@@ -1,4 +1,5 @@
 import {
+  BIG,
   bn,
   decodeErc1155Address,
   isErc1155Address,
@@ -129,10 +130,10 @@ export const useCalculateSwap = ({
           tokenIn: inputTokenAddress,
           tokenOut: outputTokenAddress,
           amountOutMin: 0,
-          amountIn: numberToWei(
+          amountIn: BIG(numberToWei(
             amountIn,
             tokens[inputTokenAddress]?.decimal || 18
-          ),
+          )),
           payloadAmountIn: _payloadAmountIn,
           useSweep: !!(
             tokenOutMaturity?.gt(0) &&

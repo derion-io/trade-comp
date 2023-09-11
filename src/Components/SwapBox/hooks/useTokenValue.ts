@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import {
+  BIG,
   bn,
   cutDecimal,
   decodeErc1155Address,
@@ -70,7 +71,7 @@ export const useTokenValue = ({
               )
             : numberToWei(1, 18)
         value = weiToNumber(
-          bn(numberToWei(_amount)).mul(numberToWei(tokenPrice)).mul(rX).div(sX),
+          BIG(numberToWei(_amount)).mul(numberToWei(tokenPrice)).mul(rX).div(sX),
           54
         )
       }
@@ -86,7 +87,7 @@ export const useTokenValue = ({
           : numberToWei(1, 18)
 
       value = weiToNumber(
-        bn(numberToWei(_amount)).mul(numberToWei(tokenPrice)),
+        BIG(numberToWei(_amount)).mul(numberToWei(tokenPrice)),
         54
       )
     }
