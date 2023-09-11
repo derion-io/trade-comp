@@ -364,9 +364,7 @@ export const Positions = ({
                 {!position.entryPrice || (
                   <InfoRow>
                     <Text>Entry Price</Text>
-                    <Text>
-                      {zerofy(formatFloat(position.entryPrice))}
-                    </Text>
+                    <Text>{zerofy(formatFloat(position.entryPrice))}</Text>
                   </InfoRow>
                 )}
                 <InfoRow>
@@ -523,9 +521,7 @@ export const Positions = ({
                   )}
                   <td>
                     {!position.entryPrice || (
-                      <Text>
-                        {zerofy(formatFloat(position.entryPrice))}
-                      </Text>
+                      <Text>{zerofy(formatFloat(position.entryPrice))}</Text>
                     )}
                   </td>
                   <td>

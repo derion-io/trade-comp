@@ -343,10 +343,7 @@ const Component = ({
     tradeType === TRADE_TYPE.LONG || tradeType === TRADE_TYPE.SHORT
 
   const { value: liquidity } = useTokenValue({
-    amount: IEW(
-      poolToShow?.states?.R,
-      tokens[poolToShow?.TOKEN_R]?.decimals
-    ),
+    amount: IEW(poolToShow?.states?.R, tokens[poolToShow?.TOKEN_R]?.decimals),
     tokenAddress: poolToShow?.TOKEN_R
   })
 
@@ -490,12 +487,7 @@ const Component = ({
                       </div>
                     )}
                     <div>
-                      $
-                      {
-                        zerofy(formatFloat(valueOutBefore)).split(
-                          '.'
-                        )[0]
-                      }
+                      ${zerofy(formatFloat(valueOutBefore)).split('.')[0]}
                     </div>
                     {showSize && (
                       <div>
@@ -519,9 +511,8 @@ const Component = ({
                       </div>
                     )}
                     <div>
-                      {zerofy(formatFloat(valueOutBefore)).match(
-                        /\.\d+$/g
-                      ) || '\u00A0'}
+                      {zerofy(formatFloat(valueOutBefore)).match(/\.\d+$/g) ||
+                        '\u00A0'}
                     </div>
                     {showSize && (
                       <div>

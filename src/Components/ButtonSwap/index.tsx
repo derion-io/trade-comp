@@ -1,11 +1,5 @@
 import { ButtonExecute } from '../ui/Button'
-import {
-  bn,
-  div,
-  isErc1155Address,
-  mul,
-  WEI
-} from '../../utils/helpers'
+import { bn, div, isErc1155Address, mul, WEI } from '../../utils/helpers'
 import { toast } from 'react-toastify'
 import React, { useMemo, useState } from 'react'
 import { useListTokens } from '../../state/token/hook'
@@ -159,10 +153,7 @@ export const ButtonSwap = ({
                       tokenIn: inputTokenAddress,
                       tokenOut: outputTokenAddress,
                       amountIn: bn(
-                        WEI(
-                          amountIn,
-                          tokens[inputTokenAddress]?.decimal || 18
-                        )
+                        WEI(amountIn, tokens[inputTokenAddress]?.decimal || 18)
                       ),
                       amountOutMin,
                       payloadAmountIn,

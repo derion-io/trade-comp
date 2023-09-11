@@ -2,13 +2,7 @@ import { useMemo } from 'react'
 import { TRADE_TYPE } from '../utils/constant'
 import { useCurrentPoolGroup } from '../state/currentPool/hooks/useCurrentPoolGroup'
 import { useTokenValue } from '../Components/SwapBox/hooks/useTokenValue'
-import {
-  bn,
-  getTokenPower,
-  WEI,
-  tradeTypeToId,
-  IEW
-} from '../utils/helpers'
+import { bn, getTokenPower, WEI, tradeTypeToId, IEW } from '../utils/helpers'
 import { useListTokens } from '../state/token/hook'
 import { useSettings } from '../state/setting/hooks/useSettings'
 import { SORT_POOL_BY } from '../state/setting/type'

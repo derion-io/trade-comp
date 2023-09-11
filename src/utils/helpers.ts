@@ -79,10 +79,7 @@ export const IEW = (
 }
 
 /// numberToWei
-export const WEI = (
-  num: number | string,
-  decimals: number = 18
-): string => {
+export const WEI = (num: number | string, decimals: number = 18): string => {
   return truncate(mdp(STR(num), decimals))
 }
 
@@ -151,7 +148,10 @@ function _extractErrorReason(err: any) {
   return { reason, err }
 }
 
-export const formatFloat = (number: number | string, decimals?: number): number => {
+export const formatFloat = (
+  number: number | string,
+  decimals?: number
+): number => {
   if (!decimals) {
     decimals = decimalsBySignificantDigits(number)
   }
@@ -276,14 +276,18 @@ export const formatTime = (timestamp: number) => {
   )
 }
 
-export const decimalsBySignificantDigits = (num: number | string, significantDigits: number = 4): number => {
+export const decimalsBySignificantDigits = (
+  num: number | string,
+  significantDigits: number = 4
+): number => {
   num = Math.abs(NUM(num))
   if (num == 0) {
     return 0
   }
-  const decimals = num >= 1
-    ? significantDigits - STR(Math.floor(num)).length
-    : significantDigits + STR(Math.floor(1 / num)).length - 1
+  const decimals =
+    num >= 1
+      ? significantDigits - STR(Math.floor(num)).length
+      : significantDigits + STR(Math.floor(1 / num)).length - 1
 
   return Math.max(0, decimals)
 }
@@ -329,10 +333,7 @@ export const isUSD = (symbol: string): boolean => {
   )
 }
 
-export const zerofy = (
-  value: number,
-  minZeroDecimal: number = 4
-): string => {
+export const zerofy = (value: number, minZeroDecimal: number = 4): string => {
   const x = value
   const countZeroAfterDot = -Math.floor(Math.log10(x) + 1)
   if (

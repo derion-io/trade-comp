@@ -119,10 +119,7 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
                   </td>
                   <td>
                     {swapTx.entryPrice && (
-                      <Text>
-                        {' '}
-                        {zerofy(formatFloat(swapTx.entryPrice))}
-                      </Text>
+                      <Text> {zerofy(formatFloat(swapTx.entryPrice))}</Text>
                     )}
                   </td>
                   <td className='wallet-history-table__ctoken-change'>

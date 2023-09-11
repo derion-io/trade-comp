@@ -130,10 +130,9 @@ export const useCalculateSwap = ({
           tokenIn: inputTokenAddress,
           tokenOut: outputTokenAddress,
           amountOutMin: 0,
-          amountIn: BIG(WEI(
-            amountIn,
-            tokens[inputTokenAddress]?.decimal || 18
-          )),
+          amountIn: BIG(
+            WEI(amountIn, tokens[inputTokenAddress]?.decimal || 18)
+          ),
           payloadAmountIn: _payloadAmountIn,
           useSweep: !!(
             tokenOutMaturity?.gt(0) &&
@@ -160,10 +159,7 @@ export const useCalculateSwap = ({
       setAmountOutWei(aOuts[0]?.amountOut || bn(0))
       setPayloadAmountIn(_payloadAmountIn)
       setAmountOut(
-        IEW(
-          aOuts[0]?.amountOut || 0,
-          tokens[outputTokenAddress].decimal || 18
-        )
+        IEW(aOuts[0]?.amountOut || 0, tokens[outputTokenAddress].decimal || 18)
       )
       // @ts-ignore
       setTxFee(detectTxFee(gasLeft))

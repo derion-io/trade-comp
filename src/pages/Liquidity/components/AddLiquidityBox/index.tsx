@@ -154,9 +154,7 @@ export const AddLiquidityBox = ({
       )
     } else if (
       !balances[tokenAdd] ||
-      balances[tokenAdd].lt(
-        WEI(amountIn || 0, tokens[tokenAdd]?.decimal || 18)
-      )
+      balances[tokenAdd].lt(WEI(amountIn || 0, tokens[tokenAdd]?.decimal || 18))
     ) {
       return (
         <ButtonExecute className='add-liquidity__action' disabled>
@@ -200,9 +198,7 @@ export const AddLiquidityBox = ({
                 {
                   tokenIn: tokenAdd,
                   tokenOut: cpAddress,
-                  amountIn: bn(
-                    WEI(amountIn, tokens[tokenAdd]?.decimal || 18)
-                  ),
+                  amountIn: bn(WEI(amountIn, tokens[tokenAdd]?.decimal || 18)),
                   amountOutMin: 0
                 }
               ],
@@ -310,14 +306,15 @@ export const AddLiquidityBox = ({
           </SkeletonLoader>
           <SkeletonLoader loading={!balances[tokenAdd]}>
             <Text className='amount-input-box__head--balance cursor-pointer'>
-              {'Balance: '}{
-                zerofy(formatFloat(
+              {'Balance: '}
+              {zerofy(
+                formatFloat(
                   IEW(
                     balances?.[poolAddress + '-' + POOL_IDS.cp] ?? 0,
-                    tokens[poolAddress + '-' + POOL_IDS.cp]?.decimal ?? 18,
+                    tokens[poolAddress + '-' + POOL_IDS.cp]?.decimal ?? 18
                   )
-                ))
-              }
+                )
+              )}
             </Text>
           </SkeletonLoader>
         </InfoRow>

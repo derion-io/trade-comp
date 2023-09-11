@@ -167,10 +167,7 @@ const Component = ({ visible, pool }: { visible: boolean; pool: PoolType }) => {
                         {' '}
                         $
                         {formatFloat(
-                          IEW(
-                            rDcLongValue,
-                            tokens[quoteToken]?.decimal
-                          ),
+                          IEW(rDcLongValue, tokens[quoteToken]?.decimal),
                           2
                         )}{' '}
                       </TextComp>
@@ -179,10 +176,7 @@ const Component = ({ visible, pool }: { visible: boolean; pool: PoolType }) => {
                         {' '}
                         $
                         {formatFloat(
-                          IEW(
-                            rDcShortValue,
-                            tokens[quoteToken]?.decimal
-                          ),
+                          IEW(rDcShortValue, tokens[quoteToken]?.decimal),
                           2
                         )}{' '}
                       </TextComp>
@@ -209,9 +203,7 @@ const Component = ({ visible, pool }: { visible: boolean; pool: PoolType }) => {
             </th>
             <th className='text-center'>
               <Text>TVL</Text>
-              <TextBlue>
-                ${formatFloat(IEW(totalLockedValue), 2)}
-              </TextBlue>
+              <TextBlue>${formatFloat(IEW(totalLockedValue), 2)}</TextBlue>
             </th>
           </tr>
         </thead>

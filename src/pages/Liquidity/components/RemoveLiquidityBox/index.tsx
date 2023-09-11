@@ -167,9 +167,7 @@ export const RemoveLiquidityBox = ({
       )
     } else if (
       !balances[tokenAdd] ||
-      balances[tokenAdd].lt(
-        WEI(amountIn || 0, tokens[tokenAdd]?.decimal || 18)
-      )
+      balances[tokenAdd].lt(WEI(amountIn || 0, tokens[tokenAdd]?.decimal || 18))
     ) {
       return (
         <ButtonExecute className='add-liquidity__action' disabled>
@@ -213,9 +211,7 @@ export const RemoveLiquidityBox = ({
                 {
                   tokenIn: cpAddress,
                   tokenOut: cToken,
-                  amountIn: bn(
-                    WEI(amountIn, tokens[cpAddress]?.decimal || 18)
-                  ),
+                  amountIn: bn(WEI(amountIn, tokens[cpAddress]?.decimal || 18)),
                   amountOutMin: 0
                 }
               ],
@@ -286,14 +282,15 @@ export const RemoveLiquidityBox = ({
                 setPercent(100)
               }}
             >
-              {'Balance: '}{
-                zerofy(formatFloat(
+              {'Balance: '}
+              {zerofy(
+                formatFloat(
                   IEW(
                     balances?.[cpAddress] ?? 0,
-                    tokens[cpAddress]?.decimal ?? 18,
+                    tokens[cpAddress]?.decimal ?? 18
                   )
-                ))
-              }
+                )
+              )}
             </Text>
           </SkeletonLoader>
         </InfoRow>

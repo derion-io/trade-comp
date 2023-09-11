@@ -3,13 +3,7 @@ import { Expression, GraphingCalculator } from 'desmos-react'
 import './style.scss'
 import { Card } from '../ui/Card'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
-import {
-  bn,
-  formatFloat,
-  zerofy,
-  isUSD,
-  IEW
-} from '../../utils/helpers'
+import { bn, formatFloat, zerofy, isUSD, IEW } from '../../utils/helpers'
 import { CandleChartLoader } from '../ChartLoaders'
 import { useListTokens } from '../../state/token/hook'
 import { useHelper } from '../../state/config/useHelper'

@@ -73,12 +73,7 @@ export const TxFee = ({
               {IEW(gasUsed.mul(gasPrice), 18, 5)}
               <TextGrey> {chainId === 56 ? 'BNB' : 'ETH'} </TextGrey>
               ($
-              {IEW(
-                gasUsed.mul(gasPrice).mul(WEI(nativePrice)),
-                36,
-                2
-              )}
-              )
+              {IEW(gasUsed.mul(gasPrice).mul(WEI(nativePrice)), 36, 2)})
             </Text>
           )}
         </SkeletonLoader>

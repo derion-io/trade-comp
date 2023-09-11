@@ -76,10 +76,7 @@ const Option = ({
       const { address: poolAddress } = decodeErc1155Address(address)
       const pool = pools[poolAddress]
 
-      return [
-        IEW(pool.states.R, tokens[pool.TOKEN_R].decimals),
-        pool.TOKEN_R
-      ]
+      return [IEW(pool.states.R, tokens[pool.TOKEN_R].decimals), pool.TOKEN_R]
     }
     return ['0', ZERO_ADDRESS]
   }, [])

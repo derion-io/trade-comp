@@ -17,7 +17,7 @@ import {
   formatPercent,
   isErc1155Address,
   IEW,
-  zerofy,
+  zerofy
 } from '../../utils/helpers'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
@@ -198,14 +198,15 @@ const Component = ({
                   )
                 }}
               >
-                {'Balance: '}{
-                  zerofy(formatFloat(
+                {'Balance: '}
+                {zerofy(
+                  formatFloat(
                     IEW(
                       balances?.[inputTokenAddress] ?? 0,
-                      tokens[inputTokenAddress]?.decimal ?? 18,
+                      tokens[inputTokenAddress]?.decimal ?? 18
                     )
-                  ))
-                }
+                  )
+                )}
               </Text>
             </SkeletonLoader>
           </div>
@@ -263,14 +264,15 @@ const Component = ({
           </SkeletonLoader>
           <SkeletonLoader loading={accFetchBalance !== account && account}>
             <Text>
-              {'Balance: '}{
-                zerofy(formatFloat(
+              {'Balance: '}
+              {zerofy(
+                formatFloat(
                   IEW(
                     balances?.[outputTokenAddress] ?? 0,
-                    tokens[outputTokenAddress]?.decimal ?? 18,
+                    tokens[outputTokenAddress]?.decimal ?? 18
                   )
-                ))
-              }
+                )
+              )}
             </Text>
           </SkeletonLoader>
         </div>

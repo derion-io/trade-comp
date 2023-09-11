@@ -41,10 +41,7 @@ export const PoolInfo = ({
   }, [pools, inputTokenAddress, outputTokenAddress])
 
   const { value: liquidity } = useTokenValue({
-    amount: IEW(
-      poolToShow?.states?.R,
-      tokens[poolToShow?.TOKEN_R]?.decimals
-    ),
+    amount: IEW(poolToShow?.states?.R, tokens[poolToShow?.TOKEN_R]?.decimals),
     tokenAddress: poolToShow?.TOKEN_R
   })
 

@@ -70,10 +70,7 @@ export const useTokenValue = ({
                 tokens[configs.stableCoins[0]] || {}
               )
             : WEI(1, 18)
-        value = IEW(
-          BIG(WEI(_amount)).mul(WEI(tokenPrice)).mul(rX).div(sX),
-          54
-        )
+        value = IEW(BIG(WEI(_amount)).mul(WEI(tokenPrice)).mul(rX).div(sX), 54)
       }
     } else {
       // TOTO: need remove mul(numberToWei(1, 9) after fix parseSqrtX96 function
@@ -86,10 +83,7 @@ export const useTokenValue = ({
             )
           : WEI(1, 18)
 
-      value = IEW(
-        BIG(WEI(_amount)).mul(WEI(tokenPrice)),
-        54
-      )
+      value = IEW(BIG(WEI(_amount)).mul(WEI(tokenPrice)), 54)
     }
     value = cutDecimal(value, 18)
     if (value == null || Number.isNaN(value)) {

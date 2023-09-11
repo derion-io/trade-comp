@@ -84,11 +84,7 @@ const Component = ({ pool, id }: { pool: PoolType; id: string }) => {
               return (
                 <div key={key}>
                   <Text>
-                    {IEW(
-                      balances[dToken],
-                      tokens[dToken]?.decimal || 18,
-                      4
-                    )}{' '}
+                    {IEW(balances[dToken], tokens[dToken]?.decimal || 18, 4)}{' '}
                   </Text>
                   <SymBolText>
                     <TokenSymbol token={dToken} />
