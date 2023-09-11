@@ -329,7 +329,7 @@ export const isUSD = (symbol: string): boolean => {
   )
 }
 
-export const formatZeroDecimal = (
+export const zerofy = (
   value: number,
   minZeroDecimal: number = 4
 ): string => {

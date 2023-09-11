@@ -13,7 +13,7 @@ import {
   div,
   formatFloat,
   formatPercent,
-  formatZeroDecimal,
+  zerofy,
   kx,
   max,
   mul,
@@ -196,10 +196,10 @@ export const Positions = ({
       const dgB = xB * xB * mark
       const deleveragePrice =
         side === POOL_IDS.A
-          ? formatZeroDecimal(dgA)
+          ? zerofy(dgA)
           : side === POOL_IDS.B
-          ? formatZeroDecimal(dgB)
-          : `${formatZeroDecimal(dgB)}-${formatZeroDecimal(dgA)}`
+          ? zerofy(dgB)
+          : `${zerofy(dgB)}-${zerofy(dgA)}`
 
       const sizeDisplay =
         side === POOL_IDS.A || side === POOL_IDS.B
@@ -365,7 +365,7 @@ export const Positions = ({
                   <InfoRow>
                     <Text>Entry Price</Text>
                     <Text>
-                      {formatZeroDecimal(formatFloat(position.entryPrice))}
+                      {zerofy(formatFloat(position.entryPrice))}
                     </Text>
                   </InfoRow>
                 )}
@@ -524,7 +524,7 @@ export const Positions = ({
                   <td>
                     {!position.entryPrice || (
                       <Text>
-                        {formatZeroDecimal(formatFloat(position.entryPrice))}
+                        {zerofy(formatFloat(position.entryPrice))}
                       </Text>
                     )}
                   </td>

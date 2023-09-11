@@ -10,7 +10,7 @@ import { SelectPoolGroup } from '../SelectPoolGroup'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 import { FunctionPlot } from '../FuncPlot'
 import { CHART_TABS } from '../../state/currentPool/type'
-import { formatFloat, formatZeroDecimal } from '../../utils/helpers'
+import { formatFloat, zerofy } from '../../utils/helpers'
 
 const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const { chainId, configs } = useConfigs()
@@ -23,7 +23,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
           <SelectPoolGroup />
           {!!id && basePrice && (
             <span>
-              <Text>{formatZeroDecimal(formatFloat(basePrice))}</Text>
+              <Text>{zerofy(formatFloat(basePrice))}</Text>
               {changedIn24h > 0 ? (
                 <TextBuy>(+{changedIn24h}%)</TextBuy>
               ) : (

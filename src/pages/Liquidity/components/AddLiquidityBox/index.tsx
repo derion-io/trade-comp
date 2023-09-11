@@ -12,7 +12,7 @@ import {
   WEI,
   parseCallStaticError,
   IEW,
-  formatZeroDecimal,
+  zerofy,
   formatFloat
 } from '../../../../utils/helpers'
 import { formatWeiToDisplayNumber } from '../../../../utils/formatBalance'
@@ -311,7 +311,7 @@ export const AddLiquidityBox = ({
           <SkeletonLoader loading={!balances[tokenAdd]}>
             <Text className='amount-input-box__head--balance cursor-pointer'>
               {'Balance: '}{
-                formatZeroDecimal(formatFloat(
+                zerofy(formatFloat(
                   IEW(
                     balances?.[poolAddress + '-' + POOL_IDS.cp] ?? 0,
                     tokens[poolAddress + '-' + POOL_IDS.cp]?.decimal ?? 18,

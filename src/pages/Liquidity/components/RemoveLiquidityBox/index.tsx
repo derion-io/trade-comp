@@ -13,7 +13,7 @@ import {
   WEI,
   parseCallStaticError,
   IEW,
-  formatZeroDecimal
+  zerofy
 } from '../../../../utils/helpers'
 import { formatWeiToDisplayNumber } from '../../../../utils/formatBalance'
 import { SelectTokenModal } from '../../../../Components/SelectTokenModal'
@@ -287,7 +287,7 @@ export const RemoveLiquidityBox = ({
               }}
             >
               {'Balance: '}{
-                formatZeroDecimal(formatFloat(
+                zerofy(formatFloat(
                   IEW(
                     balances?.[cpAddress] ?? 0,
                     tokens[cpAddress]?.decimal ?? 18,

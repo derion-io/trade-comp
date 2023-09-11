@@ -26,7 +26,7 @@ import { Tabs } from '../ui/Tabs'
 import { COLORS } from '../../utils/constant'
 import isEqual from 'react-fast-compare'
 import { useConfigs } from '../../state/config/useConfigs'
-import { formatFloat, formatZeroDecimal } from '../../utils/helpers'
+import { formatFloat, zerofy } from '../../utils/helpers'
 import { ReloadIcon } from '../../Components/ui/Icon'
 
 const Component = ({ changedIn24h }: { changedIn24h: number }) => {
@@ -49,7 +49,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
 
   useEffect(() => {
     if (basePrice) {
-      setHoverValue(formatZeroDecimal(formatFloat(basePrice)))
+      setHoverValue(zerofy(formatFloat(basePrice)))
       setHoverDate(new Date().getTime())
     }
   }, [basePrice])
@@ -150,7 +150,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
                 <YAxis
                   dataKey='value'
                   tickFormatter={(tick) => {
-                    return formatZeroDecimal(tick)
+                    return zerofy(tick)
                   }}
                   axisLine={false}
                   tickLine={false}
@@ -187,7 +187,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
 
 const HoverUpdater = ({ payload, setHoverValue, setHoverDate }: any) => {
   useEffect(() => {
-    setHoverValue(formatZeroDecimal(payload.value))
+    setHoverValue(zerofy(payload.value))
     setHoverDate(payload.time)
   }, [payload.value, payload.time, setHoverValue, setHoverDate])
 

@@ -6,7 +6,7 @@ import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import {
   bn,
   formatFloat,
-  formatZeroDecimal,
+  zerofy,
   isUSD,
   IEW
 } from '../../utils/helpers'
@@ -44,7 +44,7 @@ function _k(k: number, x: number, v: number, R: number): number {
 }
 
 function pX(x: number, mark: number): string {
-  return formatZeroDecimal(x * mark)
+  return zerofy(x * mark)
 }
 
 export const FunctionPlot = (props: any) => {

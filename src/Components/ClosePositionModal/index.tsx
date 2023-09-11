@@ -15,7 +15,7 @@ import {
   div,
   formatFloat,
   formatPercent,
-  formatZeroDecimal,
+  zerofy,
   IEW
 } from '../../utils/helpers'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
@@ -163,7 +163,7 @@ const Component = ({
                   }}
                 >
                   {'Balance: '}{
-                    formatZeroDecimal(formatFloat(
+                    zerofy(formatFloat(
                       IEW(
                         balances?.[inputTokenAddress] ?? 0,
                         tokens[inputTokenAddress]?.decimal ?? 18,
@@ -264,7 +264,7 @@ const Component = ({
             <SkeletonLoader loading={accFetchBalance !== account}>
               <Text className='amount-input-box__head--balance'>
                 {'Balance: '}{
-                  formatZeroDecimal(formatFloat(
+                  zerofy(formatFloat(
                     IEW(
                       balances?.[outputTokenAddress] ?? 0,
                       tokens[outputTokenAddress]?.decimal ?? 18,

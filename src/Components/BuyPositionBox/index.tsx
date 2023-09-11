@@ -16,7 +16,7 @@ import {
   div,
   formatFloat,
   formatPercent,
-  formatZeroDecimal,
+  zerofy,
   getTitleBuyTradeType,
   isErc1155Address,
   kx,
@@ -319,15 +319,15 @@ const Component = ({
     const dgB = xB * xB * mark
 
     if (sideToShow === POOL_IDS.A) {
-      return ['Deleverage Price', <Text key={0}>{formatZeroDecimal(dgA)}</Text>]
+      return ['Deleverage Price', <Text key={0}>{zerofy(dgA)}</Text>]
     }
     if (sideToShow === POOL_IDS.B) {
-      return ['Deleverage Price', <Text key={0}>{formatZeroDecimal(dgB)}</Text>]
+      return ['Deleverage Price', <Text key={0}>{zerofy(dgB)}</Text>]
     }
     return [
       'Full Leverage Range',
       <Text key={0}>
-        {formatZeroDecimal(dgB)}-{formatZeroDecimal(dgA)}
+        {zerofy(dgB)}-{zerofy(dgA)}
       </Text>
     ]
   }, [poolToShow, sideToShow, tokens])
@@ -492,7 +492,7 @@ const Component = ({
                     <div>
                       $
                       {
-                        formatZeroDecimal(formatFloat(valueOutBefore)).split(
+                        zerofy(formatFloat(valueOutBefore)).split(
                           '.'
                         )[0]
                       }
@@ -501,7 +501,7 @@ const Component = ({
                       <div>
                         $
                         {
-                          formatZeroDecimal(
+                          zerofy(
                             formatFloat(Number(valueOutBefore) * power)
                           ).split('.')[0]
                         }
@@ -519,13 +519,13 @@ const Component = ({
                       </div>
                     )}
                     <div>
-                      {formatZeroDecimal(formatFloat(valueOutBefore)).match(
+                      {zerofy(formatFloat(valueOutBefore)).match(
                         /\.\d+$/g
                       ) || '\u00A0'}
                     </div>
                     {showSize && (
                       <div>
-                        {formatZeroDecimal(
+                        {zerofy(
                           formatFloat(Number(valueOutBefore) * power)
                         ).match(/\.\d+$/g) || '\u00A0'}
                       </div>
