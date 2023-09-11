@@ -1,4 +1,4 @@
-import { BigNumber, Signer, ethers, utils } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
 import { POOL_IDS, TRADE_TYPE } from './constant'
 import _ from 'lodash'
 
@@ -175,7 +175,7 @@ export const sub = (a: any, b: any) => {
 }
 
 export const div = (a: any, b: any) => {
-  if (STR(b) == '0') {
+  if (STR(b) === '0') {
     return IEW(WEI(NUM(a) / NUM(b)))
   }
   return IEW(BIG(WEI(a, 36)).div(WEI(b)))
@@ -281,7 +281,7 @@ export const decimalsBySignificantDigits = (
   significantDigits: number = 4
 ): number => {
   num = Math.abs(NUM(num))
-  if (num == 0) {
+  if (num === 0) {
     return 0
   }
   const decimals =

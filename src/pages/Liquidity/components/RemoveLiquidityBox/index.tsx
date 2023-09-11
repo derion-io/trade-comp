@@ -15,7 +15,6 @@ import {
   IEW,
   zerofy
 } from '../../../../utils/helpers'
-import { formatWeiToDisplayNumber } from '../../../../utils/formatBalance'
 import { SelectTokenModal } from '../../../../Components/SelectTokenModal'
 import { useWalletBalance } from '../../../../state/wallet/hooks/useBalances'
 import { Box } from '../../../../Components/ui/Box'

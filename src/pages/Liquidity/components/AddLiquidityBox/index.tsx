@@ -252,7 +252,7 @@ export const AddLiquidityBox = ({
                   balances[tokenAdd],
                   tokens[tokenAdd]?.decimal || 18
                 )
-                if (balance == amountIn) {
+                if (balance === amountIn) {
                   setAmountIn('')
                 } else {
                   setAmountIn(balance)

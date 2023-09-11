@@ -7,14 +7,11 @@ import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { Text, TextGrey } from '../ui/Text'
 import './style.scss'
-import formatLocalisedCompactNumber, {
-  formatWeiToDisplayNumber
-} from '../../utils/formatBalance'
+import formatLocalisedCompactNumber from '../../utils/formatBalance'
 import isEqual from 'react-fast-compare'
 import { useResource } from '../../state/resources/hooks/useResource'
 import {
   decodeErc1155Address,
-  div,
   formatFloat,
   isErc1155Address,
   IEW

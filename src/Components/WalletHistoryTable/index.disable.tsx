@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React from 'react'
 import './style.scss'
 import { SwapTxType } from '../../state/wallet/type'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
@@ -15,7 +15,7 @@ import {
   TextSell
 } from '../ui/Text'
 import { useConfigs } from '../../state/config/useConfigs'
-import { bn, formatFloat } from '../../utils/helpers'
+import { formatFloat } from '../../utils/helpers'
 import { POOL_IDS } from '../../utils/constant'
 import { BigNumber } from 'ethers'
 import { getErc20AmountChange } from '../../utils/swapHistoryHelper'

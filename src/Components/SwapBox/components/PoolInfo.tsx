@@ -12,9 +12,7 @@ import { InfoRow } from '../../ui/InfoRow'
 import { useCurrentPoolGroup } from '../../../state/currentPool/hooks/useCurrentPoolGroup'
 import { useTokenValue } from '../hooks/useTokenValue'
 import { useListTokens } from '../../../state/token/hook'
-import formatLocalisedCompactNumber, {
-  formatWeiToDisplayNumber
-} from '../../../utils/formatBalance'
+import { formatLocalisedCompactNumber } from '../../../utils/formatBalance'
 import { SkeletonLoader } from '../../ui/SkeletonLoader'
 
 export const PoolInfo = ({

@@ -152,7 +152,7 @@ export const useCalculateSwap = ({
         }
       ])
       console.log('calculate amountOut response', res)
-      if (amountIn != amountInLast) {
+      if (amountIn !== amountInLast) {
         return // skip the calcuation and update for outdated input
       }
       const [aOuts, gasLeft] = res
@@ -167,7 +167,7 @@ export const useCalculateSwap = ({
       setGasUsed(gasLeft)
       setCallError('')
     } catch (e) {
-      if (amountIn != amountInLast) {
+      if (amountIn !== amountInLast) {
         return // skip the calcuation and update for outdated input
       }
       const reason = parseCallStaticError(e)

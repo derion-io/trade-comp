@@ -5,7 +5,6 @@ import {
   TextBlue,
   TextBuy,
   TextGreen,
-  TextLink,
   TextPink,
   TextSell
 } from '../../ui/Text'
@@ -82,7 +81,7 @@ const Component = ({ visible, pool }: { visible: boolean; pool: PoolType }) => {
         .map((power: number, index: number) => {
           return { power, index }
         })
-        .filter(({ power, index }: any) => {
+        .filter(({ power }: any) => {
           return power > 0 === powersIsPositive
           // return (power > 0) === powersIsPositive && pool.states.totalSupplies[index].gt(0)
         })

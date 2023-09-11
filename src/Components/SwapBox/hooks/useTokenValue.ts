@@ -4,9 +4,7 @@ import {
   bn,
   cutDecimal,
   decodeErc1155Address,
-  div,
   isErc1155Address,
-  mul,
   WEI,
   IEW
 } from '../../../utils/helpers'

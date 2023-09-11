@@ -1,21 +1,16 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import './style.scss'
 import { PoolTableCompact } from '../../Components/PoolTable'
-import { TextBlue } from '../../Components/ui/Text'
-import { IconArrowLeft } from '../../Components/ui/Icon'
 import { useConfigs } from '../../state/config/useConfigs'
-import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
-import { LIQUIDITY_TAB, POOL_IDS } from '../../utils/constant'
+import { LIQUIDITY_TAB } from '../../utils/constant'
 import { useWindowSize } from '../../hooks/useWindowSize'
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
 import 'react-tabs/style/react-tabs.css'
 import { Card } from '../../Components/ui/Card'
-import { PoolDetailAndHistory } from '../../Components/PoolDetailAndHistory'
 import { AddLiquidityBox } from './components/AddLiquidityBox'
 import { RemoveLiquidityBox } from './components/RemoveLiquidityBox'
 import { BigNumber } from 'ethers'
 import { bn } from '../../utils/helpers'
-import { useContract } from '../../hooks/useContract'
 
 export const Liquidity = ({ tab }: { tab: Symbol }) => {
   // const { poolAddress } = useCurrentPool()
@@ -23,9 +18,9 @@ export const Liquidity = ({ tab }: { tab: Symbol }) => {
   const history = useHistory()
   const { width } = useWindowSize()
   const isPhone = width && width < 992
-  const [totalSupplyCP, setTotalSupplyCP] = useState<BigNumber>(bn(0))
-  const { getPoolContract } = useContract()
+  const [totalSupplyCP] = useState<BigNumber>(bn(0))
 
+  // const { getPoolContract } = useContract()
   // useEffect(() => {
   //   const fetchTotalSyupply = async () => {
   //     const contract = getPoolContract(poolAddress)

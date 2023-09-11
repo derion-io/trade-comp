@@ -6,9 +6,7 @@ import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { Text, TextGrey } from '../ui/Text'
 import './style.scss'
-import formatLocalisedCompactNumber, {
-  formatWeiToDisplayNumber
-} from '../../utils/formatBalance'
+import { formatLocalisedCompactNumber } from '../../utils/formatBalance'
 import isEqual from 'react-fast-compare'
 import {
   decodeErc1155Address,
@@ -56,7 +54,7 @@ const Component = ({
   const { settings } = useSettings()
   const [valueInput, setValueInput] = useState<string>('')
 
-  const [pool, power] = useMemo(() => {
+  const [, power] = useMemo(() => {
     if (!inputTokenAddress || !pools) {
       return [null, 1]
     }
@@ -65,7 +63,7 @@ const Component = ({
     if (!pool) {
       return [null, 1]
     }
-    const power = Number(id) == POOL_IDS.C ? 1 : pool.k.toNumber() / 2
+    const power = Number(id) === POOL_IDS.C ? 1 : pool.k.toNumber() / 2
     return [pool, power]
   }, [inputTokenAddress, pools])
 
@@ -176,7 +174,7 @@ const Component = ({
                 <Text
                   className='amount-input-box__head--balance'
                   onClick={() => {
-                    setValueInput(valueBalance == valueIn ? '' : valueBalance)
+                    setValueInput(valueBalance === valueIn ? '' : valueBalance)
                   }}
                 >
                   {power > 1 ? 'Size:' : 'Value:'} $

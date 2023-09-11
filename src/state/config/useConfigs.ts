@@ -1,7 +1,6 @@
 import { useSelector } from 'react-redux'
 import { State } from '../types'
 import configs from './configs'
-import { DEFAULT_CHAIN } from '../../utils/constant'
 
 export const useConfigs = () => {
   const {

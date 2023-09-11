@@ -34,18 +34,6 @@ type InputTokens = {
   decimals: number
 }
 
-type PairDayDataType = {
-  reserve0: string
-  reserve1: string
-  date: number
-  token0: {
-    id: string
-  }
-  token1: {
-    id: string
-  }
-}
-
 export const useExchangeData = () => {
   const { configs } = useConfigs()
 

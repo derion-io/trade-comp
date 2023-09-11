@@ -33,9 +33,9 @@ function _x(k: number, r: number, v: number): number {
   return Math.pow(r / v, 1 / k)
 }
 
-function _k(k: number, x: number, v: number, R: number): number {
-  return (k * R) / Math.abs(4 * v * x ** k - R)
-}
+// function _k(k: number, x: number, v: number, R: number): number {
+//   return (k * R) / Math.abs(4 * v * x ** k - R)
+// }
 
 function pX(x: number, mark: number): string {
   return zerofy(x * mark)
@@ -101,11 +101,11 @@ export const FunctionPlot = (props: any) => {
     const b1 = _v(1 / xk, rB1, R1)
 
     const drAChange =
-      rA1 != rA
+      rA1 !== rA
         ? `x=${X}\\{${Math.min(rA, rA1)}<y<${Math.max(rA, rA1)}\\}`
         : null
     const drBChange =
-      R1 - rB1 != R - rB
+      R1 - rB1 !== R - rB
         ? `x=${X}\\{${Math.min(R - rB, R1 - rB1)}<y<${Math.max(
             R - rB,
             R1 - rB1
@@ -199,7 +199,7 @@ export const FunctionPlot = (props: any) => {
               id='R1'
               latex={`y=${R1}\\{${PX}<x\\}`}
               color='RED'
-              hidden={R == R1}
+              hidden={R === R1}
               lineWidth={1.5}
               lineStyle='DASHED'
             />
@@ -225,14 +225,14 @@ export const FunctionPlot = (props: any) => {
               latex={`g(${P},x,${b1},${R1})\\{${PX}<x\\}`}
               color='GREEN'
               lineStyle='DASHED'
-              hidden={!drBChange && R1 == R}
+              hidden={!drBChange && R1 === R}
             />
             <Expression
               id='long1'
               latex={`f(${P},x,${a1},${R1})\\{${PX}<x\\}`}
               color='PURPLE'
               lineStyle='DASHED'
-              hidden={!drAChange && R1 == R}
+              hidden={!drAChange && R1 === R}
             />
             <Expression
               id='Price'

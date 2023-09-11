@@ -23,9 +23,7 @@ import { TokenSymbol } from '../ui/TokenSymbol'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { NATIVE_ADDRESS, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
 import { useConfigs } from '../../state/config/useConfigs'
-import formatLocalisedCompactNumber, {
-  formatWeiToDisplayNumber
-} from '../../utils/formatBalance'
+import { formatLocalisedCompactNumber } from '../../utils/formatBalance'
 import isEqual from 'react-fast-compare'
 import _ from 'lodash'
 import { useCalculateSwap } from './hooks/useCalculateSwap'
@@ -34,7 +32,6 @@ import { ButtonSwap } from '../ButtonSwap'
 import { TxFee } from './components/TxFee'
 import { PoolInfo } from './components/PoolInfo'
 import { CHART_TABS } from '../../state/currentPool/type'
-import { useHelper } from '../../state/config/useHelper'
 
 const Component = ({
   inputTokenAddress,

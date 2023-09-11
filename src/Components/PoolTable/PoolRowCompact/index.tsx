@@ -1,5 +1,4 @@
 import { PoolType } from '../../../state/resources/type'
-import { useWalletBalance } from '../../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../../state/token/hook'
 import React from 'react'
 import { useCurrentPoolGroup } from '../../../state/currentPool/hooks/useCurrentPoolGroup'
@@ -8,7 +7,6 @@ import { TokenIcon } from '../../ui/TokenIcon'
 import isEqual from 'react-fast-compare'
 
 const Component = ({ pool }: { pool: PoolType }) => {
-  const { balances } = useWalletBalance()
   const { tokens } = useListTokens()
   const { baseToken, quoteToken } = pool
   const { updateCurrentPoolGroup } = useCurrentPoolGroup()

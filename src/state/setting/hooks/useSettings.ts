@@ -13,7 +13,6 @@ import {
 import { State } from '../../types'
 import { useConfigs } from '../../config/useConfigs'
 import { SORT_POOL_BY, VALUE_IN_USD_STATUS } from '../type'
-import { PoolType } from '../../resources/type'
 
 export const useSettings = () => {
   const { chainId } = useConfigs()

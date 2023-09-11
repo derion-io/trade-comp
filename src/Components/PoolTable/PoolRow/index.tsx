@@ -49,7 +49,7 @@ const Component = ({ pool, id }: { pool: PoolType; id: string }) => {
   //   return [p, leverage, value]
   // }, [pool, balances])
 
-  const [powerState, leverage, value] = useMemo(() => {
+  const [, /* powerState */ leverage, value] = useMemo(() => {
     return [{}, 0, bn(0)]
   }, [])
 

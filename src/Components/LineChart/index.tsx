@@ -12,13 +12,11 @@ import {
 import './style.scss'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 import moment from 'moment'
-import { useListTokens } from '../../state/token/hook'
-import { Text, TextBuy, TextGrey, TextSell } from '../ui/Text'
+import { Text, TextGrey } from '../ui/Text'
 // eslint-disable-next-line no-unused-vars
 import {
   DATE_FORMATS,
   I_1D,
-  I_1W,
   INTERVALS_TAB,
   LineChartIntervalType
 } from '../../utils/lineChartConstant'
@@ -31,8 +29,7 @@ import { ReloadIcon } from '../../Components/ui/Icon'
 
 const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const { getLineChartData } = useExchangeData()
-  const { baseToken, quoteToken, id, basePrice } = useCurrentPoolGroup()
-  const { tokens } = useListTokens()
+  const { baseToken, id, basePrice } = useCurrentPoolGroup()
   const [hoverValue, setHoverValue] = useState<string>()
   const [chartData, setChartData] = useState<{ [key: string]: any[] }>({})
   const [isLoading, setIsLoading] = useState<boolean>(false)
