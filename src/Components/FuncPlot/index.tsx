@@ -155,8 +155,7 @@ export const FunctionPlot = (props: any) => {
 
   return (
     <React.Fragment>
-      <Card className='p-1'>
-        <div className='flex flex-col justify-center items-center pb-[80px] pt-[80px] gap-6'>
+      <Card className='p-1 plot-chart-box flex flex-col justify-center items-center pb-[80px] pt-[80px] gap-6'>
           <GraphingCalculator
             attributes={{ className: 'calculator' }}
             fontSize={14}
@@ -345,7 +344,6 @@ export const FunctionPlot = (props: any) => {
               labelOrientation={Desmos.LabelOrientations.RIGHT}
             />
           </GraphingCalculator>
-        </div>
       </Card>
     </React.Fragment>
   )
