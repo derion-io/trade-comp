@@ -149,30 +149,18 @@ function _extractErrorReason(err: any) {
   return { reason, err }
 }
 
-export const formatFloat = (number: number | string, decimal?: number) => {
-  if (!decimal) {
-    decimal = detectDecimalFromPrice(number)
+export const formatFloat = (number: number | string, decimals?: number): number => {
+  if (!decimals) {
+    decimals = detectDecimalFromPrice(number)
   }
-
-  number = number.toString()
-  const arr = number.split('.')
-  if (arr.length > 1) {
-    arr[1] = arr[1].slice(0, decimal)
-  }
-  return Number(arr.join('.'))
+  return NUM(truncate(STR(number), decimals))
 }
 
-export const cutDecimal = (number: string, decimal?: number) => {
-  if (!decimal) {
-    decimal = detectDecimalFromPrice(number)
+export const cutDecimal = (num: string, decimals?: number): string => {
+  if (!decimals) {
+    decimals = detectDecimalFromPrice(num)
   }
-
-  number = number.toString()
-  const arr = number.split('.')
-  if (arr.length > 1) {
-    arr[1] = arr[1].slice(0, decimal)
-  }
-  return arr.join('.')
+  return truncate(num, decimals)
 }
 
 export const mul = (a: any, b: any) => {
