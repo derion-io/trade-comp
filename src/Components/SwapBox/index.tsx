@@ -15,6 +15,7 @@ import {
   div,
   formatFloat,
   isErc1155Address,
+  formatPercent,
   IEW,
   zerofy,
   NUM
@@ -32,6 +33,7 @@ import { ButtonSwap } from '../ButtonSwap'
 import { TxFee } from './components/TxFee'
 import { CHART_TABS } from '../../state/currentPool/type'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
+import { isAddress } from 'ethers/lib/utils'
 
 const Component = ({
   inputTokenAddress,
@@ -111,8 +113,11 @@ const Component = ({
     const cTokens = allTokens.filter(
       (a) => Number(a.split('-')[1]) === POOL_IDS.C
     )
+    const erc20Tokens = Object.keys(tokens).filter((address) => {
+      return isAddress(address) && balances[address] && !balances[address].isZero()
+    })
     return _.uniq(
-      [...tokenRs, ...aTokens, ...bTokens, ...cTokens].filter((address) => {
+      [...tokenRs, ...aTokens, ...bTokens, ...cTokens, ...erc20Tokens].filter((address) => {
         if (tokenRs.includes(address)) return true
         if (
           tokenTypeToSelect === 'input' &&
@@ -123,7 +128,7 @@ const Component = ({
         return true
       })
     )
-  }, [tokenTypeToSelect, allTokens, pools, id])
+  }, [tokenTypeToSelect, allTokens, balances, tokens, pools, id])
 
   const payoffRate = useMemo(() => {
     if (valueOut && valueIn && Number(valueOut) && Number(valueIn)) {

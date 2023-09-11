@@ -11,10 +11,6 @@ import { useListTokens } from '../../../state/token/hook'
 import { BigNumber } from 'ethers'
 import { useConfigs } from '../../../state/config/useConfigs'
 import { useWalletBalance } from '../../../state/wallet/hooks/useBalances'
-import { useResource } from '../../../state/resources/hooks/useResource'
-import { ZERO_ADDRESS } from '../../../utils/constant'
-import { isAddress } from 'ethers/lib/utils'
-import { useHelper } from '../../../state/config/useHelper'
 
 const ITERATION = 10
 const REASONS_TO_RETRY = [

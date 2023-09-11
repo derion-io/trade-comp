@@ -138,7 +138,7 @@ const Component = ({
 
   useEffect(() => {
     if (Object.values(pools).length > 0) {
-      if (outputTokenAddress) {
+      if (outputTokenAddress && !inputTokenAddress) {
         for (let i = 0; i < leverageData.length; i++) {
           const leve: any = leverageData[i]
           for (let k = 0; k < leve.bars.length; k++) {
