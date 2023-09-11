@@ -21,7 +21,7 @@ const REASONS_TO_RETRY = [
   'MINIMUM_RESERVE'
 ]
 
-let amountInLast:string = ''
+let amountInLast: string = ''
 
 export const useCalculateSwap = ({
   amountIn,

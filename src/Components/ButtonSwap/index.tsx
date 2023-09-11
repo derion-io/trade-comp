@@ -132,7 +132,11 @@ export const ButtonSwap = ({
     } else {
       return (
         <ButtonExecute
-          disabled={Number(payoffRate) < minPayoffRate || !pairIndexR || loadingAmountOut}
+          disabled={
+            Number(payoffRate) < minPayoffRate ||
+            !pairIndexR ||
+            loadingAmountOut
+          }
           className='swap-button'
           onClick={async () => {
             try {
@@ -205,7 +209,7 @@ export const ButtonSwap = ({
             }
           }}
         >
-          {loadingAmountOut ? 'Calculating...' : title }
+          {loadingAmountOut ? 'Calculating...' : title}
           {/* { */}
           {/*  tradeType !== undefined */}
           {/*    ? tradeType === TRADE_TYPE.LONG */}
