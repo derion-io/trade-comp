@@ -2,9 +2,8 @@
 @import "../../styles/abstracts/mixins";
 
 .calculator {
-  max-height: 420px;
   width: 100%;
-  height: 75vw;
+  height: 100%;
   .dcg-calculator-api-container {
     .dcg-container {
       background: none !important;
