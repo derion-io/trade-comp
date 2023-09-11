@@ -49,14 +49,16 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
       ) : (
         <div />
       )} */}
-      {chainId !== 1337 &&
-        (chartTab === CHART_TABS.LINE_CHART && configs.theGraphMessari ? (
-          <LineChart changedIn24h={changedIn24h} />
-        ) : chartTab === CHART_TABS.FUNC_PLOT ? (
-          <FunctionPlot />
-        ) : (
-          <CandleChart />
-        ))}
+      <div className='chart-wrap ergawe'>
+        {chainId !== 1337 &&
+          (chartTab === CHART_TABS.LINE_CHART && configs.theGraphMessari ? (
+            <LineChart changedIn24h={changedIn24h} />
+          ) : chartTab === CHART_TABS.FUNC_PLOT ? (
+            <FunctionPlot />
+          ) : (
+            <CandleChart />
+          ))}
+      </div>
     </div>
   )
 }

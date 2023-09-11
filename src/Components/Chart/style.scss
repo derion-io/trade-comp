@@ -1,5 +1,5 @@
-@import "src/styles/abstracts/mixins";
-
+@import "../../styles/abstracts/variables";
+@import "../../styles/abstracts/mixins";
 .exposure-interface .chart {
   &__head {
     display: flex;
@@ -20,5 +20,12 @@
         margin-right: .5rem;
       }
     }
+  }
+}
+.chart-wrap {
+  height: 450px;
+  overflow: hidden;
+  @include respond(phone) {
+    height: 320px;
   }
 }

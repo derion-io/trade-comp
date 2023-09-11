@@ -26,6 +26,7 @@ import isEqual from 'react-fast-compare'
 import { useConfigs } from '../../state/config/useConfigs'
 import { formatFloat, zerofy } from '../../utils/helpers'
 import { ReloadIcon } from '../../Components/ui/Icon'
+import { useWindowSize } from '../../hooks/useWindowSize'
 
 const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const { getLineChartData } = useExchangeData()
@@ -38,6 +39,8 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const { chainId } = useConfigs()
   const headRef = useRef<HTMLDivElement>(null)
   const cToken = id
+  const {width} = useWindowSize()
+  const isPhone = width && width < 768
   useEffect(() => {
     if (!chartData[chainId + interval + cToken] || cToken) {
       loadData()
@@ -106,7 +109,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
           <Tabs tab={interval} setTab={setInterval} tabs={INTERVALS_TAB} />
         </div>
       </div>
-      <div className='line-chart-box' style={{height: `${450 - (headRef.current?.offsetHeight || 0)}px` }}>
+      <div className='line-chart-box' style={{ height: `${(isPhone ? 320 : 450) - (headRef.current?.offsetHeight || 53)}px` }}>
         {isLoading || !chartData[chainId + interval + cToken] ? (
           <div className='line-chart__loading'>
             <LineChartLoader />
