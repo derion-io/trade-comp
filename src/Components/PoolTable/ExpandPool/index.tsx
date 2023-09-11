@@ -12,9 +12,9 @@ import {
 import {
   bn,
   formatFloat,
-  numberToWei,
+  WEI,
   parseUq112x112,
-  weiToNumber
+  IEW
 } from '../../../utils/helpers'
 import { PoolType } from '../../../state/resources/type'
 import { useListTokens } from '../../../state/token/hook'
@@ -88,7 +88,7 @@ const Component = ({ visible, pool }: { visible: boolean; pool: PoolType }) => {
         })
         .sort((a: any, b: any) => b.power - a.power)
         .map(({ power, index }: { power: number; index: number }) => {
-          const value = rDetails[power].mul(numberToWei(basePrice))
+          const value = rDetails[power].mul(WEI(basePrice))
           return { index, power, value }
         })
         .map(
@@ -116,7 +116,7 @@ const Component = ({ visible, pool }: { visible: boolean; pool: PoolType }) => {
                   <TextBlue>
                     $
                     {formatFloat(
-                      weiToNumber(value, 18 + tokens[dTokens[index]].decimal),
+                      IEW(value, 18 + tokens[dTokens[index]].decimal),
                       2
                     )}
                   </TextBlue>
@@ -167,7 +167,7 @@ const Component = ({ visible, pool }: { visible: boolean; pool: PoolType }) => {
                         {' '}
                         $
                         {formatFloat(
-                          weiToNumber(
+                          IEW(
                             rDcLongValue,
                             tokens[quoteToken]?.decimal
                           ),
@@ -179,7 +179,7 @@ const Component = ({ visible, pool }: { visible: boolean; pool: PoolType }) => {
                         {' '}
                         $
                         {formatFloat(
-                          weiToNumber(
+                          IEW(
                             rDcShortValue,
                             tokens[quoteToken]?.decimal
                           ),
@@ -210,7 +210,7 @@ const Component = ({ visible, pool }: { visible: boolean; pool: PoolType }) => {
             <th className='text-center'>
               <Text>TVL</Text>
               <TextBlue>
-                ${formatFloat(weiToNumber(totalLockedValue), 2)}
+                ${formatFloat(IEW(totalLockedValue), 2)}
               </TextBlue>
             </th>
           </tr>

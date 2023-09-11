@@ -7,8 +7,8 @@ import {
   div,
   isErc1155Address,
   mul,
-  numberToWei,
-  weiToNumber
+  WEI,
+  IEW
 } from '../../../utils/helpers'
 import { useTokenPrice } from '../../../state/resources/hooks/useTokenPrice'
 import { parseSqrtX96 } from 'derivable-tools/dist/utils/helper'
@@ -65,13 +65,13 @@ export const useTokenValue = ({
         const tokenPrice =
           prices[pool.TOKEN_R] && prices[pool.TOKEN_R].gt(0) && valueInUsd
             ? parseSqrtX96(
-                prices[pool.TOKEN_R]?.mul(numberToWei(1, 9)) || bn(0),
+                prices[pool.TOKEN_R]?.mul(WEI(1, 9)) || bn(0),
                 tokens[pool.TOKEN_R] || {},
                 tokens[configs.stableCoins[0]] || {}
               )
-            : numberToWei(1, 18)
-        value = weiToNumber(
-          BIG(numberToWei(_amount)).mul(numberToWei(tokenPrice)).mul(rX).div(sX),
+            : WEI(1, 18)
+        value = IEW(
+          BIG(WEI(_amount)).mul(WEI(tokenPrice)).mul(rX).div(sX),
           54
         )
       }
@@ -80,14 +80,14 @@ export const useTokenValue = ({
       const tokenPrice =
         prices[address] && prices[address].gt(0) && valueInUsd
           ? parseSqrtX96(
-              prices[address]?.mul(numberToWei(1, 9)) || bn(0),
+              prices[address]?.mul(WEI(1, 9)) || bn(0),
               tokens[address] || {},
               tokens[configs.stableCoins[0]] || {}
             )
-          : numberToWei(1, 18)
+          : WEI(1, 18)
 
-      value = weiToNumber(
-        BIG(numberToWei(_amount)).mul(numberToWei(tokenPrice)),
+      value = IEW(
+        BIG(WEI(_amount)).mul(WEI(tokenPrice)),
         54
       )
     }

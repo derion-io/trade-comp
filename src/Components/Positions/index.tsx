@@ -19,7 +19,7 @@ import {
   mul,
   shortenAddressString,
   sub,
-  weiToNumber,
+  IEW,
   xr
 } from '../../utils/helpers'
 import { useListTokens } from '../../state/token/hook'
@@ -149,18 +149,18 @@ export const Positions = ({
             posWithEntry.balance
           )
         : '0'
-      const entryValueR = weiToNumber(
+      const entryValueR = IEW(
         posWithEntry?.totalEntryR ?? 0,
         tokens[pool.TOKEN_R]?.decimal ?? 18
       )
       const value = getTokenValue(
         token,
-        weiToNumber(balances[token], tokens[token]?.decimal || 18),
+        IEW(balances[token], tokens[token]?.decimal || 18),
         false
       )
       const valueUsd = getTokenValue(
         token,
-        weiToNumber(balances[token], tokens[token]?.decimal || 18),
+        IEW(balances[token], tokens[token]?.decimal || 18),
         true
       )
 

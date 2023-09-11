@@ -20,7 +20,7 @@ import {
   getTitleBuyTradeType,
   isErc1155Address,
   kx,
-  weiToNumber,
+  IEW,
   whatDecimalSeparator,
   xr
 } from '../../utils/helpers'
@@ -179,7 +179,7 @@ const Component = ({
   })
 
   const { value: valueOutBefore } = useTokenValue({
-    amount: weiToNumber(
+    amount: IEW(
       balances[outputTokenAddress],
       tokens[outputTokenAddress]?.decimal || 18
     ),
@@ -343,7 +343,7 @@ const Component = ({
     tradeType === TRADE_TYPE.LONG || tradeType === TRADE_TYPE.SHORT
 
   const { value: liquidity } = useTokenValue({
-    amount: weiToNumber(
+    amount: IEW(
       poolToShow?.states?.R,
       tokens[poolToShow?.TOKEN_R]?.decimals
     ),
@@ -389,7 +389,7 @@ const Component = ({
               className='amount-input-box__head--balance'
               onClick={() => {
                 setAmountIn(
-                  weiToNumber(
+                  IEW(
                     balances[inputTokenAddress],
                     tokens[inputTokenAddress]?.decimal || 18
                   )
@@ -401,7 +401,7 @@ const Component = ({
                 ? 0
                 : formatLocalisedCompactNumber(
                     formatFloat(
-                      weiToNumber(
+                      IEW(
                         balances[inputTokenAddress],
                         tokens[inputTokenAddress]?.decimal ?? 18
                       )

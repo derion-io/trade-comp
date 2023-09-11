@@ -5,9 +5,9 @@ import { useTokenValue } from '../Components/SwapBox/hooks/useTokenValue'
 import {
   bn,
   getTokenPower,
-  numberToWei,
+  WEI,
   tradeTypeToId,
-  weiToNumber
+  IEW
 } from '../utils/helpers'
 import { useListTokens } from '../state/token/hook'
 import { useSettings } from '../state/setting/hooks/useSettings'

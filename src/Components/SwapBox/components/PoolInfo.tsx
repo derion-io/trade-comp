@@ -4,7 +4,7 @@ import {
   formatFloat,
   formatPercent,
   isErc1155Address,
-  weiToNumber
+  IEW
 } from '../../../utils/helpers'
 import { Box } from '../../ui/Box'
 import React, { useMemo } from 'react'
@@ -41,7 +41,7 @@ export const PoolInfo = ({
   }, [pools, inputTokenAddress, outputTokenAddress])
 
   const { value: liquidity } = useTokenValue({
-    amount: weiToNumber(
+    amount: IEW(
       poolToShow?.states?.R,
       tokens[poolToShow?.TOKEN_R]?.decimals
     ),

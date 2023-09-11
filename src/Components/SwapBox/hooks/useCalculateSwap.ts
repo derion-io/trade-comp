@@ -3,9 +3,9 @@ import {
   bn,
   decodeErc1155Address,
   isErc1155Address,
-  numberToWei,
+  WEI,
   parseCallStaticError,
-  weiToNumber
+  IEW
 } from '../../../utils/helpers'
 import { useEffect, useState } from 'react'
 import { useListTokens } from '../../../state/token/hook'
@@ -81,7 +81,7 @@ export const useCalculateSwap = ({
       Number(amountIn) &&
       (isErc1155Address(inputTokenAddress) ||
         routerAllowances[inputTokenAddress]?.gt(
-          numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18)
+          WEI(amountIn, tokens[inputTokenAddress]?.decimal || 18)
         ))
     ) {
       if (!amountOut) {
@@ -107,7 +107,7 @@ export const useCalculateSwap = ({
 
   const calcAmountOut = async (i: number = 0): Promise<any> => {
     try {
-      const inputAmount = numberToWei(
+      const inputAmount = WEI(
         amountIn,
         tokens[inputTokenAddress]?.decimal ?? 18
       )
@@ -115,7 +115,7 @@ export const useCalculateSwap = ({
       if (i > 0) {
         const redution = 2 ** (i - ITERATION)
         _payloadAmountIn = _payloadAmountIn
-          .mul(numberToWei(1 - redution, 6))
+          .mul(WEI(1 - redution, 6))
           .div(1000000)
         console.log({
           i,
@@ -130,7 +130,7 @@ export const useCalculateSwap = ({
           tokenIn: inputTokenAddress,
           tokenOut: outputTokenAddress,
           amountOutMin: 0,
-          amountIn: BIG(numberToWei(
+          amountIn: BIG(WEI(
             amountIn,
             tokens[inputTokenAddress]?.decimal || 18
           )),
@@ -160,7 +160,7 @@ export const useCalculateSwap = ({
       setAmountOutWei(aOuts[0]?.amountOut || bn(0))
       setPayloadAmountIn(_payloadAmountIn)
       setAmountOut(
-        weiToNumber(
+        IEW(
           aOuts[0]?.amountOut || 0,
           tokens[outputTokenAddress].decimal || 18
         )

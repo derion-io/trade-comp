@@ -65,7 +65,8 @@ export const truncate = (num: string, decimals: number = 0): string => {
   return num.substring(0, index)
 }
 
-export const weiToNumber = (
+/// revert of WEI: weiToNumber
+export const IEW = (
   wei: BigNumber | string,
   decimals: number = 18,
   decimalsToDisplay?: number
@@ -77,7 +78,8 @@ export const weiToNumber = (
   return num
 }
 
-export const numberToWei = (
+/// numberToWei
+export const WEI = (
   num: number | string,
   decimals: number = 18
 ): string => {
@@ -164,23 +166,23 @@ export const cutDecimal = (num: string, decimals?: number): string => {
 }
 
 export const mul = (a: any, b: any) => {
-  const result = weiToNumber(BIG(numberToWei(a)).mul(numberToWei(b)), 36)
+  const result = IEW(BIG(WEI(a)).mul(WEI(b)), 36)
   return truncate(result, 18)
 }
 
 export const sub = (a: any, b: any) => {
-  return weiToNumber(BIG(numberToWei(a)).sub(numberToWei(b)))
+  return IEW(BIG(WEI(a)).sub(WEI(b)))
 }
 
 export const div = (a: any, b: any) => {
   if (STR(b) == '0') {
-    return weiToNumber(numberToWei(NUM(a) / NUM(b)))
+    return IEW(WEI(NUM(a) / NUM(b)))
   }
-  return weiToNumber(BIG(numberToWei(a, 36)).div(numberToWei(b)))
+  return IEW(BIG(WEI(a, 36)).div(WEI(b)))
 }
 
 export const add = (a: any, b: any) => {
-  return weiToNumber(BIG(numberToWei(a)).add(numberToWei(b)))
+  return IEW(BIG(WEI(a)).add(WEI(b)))
 }
 
 export const formatPercent = (
@@ -192,7 +194,7 @@ export const formatPercent = (
     return Math.round(Number(floatNumber) * 10 ** (decimal + 2)) / 10 ** decimal
   }
   floatNumber = floatNumber.toString()
-  return formatFloat(weiToNumber(numberToWei(floatNumber), 16), decimal)
+  return formatFloat(IEW(WEI(floatNumber), 16), decimal)
 }
 
 export const getNormalAddress = (addresses: string[]) => {
@@ -279,9 +281,9 @@ export const detectDecimalFromPrice = (price: number | string): number => {
     const len = Math.floor(Number(price ?? 0)).toString().length
     return 4 - Math.min(len, 4)
   } else {
-    const wei = numberToWei(price)
+    const wei = WEI(price)
     const rate = !BIG(wei).isZero()
-      ? weiToNumber(BIG(numberToWei(1, 36)).div(wei))
+      ? IEW(BIG(WEI(1, 36)).div(wei))
       : '0'
     return truncate(rate).length + 2
   }

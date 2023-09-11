@@ -10,9 +10,9 @@ import {
   bn,
   decodeErc1155Address,
   formatFloat,
-  numberToWei,
+  WEI,
   parseCallStaticError,
-  weiToNumber
+  IEW
 } from '../../../../utils/helpers'
 import { formatWeiToDisplayNumber } from '../../../../utils/formatBalance'
 import { SelectTokenModal } from '../../../../Components/SelectTokenModal'
@@ -72,8 +72,8 @@ export const RemoveLiquidityBox = ({
 
   useEffect(() => {
     setAmountIn(
-      weiToNumber(
-        bn(numberToWei(percent || 0))
+      IEW(
+        bn(WEI(percent || 0))
           .mul(balances[cpAddress] || 0)
           .div(100),
         36
@@ -82,7 +82,7 @@ export const RemoveLiquidityBox = ({
   }, [balances[cpAddress]])
 
   const shareOfPool = useMemo(() => {
-    const amountOutBn = bn(numberToWei(amountIn || '0'))
+    const amountOutBn = bn(WEI(amountIn || '0'))
     if (totalSupplyCP.sub(amountOutBn).isZero()) return 0
 
     return (
@@ -104,7 +104,7 @@ export const RemoveLiquidityBox = ({
         {
           tokenIn: tokenAdd,
           tokenOut: poolAddress + '-' + POOL_IDS.cp,
-          amountIn: bn(numberToWei(amountIn, tokens[tokenAdd]?.decimal || 18))
+          amountIn: bn(WEI(amountIn, tokens[tokenAdd]?.decimal || 18))
         }
       ],
       false
@@ -112,7 +112,7 @@ export const RemoveLiquidityBox = ({
       .then((res) => {
         const [aOuts, gasLeft] = res
         setAmountOut(
-          weiToNumber(
+          IEW(
             aOuts[0]?.amountOut || 0,
             tokens[poolAddress + '-' + POOL_IDS.cp].decimal || 18
           )
@@ -167,7 +167,7 @@ export const RemoveLiquidityBox = ({
     } else if (
       !balances[tokenAdd] ||
       balances[tokenAdd].lt(
-        numberToWei(amountIn || 0, tokens[tokenAdd]?.decimal || 18)
+        WEI(amountIn || 0, tokens[tokenAdd]?.decimal || 18)
       )
     ) {
       return (
@@ -179,7 +179,7 @@ export const RemoveLiquidityBox = ({
     } else if (
       !routerAllowances[address] ||
       routerAllowances[address].lt(
-        numberToWei(amountIn || 0, tokens[tokenAdd]?.decimal || 18)
+        WEI(amountIn || 0, tokens[tokenAdd]?.decimal || 18)
       )
     ) {
       return (
@@ -213,7 +213,7 @@ export const RemoveLiquidityBox = ({
                   tokenIn: cpAddress,
                   tokenOut: cToken,
                   amountIn: bn(
-                    numberToWei(amountIn, tokens[cpAddress]?.decimal || 18)
+                    WEI(amountIn, tokens[cpAddress]?.decimal || 18)
                   ),
                   amountOutMin: 0
                 }
@@ -234,7 +234,7 @@ export const RemoveLiquidityBox = ({
 
   const amountToPercent = (amount: number): number => {
     return (
-      bn(numberToWei(amount || 0))
+      bn(WEI(amount || 0))
         .mul(100 * percentUnit)
         .div(balances[cpAddress] || 0)
         .toNumber() / percentUnit
@@ -242,8 +242,8 @@ export const RemoveLiquidityBox = ({
   }
 
   const percentToAmount = (percent: number): string => {
-    return weiToNumber(
-      bn(numberToWei(percent || 0))
+    return IEW(
+      bn(WEI(percent || 0))
         .mul(balances[cpAddress] || 0)
         .div(100),
       36
@@ -277,7 +277,7 @@ export const RemoveLiquidityBox = ({
             <Text
               className='amount-input-box__head--balance cursor-pointer'
               onClick={() => {
-                const balance = weiToNumber(
+                const balance = IEW(
                   balances[cpAddress],
                   tokens[cpAddress]?.decimal || 18
                 )
@@ -363,9 +363,9 @@ export const RemoveLiquidityBox = ({
         <InfoRow>
           <Text>Transaction Fee</Text>
           <Text>
-            {weiToNumber(txFee, 18, 4)}
+            {IEW(txFee, 18, 4)}
             <TextGrey> {chainId === 56 ? 'BNB' : 'ETH'} </TextGrey>
-            (${weiToNumber(txFee.mul(numberToWei(nativePrice)), 36, 2)})
+            (${IEW(txFee.mul(WEI(nativePrice)), 36, 2)})
           </Text>
         </InfoRow>
         <InfoRow>

@@ -9,9 +9,9 @@ import { TokenSymbol } from '../../../../Components/ui/TokenSymbol'
 import {
   bn,
   decodeErc1155Address,
-  numberToWei,
+  WEI,
   parseCallStaticError,
-  weiToNumber
+  IEW
 } from '../../../../utils/helpers'
 import { formatWeiToDisplayNumber } from '../../../../utils/formatBalance'
 import { SelectTokenModal } from '../../../../Components/SelectTokenModal'
@@ -68,7 +68,7 @@ export const AddLiquidityBox = ({
   }, [poolAddress])
 
   const shareOfPool = useMemo(() => {
-    const amountOutBn = bn(numberToWei(amountOut || '0'))
+    const amountOutBn = bn(WEI(amountOut || '0'))
     if (totalSupplyCP.add(amountOutBn).isZero()) return 0
 
     return (
@@ -90,7 +90,7 @@ export const AddLiquidityBox = ({
         {
           tokenIn: tokenAdd,
           tokenOut: poolAddress + '-' + POOL_IDS.cp,
-          amountIn: bn(numberToWei(amountIn, tokens[tokenAdd]?.decimal || 18))
+          amountIn: bn(WEI(amountIn, tokens[tokenAdd]?.decimal || 18))
         }
       ],
       false
@@ -98,7 +98,7 @@ export const AddLiquidityBox = ({
       .then((res) => {
         const [aOuts, gasLeft] = res
         setAmountOut(
-          weiToNumber(
+          IEW(
             aOuts[0]?.amountOut || 0,
             tokens[poolAddress + '-' + POOL_IDS.cp].decimal || 18
           )
@@ -153,7 +153,7 @@ export const AddLiquidityBox = ({
     } else if (
       !balances[tokenAdd] ||
       balances[tokenAdd].lt(
-        numberToWei(amountIn || 0, tokens[tokenAdd]?.decimal || 18)
+        WEI(amountIn || 0, tokens[tokenAdd]?.decimal || 18)
       )
     ) {
       return (
@@ -165,7 +165,7 @@ export const AddLiquidityBox = ({
     } else if (
       !routerAllowances[address] ||
       routerAllowances[address].lt(
-        numberToWei(amountIn || 0, tokens[tokenAdd]?.decimal || 18)
+        WEI(amountIn || 0, tokens[tokenAdd]?.decimal || 18)
       )
     ) {
       return (
@@ -199,7 +199,7 @@ export const AddLiquidityBox = ({
                   tokenIn: tokenAdd,
                   tokenOut: cpAddress,
                   amountIn: bn(
-                    numberToWei(amountIn, tokens[tokenAdd]?.decimal || 18)
+                    WEI(amountIn, tokens[tokenAdd]?.decimal || 18)
                   ),
                   amountOutMin: 0
                 }
@@ -250,7 +250,7 @@ export const AddLiquidityBox = ({
             <Text
               className='amount-input-box__head--balance cursor-pointer'
               onClick={() => {
-                const balance = weiToNumber(
+                const balance = IEW(
                   balances[tokenAdd],
                   tokens[tokenAdd]?.decimal || 18
                 )
@@ -331,9 +331,9 @@ export const AddLiquidityBox = ({
         <InfoRow>
           <Text>Transaction Fee</Text>
           <Text>
-            {weiToNumber(txFee, 18, 4)}
+            {IEW(txFee, 18, 4)}
             <TextGrey> {chainId === 56 ? 'BNB' : 'ETH'} </TextGrey>
-            (${weiToNumber(txFee.mul(numberToWei(nativePrice)), 36, 2)})
+            (${IEW(txFee.mul(WEI(nativePrice)), 36, 2)})
           </Text>
         </InfoRow>
         <InfoRow>

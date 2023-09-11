@@ -16,7 +16,7 @@ import {
   formatFloat,
   formatPercent,
   isErc1155Address,
-  weiToNumber
+  IEW
 } from '../../utils/helpers'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
@@ -190,7 +190,7 @@ const Component = ({
                 className='amount-input-box__head--balance'
                 onClick={() => {
                   setAmountIn(
-                    weiToNumber(
+                    IEW(
                       balances[inputTokenAddress],
                       tokens[inputTokenAddress]?.decimal || 18
                     )

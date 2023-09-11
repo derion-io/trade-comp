@@ -8,7 +8,7 @@ import {
   formatFloat,
   formatZeroDecimal,
   isUSD,
-  weiToNumber
+  IEW
 } from '../../utils/helpers'
 import { CandleChartLoader } from '../ChartLoaders'
 import { useListTokens } from '../../state/token/hook'
@@ -75,9 +75,9 @@ export const FunctionPlot = (props: any) => {
       (tokens[baseToken]?.decimal ?? 18) - (tokens[quoteToken]?.decimal ?? 18)
     const K = k?.toNumber() ?? 2
     const P = K / 2
-    const R = formatFloat(weiToNumber(states?.R))
-    const a = formatFloat(weiToNumber(states?.a))
-    const b = formatFloat(weiToNumber(states?.b))
+    const R = formatFloat(IEW(states?.R))
+    const a = formatFloat(IEW(states?.a))
+    const b = formatFloat(IEW(states?.b))
     const mark = MARK
       ? MARK.mul(MARK)
           .mul(bn(10).pow(decimalsOffset + 12))

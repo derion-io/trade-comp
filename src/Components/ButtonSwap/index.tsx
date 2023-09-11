@@ -4,7 +4,7 @@ import {
   div,
   isErc1155Address,
   mul,
-  numberToWei
+  WEI
 } from '../../utils/helpers'
 import { toast } from 'react-toastify'
 import React, { useMemo, useState } from 'react'
@@ -98,7 +98,7 @@ export const ButtonSwap = ({
     } else if (
       !balances[inputTokenAddress] ||
       balances[inputTokenAddress].lt(
-        numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18)
+        WEI(amountIn, tokens[inputTokenAddress]?.decimal || 18)
       )
     ) {
       return (
@@ -110,7 +110,7 @@ export const ButtonSwap = ({
     } else if (
       !isErc1155Address(inputTokenAddress) &&
       routerAllowances[inputTokenAddress].lt(
-        numberToWei(amountIn, tokens[inputTokenAddress]?.decimal || 18)
+        WEI(amountIn, tokens[inputTokenAddress]?.decimal || 18)
       )
     ) {
       return (
@@ -142,12 +142,12 @@ export const ButtonSwap = ({
             try {
               setLoading(true)
               if (ddlEngine) {
-                const amountOutMin = numberToWei(
+                const amountOutMin = WEI(
                   div(mul(amountOut, 100 - slippage), 100),
                   tokens[outputTokenAddress]?.decimals || 18
                 )
                 console.log({
-                  amountIn: numberToWei(
+                  amountIn: WEI(
                     amountIn,
                     tokens[inputTokenAddress]?.decimal || 18
                   ),
@@ -159,7 +159,7 @@ export const ButtonSwap = ({
                       tokenIn: inputTokenAddress,
                       tokenOut: outputTokenAddress,
                       amountIn: bn(
-                        numberToWei(
+                        WEI(
                           amountIn,
                           tokens[inputTokenAddress]?.decimal || 18
                         )
