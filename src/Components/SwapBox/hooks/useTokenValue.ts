@@ -73,7 +73,7 @@ export const useTokenValue = ({
     } else {
       // TOTO: need remove mul(numberToWei(1, 9) after fix parseSqrtX96 function
       const tokenPrice =
-        prices[address] && prices[address].gt(0) && valueInUsd
+        address !== configs.stableCoins[0] && prices[address] && prices[address].gt(0) && valueInUsd
           ? parseSqrtX96(
               prices[address]?.mul(WEI(1, 9)) || bn(0),
               tokens[address] || {},

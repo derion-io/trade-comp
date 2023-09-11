@@ -47,6 +47,9 @@ import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { BigNumber } from 'ethers'
 import { useSettings } from '../../state/setting/hooks/useSettings'
 import moment from 'moment'
+import { useResource } from '../../state/resources/hooks/useResource'
+import { useListTokenHasUniPool } from '../../hooks/useListTokenHasUniPool'
+import { useTokenPrice } from '../../state/resources/hooks/useTokenPrice'
 
 const Q128 = BigNumber.from(1).shl(128)
 
@@ -188,6 +191,19 @@ const Component = ({
     return undefined
   }, [valueIn, valueOut])
 
+  const [poolToShow, sideToShow] = useMemo(() => {
+    if (isErc1155Address(outputTokenAddress)) {
+      const { address, id } = decodeErc1155Address(outputTokenAddress)
+      return [pools[address], Number(id)]
+    } else if (isErc1155Address(inputTokenAddress)) {
+      const { address, id } = decodeErc1155Address(inputTokenAddress)
+      return [pools[address], Number(id)]
+    }
+    return [null, null]
+  }, [pools, inputTokenAddress, outputTokenAddress])
+
+  const { data: erc20TokensSuppoted } = useListTokenHasUniPool(poolToShow)
+
   const tokensToSelect = useMemo(() => {
     if (!id) return []
     const tokenRs = Object.values(pools).map((p: any) => p.TOKEN_R)
@@ -195,7 +211,7 @@ const Component = ({
       tokenRs.push(NATIVE_ADDRESS)
     }
     return _.uniq(
-      [...tokenRs].filter((address) => {
+      [...tokenRs, ...erc20TokensSuppoted].filter((address) => {
         if (tokenRs.includes(address)) return true
         if (
           tokenTypeToSelect === 'input' &&
@@ -206,7 +222,7 @@ const Component = ({
         return true
       })
     )
-  }, [tokenTypeToSelect, allTokens, pools, id])
+  }, [erc20TokensSuppoted, tokenTypeToSelect, balances, allTokens, tokens, pools, id])
 
   const onSelectToken = useCallback(
     (address: string) => {
@@ -249,17 +265,6 @@ const Component = ({
     },
     [pools, inputTokenAddress, outputTokenAddress, tokenTypeToSelect, configs]
   )
-
-  const [poolToShow, sideToShow] = useMemo(() => {
-    if (isErc1155Address(outputTokenAddress)) {
-      const { address, id } = decodeErc1155Address(outputTokenAddress)
-      return [pools[address], Number(id)]
-    } else if (isErc1155Address(inputTokenAddress)) {
-      const { address, id } = decodeErc1155Address(inputTokenAddress)
-      return [pools[address], Number(id)]
-    }
-    return [null, null]
-  }, [pools, inputTokenAddress, outputTokenAddress])
 
   // TODO: kA, kB, xA, xB can be calculated in derivable-tools for each pool
   const [leverageKey, leverageValue] = useMemo(() => {
