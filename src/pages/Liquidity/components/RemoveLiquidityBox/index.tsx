@@ -12,7 +12,8 @@ import {
   formatFloat,
   WEI,
   parseCallStaticError,
-  IEW
+  IEW,
+  formatZeroDecimal
 } from '../../../../utils/helpers'
 import { formatWeiToDisplayNumber } from '../../../../utils/formatBalance'
 import { SelectTokenModal } from '../../../../Components/SelectTokenModal'
@@ -285,14 +286,14 @@ export const RemoveLiquidityBox = ({
                 setPercent(100)
               }}
             >
-              Balance:{' '}
-              {balances && balances[cpAddress]
-                ? formatWeiToDisplayNumber(
-                    balances[cpAddress],
-                    4,
-                    tokens[cpAddress]?.decimal || 18
+              {'Balance: '}{
+                formatZeroDecimal(formatFloat(
+                  IEW(
+                    balances?.[cpAddress] ?? 0,
+                    tokens[cpAddress]?.decimal ?? 18,
                   )
-                : 0}
+                ))
+              }
             </Text>
           </SkeletonLoader>
         </InfoRow>

@@ -1,4 +1,4 @@
-import { BigNumber, ethers, utils } from 'ethers'
+import { BigNumber, Signer, ethers, utils } from 'ethers'
 import { POOL_IDS, TRADE_TYPE } from './constant'
 import _ from 'lodash'
 
@@ -153,14 +153,14 @@ function _extractErrorReason(err: any) {
 
 export const formatFloat = (number: number | string, decimals?: number): number => {
   if (!decimals) {
-    decimals = detectDecimalFromPrice(number)
+    decimals = decimalsBySignificantDigits(number)
   }
   return NUM(truncate(STR(number), decimals))
 }
 
 export const cutDecimal = (num: string, decimals?: number): string => {
   if (!decimals) {
-    decimals = detectDecimalFromPrice(num)
+    decimals = decimalsBySignificantDigits(num)
   }
   return truncate(num, decimals)
 }
@@ -276,17 +276,16 @@ export const formatTime = (timestamp: number) => {
   )
 }
 
-export const detectDecimalFromPrice = (price: number | string): number => {
-  if (Number(price || 0) >= 1) {
-    const len = Math.floor(Number(price ?? 0)).toString().length
-    return 4 - Math.min(len, 4)
-  } else {
-    const wei = WEI(price)
-    const rate = !BIG(wei).isZero()
-      ? IEW(BIG(WEI(1, 36)).div(wei))
-      : '0'
-    return truncate(rate).length + 2
+export const decimalsBySignificantDigits = (num: number | string, significantDigits: number = 4): number => {
+  num = Math.abs(NUM(num))
+  if (num == 0) {
+    return 0
   }
+  const decimals = num >= 1
+    ? significantDigits - STR(Math.floor(num)).length
+    : significantDigits + STR(Math.floor(1 / num)).length - 1
+
+  return Math.max(0, decimals)
 }
 
 export const getTokenPower = (

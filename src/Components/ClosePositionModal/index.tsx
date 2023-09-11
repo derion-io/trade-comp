@@ -15,6 +15,7 @@ import {
   div,
   formatFloat,
   formatPercent,
+  formatZeroDecimal,
   IEW
 } from '../../utils/helpers'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
@@ -161,14 +162,14 @@ const Component = ({
                     setAmountIn(balance)
                   }}
                 >
-                  Balance:{' '}
-                  {balances && balances[inputTokenAddress]
-                    ? formatWeiToDisplayNumber(
-                        balances[inputTokenAddress],
-                        4,
-                        tokens[inputTokenAddress]?.decimal || 18
+                  {'Balance: '}{
+                    formatZeroDecimal(formatFloat(
+                      IEW(
+                        balances?.[inputTokenAddress] ?? 0,
+                        tokens[inputTokenAddress]?.decimal ?? 18,
                       )
-                    : 0}
+                    ))
+                  }
                 </Text>
               ) : (
                 <Text
@@ -262,14 +263,14 @@ const Component = ({
             </SkeletonLoader>
             <SkeletonLoader loading={accFetchBalance !== account}>
               <Text className='amount-input-box__head--balance'>
-                Balance:{' '}
-                {balances && balances[outputTokenAddress]
-                  ? formatWeiToDisplayNumber(
-                      balances[outputTokenAddress],
-                      4,
-                      tokens[outputTokenAddress]?.decimal || 18
+                {'Balance: '}{
+                  formatZeroDecimal(formatFloat(
+                    IEW(
+                      balances?.[outputTokenAddress] ?? 0,
+                      tokens[outputTokenAddress]?.decimal ?? 18,
                     )
-                  : 0}
+                  ))
+                }
               </Text>
             </SkeletonLoader>
           </InfoRow>

@@ -11,7 +11,9 @@ import {
   decodeErc1155Address,
   WEI,
   parseCallStaticError,
-  IEW
+  IEW,
+  formatZeroDecimal,
+  formatFloat
 } from '../../../../utils/helpers'
 import { formatWeiToDisplayNumber } from '../../../../utils/formatBalance'
 import { SelectTokenModal } from '../../../../Components/SelectTokenModal'
@@ -308,13 +310,14 @@ export const AddLiquidityBox = ({
           </SkeletonLoader>
           <SkeletonLoader loading={!balances[tokenAdd]}>
             <Text className='amount-input-box__head--balance cursor-pointer'>
-              Balance:{' '}
-              {balances && balances[poolAddress + '-' + POOL_IDS.cp]
-                ? formatWeiToDisplayNumber(
-                    balances[poolAddress + '-' + POOL_IDS.cp],
-                    4
+              {'Balance: '}{
+                formatZeroDecimal(formatFloat(
+                  IEW(
+                    balances?.[poolAddress + '-' + POOL_IDS.cp] ?? 0,
+                    tokens[poolAddress + '-' + POOL_IDS.cp]?.decimal ?? 18,
                   )
-                : 0}
+                ))
+              }
             </Text>
           </SkeletonLoader>
         </InfoRow>
