@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useExchangeData } from '../../hooks/useExchangeData'
 import { LineChartLoader } from '../ChartLoaders'
 import {
@@ -36,7 +36,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const [hoverDate, setHoverDate] = useState<number>()
   const [interval, setInterval] = useState<LineChartIntervalType>(I_1D)
   const { chainId } = useConfigs()
-
+  const headRef = useRef<HTMLDivElement>(null)
   const cToken = id
   useEffect(() => {
     if (!chartData[chainId + interval + cToken] || cToken) {
@@ -72,10 +72,16 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
       }
     )
   }
-
+  // useEffect() {
+  //   if (this.divRef.current) {
+  //     const height = this.divRef.current.offsetHeight;
+  //     console.log('Height of the div:', height);
+  //   }
+  // }
+  // console.log('vinh',)
   return (
     <div className='line-chart-wrap'>
-      <div className='line-chart__head'>
+      <div className='line-chart__head' ref={headRef}>
         <div className='line-chart__head--left'>
           <div>
             <Text fontSize={18} fontWeight={700} className='mr-05'>
@@ -100,7 +106,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
           <Tabs tab={interval} setTab={setInterval} tabs={INTERVALS_TAB} />
         </div>
       </div>
-      <div className='line-chart-box'>
+      <div className='line-chart-box' style={{height: `${450 - (headRef.current?.offsetHeight || 0)}px` }}>
         {isLoading || !chartData[chainId + interval + cToken] ? (
           <div className='line-chart__loading'>
             <LineChartLoader />

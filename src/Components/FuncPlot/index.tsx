@@ -155,7 +155,7 @@ export const FunctionPlot = (props: any) => {
 
   return (
     <React.Fragment>
-      <Card className='p-1'>
+      <Card className='p-1 plot-chart-box'>
         <div className='flex flex-col justify-center items-center pb-[80px] pt-[80px] gap-6'>
           <GraphingCalculator
             attributes={{ className: 'calculator' }}

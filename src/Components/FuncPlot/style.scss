@@ -1,3 +1,6 @@
+@import "../../styles/abstracts/variables";
+@import "../../styles/abstracts/mixins";
+
 .calculator {
   max-height: 400px;
   width: 100%;
@@ -6,5 +9,13 @@
     .dcg-container {
       background: none !important;
     }
+  }
+}
+
+.plot-chart-box {
+  height: 450px;
+
+  @include respond(phone) {
+    height: 320px !important;
   }
 }
