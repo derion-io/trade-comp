@@ -20,7 +20,10 @@ export const STR = (num: number | string | BigNumber): string => {
   }
   switch (typeof num) {
     case 'string':
-      return num
+      if (!num?.includes('e')) {
+        return num
+      }
+      num = Number(num)
     case 'number':
       return num.toLocaleString('fullwide', { useGrouping: false })
     default:
@@ -47,9 +50,11 @@ export const BIG = (num: number | string | BigNumber): BigNumber => {
     return BigNumber.from(0)
   }
   switch (typeof num) {
-    case 'number':
-      return BigNumber.from(Math.floor(num))
     case 'string':
+      if (num?.includes('e')) {
+        num = Number(num)
+      }
+    case 'number':
       return BigNumber.from(num || 0)
     default:
       return num
