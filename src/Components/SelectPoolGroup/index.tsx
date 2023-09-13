@@ -5,9 +5,10 @@ import { useListTokens } from '../../state/token/hook'
 import './style.scss'
 import { useOutsideAlerter } from '../../hooks/useHandleClickOutside'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
-import { POOL_IDS } from '../../utils/constant'
+import { MIN_POSITON_VALUE_USD_TO_DISPLAY, POOL_IDS } from '../../utils/constant'
 import { TokenIcon } from '../ui/TokenIcon'
-import { bn } from '../../utils/helpers'
+import { IEW, bn } from '../../utils/helpers'
+import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
 
 export const SelectPoolGroup = () => {
   const [active, setActive] = useState<boolean>(false)
@@ -66,7 +67,7 @@ const PoolGroupOption = ({
   const { balances } = useWalletBalance()
   const { tokens } = useListTokens()
   const { updateCurrentPoolGroup } = useCurrentPoolGroup()
-
+  const { getTokenValue } = useTokenValue({})
   const playingTokens = useMemo(() => {
     if (!poolGroup) return []
     const pools = Object.keys(poolGroup.pools)
@@ -103,6 +104,12 @@ const PoolGroupOption = ({
         {tokens[poolGroup.quoteToken]?.symbol}
       </span>
       {playingTokens.map((address) => {
+        const valueUsd = getTokenValue(
+          address,
+          IEW(balances[address], tokens[address]?.decimal || 18),
+          true
+        )
+        if (Number(valueUsd) < MIN_POSITON_VALUE_USD_TO_DISPLAY) return null
         if (balances[address] && bn(balances[address]).gt(0)) {
           return <TokenIcon key={address} size={20} tokenAddress={address} />
         } else {
