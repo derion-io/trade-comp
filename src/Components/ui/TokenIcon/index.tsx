@@ -56,17 +56,19 @@ export const TokenIcon = (props: {
           </div>
         )
       }
-      return (
-        <div
-          style={style}
-          className={`pool-token-logo ${
-            power > 0 ? 'pool-token-logo__long' : 'pool-token-logo__short'
-          }`}
-        >
-          {power > 0 && '+'}
-          {power}
-        </div>
-      )
+      else {
+        return (
+          <div
+            style={style}
+            className={`pool-token-logo ${
+              (Number(id) === POOL_IDS.A) ? 'pool-token-logo__long' : 'pool-token-logo__short'
+            }`}
+          >
+            { (Number(id) === POOL_IDS.A) ? '+' : '-'}
+            {power}
+          </div>
+        )
+      }
     } else if (props.tokenAddress?.includes('-' + POOL_IDS.C)) {
       return (
         <div style={style} className='pool-token-logo pool-token-logo__lp'>
@@ -76,7 +78,6 @@ export const TokenIcon = (props: {
     }
     return ''
   }, [pools, props.tokenAddress])
-
   const src = useMemo(() => {
     if (props.src) return props.src
     if (!props.tokenAddress) return ''
