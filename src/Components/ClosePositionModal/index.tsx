@@ -26,7 +26,7 @@ import { PoolInfo } from '../SwapBox/components/PoolInfo'
 import { TxFee } from '../SwapBox/components/TxFee'
 import { useCalculateSwap } from '../SwapBox/hooks/useCalculateSwap'
 import { ButtonSwap } from '../ButtonSwap'
-import { POOL_IDS } from '../../utils/constant'
+import { MIN_POSITON_VALUE_USD_TO_DISPLAY, POOL_IDS } from '../../utils/constant'
 import { BigNumber } from 'ethers'
 import { useSettings } from '../../state/setting/hooks/useSettings'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
@@ -92,6 +92,12 @@ const Component = ({
       setAmountIn(String(a))
     }
   }, [valueInput, balance, valueBalance])
+
+  useEffect(() => {
+    if (Number(valueBalance) < MIN_POSITON_VALUE_USD_TO_DISPLAY) {
+      setVisible(false)
+    }
+  }, [valueBalance])
 
   const {
     callError,
@@ -307,9 +313,6 @@ const Component = ({
             callError={callError}
             gasUsed={gasUsed}
             tokenOutMaturity={tokenOutMaturity}
-            callback={() => {
-              setVisible(false)
-            }}
             title={title}
           />
         </div>
