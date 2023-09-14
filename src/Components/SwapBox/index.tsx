@@ -14,10 +14,10 @@ import {
   decodeErc1155Address,
   div,
   formatFloat,
-  formatPercent,
   isErc1155Address,
   IEW,
-  zerofy
+  zerofy,
+  NUM
 } from '../../utils/helpers'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
@@ -117,7 +117,7 @@ const Component = ({
 
   const payoffRate = useMemo(() => {
     if (valueOut && valueIn && Number(valueOut) && Number(valueIn)) {
-      return formatPercent(div(valueOut, valueIn), 2, true)
+      return NUM(div(valueOut, valueIn))
     }
     return undefined
   }, [valueIn, valueOut])

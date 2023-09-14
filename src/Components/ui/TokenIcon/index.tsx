@@ -55,16 +55,17 @@ export const TokenIcon = (props: {
             LP
           </div>
         )
-      }
-      else {
+      } else {
         return (
           <div
             style={style}
             className={`pool-token-logo ${
-              (Number(id) === POOL_IDS.A) ? 'pool-token-logo__long' : 'pool-token-logo__short'
+              Number(id) === POOL_IDS.A
+                ? 'pool-token-logo__long'
+                : 'pool-token-logo__short'
             }`}
           >
-            { (Number(id) === POOL_IDS.A) ? '+' : '-'}
+            {Number(id) === POOL_IDS.A ? '+' : '-'}
             {power}
           </div>
         )

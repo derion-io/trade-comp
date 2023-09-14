@@ -1,12 +1,6 @@
-import {
-  Text,
-  TextError,
-  TextGreen,
-  TextGrey,
-  TextWarning
-} from '../../ui/Text'
+import { Text, TextError, TextGrey, TextWarning } from '../../ui/Text'
 import { formatWeiToDisplayNumber } from '../../../utils/formatBalance'
-import { WEI, IEW } from '../../../utils/helpers'
+import { WEI, IEW, formatPercent } from '../../../utils/helpers'
 import { Box } from '../../ui/Box'
 import React, { useEffect, useState } from 'react'
 import { InfoRow } from '../../ui/InfoRow'
@@ -15,17 +9,22 @@ import { BigNumber } from 'ethers'
 import { useConfigs } from '../../../state/config/useConfigs'
 import { SkeletonLoader } from '../../ui/SkeletonLoader'
 import { useFeeData } from '../../../state/resources/hooks/useFeeData'
+import { Position } from '../../../utils/type'
+import { useSettings } from '../../../state/setting/hooks/useSettings'
 
 export const TxFee = ({
+  position,
   gasUsed,
   payoffRate,
   loading
 }: {
+  position?: Position
   gasUsed: BigNumber
   payoffRate?: number
   loading?: boolean
 }) => {
   const { chainId } = useConfigs()
+  const { settings } = useSettings()
   const { data: nativePrice } = useNativePrice()
   const [gasPrice, setGasPrice] = useState<any>(BigNumber.from(10 ** 8))
   const { feeData } = useFeeData()
@@ -33,26 +32,54 @@ export const TxFee = ({
     setGasPrice(feeData.gasPrice)
   }, [feeData])
 
+  const closingFee = position?.closingFee() ?? { fee: 0 }
+
+  let slippage = 0
+  if (payoffRate != null) {
+    if (closingFee.fee) {
+      payoffRate = payoffRate / (1 - closingFee.fee)
+    }
+    // TODO: handle opening fee here
+    slippage = 1 - payoffRate
+  }
+
+  const feeFormat = formatPercent(closingFee.fee ?? 0, 2, true)
+  const slippageFormat = formatPercent(slippage, 2, true)
+
   return (
     <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
-      <InfoRow>
-        <TextGrey>Return Rate</TextGrey>
-        <SkeletonLoader loading={!!loading}>
+      {feeFormat == 0 ? (
+        ''
+      ) : (
+        <InfoRow>
+          <TextGrey>Closing Fee</TextGrey>
           <span>
-            {payoffRate == null ? (
-              <TextGreen>&nbsp;</TextGreen>
-            ) : payoffRate > 100 ? (
-              <TextGreen>100%</TextGreen>
-            ) : payoffRate >= 97 ? (
-              <TextGreen>{payoffRate}%</TextGreen>
-            ) : payoffRate >= 94 ? (
-              <TextWarning>{payoffRate}%</TextWarning>
+            {closingFee.isVesting ? (
+              <TextError>{feeFormat}%</TextError>
             ) : (
-              <TextError>{payoffRate}%</TextError>
+              <TextWarning>{feeFormat}%</TextWarning>
             )}
           </span>
-        </SkeletonLoader>
-      </InfoRow>
+        </InfoRow>
+      )}
+      {slippageFormat == 0 ? (
+        ''
+      ) : (
+        <InfoRow>
+          <TextGrey>Slippage</TextGrey>
+          <SkeletonLoader loading={!!loading}>
+            <span>
+              {slippage > settings.slippage ? (
+                <TextError>{slippageFormat}%</TextError>
+              ) : slippage > settings.slippage / 2 ? (
+                <TextWarning>{slippageFormat}%</TextWarning>
+              ) : (
+                <Text>{slippageFormat}%</Text>
+              )}
+            </span>
+          </SkeletonLoader>
+        </InfoRow>
+      )}
       <InfoRow>
         <TextGrey>Estimated Gas</TextGrey>
         <SkeletonLoader loading={!!loading}>

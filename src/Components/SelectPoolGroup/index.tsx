@@ -5,7 +5,10 @@ import { useListTokens } from '../../state/token/hook'
 import './style.scss'
 import { useOutsideAlerter } from '../../hooks/useHandleClickOutside'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
-import { MIN_POSITON_VALUE_USD_TO_DISPLAY, POOL_IDS } from '../../utils/constant'
+import {
+  MIN_POSITON_VALUE_USD_TO_DISPLAY,
+  POOL_IDS
+} from '../../utils/constant'
 import { TokenIcon } from '../ui/TokenIcon'
 import { IEW, bn } from '../../utils/helpers'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'

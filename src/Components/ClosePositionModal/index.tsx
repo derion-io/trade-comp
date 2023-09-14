@@ -14,7 +14,8 @@ import {
   formatFloat,
   formatPercent,
   zerofy,
-  IEW
+  IEW,
+  NUM
 } from '../../utils/helpers'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { Input } from '../ui/Input'
@@ -26,26 +27,31 @@ import { PoolInfo } from '../SwapBox/components/PoolInfo'
 import { TxFee } from '../SwapBox/components/TxFee'
 import { useCalculateSwap } from '../SwapBox/hooks/useCalculateSwap'
 import { ButtonSwap } from '../ButtonSwap'
-import { MIN_POSITON_VALUE_USD_TO_DISPLAY, POOL_IDS } from '../../utils/constant'
+import {
+  MIN_POSITON_VALUE_USD_TO_DISPLAY,
+  POOL_IDS
+} from '../../utils/constant'
 import { BigNumber } from 'ethers'
 import { useSettings } from '../../state/setting/hooks/useSettings'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
+import { Position } from '../../utils/type'
 
 const Component = ({
   visible,
   setVisible,
-  inputTokenAddress,
+  position,
   outputTokenAddress,
   title,
   tokenOutMaturity
 }: {
   visible: boolean
   setVisible: any
-  inputTokenAddress: string
+  position: Position
   outputTokenAddress: string
   title: any
   tokenOutMaturity: BigNumber
 }) => {
+  const inputTokenAddress = position.token
   const { pools } = useCurrentPoolGroup()
   const { tokens } = useListTokens()
   const { balances, accFetchBalance } = useWalletBalance()
@@ -126,7 +132,7 @@ const Component = ({
 
   const payoffRate = useMemo(() => {
     if (valueOut && valueIn && Number(valueOut) && Number(valueIn)) {
-      return formatPercent(div(valueOut, valueIn), 2, true)
+      return NUM(div(valueOut, valueIn))
     }
     return undefined
   }, [valueIn, valueOut])
@@ -298,7 +304,12 @@ const Component = ({
           />
         </div>
 
-        <TxFee gasUsed={gasUsed} payoffRate={payoffRate} loading={loading} />
+        <TxFee
+          position={position}
+          gasUsed={gasUsed}
+          payoffRate={payoffRate}
+          loading={loading}
+        />
 
         <div className='actions'>
           <ButtonSwap

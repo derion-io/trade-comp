@@ -3,7 +3,6 @@ import {
   setDeleverageChanceReduce,
   setMaxInterestRateReduce,
   setMinLiquidityReduce,
-  setMinPayoffRateReduce,
   setScanApiKeyReduce,
   setSlippageReduce,
   setSortPoolBuyReduce,
@@ -32,9 +31,6 @@ export const useSettings = () => {
   const setMaxInterestRate = (maxInterestRate: number) => {
     dispatch(setMaxInterestRateReduce({ maxInterestRate }))
   }
-  const setMinPayoffRate = (minPayoffRate: number) => {
-    dispatch(setMinPayoffRateReduce({ minPayoffRate }))
-  }
   const setMinLiquidityShare = (minLiquidityShare: number) => {
     dispatch(setMinLiquidityReduce({ minLiquidityShare }))
   }
@@ -58,7 +54,6 @@ export const useSettings = () => {
     setScanApi,
     setMaxDeleverageRisk,
     setMaxInterestRate,
-    setMinPayoffRate,
     setMinLiquidityShare,
     setShowBalance,
     setShowValueInUsd
