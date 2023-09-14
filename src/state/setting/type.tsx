@@ -38,7 +38,7 @@ export const initialState: settingsState = {
     localStorage.getItem('sortPoolBy') ?? SORT_POOL_BY.INTEREST_RATE
   ),
   scanApiKey: loadJSON('scanApiKey', {}),
-  slippage: Number(localStorage.getItem('slippage') ?? 1/100),
+  slippage: Number(localStorage.getItem('slippage') ?? 1 / 100),
   maxInterestRate: Number(localStorage.getItem('maxInterestRate') ?? 0.1),
   minLiquidityShare: Number(localStorage.getItem('minLiquidityShare') ?? 1),
   maxDeleverageRisk: Number(localStorage.getItem('maxDeleverageRisk') ?? 100),

@@ -39,7 +39,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const { chainId } = useConfigs()
   const headRef = useRef<HTMLDivElement>(null)
   const cToken = id
-  const {width} = useWindowSize()
+  const { width } = useWindowSize()
   const isPhone = width && width < 768
   useEffect(() => {
     if (!chartData[chainId + interval + cToken] || cToken) {
@@ -109,7 +109,14 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
           <Tabs tab={interval} setTab={setInterval} tabs={INTERVALS_TAB} />
         </div>
       </div>
-      <div className='line-chart-box' style={{ height: `${(isPhone ? 320 : 450) - (headRef.current?.offsetHeight || 53)}px` }}>
+      <div
+        className='line-chart-box'
+        style={{
+          height: `${
+            (isPhone ? 320 : 450) - (headRef.current?.offsetHeight || 53)
+          }px`
+        }}
+      >
         {isLoading || !chartData[chainId + interval + cToken] ? (
           <div className='line-chart__loading'>
             <LineChartLoader />

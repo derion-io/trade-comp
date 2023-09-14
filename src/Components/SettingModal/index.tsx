@@ -46,7 +46,9 @@ const Component = ({
               defaultValue={formatPercent(settings.slippage, 2, true)}
               min={0}
               max={100}
-              setter={(x: number) => {setSlippage(x/100)}}
+              setter={(x: number) => {
+                setSlippage(x / 100)
+              }}
               errorMessage='Invalid Slippage'
             />
           </div>

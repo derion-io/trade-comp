@@ -1,5 +1,5 @@
 import { ButtonExecute } from '../ui/Button'
-import { bn, div, isErc1155Address, mul, WEI } from '../../utils/helpers'
+import { bn, isErc1155Address, mul, WEI } from '../../utils/helpers'
 import { toast } from 'react-toastify'
 import React, { useMemo, useState } from 'react'
 import { useListTokens } from '../../state/token/hook'
@@ -126,9 +126,7 @@ export const ButtonSwap = ({
       return (
         <ButtonExecute
           disabled={
-            slippage > settings.slippage ||
-            !pairIndexR ||
-            loadingAmountOut
+            slippage > settings.slippage || !pairIndexR || loadingAmountOut
           }
           className='swap-button'
           onClick={async () => {
@@ -199,7 +197,11 @@ export const ButtonSwap = ({
             }
           }}
         >
-          {!pairIndexR ? 'Routing...' : (loadingAmountOut || !amountOut) ? 'Calculating...' : title}
+          {!pairIndexR
+            ? 'Routing...'
+            : loadingAmountOut || !amountOut
+            ? 'Calculating...'
+            : title}
           {/* { */}
           {/*  tradeType !== undefined */}
           {/*    ? tradeType === TRADE_TYPE.LONG */}
@@ -238,7 +240,9 @@ export const ButtonSwap = ({
         <div className='text-center mb-1'>
           <TextError>Market spread and/or slippage is too high.</TextError>
         </div>
-      ) : ''}
+      ) : (
+        ''
+      )}
       {button}
       <ApproveUtrModal
         callBack={() => {}}

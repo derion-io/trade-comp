@@ -15,7 +15,6 @@ import {
   formatPercent,
   zerofy,
   kx,
-  max,
   mul,
   shortenAddressString,
   sub,
@@ -74,7 +73,9 @@ export const Positions = ({
     VALUE_IN_USD_STATUS.TOKEN_R
   )
   const [visible, setVisible] = useState<boolean>(false)
-  const [ closingPosition, setClosingPosition ] = useState<Position | undefined>(undefined)
+  const [closingPosition, setClosingPosition] = useState<Position | undefined>(
+    undefined
+  )
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
   const { ddlEngine } = useConfigs()
   const { id } = useCurrentPoolGroup()
@@ -191,7 +192,7 @@ export const Positions = ({
         MATURITY: pool.MATURITY.toNumber(),
         MATURITY_VEST: pool.MATURITY_VEST.toNumber(),
         MATURITY_RATE: pool.MATURITY_RATE,
-        maturity: maturities?.[token]?.toNumber() ?? 0,
+        maturity: maturities?.[token]?.toNumber() ?? 0
       })
 
       const _interest = pool?.dailyInterestRate ?? 0
@@ -221,7 +222,9 @@ export const Positions = ({
         effectiveLeverage,
         deleveragePrice,
         funding,
-        closingFee: (now?: number): any => {return feeCalculator.calculateFee(now)}
+        closingFee: (now?: number): any => {
+          return feeCalculator.calculateFee(now)
+        }
       }
     }
     return null
@@ -557,11 +560,13 @@ export const Positions = ({
             Number(decodeErc1155Address(closingPosition.token).id) ===
             POOL_IDS.C ? (
               <Text>
-                Remove <TokenSymbol token={closingPosition.token} textWrap={Text} />{' '}
+                Remove{' '}
+                <TokenSymbol token={closingPosition.token} textWrap={Text} />{' '}
               </Text>
             ) : (
               <Text>
-                Close <TokenSymbol token={closingPosition.token} textWrap={Text} />{' '}
+                Close{' '}
+                <TokenSymbol token={closingPosition.token} textWrap={Text} />{' '}
               </Text>
             )
           }

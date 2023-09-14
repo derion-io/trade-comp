@@ -14,7 +14,6 @@ import {
   decodeErc1155Address,
   div,
   formatFloat,
-  formatPercent,
   isErc1155Address,
   IEW,
   zerofy,

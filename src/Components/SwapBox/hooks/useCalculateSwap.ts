@@ -48,7 +48,9 @@ export const useCalculateSwap = ({
   const [loading, setLoading] = useState<boolean>(false)
   const { ddlEngine, configs } = useConfigs()
   const { balances, routerAllowances } = useWalletBalance()
-  const [pairIndexR, setPairIndexR] = useState<string>(configs.addresses.wrapUsdPair)
+  const [pairIndexR, setPairIndexR] = useState<string>(
+    configs.addresses.wrapUsdPair
+  )
 
   useEffect(() => {
     const poolAddress = isErc1155Address(inputTokenAddress)

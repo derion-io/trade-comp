@@ -55,17 +55,17 @@ export class ClosingFeeCalculator {
       return {
         fee,
         remain: vested - now,
-        isVesting: true,
+        isVesting: true
       }
     } else if (this.MATURITY > 0 && matured > now) {
       return {
         fee,
         remain: matured - now,
-        isVesting: false,
+        isVesting: false
       }
     }
     return {
-      fee: 0,
+      fee: 0
     }
   }
 }
