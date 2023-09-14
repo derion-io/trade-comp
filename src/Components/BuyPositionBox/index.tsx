@@ -521,7 +521,7 @@ const Component = ({
                 </div>
               )}
             </SkeletonLoader>
-            {!Number(amountIn) ? (
+            {!Number(amountIn) || !balances[outputTokenAddress]?.gt(0) ? (
               ''
             ) : (
               <div className='position-delta--left'>
