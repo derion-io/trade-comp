@@ -5,7 +5,7 @@ import {
   TextWarning
 } from '../../ui/Text'
 import { formatWeiToDisplayNumber } from '../../../utils/formatBalance'
-import { WEI, IEW } from '../../../utils/helpers'
+import { WEI, IEW, formatPercent } from '../../../utils/helpers'
 import { Box } from '../../ui/Box'
 import React, { useEffect, useState } from 'react'
 import { InfoRow } from '../../ui/InfoRow'
@@ -15,7 +15,7 @@ import { useConfigs } from '../../../state/config/useConfigs'
 import { SkeletonLoader } from '../../ui/SkeletonLoader'
 import { useFeeData } from '../../../state/resources/hooks/useFeeData'
 import { Position } from '../../../utils/type'
-import { formatPercent } from 'derivable-tools/dist/utils/helper'
+import { useSettings } from '../../../state/setting/hooks/useSettings'
 
 export const TxFee = ({
   position,
@@ -29,6 +29,7 @@ export const TxFee = ({
   loading?: boolean
 }) => {
   const { chainId } = useConfigs()
+  const { settings } = useSettings()
   const { data: nativePrice } = useNativePrice()
   const [gasPrice, setGasPrice] = useState<any>(BigNumber.from(10 ** 8))
   const { feeData } = useFeeData()
@@ -44,15 +45,15 @@ export const TxFee = ({
       payoffRate = payoffRate / (1-closingFee.fee)
     }
     // TODO: handle opening fee here
-    slippage = 1 - payoffRate/100
+    slippage = 1 - payoffRate
   }
 
-  const feeFormat = formatPercent(closingFee.fee ?? 0, 2)
-  const slippageFormat = formatPercent(slippage, 2)
+  const feeFormat = formatPercent(closingFee.fee ?? 0, 2, true)
+  const slippageFormat = formatPercent(slippage, 2, true)
 
   return (
     <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
-      {feeFormat == '0' ? '' :
+      {feeFormat == 0 ? '' :
         <InfoRow>
           <TextGrey>Closing Fee</TextGrey>
           <span>
@@ -63,14 +64,16 @@ export const TxFee = ({
           </span>
         </InfoRow>
       }
-      {slippageFormat == '0' ? '' :
+      {slippageFormat == 0 ? '' :
         <InfoRow>
           <TextGrey>Slippage</TextGrey>
           <SkeletonLoader loading={!!loading}>
             <span>
-              {slippage > 0.01
+              {slippage > settings.slippage
                 ? <TextError>{slippageFormat}%</TextError>
-                : <TextWarning>{slippageFormat}%</TextWarning>
+                : slippage > settings.slippage / 2
+                  ? <TextWarning>{slippageFormat}%</TextWarning>
+                  : <Text>{slippageFormat}%</Text>
               }
             </span>
           </SkeletonLoader>

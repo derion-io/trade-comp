@@ -52,11 +52,10 @@ export const ButtonSwap = ({
   const { balances, fetchBalanceAndAllowance, routerAllowances } =
     useWalletBalance()
   const { ddlEngine } = useConfigs()
-  const {
-    settings: { slippage, minPayoffRate }
-  } = useSettings()
+  const { settings } = useSettings()
   const { chainId } = useWeb3React()
   const { initResource } = useResource()
+  const slippage = 1 - (payoffRate ?? 0)
 
   const { updateSwapTxsHandle } = useSwapHistory()
   const button = useMemo(() => {
@@ -127,7 +126,7 @@ export const ButtonSwap = ({
       return (
         <ButtonExecute
           disabled={
-            Number(payoffRate) < minPayoffRate ||
+            slippage > settings.slippage ||
             !pairIndexR ||
             loadingAmountOut
           }
@@ -137,7 +136,7 @@ export const ButtonSwap = ({
               setLoading(true)
               if (ddlEngine) {
                 const amountOutMin = WEI(
-                  div(mul(amountOut, 100 - slippage), 100),
+                  mul(amountOut, 1 - settings.slippage),
                   tokens[outputTokenAddress]?.decimals || 18
                 )
                 console.log({
@@ -218,6 +217,7 @@ export const ButtonSwap = ({
     chainId,
     amountOut,
     slippage,
+    settings.slippage,
     ddlEngine,
     loading,
     tokens,
@@ -234,28 +234,11 @@ export const ButtonSwap = ({
 
   return (
     <React.Fragment>
-      {payoffRate && payoffRate < 94 && !loadingAmountOut ? (
+      {payoffRate && slippage > settings.slippage && !loadingAmountOut ? (
         <div className='text-center mb-1'>
-          {tradeType === TRADE_TYPE.LONG ? (
-            <TextError>
-              The Premium Rate is too high due to an imbalance between the Long
-              and Short positions in the pool.
-            </TextError>
-          ) : tradeType === TRADE_TYPE.SHORT ? (
-            <TextError>
-              The Premium Rate is too high due to an imbalance between the Short
-              and Long positions in the pool.
-            </TextError>
-          ) : (
-            <TextError>
-              The Closing Fee is too high because your position has not yet
-              fully vested.
-            </TextError>
-          )}
+          <TextError>Market spread and/or slippage is too high.</TextError>
         </div>
-      ) : (
-        ''
-      )}
+      ) : ''}
       {button}
       <ApproveUtrModal
         callBack={() => {}}

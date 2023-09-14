@@ -22,7 +22,8 @@ import {
   kx,
   IEW,
   whatDecimalSeparator,
-  xr
+  xr,
+  NUM
 } from '../../utils/helpers'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { NATIVE_ADDRESS, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
@@ -188,12 +189,7 @@ const Component = ({
 
   const payoffRate = useMemo(() => {
     if (valueOut && valueIn && Number(valueOut) && Number(valueIn)) {
-      const rate = div(valueOut, valueIn)
-      if (Number(rate) < 0.94) {
-        // show FunctionPlot on low payoffRate
-        setChartTab(CHART_TABS.FUNC_PLOT)
-      }
-      return formatPercent(rate, 2, true)
+      return NUM(div(valueOut, valueIn))
     }
     return undefined
   }, [valueIn, valueOut])

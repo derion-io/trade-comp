@@ -9,6 +9,7 @@ import { useSettings } from '../../state/setting/hooks/useSettings'
 import { useConfigs } from '../../state/config/useConfigs'
 import { SORT_POOL_BY } from '../../state/setting/type'
 import { ToggleSwitch } from '../ui/ToggleSwitch'
+import { formatPercent } from '../../utils/helpers'
 
 const Component = ({
   visible,
@@ -22,7 +23,6 @@ const Component = ({
     setSlippage,
     setMaxDeleverageRisk,
     setMaxInterestRate,
-    setMinPayoffRate,
     setMinLiquidityShare,
     setScanApi,
     setShowBalance
@@ -43,23 +43,11 @@ const Component = ({
               <Text>Slippage Tolerance</Text>
             </div>
             <InputWithValidate
-              defaultValue={settings.slippage}
+              defaultValue={formatPercent(settings.slippage, 2, true)}
               min={0}
               max={100}
-              setter={setSlippage}
+              setter={(x: number) => {setSlippage(x/100)}}
               errorMessage='Invalid Slippage'
-            />
-          </div>
-          <div className='mb-1'>
-            <div className='mb-05'>
-              <Text>Min Return Rate</Text>
-            </div>
-            <InputWithValidate
-              defaultValue={settings.minPayoffRate}
-              min={0}
-              max={100}
-              setter={setMinPayoffRate}
-              errorMessage='Invalid Min Pay-Off Rate'
             />
           </div>
 

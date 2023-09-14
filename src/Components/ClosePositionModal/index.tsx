@@ -14,7 +14,8 @@ import {
   formatFloat,
   formatPercent,
   zerofy,
-  IEW
+  IEW,
+  NUM
 } from '../../utils/helpers'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { Input } from '../ui/Input'
@@ -128,7 +129,7 @@ const Component = ({
 
   const payoffRate = useMemo(() => {
     if (valueOut && valueIn && Number(valueOut) && Number(valueIn)) {
-      return formatPercent(div(valueOut, valueIn), 2, true)
+      return NUM(div(valueOut, valueIn))
     }
     return undefined
   }, [valueIn, valueOut])
