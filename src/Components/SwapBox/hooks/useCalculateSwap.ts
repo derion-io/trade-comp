@@ -13,7 +13,7 @@ import { BigNumber, ethers } from 'ethers'
 import { useConfigs } from '../../../state/config/useConfigs'
 import { useWalletBalance } from '../../../state/wallet/hooks/useBalances'
 import { useResource } from '../../../state/resources/hooks/useResource'
-import { ZERO_ADDRESS } from '../../../utils/constant'
+import { NATIVE_ADDRESS, ZERO_ADDRESS } from '../../../utils/constant'
 
 const ITERATION = 10
 const REASONS_TO_RETRY = [
@@ -48,7 +48,7 @@ export const useCalculateSwap = ({
   const [loading, setLoading] = useState<boolean>(false)
   const { ddlEngine, configs } = useConfigs()
   const { balances, routerAllowances } = useWalletBalance()
-  const [pairIndexR, setPairIndexR] = useState<string>()
+  const [pairIndexR, setPairIndexR] = useState<string>(configs.addresses.wrapUsdPair)
 
   useEffect(() => {
     const poolAddress = isErc1155Address(inputTokenAddress)
@@ -57,7 +57,12 @@ export const useCalculateSwap = ({
       ? decodeErc1155Address(outputTokenAddress).address
       : ''
     const TOKEN_R = pools[poolAddress]?.TOKEN_R
+    if (TOKEN_R == configs.addresses.wrapToken) {
+      setPairIndexR(configs.addresses.wrapUsdPair)
+      return
+    }
     if (ddlEngine && TOKEN_R) {
+      setPairIndexR('')
       // eslint-disable-next-line no-unused-expressions
       ddlEngine?.UNIV3PAIR?.getLargestPoolAddress({
         baseToken: TOKEN_R,
@@ -66,9 +71,7 @@ export const useCalculateSwap = ({
         .then((uniPairAddress) => {
           setPairIndexR(uniPairAddress)
         })
-        .catch(() => {
-          setPairIndexR(ZERO_ADDRESS)
-        })
+        .catch(console.error)
     }
   }, [inputTokenAddress, outputTokenAddress, JSON.stringify(pools)])
 

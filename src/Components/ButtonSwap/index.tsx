@@ -200,7 +200,7 @@ export const ButtonSwap = ({
             }
           }}
         >
-          {loadingAmountOut ? 'Calculating...' : title}
+          {!pairIndexR ? 'Routing...' : (loadingAmountOut || !amountOut) ? 'Calculating...' : title}
           {/* { */}
           {/*  tradeType !== undefined */}
           {/*    ? tradeType === TRADE_TYPE.LONG */}
