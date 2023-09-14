@@ -49,29 +49,7 @@ import _ from 'lodash'
 import { useWindowSize } from '../../hooks/useWindowSize'
 import { InfoRow } from '../ui/InfoRow'
 import moment from 'moment'
-
-type Position = {
-  poolAddress: string
-  token: string
-  pool: PoolType
-  side: number
-  balance: BigNumber
-  entryValueR: string
-  entryValue: string
-  entryPrice: string
-  vested: number
-  matured: number
-  sizeDisplay: string
-  value: string
-  valueUsd: string
-  closingFee: number
-  leverage: number
-  effectiveLeverage: number
-  deleveragePrice: string
-  funding: number
-}
-
-const Q128 = BigNumber.from(1).shl(128)
+import { ClosingFeeCalculator, Position } from '../../utils/type'
 
 export enum VALUE_IN_USD_STATUS {
   AUTO,
@@ -96,7 +74,7 @@ export const Positions = ({
     VALUE_IN_USD_STATUS.TOKEN_R
   )
   const [visible, setVisible] = useState<boolean>(false)
-  const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
+  const [ closingPosition, setClosingPosition ] = useState<Position | undefined>(undefined)
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
   const { ddlEngine } = useConfigs()
   const { id } = useCurrentPoolGroup()
@@ -104,12 +82,12 @@ export const Positions = ({
   const { width } = useWindowSize()
   const isPhone = width && width < 992
 
-  const [now, setNow] = React.useState(new Date().getTime())
+  const [now, setNow] = React.useState(Math.floor(new Date().getTime() / 1000))
 
   // TODO: put this to App, and pass down to each comp
   React.useEffect(() => {
     const timer = setInterval(() => {
-      setNow(new Date().getTime())
+      setNow(Math.floor(new Date().getTime() / 1000))
     }, 1000)
     return () => {
       clearInterval(timer)
@@ -209,16 +187,12 @@ export const Positions = ({
             )
           : ''
 
-      const MATURITY = pool.MATURITY.toNumber() * 1000
-      const MATURITY_VEST = pool.MATURITY_VEST.toNumber() * 1000
-      // const maturity = (now + MATURITY)/1000
-      const maturity = maturities?.[token]?.toNumber() ?? 0
-      const matured = max(maturity * 1000, now)
-      const vested = max(matured - MATURITY + MATURITY_VEST, now)
-
-      const closingFee = pool.MATURITY_RATE.isZero()
-        ? 0
-        : Q128.sub(pool.MATURITY_RATE).mul(10000).div(Q128).toNumber() / 10000
+      const feeCalculator = new ClosingFeeCalculator({
+        MATURITY: pool.MATURITY.toNumber(),
+        MATURITY_VEST: pool.MATURITY_VEST.toNumber(),
+        MATURITY_RATE: pool.MATURITY_RATE,
+        maturity: maturities?.[token]?.toNumber() ?? 0,
+      })
 
       const _interest = pool?.dailyInterestRate ?? 0
       const funding =
@@ -240,16 +214,14 @@ export const Positions = ({
         entryValueR,
         entryValue,
         entryPrice,
-        vested,
-        matured,
         sizeDisplay,
         value,
         valueUsd,
-        closingFee,
         leverage: k / 2,
         effectiveLeverage,
         deleveragePrice,
-        funding
+        funding,
+        closingFee: (now?: number): any => {return feeCalculator.calculateFee(now)}
       }
     }
     return null
@@ -280,7 +252,7 @@ export const Positions = ({
       })
     }
     const hasClosingFee = displayPositions.some(
-      (p) => p.matured && p.matured > now
+      (p) => p.closingFee(now).fee > 0
     )
     return [displayPositions, hasClosingFee]
   }, [positions, tradeType])
@@ -394,7 +366,7 @@ export const Positions = ({
                   </Text>
                 </InfoRow>
 
-                {!position.matured || position.matured <= now || (
+                {!position.closingFee(now).fee || (
                   <InfoRow>
                     <Text>Closing Fee</Text>
                     <ClosingFee
@@ -418,7 +390,7 @@ export const Positions = ({
                     className='btn-close'
                     size='small'
                     onClick={() => {
-                      setInputTokenAddress(position.token)
+                      setClosingPosition(position)
                       setOutputTokenAddress(
                         wrapToNativeAddress(position.pool.TOKEN_R)
                       )
@@ -558,7 +530,7 @@ export const Positions = ({
                     <ButtonSell
                       size='small'
                       onClick={() => {
-                        setInputTokenAddress(position.token)
+                        setClosingPosition(position)
                         setOutputTokenAddress(
                           wrapToNativeAddress(position.pool.TOKEN_R)
                         )
@@ -574,22 +546,22 @@ export const Positions = ({
           </tbody>
         </table>
       )}
-      {visible ? (
+      {visible && closingPosition != null ? (
         <ClosePosition
           visible={visible}
           setVisible={setVisible}
-          inputTokenAddress={inputTokenAddress}
+          position={closingPosition}
           outputTokenAddress={outputTokenAddress}
           tokenOutMaturity={tokenOutMaturity}
           title={
-            Number(decodeErc1155Address(inputTokenAddress).id) ===
+            Number(decodeErc1155Address(closingPosition.token).id) ===
             POOL_IDS.C ? (
               <Text>
-                Remove <TokenSymbol token={inputTokenAddress} textWrap={Text} />{' '}
+                Remove <TokenSymbol token={closingPosition.token} textWrap={Text} />{' '}
               </Text>
             ) : (
               <Text>
-                Close <TokenSymbol token={inputTokenAddress} textWrap={Text} />{' '}
+                Close <TokenSymbol token={closingPosition.token} textWrap={Text} />{' '}
               </Text>
             )
           }
@@ -714,25 +686,15 @@ export const ClosingFee = ({
   position: Position
   isPhone?: boolean
 }) => {
-  const { vested, matured, closingFee, pool } = position
-  const MATURITY_VEST = pool.MATURITY_VEST.toNumber()
+  const res: any = position.closingFee(now)
 
-  let feeFormat
-  let timeFormat
-  let TextComp = TextSell
-
-  if (MATURITY_VEST > 0 && vested > now) {
-    const fee =
-      closingFee + ((1 - closingFee) * (vested - now)) / MATURITY_VEST / 1000
-    feeFormat = formatPercent(Math.min(1, fee), 2, true)
-    timeFormat = moment(vested).fromNow(true)
-  } else if (pool.MATURITY.toNumber() > 0 && matured > now) {
-    feeFormat = formatPercent(closingFee, 2, true)
-    timeFormat = moment(matured).fromNow(true)
-    TextComp = TextWarning
-  } else {
+  if (!res?.fee) {
     return <React.Fragment />
   }
+
+  const TextComp = res?.isVesting ? TextSell : TextWarning
+  const feeFormat = formatPercent(Math.min(1, res.fee ?? 0), 2, true)
+  const timeFormat = moment.unix(res.remain ?? 0).from(0, true)
 
   if (isPhone) {
     return (

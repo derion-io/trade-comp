@@ -1,7 +1,6 @@
 import {
   Text,
   TextError,
-  TextGreen,
   TextGrey,
   TextWarning
 } from '../../ui/Text'
@@ -15,12 +14,16 @@ import { BigNumber } from 'ethers'
 import { useConfigs } from '../../../state/config/useConfigs'
 import { SkeletonLoader } from '../../ui/SkeletonLoader'
 import { useFeeData } from '../../../state/resources/hooks/useFeeData'
+import { Position } from '../../../utils/type'
+import { formatPercent } from 'derivable-tools/dist/utils/helper'
 
 export const TxFee = ({
+  position,
   gasUsed,
   payoffRate,
-  loading
+  loading,
 }: {
+  position?: Position
   gasUsed: BigNumber
   payoffRate?: number
   loading?: boolean
@@ -33,26 +36,46 @@ export const TxFee = ({
     setGasPrice(feeData.gasPrice)
   }, [feeData])
 
+  const closingFee = position?.closingFee() ?? { fee: 0 }
+
+  let slippage = 0
+  if (payoffRate != null) {
+    if (closingFee.fee) {
+      payoffRate = payoffRate / (1-closingFee.fee)
+    }
+    // TODO: handle opening fee here
+    slippage = 1 - payoffRate/100
+  }
+
+  const feeFormat = formatPercent(closingFee.fee ?? 0, 2)
+  const slippageFormat = formatPercent(slippage, 2)
+
   return (
     <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
-      <InfoRow>
-        <TextGrey>Return Rate</TextGrey>
-        <SkeletonLoader loading={!!loading}>
+      {feeFormat == '0' ? '' :
+        <InfoRow>
+          <TextGrey>Closing Fee</TextGrey>
           <span>
-            {payoffRate == null ? (
-              <TextGreen>&nbsp;</TextGreen>
-            ) : payoffRate > 100 ? (
-              <TextGreen>100%</TextGreen>
-            ) : payoffRate >= 97 ? (
-              <TextGreen>{payoffRate}%</TextGreen>
-            ) : payoffRate >= 94 ? (
-              <TextWarning>{payoffRate}%</TextWarning>
-            ) : (
-              <TextError>{payoffRate}%</TextError>
-            )}
+            {closingFee.isVesting
+              ? <TextError>{feeFormat}%</TextError>
+              : <TextWarning>{feeFormat}%</TextWarning>
+            }
           </span>
-        </SkeletonLoader>
-      </InfoRow>
+        </InfoRow>
+      }
+      {slippageFormat == '0' ? '' :
+        <InfoRow>
+          <TextGrey>Slippage</TextGrey>
+          <SkeletonLoader loading={!!loading}>
+            <span>
+              {slippage > 0.01
+                ? <TextError>{slippageFormat}%</TextError>
+                : <TextWarning>{slippageFormat}%</TextWarning>
+              }
+            </span>
+          </SkeletonLoader>
+        </InfoRow>
+      }
       <InfoRow>
         <TextGrey>Estimated Gas</TextGrey>
         <SkeletonLoader loading={!!loading}>

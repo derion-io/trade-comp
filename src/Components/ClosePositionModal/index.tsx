@@ -30,22 +30,24 @@ import { MIN_POSITON_VALUE_USD_TO_DISPLAY, POOL_IDS } from '../../utils/constant
 import { BigNumber } from 'ethers'
 import { useSettings } from '../../state/setting/hooks/useSettings'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
+import { Position } from '../../utils/type'
 
 const Component = ({
   visible,
   setVisible,
-  inputTokenAddress,
+  position,
   outputTokenAddress,
   title,
   tokenOutMaturity
 }: {
   visible: boolean
   setVisible: any
-  inputTokenAddress: string
+  position: Position
   outputTokenAddress: string
   title: any
   tokenOutMaturity: BigNumber
 }) => {
+  const inputTokenAddress = position.token
   const { pools } = useCurrentPoolGroup()
   const { tokens } = useListTokens()
   const { balances, accFetchBalance } = useWalletBalance()
@@ -298,7 +300,7 @@ const Component = ({
           />
         </div>
 
-        <TxFee gasUsed={gasUsed} payoffRate={payoffRate} loading={loading} />
+        <TxFee position={position} gasUsed={gasUsed} payoffRate={payoffRate} loading={loading} />
 
         <div className='actions'>
           <ButtonSwap
