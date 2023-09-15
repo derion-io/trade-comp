@@ -642,7 +642,7 @@ const Component = ({
           <InfoRow>
             <TextGrey>Funding Rate</TextGrey>
             <SkeletonLoader loading={!poolToShow}>
-              <Text className={fundingRate < 0 ? 'text-green' : ''}>
+              <Text className={fundingRate < 0 ? 'text-green' : 'text-warning'}>
                 {formatLocalisedCompactNumber(
                   formatPercent(fundingRate, 3, true)
                 )}
