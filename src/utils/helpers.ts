@@ -25,7 +25,7 @@ export const STR = (num: number | string | BigNumber): string => {
       }
       num = Number(num)
     case 'number':
-      return num.toLocaleString('fullwide', { useGrouping: false })
+      return num.toLocaleString(['en-US', 'fullwide'], { useGrouping: false })
     default:
       return String(num)
   }
