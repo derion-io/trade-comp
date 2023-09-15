@@ -1,4 +1,4 @@
-import { Text, TextError, TextGrey, TextWarning } from '../../ui/Text'
+import { Text, TextGrey, TextSell, TextWarning } from '../../ui/Text'
 import { formatWeiToDisplayNumber } from '../../../utils/formatBalance'
 import { WEI, IEW, formatPercent } from '../../../utils/helpers'
 import { Box } from '../../ui/Box'
@@ -55,7 +55,7 @@ export const TxFee = ({
           <TextGrey>Closing Fee</TextGrey>
           <span>
             {closingFee.isVesting ? (
-              <TextError>{feeFormat}%</TextError>
+              <TextSell>{feeFormat}%</TextSell>
             ) : (
               <TextWarning>{feeFormat}%</TextWarning>
             )}
@@ -70,7 +70,7 @@ export const TxFee = ({
           <SkeletonLoader loading={!!loading}>
             <span>
               {slippage > settings.slippage ? (
-                <TextError>{slippageFormat}%</TextError>
+                <TextSell>{slippageFormat}%</TextSell>
               ) : slippage > settings.slippage / 2 ? (
                 <TextWarning>{slippageFormat}%</TextWarning>
               ) : (
