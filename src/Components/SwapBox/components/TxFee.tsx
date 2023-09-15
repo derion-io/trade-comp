@@ -36,6 +36,7 @@ export const TxFee = ({
 
   let slippage = 0
   if (payoffRate != null) {
+    payoffRate = Math.min(1, payoffRate)
     if (closingFee.fee) {
       payoffRate = payoffRate / (1 - closingFee.fee)
     }
