@@ -32,6 +32,7 @@ import { ButtonSwap } from '../ButtonSwap'
 import { TxFee } from './components/TxFee'
 import { PoolInfo } from './components/PoolInfo'
 import { CHART_TABS } from '../../state/currentPool/type'
+import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 
 const Component = ({
   inputTokenAddress,
@@ -50,6 +51,7 @@ const Component = ({
     'input' | 'output'
   >('input')
   const [amountIn, setAmountIn] = useState<string>('')
+  const { setCurrentPoolAddress } = useCurrentPool()
   const { balances, accFetchBalance } = useWalletBalance()
   const { tokens } = useListTokens()
   const { callError, gasUsed, amountOut, payloadAmountIn, pairIndexR } =
@@ -163,7 +165,10 @@ const Component = ({
     },
     [pools, inputTokenAddress, outputTokenAddress, tokenTypeToSelect, configs]
   )
-
+  useMemo(() => {
+    if (isErc1155Address(outputTokenAddress)) setCurrentPoolAddress(decodeErc1155Address(outputTokenAddress).address)
+    else if (!isErc1155Address(outputTokenAddress)) setCurrentPoolAddress(decodeErc1155Address(inputTokenAddress).address)
+  }, [outputTokenAddress, inputTokenAddress])
   return (
     <div className='swap-box'>
       <div className='amount-input-box'>
