@@ -53,7 +53,9 @@ export const SelectPoolGroup = () => {
     const sortedPoolGroupsUSDs = {}
     for (const [key, value] of poolGroupsUSDsEntries) sortedPoolGroupsUSDs[key] = value
     setPoolGroupsValue(sortedPoolGroupsUSDs)
-    if (Object.keys?.(sortedPoolGroupsUSDs)?.[0]) updateCurrentPoolGroup(Object.keys?.(sortedPoolGroupsUSDs)?.[0])
+    if (!id && Object.keys(sortedPoolGroupsUSDs)?.[0]) {
+      updateCurrentPoolGroup(Object.keys(sortedPoolGroupsUSDs)?.[0])
+    }
   }, [poolGroups, balances])
 
   if (!poolGroups || Object.values(poolGroups).length === 0) {
