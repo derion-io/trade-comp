@@ -153,6 +153,7 @@ const Component = ({
           }
         }
         if (isErc1155Address(address) && !isErc1155Address(inputTokenAddress)) {
+          console.log('123231')
           const poolOut = pools[decodeErc1155Address(address).address]
           setInputTokenAddress(
             poolOut.TOKEN_R === configs.addresses.wrapToken
@@ -166,8 +167,8 @@ const Component = ({
     [pools, inputTokenAddress, outputTokenAddress, tokenTypeToSelect, configs]
   )
   useMemo(() => {
-    if (isErc1155Address(outputTokenAddress)) setCurrentPoolAddress(decodeErc1155Address(outputTokenAddress).address)
-    else if (!isErc1155Address(outputTokenAddress)) setCurrentPoolAddress(decodeErc1155Address(inputTokenAddress).address)
+    if (isErc1155Address(inputTokenAddress)) setCurrentPoolAddress(decodeErc1155Address(inputTokenAddress).address)
+    else if (!isErc1155Address(inputTokenAddress)) setCurrentPoolAddress(decodeErc1155Address(outputTokenAddress).address)
   }, [outputTokenAddress, inputTokenAddress])
   return (
     <div className='swap-box'>
