@@ -394,6 +394,7 @@ export const kx = (
 }
 
 export const whatDecimalSeparator = (): string => {
-  const n = 1.1
-  return n.toLocaleString().substring(1, 2)
+  // const n = 1.1
+  // return n.toLocaleString().substring(1, 2)
+  return '.'
 }
