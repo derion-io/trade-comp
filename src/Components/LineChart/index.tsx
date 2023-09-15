@@ -81,7 +81,6 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   //     console.log('Height of the div:', height);
   //   }
   // }
-  // console.log('vinh',)
   return (
     <div className='line-chart-wrap'>
       <div className='line-chart__head' ref={headRef}>
