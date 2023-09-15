@@ -25,7 +25,7 @@ export const STR = (num: number | string | BigNumber): string => {
       }
       num = Number(num)
     case 'number':
-      return num.toLocaleString('fullwide', { useGrouping: false })
+      return num.toLocaleString(['en-US', 'fullwide'], { useGrouping: false })
     default:
       return String(num)
   }
@@ -394,6 +394,7 @@ export const kx = (
 }
 
 export const whatDecimalSeparator = (): string => {
-  const n = 1.1
-  return n.toLocaleString().substring(1, 2)
+  // const n = 1.1
+  // return n.toLocaleString().substring(1, 2)
+  return '.'
 }

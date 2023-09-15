@@ -286,9 +286,7 @@ const Component = ({
       sideToShow === POOL_IDS.A ? kA : sideToShow === POOL_IDS.B ? kB : k
 
     if (ek < k) {
-      const power = (ek / 2).toLocaleString('fullwide', {
-        maximumSignificantDigits: 2
-      })
+      const power = formatFloat(ek / 2, 2)
       return [
         'Effective Leverage',
         ek < k / 2 ? (

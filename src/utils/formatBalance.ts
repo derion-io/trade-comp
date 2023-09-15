@@ -11,7 +11,7 @@ export const formatNumber = (
     minimumFractionDigits: minPrecision,
     maximumFractionDigits: maxPrecision
   }
-  return number.toLocaleString(undefined, options)
+  return number.toLocaleString(['en-US', 'fullwide'], options)
 }
 
 /**
@@ -61,7 +61,7 @@ export const formatFixedNumber = (
 }
 
 export const formatLocalisedCompactNumber = (number: number): string => {
-  return new Intl.NumberFormat('fullwide', {
+  return new Intl.NumberFormat(['en-US', 'fullwide'], {
     // notation: 'compact',
     // @ts-ignore
     compactDisplay: 'long',
