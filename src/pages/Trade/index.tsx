@@ -146,7 +146,7 @@ export const Trade = ({
               {/* @ts-ignore */}
               <ErrorBoundary>
                 <Positions
-                  setOutputTokenAddressToBuy={TRADE_TYPE.SWAP ? setInputTokenAddress : setOutputTokenAddress}
+                  setOutputTokenAddressToBuy={tab === TRADE_TYPE.SWAP ? setInputTokenAddress : setOutputTokenAddress}
                   tokenOutMaturity={tokenOutMaturity}
                 />
               </ErrorBoundary>

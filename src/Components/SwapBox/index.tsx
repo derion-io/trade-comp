@@ -153,7 +153,6 @@ const Component = ({
           }
         }
         if (isErc1155Address(address) && !isErc1155Address(inputTokenAddress)) {
-          console.log('123231')
           const poolOut = pools[decodeErc1155Address(address).address]
           setInputTokenAddress(
             poolOut.TOKEN_R === configs.addresses.wrapToken
