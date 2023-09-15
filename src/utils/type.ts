@@ -50,7 +50,7 @@ export class ClosingFeeCalculator {
       : Q128.sub(this.MATURITY_RATE).mul(10000).div(Q128).toNumber() / 10000
 
     if (this.MATURITY_VEST > 0 && vested > now) {
-      fee += ((1 - fee) * (vested - now)) / this.MATURITY_VEST / 1000
+      fee += ((1 - fee) * (vested - now)) / this.MATURITY_VEST
       fee = Math.min(1, fee)
       return {
         fee,
