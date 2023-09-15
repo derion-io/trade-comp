@@ -78,9 +78,17 @@ const Component = ({
   }, [])
 
   useEffect(() => {
-    if (!inputTokenAddress) setInputTokenAddress(NATIVE_ADDRESS || '')
-    if (!outputTokenAddress) setOutputTokenAddress(dTokens[0])
-  }, [id])
+    console.log(id, inputTokenAddress, outputTokenAddress)
+    if (!inputTokenAddress) setInputTokenAddress(NATIVE_ADDRESS)
+    if (!outputTokenAddress) setOutputTokenAddress(dTokens?.[0] ?? NATIVE_ADDRESS)
+    if (inputTokenAddress == outputTokenAddress) {
+      if (outputTokenAddress != NATIVE_ADDRESS) {
+        setOutputTokenAddress(NATIVE_ADDRESS)
+      } else {
+        setOutputTokenAddress(dTokens?.[0] ?? NATIVE_ADDRESS)
+      }
+    }
+  }, [id, inputTokenAddress, outputTokenAddress])
 
   const revertPairAddress = () => {
     const inAddr = inputTokenAddress
