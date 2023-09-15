@@ -126,7 +126,7 @@ export const ButtonSwap = ({
       return (
         <ButtonExecute
           disabled={
-            slippage > settings.slippage || !pairIndexR || loadingAmountOut
+            slippage > settings.slippageTolerance || !pairIndexR || loadingAmountOut
           }
           className='swap-button'
           onClick={async () => {
@@ -134,7 +134,7 @@ export const ButtonSwap = ({
               setLoading(true)
               if (ddlEngine) {
                 const amountOutMin = WEI(
-                  mul(amountOut, 1 - settings.slippage),
+                  mul(amountOut, 1 - settings.slippageTolerance),
                   tokens[outputTokenAddress]?.decimals || 18
                 )
                 console.log({
@@ -219,7 +219,7 @@ export const ButtonSwap = ({
     chainId,
     amountOut,
     slippage,
-    settings.slippage,
+    settings.slippageTolerance,
     ddlEngine,
     loading,
     tokens,
@@ -236,7 +236,7 @@ export const ButtonSwap = ({
 
   return (
     <React.Fragment>
-      {payoffRate && slippage > settings.slippage && !loadingAmountOut ? (
+      {payoffRate && slippage > settings.slippageTolerance && !loadingAmountOut ? (
         <div className='text-center mb-1'>
           <TextError>Market spread and/or slippage is too high.</TextError>
         </div>

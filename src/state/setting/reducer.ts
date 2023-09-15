@@ -8,11 +8,11 @@ export const tokens = createSlice({
     setSlippageReduce: (
       state,
       action: PayloadAction<{
-        slippage: any
+        slippageTolerance: any
       }>
     ) => {
-      localStorage.setItem('slippage', action.payload.slippage)
-      state.slippage = action.payload.slippage
+      localStorage.setItem('slippage', action.payload.slippageTolerance)
+      state.slippageTolerance = action.payload.slippageTolerance
     },
     setMaxInterestRateReduce: (
       state,

@@ -23,7 +23,7 @@ export enum VALUE_IN_USD_STATUS {
 }
 
 export interface settingsState {
-  slippage: number
+  slippageTolerance: number
   maxInterestRate: number
   minLiquidityShare: number
   maxDeleverageRisk: number
@@ -38,7 +38,7 @@ export const initialState: settingsState = {
     localStorage.getItem('sortPoolBy') ?? SORT_POOL_BY.INTEREST_RATE
   ),
   scanApiKey: loadJSON('scanApiKey', {}),
-  slippage: Number(localStorage.getItem('slippage') ?? 1 / 100),
+  slippageTolerance: Number(localStorage.getItem('slippageTolerance') ?? 1 / 100),
   maxInterestRate: Number(localStorage.getItem('maxInterestRate') ?? 0.1),
   minLiquidityShare: Number(localStorage.getItem('minLiquidityShare') ?? 1),
   maxDeleverageRisk: Number(localStorage.getItem('maxDeleverageRisk') ?? 100),

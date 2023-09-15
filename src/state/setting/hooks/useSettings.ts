@@ -23,7 +23,7 @@ export const useSettings = () => {
 
   const dispatch = useDispatch()
   const setSlippage = (slippage: number) => {
-    dispatch(setSlippageReduce({ slippage }))
+    dispatch(setSlippageReduce({ slippageTolerance: slippage }))
   }
   const setMaxDeleverageRisk = (maxDeleverageRisk: number) => {
     dispatch(setDeleverageChanceReduce({ maxDeleverageRisk }))

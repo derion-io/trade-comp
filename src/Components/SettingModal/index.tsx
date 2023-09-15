@@ -43,7 +43,7 @@ const Component = ({
               <Text>Slippage Tolerance</Text>
             </div>
             <InputWithValidate
-              defaultValue={formatPercent(settings.slippage, 2, true)}
+              defaultValue={formatPercent(settings.slippageTolerance, 2, true)}
               min={0}
               max={100}
               setter={(x: number) => {

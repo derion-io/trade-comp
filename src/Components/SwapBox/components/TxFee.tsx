@@ -69,9 +69,9 @@ export const TxFee = ({
           <TextGrey>Slippage</TextGrey>
           <SkeletonLoader loading={!!loading}>
             <span>
-              {slippage > settings.slippage ? (
+              {slippage > settings.slippageTolerance ? (
                 <TextSell>{slippageFormat}%</TextSell>
-              ) : slippage > settings.slippage / 2 ? (
+              ) : slippage > settings.slippageTolerance / 2 ? (
                 <TextWarning>{slippageFormat}%</TextWarning>
               ) : (
                 <Text>{slippageFormat}%</Text>
