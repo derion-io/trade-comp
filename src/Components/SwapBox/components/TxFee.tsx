@@ -36,12 +36,11 @@ export const TxFee = ({
 
   let slippage = 0
   if (payoffRate != null) {
-    payoffRate = Math.min(1, payoffRate)
     if (closingFee.fee) {
       payoffRate = payoffRate / (1 - closingFee.fee)
     }
     // TODO: handle opening fee here
-    slippage = 1 - payoffRate
+    slippage = 1 - Math.min(1, payoffRate)
   }
 
   const feeFormat = formatPercent(closingFee.fee ?? 0, 2, true)
