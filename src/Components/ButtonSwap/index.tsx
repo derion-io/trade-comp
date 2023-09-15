@@ -55,7 +55,7 @@ export const ButtonSwap = ({
   const { settings } = useSettings()
   const { chainId } = useWeb3React()
   const { initResource } = useResource()
-  const slippage = 1 - (payoffRate ?? 0)
+  const slippage = 1 - Math.min(1, payoffRate ?? 0)
 
   const { updateSwapTxsHandle } = useSwapHistory()
   const button = useMemo(() => {

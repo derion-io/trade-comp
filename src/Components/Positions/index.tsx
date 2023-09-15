@@ -362,7 +362,7 @@ export const Positions = ({
                     className={
                       position.funding < 0 || position.side === POOL_IDS.C
                         ? 'text-green'
-                        : ''
+                        : 'text-warning'
                     }
                   >
                     {formatPercent(position.funding, 3, true)}%
@@ -513,7 +513,7 @@ export const Positions = ({
                       className={
                         position.funding < 0 || position.side === POOL_IDS.C
                           ? 'text-green'
-                          : ''
+                          : 'text-warning'
                       }
                     >
                       {formatLocalisedCompactNumber(
