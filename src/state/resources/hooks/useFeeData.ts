@@ -3,7 +3,7 @@ import { State } from '../../types'
 import { useDispatch, useSelector } from 'react-redux'
 import { useEffect } from 'react'
 import { addFeeDataWithChain } from '../reducer'
-import { useWeb3React } from '../../customWeb3React/hook'
+import { JsonRpcProvider } from '@ethersproject/providers'
 
 export const useFeeData = () => {
   const { chainId } = useConfigs()
@@ -18,15 +18,15 @@ export const useFeeData = () => {
 }
 
 export const useFetchFeeData = () => {
-  const { chainId } = useConfigs()
-  const { provider } = useWeb3React()
+  const { configs, chainId } = useConfigs()
   const dispatch = useDispatch()
 
   useEffect(() => {
     fetchFeeData()
-  }, [chainId, provider])
+  }, [configs.rpcUrl, chainId])
 
   const fetchFeeData = () => {
+    const provider = new JsonRpcProvider(configs.rpcUrl)
     if (provider) {
       provider.getFeeData().then((feeData: any) => {
         dispatch(

@@ -93,7 +93,7 @@ export const TxFee = ({
       <InfoRow>
         <TextGrey>Estimated Fee</TextGrey>
         <SkeletonLoader loading={!!loading}>
-          {!nativePrice || !gasUsed || gasUsed?.isZero() ? (
+          {!nativePrice || !gasPrice || !gasUsed || gasUsed?.isZero() ? (
             <Text>&nbsp;</Text>
           ) : (
             <Text>
