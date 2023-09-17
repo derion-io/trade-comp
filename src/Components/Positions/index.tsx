@@ -9,6 +9,7 @@ import {
 } from '../../utils/constant'
 import {
   bn,
+  encodeErc1155Address,
   decodeErc1155Address,
   div,
   formatFloat,
@@ -63,7 +64,7 @@ export const Positions = ({
   setOutputTokenAddressToBuy: any
   tokenOutMaturity: BigNumber
 }) => {
-  const { pools, tradeType } = useCurrentPoolGroup()
+  const { pools, tradeType, setTradeType, id } = useCurrentPoolGroup()
   const { balances, maturities } = useWalletBalance()
   const { tokens } = useListTokens()
   const { getTokenValue } = useTokenValue({})
@@ -78,7 +79,6 @@ export const Positions = ({
   )
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
   const { ddlEngine } = useConfigs()
-  const { id } = useCurrentPoolGroup()
   const { swapLogs: sls } = useSwapHistory()
   const { width } = useWindowSize()
   const isPhone = width && width < 992
@@ -116,7 +116,7 @@ export const Positions = ({
     poolAddress: string,
     side: number
   ): Position | null => {
-    const token = poolAddress + '-' + side
+    const token = encodeErc1155Address(poolAddress, side)
 
     if (balances[token]?.gt(0)) {
       const pool = pools[poolAddress]
@@ -451,7 +451,16 @@ export const Positions = ({
                 <tr
                   className='position-row'
                   onClick={() => {
-                    setOutputTokenAddressToBuy(position.token)
+                    if (tradeType === TRADE_TYPE.SWAP) {
+                      setOutputTokenAddressToBuy(position.token)
+                      return
+                    }
+                    const { address } = decodeErc1155Address(position.token)
+                    const side =
+                      tradeType === TRADE_TYPE.LONG ? POOL_IDS.A :
+                      tradeType === TRADE_TYPE.SHORT ? POOL_IDS.B :
+                      POOL_IDS.C
+                    setOutputTokenAddressToBuy(encodeErc1155Address(address, side)) 
                   }}
                   key={key}
                 >

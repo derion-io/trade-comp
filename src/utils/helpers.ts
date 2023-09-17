@@ -238,6 +238,10 @@ export const decodeErc1155Address = (address: string) => {
   }
 }
 
+export const encodeErc1155Address = (token: string, side: number): string => {
+  return token + '-' + side
+}
+
 export const parseUq112x112 = (value: BigNumber, unit = 1000) => {
   return value.mul(unit).shr(112).toNumber() / unit
 }
