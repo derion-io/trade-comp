@@ -38,11 +38,11 @@
   }
 
   &.buy {
-    background: $color-buy;
+    background: rgba($color-buy, 0.7);
   }
 
   &.sell {
-    background: $color-sell;
+    background: rgba($color-sell, 0.7);
   }
 
   &.grey {
@@ -50,7 +50,11 @@
   }
 
   &.execute {
-    background: $color-execute;
+    background: rgba($color-execute, 0.85);
+  }
+
+  &.close {
+    background: rgba($color-pink, 0.6);
   }
 
   &.reset {
@@ -70,7 +74,7 @@
     background: transparent;
     border: 1px solid $color-text-grey;
     font-weight: normal;
-    color: $color-sell;
+    color: $color-pink;
     border-radius: 0.7em;
 
     &:hover {

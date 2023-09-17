@@ -1,5 +1,5 @@
-import { ButtonExecute } from '../ui/Button'
-import { bn, isErc1155Address, mul, WEI } from '../../utils/helpers'
+import { ButtonBuy, ButtonClose, ButtonExecute, ButtonSell } from '../ui/Button'
+import { bn, decodeErc1155Address, isErc1155Address, mul, WEI } from '../../utils/helpers'
 import { toast } from 'react-toastify'
 import React, { useMemo, useState } from 'react'
 import { useListTokens } from '../../state/token/hook'
@@ -8,7 +8,7 @@ import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useConfigs } from '../../state/config/useConfigs'
 import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 import { BigNumber, ethers } from 'ethers'
-import { CHAINS, TRADE_TYPE, ZERO_ADDRESS } from '../../utils/constant'
+import { CHAINS, POOL_IDS, TRADE_TYPE, ZERO_ADDRESS } from '../../utils/constant'
 import { TextError } from '../ui/Text'
 import { useSettings } from '../../state/setting/hooks/useSettings'
 import { ApproveUtrModal } from '../ApproveUtrModal'
@@ -58,6 +58,15 @@ export const ButtonSwap = ({
   const slippage = 1 - Math.min(1, payoffRate ?? 0)
 
   const { updateSwapTxsHandle } = useSwapHistory()
+
+  const sideOut = Number(decodeErc1155Address(outputTokenAddress)?.id ?? 0)
+
+  const ButtonComp =
+    sideOut === POOL_IDS.A ? ButtonBuy :
+    sideOut === POOL_IDS.B ? ButtonSell :
+    [POOL_IDS.R, POOL_IDS.native].includes(sideOut) ? ButtonClose :
+    ButtonExecute
+
   const button = useMemo(() => {
     if (!tokens[inputTokenAddress] || loading) {
       return (
@@ -124,7 +133,7 @@ export const ButtonSwap = ({
       )
     } else {
       return (
-        <ButtonExecute
+        <ButtonComp
           disabled={
             slippage > settings.slippageTolerance || !pairIndexR || loadingAmountOut
           }
@@ -211,7 +220,7 @@ export const ButtonSwap = ({
           {/*        : 'Add Liquidity' */}
           {/*    : isClose ? 'Close' : 'Short' */}
           {/* } */}
-        </ButtonExecute>
+        </ButtonComp>
       )
     }
   }, [
