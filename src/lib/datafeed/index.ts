@@ -380,8 +380,8 @@ const detectChartIsOutdate = (candles: CandleType[]) => {
   const duration = Number(last.time) - Number(first.time)
   const avg = duration / range
 
-  // twice the average tx time
-  const nextTime = Number(last.time) + 2 * avg
+  // thrice the average tx time
+  const nextTime = Number(last.time) + 3 * avg
   const status = nextTime < new Date().getTime()
 
   store.dispatch(setChartIsOutDate({ status }))
