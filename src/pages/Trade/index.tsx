@@ -102,12 +102,17 @@ export const Trade = ({
       const url = location.href
       const urlSearchParams = new URL(`https://1.com?${url.split('?')[1]}`)
         .searchParams
-      const index = urlSearchParams.get('index')
-      const pool = urlSearchParams.get('pool')
+      
+      let index = urlSearchParams.get('index') ??
+        localStorage.getItem('activeIndex-' + chainId)
+
+      if (!index || !poolGroups[index]) {
+        index = Object.keys(poolGroups)[0]
+      }
 
       if (index && poolGroups[index]) {
         updateCurrentPoolGroup(index)
-
+        const pool = urlSearchParams.get('pool')
         if (pool && poolGroups[index].pools[pool]) {
           if (tab === TRADE_TYPE.LONG) {
             setOutputTokenAddress(pool + '-' + POOL_IDS.A)
@@ -117,8 +122,6 @@ export const Trade = ({
             setOutputTokenAddress(pool + '-' + POOL_IDS.C)
           }
         }
-      } else if (Object.keys(poolGroups)[0]) {
-        updateCurrentPoolGroup(Object.keys(poolGroups)[0])
       }
     }
   }, [chainId, JSON.stringify(Object.keys(poolGroups))])

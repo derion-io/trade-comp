@@ -12,6 +12,7 @@ import {
 import { TokenIcon } from '../ui/TokenIcon'
 import { IEW, bn } from '../../utils/helpers'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
+import { useConfigs } from '../../state/config/useConfigs'
 
 export const SelectPoolGroup = () => {
   const [active, setActive] = useState<boolean>(false)
@@ -53,9 +54,6 @@ export const SelectPoolGroup = () => {
     const sortedPoolGroupsUSDs = {}
     for (const [key, value] of poolGroupsUSDsEntries) sortedPoolGroupsUSDs[key] = value
     setPoolGroupsValue(sortedPoolGroupsUSDs)
-    if (!id && Object.keys(sortedPoolGroupsUSDs)?.[0]) {
-      updateCurrentPoolGroup(Object.keys(sortedPoolGroupsUSDs)?.[0])
-    }
   }, [poolGroups, balances])
 
   if (!poolGroups || Object.values(poolGroups).length === 0) {
@@ -104,6 +102,7 @@ const PoolGroupOption = ({
   poolGroupsValue: {playingTokensValue: any, poolGroup: any, totalValue: number}
   className?: string
 }) => {
+  const { chainId } = useConfigs()
   const poolGroup = poolGroupsValue?.poolGroup
   const { balances } = useWalletBalance()
   const { tokens } = useListTokens()
@@ -116,6 +115,7 @@ const PoolGroupOption = ({
       onClick={() => {
         if (id) {
           updateCurrentPoolGroup(id)
+          localStorage.setItem('activeIndex-' + chainId, id)
         }
       }}
     >
