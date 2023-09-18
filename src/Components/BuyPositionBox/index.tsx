@@ -630,7 +630,7 @@ const Component = ({
             <SkeletonLoader loading={!poolToShow}>
               <TextGreen>
                 {formatLocalisedCompactNumber(
-                  formatPercent(fundingYield, 3, true)
+                  formatPercent(fundingYield, 2, true)
                 )}
                 %
               </TextGreen>
@@ -642,7 +642,7 @@ const Component = ({
             <SkeletonLoader loading={!poolToShow}>
               <Text className={fundingRate < 0 ? 'text-green' : 'text-warning'}>
                 {formatLocalisedCompactNumber(
-                  formatPercent(fundingRate, 3, true)
+                  formatPercent(fundingRate, 2, true)
                 )}
                 %
               </Text>
@@ -656,7 +656,7 @@ const Component = ({
           <InfoRow>
             <TextGrey>Funding Yield (Min)</TextGrey>
             <SkeletonLoader loading={!poolToShow}>
-              {formatLocalisedCompactNumber(formatPercent(interest, 3, true))}%
+              {formatLocalisedCompactNumber(formatPercent(interest, 2, true))}%
             </SkeletonLoader>
           </InfoRow>
         ) : (
@@ -664,7 +664,7 @@ const Component = ({
             <TextGrey>Funding Rate (Max)</TextGrey>
             <SkeletonLoader loading={!poolToShow}>
               {formatLocalisedCompactNumber(
-                formatPercent(maxFundingRate, 3, true)
+                formatPercent(maxFundingRate, 2, true)
               )}
               %
             </SkeletonLoader>
