@@ -138,7 +138,7 @@ export const Trade = ({
           }}
         >
           <TabList>
-            <Tab>Position</Tab>
+            <Tab>Positions</Tab>
             <Tab>History</Tab>
           </TabList>
           <TabPanel>
