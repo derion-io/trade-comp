@@ -12,7 +12,8 @@ import {
 import { TokenIcon } from '../ui/TokenIcon'
 import { IEW, bn } from '../../utils/helpers'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
-
+import { useConfigs } from '../../state/config/useConfigs'
+let isManualSelect = false
 export const SelectPoolGroup = () => {
   const [active, setActive] = useState<boolean>(false)
   const { poolGroups } = useResource()
@@ -23,41 +24,58 @@ export const SelectPoolGroup = () => {
   const { tokens } = useListTokens()
   const { getTokenValue } = useTokenValue({})
   const [poolGroupsValue, setPoolGroupsValue] = useState<any>()
+  const getPoolValue = (pool:any):number => {
+    return Number(getTokenValue(pool?.TOKEN_R, IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimals), true))
+  }
+  const { chainId } = useConfigs()
   useMemo(() => {
+    if (isManualSelect) return
+    const maxValuePoolGroupCache = localStorage.getItem('maxValuePoolGroup')
+    if (maxValuePoolGroupCache !== null && poolGroups && Object.values(poolGroups).length > 0 && poolGroups[maxValuePoolGroupCache]) {
+      updateCurrentPoolGroup(String(maxValuePoolGroupCache))
+    }
     const poolGroupsUSDs = {}
+    let userTotalVolume = 0
     Object.keys(poolGroups).map((poolGroupKey: string) => {
       const poolGroup = poolGroups[poolGroupKey]
+      let totalPosValue = 0; let totalLiquidValue = 0
       if (!poolGroup) return []
-      const pools = Object.keys(poolGroup.pools)
+      const poolsKey = Object.keys(poolGroup.pools)
       const results = []
-      let hasLp = false
-      for (const poolAddress of pools) {
+      for (const poolAddress of poolsKey) {
         if (balances[poolAddress + '-' + POOL_IDS.A]) results.push(poolAddress + '-' + POOL_IDS.A)
         if (balances[poolAddress + '-' + POOL_IDS.B]) results.push(poolAddress + '-' + POOL_IDS.B)
-        if (balances[poolAddress + '-' + POOL_IDS.C] && !hasLp) {
+        if (balances[poolAddress + '-' + POOL_IDS.C]) {
           results.unshift(poolAddress + '-' + POOL_IDS.C)
-          hasLp = true
+          totalLiquidValue += getPoolValue(poolGroup.pools[poolAddress])
         }
       }
-      let totalValue = 0
       const playingTokensValue = results.map(address => {
         const value = Number(getTokenValue(address, IEW(balances[address], tokens[address]?.decimal || 18), true))
-        totalValue += value
+        totalPosValue += value
         return { address, value }
       })
-      poolGroupsUSDs[poolGroupKey] = { poolGroup, playingTokensValue, totalValue }
+      userTotalVolume += totalPosValue
+      poolGroupsUSDs[poolGroupKey] = { poolGroup, playingTokensValue, totalPosValue, totalLiquidValue }
       return null
     })
     const poolGroupsUSDsEntries = Object.entries(poolGroupsUSDs)
-    poolGroupsUSDsEntries.sort(([, a], [, b]) => (b as any).totalValue - (a as any).totalValue)
+
+    if (userTotalVolume !== 0) poolGroupsUSDsEntries.sort(([, a], [, b]) => (b as any).totalPosValue - (a as any).totalPosValue)
+    else poolGroupsUSDsEntries.sort(([, a], [, b]) => (b as any).totalLiquidValue - (a as any).totalLiquidValue)
     const sortedPoolGroupsUSDs = {}
+
     for (const [key, value] of poolGroupsUSDsEntries) sortedPoolGroupsUSDs[key] = value
     setPoolGroupsValue(sortedPoolGroupsUSDs)
-    if (!id && Object.keys(sortedPoolGroupsUSDs)?.[0]) {
-      updateCurrentPoolGroup(Object.keys(sortedPoolGroupsUSDs)?.[0])
+    const maxValuePoolGroup = Object.keys(sortedPoolGroupsUSDs)?.[0]
+    if (maxValuePoolGroupCache === null && maxValuePoolGroup && sortedPoolGroupsUSDs[maxValuePoolGroup].totalPosValue !== 0 && sortedPoolGroupsUSDs[maxValuePoolGroup].totalLiquidValue !== 0) {
+      localStorage.setItem('maxValuePoolGroup', maxValuePoolGroup)
+      updateCurrentPoolGroup(maxValuePoolGroup)
     }
-  }, [poolGroups, balances])
-
+  }, [poolGroups, balances, tokens])
+  useEffect(() => {
+    if (poolGroups && Object.values(poolGroups).length > 0) localStorage.removeItem('maxValuePoolGroup')
+  }, [chainId])
   if (!poolGroups || Object.values(poolGroups).length === 0) {
     return <div />
   }
@@ -101,7 +119,7 @@ const PoolGroupOption = ({
   id
 }: {
   id?: string
-  poolGroupsValue: {playingTokensValue: any, poolGroup: any, totalValue: number}
+  poolGroupsValue: {playingTokensValue: any, poolGroup: any, totalPosValue: number, totalLiquidValue:number}
   className?: string
 }) => {
   const poolGroup = poolGroupsValue?.poolGroup
@@ -115,6 +133,7 @@ const PoolGroupOption = ({
       className={'select-pool-group__option noselect ' + className}
       onClick={() => {
         if (id) {
+          isManualSelect = true
           updateCurrentPoolGroup(id)
         }
       }}
