@@ -10,9 +10,13 @@ import {
   POOL_IDS
 } from '../../utils/constant'
 import { TokenIcon } from '../ui/TokenIcon'
-import { IEW, bn } from '../../utils/helpers'
+import { IEW, bn, formatFloat } from '../../utils/helpers'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
 import { useConfigs } from '../../state/config/useConfigs'
+import {
+  TextGrey
+} from '../ui/Text'
+import formatLocalisedCompactNumber from '../../utils/formatBalance'
 let isManualSelect = false
 export const SelectPoolGroup = () => {
   const [active, setActive] = useState<boolean>(false)
@@ -88,7 +92,7 @@ export const SelectPoolGroup = () => {
       ref={wrapperRef}
     >
       <div className='select-pool-group'>
-        <PoolGroupOption poolGroupsValue={poolGroupsValue[id]} className='active' />
+        <PoolGroupOption active={active} poolGroupsValue={poolGroupsValue[id]} className='active' />
         {active && Object.keys(poolGroups).length > 1 && (
           <div
             className={
@@ -116,11 +120,13 @@ export const SelectPoolGroup = () => {
 const PoolGroupOption = ({
   poolGroupsValue,
   className,
-  id
+  id,
+  active
 }: {
   id?: string
   poolGroupsValue: {playingTokensValue: any, poolGroup: any, totalPosValue: number, totalLiquidValue:number}
   className?: string
+  active?:boolean
 }) => {
   const poolGroup = poolGroupsValue?.poolGroup
   const { balances } = useWalletBalance()
@@ -140,7 +146,12 @@ const PoolGroupOption = ({
     >
       <span>
         {tokens[poolGroup.baseToken]?.symbol}/
-        {tokens[poolGroup.quoteToken]?.symbol}
+        {tokens[poolGroup.quoteToken]?.symbol} {(className !== 'active' || active)
+          ? <TextGrey>{`${(poolGroupsValue.totalLiquidValue !== 0
+               ? `($${formatLocalisedCompactNumber(formatFloat(Math.round(poolGroupsValue.totalLiquidValue), 0))})` : '')}`}
+          </TextGrey>
+          : ''}
+          {/* ///12 */}
       </span>
       {poolGroupsValue.playingTokensValue.map((playingToken:any) => {
         const { address, value } = playingToken
