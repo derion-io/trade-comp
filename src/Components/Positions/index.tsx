@@ -569,6 +569,8 @@ export const Positions = ({
           position={closingPosition}
           outputTokenAddress={outputTokenAddress}
           tokenOutMaturity={tokenOutMaturity}
+          valueInUsdStatus={valueInUsdStatus}
+          setValueInUsdStatus={setValueInUsdStatus}
           title={
             Number(decodeErc1155Address(closingPosition.token).id) ===
             POOL_IDS.C ? (
