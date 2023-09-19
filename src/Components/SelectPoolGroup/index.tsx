@@ -87,9 +87,13 @@ export const SelectPoolGroup = () => {
   useEffect(() => {
     if (!isPhone || !wrapperRef.current) return
     const wrapper = wrapperRef.current as any
-    wrapper.style.marginRight = !active ? '1vw' : '0vw'
-    wrapper.style.width = !active ? 'auto' : '94vw'
-    wrapper.style.position = !active ? 'relative' : 'absolute'
+    if (!active) {
+      wrapper.classList.add('select-pool-group-open')
+      wrapper.classList.remove('select-pool-group-close')
+    } else {
+      wrapper.classList.add('select-pool-group-close')
+      wrapper.classList.remove('select-pool-group-open')
+    }
   }, [active, isPhone])
 
   if (!poolGroups || Object.values(poolGroups).length === 0) {
