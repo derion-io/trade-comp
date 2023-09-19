@@ -64,8 +64,11 @@ export const SelectPoolGroup = () => {
     })
     const poolGroupsUSDsEntries = Object.entries(poolGroupsUSDs)
 
-    if (userTotalVolume !== 0) poolGroupsUSDsEntries.sort(([, a], [, b]) => (b as any).totalPosValue - (a as any).totalPosValue)
-    else poolGroupsUSDsEntries.sort(([, a], [, b]) => (b as any).totalLiquidValue - (a as any).totalLiquidValue)
+    poolGroupsUSDsEntries.sort(([, a], [, b]) => 
+      ((b as any).totalPosValue ?? 0) - ((a as any).totalPosValue ?? 0) ||
+      ((b as any).totalLiquidValue ?? 0) - ((a as any).totalLiquidValue ?? 0)
+    )
+
     const sortedPoolGroupsUSDs = {}
 
     for (const [key, value] of poolGroupsUSDsEntries) sortedPoolGroupsUSDs[key] = value
