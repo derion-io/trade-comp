@@ -90,7 +90,7 @@ export const TxFee = ({
             <Tooltip
               position='right-bottom'
               handle={
-                <SkeletonLoader loading={!!loading}>
+                <div>
                   {!nativePrice || !gasPrice || !gasUsed || gasUsed?.isZero() ? (
                     <Text>&nbsp;</Text>
                   ) : (
@@ -101,7 +101,7 @@ export const TxFee = ({
                       {IEW(gasUsed.mul(gasPrice).mul(WEI(nativePrice)), 36, 2)})
                     </Text>
                   )}
-                </SkeletonLoader>
+                </div>
               }
               renderContent={() => (
                 <div>
