@@ -47,10 +47,12 @@ export const useExchangeData = () => {
     baseToken: string
   }) => {
     try {
-      if (!configs.theGraphMessari) {
+      // @ts-ignore
+      if (!configs.subGraph) {
         return []
       }
-      const client = new GraphQLClient(configs.theGraphMessari)
+      // @ts-ignore
+      const client = new GraphQLClient(configs.subGraph)
       const query = getQueryHourDatas(pair, interval)
       const res: { liquidityPool: LiquidityPool } = await client.request(query)
       const a = res.liquidityPool.hourlySnapshots
@@ -59,24 +61,24 @@ export const useExchangeData = () => {
             item.pool.inputTokens[0]?.id.toLowerCase() ===
             baseToken.toLowerCase()
               ? [
-                  item.hourlyVolumeByTokenAmount[0],
-                  item.hourlyVolumeByTokenAmount[1]
-                ]
+                item.hourlyVolumeByTokenAmount[0],
+                item.hourlyVolumeByTokenAmount[1]
+              ]
               : [
-                  item.hourlyVolumeByTokenAmount[1],
-                  item.hourlyVolumeByTokenAmount[0]
-                ]
+                item.hourlyVolumeByTokenAmount[1],
+                item.hourlyVolumeByTokenAmount[0]
+              ]
           const [baseDecimal, quoteDecimal] =
             item.pool.inputTokens[0]?.id.toLowerCase() ===
             baseToken.toLowerCase()
               ? [
                   item.pool.inputTokens[0]?.decimals,
                   item.pool.inputTokens[1]?.decimals
-                ]
+              ]
               : [
                   item.pool.inputTokens[1]?.decimals,
                   item.pool.inputTokens[0]?.decimals
-                ]
+              ]
           const baseConverted = parseFloat(
             ethers.utils.formatUnits(baseAmount, baseDecimal)
           )
@@ -107,10 +109,12 @@ export const useExchangeData = () => {
     baseToken: string
   }) => {
     try {
-      if (!configs.theGraphMessari) {
+      // @ts-ignore
+      if (!configs.subGraph) {
         return []
       }
-      const client = new GraphQLClient(configs.theGraphMessari)
+      // @ts-ignore
+      const client = new GraphQLClient(configs.subGraph)
       const query = getQueryDayDatas(pair, interval)
       const res: { liquidityPool: LiquidityPool } = await client.request(query)
       return res.liquidityPool?.dailySnapshots
@@ -119,24 +123,24 @@ export const useExchangeData = () => {
             item.pool.inputTokens[0]?.id.toLowerCase() ===
             baseToken.toLowerCase()
               ? [
-                  item.dailyVolumeByTokenAmount[0],
-                  item.dailyVolumeByTokenAmount[1]
-                ]
+                item.dailyVolumeByTokenAmount[0],
+                item.dailyVolumeByTokenAmount[1]
+              ]
               : [
-                  item.dailyVolumeByTokenAmount[1],
-                  item.dailyVolumeByTokenAmount[0]
-                ]
+                item.dailyVolumeByTokenAmount[1],
+                item.dailyVolumeByTokenAmount[0]
+              ]
           const [baseDecimal, quoteDecimal] =
             item.pool.inputTokens[0]?.id.toLowerCase() ===
             baseToken.toLowerCase()
               ? [
                   item.pool.inputTokens[0]?.decimals,
                   item.pool.inputTokens[1]?.decimals
-                ]
+              ]
               : [
                   item.pool.inputTokens[1]?.decimals,
                   item.pool.inputTokens[0]?.decimals
-                ]
+              ]
           const baseConverted = parseFloat(
             ethers.utils.formatUnits(baseAmount, baseDecimal)
           )

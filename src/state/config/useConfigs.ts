@@ -1,9 +1,9 @@
 import { useSelector } from 'react-redux'
 import { State } from '../types'
-import configs from './configs'
 
 export const useConfigs = () => {
   const {
+    configs,
     engine,
     initialledConfig,
     location,
@@ -14,6 +14,7 @@ export const useConfigs = () => {
     env
   } = useSelector((state: State) => {
     return {
+      configs: state.configs.configs,
       engine: state.configs.engine,
       initialledConfig: state.configs.initialledConfig,
       chainId: state.configs.chainId,
@@ -33,7 +34,7 @@ export const useConfigs = () => {
     env,
     location,
     useHistory,
-    configs: configs[chainId], // remove default config
+    configs, // remove default config
     ddlEngine: engine
   }
 }

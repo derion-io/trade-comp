@@ -7,10 +7,11 @@ export const MINI_SECOND_PER_DAY = 86400000
 export const LP_PRICE_UNIT = 10000
 export const TIME_TO_REFRESH_STATE = 30000
 export const CHAINS = {
-  GANACHE: 1337,
   ARBITRUM: 42161,
   BASE: 8453
 }
+
+export const SUPPORTED_CHAINS = Object.values(CHAINS)
 export const DEFAULT_CHAIN = CHAINS.ARBITRUM
 
 export const MIN_POSITON_VALUE_USD_TO_DISPLAY = 0.1

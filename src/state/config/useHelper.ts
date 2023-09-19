@@ -13,15 +13,15 @@ export const useHelper = () => {
     if (!address) return address
 
     return address?.toLowerCase() ===
-      configs.addresses?.nativeToken?.toLowerCase()
-      ? configs.addresses?.wrapToken
+      NATIVE_ADDRESS.toLowerCase()
+      ? configs.wrappedTokenAddress
       : address
   }
 
   const wrapToNativeAddress = (address: string) => {
     if (!address) return address
     return address?.toLowerCase() ===
-      configs.addresses?.wrapToken?.toLowerCase()
+      configs.wrappedTokenAddress.toLowerCase()
       ? NATIVE_ADDRESS
       : address
   }

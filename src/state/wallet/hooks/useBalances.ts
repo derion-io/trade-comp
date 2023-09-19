@@ -62,7 +62,7 @@ export const useWalletBalance = () => {
           const poolAddress = decodeErc1155Address(tokenAddress).address
           const contract = getPoolContract(poolAddress, signer)
           const txRes = await contract.setApprovalForAll(
-            configs.addresses.router,
+            configs.helperContract.utr,
             true
           )
           await txRes.wait(1)
@@ -84,7 +84,7 @@ export const useWalletBalance = () => {
         } else {
           const contract = new ethers.Contract(tokenAddress, ERC20Abi, signer)
           const txRes = await contract.approve(
-            configs.addresses.router,
+            configs.helperContract.utr,
             LARGE_VALUE
           )
           await txRes.wait(1)

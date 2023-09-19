@@ -65,7 +65,7 @@ export const useTokenValue = ({
             ? parseSqrtX96(
                 prices[pool.TOKEN_R]?.mul(WEI(1, 9)) || bn(0),
                 tokens[pool.TOKEN_R] || {},
-                tokens[configs.stableCoins[0]] || {}
+                tokens[configs.stablecoins[0]] || {}
               )
             : WEI(1, 18)
         value = IEW(BIG(WEI(_amount)).mul(WEI(tokenPrice)).mul(rX).div(sX), 54)
@@ -77,7 +77,7 @@ export const useTokenValue = ({
           ? parseSqrtX96(
               prices[address]?.mul(WEI(1, 9)) || bn(0),
               tokens[address] || {},
-              tokens[configs.stableCoins[0]] || {}
+              tokens[configs.stablecoins[0]] || {}
             )
           : WEI(1, 18)
 
