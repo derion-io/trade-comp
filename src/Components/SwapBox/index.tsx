@@ -30,7 +30,6 @@ import { useCalculateSwap } from './hooks/useCalculateSwap'
 import { useTokenValue } from './hooks/useTokenValue'
 import { ButtonSwap } from '../ButtonSwap'
 import { TxFee } from './components/TxFee'
-import { PoolInfo } from './components/PoolInfo'
 import { CHART_TABS } from '../../state/currentPool/type'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 
@@ -312,10 +311,6 @@ const Component = ({
         onSelectToken={onSelectToken}
       />
 
-      <PoolInfo
-        outputTokenAddress={outputTokenAddress}
-        inputTokenAddress={inputTokenAddress}
-      />
       <TxFee gasUsed={gasUsed} payoffRate={payoffRate} />
 
       <div className='actions'>

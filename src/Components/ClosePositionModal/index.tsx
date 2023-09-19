@@ -23,7 +23,6 @@ import { useWeb3React } from '../../state/customWeb3React/hook'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
 import { IconArrowDown } from '../ui/Icon'
 import { InfoRow } from '../ui/InfoRow'
-import { PoolInfo } from '../SwapBox/components/PoolInfo'
 import { TxFee } from '../SwapBox/components/TxFee'
 import { useCalculateSwap } from '../SwapBox/hooks/useCalculateSwap'
 import { ButtonSwap } from '../ButtonSwap'
@@ -35,6 +34,8 @@ import { BigNumber } from 'ethers'
 import { useSettings } from '../../state/setting/hooks/useSettings'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 import { Position } from '../../utils/type'
+import { VALUE_IN_USD_STATUS } from '../Positions'
+import { PositionInfo } from './components/PositionInfo'
 
 const Component = ({
   visible,
@@ -42,7 +43,9 @@ const Component = ({
   position,
   outputTokenAddress,
   title,
-  tokenOutMaturity
+  tokenOutMaturity,
+  valueInUsdStatus,
+  setValueInUsdStatus
 }: {
   visible: boolean
   setVisible: any
@@ -50,6 +53,8 @@ const Component = ({
   outputTokenAddress: string
   title: any
   tokenOutMaturity: BigNumber
+  valueInUsdStatus: VALUE_IN_USD_STATUS
+  setValueInUsdStatus: (value: VALUE_IN_USD_STATUS) => void
 }) => {
   const inputTokenAddress = position.token
   const { pools } = useCurrentPoolGroup()
@@ -253,9 +258,10 @@ const Component = ({
           )}
         </div>
 
-        <PoolInfo
-          outputTokenAddress={outputTokenAddress}
-          inputTokenAddress={inputTokenAddress}
+        <PositionInfo
+          position={position}
+          setValueInUsdStatus={setValueInUsdStatus}
+          valueInUsdStatus={valueInUsdStatus}
         />
 
         <div className='text-center mt-1 mb-1'>

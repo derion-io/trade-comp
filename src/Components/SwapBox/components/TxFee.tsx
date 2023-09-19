@@ -82,6 +82,7 @@ export const TxFee = ({
         </InfoRow>
       )}
       <InfoRow>
+        {/* 123 */}
         <TextGrey>Network Fee</TextGrey>
         <SkeletonLoader loading={!!loading}>
           {!gasUsed || gasUsed?.isZero() ? (
