@@ -49,7 +49,7 @@ export const TxFee = ({
 
   return (
     <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
-      {feeFormat == 0 ? (
+      {feeFormat === 0 ? (
         ''
       ) : (
         <InfoRow>
@@ -63,7 +63,7 @@ export const TxFee = ({
           </span>
         </InfoRow>
       )}
-      {slippageFormat == 0 ? (
+      {slippageFormat === 0 ? (
         ''
       ) : (
         <InfoRow>
@@ -91,7 +91,10 @@ export const TxFee = ({
               position='right-bottom'
               handle={
                 <div>
-                  {!nativePrice || !gasPrice || !gasUsed || gasUsed?.isZero() ? (
+                  {!nativePrice ||
+                  !gasPrice ||
+                  !gasUsed ||
+                  gasUsed?.isZero() ? (
                     <Text>&nbsp;</Text>
                   ) : (
                     <Text>
@@ -109,7 +112,12 @@ export const TxFee = ({
                   <Text>{formatWeiToDisplayNumber(gasUsed, 0, 0)}</Text>
                   <hr style={{ visibility: 'hidden' }} />
                   <TextGrey>Gas Price: </TextGrey>
-                  <Text>{gasPrice >= 1e6 ? formatWeiToDisplayNumber(gasPrice.div(1e6), 0, 0) + ' gwei' : formatWeiToDisplayNumber(gasPrice, 0, 0)}</Text>
+                  <Text>
+                    {gasPrice >= 1e6
+                      ? formatWeiToDisplayNumber(gasPrice.div(1e6), 0, 0) +
+                        ' gwei'
+                      : formatWeiToDisplayNumber(gasPrice, 0, 0)}
+                  </Text>
                 </div>
               )}
             />

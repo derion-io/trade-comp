@@ -64,7 +64,7 @@ export const Positions = ({
   setOutputTokenAddressToBuy: any
   tokenOutMaturity: BigNumber
 }) => {
-  const { pools, tradeType, setTradeType, id } = useCurrentPoolGroup()
+  const { pools, tradeType, id } = useCurrentPoolGroup()
   const { balances, maturities } = useWalletBalance()
   const { tokens } = useListTokens()
   const { getTokenValue } = useTokenValue({})
@@ -457,10 +457,14 @@ export const Positions = ({
                     }
                     const { address } = decodeErc1155Address(position.token)
                     const side =
-                      tradeType === TRADE_TYPE.LONG ? POOL_IDS.A :
-                      tradeType === TRADE_TYPE.SHORT ? POOL_IDS.B :
-                      POOL_IDS.C
-                    setOutputTokenAddressToBuy(encodeErc1155Address(address, side)) 
+                      tradeType === TRADE_TYPE.LONG
+                        ? POOL_IDS.A
+                        : tradeType === TRADE_TYPE.SHORT
+                        ? POOL_IDS.B
+                        : POOL_IDS.C
+                    setOutputTokenAddressToBuy(
+                      encodeErc1155Address(address, side)
+                    )
                   }}
                   key={key}
                 >

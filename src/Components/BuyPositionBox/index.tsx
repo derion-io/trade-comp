@@ -124,19 +124,14 @@ const Component = ({
     }
   }, [amountIn, tradeType])
 
-  const {
-    callError,
-    loading,
-    gasUsed,
-    amountOut,
-    payloadAmountIn
-  } = useCalculateSwap({
-    amountIn,
-    setAmountIn,
-    inputTokenAddress,
-    outputTokenAddress,
-    tokenOutMaturity
-  })
+  const { callError, loading, gasUsed, amountOut, payloadAmountIn } =
+    useCalculateSwap({
+      amountIn,
+      setAmountIn,
+      inputTokenAddress,
+      outputTokenAddress,
+      tokenOutMaturity
+    })
 
   useEffect(() => {
     if (Object.values(pools).length > 0) {

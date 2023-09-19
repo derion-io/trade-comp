@@ -1,5 +1,4 @@
-
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useResource } from '../../state/resources/hooks/useResource'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 import { useListTokens } from '../../state/token/hook'
@@ -14,64 +13,84 @@ import { TokenIcon } from '../ui/TokenIcon'
 import { IEW, bn, formatFloat } from '../../utils/helpers'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
 import { useConfigs } from '../../state/config/useConfigs'
-import {
-  TextGrey
-} from '../ui/Text'
+import { TextGrey } from '../ui/Text'
 import formatLocalisedCompactNumber from '../../utils/formatBalance'
 import { useWindowSize } from '../../hooks/useWindowSize'
 
 export const SelectPoolGroup = () => {
   const [active, setActive] = useState<boolean>(false)
   const { poolGroups } = useResource()
-  const { id, updateCurrentPoolGroup} = useCurrentPoolGroup()
+  const { id } = useCurrentPoolGroup()
   const wrapperRef = useRef(null)
   useOutsideAlerter(wrapperRef, () => setActive(false))
   const { balances } = useWalletBalance()
   const { tokens } = useListTokens()
   const { getTokenValue } = useTokenValue({})
   const [poolGroupsValue, setPoolGroupsValue] = useState<any>()
-  const {width} = useWindowSize()
+  const { width } = useWindowSize()
   const isPhone = width && width < 768
-  const getPoolValue = (pool:any):number => {
-    return Number(getTokenValue(pool?.TOKEN_R, IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimals), true))
+  const getPoolValue = (pool: any): number => {
+    return Number(
+      getTokenValue(
+        pool?.TOKEN_R,
+        IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimals),
+        true
+      )
+    )
   }
-  const { chainId } = useConfigs()
   useMemo(() => {
     const poolGroupsUSDs = {}
-    let userTotalVolume = 0
     Object.keys(poolGroups).map((poolGroupKey: string) => {
       const poolGroup = poolGroups[poolGroupKey]
-      let totalPosValue = 0; let totalLiquidValue = 0
+      let totalPosValue = 0
+      let totalLiquidValue = 0
       if (!poolGroup) return []
       const poolsKey = Object.keys(poolGroup.pools)
       const results = []
       for (const poolAddress of poolsKey) {
-        if (balances[poolAddress + '-' + POOL_IDS.A]) results.push(poolAddress + '-' + POOL_IDS.A)
-        if (balances[poolAddress + '-' + POOL_IDS.B]) results.push(poolAddress + '-' + POOL_IDS.B)
+        if (balances[poolAddress + '-' + POOL_IDS.A]) {
+          results.push(poolAddress + '-' + POOL_IDS.A)
+        }
+        if (balances[poolAddress + '-' + POOL_IDS.B]) {
+          results.push(poolAddress + '-' + POOL_IDS.B)
+        }
         if (balances[poolAddress + '-' + POOL_IDS.C]) {
           results.unshift(poolAddress + '-' + POOL_IDS.C)
           totalLiquidValue += getPoolValue(poolGroup.pools[poolAddress])
         }
       }
-      const playingTokensValue = results.map(address => {
-        const value = Number(getTokenValue(address, IEW(balances[address], tokens[address]?.decimal || 18), true))
+      const playingTokensValue = results.map((address) => {
+        const value = Number(
+          getTokenValue(
+            address,
+            IEW(balances[address], tokens[address]?.decimal || 18),
+            true
+          )
+        )
         totalPosValue += value
         return { address, value }
       })
-      userTotalVolume += totalPosValue
-      poolGroupsUSDs[poolGroupKey] = { poolGroup, playingTokensValue, totalPosValue, totalLiquidValue }
+      poolGroupsUSDs[poolGroupKey] = {
+        poolGroup,
+        playingTokensValue,
+        totalPosValue,
+        totalLiquidValue
+      }
       return null
     })
     const poolGroupsUSDsEntries = Object.entries(poolGroupsUSDs)
 
-    poolGroupsUSDsEntries.sort(([, a], [, b]) => 
-      ((b as any).totalPosValue ?? 0) - ((a as any).totalPosValue ?? 0) ||
-      ((b as any).totalLiquidValue ?? 0) - ((a as any).totalLiquidValue ?? 0)
+    poolGroupsUSDsEntries.sort(
+      ([, a], [, b]) =>
+        ((b as any).totalPosValue ?? 0) - ((a as any).totalPosValue ?? 0) ||
+        ((b as any).totalLiquidValue ?? 0) - ((a as any).totalLiquidValue ?? 0)
     )
 
     const sortedPoolGroupsUSDs = {}
 
-    for (const [key, value] of poolGroupsUSDsEntries) sortedPoolGroupsUSDs[key] = value
+    for (const [key, value] of poolGroupsUSDsEntries) {
+      sortedPoolGroupsUSDs[key] = value
+    }
     setPoolGroupsValue(sortedPoolGroupsUSDs)
   }, [poolGroups, balances, tokens])
 
@@ -95,7 +114,11 @@ export const SelectPoolGroup = () => {
       ref={wrapperRef}
     >
       <div className='select-pool-group'>
-        <PoolGroupOption active={active} poolGroupsValue={poolGroupsValue[id]} className='active' />
+        <PoolGroupOption
+          active={active}
+          poolGroupsValue={poolGroupsValue[id]}
+          className='active'
+        />
         {active && Object.keys(poolGroups).length > 1 && (
           <div
             className={
@@ -127,9 +150,14 @@ const PoolGroupOption = ({
   active
 }: {
   id?: string
-  poolGroupsValue: {playingTokensValue: any, poolGroup: any, totalPosValue: number, totalLiquidValue:number}
+  poolGroupsValue: {
+    playingTokensValue: any
+    poolGroup: any
+    totalPosValue: number
+    totalLiquidValue: number
+  }
   className?: string
-  active?:boolean
+  active?: boolean
 }) => {
   const { chainId } = useConfigs()
   const poolGroup = poolGroupsValue?.poolGroup
@@ -150,13 +178,22 @@ const PoolGroupOption = ({
     >
       <span>
         {tokens[poolGroup.baseToken]?.symbol}/
-        {tokens[poolGroup.quoteToken]?.symbol} {(className !== 'active' || active)
-          ? <TextGrey>{`${(poolGroupsValue.totalLiquidValue !== 0
-               ? `($${formatLocalisedCompactNumber(formatFloat(Math.round(poolGroupsValue.totalLiquidValue), 0))})` : '')}`}
+        {tokens[poolGroup.quoteToken]?.symbol}{' '}
+        {className !== 'active' || active ? (
+          <TextGrey>
+            {`${
+              poolGroupsValue.totalLiquidValue !== 0
+                ? `($${formatLocalisedCompactNumber(
+                    formatFloat(Math.round(poolGroupsValue.totalLiquidValue), 0)
+                  )})`
+                : ''
+            }`}
           </TextGrey>
-          : ''}
+        ) : (
+          ''
+        )}
       </span>
-      {poolGroupsValue.playingTokensValue.map((playingToken:any) => {
+      {poolGroupsValue.playingTokensValue.map((playingToken: any) => {
         const { address, value } = playingToken
         if (value < MIN_POSITON_VALUE_USD_TO_DISPLAY) return null
         if (balances[address] && bn(balances[address]).gt(0)) {

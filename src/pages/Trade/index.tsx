@@ -102,8 +102,9 @@ export const Trade = ({
       const url = location.href
       const urlSearchParams = new URL(`https://1.com?${url.split('?')[1]}`)
         .searchParams
-      
-      let index = urlSearchParams.get('index') ??
+
+      let index =
+        urlSearchParams.get('index') ??
         localStorage.getItem('activeIndex-' + chainId)
 
       if (!index || !poolGroups[index]) {
@@ -149,7 +150,11 @@ export const Trade = ({
               {/* @ts-ignore */}
               <ErrorBoundary>
                 <Positions
-                  setOutputTokenAddressToBuy={tab === TRADE_TYPE.SWAP ? setInputTokenAddress : setOutputTokenAddress}
+                  setOutputTokenAddressToBuy={
+                    tab === TRADE_TYPE.SWAP
+                      ? setInputTokenAddress
+                      : setOutputTokenAddress
+                  }
                   tokenOutMaturity={tokenOutMaturity}
                 />
               </ErrorBoundary>

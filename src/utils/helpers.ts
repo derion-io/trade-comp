@@ -24,6 +24,7 @@ export const STR = (num: number | string | BigNumber): string => {
         return num
       }
       num = Number(num)
+    // fallthrough
     case 'number':
       return num.toLocaleString(['en-US', 'fullwide'], { useGrouping: false })
     default:
@@ -54,6 +55,7 @@ export const BIG = (num: number | string | BigNumber): BigNumber => {
       if (num?.includes('e')) {
         num = Number(num)
       }
+    // fallthrough
     case 'number':
       return BigNumber.from(num || 0)
     default:
