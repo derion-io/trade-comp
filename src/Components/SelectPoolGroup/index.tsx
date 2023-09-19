@@ -78,13 +78,8 @@ export const SelectPoolGroup = () => {
   useEffect(() => {
     if (!isPhone || !wrapperRef.current) return
     const wrapper = wrapperRef.current as any
-    if (!active) {
-      wrapper.classList.add('select-pool-group-open')
-      wrapper.classList.remove('select-pool-group-close')
-    } else {
-      wrapper.classList.add('select-pool-group-close')
-      wrapper.classList.remove('select-pool-group-open')
-    }
+    wrapper.classList.toggle('select-pool-group-open', !active)
+    wrapper.classList.toggle('select-pool-group-close', active)
   }, [active, isPhone])
 
   if (!poolGroups || Object.values(poolGroups).length === 0) {
