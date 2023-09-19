@@ -110,8 +110,7 @@ const Component = ({
     gasUsed,
     amountOut,
     loading,
-    payloadAmountIn,
-    pairIndexR
+    payloadAmountIn
   } = useCalculateSwap({
     amountIn,
     setAmountIn,
@@ -313,7 +312,6 @@ const Component = ({
 
         <div className='actions'>
           <ButtonSwap
-            pairIndexR={pairIndexR}
             loadingAmountOut={loading}
             payoffRate={payoffRate}
             inputTokenAddress={inputTokenAddress}

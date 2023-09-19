@@ -23,7 +23,7 @@ export const App = () => {
   const { fetchBalanceAndAllowance, updateBalanceAndAllowances } =
     useWalletBalance()
   const { account } = useWeb3React()
-  const { ddlEngine, chainId, location } = useConfigs()
+  const { ddlEngine, chainId, location, configs } = useConfigs()
   const chainIdRef = useRef(null)
   const { initResource } = useResource()
 
@@ -52,7 +52,7 @@ export const App = () => {
       initResource(account)
     }, TIME_TO_REFRESH_STATE)
     return () => clearInterval(intervalId)
-  }, [chainId, account])
+  }, [ddlEngine, configs.name])
 
   useEffect(() => {
     if (!account) {
@@ -97,7 +97,7 @@ export const App = () => {
   return (
     <div className='exposure-interface app'>
       <input type='hidden' value={chainId} ref={chainIdRef} />
-      {!poolGroups || Object.keys(poolGroups).length === 0 ? (
+      {!poolGroups || !ddlEngine || !configs.name || Object.keys(poolGroups).length === 0 ? (
         <PageLoadingIndicator />
       ) : (
         ''

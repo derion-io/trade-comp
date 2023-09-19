@@ -29,36 +29,38 @@ export const useFetchTokenPrice = () => {
 
   useEffect(() => {
     fetchPrice()
-  }, [ddlEngine, tokens, chainId])
+  }, [ddlEngine, tokens, chainId, configs.name])
 
   const fetchPrice = async () => {
-    const tokenAddress = _.uniq(
-      [...Object.keys(tokens), configs.addresses.wrapToken].filter((a) => {
-        return isAddress(a) && a !== NATIVE_ADDRESS
-      })
-    )
+    if (configs.name) {
+      const tokenAddress = _.uniq(
+        [...Object.keys(tokens), configs.wrappedTokenAddress].filter((a) => {
+          return isAddress(a) && a !== NATIVE_ADDRESS
+        })
+      )
 
-    if (ddlEngine && tokenAddress.length > 0) {
-      ddlEngine.PRICE.getTokenPrices(tokenAddress)
-        .then((data: any) => {
-          dispatch(
+      if (ddlEngine?.PRICE && tokenAddress.length > 0) {
+        ddlEngine.PRICE.getTokenPrices(tokenAddress)
+          .then((data: any) => {
+            dispatch(
+              addTokenPriceWithChain({
+                prices: data,
+                chainId
+              })
+            )
+          })
+          .catch((e) => {
+            console.error(e)
+            const data = {}
+            tokenAddress.map((a: string) => {
+              data[a] = bn('0x02d198f44116169890a410')
+            })
             addTokenPriceWithChain({
               prices: data,
               chainId
             })
-          )
-        })
-        .catch((e) => {
-          console.error(e)
-          const data = {}
-          tokenAddress.map((a: string) => {
-            data[a] = bn('0x02d198f44116169890a410')
           })
-          addTokenPriceWithChain({
-            prices: data,
-            chainId
-          })
-        })
+      }
     }
   }
 }

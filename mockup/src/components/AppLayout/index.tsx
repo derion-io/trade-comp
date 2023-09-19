@@ -126,7 +126,7 @@ export const AppLayout = (props: any) => {
             ethers={ethers}
             language="en"
             useSubPage={() => location.pathname}
-            env={process.env.REACT_APP_NODE_ENV || "production"}
+            env={process.env.REACT_APP_NODE_ENV || "development"}
             showConnectWalletModal={() => setVisibleWalletModal(true)}
           />
         </Suspense>

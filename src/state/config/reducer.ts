@@ -2,6 +2,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { initialState } from './type'
 import { Engine } from 'derivable-tools/dist/engine'
+import { INetworkConfig } from 'derivable-tools/dist/utils/configs'
 export const tokens = createSlice({
   name: 'configs',
   initialState,
@@ -9,8 +10,7 @@ export const tokens = createSlice({
     setConfigs: (
       state,
       action: PayloadAction<{
-        configs: any
-        chainId: number
+        // chainId: number
         useSubPage: any
         language: string
         location: any
@@ -18,14 +18,26 @@ export const tokens = createSlice({
         env: 'development' | 'production'
       }>
     ) => {
-      state.chainId = action.payload.chainId
+      // state.chainId = action.payload.chainId
       state.env = action.payload.env
       state.language = action.payload.language
       state.useSubPage = action.payload.useSubPage
       state.location = action.payload.location
       state.useHistory = action.payload.useHistory
-      state.configs = action.payload.configs
       state.initialledConfig = true
+    },
+
+    seNetworkConfigs: (
+      state,
+      action: PayloadAction<{
+        chainId: number
+        configs: INetworkConfig
+        engine: Engine
+      }>
+    ) => {
+      state.chainId = action.payload.chainId
+      state.configs = action.payload.configs
+      state.engine = action.payload.engine
     },
 
     setEngine: (
@@ -40,6 +52,10 @@ export const tokens = createSlice({
 })
 
 // Actions
-export const { setConfigs, setEngine } = tokens.actions
+export const {
+  setConfigs,
+  setEngine,
+  seNetworkConfigs
+} = tokens.actions
 
 export default tokens.reducer

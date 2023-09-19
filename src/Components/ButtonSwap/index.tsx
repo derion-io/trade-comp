@@ -7,8 +7,8 @@ import { useWeb3React } from '../../state/customWeb3React/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useConfigs } from '../../state/config/useConfigs'
 import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
-import { BigNumber, ethers } from 'ethers'
-import { CHAINS, POOL_IDS, TRADE_TYPE, ZERO_ADDRESS } from '../../utils/constant'
+import { BigNumber } from 'ethers'
+import { CHAINS, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
 import { TextError } from '../ui/Text'
 import { useSettings } from '../../state/setting/hooks/useSettings'
 import { ApproveUtrModal } from '../ApproveUtrModal'
@@ -27,10 +27,8 @@ export const ButtonSwap = ({
   payloadAmountIn,
   title,
   payoffRate,
-  tokenOutMaturity,
-  pairIndexR
+  tokenOutMaturity
 }: {
-  pairIndexR?: string
   inputTokenAddress: string
   outputTokenAddress: string
   amountIn: string
@@ -62,10 +60,10 @@ export const ButtonSwap = ({
   const sideOut = Number(decodeErc1155Address(outputTokenAddress)?.id ?? 0)
 
   const ButtonComp =
-    sideOut === POOL_IDS.A ? ButtonBuy :
-    sideOut === POOL_IDS.B ? ButtonSell :
-    [POOL_IDS.R, POOL_IDS.native].includes(sideOut) ? ButtonClose :
-    ButtonExecute
+    sideOut === POOL_IDS.A ? ButtonBuy
+      : sideOut === POOL_IDS.B ? ButtonSell
+        : [POOL_IDS.R, POOL_IDS.native].includes(sideOut) ? ButtonClose
+          : ButtonExecute
 
   const button = useMemo(() => {
     if (!tokens[inputTokenAddress] || loading) {
@@ -135,7 +133,7 @@ export const ButtonSwap = ({
       return (
         <ButtonComp
           disabled={
-            slippage > settings.slippageTolerance || !pairIndexR || loadingAmountOut
+            slippage > settings.slippageTolerance || loadingAmountOut
           }
           className='swap-button'
           onClick={async () => {
@@ -168,16 +166,7 @@ export const ButtonSwap = ({
                         balances[outputTokenAddress] &&
                         isErc1155Address(outputTokenAddress)
                       ),
-                      currentBalanceOut: balances[outputTokenAddress],
-                      index_R:
-                        pairIndexR && pairIndexR !== ZERO_ADDRESS
-                          ? bn(
-                              ethers.utils.hexZeroPad(
-                                bn(1).shl(255).add(pairIndexR).toHexString(),
-                                32
-                              )
-                            )
-                          : bn(0)
+                      currentBalanceOut: balances[outputTokenAddress]
                     }
                   ],
                   gasUsed && gasUsed.gt(0) ? gasUsed.mul(2) : undefined
@@ -206,25 +195,13 @@ export const ButtonSwap = ({
             }
           }}
         >
-          {!pairIndexR
-            ? 'Routing...'
-            : loadingAmountOut || !amountOut
+          {loadingAmountOut || !amountOut
             ? 'Calculating...'
             : title}
-          {/* { */}
-          {/*  tradeType !== undefined */}
-          {/*    ? tradeType === TRADE_TYPE.LONG */}
-          {/*      ? 'Long' */}
-          {/*      : tradeType === TRADE_TYPE.SHORT */}
-          {/*        ? 'Short' */}
-          {/*        : 'Add Liquidity' */}
-          {/*    : isClose ? 'Close' : 'Short' */}
-          {/* } */}
         </ButtonComp>
       )
     }
   }, [
-    pairIndexR,
     chainId,
     amountOut,
     slippage,
@@ -254,7 +231,8 @@ export const ButtonSwap = ({
       )}
       {button}
       <ApproveUtrModal
-        callBack={() => {}}
+        callBack={() => {
+        }}
         visible={visibleApproveModal}
         setVisible={setVisibleApproveModal}
         inputTokenAddress={inputTokenAddress}
