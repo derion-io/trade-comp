@@ -1,6 +1,6 @@
 import { useDispatch } from 'react-redux'
 import { useEffect, useMemo } from 'react'
-import { seNetworkConfigs, setConfigs, setEngine } from './reducer'
+import { seNetworkConfigs, setConfigs } from './reducer'
 import { addTokensReduce } from '../token/reducer'
 import { Engine } from 'derivable-tools/dist/engine'
 import { DEFAULT_CHAIN, NATIVE_ADDRESS, ZERO_ADDRESS } from '../../utils/constant'
@@ -71,6 +71,7 @@ export const useInitConfig = ({
         }
       )
       await engine.initServices()
+      console.log(engine.profile.configs)
       dispatch(
         addTokensReduce({
           tokens: [{

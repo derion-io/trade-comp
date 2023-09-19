@@ -2,8 +2,7 @@ import React, { Fragment } from 'react'
 import { useInitWeb3React } from './state/customWeb3React/hook'
 import { useInitConfig } from './state/config/useInitConfig'
 import { useConfigs } from './state/config/useConfigs'
-import { DEFAULT_CHAIN } from './utils/constant'
-import configs from './state/config/configs'
+import { DEFAULT_CHAIN, SUPPORTED_CHAINS } from './utils/constant'
 
 export const InitConfig = ({
   useWeb3React,
@@ -22,7 +21,7 @@ export const InitConfig = ({
   useInitWeb3React(useWeb3React, showConnectWalletModal)
   useInitConfig({
     chainId:
-      chainId && configs[chainId]
+      chainId && SUPPORTED_CHAINS.includes(chainId)
         ? chainId
         : chainIdNotConnect || DEFAULT_CHAIN,
     library,

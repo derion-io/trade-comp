@@ -51,7 +51,8 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
       )} */}
       <div className='chart-wrap ergawe'>
         {chainId !== 1337 &&
-          (chartTab === CHART_TABS.LINE_CHART && configs.theGraphMessari ? (
+          // @ts-ignore
+          (chartTab === CHART_TABS.LINE_CHART && configs.subGraph ? (
             <LineChart changedIn24h={changedIn24h} />
           ) : chartTab === CHART_TABS.FUNC_PLOT ? (
             <FunctionPlot />
