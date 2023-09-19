@@ -19,7 +19,7 @@ import {
 } from '../ui/Text'
 import formatLocalisedCompactNumber from '../../utils/formatBalance'
 import { useWindowSize } from '../../hooks/useWindowSize'
-let isManualSelect = false
+
 export const SelectPoolGroup = () => {
   const [active, setActive] = useState<boolean>(false)
   const { poolGroups } = useResource()
@@ -37,11 +37,6 @@ export const SelectPoolGroup = () => {
   }
   const { chainId } = useConfigs()
   useMemo(() => {
-    if (isManualSelect) return
-    const maxValuePoolGroupCache = localStorage.getItem('maxValuePoolGroup')
-    if (maxValuePoolGroupCache !== null && poolGroups && Object.values(poolGroups).length > 0 && poolGroups[maxValuePoolGroupCache]) {
-      updateCurrentPoolGroup(String(maxValuePoolGroupCache))
-    }
     const poolGroupsUSDs = {}
     let userTotalVolume = 0
     Object.keys(poolGroups).map((poolGroupKey: string) => {
@@ -75,15 +70,8 @@ export const SelectPoolGroup = () => {
 
     for (const [key, value] of poolGroupsUSDsEntries) sortedPoolGroupsUSDs[key] = value
     setPoolGroupsValue(sortedPoolGroupsUSDs)
-    const maxValuePoolGroup = Object.keys(sortedPoolGroupsUSDs)?.[0]
-    if (maxValuePoolGroupCache === null && maxValuePoolGroup && sortedPoolGroupsUSDs[maxValuePoolGroup].totalPosValue !== 0 && sortedPoolGroupsUSDs[maxValuePoolGroup].totalLiquidValue !== 0) {
-      localStorage.setItem('maxValuePoolGroup', maxValuePoolGroup)
-      updateCurrentPoolGroup(maxValuePoolGroup)
-    }
   }, [poolGroups, balances, tokens])
-  useEffect(() => {
-    if (poolGroups && Object.values(poolGroups).length > 0) localStorage.removeItem('maxValuePoolGroup')
-  }, [chainId])
+
   useEffect(() => {
     if (!isPhone || !wrapperRef.current) return
     const wrapper = wrapperRef.current as any
@@ -156,7 +144,6 @@ const PoolGroupOption = ({
       className={'select-pool-group__option noselect ' + className}
       onClick={() => {
         if (id) {
-          isManualSelect = true
           updateCurrentPoolGroup(id)
         }
       }}
