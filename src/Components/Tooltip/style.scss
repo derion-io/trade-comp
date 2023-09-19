@@ -16,7 +16,9 @@
   min-width: 20rem;
   text-align: left;
   white-space: normal;
-  background: #070914;
+  background: #1B1D21;
+  opacity: 0.95;
+  border: solid 1px;
   z-index: 10000;
   @include respond(phone) {
     min-width: 50vw;
