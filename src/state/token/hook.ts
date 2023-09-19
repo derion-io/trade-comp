@@ -11,6 +11,6 @@ export const useListTokens = () => {
   })
 
   return {
-    tokens: tokens[chainId]
+    tokens: tokens[chainId] || {}
   }
 }

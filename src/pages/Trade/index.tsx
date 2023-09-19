@@ -124,7 +124,7 @@ export const Trade = ({
         }
       }
     }
-  }, [chainId, JSON.stringify(Object.keys(poolGroups))])
+  }, [chainId, JSON.stringify(Object.keys(poolGroups || {}))])
 
   return (
     <div className={`exposure-page ${loadingData && 'blur-3'}`}>

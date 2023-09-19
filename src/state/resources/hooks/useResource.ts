@@ -12,12 +12,12 @@ export const useResource = () => {
       pools: state.resources.pools
     }
   })
-  const { chainId, ddlEngine } = useConfigs()
+  const { chainId, ddlEngine, configs } = useConfigs()
   const dispatch = useDispatch()
   const { updateSwapTxsHandle } = useSwapHistory()
 
   const initListPool = async (account: string) => {
-    if (ddlEngine) {
+    if (ddlEngine && configs.name) {
       ddlEngine.RESOURCE.getResourceCached(account).then((data: any) => {
         dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
         dispatch(

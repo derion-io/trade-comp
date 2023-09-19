@@ -1,7 +1,6 @@
 import {
   BIG,
   bn,
-  decodeErc1155Address,
   isErc1155Address,
   WEI,
   parseCallStaticError,
@@ -12,7 +11,6 @@ import { useListTokens } from '../../../state/token/hook'
 import { BigNumber } from 'ethers'
 import { useConfigs } from '../../../state/config/useConfigs'
 import { useWalletBalance } from '../../../state/wallet/hooks/useBalances'
-import { useResource } from '../../../state/resources/hooks/useResource'
 
 const ITERATION = 10
 const REASONS_TO_RETRY = [
@@ -37,7 +35,6 @@ export const useCalculateSwap = ({
   tokenOutMaturity: BigNumber
 }) => {
   const { tokens } = useListTokens()
-  const { pools } = useResource()
   const [callError, setCallError] = useState<string>('')
   const [amountOut, setAmountOut] = useState<string>('')
   const [payloadAmountIn, setPayloadAmountIn] = useState<BigNumber>()
@@ -45,24 +42,24 @@ export const useCalculateSwap = ({
   const [gasUsed, setGasUsed] = useState<BigNumber>(bn(0))
   const [amountOutWei, setAmountOutWei] = useState<BigNumber>(bn(0))
   const [loading, setLoading] = useState<boolean>(false)
-  const { ddlEngine, configs } = useConfigs()
+  const { ddlEngine } = useConfigs()
   const { balances, routerAllowances } = useWalletBalance()
 
-  useEffect(() => {
-    const poolAddress = isErc1155Address(inputTokenAddress)
-      ? decodeErc1155Address(inputTokenAddress).address
-      : isErc1155Address(outputTokenAddress)
-        ? decodeErc1155Address(outputTokenAddress).address
-        : ''
-    const TOKEN_R = pools[poolAddress]?.TOKEN_R
-    if (ddlEngine && TOKEN_R) {
-      // eslint-disable-next-line no-unused-expressions
-      ddlEngine?.UNIV3PAIR?.getLargestPoolAddress({
-        baseToken: TOKEN_R,
-        quoteTokens: configs.stableCoins
-      }).catch(console.error)
-    }
-  }, [inputTokenAddress, outputTokenAddress, JSON.stringify(pools)])
+  // useEffect(() => {
+  //   const poolAddress = isErc1155Address(inputTokenAddress)
+  //     ? decodeErc1155Address(inputTokenAddress).address
+  //     : isErc1155Address(outputTokenAddress)
+  //       ? decodeErc1155Address(outputTokenAddress).address
+  //       : ''
+  //   const TOKEN_R = pools[poolAddress]?.TOKEN_R
+  //   if (ddlEngine && TOKEN_R) {
+  //     // eslint-disable-next-line no-unused-expressions
+  //     ddlEngine?.UNIV3PAIR?.getLargestPoolAddress({
+  //       baseToken: TOKEN_R,
+  //       quoteTokens: configs.stablecoins
+  //     }).catch(console.error)
+  //   }
+  // }, [inputTokenAddress, outputTokenAddress, JSON.stringify(pools)])
 
   useEffect(() => {
     if (
@@ -92,7 +89,7 @@ export const useCalculateSwap = ({
     tokens[outputTokenAddress]?.address,
     tokenOutMaturity.toString(),
     amountIn,
-    JSON.stringify(routerAllowances[inputTokenAddress])
+    JSON.stringify(routerAllowances[inputTokenAddress] || {})
   ])
 
   const calcAmountOut = async (i: number = 0): Promise<any> => {

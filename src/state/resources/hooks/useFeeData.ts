@@ -23,11 +23,11 @@ export const useFetchFeeData = () => {
 
   useEffect(() => {
     fetchFeeData()
-  }, [configs.rpcUrl, chainId])
+  }, [configs.rpc, chainId])
 
   const fetchFeeData = () => {
-    const provider = new JsonRpcProvider(configs.rpcUrl)
-    if (provider) {
+    if (configs.rpc) {
+      const provider = new JsonRpcProvider(configs.rpc)
       provider.getFeeData().then((feeData: any) => {
         dispatch(
           addFeeDataWithChain({

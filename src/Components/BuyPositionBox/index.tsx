@@ -196,8 +196,8 @@ const Component = ({
   const tokensToSelect = useMemo(() => {
     if (!id) return []
     const tokenRs = Object.values(pools).map((p: any) => p.TOKEN_R)
-    if (tokenRs.includes(configs.addresses.wrapToken)) {
-      tokenRs.push(configs.addresses.nativeToken)
+    if (tokenRs.includes(configs.wrappedTokenAddress)) {
+      tokenRs.push(NATIVE_ADDRESS)
     }
     return _.uniq(
       [...tokenRs].filter((address) => {
@@ -235,7 +235,7 @@ const Component = ({
             poolOut.TOKEN_R !== poolIn.TOKEN_R
           ) {
             setInputTokenAddress(
-              poolOut.TOKEN_R === configs.addresses.wrapToken
+              poolOut.TOKEN_R === configs.wrappedTokenAddress
                 ? NATIVE_ADDRESS
                 : poolOut.TOKEN_R
             )
@@ -244,7 +244,7 @@ const Component = ({
         if (isErc1155Address(address) && !isErc1155Address(inputTokenAddress)) {
           const poolOut = pools[decodeErc1155Address(address).address]
           setInputTokenAddress(
-            poolOut.TOKEN_R === configs.addresses.wrapToken
+            poolOut.TOKEN_R === configs.wrappedTokenAddress
               ? NATIVE_ADDRESS
               : poolOut.TOKEN_R
           )
