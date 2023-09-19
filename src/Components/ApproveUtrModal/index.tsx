@@ -53,11 +53,11 @@ const Component = ({
         <div className='text-center mb-2'>
           <p>The contract code is verified here:</p>
           <a
-            href={`${configs.explorer}/address/${configs.addresses.router}#code`}
+            href={`${configs.explorer}/address/${configs.helperContract?.utr}#code`}
             target='_blank'
             rel='noreferrer'
           >
-            {configs.addresses.router}
+            {configs.helperContract?.utr}
           </a>
           .
         </div>

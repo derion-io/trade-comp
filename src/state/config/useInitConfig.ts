@@ -1,10 +1,9 @@
 import { useDispatch } from 'react-redux'
 import { useEffect, useMemo } from 'react'
-import { setConfigs, setEngine } from './reducer'
-import configs from './configs'
+import { seNetworkConfigs, setConfigs, setEngine } from './reducer'
 import { addTokensReduce } from '../token/reducer'
 import { Engine } from 'derivable-tools/dist/engine'
-import { DEFAULT_CHAIN, ZERO_ADDRESS } from '../../utils/constant'
+import { DEFAULT_CHAIN, NATIVE_ADDRESS, ZERO_ADDRESS } from '../../utils/constant'
 import { useSettings } from '../setting/hooks/useSettings'
 
 export const useInitConfig = ({
@@ -38,15 +37,8 @@ export const useInitConfig = ({
 
   useEffect(() => {
     dispatch(
-      addTokensReduce({
-        tokens: [configs[chainId || DEFAULT_CHAIN]?.nativeToken],
-        chainId: chainId || DEFAULT_CHAIN
-      })
-    )
-    dispatch(
       setConfigs({
-        configs: configs[chainId || DEFAULT_CHAIN],
-        chainId: chainId || DEFAULT_CHAIN,
+        // chainId,
         useSubPage,
         language,
         env,
@@ -63,7 +55,6 @@ export const useInitConfig = ({
         console.log('=======await sync account========')
       }
 
-      console.log('env', env);
       const engine = new Engine(
         {
           env,
@@ -80,7 +71,23 @@ export const useInitConfig = ({
         }
       )
       await engine.initServices()
-      dispatch(setEngine({ engine }))
+      dispatch(
+        addTokensReduce({
+          tokens: [{
+            name: engine.profile.configs.nativeSymbol,
+            symbol: engine.profile.configs.nativeSymbol,
+            decimal: 18,
+            address: NATIVE_ADDRESS
+          }],
+          chainId: chainId || DEFAULT_CHAIN
+        })
+      )
+      dispatch(seNetworkConfigs({
+        chainId,
+        engine,
+        configs: engine.profile.configs
+      }))
+      // dispatch(setEngine({ engine }))
     }
 
     intConfig()
