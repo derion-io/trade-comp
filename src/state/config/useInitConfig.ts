@@ -57,29 +57,30 @@ export const useInitConfig = ({
   }, [location, useHistory, chainId, useSubPage, language, env])
 
   useEffect(() => {
-    if (!chainId) return
-    if (!account) {
-      console.log('=======await sync account========')
+    const intConfig = async () => {
+      if (!chainId) return
+      if (!account) {
+        console.log('=======await sync account========')
+      }
+
+      const engine = new Engine(
+        {
+          chainId,
+          account: account || ZERO_ADDRESS,
+          signer: library?.getSigner(),
+          scanApiKey: currentScanApiKey || '',
+          storage: {
+            // @ts-ignore
+            setItem: (itemName, value) => localStorage.setItem(itemName, value),
+            // @ts-ignore
+            getItem: (itemName) => localStorage.getItem(itemName)
+          }
+        }
+      )
+      await engine.initServices()
+      dispatch(setEngine({ engine }))
     }
 
-    console.log('chainId', chainId)
-    const engine = new Engine(
-      account || ZERO_ADDRESS,
-      {
-        storage: {
-          // @ts-ignore
-          setItem: (itemName, value) => localStorage.setItem(itemName, value),
-          // @ts-ignore
-          getItem: (itemName) => localStorage.getItem(itemName)
-        },
-        signer: library?.getSigner(),
-        ...configs[chainId || DEFAULT_CHAIN],
-        scanApiKey: currentScanApiKey || '',
-        account: account || ZERO_ADDRESS
-      },
-      chainId
-    )
-    console.log('engine', engine)
-    dispatch(setEngine({ engine }))
+    intConfig()
   }, [library, account, chainId, currentScanApiKey])
 }
