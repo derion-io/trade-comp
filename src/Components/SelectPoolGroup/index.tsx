@@ -1,3 +1,4 @@
+
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useResource } from '../../state/resources/hooks/useResource'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
@@ -17,6 +18,7 @@ import {
   TextGrey
 } from '../ui/Text'
 import formatLocalisedCompactNumber from '../../utils/formatBalance'
+import { useWindowSize } from '../../hooks/useWindowSize'
 let isManualSelect = false
 export const SelectPoolGroup = () => {
   const [active, setActive] = useState<boolean>(false)
@@ -28,6 +30,8 @@ export const SelectPoolGroup = () => {
   const { tokens } = useListTokens()
   const { getTokenValue } = useTokenValue({})
   const [poolGroupsValue, setPoolGroupsValue] = useState<any>()
+  const {width} = useWindowSize()
+  const isPhone = width && width < 768
   const getPoolValue = (pool:any):number => {
     return Number(getTokenValue(pool?.TOKEN_R, IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimals), true))
   }
@@ -80,9 +84,18 @@ export const SelectPoolGroup = () => {
   useEffect(() => {
     if (poolGroups && Object.values(poolGroups).length > 0) localStorage.removeItem('maxValuePoolGroup')
   }, [chainId])
+  useEffect(() => {
+    if (!isPhone || !wrapperRef.current) return
+    const wrapper = wrapperRef.current as any
+    wrapper.style.marginRight = !active ? '1vw' : '0vw'
+    wrapper.style.width = !active ? 'auto' : '94vw'
+    wrapper.style.position = !active ? 'relative' : 'absolute'
+  }, [active, isPhone])
+
   if (!poolGroups || Object.values(poolGroups).length === 0) {
     return <div />
   }
+
   return (
     <div
       onClick={() => {
@@ -151,7 +164,6 @@ const PoolGroupOption = ({
                ? `($${formatLocalisedCompactNumber(formatFloat(Math.round(poolGroupsValue.totalLiquidValue), 0))})` : '')}`}
           </TextGrey>
           : ''}
-          {/* ///12 */}
       </span>
       {poolGroupsValue.playingTokensValue.map((playingToken:any) => {
         const { address, value } = playingToken

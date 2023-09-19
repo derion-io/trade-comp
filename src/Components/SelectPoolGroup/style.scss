@@ -1,10 +1,12 @@
+
+
 @import "src/styles/abstracts/variables";
 .select-pool-group {
   background: $color-card-bg;
   border: 1px solid $color-primary;
   position: relative;
   border-radius: 10px;
-
+  width: 100%;
   &__wrap {
     position: relative;
     height: 35px;
@@ -14,11 +16,12 @@
       height: 26px;
     }
   }
-
   & * {
     box-sizing: border-box;
   }
-
+  .full-width {
+    width: 100vw
+  }
   &__dropdown {
     width: 100%;
     transition: all ease-out 0.25s;
@@ -50,8 +53,9 @@
 
     &>*:not(:first-child){
       @include respond(phone) {
-        display: none;
+        // display: none;
       }
     }
   }
 }
+
