@@ -11,6 +11,7 @@ import { SkeletonLoader } from '../../ui/SkeletonLoader'
 import { useFeeData } from '../../../state/resources/hooks/useFeeData'
 import { Position } from '../../../utils/type'
 import { useSettings } from '../../../state/setting/hooks/useSettings'
+import Tooltip from '../../Tooltip/Tooltip'
 
 export const TxFee = ({
   position,
@@ -81,27 +82,37 @@ export const TxFee = ({
         </InfoRow>
       )}
       <InfoRow>
-        <TextGrey>Estimated Gas</TextGrey>
+        <TextGrey>Network Fee</TextGrey>
         <SkeletonLoader loading={!!loading}>
           {!gasUsed || gasUsed?.isZero() ? (
             <Text>&nbsp;</Text>
           ) : (
-            <Text>{formatWeiToDisplayNumber(gasUsed, 0, 0)}</Text>
-          )}
-        </SkeletonLoader>
-      </InfoRow>
-      <InfoRow>
-        <TextGrey>Estimated Fee</TextGrey>
-        <SkeletonLoader loading={!!loading}>
-          {!nativePrice || !gasPrice || !gasUsed || gasUsed?.isZero() ? (
-            <Text>&nbsp;</Text>
-          ) : (
-            <Text>
-              {IEW(gasUsed.mul(gasPrice), 18, 5)}
-              <TextGrey> {chainId === 56 ? 'BNB' : 'ETH'} </TextGrey>
-              ($
-              {IEW(gasUsed.mul(gasPrice).mul(WEI(nativePrice)), 36, 2)})
-            </Text>
+            <Tooltip
+              position='right-bottom'
+              handle={
+                <div>
+                  {!nativePrice || !gasPrice || !gasUsed || gasUsed?.isZero() ? (
+                    <Text>&nbsp;</Text>
+                  ) : (
+                    <Text>
+                      {IEW(gasUsed.mul(gasPrice), 18, 5)}
+                      <TextGrey> {chainId === 56 ? 'BNB' : 'ETH'} </TextGrey>
+                      ($
+                      {IEW(gasUsed.mul(gasPrice).mul(WEI(nativePrice)), 36, 2)})
+                    </Text>
+                  )}
+                </div>
+              }
+              renderContent={() => (
+                <div>
+                  <TextGrey>Estimated Gas: </TextGrey>
+                  <Text>{formatWeiToDisplayNumber(gasUsed, 0, 0)}</Text>
+                  <hr style={{ visibility: 'hidden' }} />
+                  <TextGrey>Gas Price: </TextGrey>
+                  <Text>{gasPrice >= 1e6 ? formatWeiToDisplayNumber(gasPrice.div(1e6), 0, 0) + ' gwei' : formatWeiToDisplayNumber(gasPrice, 0, 0)}</Text>
+                </div>
+              )}
+            />
           )}
         </SkeletonLoader>
       </InfoRow>

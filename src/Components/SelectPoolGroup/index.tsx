@@ -1,3 +1,4 @@
+
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useResource } from '../../state/resources/hooks/useResource'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
@@ -10,9 +11,14 @@ import {
   POOL_IDS
 } from '../../utils/constant'
 import { TokenIcon } from '../ui/TokenIcon'
-import { IEW, bn } from '../../utils/helpers'
+import { IEW, bn, formatFloat } from '../../utils/helpers'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
 import { useConfigs } from '../../state/config/useConfigs'
+import {
+  TextGrey
+} from '../ui/Text'
+import formatLocalisedCompactNumber from '../../utils/formatBalance'
+import { useWindowSize } from '../../hooks/useWindowSize'
 
 export const SelectPoolGroup = () => {
   const [active, setActive] = useState<boolean>(false)
@@ -24,41 +30,62 @@ export const SelectPoolGroup = () => {
   const { tokens } = useListTokens()
   const { getTokenValue } = useTokenValue({})
   const [poolGroupsValue, setPoolGroupsValue] = useState<any>()
+  const {width} = useWindowSize()
+  const isPhone = width && width < 768
+  const getPoolValue = (pool:any):number => {
+    return Number(getTokenValue(pool?.TOKEN_R, IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimals), true))
+  }
+  const { chainId } = useConfigs()
   useMemo(() => {
     const poolGroupsUSDs = {}
+    let userTotalVolume = 0
     Object.keys(poolGroups).map((poolGroupKey: string) => {
       const poolGroup = poolGroups[poolGroupKey]
+      let totalPosValue = 0; let totalLiquidValue = 0
       if (!poolGroup) return []
-      const pools = Object.keys(poolGroup.pools)
+      const poolsKey = Object.keys(poolGroup.pools)
       const results = []
-      let hasLp = false
-      for (const poolAddress of pools) {
+      for (const poolAddress of poolsKey) {
         if (balances[poolAddress + '-' + POOL_IDS.A]) results.push(poolAddress + '-' + POOL_IDS.A)
         if (balances[poolAddress + '-' + POOL_IDS.B]) results.push(poolAddress + '-' + POOL_IDS.B)
-        if (balances[poolAddress + '-' + POOL_IDS.C] && !hasLp) {
+        if (balances[poolAddress + '-' + POOL_IDS.C]) {
           results.unshift(poolAddress + '-' + POOL_IDS.C)
-          hasLp = true
+          totalLiquidValue += getPoolValue(poolGroup.pools[poolAddress])
         }
       }
-      let totalValue = 0
       const playingTokensValue = results.map(address => {
         const value = Number(getTokenValue(address, IEW(balances[address], tokens[address]?.decimal || 18), true))
-        totalValue += value
+        totalPosValue += value
         return { address, value }
       })
-      poolGroupsUSDs[poolGroupKey] = { poolGroup, playingTokensValue, totalValue }
+      userTotalVolume += totalPosValue
+      poolGroupsUSDs[poolGroupKey] = { poolGroup, playingTokensValue, totalPosValue, totalLiquidValue }
       return null
     })
     const poolGroupsUSDsEntries = Object.entries(poolGroupsUSDs)
-    poolGroupsUSDsEntries.sort(([, a], [, b]) => (b as any).totalValue - (a as any).totalValue)
+
+    poolGroupsUSDsEntries.sort(([, a], [, b]) => 
+      ((b as any).totalPosValue ?? 0) - ((a as any).totalPosValue ?? 0) ||
+      ((b as any).totalLiquidValue ?? 0) - ((a as any).totalLiquidValue ?? 0)
+    )
+
     const sortedPoolGroupsUSDs = {}
+
     for (const [key, value] of poolGroupsUSDsEntries) sortedPoolGroupsUSDs[key] = value
     setPoolGroupsValue(sortedPoolGroupsUSDs)
-  }, [poolGroups, balances])
+  }, [poolGroups, balances, tokens])
+
+  useEffect(() => {
+    if (!isPhone || !wrapperRef.current) return
+    const wrapper = wrapperRef.current as any
+    wrapper.classList.toggle('select-pool-group-open', !active)
+    wrapper.classList.toggle('select-pool-group-close', active)
+  }, [active, isPhone])
 
   if (!poolGroups || Object.values(poolGroups).length === 0) {
     return <div />
   }
+
   return (
     <div
       onClick={() => {
@@ -68,7 +95,7 @@ export const SelectPoolGroup = () => {
       ref={wrapperRef}
     >
       <div className='select-pool-group'>
-        <PoolGroupOption poolGroupsValue={poolGroupsValue[id]} className='active' />
+        <PoolGroupOption active={active} poolGroupsValue={poolGroupsValue[id]} className='active' />
         {active && Object.keys(poolGroups).length > 1 && (
           <div
             className={
@@ -96,11 +123,13 @@ export const SelectPoolGroup = () => {
 const PoolGroupOption = ({
   poolGroupsValue,
   className,
-  id
+  id,
+  active
 }: {
   id?: string
-  poolGroupsValue: {playingTokensValue: any, poolGroup: any, totalValue: number}
+  poolGroupsValue: {playingTokensValue: any, poolGroup: any, totalPosValue: number, totalLiquidValue:number}
   className?: string
+  active?:boolean
 }) => {
   const { chainId } = useConfigs()
   const poolGroup = poolGroupsValue?.poolGroup
@@ -121,7 +150,11 @@ const PoolGroupOption = ({
     >
       <span>
         {tokens[poolGroup.baseToken]?.symbol}/
-        {tokens[poolGroup.quoteToken]?.symbol}
+        {tokens[poolGroup.quoteToken]?.symbol} {(className !== 'active' || active)
+          ? <TextGrey>{`${(poolGroupsValue.totalLiquidValue !== 0
+               ? `($${formatLocalisedCompactNumber(formatFloat(Math.round(poolGroupsValue.totalLiquidValue), 0))})` : '')}`}
+          </TextGrey>
+          : ''}
       </span>
       {poolGroupsValue.playingTokensValue.map((playingToken:any) => {
         const { address, value } = playingToken
