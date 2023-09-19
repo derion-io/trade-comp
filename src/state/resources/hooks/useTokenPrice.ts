@@ -38,7 +38,7 @@ export const useFetchTokenPrice = () => {
       })
     )
 
-    if (ddlEngine && tokenAddress.length > 0) {
+    if (ddlEngine?.PRICE && tokenAddress.length > 0) {
       ddlEngine.PRICE.getTokenPrices(tokenAddress)
         .then((data: any) => {
           dispatch(

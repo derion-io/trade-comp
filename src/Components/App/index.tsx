@@ -52,7 +52,7 @@ export const App = () => {
       initResource(account)
     }, TIME_TO_REFRESH_STATE)
     return () => clearInterval(intervalId)
-  }, [chainId, account])
+  }, [ddlEngine])
 
   useEffect(() => {
     if (!account) {
@@ -97,7 +97,7 @@ export const App = () => {
   return (
     <div className='exposure-interface app'>
       <input type='hidden' value={chainId} ref={chainIdRef} />
-      {!poolGroups || Object.keys(poolGroups).length === 0 ? (
+      {!poolGroups || !ddlEngine || Object.keys(poolGroups).length === 0 ? (
         <PageLoadingIndicator />
       ) : (
         ''
