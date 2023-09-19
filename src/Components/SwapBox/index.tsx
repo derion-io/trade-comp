@@ -53,7 +53,7 @@ const Component = ({
   const { setCurrentPoolAddress } = useCurrentPool()
   const { balances, accFetchBalance } = useWalletBalance()
   const { tokens } = useListTokens()
-  const { callError, gasUsed, amountOut, payloadAmountIn, pairIndexR } =
+  const { callError, gasUsed, amountOut, payloadAmountIn } =
     useCalculateSwap({
       amountIn,
       setAmountIn,
@@ -315,7 +315,6 @@ const Component = ({
 
       <div className='actions'>
         <ButtonSwap
-          pairIndexR={pairIndexR}
           payoffRate={payoffRate}
           payloadAmountIn={payloadAmountIn}
           inputTokenAddress={inputTokenAddress}
