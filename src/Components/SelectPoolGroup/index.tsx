@@ -101,7 +101,7 @@ export const SelectPoolGroup = () => {
     wrapper.classList.toggle('select-pool-group-close', active)
   }, [active, isPhone])
 
-  if (!poolGroups || Object.values(poolGroups).length === 0) {
+  if (!poolGroups || Object.values(poolGroups).length === 0 || !poolGroupsValue || Object.values(poolGroupsValue).length === 0) {
     return <div />
   }
 
