@@ -63,8 +63,10 @@ export const useInitConfig = ({
         console.log('=======await sync account========')
       }
 
+      console.log('env', env);
       const engine = new Engine(
         {
+          env,
           chainId,
           account: account || ZERO_ADDRESS,
           signer: library?.getSigner(),
@@ -82,5 +84,5 @@ export const useInitConfig = ({
     }
 
     intConfig()
-  }, [library, account, chainId, currentScanApiKey])
+  }, [library, account, chainId, env, currentScanApiKey])
 }
