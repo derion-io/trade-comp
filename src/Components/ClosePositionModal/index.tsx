@@ -258,18 +258,12 @@ const Component = ({
             />
           )}
         </div>
-        {Number(decodeErc1155Address(inputTokenAddress).id) === POOL_IDS.C ? (
-          <PoolInfo
-            outputTokenAddress={outputTokenAddress}
-            inputTokenAddress={inputTokenAddress}
-          />
-        ) : (
-          <PositionInfo
-            position={position}
-            setValueInUsdStatus={setValueInUsdStatus}
-            valueInUsdStatus={valueInUsdStatus}
-          />
-        )}
+
+        <PositionInfo
+          position={position}
+          setValueInUsdStatus={setValueInUsdStatus}
+          valueInUsdStatus={valueInUsdStatus}
+        />
 
         <div className='text-center mt-1 mb-1'>
           <IconArrowDown fill='#01A7FA' />
