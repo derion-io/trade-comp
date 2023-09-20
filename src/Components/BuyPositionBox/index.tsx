@@ -588,7 +588,7 @@ const Component = ({
           </div>
         </Box>
       )}
-      {leverageData.length > 0 && (
+      {leverageData.length > 1 && (
         <LeverageSlider
           barData={barData}
           setBarData={(e: any) => {
