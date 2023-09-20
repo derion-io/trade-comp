@@ -589,15 +589,17 @@ const Component = ({
         </Box>
       )}
       {leverageData.length > 0 && (
-        <LeverageSlider
-          barData={barData}
-          setBarData={(e: any) => {
-            setBarData(e)
-          }}
-          leverageData={leverageData}
-          height={100}
-          key={id}
-        />
+        <div className={ leverageData.length === 1 ? 'hidden' : ''}>
+          <LeverageSlider
+            barData={barData}
+            setBarData={(e: any) => {
+              setBarData(e)
+            }}
+            leverageData={leverageData}
+            height={100}
+            key={id}
+          />
+        </div>
       )}
 
       <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
