@@ -106,11 +106,17 @@ export const TxFee = ({
               }
               renderContent={() => (
                 <div>
-                  <TextGrey>Estimated Gas: </TextGrey>
-                  <Text>{formatWeiToDisplayNumber(gasUsed, 0, 0)}</Text>
-                  <hr style={{ visibility: 'hidden' }} />
-                  <TextGrey>Gas Price: </TextGrey>
-                  <Text>{gasPrice >= 1e6 ? formatWeiToDisplayNumber(gasPrice.div(1e6), 0, 0) + ' gwei' : formatWeiToDisplayNumber(gasPrice, 0, 0)}</Text>
+                  <div>
+                    <TextGrey>Estimated Gas:&nbsp;</TextGrey>
+                    <Text>{formatWeiToDisplayNumber(gasUsed, 0, 0)}</Text>
+                  </div>
+                  <div>
+                    <TextGrey>Gas Price:&nbsp;</TextGrey>
+                    <Text>{gasPrice.gte(1e6) ?
+                      formatWeiToDisplayNumber(gasPrice.div(1e6), 0, 0) + ' gwei' :
+                      formatWeiToDisplayNumber(gasPrice, 0, 0) + ' wei'
+                    }</Text>
+                  </div>
                 </div>
               )}
             />
