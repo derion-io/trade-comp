@@ -21,7 +21,7 @@
   border: solid 1px;
   z-index: 10000;
   @include respond(phone) {
-    min-width: 50vw;
+    min-width: 55vw;
     max-width: 70vw;
   }
 }
