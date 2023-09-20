@@ -7,30 +7,14 @@
 }
 
 .tooltip-popup {
-  font-size: var(--font-sm);
-  line-height: 1.6rem;
   position: absolute;
   border-radius: 4px;
   padding: 1.05rem;
-  letter-spacing: 0.4px;
-  min-width: 20rem;
-  text-align: left;
-  white-space: normal;
+  white-space: nowrap;
   background: #1B1D21;
   opacity: 0.95;
   border: solid 1px;
   z-index: 10000;
-  @include respond(phone) {
-    min-width: 55vw;
-    max-width: 70vw;
-  }
-}
-.tooltip-thematic-break {
-  width: 'auto'
-}
-.tooltip.nowrap .tooltip-popup {
-  min-width: auto;
-  white-space: nowrap;
 }
 
 .tooltip-popup :first-child {

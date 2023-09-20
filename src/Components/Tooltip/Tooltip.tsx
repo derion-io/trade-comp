@@ -75,7 +75,3 @@ export default function Tooltip(props: Props) {
     </span>
   )
 }
-
-export function TooltipThematicBreak () {
-  return <hr className='tooltip-thematic-break'/>
-}
