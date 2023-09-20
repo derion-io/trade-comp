@@ -1,5 +1,5 @@
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useResource } from '../../state/resources/hooks/useResource'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 import { useListTokens } from '../../state/token/hook'
@@ -95,7 +95,7 @@ export const SelectPoolGroup = () => {
       ref={wrapperRef}
     >
       <div className='select-pool-group'>
-        <PoolGroupOption active={active} poolGroupsValue={poolGroupsValue[id]} className='active' />
+        <PoolGroupOption active={active} slice={3} poolGroupsValue={poolGroupsValue[id]} className='active' />
         {active && Object.keys(poolGroups).length > 1 && (
           <div
             className={
@@ -124,18 +124,22 @@ const PoolGroupOption = ({
   poolGroupsValue,
   className,
   id,
-  active
+  active,
+  slice
 }: {
   id?: string
   poolGroupsValue: {playingTokensValue: any, poolGroup: any, totalPosValue: number, totalLiquidValue:number}
   className?: string
   active?:boolean
+  slice?: number
 }) => {
   const { chainId } = useConfigs()
   const poolGroup = poolGroupsValue?.poolGroup
   const { balances } = useWalletBalance()
   const { tokens } = useListTokens()
   const { updateCurrentPoolGroup } = useCurrentPoolGroup()
+  const {width} = useWindowSize()
+  const isPhone = width && width < 768
   if (!poolGroup) return <React.Fragment />
 
   return (
@@ -156,7 +160,7 @@ const PoolGroupOption = ({
           </TextGrey>
           : ''}
       </span>
-      {poolGroupsValue.playingTokensValue.map((playingToken:any) => {
+      {(!active && isPhone && slice ? poolGroupsValue.playingTokensValue?.slice(0, slice) : poolGroupsValue?.playingTokensValue).map((playingToken:any) => {
         const { address, value } = playingToken
         if (value < MIN_POSITON_VALUE_USD_TO_DISPLAY) return null
         if (balances[address] && bn(balances[address]).gt(0)) {
