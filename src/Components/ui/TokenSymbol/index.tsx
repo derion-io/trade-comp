@@ -19,7 +19,6 @@ export const TokenSymbol = ({
   token: string
   textWrap?: any
 }) => {
-  const { baseToken, quoteToken } = useCurrentPoolGroup()
   const { tokens } = useListTokens()
   const { pools } = useResource()
   const { wrapToNativeAddress } = useHelper()
@@ -33,6 +32,8 @@ export const TokenSymbol = ({
       if (!pool) {
         return <span className='font-size-14'>{symbol}</span>
       }
+
+      const { baseToken, quoteToken, TOKEN_R, k } = pool
 
       const TextComp =
         textWrap ||
@@ -51,10 +52,10 @@ export const TokenSymbol = ({
           ? 'Short'
           : 'Liquidity'
       const power = getTokenPower(
-        pool.TOKEN_R,
+        TOKEN_R,
         baseToken,
         Number(id),
-        pool?.k.toNumber()
+        k.toNumber()
       )
       const base = tokens[wrapToNativeAddress(baseToken)]?.symbol
       const quote = tokens[wrapToNativeAddress(quoteToken)]?.symbol

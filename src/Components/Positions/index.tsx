@@ -20,7 +20,8 @@ import {
   shortenAddressString,
   sub,
   IEW,
-  xr
+  xr,
+  oracleToPoolGroupId
 } from '../../utils/helpers'
 import { useListTokens } from '../../state/token/hook'
 import { PoolType } from '../../state/resources/type'
@@ -50,6 +51,7 @@ import { useWindowSize } from '../../hooks/useWindowSize'
 import { InfoRow } from '../ui/InfoRow'
 import moment from 'moment'
 import { ClosingFeeCalculator, Position } from '../../utils/type'
+import { useResource } from '../../state/resources/hooks/useResource'
 
 export enum VALUE_IN_USD_STATUS {
   AUTO,
@@ -64,7 +66,8 @@ export const Positions = ({
   setOutputTokenAddressToBuy: any
   tokenOutMaturity: BigNumber
 }) => {
-  const { pools, tradeType, setTradeType, id } = useCurrentPoolGroup()
+  const { tradeType, updateCurrentPoolGroup } = useCurrentPoolGroup()
+  const { pools } = useResource()
   const { balances, maturities } = useWalletBalance()
   const { tokens } = useListTokens()
   const { getTokenValue } = useTokenValue({})
@@ -98,9 +101,7 @@ export const Positions = ({
   const positionsWithEntry = useMemo(() => {
     if (
       ddlEngine?.HISTORY &&
-      Object.values(pools).length > 0 &&
-      ddlEngine?.CURRENT_POOL.pools &&
-      id
+      Object.values(pools).length > 0
     ) {
       return (
         ddlEngine.HISTORY.generatePositions?.({
@@ -110,7 +111,7 @@ export const Positions = ({
       )
     }
     return {}
-  }, [sls, pools, ddlEngine?.CURRENT_POOL, id, tokens, valueInUsdStatus])
+  }, [sls, pools, tokens])
 
   const generatePositionData = (
     poolAddress: string,
@@ -124,9 +125,9 @@ export const Positions = ({
       const entryPrice = posWithEntry?.entryPrice
       const entryValue = posWithEntry?.balance?.gt(0)
         ? div(
-            mul(balances[token], posWithEntry?.entry ?? 0),
-            posWithEntry.balance
-          )
+          mul(balances[token], posWithEntry?.entry ?? 0),
+          posWithEntry.balance
+        )
         : '0'
       const entryValueR = IEW(
         posWithEntry?.totalEntryR ?? 0,
@@ -164,9 +165,9 @@ export const Positions = ({
         (tokens?.[quoteToken]?.decimal ?? 18)
       const mark = MARK
         ? MARK.mul(MARK)
-            .mul(bn(10).pow(decimalsOffset + 12))
-            .shr(256)
-            .toNumber() / 1000000000000
+          .mul(bn(10).pow(decimalsOffset + 12))
+          .shr(256)
+          .toNumber() / 1000000000000
         : 1
 
       const xA = xr(k, R.shr(1), a)
@@ -177,8 +178,8 @@ export const Positions = ({
         side === POOL_IDS.A
           ? zerofy(dgA)
           : side === POOL_IDS.B
-          ? zerofy(dgB)
-          : `${zerofy(dgB)}-${zerofy(dgA)}`
+            ? zerofy(dgB)
+            : `${zerofy(dgB)}-${zerofy(dgA)}`
 
       const sizeDisplay =
         side === POOL_IDS.A || side === POOL_IDS.B
@@ -280,7 +281,7 @@ export const Positions = ({
                       {formatWeiToDisplayNumber(
                         position.balance,
                         4,
-                        tokens[position.token].decimals
+                        tokens[position.token].decimal
                       )}
                     </Text>
                   </InfoRow>
@@ -451,16 +452,20 @@ export const Positions = ({
                 <tr
                   className='position-row'
                   onClick={() => {
+                    const pool = pools[position.poolAddress]
+                    if (pool?.ORACLE?.length) {
+                      updateCurrentPoolGroup(oracleToPoolGroupId(pool.ORACLE))
+                    }
                     if (tradeType === TRADE_TYPE.SWAP) {
                       setOutputTokenAddressToBuy(position.token)
                       return
                     }
                     const { address } = decodeErc1155Address(position.token)
                     const side =
-                      tradeType === TRADE_TYPE.LONG ? POOL_IDS.A :
-                      tradeType === TRADE_TYPE.SHORT ? POOL_IDS.B :
-                      POOL_IDS.C
-                    setOutputTokenAddressToBuy(encodeErc1155Address(address, side)) 
+                      tradeType === TRADE_TYPE.LONG ? POOL_IDS.A
+                        : tradeType === TRADE_TYPE.SHORT ? POOL_IDS.B
+                          : POOL_IDS.C
+                    setOutputTokenAddressToBuy(encodeErc1155Address(address, side))
                   }}
                   key={key}
                 >
@@ -471,10 +476,10 @@ export const Positions = ({
                         !settings.showBalance
                           ? undefined
                           : formatWeiToDisplayNumber(
-                              position.balance,
-                              4,
-                              tokens[position.token].decimals
-                            )
+                            position.balance,
+                            4,
+                            tokens[position.token].decimal
+                          )
                       }
                     />
                   </td>
@@ -541,12 +546,13 @@ export const Positions = ({
                   <td className='text-right'>
                     <ButtonSell
                       size='small'
-                      onClick={() => {
+                      onClick={(e) => {
                         setClosingPosition(position)
                         setOutputTokenAddress(
                           wrapToNativeAddress(position.pool.TOKEN_R)
                         )
                         setVisible(true)
+                        e.stopPropagation() // stop the index to be changed
                       }}
                     >
                       {position.side === POOL_IDS.C ? 'Remove' : 'Close'}
@@ -570,16 +576,16 @@ export const Positions = ({
           title={
             Number(decodeErc1155Address(closingPosition.token).id) ===
             POOL_IDS.C ? (
-              <Text>
+                <Text>
                 Remove{' '}
-                <TokenSymbol token={closingPosition.token} textWrap={Text} />{' '}
-              </Text>
-            ) : (
-              <Text>
+                  <TokenSymbol token={closingPosition.token} textWrap={Text} />{' '}
+                </Text>
+              ) : (
+                <Text>
                 Close{' '}
-                <TokenSymbol token={closingPosition.token} textWrap={Text} />{' '}
-              </Text>
-            )
+                  <TokenSymbol token={closingPosition.token} textWrap={Text} />{' '}
+                </Text>
+              )
           }
         />
       ) : (

@@ -402,3 +402,7 @@ export const whatDecimalSeparator = (): string => {
   // return n.toLocaleString().substring(1, 2)
   return '.'
 }
+
+export const oracleToPoolGroupId = (ORACLE: string): string => {
+  return ethers.utils.getAddress('0x' + ORACLE.substring(26))
+}
