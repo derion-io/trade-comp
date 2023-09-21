@@ -546,12 +546,13 @@ export const Positions = ({
                   <td className='text-right'>
                     <ButtonSell
                       size='small'
-                      onClick={() => {
+                      onClick={(e) => {
                         setClosingPosition(position)
                         setOutputTokenAddress(
                           wrapToNativeAddress(position.pool.TOKEN_R)
                         )
                         setVisible(true)
+                        e.stopPropagation() // stop the index to be changed
                       }}
                     >
                       {position.side === POOL_IDS.C ? 'Remove' : 'Close'}
