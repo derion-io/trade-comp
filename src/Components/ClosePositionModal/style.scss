@@ -32,3 +32,13 @@
     }
   }
 }
+
+
+.amount-input-box {
+  &__head {
+    &--balance {
+      border-bottom: 1px dashed $color-text-grey;
+      cursor: pointer;
+    }
+  }
+}

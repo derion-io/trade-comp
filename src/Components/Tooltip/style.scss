@@ -70,11 +70,7 @@
   cursor: help;
   position: relative;
   display: inline-flex;
-  text-decoration: underline;
-  text-decoration-style: dashed;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 2px;
-  text-decoration-color: rgba(255, 255, 255, 0.6);
+  border-bottom: 1px dashed $color-text-grey;
 }
 
 .tooltip-handle.plain:after {
