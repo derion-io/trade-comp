@@ -9,7 +9,7 @@ import { useConfigs } from '../../state/config/useConfigs'
 import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 import { BigNumber } from 'ethers'
 import { CHAINS, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
-import { TextError } from '../ui/Text'
+import { TextSell } from '../ui/Text'
 import { useSettings } from '../../state/setting/hooks/useSettings'
 import { ApproveUtrModal } from '../ApproveUtrModal'
 import { useResource } from '../../state/resources/hooks/useResource'
@@ -224,7 +224,7 @@ export const ButtonSwap = ({
     <React.Fragment>
       {payoffRate && slippage > settings.slippageTolerance && !loadingAmountOut ? (
         <div className='text-center mb-1'>
-          <TextError>Market spread and/or slippage is too high.</TextError>
+          <TextSell>High Market Spread and Slippage</TextSell>
         </div>
       ) : (
         ''
