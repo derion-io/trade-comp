@@ -20,7 +20,8 @@ import {
   shortenAddressString,
   sub,
   IEW,
-  xr
+  xr,
+  oracleToPoolGroupId
 } from '../../utils/helpers'
 import { useListTokens } from '../../state/token/hook'
 import { PoolType } from '../../state/resources/type'
@@ -65,7 +66,7 @@ export const Positions = ({
   setOutputTokenAddressToBuy: any
   tokenOutMaturity: BigNumber
 }) => {
-  const { tradeType } = useCurrentPoolGroup()
+  const { tradeType, updateCurrentPoolGroup } = useCurrentPoolGroup()
   const { pools } = useResource()
   const { balances, maturities } = useWalletBalance()
   const { tokens } = useListTokens()
@@ -451,6 +452,10 @@ export const Positions = ({
                 <tr
                   className='position-row'
                   onClick={() => {
+                    const pool = pools[position.poolAddress]
+                    if (pool?.ORACLE?.length) {
+                      updateCurrentPoolGroup(oracleToPoolGroupId(pool.ORACLE))
+                    }
                     if (tradeType === TRADE_TYPE.SWAP) {
                       setOutputTokenAddressToBuy(position.token)
                       return
