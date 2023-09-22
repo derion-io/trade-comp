@@ -1,8 +1,5 @@
-import { Text, TextError, TextWarning } from '../../ui/Text'
-import {
-  formatFloat,
-  zerofy
-} from '../../../utils/helpers'
+import { Text } from '../../ui/Text'
+import { formatFloat, zerofy } from '../../../utils/helpers'
 import { Box } from '../../ui/Box'
 import React from 'react'
 import { InfoRow } from '../../ui/InfoRow'

@@ -35,7 +35,6 @@ export const App = () => {
     try {
       setTimeout(() => {
         if (ddlEngine?.CURRENT_POOL && poolGroups && poolGroups[id]) {
-          // @ts-ignore
           ddlEngine.setCurrentPool({
             ...poolGroups[id]
           })
@@ -97,11 +96,14 @@ export const App = () => {
   return (
     <div className='exposure-interface app'>
       <input type='hidden' value={chainId} ref={chainIdRef} />
-      {!poolGroups || !ddlEngine || !configs.name || Object.keys(poolGroups).length === 0 ? (
-        <PageLoadingIndicator />
-      ) : (
-        ''
-      )}
+      {!poolGroups ||
+      !ddlEngine ||
+      !configs.name ||
+      Object.keys(poolGroups).length === 0 ? (
+          <PageLoadingIndicator />
+        ) : (
+          ''
+        )}
       {/* @ts-ignore */}
       <ErrorBoundary>
         <Trade

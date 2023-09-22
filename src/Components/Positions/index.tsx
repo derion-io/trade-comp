@@ -99,10 +99,7 @@ export const Positions = ({
   }, [])
 
   const positionsWithEntry = useMemo(() => {
-    if (
-      ddlEngine?.HISTORY &&
-      Object.values(pools).length > 0
-    ) {
+    if (ddlEngine?.HISTORY && Object.values(pools).length > 0) {
       return (
         ddlEngine.HISTORY.generatePositions?.({
           tokens: Object.values(tokens),
@@ -462,10 +459,14 @@ export const Positions = ({
                     }
                     const { address } = decodeErc1155Address(position.token)
                     const side =
-                      tradeType === TRADE_TYPE.LONG ? POOL_IDS.A
-                        : tradeType === TRADE_TYPE.SHORT ? POOL_IDS.B
+                      tradeType === TRADE_TYPE.LONG
+                        ? POOL_IDS.A
+                        : tradeType === TRADE_TYPE.SHORT
+                          ? POOL_IDS.B
                           : POOL_IDS.C
-                    setOutputTokenAddressToBuy(encodeErc1155Address(address, side))
+                    setOutputTokenAddressToBuy(
+                      encodeErc1155Address(address, side)
+                    )
                   }}
                   key={key}
                 >

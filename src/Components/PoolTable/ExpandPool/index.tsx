@@ -22,6 +22,7 @@ import { useConfigs } from '../../../state/config/useConfigs'
 import { ButtonExecute } from '../../ui/Button'
 import isEqual from 'react-fast-compare'
 import { Divider } from '../../ui/Divider'
+import { BigNumber } from 'ethers'
 
 export const SECONDS_PER_YEAR = 31536000
 export const SECONDS_PER_DAY = 86400
@@ -82,7 +83,8 @@ const Component = ({ visible, pool }: { visible: boolean; pool: PoolType }) => {
           return { power, index }
         })
         .filter(({ power }: any) => {
-          return power > 0 === powersIsPositive
+          const isPowerGreaterThanZero = power > 0
+          return isPowerGreaterThanZero === powersIsPositive
           // return (power > 0) === powersIsPositive && pool.states.totalSupplies[index].gt(0)
         })
         .sort((a: any, b: any) => b.power - a.power)
@@ -115,7 +117,10 @@ const Component = ({ visible, pool }: { visible: boolean; pool: PoolType }) => {
                   <TextBlue>
                     $
                     {formatFloat(
-                      IEW(value, 18 + tokens[dTokens[index]].decimal),
+                      IEW(
+                        BigNumber.from(value),
+                        18 + tokens[dTokens[index]].decimal
+                      ),
                       2
                     )}
                   </TextBlue>

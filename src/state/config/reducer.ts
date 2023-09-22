@@ -52,10 +52,6 @@ export const tokens = createSlice({
 })
 
 // Actions
-export const {
-  setConfigs,
-  setEngine,
-  seNetworkConfigs
-} = tokens.actions
+export const { setConfigs, setEngine, seNetworkConfigs } = tokens.actions
 
 export default tokens.reducer

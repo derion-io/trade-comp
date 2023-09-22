@@ -74,9 +74,9 @@ export const FunctionPlot = (props: any) => {
     const b = formatFloat(IEW(states?.b))
     const mark = MARK
       ? MARK.mul(MARK)
-          .mul(bn(10).pow(decimalsOffset + 12))
-          .shr(256)
-          .toNumber() / 1000000000000
+        .mul(bn(10).pow(decimalsOffset + 12))
+        .shr(256)
+        .toNumber() / 1000000000000
       : 1
     const x =
       !states?.spot || !MARK

@@ -134,64 +134,64 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
         )}
         {chartData[chainId + interval + cToken] &&
           chartData[chainId + interval + cToken].length > 0 && (
-            <ResponsiveContainer>
-              <AreaChart
-                data={finalData}
-                margin={{
-                  top: 5,
-                  right: 0,
-                  left: 10,
-                  bottom: 5
+          <ResponsiveContainer>
+            <AreaChart
+              data={finalData}
+              margin={{
+                top: 5,
+                right: 0,
+                left: 10,
+                bottom: 5
+              }}
+            >
+              <defs>
+                <linearGradient id='gradient' x1='0' y1='0' x2='0' y2='1'>
+                  <stop offset='5%' stopColor={color} stopOpacity={0.34} />
+                  <stop offset='100%' stopColor={color} stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <XAxis
+                dataKey='time'
+                axisLine={false}
+                tickLine={false}
+                tickFormatter={(time) =>
+                  moment(time).format(interval === I_1D ? 'HH:mm' : 'DD/MM')
+                }
+                minTickGap={8}
+              />
+              <YAxis
+                dataKey='value'
+                tickFormatter={(tick) => {
+                  return zerofy(tick)
                 }}
-              >
-                <defs>
-                  <linearGradient id='gradient' x1='0' y1='0' x2='0' y2='1'>
-                    <stop offset='5%' stopColor={color} stopOpacity={0.34} />
-                    <stop offset='100%' stopColor={color} stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <XAxis
-                  dataKey='time'
-                  axisLine={false}
-                  tickLine={false}
-                  tickFormatter={(time) =>
-                    moment(time).format(interval === I_1D ? 'HH:mm' : 'DD/MM')
-                  }
-                  minTickGap={8}
-                />
-                <YAxis
-                  dataKey='value'
-                  tickFormatter={(tick) => {
-                    return zerofy(tick)
-                  }}
-                  axisLine={false}
-                  tickLine={false}
-                  domain={['auto', 'auto']}
-                  minTickGap={8}
-                  orientation='right'
-                />
-                <Tooltip
-                  cursor={{ stroke: '#a6a6a6' }}
-                  contentStyle={{ display: 'none' }}
-                  // @ts-ignore
-                  formatter={(tooltipValue, name, props) => (
-                    <HoverUpdater
-                      payload={props.payload}
-                      setHoverValue={setHoverValue}
-                      setHoverDate={setHoverDate}
-                    />
-                  )}
-                />
-                <Area
-                  dataKey='value'
-                  type='linear'
-                  stroke={color}
-                  fill='url(#gradient)'
-                  strokeWidth={2}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          )}
+                axisLine={false}
+                tickLine={false}
+                domain={['auto', 'auto']}
+                minTickGap={8}
+                orientation='right'
+              />
+              <Tooltip
+                cursor={{ stroke: '#a6a6a6' }}
+                contentStyle={{ display: 'none' }}
+                // @ts-ignore
+                formatter={(tooltipValue, name, props) => (
+                  <HoverUpdater
+                    payload={props.payload}
+                    setHoverValue={setHoverValue}
+                    setHoverDate={setHoverDate}
+                  />
+                )}
+              />
+              <Area
+                dataKey='value'
+                type='linear'
+                stroke={color}
+                fill='url(#gradient)'
+                strokeWidth={2}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        )}
       </div>
     </div>
   )

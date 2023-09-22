@@ -49,15 +49,15 @@ export const useTokenValue = ({
           Number(id) === POOL_IDS.A
             ? pool.states.rA
             : Number(id) === POOL_IDS.B
-            ? pool.states.rB
-            : pool.states.rC
+              ? pool.states.rB
+              : pool.states.rC
 
         const sX =
           Number(id) === POOL_IDS.A
             ? pool.states.sA
             : Number(id) === POOL_IDS.B
-            ? pool.states.sB
-            : pool.states.sC
+              ? pool.states.sB
+              : pool.states.sC
 
         // TOTO: need remove mul(numberToWei(1, 9) after fix parseSqrtX96 function
         const tokenPrice =
@@ -66,7 +66,7 @@ export const useTokenValue = ({
                 prices[pool.TOKEN_R]?.mul(WEI(1, 9)) || bn(0),
                 tokens[pool.TOKEN_R] || {},
                 tokens[configs.stablecoins[0]] || {}
-              )
+            )
             : WEI(1, 18)
         value = IEW(BIG(WEI(_amount)).mul(WEI(tokenPrice)).mul(rX).div(sX), 54)
       }
@@ -78,7 +78,7 @@ export const useTokenValue = ({
               prices[address]?.mul(WEI(1, 9)) || bn(0),
               tokens[address] || {},
               tokens[configs.stablecoins[0]] || {}
-            )
+          )
           : WEI(1, 18)
 
       value = IEW(BIG(WEI(_amount)).mul(WEI(tokenPrice)), 54)

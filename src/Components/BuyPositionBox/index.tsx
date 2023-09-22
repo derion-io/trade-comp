@@ -124,19 +124,14 @@ const Component = ({
     }
   }, [amountIn, tradeType])
 
-  const {
-    callError,
-    loading,
-    gasUsed,
-    amountOut,
-    payloadAmountIn
-  } = useCalculateSwap({
-    amountIn,
-    setAmountIn,
-    inputTokenAddress,
-    outputTokenAddress,
-    tokenOutMaturity
-  })
+  const { callError, loading, gasUsed, amountOut, payloadAmountIn } =
+    useCalculateSwap({
+      amountIn,
+      setAmountIn,
+      inputTokenAddress,
+      outputTokenAddress,
+      tokenOutMaturity
+    })
 
   useEffect(() => {
     if (Object.values(pools).length > 0) {
@@ -301,9 +296,9 @@ const Component = ({
       (tokens?.[quoteToken]?.decimal ?? 18)
     const mark = MARK
       ? MARK.mul(MARK)
-          .mul(bn(10).pow(decimalsOffset + 12))
-          .shr(256)
-          .toNumber() / 1000000000000
+        .mul(bn(10).pow(decimalsOffset + 12))
+        .shr(256)
+        .toNumber() / 1000000000000
       : 1
 
     const xA = xr(k, R.shr(1), a)
@@ -350,8 +345,8 @@ const Component = ({
           tradeType === TRADE_TYPE.LONG
             ? 'A'
             : tradeType === TRADE_TYPE.SHORT
-            ? 'B'
-            : 'C'
+              ? 'B'
+              : 'C'
         ] ?? 0
       )
     const fundingYield = interest - Number(poolToShow?.premium?.C ?? 0)
@@ -390,13 +385,13 @@ const Component = ({
               {!balances || !balances[inputTokenAddress]
                 ? 0
                 : formatLocalisedCompactNumber(
-                    formatFloat(
-                      IEW(
-                        balances[inputTokenAddress],
+                  formatFloat(
+                    IEW(
+                      balances[inputTokenAddress],
                         tokens[inputTokenAddress]?.decimal ?? 18
-                      )
                     )
-                  )}
+                  )
+                )}
             </Text>
           </div>
         </div>
@@ -415,10 +410,8 @@ const Component = ({
             )
           }
           className='fs-24'
-          // @ts-ignore
           value={amountIn}
           onChange={(e) => {
-            // @ts-ignore
             if (Number(e.target.value) >= 0) {
               setAmountIn((e.target as HTMLInputElement).value)
             }
@@ -446,8 +439,8 @@ const Component = ({
             tradeType === TRADE_TYPE.LONG
               ? 'buy'
               : tradeType === TRADE_TYPE.SHORT
-              ? 'sell'
-              : 'blue'
+                ? 'sell'
+                : 'blue'
           }
           className='estimate-box swap-info-box mt-1 mb-1'
         >
@@ -589,7 +582,7 @@ const Component = ({
         </Box>
       )}
       {leverageData.length > 0 && (
-        <div className={ leverageData.length === 1 ? 'hidden' : ''}>
+        <div className={leverageData.length === 1 ? 'hidden' : ''}>
           <LeverageSlider
             barData={barData}
             setBarData={(e: any) => {
@@ -684,24 +677,24 @@ const Component = ({
         )}
         {!poolToShow?.MATURITY?.toNumber() ||
           !poolToShow?.MATURITY_RATE?.gt(0) || (
-            <InfoRow>
-              <TextGrey>Closing Fee</TextGrey>
-              <SkeletonLoader loading={!poolToShow}>
-                {formatPercent(
-                  Q128.sub(poolToShow?.MATURITY_RATE)
-                    .mul(10000)
-                    .div(Q128)
-                    .toNumber() / 10000,
-                  2,
-                  true
-                )}
+          <InfoRow>
+            <TextGrey>Closing Fee</TextGrey>
+            <SkeletonLoader loading={!poolToShow}>
+              {formatPercent(
+                Q128.sub(poolToShow?.MATURITY_RATE)
+                  .mul(10000)
+                  .div(Q128)
+                  .toNumber() / 10000,
+                2,
+                true
+              )}
                 % for{' '}
-                {moment
-                  .duration(poolToShow?.MATURITY.toNumber(), 'seconds')
-                  .humanize()}
-              </SkeletonLoader>
-            </InfoRow>
-          )}
+              {moment
+                .duration(poolToShow?.MATURITY.toNumber(), 'seconds')
+                .humanize()}
+            </SkeletonLoader>
+          </InfoRow>
+        )}
       </Box>
 
       <TxFee
@@ -745,19 +738,19 @@ const Component = ({
           title={
             Number(decodeErc1155Address(outputTokenAddress).id) ===
             POOL_IDS.A ? (
-              <Text>
-                <TokenSymbol token={outputTokenAddress} textWrap={Text} />{' '}
-              </Text>
-            ) : Number(decodeErc1155Address(outputTokenAddress).id) ===
+                <Text>
+                  <TokenSymbol token={outputTokenAddress} textWrap={Text} />{' '}
+                </Text>
+              ) : Number(decodeErc1155Address(outputTokenAddress).id) ===
               POOL_IDS.B ? (
-              <Text>
-                <TokenSymbol token={outputTokenAddress} textWrap={Text} />{' '}
-              </Text>
-            ) : (
-              <Text>
+                  <Text>
+                    <TokenSymbol token={outputTokenAddress} textWrap={Text} />{' '}
+                  </Text>
+                ) : (
+                  <Text>
                 Add <TokenSymbol token={outputTokenAddress} textWrap={Text} />{' '}
-              </Text>
-            )
+                  </Text>
+                )
           }
         />
       </div>

@@ -110,19 +110,14 @@ const Component = ({
     }
   }, [valueBalance])
 
-  const {
-    callError,
-    gasUsed,
-    amountOut,
-    loading,
-    payloadAmountIn
-  } = useCalculateSwap({
-    amountIn,
-    setAmountIn,
-    inputTokenAddress,
-    outputTokenAddress,
-    tokenOutMaturity
-  })
+  const { callError, gasUsed, amountOut, loading, payloadAmountIn } =
+    useCalculateSwap({
+      amountIn,
+      setAmountIn,
+      inputTokenAddress,
+      outputTokenAddress,
+      tokenOutMaturity
+    })
 
   const { value: valueIn } = useTokenValue({
     amount: amountIn,
@@ -213,10 +208,8 @@ const Component = ({
                 )
               }
               className='fs-24'
-              // @ts-ignore
               value={amountIn}
               onChange={(e) => {
-                // @ts-ignore
                 if (Number(e.target.value) >= 0) {
                   setAmountIn((e.target as HTMLInputElement).value)
                 }
@@ -279,7 +272,6 @@ const Component = ({
             </SkeletonLoader>
             <SkeletonLoader loading={accFetchBalance !== account}>
               <Text>
-                
                 {'Balance: '}
                 {zerofy(
                   formatFloat(
@@ -305,7 +297,6 @@ const Component = ({
               )
             }
             className='fs-24'
-            // @ts-ignore
             value={amountOut}
           />
         </div>

@@ -262,10 +262,10 @@ export const AddLiquidityBox = ({
               Balance:{' '}
               {balances && balances[tokenAdd]
                 ? formatWeiToDisplayNumber(
-                    balances[tokenAdd],
-                    4,
+                  balances[tokenAdd],
+                  4,
                     tokens[tokenAdd]?.decimal || 18
-                  )
+                )
                 : 0}
             </Text>
           </SkeletonLoader>
@@ -273,10 +273,8 @@ export const AddLiquidityBox = ({
         <Input
           placeholder='0.0'
           className='fs-24'
-          // @ts-ignore
           value={amountIn}
           onChange={(e) => {
-            // @ts-ignore
             if (Number(e.target.value) >= 0) {
               setAmountIn((e.target as HTMLInputElement).value)
             }

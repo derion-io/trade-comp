@@ -1,5 +1,11 @@
 import { ButtonBuy, ButtonClose, ButtonExecute, ButtonSell } from '../ui/Button'
-import { bn, decodeErc1155Address, isErc1155Address, mul, WEI } from '../../utils/helpers'
+import {
+  bn,
+  decodeErc1155Address,
+  isErc1155Address,
+  mul,
+  WEI
+} from '../../utils/helpers'
 import { toast } from 'react-toastify'
 import React, { useMemo, useState } from 'react'
 import { useListTokens } from '../../state/token/hook'
@@ -60,9 +66,12 @@ export const ButtonSwap = ({
   const sideOut = Number(decodeErc1155Address(outputTokenAddress)?.id ?? 0)
 
   const ButtonComp =
-    sideOut === POOL_IDS.A ? ButtonBuy
-      : sideOut === POOL_IDS.B ? ButtonSell
-        : [POOL_IDS.R, POOL_IDS.native].includes(sideOut) ? ButtonClose
+    sideOut === POOL_IDS.A
+      ? ButtonBuy
+      : sideOut === POOL_IDS.B
+        ? ButtonSell
+        : [POOL_IDS.R, POOL_IDS.native].includes(sideOut)
+          ? ButtonClose
           : ButtonExecute
 
   const button = useMemo(() => {
@@ -132,9 +141,7 @@ export const ButtonSwap = ({
     } else {
       return (
         <ButtonComp
-          disabled={
-            slippage > settings.slippageTolerance || loadingAmountOut
-          }
+          disabled={slippage > settings.slippageTolerance || loadingAmountOut}
           className='swap-button'
           onClick={async () => {
             try {
@@ -195,9 +202,7 @@ export const ButtonSwap = ({
             }
           }}
         >
-          {loadingAmountOut || !amountOut
-            ? 'Calculating...'
-            : title}
+          {loadingAmountOut || !amountOut ? 'Calculating...' : title}
         </ButtonComp>
       )
     }
@@ -222,17 +227,18 @@ export const ButtonSwap = ({
 
   return (
     <React.Fragment>
-      {payoffRate && slippage > settings.slippageTolerance && !loadingAmountOut ? (
-        <div className='text-center mb-1'>
-          <TextSell>High Market Spread and Slippage</TextSell>
-        </div>
-      ) : (
-        ''
-      )}
+      {payoffRate &&
+      slippage > settings.slippageTolerance &&
+      !loadingAmountOut ? (
+          <div className='text-center mb-1'>
+            <TextSell>High Market Spread and Slippage</TextSell>
+          </div>
+        ) : (
+          ''
+        )}
       {button}
       <ApproveUtrModal
-        callBack={() => {
-        }}
+        callBack={() => {}}
         visible={visibleApproveModal}
         setVisible={setVisibleApproveModal}
         inputTokenAddress={inputTokenAddress}
