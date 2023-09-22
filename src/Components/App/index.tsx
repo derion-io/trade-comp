@@ -35,7 +35,6 @@ export const App = () => {
     try {
       setTimeout(() => {
         if (ddlEngine?.CURRENT_POOL && poolGroups && poolGroups[id]) {
-          // @ts-ignore
           ddlEngine.setCurrentPool({
             ...poolGroups[id]
           })
