@@ -45,12 +45,18 @@ export const SelectPoolGroup = () => {
       if (!poolGroup) return []
       const poolsKey = Object.keys(poolGroup.pools)
       const results = []
-      for (const poolAddress of poolsKey) {
-        if (balances[poolAddress + '-' + POOL_IDS.A]) results.push(poolAddress + '-' + POOL_IDS.A)
-        if (balances[poolAddress + '-' + POOL_IDS.B]) results.push(poolAddress + '-' + POOL_IDS.B)
-        if (balances[poolAddress + '-' + POOL_IDS.C]) {
-          results.unshift(poolAddress + '-' + POOL_IDS.C)
+      if (Object.keys(balances).length === 0) {
+        for (const poolAddress of Object.keys(poolGroup.pools)) {
           totalLiquidValue += getPoolValue(poolGroup.pools[poolAddress])
+        }
+      } else {
+        for (const poolAddress of poolsKey) {
+          if (balances[poolAddress + '-' + POOL_IDS.A]) results.push(poolAddress + '-' + POOL_IDS.A)
+          if (balances[poolAddress + '-' + POOL_IDS.B]) results.push(poolAddress + '-' + POOL_IDS.B)
+          if (balances[poolAddress + '-' + POOL_IDS.C]) {
+            results.unshift(poolAddress + '-' + POOL_IDS.C)
+            totalLiquidValue += getPoolValue(poolGroup.pools[poolAddress])
+          }
         }
       }
       const playingTokensValue = results.map(address => {
@@ -70,7 +76,6 @@ export const SelectPoolGroup = () => {
     )
 
     const sortedPoolGroupsUSDs = {}
-
     for (const [key, value] of poolGroupsUSDsEntries) sortedPoolGroupsUSDs[key] = value
     setPoolGroupsValue(sortedPoolGroupsUSDs)
   }, [poolGroups, balances, tokens])

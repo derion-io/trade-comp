@@ -278,7 +278,8 @@ const Component = ({
               </span>
             </SkeletonLoader>
             <SkeletonLoader loading={accFetchBalance !== account}>
-              <Text className='amount-input-box__head--balance'>
+              <Text>
+                
                 {'Balance: '}
                 {zerofy(
                   formatFloat(
