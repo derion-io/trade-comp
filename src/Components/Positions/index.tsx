@@ -99,10 +99,7 @@ export const Positions = ({
   }, [])
 
   const positionsWithEntry = useMemo(() => {
-    if (
-      ddlEngine?.HISTORY &&
-      Object.values(pools).length > 0
-    ) {
+    if (ddlEngine?.HISTORY && Object.values(pools).length > 0) {
       return (
         ddlEngine.HISTORY.generatePositions?.({
           tokens: Object.values(tokens),
@@ -125,9 +122,9 @@ export const Positions = ({
       const entryPrice = posWithEntry?.entryPrice
       const entryValue = posWithEntry?.balance?.gt(0)
         ? div(
-          mul(balances[token], posWithEntry?.entry ?? 0),
-          posWithEntry.balance
-        )
+            mul(balances[token], posWithEntry?.entry ?? 0),
+            posWithEntry.balance
+          )
         : '0'
       const entryValueR = IEW(
         posWithEntry?.totalEntryR ?? 0,
@@ -165,9 +162,9 @@ export const Positions = ({
         (tokens?.[quoteToken]?.decimal ?? 18)
       const mark = MARK
         ? MARK.mul(MARK)
-          .mul(bn(10).pow(decimalsOffset + 12))
-          .shr(256)
-          .toNumber() / 1000000000000
+            .mul(bn(10).pow(decimalsOffset + 12))
+            .shr(256)
+            .toNumber() / 1000000000000
         : 1
 
       const xA = xr(k, R.shr(1), a)
@@ -178,8 +175,8 @@ export const Positions = ({
         side === POOL_IDS.A
           ? zerofy(dgA)
           : side === POOL_IDS.B
-            ? zerofy(dgB)
-            : `${zerofy(dgB)}-${zerofy(dgA)}`
+          ? zerofy(dgB)
+          : `${zerofy(dgB)}-${zerofy(dgA)}`
 
       const sizeDisplay =
         side === POOL_IDS.A || side === POOL_IDS.B
@@ -462,10 +459,14 @@ export const Positions = ({
                     }
                     const { address } = decodeErc1155Address(position.token)
                     const side =
-                      tradeType === TRADE_TYPE.LONG ? POOL_IDS.A
-                        : tradeType === TRADE_TYPE.SHORT ? POOL_IDS.B
-                          : POOL_IDS.C
-                    setOutputTokenAddressToBuy(encodeErc1155Address(address, side))
+                      tradeType === TRADE_TYPE.LONG
+                        ? POOL_IDS.A
+                        : tradeType === TRADE_TYPE.SHORT
+                        ? POOL_IDS.B
+                        : POOL_IDS.C
+                    setOutputTokenAddressToBuy(
+                      encodeErc1155Address(address, side)
+                    )
                   }}
                   key={key}
                 >
@@ -476,10 +477,10 @@ export const Positions = ({
                         !settings.showBalance
                           ? undefined
                           : formatWeiToDisplayNumber(
-                            position.balance,
-                            4,
-                            tokens[position.token].decimal
-                          )
+                              position.balance,
+                              4,
+                              tokens[position.token].decimal
+                            )
                       }
                     />
                   </td>
@@ -576,16 +577,16 @@ export const Positions = ({
           title={
             Number(decodeErc1155Address(closingPosition.token).id) ===
             POOL_IDS.C ? (
-                <Text>
+              <Text>
                 Remove{' '}
-                  <TokenSymbol token={closingPosition.token} textWrap={Text} />{' '}
-                </Text>
-              ) : (
-                <Text>
+                <TokenSymbol token={closingPosition.token} textWrap={Text} />{' '}
+              </Text>
+            ) : (
+              <Text>
                 Close{' '}
-                  <TokenSymbol token={closingPosition.token} textWrap={Text} />{' '}
-                </Text>
-              )
+                <TokenSymbol token={closingPosition.token} textWrap={Text} />{' '}
+              </Text>
+            )
           }
         />
       ) : (

@@ -12,16 +12,14 @@ export const useHelper = () => {
   const convertNativeAddressToWrapAddress = (address: string) => {
     if (!address) return address
 
-    return address?.toLowerCase() ===
-      NATIVE_ADDRESS.toLowerCase()
+    return address?.toLowerCase() === NATIVE_ADDRESS.toLowerCase()
       ? configs.wrappedTokenAddress
       : address
   }
 
   const wrapToNativeAddress = (address: string) => {
     if (!address) return address
-    return address?.toLowerCase() ===
-      configs.wrappedTokenAddress.toLowerCase()
+    return address?.toLowerCase() === configs.wrappedTokenAddress.toLowerCase()
       ? NATIVE_ADDRESS
       : address
   }

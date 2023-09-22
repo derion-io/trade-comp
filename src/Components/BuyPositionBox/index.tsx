@@ -124,19 +124,14 @@ const Component = ({
     }
   }, [amountIn, tradeType])
 
-  const {
-    callError,
-    loading,
-    gasUsed,
-    amountOut,
-    payloadAmountIn
-  } = useCalculateSwap({
-    amountIn,
-    setAmountIn,
-    inputTokenAddress,
-    outputTokenAddress,
-    tokenOutMaturity
-  })
+  const { callError, loading, gasUsed, amountOut, payloadAmountIn } =
+    useCalculateSwap({
+      amountIn,
+      setAmountIn,
+      inputTokenAddress,
+      outputTokenAddress,
+      tokenOutMaturity
+    })
 
   useEffect(() => {
     if (Object.values(pools).length > 0) {
@@ -589,7 +584,7 @@ const Component = ({
         </Box>
       )}
       {leverageData.length > 0 && (
-        <div className={ leverageData.length === 1 ? 'hidden' : ''}>
+        <div className={leverageData.length === 1 ? 'hidden' : ''}>
           <LeverageSlider
             barData={barData}
             setBarData={(e: any) => {

@@ -51,12 +51,7 @@ export const TokenSymbol = ({
           : Number(id) === POOL_IDS.B
           ? 'Short'
           : 'Liquidity'
-      const power = getTokenPower(
-        TOKEN_R,
-        baseToken,
-        Number(id),
-        k.toNumber()
-      )
+      const power = getTokenPower(TOKEN_R, baseToken, Number(id), k.toNumber())
       const base = tokens[wrapToNativeAddress(baseToken)]?.symbol
       const quote = tokens[wrapToNativeAddress(quoteToken)]?.symbol
       const indexPrefix = isUSD(quote ?? '') ? '' : `/${quote}`

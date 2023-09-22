@@ -6,15 +6,15 @@ const OPEN_DELAY = 0
 const CLOSE_DELAY = 100
 const IS_TOUCH = 'ontouchstart' in window
 type Props = {
-  handle: React.ReactNode;
-  renderContent: () => React.ReactNode;
-  position?: string;
-  trigger?: string;
-  className?: string;
-  disableHandleStyle?: boolean;
-  handleClassName?: string;
-  isHandlerDisabled?: boolean;
-};
+  handle: React.ReactNode
+  renderContent: () => React.ReactNode
+  position?: string
+  trigger?: string
+  className?: string
+  disableHandleStyle?: boolean
+  handleClassName?: string
+  isHandlerDisabled?: boolean
+}
 
 export default function Tooltip(props: Props) {
   const [visible, setVisible] = useState(false)
@@ -65,13 +65,30 @@ export default function Tooltip(props: Props) {
 
   const className = cx('tooltip', props.className)
   return (
-    <span className={className} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} onClick={onMouseClick}>
+    <span
+      className={className}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onClick={onMouseClick}
+    >
       <span
-        className={cx({ 'tooltip-handle': !props.disableHandleStyle }, [props.handleClassName], { active: visible })}
+        className={cx(
+          { 'tooltip-handle': !props.disableHandleStyle },
+          [props.handleClassName],
+          { active: visible }
+        )}
       >
-        {props.isHandlerDisabled ? <div className='tooltip-disabled-wrapper'>{props.handle}</div> : <div>{props.handle}</div>}
+        {props.isHandlerDisabled ? (
+          <div className='tooltip-disabled-wrapper'>{props.handle}</div>
+        ) : (
+          <div>{props.handle}</div>
+        )}
       </span>
-      {visible && <div className={cx(['tooltip-popup', position])}>{props.renderContent()}</div>}
+      {visible && (
+        <div className={cx(['tooltip-popup', position])}>
+          {props.renderContent()}
+        </div>
+      )}
     </span>
   )
 }
