@@ -7,23 +7,21 @@ export class ErrorBoundary extends React.Component {
     this.state = { hasError: false }
   }
 
-  // @ts-ignore
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError(error:any) {
     console.log(error)
     // Update state so the next render will show the fallback UI.
     return { hasError: true }
   }
 
-  // @ts-ignore
   // eslint-disable-next-line handle-callback-err
-  componentDidCatch(error, info) {
-    // Example "componentStack":
-    //   in ComponentThatThrows (created by App)
-    //   in ErrorBoundary (created by App)
-    //   in div (created by App)
-    //   in App
-    // logErrorToMyService(error, info.componentStack);
-  }
+  // componentDidCatch(error, info) {
+  //   // Example "componentStack":
+  //   //   in ComponentThatThrows (created by App)
+  //   //   in ErrorBoundary (created by App)
+  //   //   in div (created by App)
+  //   //   in App
+  //   // logErrorToMyService(error, info.componentStack);
+  // }
 
   render() {
     // @ts-ignore
@@ -36,7 +34,6 @@ export class ErrorBoundary extends React.Component {
       )
     }
 
-    // @ts-ignore
     return this.props.children
   }
 }

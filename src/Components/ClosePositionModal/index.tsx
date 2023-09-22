@@ -208,10 +208,8 @@ const Component = ({
                 )
               }
               className='fs-24'
-              // @ts-ignore
               value={amountIn}
               onChange={(e) => {
-                // @ts-ignore
                 if (Number(e.target.value) >= 0) {
                   setAmountIn((e.target as HTMLInputElement).value)
                 }
@@ -299,7 +297,6 @@ const Component = ({
               )
             }
             className='fs-24'
-            // @ts-ignore
             value={amountOut}
           />
         </div>
