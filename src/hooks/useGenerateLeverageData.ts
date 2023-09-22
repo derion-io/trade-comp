@@ -20,8 +20,8 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
     tradeType === TRADE_TYPE.LONG
       ? '#3dbaa2'
       : tradeType === TRADE_TYPE.SHORT
-      ? '#ff7a68'
-      : '#01a7fa'
+        ? '#ff7a68'
+        : '#01a7fa'
 
   return useMemo(() => {
     const result = {}
@@ -38,8 +38,8 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
           tradeType === TRADE_TYPE.LONG
             ? pool!.deleverageRiskA
             : tradeType === TRADE_TYPE.SHORT
-            ? pool!.deleverageRiskB
-            : Math.max(pool!.deleverageRiskA, pool!.deleverageRiskB)
+              ? pool!.deleverageRiskB
+              : Math.max(pool!.deleverageRiskA, pool!.deleverageRiskB)
         deleverageRisk = Math.min(1, deleverageRisk)
 
         if (

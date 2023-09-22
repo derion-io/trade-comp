@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react'
-import { useCurrentPoolGroup } from '../../../state/currentPool/hooks/useCurrentPoolGroup'
 import { useListTokens } from '../../../state/token/hook'
 import {
   decodeErc1155Address,
@@ -40,17 +39,17 @@ export const TokenSymbol = ({
         (Number(id) === POOL_IDS.C
           ? TextBlue
           : Number(id) === POOL_IDS.A
-          ? TextBuy
-          : Number(id) === POOL_IDS.B
-          ? TextSell
-          : Text)
+            ? TextBuy
+            : Number(id) === POOL_IDS.B
+              ? TextSell
+              : Text)
 
       const side =
         Number(id) === POOL_IDS.A
           ? 'Long'
           : Number(id) === POOL_IDS.B
-          ? 'Short'
-          : 'Liquidity'
+            ? 'Short'
+            : 'Liquidity'
       const power = getTokenPower(TOKEN_R, baseToken, Number(id), k.toNumber())
       const base = tokens[wrapToNativeAddress(baseToken)]?.symbol
       const quote = tokens[wrapToNativeAddress(quoteToken)]?.symbol
