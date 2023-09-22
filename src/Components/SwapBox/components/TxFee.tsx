@@ -49,7 +49,7 @@ export const TxFee = ({
 
   return (
     <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
-      {feeFormat == 0 ? (
+      {feeFormat === 0 ? (
         ''
       ) : (
         <InfoRow>
@@ -63,7 +63,7 @@ export const TxFee = ({
           </span>
         </InfoRow>
       )}
-      {slippageFormat == 0 ? (
+      {slippageFormat === 0 ? (
         ''
       ) : (
         <InfoRow>
@@ -92,16 +92,19 @@ export const TxFee = ({
               position='right-bottom'
               handle={
                 <div>
-                  {!nativePrice || !gasPrice || !gasUsed || gasUsed?.isZero() ? (
-                    <Text>&nbsp;</Text>
-                  ) : (
-                    <Text>
-                      {IEW(gasUsed.mul(gasPrice), 18, 5)}
-                      <TextGrey> {chainId === 56 ? 'BNB' : 'ETH'} </TextGrey>
+                  {!nativePrice ||
+                  !gasPrice ||
+                  !gasUsed ||
+                  gasUsed?.isZero() ? (
+                      <Text>&nbsp;</Text>
+                    ) : (
+                      <Text>
+                        {IEW(gasUsed.mul(gasPrice), 18, 5)}
+                        <TextGrey> {chainId === 56 ? 'BNB' : 'ETH'} </TextGrey>
                       ($
-                      {IEW(gasUsed.mul(gasPrice).mul(WEI(nativePrice)), 36, 2)})
-                    </Text>
-                  )}
+                        {IEW(gasUsed.mul(gasPrice).mul(WEI(nativePrice)), 36, 2)})
+                      </Text>
+                    )}
                 </div>
               }
               renderContent={() => (
@@ -112,10 +115,12 @@ export const TxFee = ({
                   </div>
                   <div>
                     <TextGrey>Gas Price:&nbsp;</TextGrey>
-                    <Text>{gasPrice.gte(1e6) ?
-                      formatWeiToDisplayNumber(gasPrice.div(1e6), 0, 0) + ' gwei' :
-                      formatWeiToDisplayNumber(gasPrice, 0, 0) + ' wei'
-                    }</Text>
+                    <Text>
+                      {gasPrice.gte(1e6)
+                        ? formatWeiToDisplayNumber(gasPrice.div(1e6), 0, 0) +
+                          ' gwei'
+                        : formatWeiToDisplayNumber(gasPrice, 0, 0) + ' wei'}
+                    </Text>
                   </div>
                 </div>
               )}

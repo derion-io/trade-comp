@@ -17,9 +17,11 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
   } = useSettings()
 
   const color =
-    tradeType === TRADE_TYPE.LONG ? '#3dbaa2' :
-    tradeType === TRADE_TYPE.SHORT ? '#ff7a68' :
-    '#01a7fa'
+    tradeType === TRADE_TYPE.LONG
+      ? '#3dbaa2'
+      : tradeType === TRADE_TYPE.SHORT
+      ? '#ff7a68'
+      : '#01a7fa'
 
   return useMemo(() => {
     const result = {}

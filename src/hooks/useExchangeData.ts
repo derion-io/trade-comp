@@ -61,24 +61,24 @@ export const useExchangeData = () => {
             item.pool.inputTokens[0]?.id.toLowerCase() ===
             baseToken.toLowerCase()
               ? [
-                item.hourlyVolumeByTokenAmount[0],
-                item.hourlyVolumeByTokenAmount[1]
-              ]
+                  item.hourlyVolumeByTokenAmount[0],
+                  item.hourlyVolumeByTokenAmount[1]
+                ]
               : [
-                item.hourlyVolumeByTokenAmount[1],
-                item.hourlyVolumeByTokenAmount[0]
-              ]
+                  item.hourlyVolumeByTokenAmount[1],
+                  item.hourlyVolumeByTokenAmount[0]
+                ]
           const [baseDecimal, quoteDecimal] =
             item.pool.inputTokens[0]?.id.toLowerCase() ===
             baseToken.toLowerCase()
               ? [
                   item.pool.inputTokens[0]?.decimals,
                   item.pool.inputTokens[1]?.decimals
-              ]
+                ]
               : [
                   item.pool.inputTokens[1]?.decimals,
                   item.pool.inputTokens[0]?.decimals
-              ]
+                ]
           const baseConverted = parseFloat(
             ethers.utils.formatUnits(baseAmount, baseDecimal)
           )
@@ -123,24 +123,24 @@ export const useExchangeData = () => {
             item.pool.inputTokens[0]?.id.toLowerCase() ===
             baseToken.toLowerCase()
               ? [
-                item.dailyVolumeByTokenAmount[0],
-                item.dailyVolumeByTokenAmount[1]
-              ]
+                  item.dailyVolumeByTokenAmount[0],
+                  item.dailyVolumeByTokenAmount[1]
+                ]
               : [
-                item.dailyVolumeByTokenAmount[1],
-                item.dailyVolumeByTokenAmount[0]
-              ]
+                  item.dailyVolumeByTokenAmount[1],
+                  item.dailyVolumeByTokenAmount[0]
+                ]
           const [baseDecimal, quoteDecimal] =
             item.pool.inputTokens[0]?.id.toLowerCase() ===
             baseToken.toLowerCase()
               ? [
                   item.pool.inputTokens[0]?.decimals,
                   item.pool.inputTokens[1]?.decimals
-              ]
+                ]
               : [
                   item.pool.inputTokens[1]?.decimals,
                   item.pool.inputTokens[0]?.decimals
-              ]
+                ]
           const baseConverted = parseFloat(
             ethers.utils.formatUnits(baseAmount, baseDecimal)
           )

@@ -110,19 +110,14 @@ const Component = ({
     }
   }, [valueBalance])
 
-  const {
-    callError,
-    gasUsed,
-    amountOut,
-    loading,
-    payloadAmountIn
-  } = useCalculateSwap({
-    amountIn,
-    setAmountIn,
-    inputTokenAddress,
-    outputTokenAddress,
-    tokenOutMaturity
-  })
+  const { callError, gasUsed, amountOut, loading, payloadAmountIn } =
+    useCalculateSwap({
+      amountIn,
+      setAmountIn,
+      inputTokenAddress,
+      outputTokenAddress,
+      tokenOutMaturity
+    })
 
   const { value: valueIn } = useTokenValue({
     amount: amountIn,
@@ -279,7 +274,6 @@ const Component = ({
             </SkeletonLoader>
             <SkeletonLoader loading={accFetchBalance !== account}>
               <Text>
-                
                 {'Balance: '}
                 {zerofy(
                   formatFloat(

@@ -53,14 +53,13 @@ const Component = ({
   const { setCurrentPoolAddress } = useCurrentPool()
   const { balances, accFetchBalance } = useWalletBalance()
   const { tokens } = useListTokens()
-  const { callError, gasUsed, amountOut, payloadAmountIn } =
-    useCalculateSwap({
-      amountIn,
-      setAmountIn,
-      inputTokenAddress,
-      outputTokenAddress,
-      tokenOutMaturity
-    })
+  const { callError, gasUsed, amountOut, payloadAmountIn } = useCalculateSwap({
+    amountIn,
+    setAmountIn,
+    inputTokenAddress,
+    outputTokenAddress,
+    tokenOutMaturity
+  })
 
   const { value: valueIn } = useTokenValue({
     amount: amountIn,
@@ -79,9 +78,9 @@ const Component = ({
   useEffect(() => {
     console.log(id, inputTokenAddress, outputTokenAddress)
     if (!inputTokenAddress) setInputTokenAddress(NATIVE_ADDRESS)
-    if (!outputTokenAddress) setOutputTokenAddress(dTokens?.[0] ?? NATIVE_ADDRESS)
-    if (inputTokenAddress == outputTokenAddress) {
-      if (outputTokenAddress != NATIVE_ADDRESS) {
+    if (!outputTokenAddress) { setOutputTokenAddress(dTokens?.[0] ?? NATIVE_ADDRESS) }
+    if (inputTokenAddress === outputTokenAddress) {
+      if (outputTokenAddress !== NATIVE_ADDRESS) {
         setOutputTokenAddress(NATIVE_ADDRESS)
       } else {
         setOutputTokenAddress(dTokens?.[0] ?? NATIVE_ADDRESS)
@@ -173,8 +172,7 @@ const Component = ({
     [pools, inputTokenAddress, outputTokenAddress, tokenTypeToSelect, configs]
   )
   useMemo(() => {
-    if (isErc1155Address(inputTokenAddress)) setCurrentPoolAddress(decodeErc1155Address(inputTokenAddress).address)
-    else if (!isErc1155Address(inputTokenAddress)) setCurrentPoolAddress(decodeErc1155Address(outputTokenAddress).address)
+    if (isErc1155Address(inputTokenAddress)) { setCurrentPoolAddress(decodeErc1155Address(inputTokenAddress).address) } else if (!isErc1155Address(inputTokenAddress)) { setCurrentPoolAddress(decodeErc1155Address(outputTokenAddress).address) }
   }, [outputTokenAddress, inputTokenAddress])
   return (
     <div className='swap-box'>
