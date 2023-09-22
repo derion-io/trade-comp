@@ -126,19 +126,19 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
                   nativeChange.gt(0) ||
                   quoteChange.gt(0) ||
                   baseChange.gt(0) ? (
-                    <td className='wallet-history-table__arrow text-buy'>
-                      {'->'}
-                    </td>
-                  ) : cChange.isNegative() ||
+                      <td className='wallet-history-table__arrow text-buy'>
+                        {'->'}
+                      </td>
+                    ) : cChange.isNegative() ||
                     nativeChange.isNegative() ||
                     quoteChange.isNegative() ||
                     baseChange.isNegative() ? (
-                    <td className='wallet-history-table__arrow text-sell'>
-                      {'<-'}
-                    </td>
-                  ) : (
-                    <td />
-                  )}
+                        <td className='wallet-history-table__arrow text-sell'>
+                          {'<-'}
+                        </td>
+                      ) : (
+                        <td />
+                      )}
                   <td>
                     {!cpChange.isZero() && (
                       <span>

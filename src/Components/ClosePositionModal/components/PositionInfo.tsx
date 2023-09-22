@@ -1,4 +1,4 @@
-import { Text, TextError, TextWarning } from '../../ui/Text'
+import { Text } from '../../ui/Text'
 import { formatFloat, zerofy } from '../../../utils/helpers'
 import { Box } from '../../ui/Box'
 import React from 'react'

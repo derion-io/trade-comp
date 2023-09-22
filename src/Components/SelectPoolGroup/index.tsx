@@ -1,9 +1,4 @@
-import React, {
-  useEffect,
-  useMemo,
-  useRef,
-  useState
-} from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useResource } from '../../state/resources/hooks/useResource'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 import { useListTokens } from '../../state/token/hook'
@@ -58,8 +53,12 @@ export const SelectPoolGroup = () => {
         }
       } else {
         for (const poolAddress of poolsKey) {
-          if (balances[poolAddress + '-' + POOL_IDS.A]) { results.push(poolAddress + '-' + POOL_IDS.A) }
-          if (balances[poolAddress + '-' + POOL_IDS.B]) { results.push(poolAddress + '-' + POOL_IDS.B) }
+          if (balances[poolAddress + '-' + POOL_IDS.A]) {
+            results.push(poolAddress + '-' + POOL_IDS.A)
+          }
+          if (balances[poolAddress + '-' + POOL_IDS.B]) {
+            results.push(poolAddress + '-' + POOL_IDS.B)
+          }
           if (balances[poolAddress + '-' + POOL_IDS.C]) {
             results.unshift(poolAddress + '-' + POOL_IDS.C)
             totalLiquidValue += getPoolValue(poolGroup.pools[poolAddress])
@@ -94,7 +93,9 @@ export const SelectPoolGroup = () => {
     )
 
     const sortedPoolGroupsUSDs = {}
-    for (const [key, value] of poolGroupsUSDsEntries) { sortedPoolGroupsUSDs[key] = value }
+    for (const [key, value] of poolGroupsUSDsEntries) {
+      sortedPoolGroupsUSDs[key] = value
+    }
     setPoolGroupsValue(sortedPoolGroupsUSDs)
   }, [poolGroups, balances, tokens])
 

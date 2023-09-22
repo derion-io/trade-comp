@@ -27,9 +27,9 @@ export const tokens = createSlice({
       if (!action.payload.account) return
       const logs = state.swapLogs[action.payload.account]
         ? [
-            ...action.payload.swapLogs,
-            ...state.swapLogs[action.payload.account]
-          ]
+          ...action.payload.swapLogs,
+          ...state.swapLogs[action.payload.account]
+        ]
         : action.payload.swapLogs
 
       state.swapLogs[action.payload.account] = _.uniqBy(logs, (l) => l.logIndex)

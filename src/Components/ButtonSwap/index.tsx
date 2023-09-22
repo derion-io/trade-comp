@@ -69,10 +69,10 @@ export const ButtonSwap = ({
     sideOut === POOL_IDS.A
       ? ButtonBuy
       : sideOut === POOL_IDS.B
-      ? ButtonSell
-      : [POOL_IDS.R, POOL_IDS.native].includes(sideOut)
-      ? ButtonClose
-      : ButtonExecute
+        ? ButtonSell
+        : [POOL_IDS.R, POOL_IDS.native].includes(sideOut)
+          ? ButtonClose
+          : ButtonExecute
 
   const button = useMemo(() => {
     if (!tokens[inputTokenAddress] || loading) {
@@ -230,12 +230,12 @@ export const ButtonSwap = ({
       {payoffRate &&
       slippage > settings.slippageTolerance &&
       !loadingAmountOut ? (
-        <div className='text-center mb-1'>
-          <TextSell>High Market Spread and Slippage</TextSell>
-        </div>
-      ) : (
-        ''
-      )}
+          <div className='text-center mb-1'>
+            <TextSell>High Market Spread and Slippage</TextSell>
+          </div>
+        ) : (
+          ''
+        )}
       {button}
       <ApproveUtrModal
         callBack={() => {}}

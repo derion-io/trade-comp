@@ -262,10 +262,10 @@ export const AddLiquidityBox = ({
               Balance:{' '}
               {balances && balances[tokenAdd]
                 ? formatWeiToDisplayNumber(
-                    balances[tokenAdd],
-                    4,
+                  balances[tokenAdd],
+                  4,
                     tokens[tokenAdd]?.decimal || 18
-                  )
+                )
                 : 0}
             </Text>
           </SkeletonLoader>
