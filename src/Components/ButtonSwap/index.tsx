@@ -149,7 +149,7 @@ export const ButtonSwap = ({
               if (ddlEngine) {
                 const amountOutMin = WEI(
                   mul(amountOut, 1 - settings.slippageTolerance),
-                  tokens[outputTokenAddress]?.decimals || 18
+                  tokens[outputTokenAddress]?.decimal || 18
                 )
                 console.log({
                   amountIn: WEI(
