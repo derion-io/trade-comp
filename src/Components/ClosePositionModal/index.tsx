@@ -74,7 +74,7 @@ const Component = ({
   const [valueInput, setValueInput] = useState<string>('')
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] =
     useState<boolean>(false)
-  const { configs } = useConfigs()
+  const { configs, routes } = useConfigs()
 
   const [pool, power] = useMemo(() => {
     if (!inputTokenAddress || !pools) {
@@ -147,7 +147,7 @@ const Component = ({
     return undefined
   }, [valueIn, valueOut])
 
-  const { data: erc20TokensSuppoted } = useListTokenHasUniPool(pool)
+  const { erc20TokenSupported } = useListTokenHasUniPool(pool)
 
   const tokensToSelect = useMemo(() => {
     if (!id) return []
@@ -155,8 +155,8 @@ const Component = ({
     if (tokenRs.includes(configs.wrappedTokenAddress)) {
       tokenRs.push(NATIVE_ADDRESS)
     }
-    return _.uniq([...tokenRs, ...erc20TokensSuppoted])
-  }, [erc20TokensSuppoted, balances, tokens, pools, id])
+    return _.uniq([...tokenRs, ...erc20TokenSupported])
+  }, [erc20TokenSupported, configs.wrappedTokenAddress, pools, id])
 
   return (
     <Modal

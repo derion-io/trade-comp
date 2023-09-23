@@ -117,7 +117,7 @@ const Component = ({
       return isAddress(address) && balances[address] && !balances[address].isZero()
     })
     return _.uniq(
-      [...tokenRs, ...aTokens, ...bTokens, ...cTokens, ...erc20Tokens].filter((address) => {
+      [...tokenRs, ...erc20Tokens, ...aTokens, ...bTokens, ...cTokens].filter((address) => {
         if (tokenRs.includes(address)) return true
         if (
           tokenTypeToSelect === 'input' &&
@@ -149,23 +149,7 @@ const Component = ({
       if (tokenTypeToSelect === 'input') {
         setInputTokenAddress(address)
       } else {
-        if (isErc1155Address(address) && isErc1155Address(inputTokenAddress)) {
-          const poolOutAddress = decodeErc1155Address(address).address
-          const poolOut = pools[poolOutAddress]
-          const poolInAddress = decodeErc1155Address(inputTokenAddress).address
-          const poolIn = pools[poolInAddress]
-          if (
-            poolInAddress !== poolOutAddress &&
-            poolOut.TOKEN_R !== poolIn.TOKEN_R
-          ) {
-            setInputTokenAddress(
-              poolOut.TOKEN_R === configs.wrappedTokenAddress
-                ? NATIVE_ADDRESS
-                : poolOut.TOKEN_R
-            )
-          }
-        }
-        if (isErc1155Address(address) && !isErc1155Address(inputTokenAddress)) {
+        if (isErc1155Address(address) && !inputTokenAddress) {
           const poolOut = pools[decodeErc1155Address(address).address]
           setInputTokenAddress(
             poolOut.TOKEN_R === configs.wrappedTokenAddress

@@ -197,35 +197,22 @@ const Component = ({
     return [null, null]
   }, [pools, inputTokenAddress, outputTokenAddress])
 
-  const { data: erc20TokensSuppoted } = useListTokenHasUniPool(poolToShow)
+  const { erc20TokenSupported } = useListTokenHasUniPool(poolToShow)
 
   const tokensToSelect = useMemo(() => {
-    if (!id) return []
+    if (!id || !poolToShow?.TOKEN_R) return []
     const tokenRs = [poolToShow.TOKEN_R]
     if (poolToShow.TOKEN_R === configs.wrappedTokenAddress) {
       tokenRs.push(NATIVE_ADDRESS)
     }
-    const erc20TokenSupported = Object.keys(routes).map((pair) => {
-      const pairTokens = pair.split('-')
-      if (pairTokens.includes(poolToShow.TOKEN_R)) {
-        return pairTokens[0] === poolToShow.TOKEN_R ? pairTokens[1] : pairTokens[0]
-      }
-      return false
-    }).filter((t) => t)
 
     return _.uniq(
-      [...tokenRs, ...erc20TokensSuppoted].filter((address) => {
+      [...tokenRs, ...erc20TokenSupported].filter((address) => {
         if (tokenRs.includes(address)) return true
-        if (!erc20TokenSupported.includes(address)) return false
-        if (
-          (!balances[address] || balances[address].isZero())
-        ) {
-          return false
-        }
-        return true
+        return balances[address]?.gt(0)
       })
     )
-  }, [routes, erc20TokensSuppoted, balances, allTokens, tokens, pools, id])
+  }, [erc20TokenSupported, balances, id])
 
   const onSelectToken = useCallback(
     (address: string) => {
