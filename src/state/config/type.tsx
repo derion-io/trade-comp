@@ -2,6 +2,8 @@ import { Engine } from 'derivable-tools/dist/engine'
 import { INetworkConfig } from 'derivable-tools/dist/utils/configs'
 import { DEFAULT_CHAIN } from '../../utils/constant'
 
+export type Routes = {[key: string]: {type: string, address: string}[]}
+
 export interface configsState {
   chainId: number
   useSubPage: any
@@ -10,6 +12,7 @@ export interface configsState {
   useHistory: any
   env: 'development' | 'production'
   configs: INetworkConfig
+  routes: Routes
   initialledConfig: boolean
   engine?: Engine
 }
@@ -23,5 +26,6 @@ export const initialState: configsState = {
   useHistory: () => {},
   // @ts-ignore
   configs: {},
+  routes: {},
   initialledConfig: false
 }

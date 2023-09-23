@@ -47,6 +47,7 @@ import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { BigNumber } from 'ethers'
 import { useSettings } from '../../state/setting/hooks/useSettings'
 import moment from 'moment'
+import { useListTokenHasUniPool } from '../../hooks/useListTokenHasUniPool'
 
 const Q128 = BigNumber.from(1).shl(128)
 
@@ -67,13 +68,10 @@ const Component = ({
 }) => {
   const [barData, setBarData] = useState<any>({})
   const { configs } = useConfigs()
-  const { allTokens, id, pools, chartTab, setChartTab, setTradeType } =
+  const { id, pools, chartTab, setChartTab, setTradeType } =
     useCurrentPoolGroup()
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] =
     useState<boolean>(false)
-  const [tokenTypeToSelect, setTokenTypeToSelect] = useState<
-    'input' | 'output'
-  >('input')
   const [amountIn, setAmountIn] = useState<string>('')
   const { balances } = useWalletBalance()
   const [visibleApproveModal, setVisibleApproveModal] = useState<boolean>(false)
@@ -135,7 +133,7 @@ const Component = ({
 
   useEffect(() => {
     if (Object.values(pools).length > 0) {
-      if (outputTokenAddress) {
+      if (outputTokenAddress && !inputTokenAddress) {
         for (let i = 0; i < leverageData.length; i++) {
           const leve: any = leverageData[i]
           for (let k = 0; k < leve.bars.length; k++) {
@@ -150,7 +148,7 @@ const Component = ({
           inputTokenAddress &&
           pools[address]?.TOKEN_R &&
           wrapToNativeAddress(inputTokenAddress) !==
-            wrapToNativeAddress(pools[address]?.TOKEN_R)
+          wrapToNativeAddress(pools[address]?.TOKEN_R)
         ) {
           setInputTokenAddress(wrapToNativeAddress(pools[address]?.TOKEN_R))
         }
@@ -188,68 +186,6 @@ const Component = ({
     return undefined
   }, [valueIn, valueOut])
 
-  const tokensToSelect = useMemo(() => {
-    if (!id) return []
-    const tokenRs = Object.values(pools).map((p: any) => p.TOKEN_R)
-    if (tokenRs.includes(configs.wrappedTokenAddress)) {
-      tokenRs.push(NATIVE_ADDRESS)
-    }
-    return _.uniq(
-      [...tokenRs].filter((address) => {
-        if (tokenRs.includes(address)) return true
-        if (
-          tokenTypeToSelect === 'input' &&
-          (!balances[address] || balances[address].isZero())
-        ) {
-          return false
-        }
-        return true
-      })
-    )
-  }, [tokenTypeToSelect, allTokens, pools, id])
-
-  const onSelectToken = useCallback(
-    (address: string) => {
-      if (
-        (tokenTypeToSelect === 'input' && address === outputTokenAddress) ||
-        (tokenTypeToSelect === 'output' && address === inputTokenAddress)
-      ) {
-        // revertPairAddress()
-        return
-      }
-      if (tokenTypeToSelect === 'input') {
-        setInputTokenAddress(address)
-      } else {
-        if (isErc1155Address(address) && isErc1155Address(inputTokenAddress)) {
-          const poolOutAddress = decodeErc1155Address(address).address
-          const poolOut = pools[poolOutAddress]
-          const poolInAddress = decodeErc1155Address(inputTokenAddress).address
-          const poolIn = pools[poolInAddress]
-          if (
-            poolInAddress !== poolOutAddress &&
-            poolOut.TOKEN_R !== poolIn.TOKEN_R
-          ) {
-            setInputTokenAddress(
-              poolOut.TOKEN_R === configs.wrappedTokenAddress
-                ? NATIVE_ADDRESS
-                : poolOut.TOKEN_R
-            )
-          }
-        }
-        if (isErc1155Address(address) && !isErc1155Address(inputTokenAddress)) {
-          const poolOut = pools[decodeErc1155Address(address).address]
-          setInputTokenAddress(
-            poolOut.TOKEN_R === configs.wrappedTokenAddress
-              ? NATIVE_ADDRESS
-              : poolOut.TOKEN_R
-          )
-        }
-        // setOutputTokenAddress(address)
-      }
-    },
-    [pools, inputTokenAddress, outputTokenAddress, tokenTypeToSelect, configs]
-  )
-
   const [poolToShow, sideToShow] = useMemo(() => {
     if (isErc1155Address(outputTokenAddress)) {
       const { address, id } = decodeErc1155Address(outputTokenAddress)
@@ -260,6 +196,35 @@ const Component = ({
     }
     return [null, null]
   }, [pools, inputTokenAddress, outputTokenAddress])
+
+  const { erc20TokenSupported } = useListTokenHasUniPool(poolToShow)
+
+  const tokensToSelect = useMemo(() => {
+    if (!id || !poolToShow?.TOKEN_R) return []
+    const tokenRs = [poolToShow.TOKEN_R]
+    if (poolToShow.TOKEN_R === configs.wrappedTokenAddress) {
+      tokenRs.push(NATIVE_ADDRESS)
+    }
+
+    return _.uniq(
+      [...tokenRs, ...erc20TokenSupported].filter((address) => {
+        if (tokenRs.includes(address)) return true
+        return balances[address]?.gt(0)
+      })
+    )
+  }, [erc20TokenSupported, balances, id])
+
+  const onSelectToken = useCallback(
+    (address: string) => {
+      if (
+        (address === outputTokenAddress)
+      ) {
+        return
+      }
+      setInputTokenAddress(address)
+    },
+    [inputTokenAddress, outputTokenAddress]
+  )
 
   // TODO: kA, kB, xA, xB can be calculated in derivable-tools for each pool
   const [leverageKey, leverageValue] = useMemo(() => {
@@ -361,7 +326,6 @@ const Component = ({
             className='current-token'
             onClick={(address) => {
               setVisibleSelectTokenModal(true)
-              setTokenTypeToSelect('input')
             }}
           >
             <TokenIcon size={24} tokenAddress={inputTokenAddress} />
@@ -422,7 +386,7 @@ const Component = ({
       <SelectTokenModal
         visible={visibleSelectTokenModal}
         setVisible={setVisibleSelectTokenModal}
-        displayFee={tokenTypeToSelect === 'input'}
+        displayFee
         tokens={tokensToSelect}
         onSelectToken={onSelectToken}
       />
@@ -677,24 +641,24 @@ const Component = ({
         )}
         {!poolToShow?.MATURITY?.toNumber() ||
           !poolToShow?.MATURITY_RATE?.gt(0) || (
-          <InfoRow>
-            <TextGrey>Closing Fee</TextGrey>
-            <SkeletonLoader loading={!poolToShow}>
-              {formatPercent(
-                Q128.sub(poolToShow?.MATURITY_RATE)
-                  .mul(10000)
-                  .div(Q128)
-                  .toNumber() / 10000,
-                2,
-                true
-              )}
+            <InfoRow>
+              <TextGrey>Closing Fee</TextGrey>
+              <SkeletonLoader loading={!poolToShow}>
+                {formatPercent(
+                  Q128.sub(poolToShow?.MATURITY_RATE)
+                    .mul(10000)
+                    .div(Q128)
+                    .toNumber() / 10000,
+                  2,
+                  true
+                )}
                 % for{' '}
-              {moment
-                .duration(poolToShow?.MATURITY.toNumber(), 'seconds')
-                .humanize()}
-            </SkeletonLoader>
-          </InfoRow>
-        )}
+                {moment
+                  .duration(poolToShow?.MATURITY.toNumber(), 'seconds')
+                  .humanize()}
+              </SkeletonLoader>
+            </InfoRow>
+          )}
       </Box>
 
       <TxFee
@@ -749,14 +713,15 @@ const Component = ({
                 ) : (
                   <Text>
                 Add <TokenSymbol token={outputTokenAddress} textWrap={Text} />{' '}
-                  </Text>
-                )
+              </Text>
+            )
           }
         />
       </div>
 
       <ApproveUtrModal
-        callBack={() => {}}
+        callBack={() => {
+        }}
         visible={visibleApproveModal}
         setVisible={setVisibleApproveModal}
         inputTokenAddress={inputTokenAddress}

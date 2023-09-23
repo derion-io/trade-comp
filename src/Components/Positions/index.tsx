@@ -571,6 +571,7 @@ export const Positions = ({
           setVisible={setVisible}
           position={closingPosition}
           outputTokenAddress={outputTokenAddress}
+          setOutputTokenAddress={setOutputTokenAddress}
           tokenOutMaturity={tokenOutMaturity}
           valueInUsdStatus={valueInUsdStatus}
           setValueInUsdStatus={setValueInUsdStatus}

@@ -27,21 +27,27 @@ import { TxFee } from '../SwapBox/components/TxFee'
 import { useCalculateSwap } from '../SwapBox/hooks/useCalculateSwap'
 import { ButtonSwap } from '../ButtonSwap'
 import {
-  MIN_POSITON_VALUE_USD_TO_DISPLAY,
+  MIN_POSITON_VALUE_USD_TO_DISPLAY, NATIVE_ADDRESS,
   POOL_IDS
 } from '../../utils/constant'
 import { BigNumber } from 'ethers'
 import { useSettings } from '../../state/setting/hooks/useSettings'
+import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 import { Position } from '../../utils/type'
 import { VALUE_IN_USD_STATUS } from '../Positions'
 import { PositionInfo } from './components/PositionInfo'
 import { useResource } from '../../state/resources/hooks/useResource'
+import { SelectTokenModal } from '../SelectTokenModal'
+import _ from 'lodash'
+import { useConfigs } from '../../state/config/useConfigs'
+import { useListTokenHasUniPool } from '../../hooks/useListTokenHasUniPool'
 
 const Component = ({
   visible,
   setVisible,
   position,
   outputTokenAddress,
+  setOutputTokenAddress,
   title,
   tokenOutMaturity,
   valueInUsdStatus,
@@ -51,12 +57,14 @@ const Component = ({
   setVisible: any
   position: Position
   outputTokenAddress: string
+  setOutputTokenAddress: any
   title: any
   tokenOutMaturity: BigNumber
   valueInUsdStatus: VALUE_IN_USD_STATUS
   setValueInUsdStatus: (value: VALUE_IN_USD_STATUS) => void
 }) => {
   const inputTokenAddress = position.token
+  const { id } = useCurrentPoolGroup()
   const { pools } = useResource()
   const { tokens } = useListTokens()
   const { balances, accFetchBalance } = useWalletBalance()
@@ -64,8 +72,11 @@ const Component = ({
   const [amountIn, setAmountIn] = useState<string>('')
   const { settings } = useSettings()
   const [valueInput, setValueInput] = useState<string>('')
+  const [visibleSelectTokenModal, setVisibleSelectTokenModal] =
+    useState<boolean>(false)
+  const { configs } = useConfigs()
 
-  const [, power] = useMemo(() => {
+  const [pool, power] = useMemo(() => {
     if (!inputTokenAddress || !pools) {
       return [null, 1]
     }
@@ -135,6 +146,17 @@ const Component = ({
     }
     return undefined
   }, [valueIn, valueOut])
+
+  const { erc20TokenSupported } = useListTokenHasUniPool(pool)
+
+  const tokensToSelect = useMemo(() => {
+    if (!id) return []
+    const tokenRs = Object.values(pools).map((p: any) => p.TOKEN_R)
+    if (tokenRs.includes(configs.wrappedTokenAddress)) {
+      tokenRs.push(NATIVE_ADDRESS)
+    }
+    return _.uniq([...tokenRs, ...erc20TokenSupported])
+  }, [erc20TokenSupported, configs.wrappedTokenAddress, pools, id])
 
   return (
     <Modal
@@ -261,9 +283,9 @@ const Component = ({
         </div>
 
         <div className='amount-input-box'>
-          <InfoRow className='amount-input-box__head mb-1'>
+          <InfoRow className='amount-input-box__head mb-1 current-token'>
             <SkeletonLoader loading={!tokens[outputTokenAddress]}>
-              <span className='d-flex align-items-center gap-05'>
+              <span className='d-flex align-items-center gap-05' onClick={() => setVisibleSelectTokenModal(true)}>
                 <TokenIcon size={24} tokenAddress={outputTokenAddress} />
                 <Text>
                   <TokenSymbol token={outputTokenAddress} />
@@ -324,6 +346,14 @@ const Component = ({
           />
         </div>
       </div>
+
+      <SelectTokenModal
+        visible={visibleSelectTokenModal}
+        setVisible={setVisibleSelectTokenModal}
+        tokens={tokensToSelect}
+        onSelectToken={setOutputTokenAddress}
+      />
+
     </Modal>
   )
 }

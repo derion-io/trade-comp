@@ -1,6 +1,6 @@
 // eslint-disable-next-line no-unused-vars
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { initialState } from './type'
+import { initialState, Routes } from './type'
 import { Engine } from 'derivable-tools/dist/engine'
 import { INetworkConfig } from 'derivable-tools/dist/utils/configs'
 export const tokens = createSlice({
@@ -33,11 +33,13 @@ export const tokens = createSlice({
         chainId: number
         configs: INetworkConfig
         engine: Engine
+        routes: Routes
       }>
     ) => {
       state.chainId = action.payload.chainId
       state.configs = action.payload.configs
       state.engine = action.payload.engine
+      state.routes = action.payload.routes
     },
 
     setEngine: (
