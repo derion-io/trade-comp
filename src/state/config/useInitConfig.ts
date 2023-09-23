@@ -91,7 +91,8 @@ export const useInitConfig = ({
         seNetworkConfigs({
           chainId,
           engine,
-          configs: engine.profile.configs
+          configs: engine.profile.configs,
+          routes: engine.profile.routes
         })
       )
       // dispatch(setEngine({ engine }))

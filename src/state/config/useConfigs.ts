@@ -3,6 +3,7 @@ import { State } from '../types'
 
 export const useConfigs = () => {
   const {
+    routes,
     configs,
     engine,
     initialledConfig,
@@ -14,6 +15,7 @@ export const useConfigs = () => {
     env
   } = useSelector((state: State) => {
     return {
+      routes: state.configs.routes,
       configs: state.configs.configs,
       engine: state.configs.engine,
       initialledConfig: state.configs.initialledConfig,
@@ -34,7 +36,8 @@ export const useConfigs = () => {
     env,
     location,
     useHistory,
-    configs, // remove default config
+    configs,
+    routes,
     ddlEngine: engine
   }
 }
