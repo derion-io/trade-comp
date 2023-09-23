@@ -283,7 +283,7 @@ const Component = ({
         </div>
 
         <div className='amount-input-box'>
-          <InfoRow className='amount-input-box__head mb-1'>
+          <InfoRow className='amount-input-box__head mb-1 current-token'>
             <SkeletonLoader loading={!tokens[outputTokenAddress]}>
               <span className='d-flex align-items-center gap-05' onClick={() => setVisibleSelectTokenModal(true)}>
                 <TokenIcon size={24} tokenAddress={outputTokenAddress} />
