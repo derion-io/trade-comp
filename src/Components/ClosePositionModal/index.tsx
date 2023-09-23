@@ -74,7 +74,7 @@ const Component = ({
   const [valueInput, setValueInput] = useState<string>('')
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] =
     useState<boolean>(false)
-  const { configs, routes } = useConfigs()
+  const { configs } = useConfigs()
 
   const [pool, power] = useMemo(() => {
     if (!inputTokenAddress || !pools) {

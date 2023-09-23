@@ -67,8 +67,8 @@ const Component = ({
   tokenOutMaturity: BigNumber
 }) => {
   const [barData, setBarData] = useState<any>({})
-  const { configs, routes } = useConfigs()
-  const { allTokens, id, pools, chartTab, setChartTab, setTradeType } =
+  const { configs } = useConfigs()
+  const { id, pools, chartTab, setChartTab, setTradeType } =
     useCurrentPoolGroup()
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] =
     useState<boolean>(false)
