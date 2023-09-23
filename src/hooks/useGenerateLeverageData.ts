@@ -6,6 +6,7 @@ import { useSettings } from '../state/setting/hooks/useSettings'
 import { SORT_POOL_BY } from '../state/setting/type'
 
 export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
+  // useCurrentPoolGroup since we only show leverage bars for pool of the current index
   const { pools } = useCurrentPoolGroup()
   const {
     settings: {

@@ -32,10 +32,10 @@ import {
 } from '../../utils/constant'
 import { BigNumber } from 'ethers'
 import { useSettings } from '../../state/setting/hooks/useSettings'
-import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 import { Position } from '../../utils/type'
 import { VALUE_IN_USD_STATUS } from '../Positions'
 import { PositionInfo } from './components/PositionInfo'
+import { useResource } from '../../state/resources/hooks/useResource'
 
 const Component = ({
   visible,
@@ -57,7 +57,7 @@ const Component = ({
   setValueInUsdStatus: (value: VALUE_IN_USD_STATUS) => void
 }) => {
   const inputTokenAddress = position.token
-  const { pools } = useCurrentPoolGroup()
+  const { pools } = useResource()
   const { tokens } = useListTokens()
   const { balances, accFetchBalance } = useWalletBalance()
   const { account } = useWeb3React()
