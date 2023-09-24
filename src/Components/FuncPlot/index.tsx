@@ -138,12 +138,12 @@ export const FunctionPlot = (props: any) => {
     if (calc && calc.current) {
       calc.current.setMathBounds({
         bottom: -0.05 * Math.max(R, R1),
-        top: Math.max(R, R1) * 1.05,
-        left: -0.03 * X * 3,
-        right: X * 3 * 1.03
+        top: 1.05 * Math.max(R, R1),
+        left: -0.03 * AD,
+        right: 1.2 * AD,
       })
     }
-  }, [calc, R, R1, X])
+  }, [calc, R, R1, X, AD])
 
   if (!currentPool.states) {
     return (
@@ -318,30 +318,30 @@ export const FunctionPlot = (props: any) => {
             */}
           <Expression
             id='lC'
-            latex={`(${X},(1.1g(${P},${X},${b},${R})+f(${P},${X},${a},${R}))/2.1)`}
+            latex={`(${AD+BD}/2,${Math.min(R, R1)}/2)`}
             color='BLACK'
             hidden
             showLabel
             label='LP'
-            labelOrientation={Desmos.LabelOrientations.RIGHT}
+            labelOrientation={Desmos.LabelOrientations.DEFAULT}
           />
           <Expression
             id='lB'
-            latex={`(${X}*0.9,(g(${P},${X},${b},${R})+${R})/2)`}
+            latex={`(${BD}/2,${Math.max(R, R1)}*3/4)`}
             color='GREEN'
             hidden
             showLabel
-            label='Short'
-            labelOrientation={Desmos.LabelOrientations.LEFT}
+            label='SHORT'
+            labelOrientation={Desmos.LabelOrientations.DEFAULT}
           />
           <Expression
             id='lA'
-            latex={`(${X}*1.1,0.55f(${P},${X},${a},${R}))`}
+            latex={`(${AD}*1.1,${Math.min(R, R1)}/4)`}
             color='PURPLE'
             hidden
             showLabel
-            label='Long'
-            labelOrientation={Desmos.LabelOrientations.RIGHT}
+            label='LONG'
+            labelOrientation={Desmos.LabelOrientations.DEFAULT}
           />
         </GraphingCalculator>
       </Card>
