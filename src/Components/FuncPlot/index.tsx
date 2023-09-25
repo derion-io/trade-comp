@@ -136,11 +136,13 @@ export const FunctionPlot = (props: any) => {
 
   React.useEffect(() => {
     if (calc && calc.current) {
+      const TM = Math.max(R, R1)
+      const RM = Math.max(AD, X)
       calc.current.setMathBounds({
-        bottom: -0.05 * Math.max(R, R1),
-        top: 1.05 * Math.max(R, R1),
-        left: -0.03 * AD,
-        right: 1.2 * AD,
+        bottom: -0.05 * TM,
+        top: 1.05 * TM,
+        left: -0.03 * RM,
+        right: 1.2 * RM,
       })
     }
   }, [calc, R, R1, X, AD])
