@@ -42,7 +42,7 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
               ? pool!.deleverageRiskB
               : Math.max(pool!.deleverageRiskA, pool!.deleverageRiskB)
         deleverageRisk = Math.min(1, deleverageRisk)
-
+        // 123
         if (
           pool.states.R.lt(minR) ||
           Number(pool.dailyInterestRate) * 99 >

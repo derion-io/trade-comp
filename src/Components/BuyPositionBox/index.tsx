@@ -79,9 +79,8 @@ const Component = ({
   const { wrapToNativeAddress } = useHelper()
   const { setCurrentPoolAddress, setDr } = useCurrentPool()
   const { settings } = useSettings()
-
   const leverageData = useGenerateLeverageData(tradeType)
-
+  const { getTokenValue } = useTokenValue({})
   useEffect(() => {
     if (
       tradeType === TRADE_TYPE.LIQUIDITY &&
@@ -107,15 +106,24 @@ const Component = ({
   }, [barData])
 
   useEffect(() => {
+    let amountInValue = Number(amountIn)
+    if (inputTokenAddress !== NATIVE_ADDRESS && tokens[inputTokenAddress]) {
+      const nativeValue = getTokenValue(NATIVE_ADDRESS, IEW(
+        '1000000000000000000', // Value 1 ETH
+        tokens[NATIVE_ADDRESS]?.decimal || 18
+      ), true)
+      amountInValue /= Number(nativeValue)
+    }
+
     switch (tradeType) {
       case TRADE_TYPE.LONG:
-        setDr(Number(amountIn), 0, 0)
+        setDr(Number(amountInValue), 0, 0)
         break
       case TRADE_TYPE.SHORT:
-        setDr(0, Number(amountIn), 0)
+        setDr(0, Number(amountInValue), 0)
         break
       case TRADE_TYPE.LIQUIDITY:
-        setDr(0, 0, Number(amountIn))
+        setDr(0, 0, Number(amountInValue))
         break
       default:
         setDr(0, 0, 0)
@@ -641,24 +649,24 @@ const Component = ({
         )}
         {!poolToShow?.MATURITY?.toNumber() ||
           !poolToShow?.MATURITY_RATE?.gt(0) || (
-            <InfoRow>
-              <TextGrey>Closing Fee</TextGrey>
-              <SkeletonLoader loading={!poolToShow}>
-                {formatPercent(
-                  Q128.sub(poolToShow?.MATURITY_RATE)
-                    .mul(10000)
-                    .div(Q128)
-                    .toNumber() / 10000,
-                  2,
-                  true
-                )}
+          <InfoRow>
+            <TextGrey>Closing Fee</TextGrey>
+            <SkeletonLoader loading={!poolToShow}>
+              {formatPercent(
+                Q128.sub(poolToShow?.MATURITY_RATE)
+                  .mul(10000)
+                  .div(Q128)
+                  .toNumber() / 10000,
+                2,
+                true
+              )}
                 % for{' '}
-                {moment
-                  .duration(poolToShow?.MATURITY.toNumber(), 'seconds')
-                  .humanize()}
-              </SkeletonLoader>
-            </InfoRow>
-          )}
+              {moment
+                .duration(poolToShow?.MATURITY.toNumber(), 'seconds')
+                .humanize()}
+            </SkeletonLoader>
+          </InfoRow>
+        )}
       </Box>
 
       <TxFee
@@ -713,8 +721,8 @@ const Component = ({
                 ) : (
                   <Text>
                 Add <TokenSymbol token={outputTokenAddress} textWrap={Text} />{' '}
-              </Text>
-            )
+                  </Text>
+                )
           }
         />
       </div>
