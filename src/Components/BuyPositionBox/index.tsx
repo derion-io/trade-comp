@@ -324,6 +324,12 @@ const Component = ({
     return [interest, premium, fundingRate, interestRate, maxPremiumRate]
   }, [inputTokenAddress, outputTokenAddress, pools, poolToShow])
 
+  useEffect(() => {
+    if (!tokensToSelect.includes(inputTokenAddress)) {
+      setInputTokenAddress(NATIVE_ADDRESS)
+    }
+  }, [tokensToSelect, inputTokenAddress])
+
   return (
     <div className='long-short-box'>
       <div className='amount-input-box'>

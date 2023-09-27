@@ -169,6 +169,11 @@ const Component = ({
       setCurrentPoolAddress(decodeErc1155Address(outputTokenAddress).address)
     }
   }, [outputTokenAddress, inputTokenAddress])
+
+  useEffect(() => {
+    if (!tokensToSelect.includes(inputTokenAddress)) setInputTokenAddress(NATIVE_ADDRESS)
+    if (!tokensToSelect.includes(outputTokenAddress) && tokenTypeToSelect === 'output') setOutputTokenAddress(tokensToSelect?.slice(-1)[0])
+  }, [tokensToSelect, setInputTokenAddress])
   return (
     <div className='swap-box'>
       <div className='amount-input-box'>
