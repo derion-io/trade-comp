@@ -555,7 +555,6 @@ const Component = ({
           <LeverageSlider
             barData={barData}
             setBarData={(e: any) => {
-              console.log('vinh', e)
               setBarData(e)
             }}
             leverageData={leverageData}
