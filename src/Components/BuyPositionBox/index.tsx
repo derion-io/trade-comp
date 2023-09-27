@@ -108,23 +108,6 @@ const Component = ({
     }
   }, [barData])
 
-  useEffect(() => {
-    const amountInConvert = convertTokenValue(inputTokenAddress, amountIn)
-    switch (tradeType) {
-      case TRADE_TYPE.LONG:
-        setDr(Number(amountInConvert), 0, 0)
-        break
-      case TRADE_TYPE.SHORT:
-        setDr(0, Number(amountInConvert), 0)
-        break
-      case TRADE_TYPE.LIQUIDITY:
-        setDr(0, 0, Number(amountInConvert))
-        break
-      default:
-        setDr(0, 0, 0)
-    }
-  }, [amountIn, tradeType])
-
   const { callError, loading, gasUsed, amountOut, payloadAmountIn } =
     useCalculateSwap({
       amountIn,
@@ -199,6 +182,24 @@ const Component = ({
     }
     return [null, null]
   }, [pools, inputTokenAddress, outputTokenAddress])
+
+  useEffect(() => {
+    if (!poolToShow?.TOKEN_R) return
+    const amountInConvert = convertTokenValue(inputTokenAddress, poolToShow.TOKEN_R, amountIn)
+    switch (tradeType) {
+      case TRADE_TYPE.LONG:
+        setDr(Number(amountInConvert), 0, 0)
+        break
+      case TRADE_TYPE.SHORT:
+        setDr(0, Number(amountInConvert), 0)
+        break
+      case TRADE_TYPE.LIQUIDITY:
+        setDr(0, 0, Number(amountInConvert))
+        break
+      default:
+        setDr(0, 0, 0)
+    }
+  }, [amountIn, tradeType, inputTokenAddress, poolToShow?.TOKEN_R])
 
   const { erc20TokenSupported } = useListTokenHasUniPool(poolToShow)
 
@@ -554,6 +555,7 @@ const Component = ({
           <LeverageSlider
             barData={barData}
             setBarData={(e: any) => {
+              console.log('vinh', e)
               setBarData(e)
             }}
             leverageData={leverageData}

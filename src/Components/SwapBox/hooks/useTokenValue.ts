@@ -13,7 +13,7 @@ import { parseSqrtX96 } from 'derivable-tools/dist/utils/helper'
 import { useConfigs } from '../../../state/config/useConfigs'
 import { useListTokens } from '../../../state/token/hook'
 import { useHelper } from '../../../state/config/useHelper'
-import { NATIVE_ADDRESS, POOL_IDS } from '../../../utils/constant'
+import { NATIVE_ADDRESS, ONE_NATIVE_AMOUNT, POOL_IDS } from '../../../utils/constant'
 import { useResource } from '../../../state/resources/hooks/useResource'
 import { useSettings } from '../../../state/setting/hooks/useSettings'
 
@@ -89,14 +89,15 @@ export const useTokenValue = ({
     }
     return value
   }
-  const convertTokenValue = (_tokenAddress: string, _amount: string) => {
-    if (!_tokenAddress || !_amount) return '0'
-    const nativeValue = Number(getTokenValue(NATIVE_ADDRESS, IEW(
-      '1000000000000000000',
-      tokens[NATIVE_ADDRESS]?.decimal || 18
+  const convertTokenValue = (tokenIn: string, tokenOut: string = NATIVE_ADDRESS, amount: string):string => {
+    if (tokenIn === tokenOut) return amount
+    if (!tokenIn || !amount) return '0'
+    const tokenInValue = Number(getTokenValue(tokenIn, amount))
+    const tokenOutValue = Number(getTokenValue(tokenOut, IEW(
+      ONE_NATIVE_AMOUNT,
+      tokens[tokenOut]?.decimal || 18
     ), true))
-    const tokenValue = Number(getTokenValue(_tokenAddress, _amount, true))
-    return tokenValue / nativeValue
+    return String(tokenInValue / tokenOutValue)
   }
   const value = useMemo(() => {
     if (!amount || !tokenAddress) return '0'
