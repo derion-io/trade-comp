@@ -52,6 +52,7 @@ import { InfoRow } from '../ui/InfoRow'
 import moment from 'moment'
 import { ClosingFeeCalculator, Position } from '../../utils/type'
 import { useResource } from '../../state/resources/hooks/useResource'
+import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 
 export enum VALUE_IN_USD_STATUS {
   AUTO,
@@ -67,6 +68,7 @@ export const Positions = ({
   tokenOutMaturity: BigNumber
 }) => {
   const { tradeType, updateCurrentPoolGroup } = useCurrentPoolGroup()
+  const { setCurrentPoolAddress } = useCurrentPool()
   const { pools } = useResource()
   const { balances, maturities } = useWalletBalance()
   const { tokens } = useListTokens()
@@ -446,18 +448,17 @@ export const Positions = ({
                     }
                     if (tradeType === TRADE_TYPE.SWAP) {
                       setOutputTokenAddressToBuy(position.token)
-                      return
-                    }
-                    const { address } = decodeErc1155Address(position.token)
-                    const side =
-                      tradeType === TRADE_TYPE.LONG
-                        ? POOL_IDS.A
-                        : tradeType === TRADE_TYPE.SHORT
-                          ? POOL_IDS.B
+                    } else {
+                      const { address } = decodeErc1155Address(position.token)
+                      const side =
+                      tradeType === TRADE_TYPE.LONG ? POOL_IDS.A
+                        : tradeType === TRADE_TYPE.SHORT ? POOL_IDS.B
                           : POOL_IDS.C
-                    setOutputTokenAddressToBuy(
-                      encodeErc1155Address(address, side)
-                    )
+                      setCurrentPoolAddress(address)
+                      setOutputTokenAddressToBuy(
+                        encodeErc1155Address(address, side)
+                      )
+                    }
                   }}
                   key={key}
                 >

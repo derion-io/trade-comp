@@ -6,14 +6,16 @@ import {
   decodeErc1155Address,
   isErc1155Address,
   WEI,
-  IEW
+  IEW,
+  NUM,
+  STR
 } from '../../../utils/helpers'
 import { useTokenPrice } from '../../../state/resources/hooks/useTokenPrice'
 import { parseSqrtX96 } from 'derivable-tools/dist/utils/helper'
 import { useConfigs } from '../../../state/config/useConfigs'
 import { useListTokens } from '../../../state/token/hook'
 import { useHelper } from '../../../state/config/useHelper'
-import { POOL_IDS } from '../../../utils/constant'
+import { NATIVE_ADDRESS, POOL_IDS } from '../../../utils/constant'
 import { useResource } from '../../../state/resources/hooks/useResource'
 import { useSettings } from '../../../state/setting/hooks/useSettings'
 
@@ -89,7 +91,13 @@ export const useTokenValue = ({
     }
     return value
   }
-
+  const convertTokenValue = (tokenIn: string, tokenOut: string = NATIVE_ADDRESS, amount: string):string => {
+    if (tokenIn === tokenOut) return amount
+    if (!tokenIn || !amount) return '0'
+    const tokenInValue = NUM(getTokenValue(tokenIn, amount))
+    const tokenOutValue = NUM(getTokenValue(tokenOut, '1'))
+    return STR(tokenInValue / tokenOutValue)
+  }
   const value = useMemo(() => {
     if (!amount || !tokenAddress) return '0'
     return getTokenValue(tokenAddress, amount)
@@ -97,6 +105,7 @@ export const useTokenValue = ({
 
   return {
     value,
-    getTokenValue
+    getTokenValue,
+    convertTokenValue
   }
 }

@@ -80,7 +80,7 @@ const Component = ({
   const { wrapToNativeAddress } = useHelper()
   const { setCurrentPoolAddress, setDr } = useCurrentPool()
   const { settings } = useSettings()
-
+  const { convertTokenValue } = useTokenValue({})
   const leverageData = useGenerateLeverageData(tradeType)
   const { pools } = useResource()
 
@@ -108,22 +108,6 @@ const Component = ({
     }
   }, [barData])
 
-  useEffect(() => {
-    switch (tradeType) {
-      case TRADE_TYPE.LONG:
-        setDr(Number(amountIn), 0, 0)
-        break
-      case TRADE_TYPE.SHORT:
-        setDr(0, Number(amountIn), 0)
-        break
-      case TRADE_TYPE.LIQUIDITY:
-        setDr(0, 0, Number(amountIn))
-        break
-      default:
-        setDr(0, 0, 0)
-    }
-  }, [amountIn, tradeType])
-
   const { callError, loading, gasUsed, amountOut, payloadAmountIn } =
     useCalculateSwap({
       amountIn,
@@ -136,15 +120,6 @@ const Component = ({
   useEffect(() => {
     if (Object.values(pools).length > 0) {
       if (outputTokenAddress && !inputTokenAddress) {
-        for (let i = 0; i < leverageData.length; i++) {
-          const leve: any = leverageData[i]
-          for (let k = 0; k < leve.bars.length; k++) {
-            if (leve.bars[k].token.includes(outputTokenAddress.slice(0, -3))) {
-              setBarData(leve.bars[k])
-              break
-            }
-          }
-        }
         const { address } = decodeErc1155Address(outputTokenAddress)
         if (
           inputTokenAddress &&
@@ -154,6 +129,16 @@ const Component = ({
         ) {
           setInputTokenAddress(wrapToNativeAddress(pools[address]?.TOKEN_R))
         }
+      } else if (outputTokenAddress) {
+        for (let i = 0; i < leverageData.length; i++) {
+          const leve: any = leverageData[i]
+          for (let k = 0; k < leve.bars.length; k++) {
+            if (leve.bars[k].token.includes(outputTokenAddress.slice(0, -3))) {
+              setBarData(leve.bars[k])
+              break
+            }
+          }
+        }
       }
       if (!inputTokenAddress) {
         setInputTokenAddress(
@@ -161,7 +146,7 @@ const Component = ({
         )
       }
     }
-  }, [outputTokenAddress, pools, id])
+  }, [outputTokenAddress, inputTokenAddress, pools, id])
 
   const { value: valueIn } = useTokenValue({
     amount: amountIn,
@@ -198,6 +183,24 @@ const Component = ({
     }
     return [null, null]
   }, [pools, inputTokenAddress, outputTokenAddress])
+
+  useEffect(() => {
+    if (!poolToShow?.TOKEN_R) return
+    const amountInConvert = convertTokenValue(inputTokenAddress, poolToShow.TOKEN_R, amountIn)
+    switch (tradeType) {
+      case TRADE_TYPE.LONG:
+        setDr(Number(amountInConvert), 0, 0)
+        break
+      case TRADE_TYPE.SHORT:
+        setDr(0, Number(amountInConvert), 0)
+        break
+      case TRADE_TYPE.LIQUIDITY:
+        setDr(0, 0, Number(amountInConvert))
+        break
+      default:
+        setDr(0, 0, 0)
+    }
+  }, [amountIn, tradeType, inputTokenAddress, poolToShow?.TOKEN_R])
 
   const { erc20TokenSupported } = useListTokenHasUniPool(poolToShow)
 
@@ -320,6 +323,12 @@ const Component = ({
     const fundingRate = interest + premium
     return [interest, premium, fundingRate, interestRate, maxPremiumRate]
   }, [inputTokenAddress, outputTokenAddress, pools, poolToShow])
+
+  useEffect(() => {
+    if (!tokensToSelect.includes(inputTokenAddress)) {
+      setInputTokenAddress(NATIVE_ADDRESS)
+    }
+  }, [tokensToSelect, inputTokenAddress])
 
   return (
     <div className='long-short-box'>
@@ -635,24 +644,24 @@ const Component = ({
         )}
         {!poolToShow?.MATURITY?.toNumber() ||
           !poolToShow?.MATURITY_RATE?.gt(0) || (
-            <InfoRow>
-              <TextGrey>Closing Fee</TextGrey>
-              <SkeletonLoader loading={!poolToShow}>
-                {formatPercent(
-                  Q128.sub(poolToShow?.MATURITY_RATE)
-                    .mul(10000)
-                    .div(Q128)
-                    .toNumber() / 10000,
-                  2,
-                  true
-                )}
+          <InfoRow>
+            <TextGrey>Closing Fee</TextGrey>
+            <SkeletonLoader loading={!poolToShow}>
+              {formatPercent(
+                Q128.sub(poolToShow?.MATURITY_RATE)
+                  .mul(10000)
+                  .div(Q128)
+                  .toNumber() / 10000,
+                2,
+                true
+              )}
                 % for{' '}
-                {moment
-                  .duration(poolToShow?.MATURITY.toNumber(), 'seconds')
-                  .humanize()}
-              </SkeletonLoader>
-            </InfoRow>
-          )}
+              {moment
+                .duration(poolToShow?.MATURITY.toNumber(), 'seconds')
+                .humanize()}
+            </SkeletonLoader>
+          </InfoRow>
+        )}
       </Box>
 
       <TxFee
@@ -707,8 +716,8 @@ const Component = ({
                 ) : (
                   <Text>
                 Add <TokenSymbol token={outputTokenAddress} textWrap={Text} />{' '}
-              </Text>
-            )
+                  </Text>
+                )
           }
         />
       </div>

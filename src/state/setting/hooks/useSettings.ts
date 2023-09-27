@@ -41,6 +41,7 @@ export const useSettings = () => {
     dispatch(setSortPoolBuyReduce({ chainId, sortPoolBy }))
   }
   const setShowBalance = (showBalance: boolean) => {
+    localStorage.setItem('isShowBalance', String(showBalance))
     dispatch(setShowBalanceReduce({ showBalance }))
   }
   const setShowValueInUsd = (status: VALUE_IN_USD_STATUS) => {

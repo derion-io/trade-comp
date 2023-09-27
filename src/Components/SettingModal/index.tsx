@@ -29,7 +29,9 @@ const Component = ({
   } = useSettings()
   const { chainId } = useConfigs()
   const [visibleAdvance, setVisibleAdvance] = useState<Boolean>(false)
-
+  useEffect(() => {
+    if (localStorage.getItem('isShowBalance')) setShowBalance(localStorage.getItem('isShowBalance') === 'true')
+  }, [])
   return (
     <Modal
       setVisible={setVisible}
