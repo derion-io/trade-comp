@@ -145,16 +145,14 @@ export const Positions = ({
         return null
       }
       const {
-        states: { a, b, R, spot },
+        states: { a, b, R },
         MARK,
         baseToken,
-        quoteToken
+        quoteToken,
+        sides,
       } = pool
       const k = pool.k.toNumber()
-      const kA = kx(k, R, a, spot, MARK)
-      const kB = -kx(-k, R, b, spot, MARK)
-      const ek =
-        side === POOL_IDS.A ? kA : side === POOL_IDS.B ? kB : Math.min(kA, kB)
+      const ek = sides[side].k
       const effectiveLeverage = Math.min(ek, k) / 2
 
       const decimalsOffset =
@@ -193,16 +191,9 @@ export const Positions = ({
         maturity: maturities?.[token]?.toNumber() ?? 0
       })
 
-      const _interest = pool?.dailyInterestRate ?? 0
-      const funding =
-        side === POOL_IDS.C
-          ? _interest - Number(pool?.premium?.C ?? 0)
-          : _interest +
-            Number(
-              pool?.premium[
-                side === POOL_IDS.A ? 'A' : side === POOL_IDS.B ? 'B' : 'C'
-              ] ?? 0
-            )
+      const interest = sides[side].interest
+      const premium = sides[side].premium
+      const funding = interest + premium
 
       return {
         poolAddress,
@@ -363,7 +354,7 @@ export const Positions = ({
                         : 'text-warning'
                     }
                   >
-                    {formatPercent(position.funding, 3, true)}%
+                    {zerofy(formatFloat(position.funding*100, undefined, 3, true))}%
                   </Text>
                 </InfoRow>
 
@@ -531,10 +522,7 @@ export const Positions = ({
                           : 'text-warning'
                       }
                     >
-                      {formatLocalisedCompactNumber(
-                        formatPercent(position.funding, 2, true)
-                      )}
-                      %
+                      {zerofy(formatFloat(position.funding*100, undefined, 3, true))}%
                     </Text>
                   </td>
                   {!hasClosingFee || (

@@ -5485,7 +5485,7 @@ depd@~1.1.2:
 
 "derivable-tools@git+ssh://git@github.com:derivable-labs/derivable-tools.git#dev-build":
   version "1.0.0"
-  resolved "git+ssh://git@github.com:derivable-labs/derivable-tools.git#355047f33b2bb2c60b707ee132a5d75063fd15f7"
+  resolved "git+ssh://git@github.com:derivable-labs/derivable-tools.git#fd8e0f5a2b83da31aea43c8314ed3c56a49411ae"
   dependencies:
     "@ethersproject/providers" "https://gitpkg.now.sh/derivable-labs/ethers.js/packages/providers?master"
     assisted-json-rpc-provider "git+ssh://git@github.com:derivable-labs/AssistedJsonRpcProvider.git#dev"

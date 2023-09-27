@@ -48,6 +48,7 @@ import { BigNumber } from 'ethers'
 import { useSettings } from '../../state/setting/hooks/useSettings'
 import moment from 'moment'
 import { useListTokenHasUniPool } from '../../hooks/useListTokenHasUniPool'
+import { useResource } from '../../state/resources/hooks/useResource'
 
 const Q128 = BigNumber.from(1).shl(128)
 
@@ -68,7 +69,7 @@ const Component = ({
 }) => {
   const [barData, setBarData] = useState<any>({})
   const { configs } = useConfigs()
-  const { id, pools, chartTab, setChartTab, setTradeType } =
+  const { id, chartTab, setChartTab, setTradeType } =
     useCurrentPoolGroup()
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] =
     useState<boolean>(false)
@@ -81,6 +82,7 @@ const Component = ({
   const { settings } = useSettings()
 
   const leverageData = useGenerateLeverageData(tradeType)
+  const { pools } = useResource()
 
   useEffect(() => {
     if (
@@ -300,23 +302,24 @@ const Component = ({
     tokenAddress: poolToShow?.TOKEN_R
   })
 
-  const [interest, maxFundingRate, fundingRate, fundingYield] = useMemo(() => {
-    const interest = poolToShow?.dailyInterestRate ?? 0
-    const maxFundingRate = interest + Number(poolToShow?.maxPremiumRate ?? 0)
-    const fundingRate =
-      interest +
-      Number(
-        poolToShow?.premium[
-          tradeType === TRADE_TYPE.LONG
-            ? 'A'
-            : tradeType === TRADE_TYPE.SHORT
-              ? 'B'
-              : 'C'
-        ] ?? 0
-      )
-    const fundingYield = interest - Number(poolToShow?.premium?.C ?? 0)
-    return [interest, maxFundingRate, fundingRate, fundingYield]
-  }, [poolToShow])
+  const [interest, premium, fundingRate, interestRate, maxPremiumRate] = useMemo(() => {
+    const tokenAddress =
+      isErc1155Address(outputTokenAddress) ? outputTokenAddress :
+      isErc1155Address(inputTokenAddress) ? inputTokenAddress : undefined
+    if (!tokenAddress) {
+      return [0, 0, 0, 0, 0]
+    }
+    const { address, id } = decodeErc1155Address(tokenAddress)
+    const pool = pools[address] ?? poolToShow
+    if (!pool) {
+      return [0, 0, 0, 0, 0]
+    }
+    const { sides, interestRate, maxPremiumRate } = pool
+    const interest = sides[id].interest ?? 0
+    const premium = NUM(sides[id].premium)
+    const fundingRate = interest + premium
+    return [interest, premium, fundingRate, interestRate, maxPremiumRate]
+  }, [inputTokenAddress, outputTokenAddress, pools, poolToShow])
 
   return (
     <div className='long-short-box'>
@@ -559,7 +562,7 @@ const Component = ({
         </div>
       )}
 
-      <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
+      <Box borderColor='default' className='swap-info-box mt-1 mb-1 no-wrap'>
         <InfoRow>
           <TextGrey>Liquidity</TextGrey>
           <SkeletonLoader loading={!liquidity || liquidity === '0'}>
@@ -571,7 +574,7 @@ const Component = ({
         {/* <InfoRow> */}
         {/*  <TextGrey>Daily Interest Rate</TextGrey> */}
         {/*  <SkeletonLoader loading={!poolToShow}> */}
-        {/*    {formatPercent((poolToShow?.dailyInterestRate ?? 0) / power / 2, 3, true)}% */}
+        {/*    {formatPercent((poolToShow?.interestRate ?? 0) / power / 2, 3, true)}% */}
         {/*  </SkeletonLoader> */}
         {/* </InfoRow> */}
 
@@ -587,10 +590,7 @@ const Component = ({
             <TextGrey>Funding Yield</TextGrey>
             <SkeletonLoader loading={!poolToShow}>
               <TextGreen>
-                {formatLocalisedCompactNumber(
-                  formatPercent(fundingYield, 2, true)
-                )}
-                %
+                {zerofy(formatFloat(fundingRate*100, undefined, 3, true))}%
               </TextGreen>
             </SkeletonLoader>
           </InfoRow>
@@ -599,10 +599,7 @@ const Component = ({
             <TextGrey>Funding Rate</TextGrey>
             <SkeletonLoader loading={!poolToShow}>
               <Text className={fundingRate < 0 ? 'text-green' : 'text-warning'}>
-                {formatLocalisedCompactNumber(
-                  formatPercent(fundingRate, 2, true)
-                )}
-                %
+                {zerofy(formatFloat(fundingRate*100, undefined, 3, true))}%
               </Text>
             </SkeletonLoader>
           </InfoRow>
@@ -612,19 +609,16 @@ const Component = ({
 
         {tradeType === TRADE_TYPE.LIQUIDITY ? (
           <InfoRow>
-            <TextGrey>Funding Yield (Min)</TextGrey>
+            <TextGrey>Interest Rate</TextGrey>
             <SkeletonLoader loading={!poolToShow}>
-              {formatLocalisedCompactNumber(formatPercent(interest, 2, true))}%
+              {formatFloat(interestRate*100, undefined, 3, true)}%
             </SkeletonLoader>
           </InfoRow>
         ) : (
           <InfoRow>
-            <TextGrey>Funding Rate (Max)</TextGrey>
+            <TextGrey>Max Premium Rate</TextGrey>
             <SkeletonLoader loading={!poolToShow}>
-              {formatLocalisedCompactNumber(
-                formatPercent(maxFundingRate, 2, true)
-              )}
-              %
+              {formatFloat(maxPremiumRate*100, undefined, 3, true)}%
             </SkeletonLoader>
           </InfoRow>
         )}

@@ -45,7 +45,7 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
 
         if (
           pool.states.R.lt(minR) ||
-          Number(pool.dailyInterestRate) * 99 >
+          Number(pool.interestRate) * 99 >
             maxInterestRate * pool.k.toNumber() ||
           deleverageRisk * 99 > (maxDeleverageRisk ?? 100)
         ) {
@@ -77,7 +77,7 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
                 size,
                 color,
                 opacity,
-                dailyInterestRate: pool.dailyInterestRate,
+                interestRate: pool.interestRate,
                 premium: pool.premium,
                 maxPremiumRate: pool.maxPremiumRate,
                 deleverageRisk
@@ -92,7 +92,7 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
             size,
             color,
             opacity,
-            dailyInterestRate: pool.dailyInterestRate,
+            interestRate: pool.interestRate,
             premium: pool.premium,
             maxPremiumRate: pool.maxPremiumRate,
             deleverageRisk
@@ -125,7 +125,7 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
         ...leverage,
         bars: bars.sort((a: any, b: any) => {
           if (sortPoolBy === SORT_POOL_BY.INTEREST_RATE) {
-            return a.dailyInterestRate - b.dailyInterestRate
+            return a.interestRate - b.interestRate
           } else if (sortPoolBy === SORT_POOL_BY.DELEVERAGE_RISK) {
             return a.deleverageRisk - b.deleverageRisk
           }
