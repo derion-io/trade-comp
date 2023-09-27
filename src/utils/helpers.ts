@@ -61,13 +61,42 @@ export const BIG = (num: number | string | BigNumber): BigNumber => {
   }
 }
 
-export const truncate = (num: string, decimals: number = 0): string => {
+export const truncate = (num: string, decimals: number = 0, rounding: boolean = false): string => {
   let index = Math.max(num.lastIndexOf('.'), num.lastIndexOf(','))
   if (index < 0) {
     index = num.length
   }
   index += decimals + (decimals > 0 ? 1 : 0)
+  if (rounding) {
+    let shouldRoundUp = false
+    for (let i = index; i < num.length; ++i) {
+      if (num.charAt(i) == '.') {
+        continue
+      }
+      if (Number(num.charAt(i)) >= 5) {
+        shouldRoundUp = true
+        break
+      }
+    }
+    for (let i = index-1; shouldRoundUp && i >= 0; --i) {
+      let char = num.charAt(i)
+      if (char == '.') {
+        continue
+      }
+      if (char == '9') {
+        char = '0'
+      } else {
+        char = (Number(char) + 1).toString()
+        shouldRoundUp = false
+      }
+      num = _replaceAt(num, i, char)
+    }
+  }
   return num.substring(0, index)
+}
+
+function _replaceAt(str: string, index: number, replacement: string) {
+  return str.substring(0, index) + replacement + str.substring(index + replacement.length);
 }
 
 /// revert of WEI: weiToNumber
@@ -155,12 +184,14 @@ function _extractErrorReason(err: any) {
 
 export const formatFloat = (
   number: number | string,
-  decimals?: number
+  decimals?: number,
+  significantDigits?: number,
+  rounding: boolean = false,
 ): number => {
-  if (!decimals) {
-    decimals = decimalsBySignificantDigits(number)
+  if (decimals == undefined) {
+    decimals = decimalsBySignificantDigits(number, significantDigits)
   }
-  return NUM(truncate(STR(number), decimals))
+  return NUM(truncate(STR(number), decimals, rounding))
 }
 
 export const cutDecimal = (num: string, decimals?: number): string => {
