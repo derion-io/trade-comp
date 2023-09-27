@@ -120,15 +120,6 @@ const Component = ({
   useEffect(() => {
     if (Object.values(pools).length > 0) {
       if (outputTokenAddress && !inputTokenAddress) {
-        for (let i = 0; i < leverageData.length; i++) {
-          const leve: any = leverageData[i]
-          for (let k = 0; k < leve.bars.length; k++) {
-            if (leve.bars[k].token.includes(outputTokenAddress.slice(0, -3))) {
-              setBarData(leve.bars[k])
-              break
-            }
-          }
-        }
         const { address } = decodeErc1155Address(outputTokenAddress)
         if (
           inputTokenAddress &&
@@ -138,6 +129,16 @@ const Component = ({
         ) {
           setInputTokenAddress(wrapToNativeAddress(pools[address]?.TOKEN_R))
         }
+      } else if (outputTokenAddress) {
+        for (let i = 0; i < leverageData.length; i++) {
+          const leve: any = leverageData[i]
+          for (let k = 0; k < leve.bars.length; k++) {
+            if (leve.bars[k].token.includes(outputTokenAddress.slice(0, -3))) {
+              setBarData(leve.bars[k])
+              break
+            }
+          }
+        }
       }
       if (!inputTokenAddress) {
         setInputTokenAddress(
@@ -145,7 +146,7 @@ const Component = ({
         )
       }
     }
-  }, [outputTokenAddress, pools, id])
+  }, [outputTokenAddress, inputTokenAddress, pools, id])
 
   const { value: valueIn } = useTokenValue({
     amount: amountIn,
