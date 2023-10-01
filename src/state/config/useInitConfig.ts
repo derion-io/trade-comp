@@ -11,7 +11,7 @@ import {
 import { useSettings } from '../setting/hooks/useSettings'
 
 export const useInitConfig = ({
-  library,
+  provider,
   chainId,
   useSubPage,
   language,
@@ -20,7 +20,7 @@ export const useInitConfig = ({
   env,
   account
 }: {
-  library: any
+  provider: any
   useLocation: any
   useHistory: any
   chainId: number
@@ -63,7 +63,7 @@ export const useInitConfig = ({
         env,
         chainId,
         account: account || ZERO_ADDRESS,
-        signer: library?.getSigner(),
+        signer: provider?.getSigner(),
         scanApiKey: currentScanApiKey || '',
         storage: {
           // @ts-ignore
@@ -99,5 +99,5 @@ export const useInitConfig = ({
     }
 
     intConfig()
-  }, [library, account, chainId, env, currentScanApiKey])
+  }, [provider, account, chainId, env, currentScanApiKey])
 }

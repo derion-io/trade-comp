@@ -2,20 +2,15 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { Web3ReactProvider } from '@web3-react/core'
 import configs from 'dapp-comp/dist/configs'
-import { ethers } from 'ethers'
 import { AppLayout } from "./components/AppLayout";
 import { HashRouter as Router} from 'react-router-dom';
 import './styles/main.scss'
 import './index.css'
-
-function getLibrary(provider: any) {
-  const library = new ethers.providers.Web3Provider(provider)
-  return library
-}
+import { connectors } from './utils/connectors'
 
 ReactDOM.render(
   <React.StrictMode>
-    <Web3ReactProvider getLibrary={getLibrary}>
+    <Web3ReactProvider connectors={connectors}>
       {/*@ts-ignore*/}
       <Router>
         <AppLayout

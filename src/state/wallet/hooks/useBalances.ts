@@ -30,7 +30,7 @@ export const useWalletBalance = () => {
       }
     })
   const { configs, ddlEngine } = useConfigs()
-  const { library, account } = useWeb3React()
+  const { provider, account } = useWeb3React()
 
   const dispatch = useDispatch()
 
@@ -54,9 +54,9 @@ export const useWalletBalance = () => {
   }
 
   const approveRouter = async ({ tokenAddress }: { tokenAddress: string }) => {
-    if (account && library) {
+    if (account && provider) {
       try {
-        const signer = library.getSigner()
+        const signer = provider.getSigner()
         let hash = ''
         if (isErc1155Address(tokenAddress)) {
           const poolAddress = decodeErc1155Address(tokenAddress).address

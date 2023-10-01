@@ -1,0 +1,6 @@
+export enum ConnectionType {
+  INJECTED = 'INJECTED',
+  WALLET_CONNECT_V2 = 'WALLET_CONNECT_V2',
+  NETWORK = 'NETWORK',
+  COINBASE = 'COINBASE',
+}
