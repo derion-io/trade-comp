@@ -185,6 +185,9 @@ export const ButtonSwap = ({
                   account,
                   swapLogs.filter(
                     (l: any) => l.transactionHash && l.args?.name === 'Swap'
+                  ),
+                  swapLogs.filter(
+                    (l: any) => l.transactionHash && l.args?.name === 'Transfer'
                   )
                 )
                 await fetchBalanceAndAllowance(Object.keys(tokens))
