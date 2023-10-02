@@ -24,7 +24,6 @@ export const useResource = () => {
           addPoolGroupsWithChain({ poolGroups: data.poolGroups, chainId })
         )
         dispatch(addPoolsWithChain({ pools: data.pools, chainId }))
-        console.log('data.transferLogs', data.transferLogs)
         updateSwapTxsHandle(account, data.swapLogs, data.transferLogs)
       })
       ddlEngine.RESOURCE.getNewResource(account).then((data: any) => {

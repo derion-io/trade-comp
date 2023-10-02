@@ -40,8 +40,6 @@ export const tokens = createSlice({
         ]
         : action.payload.transferLogs
 
-      console.log('_transferLogs', _transferLogs)
-
       state.swapLogs[action.payload.account] = _.uniqBy(_swapsLogs, (l) => l.logIndex)
       state.transferLogs[action.payload.account] = _.uniqBy(_transferLogs, (l) => l.logIndex)
     },
