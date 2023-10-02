@@ -10,34 +10,31 @@ import { useResource } from '../../resources/hooks/useResource'
 import { useListTokens } from '../../token/hook'
 
 export const useSwapHistory = () => {
-  const { swapLogs, formartedSwapLogs } = useSelector((state: State) => {
+  const { swapLogs, transferLogs, formartedSwapLogs } = useSelector((state: State) => {
     return {
       swapLogs: state.wallet.swapLogs,
+      transferLogs: state.wallet.transferLogs,
       formartedSwapLogs: state.wallet.formartedSwapLogs
     }
   })
   const { account } = useWeb3React()
   const dispatch = useDispatch()
 
-  const addMultiSwapData = (swapLogs: any, account: string) => {
-    dispatch(updateSwapTxs({ account, swapLogs }))
-  }
-
-  const updateSwapTxsHandle = (account: string, data: any) => {
-    dispatch(updateSwapTxs({ account, swapLogs: _.cloneDeep(data) }))
+  const updateSwapTxsHandle = (account: string, _swapLogs: any, _transferLogs: any) => {
+    dispatch(updateSwapTxs({ account, swapLogs: _.cloneDeep(_swapLogs), transferLogs: _.cloneDeep(_transferLogs) }))
   }
 
   return {
     updateSwapTxsHandle,
-    addMultiSwapData,
     swapLogs: swapLogs[account],
+    transferLogs: transferLogs[account],
     formartedSwapLogs
   }
 }
 
 export const useSwapHistoryFormated = () => {
-  const { swapLogs: sls } = useSwapHistory()
-  const { states, id } = useCurrentPoolGroup()
+  const { swapLogs, transferLogs } = useSwapHistory()
+  const { id } = useCurrentPoolGroup()
   const { ddlEngine } = useConfigs()
   const dispatch = useDispatch()
   const { pools } = useResource()
@@ -53,14 +50,14 @@ export const useSwapHistoryFormated = () => {
       Object.values(tokens).length > 0
     ) {
       const swapTxs = ddlEngine?.HISTORY.formatSwapHistory({
-        // @ts-ignore
         tokens: Object.values(tokens),
-        logs: sls
+        transferLogs: transferLogs,
+        swapLogs
       })
       dispatch(updateFormatedSwapTxs({ swapTxs }))
     }
     if (!account) {
       dispatch(updateFormatedSwapTxs({ swapTxs: [] }))
     }
-  }, [sls, pools, ddlEngine?.CURRENT_POOL, id, states, tokens, account])
+  }, [swapLogs, transferLogs, pools, ddlEngine?.CURRENT_POOL, id, tokens, account])
 }

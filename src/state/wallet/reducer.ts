@@ -22,17 +22,26 @@ export const tokens = createSlice({
       action: PayloadAction<{
         account: string
         swapLogs: any
+        transferLogs: any
       }>
     ) => {
       if (!action.payload.account) return
-      const logs = state.swapLogs[action.payload.account]
+      const _swapsLogs = state.swapLogs[action.payload.account]
         ? [
           ...action.payload.swapLogs,
           ...state.swapLogs[action.payload.account]
         ]
         : action.payload.swapLogs
 
-      state.swapLogs[action.payload.account] = _.uniqBy(logs, (l) => l.logIndex)
+      const _transferLogs = state.transferLogs[action.payload.account]
+        ? [
+          ...action.payload.transferLogs,
+          ...state.transferLogs[action.payload.account]
+        ]
+        : action.payload.transferLogs
+
+      state.swapLogs[action.payload.account] = _.uniqBy(_swapsLogs, (l) => l.logIndex)
+      state.transferLogs[action.payload.account] = _.uniqBy(_transferLogs, (l) => l.logIndex)
     },
     updateFormatedSwapTxs: (
       state,
