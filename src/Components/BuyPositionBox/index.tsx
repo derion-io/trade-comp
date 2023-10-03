@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import { Text, TextError, TextGreen, TextGrey, TextWarning } from '../ui/Text'
 import './style.scss'
 import { Box } from '../ui/Box'
@@ -619,17 +619,17 @@ const Component = ({
                   <div>
                     <div>
                       <TextGrey>Interest:&nbsp;</TextGrey>
-                      <Text>{formatFloat(interest * 100, undefined, 3, false)}%</Text>
+                      <Text>{zerofy(formatFloat(interest * 100, undefined, 3, true))}%</Text>
                     </div>
                     <div>
                       <TextGrey>Premium:&nbsp;</TextGrey>
                       <Text className={premium < 0 ? 'text-green' : 'text-warning'}>
-                        {zerofy(formatFloat(premium * 100, undefined, 3, false))}%
+                        {zerofy(formatFloat(premium * 100, undefined, 3, true))}%
                       </Text>
                     </div>
                     <div>
                       <TextGrey>Max Premium:&nbsp;</TextGrey>
-                      <Text>{formatFloat(maxPremiumRate * 100, undefined, 3, false)}%</Text>
+                      <Text>{zerofy(formatFloat(maxPremiumRate * 100, undefined, 3, true))}%</Text>
                     </div>
                   </div>
                 )}
@@ -650,14 +650,7 @@ const Component = ({
               {formatFloat(interestRate * 100, undefined, 3, true)}%
             </SkeletonLoader>
           </InfoRow>
-        ) : (
-          <InfoRow>
-            <TextGrey>Max Premium Rate</TextGrey>
-            <SkeletonLoader loading={!poolToShow}>
-              {formatFloat(maxPremiumRate * 100, undefined, 3, true)}%
-            </SkeletonLoader>
-          </InfoRow>
-        )}
+        ) : <Fragment />}
 
         {!poolToShow?.MATURITY_VEST?.toNumber() || (
           <InfoRow>
