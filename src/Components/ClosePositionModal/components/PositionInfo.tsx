@@ -12,15 +12,11 @@ export const PositionInfo = ({
   position,
   valueInUsdStatus,
   setValueInUsdStatus,
-  loading,
-  valueOut,
-  amountOut
+  loading
 }: {
   position: Position
   valueInUsdStatus: VALUE_IN_USD_STATUS
   setValueInUsdStatus: (value: VALUE_IN_USD_STATUS) => void
-  valueOut?: string,
-  amountOut?: string,
   loading?: boolean,
 }) => {
   const { wrapToNativeAddress } = useHelper()

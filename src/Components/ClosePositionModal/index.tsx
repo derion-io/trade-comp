@@ -258,11 +258,19 @@ const Component = ({
                       key={percentage}
                       onClick={() => {
                         setExternalTrigger(false)
-                        const balance = Number(IEW(
-                          balances[inputTokenAddress],
+                        if (percentage === 100) {
+                          const balance = IEW(
+                            balances[inputTokenAddress],
                           tokens[inputTokenAddress]?.decimal || 18
-                        )) * percentage / 100
-                        setAmountIn(String(formatFloat(balance, undefined, 4, true)))
+                          )
+                          setAmountIn(balance)
+                        } else {
+                          const balance = Number(IEW(
+                            balances[inputTokenAddress],
+                          tokens[inputTokenAddress]?.decimal || 18
+                          )) * percentage / 100
+                          setAmountIn(String(balance))
+                        }
                       }}
                     >
                       {percentage}%
@@ -336,8 +344,6 @@ const Component = ({
         <PositionInfo
           position={position}
           setValueInUsdStatus={setValueInUsdStatus}
-          amountOut={amountOut}
-          valueOut={valueOut}
           valueInUsdStatus={valueInUsdStatus}
           loading={loading}
         />
@@ -391,9 +397,13 @@ const Component = ({
           position={position}
           gasUsed={gasUsed}
           payoffRate={payoffRate}
+          isMaxBalance={amountIn === IEW(
+            balances[inputTokenAddress],
+            tokens[inputTokenAddress]?.decimal || 18
+          )}
           loading={loading}
-          amountOut={amountOut}
-          valueOut={valueOut}
+          amountIn={amountIn}
+          valueIn={valueIn}
           valueInUsdStatus={valueInUsdStatus}
         />
 
