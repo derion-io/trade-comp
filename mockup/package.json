@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@babel/runtime": "^7.20.1",
+    "@coinbase/wallet-sdk": "^3.6.4",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -21,7 +22,6 @@
     "@web3-react/network": "^8.2.0",
     "@web3-react/types": "^8.2.0",
     "@web3-react/walletconnect-v2": "^8.3.7",
-    "@coinbase/wallet-sdk": "^3.6.4",
     "crypto": "^1.0.1",
     "dapp-comp": "link:..",
     "react": "^18.2.0",
