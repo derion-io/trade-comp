@@ -43,6 +43,7 @@ import _ from 'lodash'
 import { useConfigs } from '../../state/config/useConfigs'
 import { useListTokenHasUniPool } from '../../hooks/useListTokenHasUniPool'
 import Tooltip from '../Tooltip/Tooltip'
+import NumberInput from '../ui/Input/InputNumber'
 
 const Component = ({
   visible,
@@ -228,9 +229,8 @@ const Component = ({
               externalTrigger={externalTrigger}
               setExternalTrigger={(et: boolean) => setExternalTrigger(et)}
               handle={
-                <Input
+                <NumberInput
                   placeholder='0.0'
-                  isNumber
                   suffix={
                     Number(valueIn) > 0 ? (
                       <TextGrey>
@@ -242,7 +242,7 @@ const Component = ({
                   }
                   className='fs-24 w-100'
                   value={amountIn}
-                  onChange={(e) => {
+                  onValueChange={(e) => {
                     if (Number(e.target.value) >= 0) {
                       setAmountIn((e.target as HTMLInputElement).value)
                     }
@@ -287,9 +287,8 @@ const Component = ({
               externalTrigger={externalTrigger}
               setExternalTrigger={(et: boolean) => setExternalTrigger(et)}
               handle={
-                <Input
+                <NumberInput
                   placeholder='0'
-                  isNumber
                   prefix='$'
                   className='fs-24 w-100'
                   suffix={
@@ -303,7 +302,7 @@ const Component = ({
                     )
                   }
                   value={valueInput}
-                  onChange={(e) => {
+                  onValueChange={(e) => {
                     const value = (e.target as HTMLInputElement).value
                     if (value != null) {
                       try {
@@ -376,9 +375,8 @@ const Component = ({
               </Text>
             </SkeletonLoader>
           </InfoRow>
-          <Input
+          <NumberInput
             placeholder='0.0'
-            isNumber
             suffix={
               Number(valueOut) > 0 ? (
                 <TextGrey>

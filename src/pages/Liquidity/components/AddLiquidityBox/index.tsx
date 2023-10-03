@@ -27,6 +27,7 @@ import { BigNumber } from 'ethers'
 import { useWeb3React } from '../../../../state/customWeb3React/hook'
 import { useNativePrice } from '../../../../hooks/useTokenPrice'
 import { useConfigs } from '../../../../state/config/useConfigs'
+import NumberInput from '../../../../Components/ui/Input/InputNumber'
 
 const shareOfPoolUnit = 1000
 
@@ -270,7 +271,7 @@ export const AddLiquidityBox = ({
             </Text>
           </SkeletonLoader>
         </InfoRow>
-        <Input
+        <NumberInput
           placeholder='0.0'
           className='fs-24'
           value={amountIn}
@@ -316,7 +317,7 @@ export const AddLiquidityBox = ({
             </Text>
           </SkeletonLoader>
         </InfoRow>
-        <Input
+        <NumberInput
           placeholder='0.0'
           isNumber
           className='fs-24'

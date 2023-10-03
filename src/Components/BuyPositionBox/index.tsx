@@ -50,6 +50,7 @@ import moment from 'moment'
 import { useListTokenHasUniPool } from '../../hooks/useListTokenHasUniPool'
 import { useResource } from '../../state/resources/hooks/useResource'
 import Tooltip from '../Tooltip/Tooltip'
+import NumberInput from '../ui/Input/InputNumber'
 
 const Q128 = BigNumber.from(1).shl(128)
 
@@ -372,23 +373,10 @@ const Component = ({
             </Text>
           </div>
         </div>
-        <Input
+        <NumberInput
           placeholder='0.0'
-          isNumber
-          suffix={
-            Number(valueIn) > 0 ? (
-              <TextGrey>
-                <div className='d-flex'>
-                  ${formatLocalisedCompactNumber(formatFloat(valueIn))}
-                </div>
-              </TextGrey>
-            ) : (
-              ''
-            )
-          }
-          className='fs-24'
           value={amountIn}
-          onChange={(e) => {
+          onValueChange={(e) => {
             if (Number(e.target.value) >= 0) {
               setAmountIn((e.target as HTMLInputElement).value)
             }

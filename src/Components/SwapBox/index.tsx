@@ -34,6 +34,7 @@ import { TxFee } from './components/TxFee'
 import { CHART_TABS } from '../../state/currentPool/type'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { isAddress } from 'ethers/lib/utils'
+import NumberInput from '../ui/Input/InputNumber'
 
 const Component = ({
   inputTokenAddress,
@@ -218,9 +219,8 @@ const Component = ({
             </SkeletonLoader>
           </div>
         </div>
-        <Input
+        <NumberInput
           placeholder='0.0'
-          isNumber
           suffix={
             Number(valueIn) > 0 ? (
               <TextGrey>
@@ -230,9 +230,8 @@ const Component = ({
               ''
             )
           }
-          className='fs-24'
           value={amountIn}
-          onChange={(e) => {
+          onValueChange={(e) => {
             if (Number(e.target.value) >= 0) {
               setAmountIn((e.target as HTMLInputElement).value)
             }
@@ -281,11 +280,10 @@ const Component = ({
             </Text>
           </SkeletonLoader>
         </div>
-        <Input
+        <NumberInput
           // @ts-ignore
           value={Number(amountOut) > 0 ? amountOut : ''}
           placeholder='0.0'
-          isNumber
           suffix={
             Number(valueOut) > 0 ? (
               <TextGrey>
@@ -295,7 +293,6 @@ const Component = ({
               ''
             )
           }
-          className='fs-24'
         />
       </div>
 
