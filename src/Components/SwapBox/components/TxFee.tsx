@@ -12,17 +12,25 @@ import { useFeeData } from '../../../state/resources/hooks/useFeeData'
 import { Position } from '../../../utils/type'
 import { useSettings } from '../../../state/setting/hooks/useSettings'
 import Tooltip from '../../Tooltip/Tooltip'
+import { NetValue, VALUE_IN_USD_STATUS } from '../../Positions'
 
 export const TxFee = ({
   position,
   gasUsed,
   payoffRate,
-  loading
+  loading,
+  amountOut,
+  valueOut,
+  valueInUsdStatus
 }: {
   position?: Position
   gasUsed: BigNumber
   payoffRate?: number
   loading?: boolean
+  amountOut?: string
+  valueOut?: string
+  valueInUsdStatus?: VALUE_IN_USD_STATUS
+  // isCloseModal?:
 }) => {
   const { chainId } = useConfigs()
   const { settings } = useSettings()
@@ -128,6 +136,26 @@ export const TxFee = ({
           )}
         </SkeletonLoader>
       </InfoRow>
+      {!settings.slippageTolerance || (
+        <InfoRow>
+          <TextGrey>Max Slippage</TextGrey>
+          <Text>{settings.slippageTolerance * 100}%</Text>
+        </InfoRow>
+      )}
+      {(settings.slippageTolerance && String(valueOut) !== '0' && valueInUsdStatus) ? (
+        <InfoRow>
+          <TextGrey>Minimum Value Receive</TextGrey>
+          <SkeletonLoader loading={!!loading}>
+            <NetValue
+              valueInUsdStatus={valueInUsdStatus}
+              valueUsd={String(Number(valueOut) * (1 - settings.slippageTolerance)) || '0'}
+              value={String(Number(amountOut) * (1 - settings.slippageTolerance)) || '0'}
+              pool={position?.pool}
+              isPhone
+            />
+          </SkeletonLoader>
+        </InfoRow>
+      ) : ''}
     </Box>
   )
 }

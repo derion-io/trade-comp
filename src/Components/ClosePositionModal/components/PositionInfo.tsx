@@ -74,28 +74,6 @@ export const PositionInfo = ({
           <Text>{zerofy(formatFloat(position.entryPrice))}</Text>
         </InfoRow>
       )}
-      {!settings.slippageTolerance || (
-        <InfoRow>
-          <Text>Slippage Tolerance</Text>
-          <Text>{settings.slippageTolerance}%</Text>
-        </InfoRow>
-      )}
-      {(settings.slippageTolerance && String(valueOut) !== '0') ? (
-
-        <InfoRow>
-          <Text>Minimum Value Receive</Text>
-          <SkeletonLoader loading={!!loading}>
-            <NetValue
-              valueInUsdStatus={valueInUsdStatus}
-              valueUsd={String(Number(valueOut) * (1 - settings.slippageTolerance)) || '0'}
-              value={String(Number(amountOut) * (1 - settings.slippageTolerance)) || '0'}
-              pool={position.pool}
-              isPhone
-            />
-          </SkeletonLoader>
-        </InfoRow>
-
-      ) : ''}
     </Box>
   )
 }

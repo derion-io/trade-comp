@@ -262,7 +262,7 @@ const Component = ({
                           balances[inputTokenAddress],
                           tokens[inputTokenAddress]?.decimal || 18
                         )) * percentage / 100
-                        setAmountIn(String(balance))
+                        setAmountIn(String(formatFloat(balance, undefined, 4, true)))
                       }}
                     >
                       {percentage}%
@@ -320,7 +320,8 @@ const Component = ({
                       key={percentage}
                       onClick={() => {
                         setExternalTrigger(false)
-                        setValueInput(valueBalance === valueIn ? '' : String(Number(valueBalance) * percentage / 100))
+                        const valueInput = valueBalance === valueIn ? '' : String(Number(valueBalance) * percentage / 100)
+                        setValueInput(String(formatFloat(valueInput, undefined, 4, true)))
                       }}
                     >
                       {percentage}%
@@ -391,6 +392,9 @@ const Component = ({
           gasUsed={gasUsed}
           payoffRate={payoffRate}
           loading={loading}
+          amountOut={amountOut}
+          valueOut={valueOut}
+          valueInUsdStatus={valueInUsdStatus}
         />
 
         <div className='actions'>
