@@ -28,6 +28,7 @@ import { useCalculateSwap } from '../SwapBox/hooks/useCalculateSwap'
 import { ButtonSwap } from '../ButtonSwap'
 import {
   MIN_POSITON_VALUE_USD_TO_DISPLAY, NATIVE_ADDRESS,
+  PERCENTAGE_SUGGESTIONS,
   POOL_IDS
 } from '../../utils/constant'
 import { BigNumber } from 'ethers'
@@ -41,6 +42,7 @@ import { SelectTokenModal } from '../SelectTokenModal'
 import _ from 'lodash'
 import { useConfigs } from '../../state/config/useConfigs'
 import { useListTokenHasUniPool } from '../../hooks/useListTokenHasUniPool'
+import Tooltip from '../Tooltip/Tooltip'
 
 const Component = ({
   visible,
@@ -74,6 +76,7 @@ const Component = ({
   const [valueInput, setValueInput] = useState<string>('')
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] =
     useState<boolean>(false)
+  // const [isPercentOptionOpen, setIsPercentOptionOpen] = useState<string>('false')
   const { configs } = useConfigs()
 
   const [pool, power] = useMemo(() => {
@@ -217,57 +220,106 @@ const Component = ({
             </SkeletonLoader>
           </InfoRow>
           {settings.showBalance ? (
-            <Input
-              placeholder='0.0'
-              isNumber
-              suffix={
-                Number(valueIn) > 0 ? (
-                  <TextGrey>
+            <Tooltip
+              position='left-bottom'
+              wrappedStyle={{ width: '100%', border: 'none', cursor: 'text' }}
+              handle={
+                <Input
+                  placeholder='0.0'
+                  isNumber
+                  suffix={
+                    Number(valueIn) > 0 ? (
+                      <TextGrey>
                     ${formatLocalisedCompactNumber(formatFloat(valueIn))}
-                  </TextGrey>
-                ) : (
-                  ''
-                )
-              }
-              className='fs-24'
-              value={amountIn}
-              onChange={(e) => {
-                if (Number(e.target.value) >= 0) {
-                  setAmountIn((e.target as HTMLInputElement).value)
-                }
-              }}
-            />
-          ) : (
-            <Input
-              placeholder='0'
-              isNumber
-              prefix='$'
-              suffix={
-                Number(amountIn) > 0 ? (
-                  <TextGrey>
-                    {formatPercent(Number(amountIn) / Number(balance), 2, true)}
-                    %
-                  </TextGrey>
-                ) : (
-                  ''
-                )
-              }
-              className='fs-24'
-              value={valueInput}
-              onChange={(e) => {
-                const value = (e.target as HTMLInputElement).value
-                if (value != null) {
-                  try {
-                    if (Number(valueBalance) < Number(value)) {
-                      setValueInput(valueBalance)
-                      return
-                    }
-                  } catch (err) {
-                    console.error(err)
+                      </TextGrey>
+                    ) : (
+                      ''
+                    )
                   }
-                  setValueInput(value)
-                }
-              }}
+                  className='fs-24 w-100'
+                  value={amountIn}
+                  onChange={(e) => {
+                    if (Number(e.target.value) >= 0) {
+                      setAmountIn((e.target as HTMLInputElement).value)
+                    }
+                  }}
+                />
+              }
+              trigger='click'
+              renderContent={() => (
+                <ul className='percent-selector'>
+                  {PERCENTAGE_SUGGESTIONS.map((percentage) => (
+                    <li
+                      className='percent-selector-item'
+                      key={percentage}
+                      onClick={() => {
+                        const balance = Number(IEW(
+                          balances[inputTokenAddress],
+                          tokens[inputTokenAddress]?.decimal || 18
+                        )) * percentage / 100
+                        setAmountIn(String(balance))
+                      }}
+                    >
+                      {percentage}%
+                    </li>
+                  ))}
+                </ul>
+              )}
+            />
+
+          ) : (
+            <Tooltip
+              position='left-bottom'
+              wrappedStyle={{ width: '100%', border: 'none', cursor: 'text' }}
+              handle={
+                <Input
+                  placeholder='0'
+                  isNumber
+                  prefix='$'
+                  className='fs-24 w-100'
+                  suffix={
+                    Number(amountIn) > 0 ? (
+                      <TextGrey>
+                        {formatPercent(Number(amountIn) / Number(balance), 2, true)}
+                    %
+                      </TextGrey>
+                    ) : (
+                      ''
+                    )
+                  }
+                  value={valueInput}
+                  onChange={(e) => {
+                    const value = (e.target as HTMLInputElement).value
+                    if (value != null) {
+                      try {
+                        if (Number(valueBalance) < Number(value)) {
+                          setValueInput(valueBalance)
+                          return
+                        }
+                      } catch (err) {
+                        console.error(err)
+                      }
+                      setValueInput(value)
+                    }
+                  }}
+                />
+              }
+              trigger='click'
+              renderContent={() => (
+                <ul className='percent-selector'>
+                  {PERCENTAGE_SUGGESTIONS.map((percentage) => (
+                    <li
+                      className='percent-selector-item'
+                      key={percentage}
+                      onClick={() => {
+                        setValueInput(valueBalance === valueIn ? '' : String(Number(valueBalance) * percentage / 100))
+                      }}
+                    >
+                      {percentage}%
+                    </li>
+                  ))}
+                </ul>
+              )}
             />
           )}
         </div>

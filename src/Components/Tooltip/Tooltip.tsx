@@ -1,5 +1,5 @@
 import cx from 'classnames'
-import React, { useCallback, useState, useRef } from 'react'
+import React, { useCallback, useState, useRef, useEffect } from 'react'
 import './style.scss'
 
 const OPEN_DELAY = 0
@@ -14,6 +14,8 @@ type Props = {
   disableHandleStyle?: boolean
   handleClassName?: string
   isHandlerDisabled?: boolean
+  wrappedStyle?: any
+  handleIsOpen?: string
 }
 
 export default function Tooltip(props: Props) {
@@ -51,7 +53,6 @@ export default function Tooltip(props: Props) {
 
     setVisible(true)
   }, [setVisible, intervalCloseRef, trigger])
-
   const onMouseLeave = useCallback(() => {
     intervalCloseRef.current = setTimeout(() => {
       setVisible(false)
@@ -66,6 +67,7 @@ export default function Tooltip(props: Props) {
   const className = cx('tooltip', props.className)
   return (
     <span
+      style={...props.wrappedStyle}
       className={className}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
@@ -77,11 +79,12 @@ export default function Tooltip(props: Props) {
           [props.handleClassName],
           { active: visible }
         )}
+        style={...props.wrappedStyle}
       >
         {props.isHandlerDisabled ? (
           <div className='tooltip-disabled-wrapper'>{props.handle}</div>
         ) : (
-          <div>{props.handle}</div>
+          <div style={...props.wrappedStyle}>{props.handle}</div>
         )}
       </span>
       {visible && (
