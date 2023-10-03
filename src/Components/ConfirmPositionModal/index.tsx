@@ -27,7 +27,6 @@ import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
 import { Box } from '../ui/Box'
 import { IconArrowDown } from '../ui/Icon'
 import { InfoRow } from '../ui/InfoRow'
-import { Input } from '../ui/Input'
 import { Modal } from '../ui/Modal'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { Text, TextGrey } from '../ui/Text'
@@ -48,14 +47,12 @@ const Component = ({
   tradeType = TRADE_TYPE.LONG,
   loadingAmountOut,
   payloadAmountIn,
-  title,
   payoffRate,
   tokenOutMaturity,
   confirmModal
 }: {
   visible: boolean
   setVisible: any
-  title?: string
   inputTokenAddress: string
   outputTokenAddress: string
   amountIn: string
@@ -75,6 +72,7 @@ const Component = ({
   const { settings } = useSettings()
   const { basePrice } = useCurrentPoolGroup()
   const { getTokenValue } = useTokenValue({})
+  const { balances } = useWalletBalance()
   const ConfirmInfo = () => {
     if (tradeType === TRADE_TYPE.SWAP) {
       const valueIn = getTokenValue(inputTokenAddress, amountIn)
@@ -141,7 +139,7 @@ const Component = ({
         </div>
       )
     } else {
-      const [poolToShow, _] = useMemo(() => {
+      const [poolToShow] = useMemo(() => {
         if (isErc1155Address(outputTokenAddress)) {
           const { address, id } = decodeErc1155Address(outputTokenAddress)
           return [pools[address], Number(id)]
@@ -164,7 +162,6 @@ const Component = ({
       )
       const showSize =
         tradeType === TRADE_TYPE.LONG || tradeType === TRADE_TYPE.SHORT
-      const { balances } = useWalletBalance()
       const valueOutBefore = getTokenValue(
         inputTokenAddress,
         IEW(
@@ -355,7 +352,7 @@ const Component = ({
     <Modal
       setVisible={setVisible}
       visible={visible}
-      title={title ?? 'Confirm Position'}
+      title={String(balances[outputTokenAddress]) === '0' ? 'Confirm Position' : 'Increase Position'}
     >
       <div className='close-position-modal'>
         <ConfirmInfo />
@@ -364,6 +361,7 @@ const Component = ({
           payoffRate={payoffRate}
           loading={loadingAmountOut && Number(amountIn) > 0}
         />
+        {}
         <div className='actions'>
           <ButtonSwap
             loadingAmountOut={loadingAmountOut}
