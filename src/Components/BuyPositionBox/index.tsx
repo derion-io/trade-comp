@@ -49,6 +49,7 @@ import { useSettings } from '../../state/setting/hooks/useSettings'
 import moment from 'moment'
 import { useListTokenHasUniPool } from '../../hooks/useListTokenHasUniPool'
 import { useResource } from '../../state/resources/hooks/useResource'
+import Tooltip from '../Tooltip/Tooltip'
 
 const Q128 = BigNumber.from(1).shl(128)
 
@@ -307,8 +308,8 @@ const Component = ({
 
   const [interest, premium, fundingRate, interestRate, maxPremiumRate] = useMemo(() => {
     const tokenAddress =
-      isErc1155Address(outputTokenAddress) ? outputTokenAddress :
-      isErc1155Address(inputTokenAddress) ? inputTokenAddress : undefined
+      isErc1155Address(outputTokenAddress) ? outputTokenAddress
+        : isErc1155Address(inputTokenAddress) ? inputTokenAddress : undefined
     if (!tokenAddress) {
       return [0, 0, 0, 0, 0]
     }
@@ -599,7 +600,7 @@ const Component = ({
             <TextGrey>Funding Yield</TextGrey>
             <SkeletonLoader loading={!poolToShow}>
               <TextGreen>
-                {zerofy(formatFloat(fundingRate*100, undefined, 3, true))}%
+                {zerofy(formatFloat(fundingRate * 100, undefined, 3, true))}%
               </TextGreen>
             </SkeletonLoader>
           </InfoRow>
@@ -607,9 +608,35 @@ const Component = ({
           <InfoRow>
             <TextGrey>Funding Rate</TextGrey>
             <SkeletonLoader loading={!poolToShow}>
-              <Text className={fundingRate < 0 ? 'text-green' : 'text-warning'}>
-                {zerofy(formatFloat(fundingRate*100, undefined, 3, true))}%
-              </Text>
+              <Tooltip
+                position='right-bottom'
+                handle={
+                  <Text className={fundingRate < 0 ? 'text-green' : 'text-warning'}>
+                    {zerofy(formatFloat(fundingRate * 100, undefined, 3, true))}%
+                  </Text>
+                }
+                renderContent={() => (
+                  <div>
+                    <div>
+                      <TextGrey>Interest:&nbsp;</TextGrey>
+                      <Text>{formatFloat(interest * 100, undefined, 3, false)}%</Text>
+                    </div>
+                    <div>
+                      <TextGrey>Premium:&nbsp;</TextGrey>
+                      <Text className={premium < 0 ? 'text-green' : 'text-warning'}>
+                        {zerofy(formatFloat(premium * 100, undefined, 3, false))}%
+                      </Text>
+                    </div>
+                    <div>
+                      <TextGrey>Maximum Premium:&nbsp;</TextGrey>
+                      <Text>{formatFloat(maxPremiumRate * 100, undefined, 3, false)}%</Text>
+                    </div>
+                  </div>
+                )}
+              />
+              {/* <Text className={fundingRate < 0 ? 'text-green' : 'text-warning'}>
+                {zerofy(formatFloat(fundingRate * 100, undefined, 3, true))}%
+              </Text> */}
             </SkeletonLoader>
           </InfoRow>
         )}
@@ -620,14 +647,14 @@ const Component = ({
           <InfoRow>
             <TextGrey>Interest Rate</TextGrey>
             <SkeletonLoader loading={!poolToShow}>
-              {formatFloat(interestRate*100, undefined, 3, true)}%
+              {formatFloat(interestRate * 100, undefined, 3, true)}%
             </SkeletonLoader>
           </InfoRow>
         ) : (
           <InfoRow>
             <TextGrey>Max Premium Rate</TextGrey>
             <SkeletonLoader loading={!poolToShow}>
-              {formatFloat(maxPremiumRate*100, undefined, 3, true)}%
+              {formatFloat(maxPremiumRate * 100, undefined, 3, true)}%
             </SkeletonLoader>
           </InfoRow>
         )}
