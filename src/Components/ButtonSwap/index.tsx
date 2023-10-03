@@ -260,7 +260,6 @@ export const ButtonSwap = ({
         callError={callError}
         gasUsed={gasUsed}
         tokenOutMaturity={tokenOutMaturity}
-        title='Confirm Position'
       /> : ''}
       <ApproveUtrModal
         callBack={() => {}}

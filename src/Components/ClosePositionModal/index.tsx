@@ -1,49 +1,48 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { Modal } from '../ui/Modal'
-import { useListTokens } from '../../state/token/hook'
-import { TokenIcon } from '../ui/TokenIcon'
-import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
-import { TokenSymbol } from '../ui/TokenSymbol'
-import { Text, TextGrey } from '../ui/Text'
-import './style.scss'
-import { formatLocalisedCompactNumber } from '../../utils/formatBalance'
+import { BigNumber } from 'ethers'
+import _ from 'lodash'
+import React, { useEffect, useMemo, useState } from 'react'
 import isEqual from 'react-fast-compare'
-import {
-  decodeErc1155Address,
-  div,
-  formatFloat,
-  formatPercent,
-  zerofy,
-  IEW,
-  NUM
-} from '../../utils/helpers'
-import { SkeletonLoader } from '../ui/SkeletonLoader'
-import { Input } from '../ui/Input'
+import { useListTokenHasUniPool } from '../../hooks/useListTokenHasUniPool'
+import { useConfigs } from '../../state/config/useConfigs'
+import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 import { useWeb3React } from '../../state/customWeb3React/hook'
-import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
-import { IconArrowDown } from '../ui/Icon'
-import { InfoRow } from '../ui/InfoRow'
-import { TxFee } from '../SwapBox/components/TxFee'
-import { useCalculateSwap } from '../SwapBox/hooks/useCalculateSwap'
-import { ButtonSwap } from '../ButtonSwap'
+import { useResource } from '../../state/resources/hooks/useResource'
+import { useSettings } from '../../state/setting/hooks/useSettings'
+import { useListTokens } from '../../state/token/hook'
+import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import {
   MIN_POSITON_VALUE_USD_TO_DISPLAY, NATIVE_ADDRESS,
   PERCENTAGE_SUGGESTIONS,
   POOL_IDS
 } from '../../utils/constant'
-import { BigNumber } from 'ethers'
-import { useSettings } from '../../state/setting/hooks/useSettings'
-import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
+import { formatLocalisedCompactNumber } from '../../utils/formatBalance'
+import {
+  IEW,
+  NUM,
+  decodeErc1155Address,
+  div,
+  formatFloat,
+  formatPercent,
+  zerofy
+} from '../../utils/helpers'
 import { Position } from '../../utils/type'
+import { ButtonSwap } from '../ButtonSwap'
 import { VALUE_IN_USD_STATUS } from '../Positions'
-import { PositionInfo } from './components/PositionInfo'
-import { useResource } from '../../state/resources/hooks/useResource'
 import { SelectTokenModal } from '../SelectTokenModal'
-import _ from 'lodash'
-import { useConfigs } from '../../state/config/useConfigs'
-import { useListTokenHasUniPool } from '../../hooks/useListTokenHasUniPool'
+import { TxFee } from '../SwapBox/components/TxFee'
+import { useCalculateSwap } from '../SwapBox/hooks/useCalculateSwap'
+import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
 import Tooltip from '../Tooltip/Tooltip'
+import { IconArrowDown } from '../ui/Icon'
+import { InfoRow } from '../ui/InfoRow'
 import NumberInput from '../ui/Input/InputNumber'
+import { Modal } from '../ui/Modal'
+import { SkeletonLoader } from '../ui/SkeletonLoader'
+import { Text, TextGrey } from '../ui/Text'
+import { TokenIcon } from '../ui/TokenIcon'
+import { TokenSymbol } from '../ui/TokenSymbol'
+import { PositionInfo } from './components/PositionInfo'
+import './style.scss'
 
 const Component = ({
   visible,
