@@ -13,8 +13,11 @@ export const Input = (props: InputType) => {
   const isNumber = props?.isNumber || false
   const inputProps = isNumber
     ? {
-      type: 'number',
-      inputMode: 'decimal' as const
+      type: 'text',
+      inputMode: 'decimal' as const,
+      step: 'any',
+      pattern: '^[0-9]*[.,]?[0-9]*$',
+      lang: 'en'
     }
     : {}
   const [isFocusing, setIsFocusing] = useState<boolean>(false)
