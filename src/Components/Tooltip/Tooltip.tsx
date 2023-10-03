@@ -15,7 +15,8 @@ type Props = {
   handleClassName?: string
   isHandlerDisabled?: boolean
   wrappedStyle?: any
-  handleIsOpen?: string
+  externalTrigger?: boolean
+  setExternalTrigger?: (et: boolean) => void;
 }
 
 export default function Tooltip(props: Props) {
@@ -25,7 +26,16 @@ export default function Tooltip(props: Props) {
 
   const position = props.position ?? 'left-bottom'
   const trigger = props.trigger ?? 'hover'
+  useEffect(() => {
+    if (props.externalTrigger !== undefined) {
+      if (props.externalTrigger) setVisible(true)
+      else setVisible(false)
+    }
+  }, [props.externalTrigger])
 
+  useEffect(() => {
+    if (props.externalTrigger !== undefined && props.setExternalTrigger) props.setExternalTrigger(visible)
+  }, [visible])
   const onMouseEnter = useCallback(() => {
     if (trigger !== 'hover' || IS_TOUCH) return
     if (intervalCloseRef.current) {
@@ -50,9 +60,9 @@ export default function Tooltip(props: Props) {
       clearInterval(intervalOpenRef.current)
       intervalOpenRef.current = null
     }
-
     setVisible(true)
   }, [setVisible, intervalCloseRef, trigger])
+
   const onMouseLeave = useCallback(() => {
     intervalCloseRef.current = setTimeout(() => {
       setVisible(false)

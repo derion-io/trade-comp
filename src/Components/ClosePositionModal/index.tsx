@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Modal } from '../ui/Modal'
 import { useListTokens } from '../../state/token/hook'
 import { TokenIcon } from '../ui/TokenIcon'
@@ -76,7 +76,7 @@ const Component = ({
   const [valueInput, setValueInput] = useState<string>('')
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] =
     useState<boolean>(false)
-  // const [isPercentOptionOpen, setIsPercentOptionOpen] = useState<string>('false')
+  const [externalTrigger, setExternalTrigger] = useState<boolean>(false)
   const { configs } = useConfigs()
 
   const [pool, power] = useMemo(() => {
@@ -189,6 +189,7 @@ const Component = ({
                 <Text
                   className='amount-input-box__head--balance'
                   onClick={() => {
+                    setExternalTrigger(true)
                     const balance = IEW(
                       balances[inputTokenAddress],
                       tokens[inputTokenAddress]?.decimal || 18
@@ -210,6 +211,7 @@ const Component = ({
                 <Text
                   className='amount-input-box__head--balance'
                   onClick={() => {
+                    setExternalTrigger(true)
                     setValueInput(valueBalance === valueIn ? '' : valueBalance)
                   }}
                 >
@@ -223,6 +225,8 @@ const Component = ({
             <Tooltip
               position='left-bottom'
               wrappedStyle={{ width: '100%', border: 'none', cursor: 'text' }}
+              externalTrigger={externalTrigger}
+              setExternalTrigger={(et: boolean) => setExternalTrigger(et)}
               handle={
                 <Input
                   placeholder='0.0'
@@ -253,6 +257,7 @@ const Component = ({
                       className='percent-selector-item'
                       key={percentage}
                       onClick={() => {
+                        setExternalTrigger(false)
                         const balance = Number(IEW(
                           balances[inputTokenAddress],
                           tokens[inputTokenAddress]?.decimal || 18
@@ -271,6 +276,8 @@ const Component = ({
             <Tooltip
               position='left-bottom'
               wrappedStyle={{ width: '100%', border: 'none', cursor: 'text' }}
+              externalTrigger={externalTrigger}
+              setExternalTrigger={(et: boolean) => setExternalTrigger(et)}
               handle={
                 <Input
                   placeholder='0'
@@ -312,6 +319,7 @@ const Component = ({
                       className='percent-selector-item'
                       key={percentage}
                       onClick={() => {
+                        setExternalTrigger(false)
                         setValueInput(valueBalance === valueIn ? '' : String(Number(valueBalance) * percentage / 100))
                       }}
                     >
