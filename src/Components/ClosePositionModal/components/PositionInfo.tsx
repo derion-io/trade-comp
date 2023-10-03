@@ -7,8 +7,7 @@ import { useListTokens } from '../../../state/token/hook'
 import { Position } from '../../../utils/type'
 import { NetValue, Pnl, VALUE_IN_USD_STATUS } from '../../Positions'
 import { useHelper } from '../../../state/config/useHelper'
-import { useSettings } from '../../../state/setting/hooks/useSettings'
-import { SkeletonLoader } from '../../ui/SkeletonLoader'
+import { useCurrentPoolGroup } from '../../../state/currentPool/hooks/useCurrentPoolGroup'
 
 export const PositionInfo = ({
   position,
@@ -27,7 +26,7 @@ export const PositionInfo = ({
 }) => {
   const { wrapToNativeAddress } = useHelper()
   const { tokens } = useListTokens()
-  const { settings } = useSettings()
+  const { basePrice } = useCurrentPoolGroup()
   return (
     <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
       <InfoRow>
@@ -74,6 +73,12 @@ export const PositionInfo = ({
           <Text>{zerofy(formatFloat(position.entryPrice))}</Text>
         </InfoRow>
       )}
+      {basePrice ? (
+        <InfoRow>
+          <Text>Exit Price</Text>
+          <Text>{zerofy(formatFloat(basePrice))}</Text>
+        </InfoRow>
+      ) : ''}
     </Box>
   )
 }
