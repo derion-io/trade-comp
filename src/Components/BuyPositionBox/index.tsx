@@ -599,9 +599,32 @@ const Component = ({
           <InfoRow>
             <TextGrey>Funding Yield</TextGrey>
             <SkeletonLoader loading={!poolToShow}>
-              <TextGreen>
-                {zerofy(formatFloat(fundingRate * 100, undefined, 3, true))}%
-              </TextGreen>
+              <Tooltip
+                position='right-bottom'
+                handle={
+                  <Text className={fundingRate < 0 ? 'text-green' : 'text-warning'}>
+                    {zerofy(formatFloat(fundingRate * 100, undefined, 3, true))}%
+                  </Text>
+                }
+                renderContent={() => (
+                  <div>
+                    <div>
+                      <TextGrey>Interest:&nbsp;</TextGrey>
+                      <Text>{zerofy(formatFloat(interest * 100, undefined, 3, true))}%</Text>
+                    </div>
+                    <div>
+                      <TextGrey>Premium:&nbsp;</TextGrey>
+                      <Text className={premium < 0 ? 'text-green' : 'text-warning'}>
+                        {zerofy(formatFloat(premium * 100, undefined, 3, true))}%
+                      </Text>
+                    </div>
+                    <div>
+                      <TextGrey>Max Premium:&nbsp;</TextGrey>
+                      <Text>{zerofy(formatFloat(maxPremiumRate * 100, undefined, 3, true))}%</Text>
+                    </div>
+                  </div>
+                )}
+              />
             </SkeletonLoader>
           </InfoRow>
         ) : (
