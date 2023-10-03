@@ -49,7 +49,8 @@ const Component = ({
   payloadAmountIn,
   payoffRate,
   tokenOutMaturity,
-  confirmModal
+  confirmModal,
+  title
 }: {
   visible: boolean
   setVisible: any
@@ -66,6 +67,7 @@ const Component = ({
   payoffRate?: number
   tokenOutMaturity: BigNumber
   confirmModal?: Boolean
+  title?: string
 }) => {
   const { tokens } = useListTokens()
   const { pools } = useResource()
@@ -157,7 +159,7 @@ const Component = ({
         return poolToShow.k.toNumber() / 2
       }, [poolToShow])
       const liquidity = getTokenValue(
-        amountOut,
+        poolToShow?.TOKEN_R,
         IEW(poolToShow?.states?.R, tokens[poolToShow?.TOKEN_R]?.decimals)
       )
       const showSize =
@@ -170,10 +172,40 @@ const Component = ({
         )
       )
       const valueOut = getTokenValue(outputTokenAddress, amountOut)
+      const valueIn = getTokenValue(inputTokenAddress, amountIn)
       return (
         <div>
           {outputTokenAddress && (
             <div>
+              <Box borderColor='default' className='swap-info-box mt-1 mb-1' >
+                <div className='amount-input-box' style={{ marginTop: '0.5rem' }}>
+                  <div className='amount-input-box__head'>
+                    <span
+                      className='current-token'
+                    >
+                      <TokenIcon size={24} tokenAddress={inputTokenAddress} />
+                      <Text>
+                        <TokenSymbol token={inputTokenAddress} />
+                      </Text>
+                    </span>
+                  </div>
+                  <span className='text-grey'>
+                    {amountIn} ({Number(valueIn) > 0 ? (
+                      <TextGrey>
+                ${formatLocalisedCompactNumber(formatFloat(valueIn))}
+                      </TextGrey>
+                    ) : (
+                      ''
+                    )})
+                  </span>
+
+                </div>
+              </Box>
+              <div className='text-center mt-2 mb-1'>
+                <span>
+                  <IconArrowDown fill='#01A7FA' />
+                </span>
+              </div>
               <Box
                 borderColor={
                   tradeType === TRADE_TYPE.LONG
@@ -352,7 +384,7 @@ const Component = ({
     <Modal
       setVisible={setVisible}
       visible={visible}
-      title={String(balances[outputTokenAddress]) === '0' ? 'Confirm Position' : 'Increase Position'}
+      title={title || (String(balances[outputTokenAddress]) === '0' ? 'Confirm Position' : 'Increase Position')}
     >
       <div className='close-position-modal'>
         <ConfirmInfo />

@@ -260,6 +260,7 @@ export const ButtonSwap = ({
         callError={callError}
         gasUsed={gasUsed}
         tokenOutMaturity={tokenOutMaturity}
+        title={tradeType === TRADE_TYPE.SWAP ? 'Confirm Swap' : undefined}
       /> : ''}
       <ApproveUtrModal
         callBack={() => {}}
