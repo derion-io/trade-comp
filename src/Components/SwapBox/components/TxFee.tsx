@@ -144,7 +144,7 @@ export const TxFee = ({
       )}
       {(settings.slippageTolerance && String(valueOut) !== '0' && valueInUsdStatus) ? (
         <InfoRow>
-          <TextGrey>Minimum Value Receive</TextGrey>
+          <TextGrey>Min Value Receive</TextGrey>
           <SkeletonLoader loading={!!loading}>
             <NetValue
               valueInUsdStatus={valueInUsdStatus}
