@@ -628,7 +628,7 @@ const Component = ({
                       </Text>
                     </div>
                     <div>
-                      <TextGrey>Maximum Premium:&nbsp;</TextGrey>
+                      <TextGrey>Max Premium:&nbsp;</TextGrey>
                       <Text>{formatFloat(maxPremiumRate * 100, undefined, 3, false)}%</Text>
                     </div>
                   </div>
