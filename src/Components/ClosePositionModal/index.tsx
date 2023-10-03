@@ -335,7 +335,10 @@ const Component = ({
         <PositionInfo
           position={position}
           setValueInUsdStatus={setValueInUsdStatus}
+          amountOut={amountOut}
+          valueOut={valueOut}
           valueInUsdStatus={valueInUsdStatus}
+          loading={loading}
         />
 
         <div className='text-center mt-1 mb-1'>
