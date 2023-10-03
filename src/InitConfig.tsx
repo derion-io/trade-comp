@@ -17,14 +17,15 @@ export const InitConfig = ({
   chainId: chainIdNotConnect
 }: any) => {
   const { initialledConfig } = useConfigs()
-  const { chainId, library, account } = useWeb3React()
+  const { chainId, provider, account } = useWeb3React()
   useInitWeb3React(useWeb3React, showConnectWalletModal)
+
   useInitConfig({
     chainId:
       chainId && SUPPORTED_CHAINS.includes(chainId)
         ? chainId
         : chainIdNotConnect || DEFAULT_CHAIN,
-    library,
+    provider,
     env,
     language,
     useSubPage,
