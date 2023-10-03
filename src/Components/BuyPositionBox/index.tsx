@@ -745,6 +745,7 @@ const Component = ({
           tradeType={tradeType}
           loadingAmountOut={loading}
           tokenOutMaturity={tokenOutMaturity}
+          confirmModal
           title={
             Number(decodeErc1155Address(outputTokenAddress).id) ===
             POOL_IDS.A ? (
@@ -764,7 +765,6 @@ const Component = ({
           }
         />
       </div>
-
       <ApproveUtrModal
         callBack={() => {
         }}

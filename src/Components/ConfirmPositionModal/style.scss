@@ -1,0 +1,70 @@
+@import "../../styles/abstracts/variables";
+
+.close-position-modal {
+  .actions {
+    & > * {
+      width: 100%;
+    }
+  }
+
+  .arrow-down {
+    display: block;
+    border-radius: 50%;
+    border: 1px solid $color-blue;
+    cursor: pointer;
+    margin: 0 auto;
+    width: 30px;
+    height: 30px;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease-out;
+    position: relative;
+
+    &>* {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-47%, -50%);
+    }
+
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+
+  .current-token {
+    cursor: pointer;
+  }
+}
+
+
+.amount-input-box {
+  &__head {
+    &--balance {
+      border-bottom: 1px dashed $color-text-grey;
+      cursor: pointer;
+    }
+  }
+}
+
+.percent-selector {
+  position: relative;
+  display: flex;
+  list-style: none;
+  border-radius: var(--border-radius-sm);
+  padding: 0;
+  margin-top: -2rem;
+  backdrop-filter: blur(7px);
+
+  .percent-selector-item {
+    cursor: pointer;
+    border-radius: var(--border-radius-sm);
+    width: 4.5rem;
+    text-align: center;
+
+    &:hover {
+      background: rgba(180, 187, 255, 0.1);
+    }
+  }
+}
+

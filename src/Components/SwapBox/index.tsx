@@ -313,6 +313,8 @@ const Component = ({
         <ButtonSwap
           payoffRate={payoffRate}
           payloadAmountIn={payloadAmountIn}
+          confirmModal
+          tradeType={TRADE_TYPE.SWAP}
           inputTokenAddress={inputTokenAddress}
           outputTokenAddress={outputTokenAddress}
           amountIn={amountIn}

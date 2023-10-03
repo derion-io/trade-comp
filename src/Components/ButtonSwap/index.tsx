@@ -7,7 +7,7 @@ import {
   WEI
 } from '../../utils/helpers'
 import { toast } from 'react-toastify'
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useListTokens } from '../../state/token/hook'
 import { useWeb3React } from '../../state/customWeb3React/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
@@ -19,6 +19,7 @@ import { TextSell } from '../ui/Text'
 import { useSettings } from '../../state/setting/hooks/useSettings'
 import { ApproveUtrModal } from '../ApproveUtrModal'
 import { useResource } from '../../state/resources/hooks/useResource'
+import { ConfirmPosition } from '../ConfirmPositionModal'
 
 export const ButtonSwap = ({
   inputTokenAddress,
@@ -33,7 +34,8 @@ export const ButtonSwap = ({
   payloadAmountIn,
   title,
   payoffRate,
-  tokenOutMaturity
+  tokenOutMaturity,
+  confirmModal
 }: {
   inputTokenAddress: string
   outputTokenAddress: string
@@ -48,6 +50,7 @@ export const ButtonSwap = ({
   title: any
   payoffRate?: number
   tokenOutMaturity: BigNumber
+  confirmModal?: Boolean
 }) => {
   const { tokens } = useListTokens()
   const [loading, setLoading] = useState<boolean>(false)
@@ -62,7 +65,7 @@ export const ButtonSwap = ({
   const slippage = 1 - Math.min(1, payoffRate ?? 0)
 
   const { updateSwapTxsHandle } = useSwapHistory()
-
+  const [visibleConfirmPosition, setVisibleConfirmPosition] = useState<boolean>(false)
   const sideOut = Number(decodeErc1155Address(outputTokenAddress)?.id ?? 0)
 
   const ButtonComp =
@@ -144,64 +147,67 @@ export const ButtonSwap = ({
           disabled={slippage > settings.slippageTolerance || loadingAmountOut}
           className='swap-button'
           onClick={async () => {
-            try {
-              setLoading(true)
-              if (ddlEngine) {
-                const amountOutMin = WEI(
-                  mul(amountOut, 1 - settings.slippageTolerance),
+            if (!confirmModal) {
+              try {
+                setLoading(true)
+                if (ddlEngine) {
+                  const amountOutMin = WEI(
+                    mul(amountOut, 1 - settings.slippageTolerance),
                   tokens[outputTokenAddress]?.decimal || 18
-                )
-                console.log({
-                  amountIn: WEI(
-                    amountIn,
+                  )
+                  console.log({
+                    amountIn: WEI(
+                      amountIn,
                     tokens[inputTokenAddress]?.decimal || 18
-                  ),
-                  payloadAmountIn: payloadAmountIn?.toString()
-                })
-                const tx: any = await ddlEngine.SWAP.multiSwap(
-                  [
-                    {
-                      tokenIn: inputTokenAddress,
-                      tokenOut: outputTokenAddress,
-                      amountIn: bn(
-                        WEI(amountIn, tokens[inputTokenAddress]?.decimal || 18)
-                      ),
-                      amountOutMin,
-                      payloadAmountIn,
-                      useSweep: !!(
+                    ),
+                    payloadAmountIn: payloadAmountIn?.toString()
+                  })
+                  const tx: any = await ddlEngine.SWAP.multiSwap(
+                    [
+                      {
+                        tokenIn: inputTokenAddress,
+                        tokenOut: outputTokenAddress,
+                        amountIn: bn(
+                          WEI(amountIn, tokens[inputTokenAddress]?.decimal || 18)
+                        ),
+                        amountOutMin,
+                        payloadAmountIn,
+                        useSweep: !!(
                         tokenOutMaturity?.gt(0) &&
                         balances[outputTokenAddress] &&
                         isErc1155Address(outputTokenAddress)
-                      ),
-                      currentBalanceOut: balances[outputTokenAddress]
-                    }
-                  ],
-                  gasUsed && gasUsed.gt(0) ? gasUsed.mul(2) : undefined
-                )
-                const swapLogs = ddlEngine.RESOURCE.parseDdlLogs(
-                  tx && tx?.logs ? tx.logs : []
-                )
-                updateSwapTxsHandle(
-                  account,
-                  swapLogs.filter(
-                    (l: any) => l.transactionHash && l.args?.name === 'Swap'
-                  ),
-                  swapLogs.filter(
-                    (l: any) => l.transactionHash && l.args?.name === 'Transfer'
+                        ),
+                        currentBalanceOut: balances[outputTokenAddress]
+                      }
+                    ],
+                    gasUsed && gasUsed.gt(0) ? gasUsed.mul(2) : undefined
                   )
-                )
-                await fetchBalanceAndAllowance(Object.keys(tokens))
-                await initResource(account)
-              }
-              setLoading(false)
+                  const swapLogs = ddlEngine.RESOURCE.parseDdlLogs(
+                    tx && tx?.logs ? tx.logs : []
+                  )
+                  updateSwapTxsHandle(
+                    account,
+                    swapLogs.filter(
+                      (l: any) => l.transactionHash && l.args?.name === 'Swap'
+                    ),
+                    swapLogs.filter(
+                      (l: any) => l.transactionHash && l.args?.name === 'Transfer'
+                    ))
+                  await fetchBalanceAndAllowance(Object.keys(tokens))
+                  await initResource(account)
+                }
+                setLoading(false)
 
-              if (callback) {
-                callback()
+                if (callback) {
+                  callback()
+                }
+              } catch (e) {
+                console.error(e)
+                setLoading(false)
+                toast.error(String(e.message ?? e))
               }
-            } catch (e) {
-              console.error(e)
-              setLoading(false)
-              toast.error(String(e.message ?? e))
+            } else {
+              setVisibleConfirmPosition(true)
             }
           }}
         >
@@ -227,7 +233,7 @@ export const ButtonSwap = ({
     tokenOutMaturity,
     routerAllowances[inputTokenAddress]
   ])
-
+  useEffect(() => { setLoading(visibleConfirmPosition) }, [visibleConfirmPosition])
   return (
     <React.Fragment>
       {payoffRate &&
@@ -240,6 +246,22 @@ export const ButtonSwap = ({
           ''
         )}
       {button}
+      {confirmModal ? <ConfirmPosition
+        visible={visibleConfirmPosition}
+        setVisible={setVisibleConfirmPosition}
+        loadingAmountOut={loadingAmountOut}
+        payoffRate={payoffRate}
+        inputTokenAddress={inputTokenAddress}
+        payloadAmountIn={payloadAmountIn}
+        outputTokenAddress={outputTokenAddress}
+        amountIn={amountIn}
+        amountOut={amountOut}
+        tradeType={tradeType}
+        callError={callError}
+        gasUsed={gasUsed}
+        tokenOutMaturity={tokenOutMaturity}
+        title='Confirm Position'
+      /> : ''}
       <ApproveUtrModal
         callBack={() => {}}
         visible={visibleApproveModal}
