@@ -361,7 +361,6 @@ const Component = ({
           payoffRate={payoffRate}
           loading={loadingAmountOut && Number(amountIn) > 0}
         />
-        {}
         <div className='actions'>
           <ButtonSwap
             loadingAmountOut={loadingAmountOut}

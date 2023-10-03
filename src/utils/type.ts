@@ -81,6 +81,7 @@ export type Position = {
   entryPrice: string
   sizeDisplay: string
   value: string
+  currentPrice: string
   valueUsd: string
   leverage: number
   effectiveLeverage: number

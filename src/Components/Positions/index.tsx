@@ -69,7 +69,7 @@ export const Positions = ({
 }) => {
   const { tradeType, updateCurrentPoolGroup } = useCurrentPoolGroup()
   const { setCurrentPoolAddress } = useCurrentPool()
-  const { pools } = useResource()
+  const { pools, poolGroups } = useResource()
   const { balances, maturities } = useWalletBalance()
   const { tokens } = useListTokens()
   const { getTokenValue } = useTokenValue({})
@@ -151,7 +151,7 @@ export const Positions = ({
         MARK,
         baseToken,
         quoteToken,
-        sides,
+        sides
       } = pool
       const k = pool.k.toNumber()
       const ek = sides[side].k
@@ -192,13 +192,17 @@ export const Positions = ({
         MATURITY_RATE: pool.MATURITY_RATE,
         maturity: maturities?.[token]?.toNumber() ?? 0
       })
-
+      let currentPrice = '0'
+      Object.keys(poolGroups).map(poolGroupKey => {
+        if (poolGroups[poolGroupKey].pools?.[poolAddress]) currentPrice = poolGroups[poolGroupKey].basePrice
+      })
       const interest = sides[side].interest
       const premium = sides[side].premium
       const funding = interest + premium
 
       return {
         poolAddress,
+        currentPrice,
         pool,
         token,
         side,
@@ -356,7 +360,7 @@ export const Positions = ({
                         : 'text-warning'
                     }
                   >
-                    {zerofy(formatFloat(position.funding*100, undefined, 3, true))}%
+                    {zerofy(formatFloat(position.funding * 100, undefined, 3, true))}%
                   </Text>
                 </InfoRow>
 
@@ -523,7 +527,7 @@ export const Positions = ({
                           : 'text-warning'
                       }
                     >
-                      {zerofy(formatFloat(position.funding*100, undefined, 3, true))}%
+                      {zerofy(formatFloat(position.funding * 100, undefined, 3, true))}%
                     </Text>
                   </td>
                   {!hasClosingFee || (
