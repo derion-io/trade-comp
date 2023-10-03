@@ -77,7 +77,7 @@ export const AppLayout = (props: any) => {
     }
   }, [account, provider, chainId])
 
-  return <div className={`body dark'}`}>
+  return <div className={`body dark`}>
     <aside className='sidebar'>
       <Menu menuConfig={[configs]} />
       <div className='select-chain-box'>
