@@ -22,22 +22,24 @@ export const SwapModalHeaderAmount = ({
     <div className='amount-input-box__head' style={{ margin: 0 }}>
       <span className='current-token' style={{ width: '100%' }}>
         <span className='text-grey' style={{ textAlign: 'center', width: '100%' }}>
-          <Text className='fs-16'>
-            {textBefore || ''} {zerofy(formatFloat(amountIn, undefined, 8, true), 8)}{' '}
-            {!isErc1155Address(tokenAddress) ? <TokenIcon size={16} tokenAddress={tokenAddress} /> : ''} {' '}
+          <span className='current-token' style={{ justifyContent: 'center' }}>
+            <Text className='fs-16'>
+              {textBefore || ''} {zerofy(formatFloat(amountIn, undefined, 8, true), 8)}{' '}
+            </Text>
+            {!isErc1155Address(tokenAddress) ? <TokenIcon size={16} className='ml-0.1' tokenAddress={tokenAddress} /> : ''} {' '}
             <TokenSymbol
               className='fs-16'
               color='default'
               token={tokenAddress}
             />{' '}
-          </Text>
-          {Number(valueIn) > 0 ? (
-            <TextGrey className='fs-16'>
+            {Number(valueIn) > 0 ? (
+              <TextGrey className='fs-16'>
               (${formatLocalisedCompactNumber(formatFloat(valueIn))})
-            </TextGrey>
-          ) : (
-            ''
-          )}
+              </TextGrey>
+            ) : (
+              ''
+            )}
+          </span>
         </span>
       </span>
       {/* <div className='d-flex align-item-center'>
