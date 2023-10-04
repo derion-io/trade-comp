@@ -275,7 +275,7 @@ export const AddLiquidityBox = ({
           placeholder='0.0'
           className='fs-24'
           value={amountIn}
-          onChange={(e) => {
+          onValueChange={(e) => {
             if (Number(e.target.value) >= 0) {
               setAmountIn((e.target as HTMLInputElement).value)
             }
@@ -317,9 +317,8 @@ export const AddLiquidityBox = ({
             </Text>
           </SkeletonLoader>
         </InfoRow>
-        <NumberInput
+        <Input
           placeholder='0.0'
-          isNumber
           className='fs-24'
           // @ts-ignore
           value={amountOut}

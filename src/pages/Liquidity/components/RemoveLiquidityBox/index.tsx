@@ -296,11 +296,10 @@ export const RemoveLiquidityBox = ({
         </InfoRow>
         <NumberInput
           placeholder='0.0'
-          isNumber
           className='fs-24'
           // @ts-ignore
           value={amountIn}
-          onChange={(e) => {
+          onValueChange={(e) => {
             // @ts-ignore
             if (Number(e.target.value) >= 0) {
               setAmountIn((e.target as HTMLInputElement).value)

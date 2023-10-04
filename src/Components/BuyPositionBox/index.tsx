@@ -380,6 +380,15 @@ const Component = ({
               setAmountIn((e.target as HTMLInputElement).value)
             }
           }}
+          suffix={
+            Number(valueIn) > 0 ? (
+              <TextGrey>
+                ${formatLocalisedCompactNumber(formatFloat(valueIn))}
+              </TextGrey>
+            ) : (
+              ''
+            )
+          }
         />
       </div>
 
