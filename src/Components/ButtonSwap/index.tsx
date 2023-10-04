@@ -147,67 +147,67 @@ export const ButtonSwap = ({
           disabled={slippage > settings.slippageTolerance || loadingAmountOut}
           className='swap-button'
           onClick={async () => {
-            if (!confirmModal) {
-              try {
-                setLoading(true)
-                if (ddlEngine) {
-                  const amountOutMin = WEI(
-                    mul(amountOut, 1 - settings.slippageTolerance),
-                  tokens[outputTokenAddress]?.decimal || 18
-                  )
-                  console.log({
-                    amountIn: WEI(
-                      amountIn,
-                    tokens[inputTokenAddress]?.decimal || 18
-                    ),
-                    payloadAmountIn: payloadAmountIn?.toString()
-                  })
-                  const tx: any = await ddlEngine.SWAP.multiSwap(
-                    [
-                      {
-                        tokenIn: inputTokenAddress,
-                        tokenOut: outputTokenAddress,
-                        amountIn: bn(
-                          WEI(amountIn, tokens[inputTokenAddress]?.decimal || 18)
-                        ),
-                        amountOutMin,
-                        payloadAmountIn,
-                        useSweep: !!(
-                        tokenOutMaturity?.gt(0) &&
-                        balances[outputTokenAddress] &&
-                        isErc1155Address(outputTokenAddress)
-                        ),
-                        currentBalanceOut: balances[outputTokenAddress]
-                      }
-                    ],
-                    gasUsed && gasUsed.gt(0) ? gasUsed.mul(2) : undefined
-                  )
-                  const swapLogs = ddlEngine.RESOURCE.parseDdlLogs(
-                    tx && tx?.logs ? tx.logs : []
-                  )
-                  updateSwapTxsHandle(
-                    account,
-                    swapLogs.filter(
-                      (l: any) => l.transactionHash && l.args?.name === 'Swap'
-                    ),
-                    swapLogs.filter(
-                      (l: any) => l.transactionHash && l.args?.name === 'Transfer'
-                    ))
-                  await fetchBalanceAndAllowance(Object.keys(tokens))
-                  await initResource(account)
-                }
-                setLoading(false)
-
-                if (callback) {
-                  callback()
-                }
-              } catch (e) {
-                console.error(e)
-                setLoading(false)
-                toast.error(String(e.message ?? e))
-              }
-            } else {
+            if (confirmModal) {
               setVisibleConfirmPosition(true)
+              return
+            }
+            try {
+              setLoading(true)
+              if (ddlEngine) {
+                const amountOutMin = WEI(
+                  mul(amountOut, 1 - settings.slippageTolerance),
+                tokens[outputTokenAddress]?.decimal || 18
+                )
+                console.log({
+                  amountIn: WEI(
+                    amountIn,
+                  tokens[inputTokenAddress]?.decimal || 18
+                  ),
+                  payloadAmountIn: payloadAmountIn?.toString()
+                })
+                const tx: any = await ddlEngine.SWAP.multiSwap(
+                  [
+                    {
+                      tokenIn: inputTokenAddress,
+                      tokenOut: outputTokenAddress,
+                      amountIn: bn(
+                        WEI(amountIn, tokens[inputTokenAddress]?.decimal || 18)
+                      ),
+                      amountOutMin,
+                      payloadAmountIn,
+                      useSweep: !!(
+                      tokenOutMaturity?.gt(0) &&
+                      balances[outputTokenAddress] &&
+                      isErc1155Address(outputTokenAddress)
+                      ),
+                      currentBalanceOut: balances[outputTokenAddress]
+                    }
+                  ],
+                  gasUsed && gasUsed.gt(0) ? gasUsed.mul(2) : undefined
+                )
+                const swapLogs = ddlEngine.RESOURCE.parseDdlLogs(
+                  tx && tx?.logs ? tx.logs : []
+                )
+                updateSwapTxsHandle(
+                  account,
+                  swapLogs.filter(
+                    (l: any) => l.transactionHash && l.args?.name === 'Swap'
+                  ),
+                  swapLogs.filter(
+                    (l: any) => l.transactionHash && l.args?.name === 'Transfer'
+                  ))
+                await fetchBalanceAndAllowance(Object.keys(tokens))
+                await initResource(account)
+              }
+              setLoading(false)
+
+              if (callback) {
+                callback()
+              }
+            } catch (e) {
+              console.error(e)
+              setLoading(false)
+              toast.error(String(e.message ?? e))
             }
           }}
         >
