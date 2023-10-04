@@ -33,6 +33,7 @@ import { Text, TextGrey } from '../ui/Text'
 import { TokenIcon } from '../ui/TokenIcon'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import './style.scss'
+import { SwapModalHeaderAmount } from './components/SwapModalHeaderAmount'
 
 const Component = ({
   visible,
@@ -82,61 +83,15 @@ const Component = ({
       return (
         <div>
           <div className='amount-input-box'>
-            <Box borderColor='default' className='swap-info-box mt-1 mb-1' >
-              <div className='amount-input-box' style={{ marginTop: '0.5rem' }}>
-                <div className='amount-input-box__head'>
-                  <span
-                    className='current-token'
-                  >
-                    <TokenIcon size={24} tokenAddress={inputTokenAddress} />
-                    <Text>
-                      <TokenSymbol token={inputTokenAddress} />
-                    </Text>
-                  </span>
-                </div>
-                <span className='text-grey'>
-                  {amountIn} ({Number(valueIn) > 0 ? (
-                    <TextGrey>
-                ${formatLocalisedCompactNumber(formatFloat(valueIn))}
-                    </TextGrey>
-                  ) : (
-                    ''
-                  )})
-                </span>
 
-              </div>
-            </Box>
-
+            <SwapModalHeaderAmount textBefore='Pay' amountIn={amountIn} valueIn={valueIn} tokenAddress={inputTokenAddress}/>
             <div className='text-center mt-2 mb-1'>
               <span>
                 <IconArrowDown fill='#01A7FA' />
               </span>
             </div>
-            <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
-              <div className='amount-input-box' style={{ marginTop: '0.5rem' }}>
-                <div className='amount-input-box__head'>
-                  <span
-                    className='current-token'
-                  >
-                    <TokenIcon size={24} tokenAddress={outputTokenAddress} />
-                    <Text>
-                      <TokenSymbol token={outputTokenAddress} />
-                    </Text>
-                  </span>
-                </div>
-                <span className='text-grey'>
-                  {amountOut} ({Number(valueOut) > 0 ? (
-                    <TextGrey>
-                ${formatLocalisedCompactNumber(formatFloat(valueOut))}
-                    </TextGrey>
-                  ) : (
-                    ''
-                  )})
-                </span>
 
-              </div>
-            </Box>
-
+            <SwapModalHeaderAmount textBefore='Receive' amountIn={amountOut} valueIn={valueOut} tokenAddress={outputTokenAddress}/>
           </div>
         </div>
       )
@@ -175,33 +130,10 @@ const Component = ({
       const valueIn = getTokenValue(inputTokenAddress, amountIn)
       return (
         <div>
-          {outputTokenAddress && (
+          {inputTokenAddress && (
             <div>
-              <Box borderColor='default' className='swap-info-box mt-1 mb-1' >
-                <div className='amount-input-box' style={{ marginTop: '0.5rem' }}>
-                  <div className='amount-input-box__head'>
-                    <span
-                      className='current-token'
-                    >
-                      <TokenIcon size={24} tokenAddress={inputTokenAddress} />
-                      <Text>
-                        <TokenSymbol token={inputTokenAddress} />
-                      </Text>
-                    </span>
-                  </div>
-                  <span className='text-grey'>
-                    {amountIn} ({Number(valueIn) > 0 ? (
-                      <TextGrey>
-                ${formatLocalisedCompactNumber(formatFloat(valueIn))}
-                      </TextGrey>
-                    ) : (
-                      ''
-                    )})
-                  </span>
-
-                </div>
-              </Box>
-              <div className='text-center mt-2 mb-1'>
+              <SwapModalHeaderAmount textBefore='Pay' amountIn={amountIn} valueIn={valueIn} tokenAddress={inputTokenAddress}/>
+              <div className='text-center mt-1 mb-3'>
                 <span>
                   <IconArrowDown fill='#01A7FA' />
                 </span>
