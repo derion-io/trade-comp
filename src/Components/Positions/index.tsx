@@ -1,35 +1,46 @@
+import { BigNumber } from 'ethers'
+import _ from 'lodash'
+import moment from 'moment'
 import React, { useMemo, useState } from 'react'
-import './style.scss'
+import { useWindowSize } from '../../hooks/useWindowSize'
+import { useConfigs } from '../../state/config/useConfigs'
+import { useHelper } from '../../state/config/useHelper'
+import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
+import { useResource } from '../../state/resources/hooks/useResource'
+import { PoolType } from '../../state/resources/type'
+import { useSettings } from '../../state/setting/hooks/useSettings'
+import { useListTokens } from '../../state/token/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
+import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 import {
   MIN_POSITON_VALUE_USD_TO_DISPLAY,
   POOL_IDS,
   TRADE_TYPE
 } from '../../utils/constant'
-import {
-  bn,
-  encodeErc1155Address,
-  decodeErc1155Address,
-  div,
-  formatFloat,
-  formatPercent,
-  zerofy,
-  kx,
-  mul,
-  shortenAddressString,
-  sub,
-  IEW,
-  xr,
-  oracleToPoolGroupId
-} from '../../utils/helpers'
-import { useListTokens } from '../../state/token/hook'
-import { PoolType } from '../../state/resources/type'
-import { ButtonSell } from '../ui/Button'
 import formatLocalisedCompactNumber, {
   formatWeiToDisplayNumber
 } from '../../utils/formatBalance'
-import { BigNumber } from 'ethers'
+import {
+  IEW,
+  bn,
+  decodeErc1155Address,
+  div,
+  encodeErc1155Address,
+  formatFloat,
+  formatPercent,
+  mul,
+  oracleToPoolGroupId,
+  shortenAddressString,
+  sub,
+  xr,
+  zerofy
+} from '../../utils/helpers'
+import { ClosingFeeCalculator, Position } from '../../utils/type'
+import { ClosePosition } from '../ClosePositionModal'
+import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
+import { ButtonSell } from '../ui/Button'
+import { InfoRow } from '../ui/InfoRow'
 import {
   Text,
   TextBuy,
@@ -38,21 +49,9 @@ import {
   TextSell,
   TextWarning
 } from '../ui/Text'
-import { useConfigs } from '../../state/config/useConfigs'
 import { TokenIcon } from '../ui/TokenIcon'
 import { TokenSymbol } from '../ui/TokenSymbol'
-import { ClosePosition } from '../ClosePositionModal'
-import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
-import { useHelper } from '../../state/config/useHelper'
-import { useSettings } from '../../state/setting/hooks/useSettings'
-import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
-import _ from 'lodash'
-import { useWindowSize } from '../../hooks/useWindowSize'
-import { InfoRow } from '../ui/InfoRow'
-import moment from 'moment'
-import { ClosingFeeCalculator, Position } from '../../utils/type'
-import { useResource } from '../../state/resources/hooks/useResource'
-import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
+import './style.scss'
 
 export enum VALUE_IN_USD_STATUS {
   AUTO,
@@ -69,7 +68,7 @@ export const Positions = ({
 }) => {
   const { tradeType, updateCurrentPoolGroup } = useCurrentPoolGroup()
   const { setCurrentPoolAddress } = useCurrentPool()
-  const { pools } = useResource()
+  const { pools, poolGroups } = useResource()
   const { balances, maturities } = useWalletBalance()
   const { tokens } = useListTokens()
   const { getTokenValue } = useTokenValue({})
@@ -151,7 +150,7 @@ export const Positions = ({
         MARK,
         baseToken,
         quoteToken,
-        sides,
+        sides
       } = pool
       const k = pool.k.toNumber()
       const ek = sides[side].k
@@ -192,13 +191,17 @@ export const Positions = ({
         MATURITY_RATE: pool.MATURITY_RATE,
         maturity: maturities?.[token]?.toNumber() ?? 0
       })
-
+      let currentPrice = '0'
+      Object.keys(poolGroups).map(poolGroupKey => {
+        if (poolGroups[poolGroupKey].pools?.[poolAddress]) currentPrice = poolGroups[poolGroupKey].basePrice
+      })
       const interest = sides[side].interest
       const premium = sides[side].premium
       const funding = interest + premium
 
       return {
         poolAddress,
+        currentPrice,
         pool,
         token,
         side,
@@ -356,7 +359,7 @@ export const Positions = ({
                         : 'text-warning'
                     }
                   >
-                    {zerofy(formatFloat(position.funding*100, undefined, 3, true))}%
+                    {zerofy(formatFloat(position.funding * 100, undefined, 3, true))}%
                   </Text>
                 </InfoRow>
 
@@ -523,7 +526,7 @@ export const Positions = ({
                           : 'text-warning'
                       }
                     >
-                      {zerofy(formatFloat(position.funding*100, undefined, 3, true))}%
+                      {zerofy(formatFloat(position.funding * 100, undefined, 3, true))}%
                     </Text>
                   </td>
                   {!hasClosingFee || (

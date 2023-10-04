@@ -1,46 +1,48 @@
+import { BigNumber } from 'ethers'
+import _ from 'lodash'
 import React, { useEffect, useMemo, useState } from 'react'
-import { Modal } from '../ui/Modal'
-import { useListTokens } from '../../state/token/hook'
-import { TokenIcon } from '../ui/TokenIcon'
-import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
-import { TokenSymbol } from '../ui/TokenSymbol'
-import { Text, TextGrey } from '../ui/Text'
-import './style.scss'
-import { formatLocalisedCompactNumber } from '../../utils/formatBalance'
 import isEqual from 'react-fast-compare'
+import { useListTokenHasUniPool } from '../../hooks/useListTokenHasUniPool'
+import { useConfigs } from '../../state/config/useConfigs'
+import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
+import { useWeb3React } from '../../state/customWeb3React/hook'
+import { useResource } from '../../state/resources/hooks/useResource'
+import { useSettings } from '../../state/setting/hooks/useSettings'
+import { useListTokens } from '../../state/token/hook'
+import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import {
+  MIN_POSITON_VALUE_USD_TO_DISPLAY, NATIVE_ADDRESS,
+  PERCENTAGE_SUGGESTIONS,
+  POOL_IDS
+} from '../../utils/constant'
+import { formatLocalisedCompactNumber } from '../../utils/formatBalance'
+import {
+  IEW,
+  NUM,
   decodeErc1155Address,
   div,
   formatFloat,
   formatPercent,
-  zerofy,
-  IEW,
-  NUM
+  zerofy
 } from '../../utils/helpers'
-import { SkeletonLoader } from '../ui/SkeletonLoader'
-import { Input } from '../ui/Input'
-import { useWeb3React } from '../../state/customWeb3React/hook'
-import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
-import { IconArrowDown } from '../ui/Icon'
-import { InfoRow } from '../ui/InfoRow'
+import { Position } from '../../utils/type'
+import { ButtonSwap } from '../ButtonSwap'
+import { VALUE_IN_USD_STATUS } from '../Positions'
+import { SelectTokenModal } from '../SelectTokenModal'
 import { TxFee } from '../SwapBox/components/TxFee'
 import { useCalculateSwap } from '../SwapBox/hooks/useCalculateSwap'
-import { ButtonSwap } from '../ButtonSwap'
-import {
-  MIN_POSITON_VALUE_USD_TO_DISPLAY, NATIVE_ADDRESS,
-  POOL_IDS
-} from '../../utils/constant'
-import { BigNumber } from 'ethers'
-import { useSettings } from '../../state/setting/hooks/useSettings'
-import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
-import { Position } from '../../utils/type'
-import { VALUE_IN_USD_STATUS } from '../Positions'
+import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
+import Tooltip from '../Tooltip/Tooltip'
+import { IconArrowDown } from '../ui/Icon'
+import { InfoRow } from '../ui/InfoRow'
+import NumberInput from '../ui/Input/InputNumber'
+import { Modal } from '../ui/Modal'
+import { SkeletonLoader } from '../ui/SkeletonLoader'
+import { Text, TextGrey } from '../ui/Text'
+import { TokenIcon } from '../ui/TokenIcon'
+import { TokenSymbol } from '../ui/TokenSymbol'
 import { PositionInfo } from './components/PositionInfo'
-import { useResource } from '../../state/resources/hooks/useResource'
-import { SelectTokenModal } from '../SelectTokenModal'
-import _ from 'lodash'
-import { useConfigs } from '../../state/config/useConfigs'
-import { useListTokenHasUniPool } from '../../hooks/useListTokenHasUniPool'
+import './style.scss'
 
 const Component = ({
   visible,
@@ -74,6 +76,7 @@ const Component = ({
   const [valueInput, setValueInput] = useState<string>('')
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] =
     useState<boolean>(false)
+  const [externalTrigger, setExternalTrigger] = useState<boolean>(false)
   const { configs } = useConfigs()
 
   const [pool, power] = useMemo(() => {
@@ -186,6 +189,7 @@ const Component = ({
                 <Text
                   className='amount-input-box__head--balance'
                   onClick={() => {
+                    setExternalTrigger(true)
                     const balance = IEW(
                       balances[inputTokenAddress],
                       tokens[inputTokenAddress]?.decimal || 18
@@ -207,7 +211,8 @@ const Component = ({
                 <Text
                   className='amount-input-box__head--balance'
                   onClick={() => {
-                    setValueInput(valueBalance === valueIn ? '' : valueBalance)
+                    setExternalTrigger(true)
+                    setValueInput(String(formatFloat(valueBalance === valueIn ? '' : valueBalance, undefined, 4, true)))
                   }}
                 >
                   {power > 1 ? 'Size:' : 'Value:'} $
@@ -217,57 +222,119 @@ const Component = ({
             </SkeletonLoader>
           </InfoRow>
           {settings.showBalance ? (
-            <Input
-              placeholder='0.0'
-              isNumber
-              suffix={
-                Number(valueIn) > 0 ? (
-                  <TextGrey>
+            <Tooltip
+              position='left-bottom'
+              wrappedStyle={{ width: '100%', border: 'none', cursor: 'text' }}
+              externalTrigger={externalTrigger}
+              setExternalTrigger={(et: boolean) => setExternalTrigger(et)}
+              handle={
+                <NumberInput
+                  placeholder='0.0'
+                  suffix={
+                    Number(valueIn) > 0 ? (
+                      <TextGrey>
                     ${formatLocalisedCompactNumber(formatFloat(valueIn))}
-                  </TextGrey>
-                ) : (
-                  ''
-                )
-              }
-              className='fs-24'
-              value={amountIn}
-              onChange={(e) => {
-                if (Number(e.target.value) >= 0) {
-                  setAmountIn((e.target as HTMLInputElement).value)
-                }
-              }}
-            />
-          ) : (
-            <Input
-              placeholder='0'
-              isNumber
-              prefix='$'
-              suffix={
-                Number(amountIn) > 0 ? (
-                  <TextGrey>
-                    {formatPercent(Number(amountIn) / Number(balance), 2, true)}
-                    %
-                  </TextGrey>
-                ) : (
-                  ''
-                )
-              }
-              className='fs-24'
-              value={valueInput}
-              onChange={(e) => {
-                const value = (e.target as HTMLInputElement).value
-                if (value != null) {
-                  try {
-                    if (Number(valueBalance) < Number(value)) {
-                      setValueInput(valueBalance)
-                      return
-                    }
-                  } catch (err) {
-                    console.error(err)
+                      </TextGrey>
+                    ) : (
+                      ''
+                    )
                   }
-                  setValueInput(value)
-                }
-              }}
+                  className='fs-24 w-100'
+                  value={amountIn}
+                  onValueChange={(e) => {
+                    if (Number(e.target.value) >= 0) {
+                      setAmountIn((e.target as HTMLInputElement).value)
+                    }
+                  }}
+                />
+              }
+              trigger='click'
+              renderContent={() => (
+                <ul className='percent-selector'>
+                  {PERCENTAGE_SUGGESTIONS.map((percentage) => (
+                    <li
+                      className='percent-selector-item'
+                      key={percentage}
+                      onClick={() => {
+                        setExternalTrigger(false)
+                        if (percentage === 100) {
+                          const balance = IEW(
+                            balances[inputTokenAddress],
+                          tokens[inputTokenAddress]?.decimal || 18
+                          )
+                          setAmountIn(balance)
+                        } else {
+                          const balance = Number(IEW(
+                            balances[inputTokenAddress],
+                          tokens[inputTokenAddress]?.decimal || 18
+                          )) * percentage / 100
+                          setAmountIn(String(balance))
+                        }
+                      }}
+                    >
+                      {percentage}%
+                    </li>
+                  ))}
+                </ul>
+              )}
+            />
+
+          ) : (
+            <Tooltip
+              position='left-bottom'
+              wrappedStyle={{ width: '100%', border: 'none', cursor: 'text' }}
+              externalTrigger={externalTrigger}
+              setExternalTrigger={(et: boolean) => setExternalTrigger(et)}
+              handle={
+                <NumberInput
+                  placeholder='0'
+                  prefix='$'
+                  className='fs-24 w-100'
+                  suffix={
+                    Number(amountIn) > 0 ? (
+                      <TextGrey>
+                        {formatPercent(Number(amountIn) / Number(balance), 2, true)}
+                    %
+                      </TextGrey>
+                    ) : (
+                      ''
+                    )
+                  }
+                  value={valueInput}
+                  onValueChange={(e) => {
+                    const value = (e.target as HTMLInputElement).value
+                    if (value != null) {
+                      try {
+                        if (Number(valueBalance) < Number(value)) {
+                          setValueInput(valueBalance)
+                          return
+                        }
+                      } catch (err) {
+                        console.error(err)
+                      }
+                      setValueInput(value)
+                    }
+                  }}
+                />
+              }
+              trigger='click'
+              renderContent={() => (
+                <ul className='percent-selector'>
+                  {PERCENTAGE_SUGGESTIONS.map((percentage) => (
+                    <li
+                      className='percent-selector-item'
+                      key={percentage}
+                      onClick={() => {
+                        setExternalTrigger(false)
+                        const valueInput = valueBalance === valueIn ? '' : String(Number(valueBalance) * percentage / 100)
+                        setValueInput(String(formatFloat(valueInput, undefined, 4, true)))
+                      }}
+                    >
+                      {percentage}%
+                    </li>
+                  ))}
+                </ul>
+              )}
             />
           )}
         </div>
@@ -276,6 +343,7 @@ const Component = ({
           position={position}
           setValueInUsdStatus={setValueInUsdStatus}
           valueInUsdStatus={valueInUsdStatus}
+          loading={loading}
         />
 
         <div className='text-center mt-1 mb-1'>
@@ -306,9 +374,8 @@ const Component = ({
               </Text>
             </SkeletonLoader>
           </InfoRow>
-          <Input
+          <NumberInput
             placeholder='0.0'
-            isNumber
             suffix={
               Number(valueOut) > 0 ? (
                 <TextGrey>
@@ -327,7 +394,14 @@ const Component = ({
           position={position}
           gasUsed={gasUsed}
           payoffRate={payoffRate}
+          isMaxBalance={amountIn === IEW(
+            balances[inputTokenAddress],
+            tokens[inputTokenAddress]?.decimal || 18
+          )}
           loading={loading}
+          amountIn={amountIn}
+          valueIn={valueIn}
+          valueInUsdStatus={valueInUsdStatus}
         />
 
         <div className='actions'>

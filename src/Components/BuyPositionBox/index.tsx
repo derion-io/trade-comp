@@ -1,54 +1,55 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Text, TextError, TextGreen, TextGrey, TextWarning } from '../ui/Text'
-import './style.scss'
-import { Box } from '../ui/Box'
+import { BigNumber } from 'ethers'
+import LeverageSlider from 'leverage-slider/dist/component'
+import _ from 'lodash'
+import moment from 'moment'
 import 'rc-slider/assets/index.css'
-import { IconArrowDown } from '../ui/Icon'
-import { Input } from '../ui/Input'
-import { TokenIcon } from '../ui/TokenIcon'
+import React, { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
+import isEqual from 'react-fast-compare'
+import { useGenerateLeverageData } from '../../hooks/useGenerateLeverageData'
+import { useListTokenHasUniPool } from '../../hooks/useListTokenHasUniPool'
+import { useConfigs } from '../../state/config/useConfigs'
+import { useHelper } from '../../state/config/useHelper'
+import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
-import { SelectTokenModal } from '../SelectTokenModal'
-import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
+import { CHART_TABS } from '../../state/currentPool/type'
+import { useResource } from '../../state/resources/hooks/useResource'
+import { useSettings } from '../../state/setting/hooks/useSettings'
 import { useListTokens } from '../../state/token/hook'
+import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
+import { NATIVE_ADDRESS, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
+import formatLocalisedCompactNumber, {
+  formatWeiToDisplayNumber
+} from '../../utils/formatBalance'
 import {
+  IEW,
+  NUM,
   bn,
   decodeErc1155Address,
   div,
   formatFloat,
   formatPercent,
-  zerofy,
   getTitleBuyTradeType,
   isErc1155Address,
   kx,
-  IEW,
   whatDecimalSeparator,
   xr,
-  NUM
+  zerofy
 } from '../../utils/helpers'
-import { TokenSymbol } from '../ui/TokenSymbol'
-import { NATIVE_ADDRESS, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
-import { useConfigs } from '../../state/config/useConfigs'
-import formatLocalisedCompactNumber, {
-  formatWeiToDisplayNumber
-} from '../../utils/formatBalance'
-import isEqual from 'react-fast-compare'
 import { ApproveUtrModal } from '../ApproveUtrModal'
-import _ from 'lodash'
-import { useGenerateLeverageData } from '../../hooks/useGenerateLeverageData'
-import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
-import { useHelper } from '../../state/config/useHelper'
-import { useCalculateSwap } from '../SwapBox/hooks/useCalculateSwap'
 import { ButtonSwap } from '../ButtonSwap'
+import { SelectTokenModal } from '../SelectTokenModal'
 import { TxFee } from '../SwapBox/components/TxFee'
-import LeverageSlider from 'leverage-slider/dist/component'
-import { CHART_TABS } from '../../state/currentPool/type'
-import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
+import { useCalculateSwap } from '../SwapBox/hooks/useCalculateSwap'
+import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
+import Tooltip from '../Tooltip/Tooltip'
+import { Box } from '../ui/Box'
+import { IconArrowDown } from '../ui/Icon'
+import NumberInput from '../ui/Input/InputNumber'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
-import { BigNumber } from 'ethers'
-import { useSettings } from '../../state/setting/hooks/useSettings'
-import moment from 'moment'
-import { useListTokenHasUniPool } from '../../hooks/useListTokenHasUniPool'
-import { useResource } from '../../state/resources/hooks/useResource'
+import { Text, TextError, TextGrey, TextWarning } from '../ui/Text'
+import { TokenIcon } from '../ui/TokenIcon'
+import { TokenSymbol } from '../ui/TokenSymbol'
+import './style.scss'
 
 const Q128 = BigNumber.from(1).shl(128)
 
@@ -307,8 +308,8 @@ const Component = ({
 
   const [interest, premium, fundingRate, interestRate, maxPremiumRate] = useMemo(() => {
     const tokenAddress =
-      isErc1155Address(outputTokenAddress) ? outputTokenAddress :
-      isErc1155Address(inputTokenAddress) ? inputTokenAddress : undefined
+      isErc1155Address(outputTokenAddress) ? outputTokenAddress
+        : isErc1155Address(inputTokenAddress) ? inputTokenAddress : undefined
     if (!tokenAddress) {
       return [0, 0, 0, 0, 0]
     }
@@ -371,27 +372,23 @@ const Component = ({
             </Text>
           </div>
         </div>
-        <Input
+        <NumberInput
           placeholder='0.0'
-          isNumber
+          value={amountIn}
+          onValueChange={(e) => {
+            if (Number(e.target.value) >= 0) {
+              setAmountIn((e.target as HTMLInputElement).value)
+            }
+          }}
           suffix={
             Number(valueIn) > 0 ? (
               <TextGrey>
-                <div className='d-flex'>
-                  ${formatLocalisedCompactNumber(formatFloat(valueIn))}
-                </div>
+                ${formatLocalisedCompactNumber(formatFloat(valueIn))}
               </TextGrey>
             ) : (
               ''
             )
           }
-          className='fs-24'
-          value={amountIn}
-          onChange={(e) => {
-            if (Number(e.target.value) >= 0) {
-              setAmountIn((e.target as HTMLInputElement).value)
-            }
-          }}
         />
       </div>
 
@@ -598,18 +595,67 @@ const Component = ({
           <InfoRow>
             <TextGrey>Funding Yield</TextGrey>
             <SkeletonLoader loading={!poolToShow}>
-              <TextGreen>
-                {zerofy(formatFloat(fundingRate*100, undefined, 3, true))}%
-              </TextGreen>
+              <Tooltip
+                position='right-bottom'
+                handle={
+                  <Text className={fundingRate < 0 ? 'text-green' : 'text-warning'}>
+                    {zerofy(formatFloat(fundingRate * 100, undefined, 3, true))}%
+                  </Text>
+                }
+                renderContent={() => (
+                  <div>
+                    <div>
+                      <TextGrey>Interest:&nbsp;</TextGrey>
+                      <Text>{zerofy(formatFloat(interest * 100, undefined, 3, true))}%</Text>
+                    </div>
+                    <div>
+                      <TextGrey>Premium:&nbsp;</TextGrey>
+                      <Text className={premium < 0 ? 'text-green' : 'text-warning'}>
+                        {zerofy(formatFloat(premium * 100, undefined, 3, true))}%
+                      </Text>
+                    </div>
+                    <div>
+                      <TextGrey>Max Premium:&nbsp;</TextGrey>
+                      <Text>{zerofy(formatFloat(maxPremiumRate * 100, undefined, 3, true))}%</Text>
+                    </div>
+                  </div>
+                )}
+              />
             </SkeletonLoader>
           </InfoRow>
         ) : (
           <InfoRow>
             <TextGrey>Funding Rate</TextGrey>
             <SkeletonLoader loading={!poolToShow}>
-              <Text className={fundingRate < 0 ? 'text-green' : 'text-warning'}>
-                {zerofy(formatFloat(fundingRate*100, undefined, 3, true))}%
-              </Text>
+              <Tooltip
+                position='right-bottom'
+                handle={
+                  <Text className={fundingRate < 0 ? 'text-green' : 'text-warning'}>
+                    {zerofy(formatFloat(fundingRate * 100, undefined, 3, true))}%
+                  </Text>
+                }
+                renderContent={() => (
+                  <div>
+                    <div>
+                      <TextGrey>Interest:&nbsp;</TextGrey>
+                      <Text>{zerofy(formatFloat(interest * 100, undefined, 3, true))}%</Text>
+                    </div>
+                    <div>
+                      <TextGrey>Premium:&nbsp;</TextGrey>
+                      <Text className={premium < 0 ? 'text-green' : 'text-warning'}>
+                        {zerofy(formatFloat(premium * 100, undefined, 3, true))}%
+                      </Text>
+                    </div>
+                    <div>
+                      <TextGrey>Max Premium:&nbsp;</TextGrey>
+                      <Text>{zerofy(formatFloat(maxPremiumRate * 100, undefined, 3, true))}%</Text>
+                    </div>
+                  </div>
+                )}
+              />
+              {/* <Text className={fundingRate < 0 ? 'text-green' : 'text-warning'}>
+                {zerofy(formatFloat(fundingRate * 100, undefined, 3, true))}%
+              </Text> */}
             </SkeletonLoader>
           </InfoRow>
         )}
@@ -620,17 +666,10 @@ const Component = ({
           <InfoRow>
             <TextGrey>Interest Rate</TextGrey>
             <SkeletonLoader loading={!poolToShow}>
-              {formatFloat(interestRate*100, undefined, 3, true)}%
+              {formatFloat(interestRate * 100, undefined, 3, true)}%
             </SkeletonLoader>
           </InfoRow>
-        ) : (
-          <InfoRow>
-            <TextGrey>Max Premium Rate</TextGrey>
-            <SkeletonLoader loading={!poolToShow}>
-              {formatFloat(maxPremiumRate*100, undefined, 3, true)}%
-            </SkeletonLoader>
-          </InfoRow>
-        )}
+        ) : <Fragment />}
 
         {!poolToShow?.MATURITY_VEST?.toNumber() || (
           <InfoRow>
@@ -702,6 +741,7 @@ const Component = ({
           tradeType={tradeType}
           loadingAmountOut={loading}
           tokenOutMaturity={tokenOutMaturity}
+          confirmModal
           title={
             Number(decodeErc1155Address(outputTokenAddress).id) ===
             POOL_IDS.A ? (
@@ -721,7 +761,6 @@ const Component = ({
           }
         />
       </div>
-
       <ApproveUtrModal
         callBack={() => {
         }}

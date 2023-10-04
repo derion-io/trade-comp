@@ -1,39 +1,38 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Text, TextGrey } from '../ui/Text'
-import './style.scss'
+import { isAddress } from 'ethers/lib/utils'
+import _ from 'lodash'
 import 'rc-slider/assets/index.css'
-import { IconArrowDown } from '../ui/Icon'
-import { Input } from '../ui/Input'
-import { TokenIcon } from '../ui/TokenIcon'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import isEqual from 'react-fast-compare'
+import { useConfigs } from '../../state/config/useConfigs'
+import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
+import { CHART_TABS } from '../../state/currentPool/type'
 import { useWeb3React } from '../../state/customWeb3React/hook'
-import { SelectTokenModal } from '../SelectTokenModal'
-import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useListTokens } from '../../state/token/hook'
+import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
+import { NATIVE_ADDRESS, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
+import { formatLocalisedCompactNumber } from '../../utils/formatBalance'
 import {
+  IEW,
+  NUM,
   decodeErc1155Address,
   div,
   formatFloat,
   isErc1155Address,
-  formatPercent,
-  IEW,
-  zerofy,
-  NUM
+  zerofy
 } from '../../utils/helpers'
-import { TokenSymbol } from '../ui/TokenSymbol'
+import { ButtonSwap } from '../ButtonSwap'
+import { SelectTokenModal } from '../SelectTokenModal'
+import { IconArrowDown } from '../ui/Icon'
+import NumberInput from '../ui/Input/InputNumber'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
-import { NATIVE_ADDRESS, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
-import { useConfigs } from '../../state/config/useConfigs'
-import { formatLocalisedCompactNumber } from '../../utils/formatBalance'
-import isEqual from 'react-fast-compare'
-import _ from 'lodash'
+import { Text, TextGrey } from '../ui/Text'
+import { TokenIcon } from '../ui/TokenIcon'
+import { TokenSymbol } from '../ui/TokenSymbol'
+import { TxFee } from './components/TxFee'
 import { useCalculateSwap } from './hooks/useCalculateSwap'
 import { useTokenValue } from './hooks/useTokenValue'
-import { ButtonSwap } from '../ButtonSwap'
-import { TxFee } from './components/TxFee'
-import { CHART_TABS } from '../../state/currentPool/type'
-import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
-import { isAddress } from 'ethers/lib/utils'
+import './style.scss'
 
 const Component = ({
   inputTokenAddress,
@@ -218,9 +217,8 @@ const Component = ({
             </SkeletonLoader>
           </div>
         </div>
-        <Input
+        <NumberInput
           placeholder='0.0'
-          isNumber
           suffix={
             Number(valueIn) > 0 ? (
               <TextGrey>
@@ -230,9 +228,8 @@ const Component = ({
               ''
             )
           }
-          className='fs-24'
           value={amountIn}
-          onChange={(e) => {
+          onValueChange={(e) => {
             if (Number(e.target.value) >= 0) {
               setAmountIn((e.target as HTMLInputElement).value)
             }
@@ -281,11 +278,10 @@ const Component = ({
             </Text>
           </SkeletonLoader>
         </div>
-        <Input
+        <NumberInput
           // @ts-ignore
           value={Number(amountOut) > 0 ? amountOut : ''}
           placeholder='0.0'
-          isNumber
           suffix={
             Number(valueOut) > 0 ? (
               <TextGrey>
@@ -295,7 +291,6 @@ const Component = ({
               ''
             )
           }
-          className='fs-24'
         />
       </div>
 
@@ -313,6 +308,8 @@ const Component = ({
         <ButtonSwap
           payoffRate={payoffRate}
           payloadAmountIn={payloadAmountIn}
+          confirmModal
+          tradeType={TRADE_TYPE.SWAP}
           inputTokenAddress={inputTokenAddress}
           outputTokenAddress={outputTokenAddress}
           amountIn={amountIn}

@@ -11,13 +11,20 @@ import { POOL_IDS } from '../../../utils/constant'
 import { useHelper } from '../../../state/config/useHelper'
 import { Text, TextBlue, TextBuy, TextPink, TextSell } from '../Text'
 
-export const TokenSymbol = ({
-  token,
-  textWrap
-}: {
+type Props = {
   token: string
   textWrap?: any
-}) => {
+  className?: string,
+  color?: string
+  hideSymbol?: boolean,
+}
+export const TokenSymbol = ({
+  token,
+  textWrap,
+  className,
+  color,
+  hideSymbol
+}: Props) => {
   const { tokens } = useListTokens()
   const { pools } = useResource()
   const { wrapToNativeAddress } = useHelper()
@@ -71,10 +78,10 @@ export const TokenSymbol = ({
       //   {
       //     (pool.TOKEN_R !== baseToken || Number(id) === POOL_IDS.C) &&
       //     <span className='font-size-14'>·{tokens[wrapToNativeAddress(pool.TOKEN_R)]?.symbol}</span>
-      //   }
+      //   }s
       // </TextComp>
     }
-    return <TextPink className='font-size-14'>{symbol}</TextPink>
+    return color ? <Text className={className}>{symbol}</Text> : <TextPink className={className}> {symbol}</TextPink>
   }, [tokens, token, pools])
 
   return <React.Fragment>{result}</React.Fragment>

@@ -26,6 +26,7 @@ import { useWeb3React } from '../../../../state/customWeb3React/hook'
 import Slider from 'rc-slider'
 import { useNativePrice } from '../../../../hooks/useTokenPrice'
 import { useConfigs } from '../../../../state/config/useConfigs'
+import NumberInput from '../../../../Components/ui/Input/InputNumber'
 
 const shareOfPoolUnit = 1000
 const percentUnit = 1000
@@ -293,13 +294,12 @@ export const RemoveLiquidityBox = ({
             </Text>
           </SkeletonLoader>
         </InfoRow>
-        <Input
+        <NumberInput
           placeholder='0.0'
-          isNumber
           className='fs-24'
           // @ts-ignore
           value={amountIn}
-          onChange={(e) => {
+          onValueChange={(e) => {
             // @ts-ignore
             if (Number(e.target.value) >= 0) {
               setAmountIn((e.target as HTMLInputElement).value)

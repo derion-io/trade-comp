@@ -12,17 +12,27 @@ import { useFeeData } from '../../../state/resources/hooks/useFeeData'
 import { Position } from '../../../utils/type'
 import { useSettings } from '../../../state/setting/hooks/useSettings'
 import Tooltip from '../../Tooltip/Tooltip'
+import { NetValue, VALUE_IN_USD_STATUS } from '../../Positions'
 
 export const TxFee = ({
   position,
   gasUsed,
   payoffRate,
-  loading
+  loading,
+  isMaxBalance,
+  amountIn,
+  valueIn,
+  valueInUsdStatus
 }: {
   position?: Position
   gasUsed: BigNumber
   payoffRate?: number
   loading?: boolean
+  amountIn?:string
+  valueIn?:string
+  valueInUsdStatus?: VALUE_IN_USD_STATUS
+  isMaxBalance?: boolean
+  // isCloseModal?:
 }) => {
   const { chainId } = useConfigs()
   const { settings } = useSettings()
@@ -46,23 +56,9 @@ export const TxFee = ({
 
   const feeFormat = formatPercent(closingFee.fee ?? 0, 2, true)
   const slippageFormat = formatPercent(slippage, 2, true)
-
+  // formatLocalisedCompactNumber(formatFloat(valueUsd))
   return (
     <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
-      {feeFormat === 0 ? (
-        ''
-      ) : (
-        <InfoRow>
-          <TextGrey>Closing Fee</TextGrey>
-          <span>
-            {closingFee.isVesting ? (
-              <TextSell>{feeFormat}%</TextSell>
-            ) : (
-              <TextWarning>{feeFormat}%</TextWarning>
-            )}
-          </span>
-        </InfoRow>
-      )}
       {slippageFormat === 0 ? (
         ''
       ) : (
@@ -81,8 +77,27 @@ export const TxFee = ({
           </SkeletonLoader>
         </InfoRow>
       )}
+      {!settings.slippageTolerance || (
+        <InfoRow>
+          <TextGrey>Max Slippage</TextGrey>
+          <Text>{settings.slippageTolerance * 100}%</Text>
+        </InfoRow>
+      )}
+      {(settings.slippageTolerance && String(valueIn) !== '0' && valueInUsdStatus) ? (
+        <InfoRow>
+          <TextGrey>Min Value Received</TextGrey>
+          <SkeletonLoader loading={!!loading}>
+            <NetValue
+              valueInUsdStatus={valueInUsdStatus}
+              valueUsd={String(Number(isMaxBalance ? position?.valueUsd : valueIn) * (1 - settings.slippageTolerance)) || '0'}
+              value={String(Number(isMaxBalance ? position?.value : amountIn) * (1 - settings.slippageTolerance)) || '0'}
+              pool={position?.pool}
+              isPhone
+            />
+          </SkeletonLoader>
+        </InfoRow>
+      ) : ''}
       <InfoRow>
-        {/* 123 */}
         <TextGrey>Network Fee</TextGrey>
         <SkeletonLoader loading={!!loading}>
           {!gasUsed || gasUsed?.isZero() ? (
@@ -128,6 +143,21 @@ export const TxFee = ({
           )}
         </SkeletonLoader>
       </InfoRow>
+      {feeFormat === 0 ? (
+        ''
+      ) : (
+        <InfoRow>
+          <TextGrey>Closing Fee</TextGrey>
+          <span>
+            {closingFee.isVesting ? (
+              <TextSell>{feeFormat}%</TextSell>
+            ) : (
+              <TextWarning>{feeFormat}%</TextWarning>
+            )}
+          </span>
+        </InfoRow>
+      )}
+
     </Box>
   )
 }

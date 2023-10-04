@@ -1,5 +1,5 @@
 import cx from 'classnames'
-import React, { useCallback, useState, useRef } from 'react'
+import React, { useCallback, useState, useRef, useEffect } from 'react'
 import './style.scss'
 
 const OPEN_DELAY = 0
@@ -14,6 +14,9 @@ type Props = {
   disableHandleStyle?: boolean
   handleClassName?: string
   isHandlerDisabled?: boolean
+  wrappedStyle?: any
+  externalTrigger?: boolean
+  setExternalTrigger?: (et: boolean) => void;
 }
 
 export default function Tooltip(props: Props) {
@@ -23,7 +26,16 @@ export default function Tooltip(props: Props) {
 
   const position = props.position ?? 'left-bottom'
   const trigger = props.trigger ?? 'hover'
+  useEffect(() => {
+    if (props.externalTrigger !== undefined) {
+      if (props.externalTrigger) setVisible(true)
+      else setVisible(false)
+    }
+  }, [props.externalTrigger])
 
+  useEffect(() => {
+    if (props.externalTrigger !== undefined && props.setExternalTrigger) props.setExternalTrigger(visible)
+  }, [visible])
   const onMouseEnter = useCallback(() => {
     if (trigger !== 'hover' || IS_TOUCH) return
     if (intervalCloseRef.current) {
@@ -48,7 +60,6 @@ export default function Tooltip(props: Props) {
       clearInterval(intervalOpenRef.current)
       intervalOpenRef.current = null
     }
-
     setVisible(true)
   }, [setVisible, intervalCloseRef, trigger])
 
@@ -66,6 +77,7 @@ export default function Tooltip(props: Props) {
   const className = cx('tooltip', props.className)
   return (
     <span
+      style={...props.wrappedStyle}
       className={className}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
@@ -77,11 +89,12 @@ export default function Tooltip(props: Props) {
           [props.handleClassName],
           { active: visible }
         )}
+        style={...props.wrappedStyle}
       >
         {props.isHandlerDisabled ? (
           <div className='tooltip-disabled-wrapper'>{props.handle}</div>
         ) : (
-          <div>{props.handle}</div>
+          <div style={...props.wrappedStyle}>{props.handle}</div>
         )}
       </span>
       {visible && (

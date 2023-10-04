@@ -10,6 +10,7 @@ export const CHAINS = {
   ARBITRUM: 42161,
   BASE: 8453
 }
+export const PERCENTAGE_SUGGESTIONS = [10, 25, 50, 75, 100]
 
 export const SUPPORTED_CHAINS = Object.values(CHAINS)
 export const DEFAULT_CHAIN = CHAINS.ARBITRUM

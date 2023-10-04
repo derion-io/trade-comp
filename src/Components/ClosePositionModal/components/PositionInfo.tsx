@@ -11,11 +11,13 @@ import { useHelper } from '../../../state/config/useHelper'
 export const PositionInfo = ({
   position,
   valueInUsdStatus,
-  setValueInUsdStatus
+  setValueInUsdStatus,
+  loading
 }: {
   position: Position
   valueInUsdStatus: VALUE_IN_USD_STATUS
   setValueInUsdStatus: (value: VALUE_IN_USD_STATUS) => void
+  loading?: boolean,
 }) => {
   const { wrapToNativeAddress } = useHelper()
   const { tokens } = useListTokens()
@@ -65,6 +67,12 @@ export const PositionInfo = ({
           <Text>{zerofy(formatFloat(position.entryPrice))}</Text>
         </InfoRow>
       )}
+      {position?.currentPrice ? (
+        <InfoRow>
+          <Text>Exit Price</Text>
+          <Text>{zerofy(formatFloat(position.currentPrice))}</Text>
+        </InfoRow>
+      ) : ''}
     </Box>
   )
 }
