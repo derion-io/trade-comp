@@ -212,7 +212,7 @@ const Component = ({
                   className='amount-input-box__head--balance'
                   onClick={() => {
                     setExternalTrigger(true)
-                    setValueInput(valueBalance === valueIn ? '' : valueBalance)
+                    setValueInput(String(formatFloat(valueBalance === valueIn ? '' : valueBalance, undefined, 4, true)))
                   }}
                 >
                   {power > 1 ? 'Size:' : 'Value:'} $
