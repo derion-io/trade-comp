@@ -1,5 +1,5 @@
-import React, { Fragment } from 'react'
-import { IEW, formatFloat, getTitleBuyTradeType, whatDecimalSeparator, zerofy } from '../../../utils/helpers'
+import React, { Fragment, useMemo } from 'react'
+import { IEW, calculateWeightedAverage, encodeErc1155Address, formatFloat, getTitleBuyTradeType, whatDecimalSeparator, zerofy } from '../../../utils/helpers'
 import formatLocalisedCompactNumber, { formatWeiToDisplayNumber } from '../../../utils/formatBalance'
 import { TokenSymbol } from '../../ui/TokenSymbol'
 import { TRADE_TYPE } from '../../../utils/constant'
@@ -10,6 +10,11 @@ import { useSettings } from '../../../state/setting/hooks/useSettings'
 import { useTokenValue } from '../../SwapBox/hooks/useTokenValue'
 import { bn } from 'derivable-tools/dist/utils/helper'
 import { SkeletonLoader } from '../../ui/SkeletonLoader'
+import { useCurrentPoolGroup } from '../../../state/currentPool/hooks/useCurrentPoolGroup'
+import { useConfigs } from '../../../state/config/useConfigs'
+import { useSwapHistory } from '../../../state/wallet/hooks/useSwapHistory'
+import { useResource } from '../../../state/resources/hooks/useResource'
+import { cloneDeep } from 'lodash'
 
 type Props = {
     outputTokenAddress: string,
@@ -30,6 +35,9 @@ export const EstimateBox = ({
   const { balances } = useWalletBalance()
   const { tokens } = useListTokens()
   const { settings } = useSettings()
+  const { ddlEngine } = useConfigs()
+  const { pools } = useResource()
+  const { swapLogs: sls } = useSwapHistory()
   const showSize =
   tradeType === TRADE_TYPE.LONG || tradeType === TRADE_TYPE.SHORT
   const { value: valueOutBefore } = useTokenValue({
@@ -39,6 +47,25 @@ export const EstimateBox = ({
     ),
     tokenAddress: outputTokenAddress
   })
+
+  const { basePrice } = useCurrentPoolGroup()
+  const positionsWithEntry = useMemo(() => {
+    if (ddlEngine?.HISTORY && Object.values(pools).length > 0) {
+      return (
+        ddlEngine.HISTORY.generatePositions?.({
+          tokens: Object.values(tokens),
+          logs: cloneDeep(sls)
+        }) ?? {}
+      )
+    }
+    return {}
+  }, [sls, pools, tokens])
+  const afterEntryPrice = useMemo(() => {
+    if (!positionsWithEntry[outputTokenAddress]?.entryPrice) return null
+    return calculateWeightedAverage(
+      [Number(basePrice), Number(positionsWithEntry[outputTokenAddress]?.entryPrice)],
+      [Number(valueOut), Number(valueOutBefore)])
+  }, [positionsWithEntry, valueOut, valueOutBefore, basePrice])
   if (!outputTokenAddress) return <Fragment/>
   return (
     <Box
@@ -63,6 +90,7 @@ export const EstimateBox = ({
           {settings.showBalance && <div>Balance</div>}
           <div>Value</div>
           {showSize && <div>Size</div>}
+          <div>Entry Price</div>
         </div>
         <SkeletonLoader loading={balances[outputTokenAddress] == null}>
           {balances[outputTokenAddress]?.gt(0) && (
@@ -92,6 +120,21 @@ export const EstimateBox = ({
                     }
                   </div>
                 )}
+                <div>
+                  {
+                    formatLocalisedCompactNumber(
+                      formatFloat(positionsWithEntry[outputTokenAddress]?.entryPrice || basePrice)
+                    ).split('.')[0]
+                  }
+                </div>
+                {/* <div>
+                    $
+                  {
+                    zerofy(
+                      formatFloat(Number(valueOutBefore) * power)
+                    ).split('.')[0]
+                  }
+                </div> */}
               </div>
               <div className='position-delta--left'>
                 {settings.showBalance && (
@@ -114,6 +157,11 @@ export const EstimateBox = ({
                     ).match(/\.\d+$/g) || '\u00A0'}
                   </div>
                 )}
+                <div>
+                  {zerofy(
+                    formatFloat(positionsWithEntry[outputTokenAddress]?.entryPrice || basePrice)
+                  ).match(/\.\d+$/g) || '\u00A0'}
+                </div>
               </div>
             </div>
           )}
@@ -124,6 +172,7 @@ export const EstimateBox = ({
           <div className='position-delta--left'>
             {settings.showBalance && <div>{'->'}</div>}
             {showSize && <div>{'->'}</div>}
+            <div>{'->'}</div>
             <div>{'->'}</div>
           </div>
         )}
@@ -137,7 +186,11 @@ export const EstimateBox = ({
                   <div>
                     {
                       formatLocalisedCompactNumber(
-                        formatFloat(amountOut)
+                        formatFloat(Number(amountOut) + Number(formatWeiToDisplayNumber(
+                          balances[outputTokenAddress] ?? bn(0),
+                          4,
+                            tokens[outputTokenAddress]?.decimal || 18
+                        )))
                       ).split(whatDecimalSeparator())[0]
                     }
                   </div>
@@ -146,7 +199,7 @@ export const EstimateBox = ({
                   $
                   {
                     formatLocalisedCompactNumber(
-                      formatFloat(valueOut)
+                      formatFloat(Number(valueOut) + Number(valueOutBefore))
                     ).split(whatDecimalSeparator())[0]
                   }
                 </div>
@@ -155,32 +208,47 @@ export const EstimateBox = ({
                     $
                     {
                       formatLocalisedCompactNumber(
-                        formatFloat(Number(valueOut) * power)
+                        formatFloat(Number(valueOut) * power + Number(valueOutBefore) * power)
                       ).split('.')[0]
                     }
                   </div>
                 )}
+                <div>
+                  {
+                    formatLocalisedCompactNumber(
+                      formatFloat(afterEntryPrice || basePrice)
+                    ).split('.')[0]
+                  }
+                </div>
               </div>
               <div className='position-delta--left'>
                 {settings.showBalance && (
                   <div>
                     {formatLocalisedCompactNumber(
-                      formatFloat(amountOut)
+                      formatFloat(Number(amountOut) + Number(IEW(
+                        balances[outputTokenAddress],
+                            tokens[outputTokenAddress]?.decimal || 18
+                      )))
                     ).match(/\.\d+$/g) || '\u00A0'}
                   </div>
                 )}
                 <div>
                   {formatLocalisedCompactNumber(
-                    formatFloat(valueOut)
+                    formatFloat(Number(valueOut) + Number(valueOutBefore))
                   ).match(/\.\d+$/g) || '\u00A0'}
                 </div>
                 {showSize && (
                   <div>
                     {formatLocalisedCompactNumber(
-                      formatFloat(Number(valueOut) * power)
+                      formatFloat(Number(valueOut) * power + Number(valueOutBefore) * power)
                     ).match(/\.\d+$/g) || '\u00A0'}
                   </div>
                 )}
+                <div>
+                  {zerofy(
+                    formatFloat(afterEntryPrice || basePrice)
+                  ).match(/\.\d+$/g) || '\u00A0'}
+                </div>
               </div>
             </div>
           </SkeletonLoader>

@@ -7,12 +7,15 @@ import { useResource } from '../../state/resources/hooks/useResource'
 import { useListTokens } from '../../state/token/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { POOL_IDS, TRADE_TYPE } from '../../utils/constant'
-import formatLocalisedCompactNumber from '../../utils/formatBalance'
 import {
   IEW,
+  NUM,
+  bn,
   decodeErc1155Address,
   formatFloat,
   isErc1155Address,
+  kx,
+  xr,
   zerofy
 } from '../../utils/helpers'
 import { ButtonSwap } from '../ButtonSwap'
@@ -24,10 +27,11 @@ import { IconArrowDown } from '../ui/Icon'
 import { InfoRow } from '../ui/InfoRow'
 import { Modal } from '../ui/Modal'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
-import { Text, TextGrey } from '../ui/Text'
+import { Text, TextError, TextGrey, TextWarning } from '../ui/Text'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { SwapModalHeaderAmount } from './components/SwapModalHeaderAmount'
 import './style.scss'
+import { SwapInfoBox } from '../BuyPositionBox/components/SwapInfoBox'
 
 const Component = ({
   visible,
@@ -89,7 +93,7 @@ const Component = ({
         </div>
       )
     } else {
-      const [poolToShow] = useMemo(() => {
+      const [poolToShow, sideToShow] = useMemo(() => {
         if (isErc1155Address(outputTokenAddress)) {
           const { address, id } = decodeErc1155Address(outputTokenAddress)
           return [pools[address], Number(id)]
@@ -106,10 +110,87 @@ const Component = ({
         }
         return poolToShow.k.toNumber() / 2
       }, [poolToShow])
+
       const liquidity = getTokenValue(
         poolToShow?.TOKEN_R,
         IEW(poolToShow?.states?.R, tokens[poolToShow?.TOKEN_R]?.decimals)
       )
+      const [interest, premium, fundingRate, interestRate, maxPremiumRate] = useMemo(() => {
+        const tokenAddress =
+          isErc1155Address(outputTokenAddress) ? outputTokenAddress
+            : isErc1155Address(inputTokenAddress) ? inputTokenAddress : undefined
+        if (!tokenAddress) {
+          return [0, 0, 0, 0, 0]
+        }
+        const { address, id } = decodeErc1155Address(tokenAddress)
+        const pool = pools[address] ?? poolToShow
+        if (!pool) {
+          return [0, 0, 0, 0, 0]
+        }
+        const { sides, interestRate, maxPremiumRate } = pool
+        const interest = sides[id].interest ?? 0
+        const premium = NUM(sides[id].premium)
+        const fundingRate = interest + premium
+        return [interest, premium, fundingRate, interestRate, maxPremiumRate]
+      }, [inputTokenAddress, outputTokenAddress, pools, poolToShow])
+
+      const [leverageKey, leverageValue] = useMemo(() => {
+        if (!poolToShow) {
+          return ['', null]
+        }
+
+        const {
+          states: { a, b, R, spot },
+          MARK,
+          baseToken,
+          quoteToken
+        } = poolToShow
+        const k = poolToShow.k.toNumber()
+        const kA = kx(k, R, a, spot, MARK)
+        const kB = -kx(-k, R, b, spot, MARK)
+        const ek =
+          sideToShow === POOL_IDS.A ? kA : sideToShow === POOL_IDS.B ? kB : k
+
+        if (ek < k) {
+          const power = formatFloat(ek / 2, 2)
+          return [
+            'Effective Leverage',
+            ek < k / 2 ? (
+              <TextError>{power}x</TextError>
+            ) : (
+              <TextWarning>{power}x</TextWarning>
+            )
+          ]
+        }
+
+        const decimalsOffset =
+          (tokens?.[baseToken]?.decimal ?? 18) -
+          (tokens?.[quoteToken]?.decimal ?? 18)
+        const mark = MARK
+          ? MARK.mul(MARK)
+            .mul(bn(10).pow(decimalsOffset + 12))
+            .shr(256)
+            .toNumber() / 1000000000000
+          : 1
+
+        const xA = xr(k, R.shr(1), a)
+        const xB = xr(-k, R.shr(1), b)
+        const dgA = xA * xA * mark
+        const dgB = xB * xB * mark
+
+        if (sideToShow === POOL_IDS.A) {
+          return ['Deleverage Price', <Text key={0}>{zerofy(dgA)}</Text>]
+        }
+        if (sideToShow === POOL_IDS.B) {
+          return ['Deleverage Price', <Text key={0}>{zerofy(dgB)}</Text>]
+        }
+        return [
+          'Full Leverage Range',
+          <Text key={0}>
+            {zerofy(dgB)}-{zerofy(dgA)}
+          </Text>
+        ]
+      }, [poolToShow, sideToShow, tokens])
 
       const valueOut = getTokenValue(outputTokenAddress, amountOut)
       const valueIn = getTokenValue(inputTokenAddress, amountIn)
@@ -131,18 +212,20 @@ const Component = ({
                 valueOut={valueOut}
                 power={power}/>
 
+              <SwapInfoBox
+                tradeType={tradeType}
+                poolToShow={poolToShow}
+                interest={interest}
+                premium={premium}
+                maxPremiumRate={maxPremiumRate}
+                interestRate={interestRate}
+                fundingRate={fundingRate}
+                leverageKey={leverageKey}
+                leverageValue={leverageValue}/>
               <Box
                 borderColor='default'
                 className='swap-info-box mt-1 mb-1 no-wrap'
               >
-                <InfoRow>
-                  <TextGrey>Liquidity</TextGrey>
-                  <SkeletonLoader loading={!liquidity || liquidity === '0'}>
-                    <Text>
-                      ${formatLocalisedCompactNumber(formatFloat(liquidity, 2))}
-                    </Text>
-                  </SkeletonLoader>
-                </InfoRow>
                 <InfoRow>
                   <TextGrey>Entry Price</TextGrey>
                   <SkeletonLoader loading={!liquidity || liquidity === '0'}>

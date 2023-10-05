@@ -78,7 +78,7 @@ export const truncate = (num: string, decimals: number = 0, rounding: boolean = 
         break
       }
     }
-    for (let i = index-1; shouldRoundUp && i >= 0; --i) {
+    for (let i = index - 1; shouldRoundUp && i >= 0; --i) {
       let char = num.charAt(i)
       if (char == '.') {
         continue
@@ -96,7 +96,7 @@ export const truncate = (num: string, decimals: number = 0, rounding: boolean = 
 }
 
 function _replaceAt(str: string, index: number, replacement: string) {
-  return str.substring(0, index) + replacement + str.substring(index + replacement.length);
+  return str.substring(0, index) + replacement + str.substring(index + replacement.length)
 }
 
 /// revert of WEI: weiToNumber
@@ -186,7 +186,7 @@ export const formatFloat = (
   number: number | string,
   decimals?: number,
   significantDigits?: number,
-  rounding: boolean = false,
+  rounding: boolean = false
 ): number => {
   if (decimals == undefined) {
     decimals = decimalsBySignificantDigits(number, significantDigits)
@@ -433,7 +433,13 @@ export const whatDecimalSeparator = (): string => {
   // return n.toLocaleString().substring(1, 2)
   return '.'
 }
-
+export const calculateWeightedAverage = (numbers: number[], weights: number[]): number | null => {
+  if (numbers.length !== weights.length) return null
+  const totalWeight = weights.reduce((sum, weight) => sum + weight, 0)
+  if (totalWeight === 0) return null
+  const weightedSum = numbers.reduce((sum, number, index) => sum + number * weights[index], 0)
+  return weightedSum / totalWeight
+}
 export const oracleToPoolGroupId = (ORACLE: string): string => {
   return ethers.utils.getAddress('0x' + ORACLE.substring(26))
 }

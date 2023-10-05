@@ -1,9 +1,8 @@
 import { BigNumber } from 'ethers'
 import LeverageSlider from 'leverage-slider/dist/component'
 import _ from 'lodash'
-import moment from 'moment'
 import 'rc-slider/assets/index.css'
-import React, { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import isEqual from 'react-fast-compare'
 import { useGenerateLeverageData } from '../../hooks/useGenerateLeverageData'
 import { useListTokenHasUniPool } from '../../hooks/useListTokenHasUniPool'
@@ -24,7 +23,6 @@ import {
   decodeErc1155Address,
   div,
   formatFloat,
-  formatPercent,
   isErc1155Address,
   kx,
   xr,
@@ -36,18 +34,14 @@ import { SelectTokenModal } from '../SelectTokenModal'
 import { TxFee } from '../SwapBox/components/TxFee'
 import { useCalculateSwap } from '../SwapBox/hooks/useCalculateSwap'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
-import Tooltip from '../Tooltip/Tooltip'
-import { Box } from '../ui/Box'
 import { IconArrowDown } from '../ui/Icon'
 import NumberInput from '../ui/Input/InputNumber'
-import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { Text, TextError, TextGrey, TextWarning } from '../ui/Text'
 import { TokenIcon } from '../ui/TokenIcon'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { EstimateBox } from './components/EstimateBox'
+import { SwapInfoBox } from './components/SwapInfoBox'
 import './style.scss'
-
-const Q128 = BigNumber.from(1).shl(128)
 
 const Component = ({
   tradeType = TRADE_TYPE.LONG,
@@ -79,7 +73,6 @@ const Component = ({
   const { convertTokenValue } = useTokenValue({})
   const leverageData = useGenerateLeverageData(tradeType)
   const { pools } = useResource()
-
   useEffect(() => {
     if (
       tradeType === TRADE_TYPE.LIQUIDITY &&
@@ -285,11 +278,6 @@ const Component = ({
     return poolToShow.k.toNumber() / 2
   }, [poolToShow])
 
-  const { value: liquidity } = useTokenValue({
-    amount: IEW(poolToShow?.states?.R, tokens[poolToShow?.TOKEN_R]?.decimals),
-    tokenAddress: poolToShow?.TOKEN_R
-  })
-
   const [interest, premium, fundingRate, interestRate, maxPremiumRate] = useMemo(() => {
     const tokenAddress =
       isErc1155Address(outputTokenAddress) ? outputTokenAddress
@@ -413,140 +401,16 @@ const Component = ({
         </div>
       )}
 
-      <Box borderColor='default' className='swap-info-box mt-1 mb-1 no-wrap'>
-        <InfoRow>
-          <TextGrey>Liquidity</TextGrey>
-          <SkeletonLoader loading={!liquidity || liquidity === '0'}>
-            <Text>
-              ${formatLocalisedCompactNumber(formatFloat(liquidity, 2))}
-            </Text>
-          </SkeletonLoader>
-        </InfoRow>
-        {/* <InfoRow> */}
-        {/*  <TextGrey>Daily Interest Rate</TextGrey> */}
-        {/*  <SkeletonLoader loading={!poolToShow}> */}
-        {/*    {formatPercent((poolToShow?.interestRate ?? 0) / power / 2, 3, true)}% */}
-        {/*  </SkeletonLoader> */}
-        {/* </InfoRow> */}
-
-        <InfoRow>
-          <TextGrey>{leverageKey ?? 'Leverage'}</TextGrey>
-          <SkeletonLoader loading={!poolToShow || !leverageValue}>
-            {leverageValue}
-          </SkeletonLoader>
-        </InfoRow>
-
-        {tradeType === TRADE_TYPE.LIQUIDITY ? (
-          <InfoRow>
-            <TextGrey>Funding Yield</TextGrey>
-            <SkeletonLoader loading={!poolToShow}>
-              <Tooltip
-                position='right-bottom'
-                handle={
-                  <Text className={fundingRate < 0 ? 'text-green' : 'text-warning'}>
-                    {zerofy(formatFloat(fundingRate * 100, undefined, 3, true))}%
-                  </Text>
-                }
-                renderContent={() => (
-                  <div>
-                    <div>
-                      <TextGrey>Interest:&nbsp;</TextGrey>
-                      <Text>{zerofy(formatFloat(interest * 100, undefined, 3, true))}%</Text>
-                    </div>
-                    <div>
-                      <TextGrey>Premium:&nbsp;</TextGrey>
-                      <Text className={premium < 0 ? 'text-green' : 'text-warning'}>
-                        {zerofy(formatFloat(premium * 100, undefined, 3, true))}%
-                      </Text>
-                    </div>
-                    <div>
-                      <TextGrey>Max Premium:&nbsp;</TextGrey>
-                      <Text>{zerofy(formatFloat(maxPremiumRate * 100, undefined, 3, true))}%</Text>
-                    </div>
-                  </div>
-                )}
-              />
-            </SkeletonLoader>
-          </InfoRow>
-        ) : (
-          <InfoRow>
-            <TextGrey>Funding Rate</TextGrey>
-            <SkeletonLoader loading={!poolToShow}>
-              <Tooltip
-                position='right-bottom'
-                handle={
-                  <Text className={fundingRate < 0 ? 'text-green' : 'text-warning'}>
-                    {zerofy(formatFloat(fundingRate * 100, undefined, 3, true))}%
-                  </Text>
-                }
-                renderContent={() => (
-                  <div>
-                    <div>
-                      <TextGrey>Interest:&nbsp;</TextGrey>
-                      <Text>{zerofy(formatFloat(interest * 100, undefined, 3, true))}%</Text>
-                    </div>
-                    <div>
-                      <TextGrey>Premium:&nbsp;</TextGrey>
-                      <Text className={premium < 0 ? 'text-green' : 'text-warning'}>
-                        {zerofy(formatFloat(premium * 100, undefined, 3, true))}%
-                      </Text>
-                    </div>
-                    <div>
-                      <TextGrey>Max Premium:&nbsp;</TextGrey>
-                      <Text>{zerofy(formatFloat(maxPremiumRate * 100, undefined, 3, true))}%</Text>
-                    </div>
-                  </div>
-                )}
-              />
-              {/* <Text className={fundingRate < 0 ? 'text-green' : 'text-warning'}>
-                {zerofy(formatFloat(fundingRate * 100, undefined, 3, true))}%
-              </Text> */}
-            </SkeletonLoader>
-          </InfoRow>
-        )}
-
-        <hr />
-
-        {tradeType === TRADE_TYPE.LIQUIDITY ? (
-          <InfoRow>
-            <TextGrey>Interest Rate</TextGrey>
-            <SkeletonLoader loading={!poolToShow}>
-              {formatFloat(interestRate * 100, undefined, 3, true)}%
-            </SkeletonLoader>
-          </InfoRow>
-        ) : <Fragment />}
-
-        {!poolToShow?.MATURITY_VEST?.toNumber() || (
-          <InfoRow>
-            <TextGrey>Position Vesting</TextGrey>
-            <SkeletonLoader loading={!poolToShow}>
-              {moment
-                .duration(poolToShow?.MATURITY_VEST.toNumber(), 'seconds')
-                .humanize()}
-            </SkeletonLoader>
-          </InfoRow>
-        )}
-        {!poolToShow?.MATURITY?.toNumber() ||
-          !poolToShow?.MATURITY_RATE?.gt(0) || (
-          <InfoRow>
-            <TextGrey>Closing Fee</TextGrey>
-            <SkeletonLoader loading={!poolToShow}>
-              {formatPercent(
-                Q128.sub(poolToShow?.MATURITY_RATE)
-                  .mul(10000)
-                  .div(Q128)
-                  .toNumber() / 10000,
-                2,
-                true
-              )}
-                % for{' '}
-              {moment
-                .duration(poolToShow?.MATURITY.toNumber(), 'seconds')
-                .humanize()}
-            </SkeletonLoader>
-          </InfoRow>
-        )}
-      </Box>
+      <SwapInfoBox
+        tradeType={tradeType}
+        poolToShow={poolToShow}
+        interest={interest}
+        premium={premium}
+        maxPremiumRate={maxPremiumRate}
+        interestRate={interestRate}
+        fundingRate={fundingRate}
+        leverageKey={leverageKey}
+        leverageValue={leverageValue}/>
 
       <TxFee
         gasUsed={gasUsed}
