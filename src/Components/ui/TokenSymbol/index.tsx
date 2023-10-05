@@ -63,7 +63,7 @@ export const TokenSymbol = ({
       const indexPrefix = isUSD(quote ?? '') ? '' : `/${quote}`
 
       return (
-        <TextComp>
+        <TextComp className={className}>
           {side} {power}x {base}
           {indexPrefix}
         </TextComp>

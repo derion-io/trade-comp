@@ -4,24 +4,19 @@ import React, { useMemo } from 'react'
 import isEqual from 'react-fast-compare'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 import { useResource } from '../../state/resources/hooks/useResource'
-import { useSettings } from '../../state/setting/hooks/useSettings'
 import { useListTokens } from '../../state/token/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { POOL_IDS, TRADE_TYPE } from '../../utils/constant'
-import formatLocalisedCompactNumber, {
-  formatWeiToDisplayNumber
-} from '../../utils/formatBalance'
+import formatLocalisedCompactNumber from '../../utils/formatBalance'
 import {
   IEW,
-  bn,
   decodeErc1155Address,
   formatFloat,
-  getTitleBuyTradeType,
   isErc1155Address,
-  whatDecimalSeparator,
   zerofy
 } from '../../utils/helpers'
 import { ButtonSwap } from '../ButtonSwap'
+import { EstimateBox } from '../BuyPositionBox/components/EstimateBox'
 import { TxFee } from '../SwapBox/components/TxFee'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
 import { Box } from '../ui/Box'
@@ -30,10 +25,9 @@ import { InfoRow } from '../ui/InfoRow'
 import { Modal } from '../ui/Modal'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { Text, TextGrey } from '../ui/Text'
-import { TokenIcon } from '../ui/TokenIcon'
 import { TokenSymbol } from '../ui/TokenSymbol'
-import './style.scss'
 import { SwapModalHeaderAmount } from './components/SwapModalHeaderAmount'
+import './style.scss'
 
 const Component = ({
   visible,
@@ -72,7 +66,6 @@ const Component = ({
 }) => {
   const { tokens } = useListTokens()
   const { pools } = useResource()
-  const { settings } = useSettings()
   const { basePrice } = useCurrentPoolGroup()
   const { getTokenValue } = useTokenValue({})
   const { balances } = useWalletBalance()
@@ -117,15 +110,7 @@ const Component = ({
         poolToShow?.TOKEN_R,
         IEW(poolToShow?.states?.R, tokens[poolToShow?.TOKEN_R]?.decimals)
       )
-      const showSize =
-        tradeType === TRADE_TYPE.LONG || tradeType === TRADE_TYPE.SHORT
-      const valueOutBefore = getTokenValue(
-        inputTokenAddress,
-        IEW(
-          balances[outputTokenAddress],
-          tokens[outputTokenAddress]?.decimal || 18
-        )
-      )
+
       const valueOut = getTokenValue(outputTokenAddress, amountOut)
       const valueIn = getTokenValue(inputTokenAddress, amountIn)
       return (
@@ -138,155 +123,14 @@ const Component = ({
                   <IconArrowDown fill='#01A7FA' />
                 </span>
               </div>
-              <Box
-                borderColor={
-                  tradeType === TRADE_TYPE.LONG
-                    ? 'buy'
-                    : tradeType === TRADE_TYPE.SHORT
-                      ? 'sell'
-                      : 'blue'
-                }
-                className='estimate-box swap-info-box mt-1 mb-1'
-              >
-                <span
-                  className={`estimate-box__leverage ${getTitleBuyTradeType(
-                    tradeType
-                  ).toLowerCase()}`}
-                >
-                  <TokenSymbol token={outputTokenAddress} />
-                </span>
-                <div className='position-delta--box'>
-                  <div className='position-delta--left'>
-                    {settings.showBalance && <div>Balance</div>}
-                    <div>Value</div>
-                    {showSize && <div>Size</div>}
-                  </div>
-                  <SkeletonLoader
-                    loading={balances[outputTokenAddress] == null}
-                  >
-                    {balances[outputTokenAddress]?.gt(0) && (
-                      <div className='position-delta--group'>
-                        <div className='position-delta--right'>
-                          {settings.showBalance && (
-                            <div>
-                              {
-                                formatWeiToDisplayNumber(
-                                  balances[outputTokenAddress] ?? bn(0),
-                                  4,
-                                  tokens[outputTokenAddress]?.decimal || 18
-                                ).split('.')[0]
-                              }
-                            </div>
-                          )}
-                          <div>
-                            ${zerofy(formatFloat(valueOutBefore)).split('.')[0]}
-                          </div>
-                          {showSize && (
-                            <div>
-                              $
-                              {
-                                zerofy(
-                                  formatFloat(Number(valueOutBefore) * power)
-                                ).split('.')[0]
-                              }
-                            </div>
-                          )}
-                        </div>
-                        <div className='position-delta--left'>
-                          {settings.showBalance && (
-                            <div>
-                              {formatWeiToDisplayNumber(
-                                balances[outputTokenAddress] ?? bn(0),
-                                4,
-                                tokens[outputTokenAddress]?.decimal || 18
-                              ).match(/\.\d+$/g) || '\u00A0'}
-                            </div>
-                          )}
-                          <div>
-                            {zerofy(formatFloat(valueOutBefore)).match(
-                              /\.\d+$/g
-                            ) || '\u00A0'}
-                          </div>
-                          {showSize && (
-                            <div>
-                              {zerofy(
-                                formatFloat(Number(valueOutBefore) * power)
-                              ).match(/\.\d+$/g) || '\u00A0'}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </SkeletonLoader>
-                  {!Number(amountIn) || !balances[outputTokenAddress]?.gt(0) ? (
-                    ''
-                  ) : (
-                    <div className='position-delta--left'>
-                      {settings.showBalance && <div>+</div>}
-                      {showSize && <div>+</div>}
-                      <div>+</div>
-                    </div>
-                  )}
-                  {!Number(amountIn) ? (
-                    ''
-                  ) : (
-                    <SkeletonLoader loading={!Number(valueOut)}>
-                      <div className='position-delta--group'>
-                        <div className='position-delta--right'>
-                          {settings.showBalance && (
-                            <div>
-                              {
-                                formatLocalisedCompactNumber(
-                                  formatFloat(amountOut)
-                                ).split(whatDecimalSeparator())[0]
-                              }
-                            </div>
-                          )}
-                          <div>
-                            $
-                            {
-                              formatLocalisedCompactNumber(
-                                formatFloat(valueOut)
-                              ).split(whatDecimalSeparator())[0]
-                            }
-                          </div>
-                          {showSize && (
-                            <div>
-                              $
-                              {
-                                formatLocalisedCompactNumber(
-                                  formatFloat(Number(valueOut) * power)
-                                ).split('.')[0]
-                              }
-                            </div>
-                          )}
-                        </div>
-                        <div className='position-delta--left'>
-                          {settings.showBalance && (
-                            <div>
-                              {formatLocalisedCompactNumber(
-                                formatFloat(amountOut)
-                              ).match(/\.\d+$/g) || '\u00A0'}
-                            </div>
-                          )}
-                          <div>
-                            {formatLocalisedCompactNumber(
-                              formatFloat(valueOut)
-                            ).match(/\.\d+$/g) || '\u00A0'}
-                          </div>
-                          {showSize && (
-                            <div>
-                              {formatLocalisedCompactNumber(
-                                formatFloat(Number(valueOut) * power)
-                              ).match(/\.\d+$/g) || '\u00A0'}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </SkeletonLoader>
-                  )}
-                </div>
-              </Box>
+              <EstimateBox
+                outputTokenAddress={outputTokenAddress}
+                tradeType={tradeType}
+                amountIn={amountIn}
+                amountOut={amountOut}
+                valueOut={valueOut}
+                power={power}/>
+
               <Box
                 borderColor='default'
                 className='swap-info-box mt-1 mb-1 no-wrap'
