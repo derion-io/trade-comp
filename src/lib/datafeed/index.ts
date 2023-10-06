@@ -65,6 +65,9 @@ export const Datafeed = {
     _onResolveErrorCallback: any,
     extension: any
   ) {
+    const state = store.getState()
+    const {token0, token1} = state.currentPool.pair;
+    const qouteTokenSymbol = token0?.address === state.currentPool.quoteToken ? token0.symbol : token1?.symbol;
     console.log('======resolveSymbol running====')
     const [, , , name, , priceScale] = symbolInfo.split('-')
     var symbolStub = {
@@ -80,7 +83,7 @@ export const Datafeed = {
       supported_resolution: supportedResolutions,
       volume_precision: 8,
       data_status: 'streaming',
-      currency_code: extension.currencyCode || 'USD',
+      currency_code: qouteTokenSymbol || 'USD',
       original_currency_code: 'USD'
     }
     onSymbolResolvedCallback(symbolStub)

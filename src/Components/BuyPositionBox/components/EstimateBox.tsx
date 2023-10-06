@@ -1,5 +1,5 @@
 import React, { Fragment, useMemo } from 'react'
-import { IEW, calculateWeightedAverage, encodeErc1155Address, formatFloat, getTitleBuyTradeType, whatDecimalSeparator, zerofy } from '../../../utils/helpers'
+import { IEW, calculateWeightedAverage, formatFloat, getTitleBuyTradeType, whatDecimalSeparator, zerofy } from '../../../utils/helpers'
 import formatLocalisedCompactNumber, { formatWeiToDisplayNumber } from '../../../utils/formatBalance'
 import { TokenSymbol } from '../../ui/TokenSymbol'
 import { TRADE_TYPE } from '../../../utils/constant'
