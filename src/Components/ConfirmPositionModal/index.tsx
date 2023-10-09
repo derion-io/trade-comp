@@ -222,17 +222,6 @@ const Component = ({
                 fundingRate={fundingRate}
                 leverageKey={leverageKey}
                 leverageValue={leverageValue}/>
-              <Box
-                borderColor='default'
-                className='swap-info-box mt-1 mb-1 no-wrap'
-              >
-                <InfoRow>
-                  <TextGrey>Entry Price</TextGrey>
-                  <SkeletonLoader loading={!liquidity || liquidity === '0'}>
-                    <Text>{zerofy(formatFloat(basePrice))}</Text>
-                  </SkeletonLoader>
-                </InfoRow>
-              </Box>
             </div>
           )}
         </div>
