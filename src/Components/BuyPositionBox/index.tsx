@@ -1,9 +1,8 @@
 import { BigNumber } from 'ethers'
 import LeverageSlider from 'leverage-slider/dist/component'
 import _ from 'lodash'
-import moment from 'moment'
 import 'rc-slider/assets/index.css'
-import React, { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import isEqual from 'react-fast-compare'
 import { useGenerateLeverageData } from '../../hooks/useGenerateLeverageData'
 import { useListTokenHasUniPool } from '../../hooks/useListTokenHasUniPool'
@@ -13,13 +12,10 @@ import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 import { CHART_TABS } from '../../state/currentPool/type'
 import { useResource } from '../../state/resources/hooks/useResource'
-import { useSettings } from '../../state/setting/hooks/useSettings'
 import { useListTokens } from '../../state/token/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { NATIVE_ADDRESS, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
-import formatLocalisedCompactNumber, {
-  formatWeiToDisplayNumber
-} from '../../utils/formatBalance'
+import formatLocalisedCompactNumber from '../../utils/formatBalance'
 import {
   IEW,
   NUM,
@@ -27,11 +23,8 @@ import {
   decodeErc1155Address,
   div,
   formatFloat,
-  formatPercent,
-  getTitleBuyTradeType,
   isErc1155Address,
   kx,
-  whatDecimalSeparator,
   xr,
   zerofy
 } from '../../utils/helpers'
@@ -41,17 +34,14 @@ import { SelectTokenModal } from '../SelectTokenModal'
 import { TxFee } from '../SwapBox/components/TxFee'
 import { useCalculateSwap } from '../SwapBox/hooks/useCalculateSwap'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
-import Tooltip from '../Tooltip/Tooltip'
-import { Box } from '../ui/Box'
 import { IconArrowDown } from '../ui/Icon'
 import NumberInput from '../ui/Input/InputNumber'
-import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { Text, TextError, TextGrey, TextWarning } from '../ui/Text'
 import { TokenIcon } from '../ui/TokenIcon'
 import { TokenSymbol } from '../ui/TokenSymbol'
+import { EstimateBox } from './components/EstimateBox'
+import { SwapInfoBox } from './components/SwapInfoBox'
 import './style.scss'
-
-const Q128 = BigNumber.from(1).shl(128)
 
 const Component = ({
   tradeType = TRADE_TYPE.LONG,
@@ -80,11 +70,9 @@ const Component = ({
   const { tokens } = useListTokens()
   const { wrapToNativeAddress } = useHelper()
   const { setCurrentPoolAddress, setDr } = useCurrentPool()
-  const { settings } = useSettings()
   const { convertTokenValue } = useTokenValue({})
   const leverageData = useGenerateLeverageData(tradeType)
   const { pools } = useResource()
-
   useEffect(() => {
     if (
       tradeType === TRADE_TYPE.LIQUIDITY &&
@@ -156,14 +144,6 @@ const Component = ({
 
   const { value: valueOut } = useTokenValue({
     amount: amountOut,
-    tokenAddress: outputTokenAddress
-  })
-
-  const { value: valueOutBefore } = useTokenValue({
-    amount: IEW(
-      balances[outputTokenAddress],
-      tokens[outputTokenAddress]?.decimal || 18
-    ),
     tokenAddress: outputTokenAddress
   })
 
@@ -255,9 +235,9 @@ const Component = ({
       return [
         'Effective Leverage',
         ek < k / 2 ? (
-          <TextError>{power}</TextError>
+          <TextError>{power}x</TextError>
         ) : (
-          <TextWarning>{power}</TextWarning>
+          <TextWarning>{power}x</TextWarning>
         )
       ]
     }
@@ -298,14 +278,6 @@ const Component = ({
     return poolToShow.k.toNumber() / 2
   }, [poolToShow])
 
-  const showSize =
-    tradeType === TRADE_TYPE.LONG || tradeType === TRADE_TYPE.SHORT
-
-  const { value: liquidity } = useTokenValue({
-    amount: IEW(poolToShow?.states?.R, tokens[poolToShow?.TOKEN_R]?.decimals),
-    tokenAddress: poolToShow?.TOKEN_R
-  })
-
   const [interest, premium, fundingRate, interestRate, maxPremiumRate] = useMemo(() => {
     const tokenAddress =
       isErc1155Address(outputTokenAddress) ? outputTokenAddress
@@ -333,6 +305,7 @@ const Component = ({
 
   return (
     <div className='long-short-box'>
+
       <div className='amount-input-box'>
         <div className='amount-input-box__head'>
           <span
@@ -406,154 +379,14 @@ const Component = ({
         </div>
       )}
 
-      {outputTokenAddress && (
-        <Box
-          borderColor={
-            tradeType === TRADE_TYPE.LONG
-              ? 'buy'
-              : tradeType === TRADE_TYPE.SHORT
-                ? 'sell'
-                : 'blue'
-          }
-          className='estimate-box swap-info-box mt-1 mb-1'
-        >
-          <span
-            className={`estimate-box__leverage ${getTitleBuyTradeType(
-              tradeType
-            ).toLowerCase()}`}
-          >
-            <TokenSymbol token={outputTokenAddress} />
-          </span>
-          <div className='position-delta--box'>
-            <div className='position-delta--left'>
-              {settings.showBalance && <div>Balance</div>}
-              <div>Value</div>
-              {showSize && <div>Size</div>}
-            </div>
-            <SkeletonLoader loading={balances[outputTokenAddress] == null}>
-              {balances[outputTokenAddress]?.gt(0) && (
-                <div className='position-delta--group'>
-                  <div className='position-delta--right'>
-                    {settings.showBalance && (
-                      <div>
-                        {
-                          formatWeiToDisplayNumber(
-                            balances[outputTokenAddress] ?? bn(0),
-                            4,
-                            tokens[outputTokenAddress]?.decimal || 18
-                          ).split('.')[0]
-                        }
-                      </div>
-                    )}
-                    <div>
-                      ${zerofy(formatFloat(valueOutBefore)).split('.')[0]}
-                    </div>
-                    {showSize && (
-                      <div>
-                        $
-                        {
-                          zerofy(
-                            formatFloat(Number(valueOutBefore) * power)
-                          ).split('.')[0]
-                        }
-                      </div>
-                    )}
-                  </div>
-                  <div className='position-delta--left'>
-                    {settings.showBalance && (
-                      <div>
-                        {formatWeiToDisplayNumber(
-                          balances[outputTokenAddress] ?? bn(0),
-                          4,
-                          tokens[outputTokenAddress]?.decimal || 18
-                        ).match(/\.\d+$/g) || '\u00A0'}
-                      </div>
-                    )}
-                    <div>
-                      {zerofy(formatFloat(valueOutBefore)).match(/\.\d+$/g) ||
-                        '\u00A0'}
-                    </div>
-                    {showSize && (
-                      <div>
-                        {zerofy(
-                          formatFloat(Number(valueOutBefore) * power)
-                        ).match(/\.\d+$/g) || '\u00A0'}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </SkeletonLoader>
-            {!Number(amountIn) || !balances[outputTokenAddress]?.gt(0) ? (
-              ''
-            ) : (
-              <div className='position-delta--left'>
-                {settings.showBalance && <div>+</div>}
-                {showSize && <div>+</div>}
-                <div>+</div>
-              </div>
-            )}
-            {!Number(amountIn) ? (
-              ''
-            ) : (
-              <SkeletonLoader loading={!Number(valueOut)}>
-                <div className='position-delta--group'>
-                  <div className='position-delta--right'>
-                    {settings.showBalance && (
-                      <div>
-                        {
-                          formatLocalisedCompactNumber(
-                            formatFloat(amountOut)
-                          ).split(whatDecimalSeparator())[0]
-                        }
-                      </div>
-                    )}
-                    <div>
-                      $
-                      {
-                        formatLocalisedCompactNumber(
-                          formatFloat(valueOut)
-                        ).split(whatDecimalSeparator())[0]
-                      }
-                    </div>
-                    {showSize && (
-                      <div>
-                        $
-                        {
-                          formatLocalisedCompactNumber(
-                            formatFloat(Number(valueOut) * power)
-                          ).split('.')[0]
-                        }
-                      </div>
-                    )}
-                  </div>
-                  <div className='position-delta--left'>
-                    {settings.showBalance && (
-                      <div>
-                        {formatLocalisedCompactNumber(
-                          formatFloat(amountOut)
-                        ).match(/\.\d+$/g) || '\u00A0'}
-                      </div>
-                    )}
-                    <div>
-                      {formatLocalisedCompactNumber(
-                        formatFloat(valueOut)
-                      ).match(/\.\d+$/g) || '\u00A0'}
-                    </div>
-                    {showSize && (
-                      <div>
-                        {formatLocalisedCompactNumber(
-                          formatFloat(Number(valueOut) * power)
-                        ).match(/\.\d+$/g) || '\u00A0'}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </SkeletonLoader>
-            )}
-          </div>
-        </Box>
-      )}
+      <EstimateBox
+        outputTokenAddress={outputTokenAddress}
+        tradeType={tradeType}
+        amountIn={amountIn}
+        amountOut={amountOut}
+        valueOut={valueOut}
+        power={power}/>
+
       {leverageData.length > 0 && (
         <div className={leverageData.length === 1 ? 'hidden' : ''}>
           <LeverageSlider
@@ -568,140 +401,16 @@ const Component = ({
         </div>
       )}
 
-      <Box borderColor='default' className='swap-info-box mt-1 mb-1 no-wrap'>
-        <InfoRow>
-          <TextGrey>Liquidity</TextGrey>
-          <SkeletonLoader loading={!liquidity || liquidity === '0'}>
-            <Text>
-              ${formatLocalisedCompactNumber(formatFloat(liquidity, 2))}
-            </Text>
-          </SkeletonLoader>
-        </InfoRow>
-        {/* <InfoRow> */}
-        {/*  <TextGrey>Daily Interest Rate</TextGrey> */}
-        {/*  <SkeletonLoader loading={!poolToShow}> */}
-        {/*    {formatPercent((poolToShow?.interestRate ?? 0) / power / 2, 3, true)}% */}
-        {/*  </SkeletonLoader> */}
-        {/* </InfoRow> */}
-
-        <InfoRow>
-          <TextGrey>{leverageKey ?? 'Leverage'}</TextGrey>
-          <SkeletonLoader loading={!poolToShow || !leverageValue}>
-            {leverageValue}
-          </SkeletonLoader>
-        </InfoRow>
-
-        {tradeType === TRADE_TYPE.LIQUIDITY ? (
-          <InfoRow>
-            <TextGrey>Funding Yield</TextGrey>
-            <SkeletonLoader loading={!poolToShow}>
-              <Tooltip
-                position='right-bottom'
-                handle={
-                  <Text className={fundingRate < 0 ? 'text-green' : 'text-warning'}>
-                    {zerofy(formatFloat(fundingRate * 100, undefined, 3, true))}%
-                  </Text>
-                }
-                renderContent={() => (
-                  <div>
-                    <div>
-                      <TextGrey>Interest:&nbsp;</TextGrey>
-                      <Text>{zerofy(formatFloat(interest * 100, undefined, 3, true))}%</Text>
-                    </div>
-                    <div>
-                      <TextGrey>Premium:&nbsp;</TextGrey>
-                      <Text className={premium < 0 ? 'text-green' : 'text-warning'}>
-                        {zerofy(formatFloat(premium * 100, undefined, 3, true))}%
-                      </Text>
-                    </div>
-                    <div>
-                      <TextGrey>Max Premium:&nbsp;</TextGrey>
-                      <Text>{zerofy(formatFloat(maxPremiumRate * 100, undefined, 3, true))}%</Text>
-                    </div>
-                  </div>
-                )}
-              />
-            </SkeletonLoader>
-          </InfoRow>
-        ) : (
-          <InfoRow>
-            <TextGrey>Funding Rate</TextGrey>
-            <SkeletonLoader loading={!poolToShow}>
-              <Tooltip
-                position='right-bottom'
-                handle={
-                  <Text className={fundingRate < 0 ? 'text-green' : 'text-warning'}>
-                    {zerofy(formatFloat(fundingRate * 100, undefined, 3, true))}%
-                  </Text>
-                }
-                renderContent={() => (
-                  <div>
-                    <div>
-                      <TextGrey>Interest:&nbsp;</TextGrey>
-                      <Text>{zerofy(formatFloat(interest * 100, undefined, 3, true))}%</Text>
-                    </div>
-                    <div>
-                      <TextGrey>Premium:&nbsp;</TextGrey>
-                      <Text className={premium < 0 ? 'text-green' : 'text-warning'}>
-                        {zerofy(formatFloat(premium * 100, undefined, 3, true))}%
-                      </Text>
-                    </div>
-                    <div>
-                      <TextGrey>Max Premium:&nbsp;</TextGrey>
-                      <Text>{zerofy(formatFloat(maxPremiumRate * 100, undefined, 3, true))}%</Text>
-                    </div>
-                  </div>
-                )}
-              />
-              {/* <Text className={fundingRate < 0 ? 'text-green' : 'text-warning'}>
-                {zerofy(formatFloat(fundingRate * 100, undefined, 3, true))}%
-              </Text> */}
-            </SkeletonLoader>
-          </InfoRow>
-        )}
-
-        <hr />
-
-        {tradeType === TRADE_TYPE.LIQUIDITY ? (
-          <InfoRow>
-            <TextGrey>Interest Rate</TextGrey>
-            <SkeletonLoader loading={!poolToShow}>
-              {formatFloat(interestRate * 100, undefined, 3, true)}%
-            </SkeletonLoader>
-          </InfoRow>
-        ) : <Fragment />}
-
-        {!poolToShow?.MATURITY_VEST?.toNumber() || (
-          <InfoRow>
-            <TextGrey>Position Vesting</TextGrey>
-            <SkeletonLoader loading={!poolToShow}>
-              {moment
-                .duration(poolToShow?.MATURITY_VEST.toNumber(), 'seconds')
-                .humanize()}
-            </SkeletonLoader>
-          </InfoRow>
-        )}
-        {!poolToShow?.MATURITY?.toNumber() ||
-          !poolToShow?.MATURITY_RATE?.gt(0) || (
-          <InfoRow>
-            <TextGrey>Closing Fee</TextGrey>
-            <SkeletonLoader loading={!poolToShow}>
-              {formatPercent(
-                Q128.sub(poolToShow?.MATURITY_RATE)
-                  .mul(10000)
-                  .div(Q128)
-                  .toNumber() / 10000,
-                2,
-                true
-              )}
-                % for{' '}
-              {moment
-                .duration(poolToShow?.MATURITY.toNumber(), 'seconds')
-                .humanize()}
-            </SkeletonLoader>
-          </InfoRow>
-        )}
-      </Box>
+      <SwapInfoBox
+        tradeType={tradeType}
+        poolToShow={poolToShow}
+        interest={interest}
+        premium={premium}
+        maxPremiumRate={maxPremiumRate}
+        interestRate={interestRate}
+        fundingRate={fundingRate}
+        leverageKey={leverageKey}
+        leverageValue={leverageValue}/>
 
       <TxFee
         gasUsed={gasUsed}
