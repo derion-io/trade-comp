@@ -107,7 +107,7 @@ export const CustomTokenIcon = (props: any) => {
       height={props.size ? props.size + 'px' : '24px'}
       viewBox='0 0 24 24'
       fill='none'
-      stroke='#000'
+      stroke='#9CA3AF'
       strokeWidth='2'
       strokeLinecap='round'
       strokeLinejoin='round'
