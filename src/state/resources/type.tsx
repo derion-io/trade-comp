@@ -62,7 +62,8 @@ export interface resourcesState {
 
 const initDataEachChain = {
   [CHAINS.BASE]: {},
-  [CHAINS.ARBITRUM]: {}
+  [CHAINS.ARBITRUM]: {},
+  [CHAINS.BSC]: {}
 }
 
 export const initialState: resourcesState = {

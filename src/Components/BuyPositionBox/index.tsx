@@ -59,7 +59,7 @@ const Component = ({
   tokenOutMaturity: BigNumber
 }) => {
   const [barData, setBarData] = useState<any>({})
-  const { configs } = useConfigs()
+  const { configs, routes } = useConfigs()
   const { id, chartTab, setChartTab, setTradeType } =
     useCurrentPoolGroup()
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] =
@@ -188,7 +188,8 @@ const Component = ({
   const tokensToSelect = useMemo(() => {
     if (!id || !poolToShow?.TOKEN_R) return []
     const tokenRs = [poolToShow.TOKEN_R]
-    if (poolToShow.TOKEN_R === configs.wrappedTokenAddress) {
+
+    if (poolToShow.TOKEN_R === configs.wrappedTokenAddress || erc20TokenSupported.includes(configs.wrappedTokenAddress)) {
       tokenRs.push(NATIVE_ADDRESS)
     }
 
@@ -198,7 +199,7 @@ const Component = ({
         return balances[address]?.gt(0)
       })
     )
-  }, [erc20TokenSupported, balances, id])
+  }, [erc20TokenSupported, routes, balances, id])
 
   const onSelectToken = useCallback(
     (address: string) => {
@@ -298,8 +299,8 @@ const Component = ({
   }, [inputTokenAddress, outputTokenAddress, pools, poolToShow])
 
   useEffect(() => {
-    if (!tokensToSelect.includes(inputTokenAddress)) {
-      setInputTokenAddress(NATIVE_ADDRESS)
+    if (tokensToSelect.length > 0 && !tokensToSelect.includes(inputTokenAddress)) {
+      setInputTokenAddress(tokensToSelect.includes(NATIVE_ADDRESS) ? NATIVE_ADDRESS : tokensToSelect[0])
     }
   }, [tokensToSelect, inputTokenAddress])
 

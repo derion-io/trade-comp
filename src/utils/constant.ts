@@ -8,7 +8,8 @@ export const LP_PRICE_UNIT = 10000
 export const TIME_TO_REFRESH_STATE = 30000
 export const CHAINS = {
   ARBITRUM: 42161,
-  BASE: 8453
+  BASE: 8453,
+  BSC: 56
 }
 export const PERCENTAGE_SUGGESTIONS = [10, 25, 50, 75, 100]
 

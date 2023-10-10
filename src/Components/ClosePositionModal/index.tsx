@@ -154,8 +154,8 @@ const Component = ({
 
   const tokensToSelect = useMemo(() => {
     if (!id) return []
-    const tokenRs = Object.values(pools).map((p: any) => p.TOKEN_R)
-    if (tokenRs.includes(configs.wrappedTokenAddress)) {
+    const tokenRs = [pool.TOKEN_R]
+    if (tokenRs.includes(configs.wrappedTokenAddress) || erc20TokenSupported.includes(configs.wrappedTokenAddress)) {
       tokenRs.push(NATIVE_ADDRESS)
     }
     return _.uniq([...tokenRs, ...erc20TokenSupported])

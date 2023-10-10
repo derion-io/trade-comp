@@ -11,11 +11,12 @@ export const BSC_TESTNET_NETWORK = 97
 export const BASE_NETWORK = 8453
 
 export const DEFAULT_CHAIN = ARBITRUM_NETWORK
-export const CHAIN_IDS = [ARBITRUM_NETWORK, BASE_NETWORK]
+export const CHAIN_IDS = [ARBITRUM_NETWORK, BASE_NETWORK, BSC_NETWORK]
 
 export const CHAINS = {
   [ARBITRUM_NETWORK]: 'Arbitrum',
-  [BASE_NETWORK]: 'Base'
+  [BASE_NETWORK]: 'Base',
+  [BSC_NETWORK]: 'Bsc',
 }
 
 export const RPC_URLS: { [chainId: number]: string } = {
