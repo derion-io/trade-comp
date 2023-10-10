@@ -59,7 +59,7 @@ export const SwapInfoBox = ({
 
       {tradeType === TRADE_TYPE.LIQUIDITY ? (
         <InfoRow>
-          <TextGrey>Funding Yield</TextGrey>
+          <TextGrey>LP Funding Yield</TextGrey>
           <SkeletonLoader loading={!poolToShow}>
             <Tooltip
               position='right-bottom'
@@ -73,17 +73,35 @@ export const SwapInfoBox = ({
               renderContent={() => (
                 <div>
                   <div>
-                    <TextGrey>Interest:&nbsp;</TextGrey>
+                    <TextGrey>LP Interest:&nbsp;</TextGrey>
                     <Text>
                       {zerofy(formatFloat(interest * 100, undefined, 3, true))}%
                     </Text>
                   </div>
                   <div>
-                    <TextGrey>Premium:&nbsp;</TextGrey>
+                    <TextGrey>LP Premium:&nbsp;</TextGrey>
                     <Text
                       className={premium > 0 ? 'text-green' : ''}
                     >
                       {zerofy(formatFloat(premium * 100, undefined, 2, true))}%
+                    </Text>
+                  </div>
+                  <div>
+                    <TextGrey>Trader Interest:&nbsp;</TextGrey>
+                    <Text>
+                      {zerofy(
+                        formatFloat(interestRate * 100, undefined, 2, true)
+                      )}
+                      %
+                    </Text>
+                  </div>
+                  <div>
+                    <TextGrey>Trader Premium Max:&nbsp;</TextGrey>
+                    <Text>
+                      {zerofy(
+                        formatFloat(maxPremiumRate * 100, undefined, 2, true)
+                      )}
+                      %
                     </Text>
                   </div>
                 </div>
@@ -137,17 +155,6 @@ export const SwapInfoBox = ({
       )}
 
       <hr />
-
-      {tradeType === TRADE_TYPE.LIQUIDITY ? (
-        <InfoRow>
-          <TextGrey>Interest Rate</TextGrey>
-          <SkeletonLoader loading={!poolToShow}>
-            {formatFloat(interestRate * 100, undefined, 3, true)}%
-          </SkeletonLoader>
-        </InfoRow>
-      ) : (
-        <Fragment />
-      )}
 
       {!poolToShow?.MATURITY_VEST?.toNumber() || (
         <InfoRow>
