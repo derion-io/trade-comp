@@ -32,6 +32,14 @@ export const tokens = createSlice({
     ) => {
       state.chartTab = action.payload.tab
     },
+    setLastTradeChartReduce: (
+      state,
+      action: PayloadAction<{
+        tab: CHART_TABS
+      }>
+    ) => {
+      state.lastTradeChart = action.payload.tab
+    },
     setSwapTabReduce: (
       state,
       action: PayloadAction<{
@@ -133,6 +141,7 @@ export const {
   setChartTimeRange,
   setChartIntervalIsUpdated,
   setChartTabReduce,
+  setLastTradeChartReduce,
   setSwapTabReduce,
   setDrReduce,
   setCurrentPoolAddressReduce

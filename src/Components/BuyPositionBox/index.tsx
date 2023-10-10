@@ -84,7 +84,7 @@ const Component = ({
       tradeType !== TRADE_TYPE.LIQUIDITY &&
       chartTab === CHART_TABS.FUNC_PLOT
     ) {
-      setChartTab(CHART_TABS.CANDLE_CHART)
+      setChartTab(CHART_TABS.LAST_TRADE_CHART)
     }
 
     setTradeType(tradeType)

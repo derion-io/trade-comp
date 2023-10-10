@@ -5,7 +5,8 @@ import { TRADE_TYPE } from '../../utils/constant'
 export enum CHART_TABS {
   FUNC_PLOT,
   CANDLE_CHART,
-  LINE_CHART
+  LINE_CHART,
+  LAST_TRADE_CHART,
 }
 
 export interface currentPoolState {
@@ -43,6 +44,7 @@ export interface currentPoolState {
   }
   changedIn24h: number
   chartTab: CHART_TABS
+  lastTradeChart: CHART_TABS
   tradeType: TRADE_TYPE
   chartIsOutDate: boolean
   candleChartIsLoading: boolean
@@ -66,6 +68,7 @@ export const initialState: currentPoolState = {
   drC: 0,
   currentPoolAddress: '',
   chartTab: CHART_TABS.CANDLE_CHART,
+  lastTradeChart: CHART_TABS.CANDLE_CHART,
   tradeType: TRADE_TYPE.LONG,
   pair: {
     token0: undefined,

@@ -73,7 +73,7 @@ const Component = ({
 
   useEffect(() => {
     setTradeType(TRADE_TYPE.SWAP)
-    setChartTab(CHART_TABS.CANDLE_CHART)
+    setChartTab(CHART_TABS.LAST_TRADE_CHART)
   }, [])
 
   useEffect(() => {

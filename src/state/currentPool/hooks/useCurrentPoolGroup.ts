@@ -6,6 +6,7 @@ import {
   setChartTabReduce,
   setChartTimeFocusReduce,
   setCurrentPoolInfo,
+  setLastTradeChartReduce,
   setSwapTabReduce
 } from '../reducer'
 import { useResource } from '../../resources/hooks/useResource'
@@ -24,6 +25,11 @@ export const useCurrentPoolGroup = () => {
   })
 
   const setChartTab = (tab: CHART_TABS) => {
+    if (tab === CHART_TABS.LAST_TRADE_CHART) {
+      tab = currentPool.lastTradeChart
+    } else if ([CHART_TABS.CANDLE_CHART, CHART_TABS.LINE_CHART].includes(tab)) {
+      dispatch(setLastTradeChartReduce({ tab }))
+    }
     dispatch(setChartTabReduce({ tab }))
   }
 
