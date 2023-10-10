@@ -87,6 +87,7 @@ export const AppLayout = (props: any) => {
         }}>
           <option value="8453">Base</option>
           <option value="42161">Arbitrum</option>
+          <option value="56">Bsc</option>
         </select>
       </div>
       <div className='connect-wallet '>
