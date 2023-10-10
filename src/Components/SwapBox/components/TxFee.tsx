@@ -131,8 +131,8 @@ export const TxFee = ({
                   <div>
                     <TextGrey>Gas Price:&nbsp;</TextGrey>
                     <Text>
-                      {gasPrice.gte(1e6)
-                        ? formatWeiToDisplayNumber(gasPrice.div(1e6), 0, 0) +
+                      {(gasPrice).gte(1e6)
+                        ? formatWeiToDisplayNumber(gasPrice.div(1e9), 0, 0) +
                           ' gwei'
                         : formatWeiToDisplayNumber(gasPrice, 0, 0) + ' wei'}
                     </Text>
