@@ -65,7 +65,7 @@ export const SwapInfoBox = ({
               position='right-bottom'
               handle={
                 <Text
-                  className={fundingRate < 0 ? 'text-green' : 'text-warning'}
+                  className={fundingRate > 0 ? 'text-green' : ''}
                 >
                   {zerofy(formatFloat(fundingRate * 100, undefined, 3, true))}%
                 </Text>
@@ -81,18 +81,9 @@ export const SwapInfoBox = ({
                   <div>
                     <TextGrey>Premium:&nbsp;</TextGrey>
                     <Text
-                      className={premium < 0 ? 'text-green' : 'text-warning'}
+                      className={premium > 0 ? 'text-green' : ''}
                     >
                       {zerofy(formatFloat(premium * 100, undefined, 2, true))}%
-                    </Text>
-                  </div>
-                  <div>
-                    <TextGrey>Max Premium:&nbsp;</TextGrey>
-                    <Text>
-                      {zerofy(
-                        formatFloat(maxPremiumRate * 100, undefined, 2, true)
-                      )}
-                      %
                     </Text>
                   </div>
                 </div>
