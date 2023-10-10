@@ -25,6 +25,9 @@ export const STR = (num: number | string | BigNumber): string => {
       }
       num = Number(num)
     case 'number':
+      if (!isFinite(num)) {
+        return num > 0 ? '∞' : '-∞'
+      }
       return num.toLocaleString(['en-US', 'fullwide'], { useGrouping: false })
     default:
       return String(num)
@@ -39,6 +42,12 @@ export const NUM = (num: number | string | BigNumber): number => {
     case 'number':
       return num
     case 'string':
+      if (num == '∞') {
+        return Number.POSITIVE_INFINITY
+      }
+      if (num == '-∞') {
+        return Number.NEGATIVE_INFINITY
+      }
       return Number.parseFloat(num)
     default:
       return num.toNumber()
@@ -374,6 +383,9 @@ export const isUSD = (symbol: string): boolean => {
 }
 
 export const zerofy = (value: number, minZeroDecimal: number = 4): string => {
+  if (!isFinite(value)) {
+    return STR(value)
+  }
   const x = value
   const countZeroAfterDot = -Math.floor(Math.log10(x) + 1)
   if (
