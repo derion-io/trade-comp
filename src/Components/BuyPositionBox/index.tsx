@@ -298,8 +298,8 @@ const Component = ({
   }, [inputTokenAddress, outputTokenAddress, pools, poolToShow])
 
   useEffect(() => {
-    if (!tokensToSelect.includes(inputTokenAddress)) {
-      setInputTokenAddress(NATIVE_ADDRESS)
+    if (tokensToSelect.length > 0 && !tokensToSelect.includes(inputTokenAddress)) {
+      setInputTokenAddress(tokensToSelect.includes(NATIVE_ADDRESS) ? NATIVE_ADDRESS : tokensToSelect[0])
     }
   }, [tokensToSelect, inputTokenAddress])
 
