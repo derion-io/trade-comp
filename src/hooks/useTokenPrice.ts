@@ -1,4 +1,6 @@
+import { useConfigs } from "../state/config/useConfigs"
+
 export const useNativePrice = () => {
-  // const { ddlEngine } = useConfigs()
-  return { data: 1900 }
+  const { configs } = useConfigs()
+  return { data: configs.nativePriceUSD ?? 1600 }
 }

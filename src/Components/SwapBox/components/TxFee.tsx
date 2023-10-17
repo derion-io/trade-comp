@@ -1,6 +1,6 @@
 import { Text, TextGrey, TextSell, TextWarning } from '../../ui/Text'
 import { formatWeiToDisplayNumber } from '../../../utils/formatBalance'
-import { WEI, IEW, formatPercent } from '../../../utils/helpers'
+import { WEI, IEW, formatPercent, formatFloat } from '../../../utils/helpers'
 import { Box } from '../../ui/Box'
 import React, { useEffect, useState } from 'react'
 import { InfoRow } from '../../ui/InfoRow'
@@ -34,7 +34,7 @@ export const TxFee = ({
   isMaxBalance?: boolean
   // isCloseModal?:
 }) => {
-  const { chainId } = useConfigs()
+  const { configs } = useConfigs()
   const { settings } = useSettings()
   const { data: nativePrice } = useNativePrice()
   const [gasPrice, setGasPrice] = useState<any>(BigNumber.from(10 ** 8))
@@ -115,7 +115,7 @@ export const TxFee = ({
                     ) : (
                       <Text>
                         {IEW(gasUsed.mul(gasPrice), 18, 5)}
-                        <TextGrey> {chainId === 56 ? 'BNB' : 'ETH'} </TextGrey>
+                        <TextGrey> {configs.nativeSymbol ?? 'ETH'} </TextGrey>
                       ($
                         {IEW(gasUsed.mul(gasPrice).mul(WEI(nativePrice)), 36, 2)})
                       </Text>
@@ -135,6 +135,12 @@ export const TxFee = ({
                         ? formatWeiToDisplayNumber(gasPrice.div(1e9), 0, 0) +
                           ' gwei'
                         : formatWeiToDisplayNumber(gasPrice, 0, 0) + ' wei'}
+                    </Text>
+                  </div>
+                  <div>
+                    <TextGrey>{configs.nativeSymbol} Price:&nbsp;</TextGrey>
+                    <Text>
+                      ${formatFloat(configs.nativePriceUSD, undefined, 4, true)}
                     </Text>
                   </div>
                 </div>
