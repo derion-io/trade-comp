@@ -233,41 +233,8 @@ export const Positions = ({
   const generatePositionFromInput = (steps: SwapStepType[]): any => {
     return steps.map(s => {
       const { address, id } = decodeErc1155Address(s.tokenOut)
-      const a = { ...generatePositionData(address, Number(id), steps[0]), status: 'pending' }
-      console.log(a)
-      return a
-
-      // const pool = pools[address]
-      // const k = pools[address].k.toNumber()
-      // const valueUsd = getTokenValue(
-      //   s.tokenOut,
-      //   IEW(balances[s.tokenOut], tokens[s.tokenOut]?.decimal || 18),
-      //   true
-      // )
-      // const k = pool.k.toNumber()
-      // const ek = sides[side].k
-      // const effectiveLeverage = Math.min(ek, k) / 2
-      // const { sides } = pool
-      // const interest = sides[id].interest ?? 0
-      // const premium = NUM(sides[id].premium)
-      // const funding = interest + premium
-      // const sizeDisplay =
-      // Number(id) === POOL_IDS.A || Number(id) === POOL_IDS.B
-      //   ? '$' +
-      //     formatLocalisedCompactNumber(
-      //       formatFloat((Number(valueUsd) * k) / 2)
-      //     )
-      //   : ''
-      // return {
-      //   token: s.tokenOut,
-      //   poolAddress: address,
-      //   pool: pools[address],
-      //   effectiveLeverage,
-      //   sizeDisplay,
-      //   funding,
-      //   valueUsd,
-      //   status: 'pending'
-      // }
+      const s1 = { ...generatePositionData(address, Number(id), steps[0]), status: 'pending' }
+      return s1
     })?.[0]
   }
   const positions: Position[] = useMemo(() => {

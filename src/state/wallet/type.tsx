@@ -1,6 +1,5 @@
 import { SwapStepType } from 'derivable-tools/dist/types'
 import { BigNumber } from 'ethers'
-import { bn } from '../../utils/helpers'
 
 export type BalancesType = { [key: string]: BigNumber }
 export type AllowancesType = { [key: string]: BigNumber }

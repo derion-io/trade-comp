@@ -218,7 +218,9 @@ export const ButtonSwap = ({
             } catch (e) {
               console.error(e)
               setLoading(false)
-              if (closeConfirmWhenSwap) closeConfirmWhenSwap(false)
+              if (closeConfirmWhenSwap) {
+                closeConfirmWhenSwap(false)
+              }
               toast.error(String(e.message ?? e))
             }
           }}
