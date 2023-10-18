@@ -75,7 +75,7 @@ export const SelectPoolGroup = () => {
         )
         totalPosValue += value
         return { address, value }
-      })
+      }).filter(pld => pld.address !== null && pld.value > 0)
       poolGroupsUSDs[poolGroupKey] = {
         poolGroup,
         playingTokensValue,
@@ -121,7 +121,7 @@ export const SelectPoolGroup = () => {
       <div className='select-pool-group'>
         <PoolGroupOption
           active={active}
-          slice={3}
+          slice={2}
           poolGroupsValue={poolGroupsValue[id]}
           className='active'
         />
