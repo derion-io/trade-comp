@@ -191,7 +191,6 @@ export const ButtonSwap = ({
                   gasUsed && gasUsed.gt(0) ? gasUsed.mul(2) : undefined,
                   pendingtx => {
                     pendingTxHash = pendingtx.hash
-                    console.log('vinh pending tx:', [...swapPendingTxs, pendingtx])
                     updatePendingTxsHandle([...swapPendingTxs, pendingtx])
                     if (closeConfirmWhenSwap) closeConfirmWhenSwap(false)
                   }

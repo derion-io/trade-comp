@@ -305,7 +305,6 @@ export const Positions = ({
         return null
       }).filter(p => p !== null)
       if (pendingPosition) displayPositions = [...pendingPosition, ...displayPositions]
-      console.log('vinh', displayPositions)
     }
 
     const hasClosingFee = displayPositions.some(
