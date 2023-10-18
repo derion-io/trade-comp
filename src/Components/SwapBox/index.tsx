@@ -100,7 +100,6 @@ const Component = ({
   const tokensToSelect = useMemo(() => {
     if (!id) return []
     const tokenRs = Object.values(pools).map((p: any) => p.TOKEN_R)
-    console.log('vinh', tokenRs)
     if (tokenRs.includes(configs.wrappedTokenAddress)) {
       tokenRs.push(configs.wrappedTokenAddress)
     }
@@ -116,7 +115,6 @@ const Component = ({
     const erc20Tokens = Object.keys(tokens).filter((address) => {
       return isAddress(address) && balances[address] && !balances[address].isZero() && getTokenValue(address, balances[address]) !== '0'
     })
-    console.log('vinh', erc20Tokens)
     return _.uniq(
       [...tokenRs, ...erc20Tokens, ...aTokens, ...bTokens, ...cTokens].filter((address) => {
         if (tokenRs.includes(address)) return true
