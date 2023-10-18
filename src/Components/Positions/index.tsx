@@ -54,6 +54,7 @@ import { TokenSymbol } from '../ui/TokenSymbol'
 import './style.scss'
 import { SwapStepType } from 'derivable-tools/dist/types'
 import { useSwapPendingHistory } from '../../state/wallet/hooks/useSwapPendingHistory'
+import { SkeletonLoader } from '../ui/SkeletonLoader'
 
 export enum VALUE_IN_USD_STATUS {
   AUTO,
@@ -247,8 +248,7 @@ export const Positions = ({
   const [displayPositions, hasClosingFee] = useMemo(() => {
     let displayPositions: Position[] = []
     if (positions && positions.length > 0) {
-      const pendingPosition = swapPendingTxs.map(swapPendingTx => generatePositionFromInput(swapPendingTx.steps))
-      displayPositions = [...pendingPosition, ...positions.filter((p) => {
+      displayPositions = positions.filter((p) => {
         if (tradeType === TRADE_TYPE.LIQUIDITY) {
           return p.side === POOL_IDS.C
         }
@@ -256,8 +256,22 @@ export const Positions = ({
           return p.side === POOL_IDS.A || p.side === POOL_IDS.B
         }
         return true
-      })]
+      })
+      const pendingPosition = swapPendingTxs.map(swapPendingTx => {
+        let isIncreasePosition = false
+        displayPositions.map((disPos, _) => {
+          if (disPos.token === swapPendingTx.steps?.[0]?.tokenOut) {
+            disPos.status = 'pending'
+            isIncreasePosition = true
+          }
+        })
+        if (!isIncreasePosition) return generatePositionFromInput(swapPendingTx.steps)
+        return null
+      }).filter(p => p !== null)
+      if (pendingPosition) displayPositions = [...pendingPosition, ...displayPositions]
+      console.log('vinh', displayPositions)
     }
+
     const hasClosingFee = displayPositions.some(
       (p) => p.closingFee(now).fee > 0
     )
@@ -497,7 +511,6 @@ export const Positions = ({
                     />
                   </td>
                   <td>
-                    { position.status !== 'pending' &&
                     <div className='net-value-and-pnl'>
                       <NetValue
                         valueInUsdStatus={valueInUsdStatus}
@@ -505,11 +518,13 @@ export const Positions = ({
                         value={position.value}
                         pool={position.pool}
                       />
-                      <Pnl
-                        valueInUsdStatus={valueInUsdStatus}
-                        position={position}
-                      />
-                    </div>}
+                      <SkeletonLoader loading={position.status === 'pending'}>
+                        <Pnl
+                          valueInUsdStatus={valueInUsdStatus}
+                          position={position}
+                        />
+                      </SkeletonLoader>
+                    </div>
                   </td>
                   {!showSize || (
                     <td>
@@ -523,21 +538,24 @@ export const Positions = ({
                     </td>
                   )}
                   <td>
-                    {!position.entryPrice || (
-                      <Text>{zerofy(formatFloat(position.entryPrice))}</Text>
-                    )}
+                    <SkeletonLoader loading={position.status === 'pending'}>
+                      {!position.entryPrice || (
+                        <Text>{zerofy(formatFloat(position.entryPrice))}</Text>
+                      )}
+                    </SkeletonLoader>
                   </td>
                   <td>
-                    {position.effectiveLeverage < position.leverage / 2 ? (
-                      <TextError>{position.deleveragePrice}</TextError>
-                    ) : position.effectiveLeverage < position.leverage ? (
-                      <TextWarning>{position.deleveragePrice}</TextWarning>
-                    ) : (
-                      <Text>{position.deleveragePrice}</Text>
-                    )}
+                    <SkeletonLoader loading={position.status === 'pending'}>
+                      {position.effectiveLeverage < position.leverage / 2 ? (
+                        <TextError>{position.deleveragePrice}</TextError>
+                      ) : position.effectiveLeverage < position.leverage ? (
+                        <TextWarning>{position.deleveragePrice}</TextWarning>
+                      ) : (
+                        <Text>{position.deleveragePrice}</Text>
+                      )}
+                    </SkeletonLoader>
                   </td>
                   <td>
-                    {position.status !== 'pending' &&
                     <Text
                       className={
                         position.funding < 0 || position.side === POOL_IDS.C
@@ -547,19 +565,19 @@ export const Positions = ({
                     >
                       {zerofy(formatFloat(position.funding * 100, undefined, 3, true))}%
                     </Text>
-                    }
                   </td>
 
                   {!hasClosingFee || (
                     <td>
-                      { position.status !== 'pending' &&
-                    <ClosingFee now={now} position={position} />}
+                      <SkeletonLoader loading={position.status === 'pending'}>
+                        <ClosingFee now={now} position={position} />
+                      </SkeletonLoader>
                     </td>
                   )}
                   {/* <td><Reserve pool={position.pool}/></td> */}
                   {/* <td><ExplorerLink poolAddress={position.poolAddress}/></td> */}
                   <td className='text-right'>
-                    {position.status !== 'pending' &&
+                    <SkeletonLoader loading={position.status === 'pending'}>
                       <ButtonSell
                         size='small'
                         onClick={(e) => {
@@ -573,7 +591,7 @@ export const Positions = ({
                       >
                         {position.side === POOL_IDS.C ? 'Remove' : 'Close'}
                       </ButtonSell>
-                    }
+                    </SkeletonLoader>
                   </td>
                 </tr>
               )
