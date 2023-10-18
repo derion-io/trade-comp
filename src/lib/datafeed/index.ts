@@ -6,11 +6,12 @@ import {
   setChartIsOutDate
 } from '../../state/currentPool/reducer'
 import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
-import { formatFloat, isErc1155Address } from '../../utils/helpers'
+import { isErc1155Address } from '../../utils/helpers'
 import { TokenType } from '../../state/token/type'
 import { SwapTxType } from '../../state/wallet/type'
 import { currentPoolState } from '../../state/currentPool/type'
 import moment from 'moment'
+import { useConfigs } from '../../state/config/useConfigs'
 
 const COLORS = {
   PINK: '#FF98E5',
@@ -44,9 +45,9 @@ export const TIME_IN_RESOLUTION = {
 const TIME_TO_UPDATE_CHART = 5000
 
 const wrappedToNativeSymbol = (symbol?: string): string => {
-  const state = store.getState()
   if (!symbol) return ''
-  return symbol === `W${state.configs.configs.nativeSymbol}` ? state.configs.configs.nativeSymbol : symbol
+  const { configs } = useConfigs()
+  return symbol === `W${configs.nativeSymbol}` ? configs.nativeSymbol : symbol
 }
 
 const handleChartRouteOption = (currency_id: string, baseAddress: string, cAddress: string, quoteAddress: string): {route: (string | undefined)[], quoteAddressSelect: string} => {
