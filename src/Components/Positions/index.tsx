@@ -341,18 +341,18 @@ export const Positions = ({
                 )}
                 <InfoRow>
                   <Text>Net Value</Text>
-                  { position.status !== 'pending' &&
-                  <NetValue
-                    valueInUsdStatus={valueInUsdStatus}
-                    valueUsd={position.valueUsd}
-                    value={position.value}
-                    pool={position.pool}
-                    isPhone
-                  />}
+                  <SkeletonLoader loading={position.status === 'pending'}>
+                    <NetValue
+                      valueInUsdStatus={valueInUsdStatus}
+                      valueUsd={position.valueUsd}
+                      value={position.value}
+                      pool={position.pool}
+                      isPhone
+                    />
+                  </SkeletonLoader>
                 </InfoRow>
 
                 {!position.entryValue || (
-                  position.status !== 'pending' &&
                   <InfoRow>
                     <Text>
                       PnL
@@ -374,30 +374,36 @@ export const Positions = ({
                           : ' ⇄ USD'}
                       </Text>
                     </Text>
-                    <Pnl
-                      valueInUsdStatus={valueInUsdStatus}
-                      position={position}
-                      isPhone
-                    />
+                    <SkeletonLoader loading={position.status === 'pending'}>
+                      <Pnl
+                        valueInUsdStatus={valueInUsdStatus}
+                        position={position}
+                        isPhone
+                      />
+                    </SkeletonLoader>
                   </InfoRow>
 
                 )}
                 {!showSize || !position.sizeDisplay || (
                   <InfoRow>
                     <Text>Size</Text>
-                    {position.effectiveLeverage < position.leverage / 2 ? (
-                      <TextError>{position.sizeDisplay}</TextError>
-                    ) : position.effectiveLeverage < position.leverage ? (
-                      <TextWarning>{position.sizeDisplay}</TextWarning>
-                    ) : (
-                      <Text>{position.sizeDisplay}</Text>
-                    )}
+                    <SkeletonLoader loading={position.status === 'pending'}>
+                      {position.effectiveLeverage < position.leverage / 2 ? (
+                        <TextError>{position.sizeDisplay}</TextError>
+                      ) : position.effectiveLeverage < position.leverage ? (
+                        <TextWarning>{position.sizeDisplay}</TextWarning>
+                      ) : (
+                        <Text>{position.sizeDisplay}</Text>
+                      )}
+                    </SkeletonLoader>
                   </InfoRow>
                 )}
                 {!position.entryPrice || (
                   <InfoRow>
                     <Text>Entry Price</Text>
-                    <Text>{zerofy(formatFloat(position.entryPrice))}</Text>
+                    <SkeletonLoader loading={position.status === 'pending'}>
+                      <Text>{zerofy(formatFloat(position.entryPrice))}</Text>
+                    </SkeletonLoader>
                   </InfoRow>
                 )}
                 <InfoRow>
@@ -434,6 +440,7 @@ export const Positions = ({
                       now={now}
                       position={position}
                       isPhone={isPhone}
+                      status={position.status}
                     />
                   </InfoRow>
                 )}
@@ -448,7 +455,7 @@ export const Positions = ({
 
                 <InfoRow>
                   {position.status === 'pending' ? <ButtonSell className='btn-close'
-                    size='small' style={{ background: 'none' }} disabled > Pending...</ButtonSell>
+                    size='small' style={{ opacity: 0.5 }} disabled > Pending...</ButtonSell>
                     : <ButtonSell
                       className='btn-close'
                       size='small'
@@ -607,7 +614,7 @@ export const Positions = ({
 
                   {!hasClosingFee || (
                     <td>
-                      <ClosingFee now={now} position={position} loading={position.status !== ''} />
+                      <ClosingFee now={now} position={position} status={position.status} />
                     </td>
                   )}
                   {/* <td><Reserve pool={position.pool}/></td> */}
@@ -774,12 +781,12 @@ export const ClosingFee = ({
   now,
   position,
   isPhone,
-  loading
+  status
 }: {
   now: number
   position: Position
   isPhone?: boolean
-  loading?: boolean
+  status?: '' | 'pending' | 'increase-pending'
 }) => {
   if (!position?.closingFee?.()) return <React.Fragment />
   const res: any = position.closingFee(now)
@@ -795,21 +802,27 @@ export const ClosingFee = ({
   if (isPhone) {
     return (
       <div>
-        <TextComp>
-          {feeFormat}% for {timeFormat}
-        </TextComp>
+        <SkeletonLoader loading={status !== ''} >
+          <TextComp>
+            {feeFormat}% for {timeFormat}
+          </TextComp>
+        </SkeletonLoader>
       </div>
     )
   }
   return (
     <div>
       <div>
-        <SkeletonLoader loading={loading === true} >
+        <SkeletonLoader loading={status !== ''} >
           <TextComp>{feeFormat}%</TextComp>
         </SkeletonLoader>
       </div>
       <div>
-        <TextComp>{loading === true ? 'Updating' : `for ${timeFormat}`}</TextComp>
+        {status === 'pending'
+          ? <SkeletonLoader loading={status === 'pending'} >
+            <TextComp>{`for ${timeFormat}`}%</TextComp>
+          </SkeletonLoader>
+          : <TextComp>{status === 'increase-pending' ? 'Updating' : `for ${timeFormat}`}</TextComp>}
       </div>
     </div>
   )
