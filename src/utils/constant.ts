@@ -25,13 +25,6 @@ export enum TRADE_TYPE {
   LIQUIDITY
 }
 
-export enum POSITION_STATUS {
-  OPENED,
-  OPENING,
-  UPDATING,
-  CLOSING,
-}
-
 export const LOCALSTORAGE_KEY = {
   DDL_LOGS: 'ddl-log-v1.0',
   LAST_BLOCK_DDL_LOGS: 'last-block-ddl-log-v1.0',

@@ -23,7 +23,6 @@ import formatLocalisedCompactNumber, {
 } from '../../utils/formatBalance'
 import {
   IEW,
-  NUM,
   bn,
   decodeErc1155Address,
   div,

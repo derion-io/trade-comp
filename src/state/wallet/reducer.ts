@@ -4,8 +4,8 @@ import {
   AllowancesType,
   BalancesType,
   initialState,
-  MaturitiesType,
-  SwapPendingTxType
+  SwapPendingTxType,
+  MaturitiesType
 } from './type'
 import _ from 'lodash'
 

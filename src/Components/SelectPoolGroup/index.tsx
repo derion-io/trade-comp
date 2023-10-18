@@ -75,7 +75,7 @@ export const SelectPoolGroup = () => {
         )
         totalPosValue += value
         return { address, value }
-      }).filter(pld => pld.address !== null && pld.value > 0)
+      }).filter(token => token.address !== null && token.value > 0)
       poolGroupsUSDs[poolGroupKey] = {
         poolGroup,
         playingTokensValue,
