@@ -189,7 +189,6 @@ export const ButtonSwap = ({
                     }
                   ],
                   gasUsed && gasUsed.gt(0) ? gasUsed.mul(2) : undefined,
-                  undefined,
                   pendingtx => {
                     pendingTxHash = pendingtx.hash
                     updatePendingTxsHandle([...swapPendingTxs, pendingtx])

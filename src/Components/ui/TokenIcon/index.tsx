@@ -9,7 +9,11 @@ import {
 import './style.scss'
 import { POOL_IDS } from '../../../utils/constant'
 import { useResource } from '../../../state/resources/hooks/useResource'
-
+import { useConfigs } from '../../../state/config/useConfigs'
+const isLink = (str: string): boolean => {
+  const urlPattern = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i
+  return urlPattern.test(str)
+}
 export const TokenIcon = (props: {
   src?: string
   className?: string
@@ -17,6 +21,10 @@ export const TokenIcon = (props: {
   size?: number
 }) => {
   const { pools } = useResource()
+  const { configs } = useConfigs()
+  const tokenOverrideLogo = useMemo(() => {
+    return configs.tokens?.[props?.tokenAddress || '']?.logo
+  }, [configs])
   const { getTokenIconUrl } = useHelper()
   const [isError, setIsError] = useState<boolean>(!props.src)
   const style = {
@@ -92,8 +100,8 @@ export const TokenIcon = (props: {
   if (isError || !src) {
     return <CustomTokenIcon size={props.size || 50} {...props} />
   } else {
-    return (
-      <img
+    return isLink(tokenOverrideLogo || src)
+      ? <img
         onError={onError}
         style={{
           width: props.size || 50,
@@ -101,8 +109,7 @@ export const TokenIcon = (props: {
           borderRadius: '50%'
         }}
         {...props}
-        src={src}
-      />
-    )
+        src={tokenOverrideLogo || src}
+      /> : tokenOverrideLogo
   }
 }
