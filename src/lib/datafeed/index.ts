@@ -6,11 +6,12 @@ import {
   setChartIsOutDate
 } from '../../state/currentPool/reducer'
 import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
-import { formatFloat, isErc1155Address } from '../../utils/helpers'
+import { isErc1155Address } from '../../utils/helpers'
 import { TokenType } from '../../state/token/type'
 import { SwapTxType } from '../../state/wallet/type'
 import { currentPoolState } from '../../state/currentPool/type'
 import moment from 'moment'
+import { useConfigs } from '../../state/config/useConfigs'
 
 const COLORS = {
   PINK: '#FF98E5',
@@ -45,10 +46,11 @@ const TIME_TO_UPDATE_CHART = 5000
 
 const wrappedToNativeSymbol = (symbol?: string): string => {
   if (!symbol) return ''
-  return symbol === 'WETH' ? 'ETH' : symbol
+  const { configs } = useConfigs()
+  return symbol === `W${configs.nativeSymbol}` ? configs.nativeSymbol : symbol
 }
 
-const handleChartRouteOption = (currency_id: 'USD' | 'ETH', baseAddress: string, cAddress: string, quoteAddress: string): {route: (string | undefined)[], quoteAddressSelect: string} => {
+const handleChartRouteOption = (currency_id: string, baseAddress: string, cAddress: string, quoteAddress: string): {route: (string | undefined)[], quoteAddressSelect: string} => {
   const state = store.getState()
   const routes = state.configs.routes;
   const defaultStableCoin = state.configs.configs.stablecoins?.[0];
@@ -57,7 +59,7 @@ const handleChartRouteOption = (currency_id: 'USD' | 'ETH', baseAddress: string,
   const isQuoteStableCoin = state.configs.configs.stablecoins?.filter(stable => stable === state.currentPool.quoteToken)?.[0]
   if(isHavePool && !isQuoteStableCoin) {
     if (currency_id === 'USD') quoteAddressSelect = defaultStableCoin;
-    else if (currency_id === 'ETH') quoteAddressSelect = state.currentPool.quoteToken;
+    else if (currency_id === state.configs.configs.nativeSymbol) quoteAddressSelect = state.currentPool.quoteToken;
   }
   const routeKeys = Object.keys(routes).filter(poolRoute => (
     poolRoute.includes(defaultStableCoin) && poolRoute.includes(quoteAddressSelect)
