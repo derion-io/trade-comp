@@ -2,9 +2,9 @@ import React, { useRef } from 'react'
 import './style.scss'
 
 export const SkeletonLoader = (
-  props: React.HTMLAttributes<HTMLDivElement> & { loading: boolean }
+  props: React.HTMLAttributes<HTMLDivElement> & { loading: boolean, textLoading?: string}
 ) => {
-  const { loading } = props
+  const { loading, textLoading } = props
   const contentRef = useRef(null)
   return (
     <div
@@ -15,7 +15,7 @@ export const SkeletonLoader = (
       className={`skeleton-loader ${props.className}`}
       {...props}
     >
-      {loading && <div className='skeleton-loader__bone' />}
+      {loading && <div className='skeleton-loader__bone'> {textLoading || ''}</div>}
       <div className={`${loading && 'content-hidden'}`} ref={contentRef}>
         {props.children}
       </div>

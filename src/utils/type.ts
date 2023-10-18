@@ -71,7 +71,7 @@ export class ClosingFeeCalculator {
 }
 
 export type Position = {
-  status: string
+  status: '' | 'pending' | 'increase-pending'
   poolAddress: string
   token: string
   pool: PoolType

@@ -23,6 +23,7 @@ import formatLocalisedCompactNumber, {
 } from '../../utils/formatBalance'
 import {
   IEW,
+  NUM,
   bn,
   decodeErc1155Address,
   div,
@@ -61,7 +62,6 @@ export enum VALUE_IN_USD_STATUS {
   USD,
   TOKEN_R
 }
-
 export const Positions = ({
   setOutputTokenAddressToBuy,
   tokenOutMaturity
@@ -117,12 +117,14 @@ export const Positions = ({
 
   const generatePositionData = (
     poolAddress: string,
-    side: number
+    side: number,
+    pendingTxData?: SwapStepType
   ): Position | null => {
-    const token = encodeErc1155Address(poolAddress, side)
+    const pendingTxPool = decodeErc1155Address(pendingTxData?.tokenOut || '')
+    const token = encodeErc1155Address(pendingTxData ? pendingTxPool.address : poolAddress, pendingTxData ? Number(pendingTxPool.id) : side)
 
-    if (balances[token]?.gt(0)) {
-      const pool = pools[poolAddress]
+    if (balances[token]?.gt(0) || pendingTxData) {
+      const pool = pools[pendingTxData ? pendingTxPool.address : poolAddress]
       const posWithEntry = positionsWithEntry[token]
       const entryPrice = posWithEntry?.entryPrice
       const entryValue = posWithEntry?.balance?.gt(0)
@@ -146,7 +148,7 @@ export const Positions = ({
         true
       )
 
-      if (Number(valueUsd) < MIN_POSITON_VALUE_USD_TO_DISPLAY) {
+      if (Number(valueUsd) < MIN_POSITON_VALUE_USD_TO_DISPLAY && !pendingTxData) {
         return null
       }
       const {
@@ -231,7 +233,41 @@ export const Positions = ({
   const generatePositionFromInput = (steps: SwapStepType[]): any => {
     return steps.map(s => {
       const { address, id } = decodeErc1155Address(s.tokenOut)
-      return { ...generatePositionData(address, Number(id)), status: 'pending' }
+      const a = { ...generatePositionData(address, Number(id), steps[0]), status: 'pending' }
+      console.log(a)
+      return a
+
+      // const pool = pools[address]
+      // const k = pools[address].k.toNumber()
+      // const valueUsd = getTokenValue(
+      //   s.tokenOut,
+      //   IEW(balances[s.tokenOut], tokens[s.tokenOut]?.decimal || 18),
+      //   true
+      // )
+      // const k = pool.k.toNumber()
+      // const ek = sides[side].k
+      // const effectiveLeverage = Math.min(ek, k) / 2
+      // const { sides } = pool
+      // const interest = sides[id].interest ?? 0
+      // const premium = NUM(sides[id].premium)
+      // const funding = interest + premium
+      // const sizeDisplay =
+      // Number(id) === POOL_IDS.A || Number(id) === POOL_IDS.B
+      //   ? '$' +
+      //     formatLocalisedCompactNumber(
+      //       formatFloat((Number(valueUsd) * k) / 2)
+      //     )
+      //   : ''
+      // return {
+      //   token: s.tokenOut,
+      //   poolAddress: address,
+      //   pool: pools[address],
+      //   effectiveLeverage,
+      //   sizeDisplay,
+      //   funding,
+      //   valueUsd,
+      //   status: 'pending'
+      // }
     })?.[0]
   }
   const positions: Position[] = useMemo(() => {
@@ -261,7 +297,7 @@ export const Positions = ({
         let isIncreasePosition = false
         displayPositions.map((disPos, _) => {
           if (disPos.token === swapPendingTx.steps?.[0]?.tokenOut) {
-            disPos.status = 'pending'
+            disPos.status = 'increase-pending'
             isIncreasePosition = true
           }
         })
@@ -273,7 +309,7 @@ export const Positions = ({
     }
 
     const hasClosingFee = displayPositions.some(
-      (p) => p.closingFee(now).fee > 0
+      (p) => p?.closingFee?.(now)?.fee > 0
     )
     return [displayPositions, hasClosingFee]
   }, [positions, tradeType, swapPendingTxs])
@@ -391,7 +427,7 @@ export const Positions = ({
                   </Text>
                 </InfoRow>
 
-                {!position.closingFee(now).fee || (
+                {!position?.closingFee?.(now)?.fee || (
                   <InfoRow>
                     <Text>Closing Fee</Text>
                     <ClosingFee
@@ -412,7 +448,7 @@ export const Positions = ({
 
                 <InfoRow>
                   {position.status === 'pending' ? <ButtonSell className='btn-close'
-                    size='small' > Pending...</ButtonSell>
+                    size='small' style={{ background: 'none' }} disabled > Pending...</ButtonSell>
                     : <ButtonSell
                       className='btn-close'
                       size='small'
@@ -512,12 +548,14 @@ export const Positions = ({
                   </td>
                   <td>
                     <div className='net-value-and-pnl'>
-                      <NetValue
-                        valueInUsdStatus={valueInUsdStatus}
-                        valueUsd={position.valueUsd}
-                        value={position.value}
-                        pool={position.pool}
-                      />
+                      <SkeletonLoader loading={position.status === 'pending'}>
+                        <NetValue
+                          valueInUsdStatus={valueInUsdStatus}
+                          valueUsd={position.valueUsd}
+                          value={position.value}
+                          pool={position.pool}
+                        />
+                      </SkeletonLoader>
                       <SkeletonLoader loading={position.status === 'pending'}>
                         <Pnl
                           valueInUsdStatus={valueInUsdStatus}
@@ -528,32 +566,32 @@ export const Positions = ({
                   </td>
                   {!showSize || (
                     <td>
-                      {position.effectiveLeverage < position.leverage / 2 ? (
-                        <TextError>{position.sizeDisplay}</TextError>
-                      ) : position.effectiveLeverage < position.leverage ? (
-                        <TextWarning>{position.sizeDisplay}</TextWarning>
-                      ) : (
-                        <Text>{position.sizeDisplay}</Text>
-                      )}
+                      <SkeletonLoader loading={position.status === 'pending'}>
+                        {position.effectiveLeverage < position.leverage / 2 ? (
+                          <TextError>{position.sizeDisplay}</TextError>
+                        ) : position.effectiveLeverage < position.leverage ? (
+                          <TextWarning>{position.sizeDisplay}</TextWarning>
+                        ) : (
+                          <Text>{position.sizeDisplay}</Text>
+                        )}
+                      </SkeletonLoader>
                     </td>
                   )}
                   <td>
                     <SkeletonLoader loading={position.status === 'pending'}>
                       {!position.entryPrice || (
-                        <Text>{zerofy(formatFloat(position.entryPrice))}</Text>
+                        <Text>{zerofy(formatFloat(position.entryPrice || position.currentPrice))}</Text>
                       )}
                     </SkeletonLoader>
                   </td>
                   <td>
-                    <SkeletonLoader loading={position.status === 'pending'}>
-                      {position.effectiveLeverage < position.leverage / 2 ? (
-                        <TextError>{position.deleveragePrice}</TextError>
-                      ) : position.effectiveLeverage < position.leverage ? (
-                        <TextWarning>{position.deleveragePrice}</TextWarning>
-                      ) : (
-                        <Text>{position.deleveragePrice}</Text>
-                      )}
-                    </SkeletonLoader>
+                    {position.effectiveLeverage < position.leverage / 2 ? (
+                      <TextError>{position.deleveragePrice}</TextError>
+                    ) : position.effectiveLeverage < position.leverage ? (
+                      <TextWarning>{position.deleveragePrice}</TextWarning>
+                    ) : (
+                      <Text>{position.deleveragePrice}</Text>
+                    )}
                   </td>
                   <td>
                     <Text
@@ -569,16 +607,14 @@ export const Positions = ({
 
                   {!hasClosingFee || (
                     <td>
-                      <SkeletonLoader loading={position.status === 'pending'}>
-                        <ClosingFee now={now} position={position} />
-                      </SkeletonLoader>
+                      <ClosingFee now={now} position={position} loading={position.status !== ''} />
                     </td>
                   )}
                   {/* <td><Reserve pool={position.pool}/></td> */}
                   {/* <td><ExplorerLink poolAddress={position.poolAddress}/></td> */}
                   <td className='text-right'>
-                    <SkeletonLoader loading={position.status === 'pending'}>
-                      <ButtonSell
+                    {position.status === 'pending' ? <ButtonSell disabled size='small' style={{ opacity: 0.5 }} >Pending</ButtonSell>
+                      : <ButtonSell
                         size='small'
                         onClick={(e) => {
                           setClosingPosition(position)
@@ -590,8 +626,7 @@ export const Positions = ({
                         }}
                       >
                         {position.side === POOL_IDS.C ? 'Remove' : 'Close'}
-                      </ButtonSell>
-                    </SkeletonLoader>
+                      </ButtonSell>}
                   </td>
                 </tr>
               )
@@ -738,12 +773,15 @@ export const Pnl = ({
 export const ClosingFee = ({
   now,
   position,
-  isPhone
+  isPhone,
+  loading
 }: {
   now: number
   position: Position
   isPhone?: boolean
+  loading?: boolean
 }) => {
+  if (!position?.closingFee?.()) return <React.Fragment />
   const res: any = position.closingFee(now)
 
   if (!res?.fee) {
@@ -766,10 +804,12 @@ export const ClosingFee = ({
   return (
     <div>
       <div>
-        <TextComp>{feeFormat}%</TextComp>
+        <SkeletonLoader loading={loading === true} >
+          <TextComp>{feeFormat}%</TextComp>
+        </SkeletonLoader>
       </div>
       <div>
-        <TextComp>for {timeFormat}</TextComp>
+        <TextComp>{loading === true ? 'Updating' : `for ${timeFormat}`}</TextComp>
       </div>
     </div>
   )
