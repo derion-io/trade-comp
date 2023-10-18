@@ -318,15 +318,14 @@ export const Positions = ({
                 )}
                 <InfoRow>
                   <Text>Net Value</Text>
-                  <SkeletonLoader loading={position.status === POSITION_STATUS.OPENING}>
-                    <NetValue
-                      valueInUsdStatus={valueInUsdStatus}
-                      valueUsd={position.valueUsd}
-                      value={position.value}
-                      pool={position.pool}
-                      isPhone
-                    />
-                  </SkeletonLoader>
+                  <NetValue
+                    valueInUsdStatus={valueInUsdStatus}
+                    valueUsd={position.valueUsd}
+                    value={position.value}
+                    pool={position.pool}
+                    loading={position.status === POSITION_STATUS.OPENING}
+                    isPhone
+                  />
                 </InfoRow>
 
                 {!position.entryValue || (
@@ -351,13 +350,12 @@ export const Positions = ({
                           : ' ⇄ USD'}
                       </Text>
                     </Text>
-                    <SkeletonLoader loading={position.status === POSITION_STATUS.OPENING}>
-                      <Pnl
-                        valueInUsdStatus={valueInUsdStatus}
-                        position={position}
-                        isPhone
-                      />
-                    </SkeletonLoader>
+                    <Pnl
+                      valueInUsdStatus={valueInUsdStatus}
+                      position={position}
+                      loading={position.status === POSITION_STATUS.OPENING}
+                      isPhone
+                    />
                   </InfoRow>
 
                 )}
@@ -430,8 +428,10 @@ export const Positions = ({
                 </InfoRow> */}
 
                 <InfoRow>
-                  {position.status === POSITION_STATUS.OPENING ? <ButtonSell className='btn-close'
-                    size='small' style={{ opacity: 0.5 }} disabled > Pending...</ButtonSell>
+                  {position.status === POSITION_STATUS.OPENING
+                    ? <ButtonSell className='btn-close' size='small' style={{ opacity: 0.5 }} disabled>
+                      Pending...
+                    </ButtonSell>
                     : <ButtonSell
                       className='btn-close'
                       size='small'
@@ -531,20 +531,18 @@ export const Positions = ({
                   </td>
                   <td>
                     <div className='net-value-and-pnl'>
-                      <SkeletonLoader loading={position.status === POSITION_STATUS.OPENING}>
-                        <NetValue
-                          valueInUsdStatus={valueInUsdStatus}
-                          valueUsd={position.valueUsd}
-                          value={position.value}
-                          pool={position.pool}
-                        />
-                      </SkeletonLoader>
-                      <SkeletonLoader loading={position.status === POSITION_STATUS.OPENING}>
-                        <Pnl
-                          valueInUsdStatus={valueInUsdStatus}
-                          position={position}
-                        />
-                      </SkeletonLoader>
+                      <NetValue
+                        valueInUsdStatus={valueInUsdStatus}
+                        valueUsd={position.valueUsd}
+                        value={position.value}
+                        pool={position.pool}
+                        loading={position.status === POSITION_STATUS.OPENING}
+                      />
+                      <Pnl
+                        loading={position.status === POSITION_STATUS.OPENING}
+                        valueInUsdStatus={valueInUsdStatus}
+                        position={position}
+                      />
                     </div>
                   </td>
                   {!showSize || (
@@ -665,14 +663,17 @@ export const NetValue = ({
   valueUsd,
   pool,
   valueInUsdStatus,
-  isPhone
+  isPhone,
+  loading
 }: {
   value: string
   valueUsd: string
   pool: PoolType
+  loading?: boolean
   valueInUsdStatus: VALUE_IN_USD_STATUS
   isPhone?: boolean
 }) => {
+  if (loading) return <SkeletonLoader loading/>
   const valueR = (
     <React.Fragment>
       <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} />
@@ -705,12 +706,15 @@ export const NetValue = ({
 export const Pnl = ({
   position,
   isPhone,
-  valueInUsdStatus
+  valueInUsdStatus,
+  loading
 }: {
   position: Position
   isPhone?: boolean
+  loading?:boolean
   valueInUsdStatus: VALUE_IN_USD_STATUS
 }) => {
+  if (loading) return <SkeletonLoader loading/>
   const [value, entryValue] = isShowValueInUsd(valueInUsdStatus, position?.pool)
     ? [position.valueUsd, position.entryValue]
     : [position.value, position.entryValueR]
