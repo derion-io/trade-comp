@@ -1,6 +1,6 @@
 import { BigNumber } from 'ethers'
 import 'rc-slider/assets/index.css'
-import React, { useMemo } from 'react'
+import React, { Fragment, useMemo } from 'react'
 import isEqual from 'react-fast-compare'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 import { useResource } from '../../state/resources/hooks/useResource'
@@ -228,6 +228,7 @@ const Component = ({
       )
     }
   }
+  if (!visible) return <Fragment/>
   return (
     <Modal
       setVisible={setVisible}
@@ -249,6 +250,7 @@ const Component = ({
             payloadAmountIn={payloadAmountIn}
             tradeType={tradeType}
             outputTokenAddress={outputTokenAddress}
+            closeConfirmWhenSwap={() => setVisible(false)}
             amountIn={amountIn}
             amountOut={amountOut}
             callError={callError}

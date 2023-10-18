@@ -1,6 +1,7 @@
 import { BigNumber } from 'ethers'
 import { max } from './helpers'
 import { PoolType } from '../state/resources/type'
+import { POSITION_STATUS } from './constant'
 
 export type StepType = {
   tokenIn: string
@@ -71,6 +72,7 @@ export class ClosingFeeCalculator {
 }
 
 export type Position = {
+  status: POSITION_STATUS
   poolAddress: string
   token: string
   pool: PoolType

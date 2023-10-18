@@ -61,7 +61,7 @@ const Component = ({
     outputTokenAddress,
     tokenOutMaturity
   })
-
+  const { getTokenValue } = useTokenValue({})
   const { value: valueIn } = useTokenValue({
     amount: amountIn,
     tokenAddress: inputTokenAddress
@@ -113,7 +113,7 @@ const Component = ({
       (a) => Number(a.split('-')[1]) === POOL_IDS.C
     )
     const erc20Tokens = Object.keys(tokens).filter((address) => {
-      return isAddress(address) && balances[address] && !balances[address].isZero()
+      return isAddress(address) && balances[address] && !balances[address].isZero() && getTokenValue(address, balances[address]) !== '0'
     })
     return _.uniq(
       [...tokenRs, ...erc20Tokens, ...aTokens, ...bTokens, ...cTokens].filter((address) => {

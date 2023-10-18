@@ -24,6 +24,12 @@ export enum TRADE_TYPE {
   SWAP,
   LIQUIDITY
 }
+export enum POSITION_STATUS {
+  OPENED,
+  OPENING,
+  UPDATING,
+  CLOSING,
+}
 
 export const LOCALSTORAGE_KEY = {
   DDL_LOGS: 'ddl-log-v1.0',

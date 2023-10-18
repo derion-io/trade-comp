@@ -16,6 +16,7 @@ import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 import {
   MIN_POSITON_VALUE_USD_TO_DISPLAY,
   POOL_IDS,
+  POSITION_STATUS,
   TRADE_TYPE
 } from '../../utils/constant'
 import formatLocalisedCompactNumber, {
@@ -29,6 +30,7 @@ import {
   encodeErc1155Address,
   formatFloat,
   formatPercent,
+  isErc1155Address,
   mul,
   oracleToPoolGroupId,
   shortenAddressString,
@@ -52,6 +54,8 @@ import {
 import { TokenIcon } from '../ui/TokenIcon'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import './style.scss'
+import { useSwapPendingHistory } from '../../state/wallet/hooks/useSwapPendingHistory'
+import { SkeletonLoader } from '../ui/SkeletonLoader'
 
 export enum VALUE_IN_USD_STATUS {
   AUTO,
@@ -84,6 +88,7 @@ export const Positions = ({
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
   const { ddlEngine } = useConfigs()
   const { swapLogs: sls } = useSwapHistory()
+  const { swapPendingTxs } = useSwapPendingHistory()
   const { width } = useWindowSize()
   const isPhone = width && width < 992
 
@@ -113,12 +118,14 @@ export const Positions = ({
 
   const generatePositionData = (
     poolAddress: string,
-    side: number
+    side: number,
+    pendingTxData?: {token: string}
   ): Position | null => {
-    const token = encodeErc1155Address(poolAddress, side)
+    const pendingTxPool = decodeErc1155Address(pendingTxData?.token || '')
+    const token = encodeErc1155Address(pendingTxData ? pendingTxPool.address : poolAddress, pendingTxData ? Number(pendingTxPool.id) : side)
 
-    if (balances[token]?.gt(0)) {
-      const pool = pools[poolAddress]
+    if (balances[token]?.gt(0) || pendingTxData?.token) {
+      const pool = pools[pendingTxData?.token ? pendingTxPool.address : poolAddress]
       const posWithEntry = positionsWithEntry[token]
       const entryPrice = posWithEntry?.entryPrice
       const entryValue = posWithEntry?.balance?.gt(0)
@@ -142,7 +149,7 @@ export const Positions = ({
         true
       )
 
-      if (Number(valueUsd) < MIN_POSITON_VALUE_USD_TO_DISPLAY) {
+      if (Number(valueUsd) < MIN_POSITON_VALUE_USD_TO_DISPLAY && !pendingTxData) {
         return null
       }
       const {
@@ -218,12 +225,18 @@ export const Positions = ({
         funding,
         closingFee: (now?: number): any => {
           return feeCalculator.calculateFee(now)
-        }
+        },
+        status: POSITION_STATUS.OPENED
       }
     }
     return null
   }
-
+  const generatePositionFromInput = (token: string): any => {
+    if (!isErc1155Address(token)) return null
+    const { address, id } = decodeErc1155Address(token)
+    const s1 = { ...generatePositionData(address, Number(id), { token: token }), status: POSITION_STATUS.OPENING }
+    return s1
+  }
   const positions: Position[] = useMemo(() => {
     const result: any = []
     Object.keys(pools).forEach((poolAddress) => {
@@ -247,12 +260,36 @@ export const Positions = ({
         }
         return true
       })
+      const pendingPosition = swapPendingTxs.map(swapPendingTx => {
+        let isHaveTokenIn = false
+        let isHaveTokenOut = false
+        const { tokenIn, tokenOut } = swapPendingTx.steps?.[0]
+        displayPositions.map((disPos, _) => {
+          if (disPos.token === tokenIn) {
+            disPos.status = POSITION_STATUS.CLOSING
+            isHaveTokenIn = true
+          }
+          if (disPos.token === tokenOut) {
+            disPos.status = POSITION_STATUS.UPDATING
+            isHaveTokenOut = true
+          }
+        })
+        if (!isHaveTokenIn && isErc1155Address(tokenIn)) {
+          return generatePositionFromInput(tokenIn)
+        }
+        if (!isHaveTokenOut && isErc1155Address(tokenOut)) {
+          return generatePositionFromInput(tokenOut)
+        }
+        return null
+      }).filter(p => p !== null)
+      if (pendingPosition) displayPositions = [...pendingPosition, ...displayPositions]
     }
+
     const hasClosingFee = displayPositions.some(
-      (p) => p.closingFee(now).fee > 0
+      (p) => p?.closingFee?.(now)?.fee > 0
     )
     return [displayPositions, hasClosingFee]
-  }, [positions, tradeType])
+  }, [positions, tradeType, swapPendingTxs])
 
   const showSize = tradeType !== TRADE_TYPE.LIQUIDITY
 
@@ -286,9 +323,11 @@ export const Positions = ({
                     valueUsd={position.valueUsd}
                     value={position.value}
                     pool={position.pool}
+                    loading={position.status === POSITION_STATUS.OPENING}
                     isPhone
                   />
                 </InfoRow>
+
                 {!position.entryValue || (
                   <InfoRow>
                     <Text>
@@ -314,26 +353,32 @@ export const Positions = ({
                     <Pnl
                       valueInUsdStatus={valueInUsdStatus}
                       position={position}
+                      loading={position.status === POSITION_STATUS.OPENING}
                       isPhone
                     />
                   </InfoRow>
+
                 )}
                 {!showSize || !position.sizeDisplay || (
                   <InfoRow>
                     <Text>Size</Text>
-                    {position.effectiveLeverage < position.leverage / 2 ? (
-                      <TextError>{position.sizeDisplay}</TextError>
-                    ) : position.effectiveLeverage < position.leverage ? (
-                      <TextWarning>{position.sizeDisplay}</TextWarning>
-                    ) : (
-                      <Text>{position.sizeDisplay}</Text>
-                    )}
+                    <SkeletonLoader loading={position.status === POSITION_STATUS.OPENING}>
+                      {position.effectiveLeverage < position.leverage / 2 ? (
+                        <TextError>{position.sizeDisplay}</TextError>
+                      ) : position.effectiveLeverage < position.leverage ? (
+                        <TextWarning>{position.sizeDisplay}</TextWarning>
+                      ) : (
+                        <Text>{position.sizeDisplay}</Text>
+                      )}
+                    </SkeletonLoader>
                   </InfoRow>
                 )}
                 {!position.entryPrice || (
                   <InfoRow>
                     <Text>Entry Price</Text>
-                    <Text>{zerofy(formatFloat(position.entryPrice))}</Text>
+                    <SkeletonLoader loading={position.status === POSITION_STATUS.OPENING}>
+                      <Text>{zerofy(formatFloat(position.entryPrice))}</Text>
+                    </SkeletonLoader>
                   </InfoRow>
                 )}
                 <InfoRow>
@@ -363,7 +408,7 @@ export const Positions = ({
                   </Text>
                 </InfoRow>
 
-                {!position.closingFee(now).fee || (
+                {!position?.closingFee?.(now)?.fee || (
                   <InfoRow>
                     <Text>Closing Fee</Text>
                     <ClosingFee
@@ -383,19 +428,24 @@ export const Positions = ({
                 </InfoRow> */}
 
                 <InfoRow>
-                  <ButtonSell
-                    className='btn-close'
-                    size='small'
-                    onClick={() => {
-                      setClosingPosition(position)
-                      setOutputTokenAddress(
-                        wrapToNativeAddress(position.pool.TOKEN_R)
-                      )
-                      setVisible(true)
-                    }}
-                  >
-                    {position.side === POOL_IDS.C ? 'Remove' : 'Close'}
-                  </ButtonSell>
+                  {position.status === POSITION_STATUS.OPENING
+                    ? <ButtonSell className='btn-close' size='small' style={{ opacity: 0.5 }} disabled>
+                      Pending...
+                    </ButtonSell>
+                    : <ButtonSell
+                      className='btn-close'
+                      size='small'
+                      onClick={() => {
+                        setClosingPosition(position)
+                        setOutputTokenAddress(
+                          wrapToNativeAddress(position.pool.TOKEN_R)
+                        )
+                        setVisible(true)
+                      }}
+                    >
+                      {position.side === POOL_IDS.C ? 'Remove' : 'Close'}
+                    </ButtonSell>
+                  }
                 </InfoRow>
               </div>
             )
@@ -486,8 +536,10 @@ export const Positions = ({
                         valueUsd={position.valueUsd}
                         value={position.value}
                         pool={position.pool}
+                        loading={position.status === POSITION_STATUS.OPENING}
                       />
                       <Pnl
+                        loading={position.status === POSITION_STATUS.OPENING}
                         valueInUsdStatus={valueInUsdStatus}
                         position={position}
                       />
@@ -495,19 +547,23 @@ export const Positions = ({
                   </td>
                   {!showSize || (
                     <td>
-                      {position.effectiveLeverage < position.leverage / 2 ? (
-                        <TextError>{position.sizeDisplay}</TextError>
-                      ) : position.effectiveLeverage < position.leverage ? (
-                        <TextWarning>{position.sizeDisplay}</TextWarning>
-                      ) : (
-                        <Text>{position.sizeDisplay}</Text>
-                      )}
+                      <SkeletonLoader loading={position.status === POSITION_STATUS.OPENING}>
+                        {position.effectiveLeverage < position.leverage / 2 ? (
+                          <TextError>{position.sizeDisplay}</TextError>
+                        ) : position.effectiveLeverage < position.leverage ? (
+                          <TextWarning>{position.sizeDisplay}</TextWarning>
+                        ) : (
+                          <Text>{position.sizeDisplay}</Text>
+                        )}
+                      </SkeletonLoader>
                     </td>
                   )}
                   <td>
-                    {!position.entryPrice || (
-                      <Text>{zerofy(formatFloat(position.entryPrice))}</Text>
-                    )}
+                    <SkeletonLoader loading={position.status === POSITION_STATUS.OPENING}>
+                      {!position.entryPrice || (
+                        <Text>{zerofy(formatFloat(position.entryPrice || position.currentPrice))}</Text>
+                      )}
+                    </SkeletonLoader>
                   </td>
                   <td>
                     {position.effectiveLeverage < position.leverage / 2 ? (
@@ -529,6 +585,7 @@ export const Positions = ({
                       {zerofy(formatFloat(position.funding * 100, undefined, 3, true))}%
                     </Text>
                   </td>
+
                   {!hasClosingFee || (
                     <td>
                       <ClosingFee now={now} position={position} />
@@ -537,19 +594,31 @@ export const Positions = ({
                   {/* <td><Reserve pool={position.pool}/></td> */}
                   {/* <td><ExplorerLink poolAddress={position.poolAddress}/></td> */}
                   <td className='text-right'>
-                    <ButtonSell
-                      size='small'
-                      onClick={(e) => {
-                        setClosingPosition(position)
-                        setOutputTokenAddress(
-                          wrapToNativeAddress(position.pool.TOKEN_R)
-                        )
-                        setVisible(true)
-                        e.stopPropagation() // stop the index to be changed
-                      }}
-                    >
-                      {position.side === POOL_IDS.C ? 'Remove' : 'Close'}
-                    </ButtonSell>
+                    {position.status === POSITION_STATUS.OPENING ? (
+                      <ButtonSell disabled size='small' style={{ opacity: 0.5 }}>
+                        Pending
+                      </ButtonSell>
+                    ) : position.status === POSITION_STATUS.CLOSING ? (
+                      <ButtonSell
+                        size='small'
+                        disabled
+                        style={{ opacity: 0.5 }}
+                      >
+                        <SkeletonLoader textLoading={position.side === POOL_IDS.C ? 'Removing' : 'Closing'} loading={position.status === POSITION_STATUS.CLOSING} />
+                      </ButtonSell>
+                    ) : (
+                      <ButtonSell
+                        size='small'
+                        onClick={(e) => {
+                          setClosingPosition(position)
+                          setOutputTokenAddress(wrapToNativeAddress(position.pool.TOKEN_R))
+                          setVisible(true)
+                          e.stopPropagation() // stop the index from being changed
+                        }}
+                      >
+                        {position.side === POOL_IDS.C ? 'Remove' : 'Close'}
+                      </ButtonSell>
+                    )}
                   </td>
                 </tr>
               )
@@ -594,14 +663,17 @@ export const NetValue = ({
   valueUsd,
   pool,
   valueInUsdStatus,
-  isPhone
+  isPhone,
+  loading
 }: {
   value: string
   valueUsd: string
   pool: PoolType
+  loading?: boolean
   valueInUsdStatus: VALUE_IN_USD_STATUS
   isPhone?: boolean
 }) => {
+  if (loading) return <SkeletonLoader loading/>
   const valueR = (
     <React.Fragment>
       <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} />
@@ -634,12 +706,15 @@ export const NetValue = ({
 export const Pnl = ({
   position,
   isPhone,
-  valueInUsdStatus
+  valueInUsdStatus,
+  loading
 }: {
   position: Position
   isPhone?: boolean
+  loading?:boolean
   valueInUsdStatus: VALUE_IN_USD_STATUS
 }) => {
+  if (loading) return <SkeletonLoader loading/>
   const [value, entryValue] = isShowValueInUsd(valueInUsdStatus, position?.pool)
     ? [position.valueUsd, position.entryValue]
     : [position.value, position.entryValueR]
@@ -702,6 +777,7 @@ export const ClosingFee = ({
   position: Position
   isPhone?: boolean
 }) => {
+  if (!position?.closingFee?.()) return <React.Fragment />
   const res: any = position.closingFee(now)
 
   if (!res?.fee) {
@@ -711,24 +787,37 @@ export const ClosingFee = ({
   const TextComp = res?.isVesting ? TextSell : TextWarning
   const feeFormat = formatPercent(Math.min(1, res.fee ?? 0), 2, true)
   const timeFormat = moment.unix(res.remain ?? 0).from(0, true)
-
+  const { status } = position
   if (isPhone) {
     return (
       <div>
-        <TextComp>
-          {feeFormat}% for {timeFormat}
-        </TextComp>
+        <SkeletonLoader loading={status !== POSITION_STATUS.OPENED} >
+          <TextComp>
+            {feeFormat}% for {timeFormat}
+          </TextComp>
+        </SkeletonLoader>
       </div>
     )
   }
   return (
     <div>
-      <div>
-        <TextComp>{feeFormat}%</TextComp>
-      </div>
-      <div>
-        <TextComp>for {timeFormat}</TextComp>
-      </div>
+      {status !== POSITION_STATUS.UPDATING
+        ? <div>
+          <SkeletonLoader loading={status === POSITION_STATUS.OPENING} >
+            <div>
+              <TextComp>{feeFormat}%</TextComp>
+            </div>
+          </SkeletonLoader>
+          <SkeletonLoader loading={status === POSITION_STATUS.OPENING} >
+            <div>
+              <TextComp>{`for ${timeFormat}`}</TextComp>
+            </div>
+          </SkeletonLoader>
+        </div>
+        : <SkeletonLoader height='26px' textLoading='Updating' loading={status === POSITION_STATUS.UPDATING} >
+          <TextComp>{`for ${timeFormat}`}</TextComp>
+        </SkeletonLoader>
+      }
     </div>
   )
 }
