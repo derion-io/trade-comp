@@ -74,7 +74,8 @@ export const useTokenValue = ({
       }
     } else {
       // TOTO: need remove mul(numberToWei(1, 9) after fix parseSqrtX96 function
-      const tokenPrice =
+      try {
+        const tokenPrice =
         address !== configs.stablecoins[0] && prices[address] && prices[address].gt(0) && valueInUsd
           ? parseSqrtX96(
               prices[address]?.mul(WEI(1, 9)) || bn(0),
@@ -82,8 +83,10 @@ export const useTokenValue = ({
               tokens[configs.stablecoins[0]] || {}
           )
           : WEI(1, 18)
-
-      value = IEW(BIG(WEI(_amount)).mul(WEI(tokenPrice)), 54)
+        value = IEW(BIG?.(WEI(_amount)).mul(WEI(tokenPrice)), 54)
+      } catch (error) {
+        return '0'
+      }
     }
     value = cutDecimal(value, 18)
     if (value == null || Number.isNaN(value)) {
