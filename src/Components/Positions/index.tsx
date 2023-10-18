@@ -30,6 +30,7 @@ import {
   encodeErc1155Address,
   formatFloat,
   formatPercent,
+  isErc1155Address,
   mul,
   oracleToPoolGroupId,
   shortenAddressString,
@@ -118,13 +119,13 @@ export const Positions = ({
   const generatePositionData = (
     poolAddress: string,
     side: number,
-    pendingTxData?: SwapStepType
+    pendingTxData?: {token: string}
   ): Position | null => {
-    const pendingTxPool = decodeErc1155Address(pendingTxData?.tokenOut || '')
+    const pendingTxPool = decodeErc1155Address(pendingTxData?.token || '')
     const token = encodeErc1155Address(pendingTxData ? pendingTxPool.address : poolAddress, pendingTxData ? Number(pendingTxPool.id) : side)
 
-    if (balances[token]?.gt(0) || pendingTxData) {
-      const pool = pools[pendingTxData ? pendingTxPool.address : poolAddress]
+    if (balances[token]?.gt(0) || pendingTxData?.token) {
+      const pool = pools[pendingTxData?.token ? pendingTxPool.address : poolAddress]
       const posWithEntry = positionsWithEntry[token]
       const entryPrice = posWithEntry?.entryPrice
       const entryValue = posWithEntry?.balance?.gt(0)
@@ -230,12 +231,11 @@ export const Positions = ({
     }
     return null
   }
-  const generatePositionFromInput = (steps: SwapStepType[]): any => {
-    return steps.map(s => {
-      const { address, id } = decodeErc1155Address(s.tokenOut)
-      const s1 = { ...generatePositionData(address, Number(id), steps[0]), status: 'pending' }
-      return s1
-    })?.[0]
+  const generatePositionFromInput = (token: string): any => {
+    if (!isErc1155Address(token)) return null
+    const { address, id } = decodeErc1155Address(token)
+    const s1 = { ...generatePositionData(address, Number(id), { token: token }), status: 'pending' }
+    return s1
   }
   const positions: Position[] = useMemo(() => {
     const result: any = []
@@ -261,14 +261,25 @@ export const Positions = ({
         return true
       })
       const pendingPosition = swapPendingTxs.map(swapPendingTx => {
-        let isIncreasePosition = false
+        let isHaveTokenIn = false
+        let isHaveTokenOut = false
+        const { tokenIn, tokenOut } = swapPendingTx.steps?.[0]
         displayPositions.map((disPos, _) => {
-          if (disPos.token === swapPendingTx.steps?.[0]?.tokenOut) {
-            disPos.status = 'increase-pending'
-            isIncreasePosition = true
+          if (disPos.token === tokenIn) {
+            disPos.status = 'closing'
+            isHaveTokenIn = true
+          }
+          if (disPos.token === tokenOut) {
+            disPos.status = 'updating'
+            isHaveTokenOut = true
           }
         })
-        if (!isIncreasePosition) return generatePositionFromInput(swapPendingTx.steps)
+        if (!isHaveTokenIn && isErc1155Address(tokenIn)) {
+          return generatePositionFromInput(tokenIn)
+        }
+        if (!isHaveTokenOut && isErc1155Address(tokenOut)) {
+          return generatePositionFromInput(tokenOut)
+        }
         return null
       }).filter(p => p !== null)
       if (pendingPosition) displayPositions = [...pendingPosition, ...displayPositions]
@@ -586,20 +597,31 @@ export const Positions = ({
                   {/* <td><Reserve pool={position.pool}/></td> */}
                   {/* <td><ExplorerLink poolAddress={position.poolAddress}/></td> */}
                   <td className='text-right'>
-                    {position.status === 'pending' ? <ButtonSell disabled size='small' style={{ opacity: 0.5 }} >Pending</ButtonSell>
-                      : <ButtonSell
+                    {position.status === 'pending' ? (
+                      <ButtonSell disabled size='small' style={{ opacity: 0.5 }}>
+                        Pending
+                      </ButtonSell>
+                    ) : position.status === 'closing' ? (
+                      <ButtonSell
+                        size='small'
+                        disabled
+                        style={{ opacity: 0.5 }}
+                      >
+                        <SkeletonLoader textLoading={position.side === POOL_IDS.C ? 'Removing' : 'Closing'} loading={position.status === 'closing'} />
+                      </ButtonSell>
+                    ) : (
+                      <ButtonSell
                         size='small'
                         onClick={(e) => {
                           setClosingPosition(position)
-                          setOutputTokenAddress(
-                            wrapToNativeAddress(position.pool.TOKEN_R)
-                          )
+                          setOutputTokenAddress(wrapToNativeAddress(position.pool.TOKEN_R))
                           setVisible(true)
-                          e.stopPropagation() // stop the index to be changed
+                          e.stopPropagation() // stop the index from being changed
                         }}
                       >
                         {position.side === POOL_IDS.C ? 'Remove' : 'Close'}
-                      </ButtonSell>}
+                      </ButtonSell>
+                    )}
                   </td>
                 </tr>
               )
@@ -752,7 +774,7 @@ export const ClosingFee = ({
   now: number
   position: Position
   isPhone?: boolean
-  status?: '' | 'pending' | 'increase-pending'
+  status?: '' | 'pending' | 'updating' | 'closing'
 }) => {
   if (!position?.closingFee?.()) return <React.Fragment />
   const res: any = position.closingFee(now)
@@ -778,20 +800,20 @@ export const ClosingFee = ({
   }
   return (
     <div>
-      {status !== 'increase-pending'
+      {status !== 'updating'
         ? <div>
-          <SkeletonLoader loading={status === 'pending'} >
+          <SkeletonLoader loading={status === 'pending' || status === 'closing' } >
             <div>
               <TextComp>{feeFormat}%</TextComp>
             </div>
           </SkeletonLoader>
-          <SkeletonLoader loading={status === 'pending'} >
+          <SkeletonLoader loading={status === 'pending' || status === 'closing'} >
             <div>
               <TextComp>{`for ${timeFormat}`}</TextComp>
             </div>
           </SkeletonLoader>
         </div>
-        : <SkeletonLoader height='26px' textLoading='Updating' loading={status === 'increase-pending'} >
+        : <SkeletonLoader height='26px' textLoading='Updating' loading={status === 'updating'} >
           <TextComp>{`for ${timeFormat}`}</TextComp>
         </SkeletonLoader>
       }
