@@ -812,18 +812,23 @@ export const ClosingFee = ({
   }
   return (
     <div>
-      <div>
-        <SkeletonLoader loading={status !== ''} >
-          <TextComp>{feeFormat}%</TextComp>
-        </SkeletonLoader>
-      </div>
-      <div>
-        {status === 'pending'
-          ? <SkeletonLoader loading={status === 'pending'} >
-            <TextComp>{`for ${timeFormat}`}%</TextComp>
+      {status !== 'increase-pending'
+        ? <div>
+          <SkeletonLoader loading={status === 'pending'} >
+            <div>
+              <TextComp>{feeFormat}%</TextComp>
+            </div>
           </SkeletonLoader>
-          : <TextComp>{status === 'increase-pending' ? 'Updating' : `for ${timeFormat}`}</TextComp>}
-      </div>
+          <SkeletonLoader loading={status === 'pending'} >
+            <div>
+              <TextComp>{`for ${timeFormat}`}</TextComp>
+            </div>
+          </SkeletonLoader>
+        </div>
+        : <SkeletonLoader height='26px' textLoading='Updating' loading={status === 'increase-pending'} >
+          <TextComp>{`for ${timeFormat}`}</TextComp>
+        </SkeletonLoader>
+      }
     </div>
   )
 }

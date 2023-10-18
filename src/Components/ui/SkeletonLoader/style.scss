@@ -1,9 +1,13 @@
 @import "../../../styles/abstracts/variables";
 
 .skeleton-loader {
+
   &__bone {
     height: 18px;
     position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     background: $loading-background-color;
     border-radius: 5px;
     overflow: hidden;
