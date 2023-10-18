@@ -20,6 +20,7 @@ import { useSettings } from '../../state/setting/hooks/useSettings'
 import { ApproveUtrModal } from '../ApproveUtrModal'
 import { useResource } from '../../state/resources/hooks/useResource'
 import { ConfirmPosition } from '../ConfirmPositionModal'
+import { useSwapPendingHistory } from '../../state/wallet/hooks/useSwapPendingHistory'
 
 export const ButtonSwap = ({
   inputTokenAddress,
@@ -35,7 +36,8 @@ export const ButtonSwap = ({
   title,
   payoffRate,
   tokenOutMaturity,
-  confirmModal
+  confirmModal,
+  closeConfirmWhenSwap
 }: {
   inputTokenAddress: string
   outputTokenAddress: string
@@ -51,6 +53,7 @@ export const ButtonSwap = ({
   payoffRate?: number
   tokenOutMaturity: BigNumber
   confirmModal?: Boolean
+  closeConfirmWhenSwap?: (visible: boolean) => void
 }) => {
   const { tokens } = useListTokens()
   const [loading, setLoading] = useState<boolean>(false)
@@ -62,6 +65,7 @@ export const ButtonSwap = ({
   const { settings } = useSettings()
   const { chainId } = useWeb3React()
   const { initResource } = useResource()
+  const { swapPendingTxs, updatePendingTxsHandle } = useSwapPendingHistory()
   const slippage = 1 - Math.min(1, payoffRate ?? 0)
 
   const { updateSwapTxsHandle } = useSwapHistory()
@@ -165,6 +169,7 @@ export const ButtonSwap = ({
                   ),
                   payloadAmountIn: payloadAmountIn?.toString()
                 })
+                let pendingTxHash: string = ''
                 const tx: any = await ddlEngine.SWAP.multiSwap(
                   [
                     {
@@ -183,11 +188,19 @@ export const ButtonSwap = ({
                       currentBalanceOut: balances[outputTokenAddress]
                     }
                   ],
-                  gasUsed && gasUsed.gt(0) ? gasUsed.mul(2) : undefined
+                  gasUsed && gasUsed.gt(0) ? gasUsed.mul(2) : undefined,
+                  pendingtx => {
+                    pendingTxHash = pendingtx.hash
+                    console.log('vinh pending tx:', [...swapPendingTxs, pendingtx])
+                    updatePendingTxsHandle([...swapPendingTxs, pendingtx])
+                    if (closeConfirmWhenSwap) closeConfirmWhenSwap(false)
+                  }
                 )
+
                 const swapLogs = ddlEngine.RESOURCE.parseDdlLogs(
                   tx && tx?.logs ? tx.logs : []
                 )
+                updatePendingTxsHandle(swapPendingTxs.filter(penTx => penTx.hash !== pendingTxHash))
                 updateSwapTxsHandle(
                   account,
                   swapLogs.filter(
@@ -200,13 +213,13 @@ export const ButtonSwap = ({
                 await initResource(account)
               }
               setLoading(false)
-
               if (callback) {
                 callback()
               }
             } catch (e) {
               console.error(e)
               setLoading(false)
+              if (closeConfirmWhenSwap) closeConfirmWhenSwap(false)
               toast.error(String(e.message ?? e))
             }
           }}
@@ -230,6 +243,7 @@ export const ButtonSwap = ({
     callError,
     gasUsed,
     account,
+    closeConfirmWhenSwap,
     tokenOutMaturity,
     routerAllowances[inputTokenAddress]
   ])

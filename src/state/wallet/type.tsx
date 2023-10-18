@@ -1,3 +1,4 @@
+import { SwapStepType } from 'derivable-tools/dist/types'
 import { BigNumber } from 'ethers'
 
 export type BalancesType = { [key: string]: BigNumber }
@@ -20,6 +21,10 @@ export type SwapTxType = {
   entryPrice: string
   entryValue: string
 }
+export type SwapPendingTxType = {
+ hash: string,
+ steps: SwapStepType[]
+}
 
 export interface walletState {
   account: string
@@ -29,6 +34,7 @@ export interface walletState {
   transferLogs: { [key: string]: any[] }
   formartedSwapLogs: any[]
   routerAllowances: AllowancesType
+  swapPendingTxs: SwapPendingTxType[]
 }
 
 export const initialState: walletState = {
@@ -36,6 +42,7 @@ export const initialState: walletState = {
   balances: {},
   maturities: {},
   swapLogs: {},
+  swapPendingTxs: [],
   transferLogs: {},
   formartedSwapLogs: [],
   routerAllowances: {}

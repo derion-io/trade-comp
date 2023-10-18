@@ -52,6 +52,8 @@ import {
 import { TokenIcon } from '../ui/TokenIcon'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import './style.scss'
+import { SwapStepType } from 'derivable-tools/dist/types'
+import { useSwapPendingHistory } from '../../state/wallet/hooks/useSwapPendingHistory'
 
 export enum VALUE_IN_USD_STATUS {
   AUTO,
@@ -84,6 +86,7 @@ export const Positions = ({
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
   const { ddlEngine } = useConfigs()
   const { swapLogs: sls } = useSwapHistory()
+  const { swapPendingTxs } = useSwapPendingHistory()
   const { width } = useWindowSize()
   const isPhone = width && width < 992
 
@@ -218,12 +221,18 @@ export const Positions = ({
         funding,
         closingFee: (now?: number): any => {
           return feeCalculator.calculateFee(now)
-        }
+        },
+        status: ''
       }
     }
     return null
   }
-
+  const generatePositionFromInput = (steps: SwapStepType[]): any => {
+    return steps.map(s => {
+      const { address, id } = decodeErc1155Address(s.tokenOut)
+      return { ...generatePositionData(address, Number(id)), status: 'pending' }
+    })?.[0]
+  }
   const positions: Position[] = useMemo(() => {
     const result: any = []
     Object.keys(pools).forEach((poolAddress) => {
@@ -238,7 +247,8 @@ export const Positions = ({
   const [displayPositions, hasClosingFee] = useMemo(() => {
     let displayPositions: Position[] = []
     if (positions && positions.length > 0) {
-      displayPositions = positions.filter((p) => {
+      const pendingPosition = swapPendingTxs.map(swapPendingTx => generatePositionFromInput(swapPendingTx.steps))
+      displayPositions = [...pendingPosition, ...positions.filter((p) => {
         if (tradeType === TRADE_TYPE.LIQUIDITY) {
           return p.side === POOL_IDS.C
         }
@@ -246,13 +256,13 @@ export const Positions = ({
           return p.side === POOL_IDS.A || p.side === POOL_IDS.B
         }
         return true
-      })
+      })]
     }
     const hasClosingFee = displayPositions.some(
       (p) => p.closingFee(now).fee > 0
     )
     return [displayPositions, hasClosingFee]
-  }, [positions, tradeType])
+  }, [positions, tradeType, swapPendingTxs])
 
   const showSize = tradeType !== TRADE_TYPE.LIQUIDITY
 
@@ -281,15 +291,18 @@ export const Positions = ({
                 )}
                 <InfoRow>
                   <Text>Net Value</Text>
+                  { position.status !== 'pending' &&
                   <NetValue
                     valueInUsdStatus={valueInUsdStatus}
                     valueUsd={position.valueUsd}
                     value={position.value}
                     pool={position.pool}
                     isPhone
-                  />
+                  />}
                 </InfoRow>
+
                 {!position.entryValue || (
+                  position.status !== 'pending' &&
                   <InfoRow>
                     <Text>
                       PnL
@@ -317,6 +330,7 @@ export const Positions = ({
                       isPhone
                     />
                   </InfoRow>
+
                 )}
                 {!showSize || !position.sizeDisplay || (
                   <InfoRow>
@@ -383,19 +397,22 @@ export const Positions = ({
                 </InfoRow> */}
 
                 <InfoRow>
-                  <ButtonSell
-                    className='btn-close'
-                    size='small'
-                    onClick={() => {
-                      setClosingPosition(position)
-                      setOutputTokenAddress(
-                        wrapToNativeAddress(position.pool.TOKEN_R)
-                      )
-                      setVisible(true)
-                    }}
-                  >
-                    {position.side === POOL_IDS.C ? 'Remove' : 'Close'}
-                  </ButtonSell>
+                  {position.status === 'pending' ? <ButtonSell className='btn-close'
+                    size='small' > Pending...</ButtonSell>
+                    : <ButtonSell
+                      className='btn-close'
+                      size='small'
+                      onClick={() => {
+                        setClosingPosition(position)
+                        setOutputTokenAddress(
+                          wrapToNativeAddress(position.pool.TOKEN_R)
+                        )
+                        setVisible(true)
+                      }}
+                    >
+                      {position.side === POOL_IDS.C ? 'Remove' : 'Close'}
+                    </ButtonSell>
+                  }
                 </InfoRow>
               </div>
             )
@@ -480,6 +497,7 @@ export const Positions = ({
                     />
                   </td>
                   <td>
+                    { position.status !== 'pending' &&
                     <div className='net-value-and-pnl'>
                       <NetValue
                         valueInUsdStatus={valueInUsdStatus}
@@ -491,7 +509,7 @@ export const Positions = ({
                         valueInUsdStatus={valueInUsdStatus}
                         position={position}
                       />
-                    </div>
+                    </div>}
                   </td>
                   {!showSize || (
                     <td>
@@ -519,6 +537,7 @@ export const Positions = ({
                     )}
                   </td>
                   <td>
+                    {position.status !== 'pending' &&
                     <Text
                       className={
                         position.funding < 0 || position.side === POOL_IDS.C
@@ -528,28 +547,33 @@ export const Positions = ({
                     >
                       {zerofy(formatFloat(position.funding * 100, undefined, 3, true))}%
                     </Text>
+                    }
                   </td>
+
                   {!hasClosingFee || (
                     <td>
-                      <ClosingFee now={now} position={position} />
+                      { position.status !== 'pending' &&
+                    <ClosingFee now={now} position={position} />}
                     </td>
                   )}
                   {/* <td><Reserve pool={position.pool}/></td> */}
                   {/* <td><ExplorerLink poolAddress={position.poolAddress}/></td> */}
                   <td className='text-right'>
-                    <ButtonSell
-                      size='small'
-                      onClick={(e) => {
-                        setClosingPosition(position)
-                        setOutputTokenAddress(
-                          wrapToNativeAddress(position.pool.TOKEN_R)
-                        )
-                        setVisible(true)
-                        e.stopPropagation() // stop the index to be changed
-                      }}
-                    >
-                      {position.side === POOL_IDS.C ? 'Remove' : 'Close'}
-                    </ButtonSell>
+                    {position.status !== 'pending' &&
+                      <ButtonSell
+                        size='small'
+                        onClick={(e) => {
+                          setClosingPosition(position)
+                          setOutputTokenAddress(
+                            wrapToNativeAddress(position.pool.TOKEN_R)
+                          )
+                          setVisible(true)
+                          e.stopPropagation() // stop the index to be changed
+                        }}
+                      >
+                        {position.side === POOL_IDS.C ? 'Remove' : 'Close'}
+                      </ButtonSell>
+                    }
                   </td>
                 </tr>
               )

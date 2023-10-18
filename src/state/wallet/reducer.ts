@@ -4,7 +4,8 @@ import {
   AllowancesType,
   BalancesType,
   initialState,
-  MaturitiesType
+  MaturitiesType,
+  SwapPendingTxType
 } from './type'
 import _ from 'lodash'
 
@@ -16,6 +17,9 @@ export const tokens = createSlice({
       state.balances = {}
       state.routerAllowances = {}
       state.account = ''
+    },
+    updatePendingSwapTxs: (state, action: PayloadAction<SwapPendingTxType[]>) => {
+      state.swapPendingTxs = action.payload
     },
     updateSwapTxs: (
       state,
@@ -91,6 +95,7 @@ export const {
   resetBnA,
   updateBalanceAndAllowancesReduce,
   updateSwapTxs,
+  updatePendingSwapTxs,
   updateFormatedSwapTxs
 } = tokens.actions
 
