@@ -315,10 +315,12 @@ const Component = ({
               setVisibleSelectTokenModal(true)
             }}
           >
-            <TokenIcon size={24} tokenAddress={inputTokenAddress} />
-            <Text>
-              <TokenSymbol token={inputTokenAddress} />
-            </Text>
+            <span className='d-flex align-items-center gap-05'>
+              <TokenIcon size={24} tokenAddress={inputTokenAddress} />
+              <Text>
+                <TokenSymbol token={inputTokenAddress} />
+              </Text>
+            </span>
           </span>
           <div className='d-flex align-item-center'>
             <Text

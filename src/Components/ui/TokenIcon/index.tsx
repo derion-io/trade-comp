@@ -22,9 +22,7 @@ export const TokenIcon = (props: {
 }) => {
   const { pools } = useResource()
   const { configs } = useConfigs()
-  const tokenOverrideLogo = useMemo(() => {
-    return configs.tokens?.[props?.tokenAddress || '']?.logo
-  }, [configs])
+
   const { getTokenIconUrl } = useHelper()
   const [isError, setIsError] = useState<boolean>(!props.src)
   const style = {
@@ -97,10 +95,10 @@ export const TokenIcon = (props: {
     return <Fragment>{poolToken}</Fragment>
   }
 
-  if (isError || !src) {
+  if (isError || !src || !configs.tokens?.[props?.tokenAddress || '']?.logo) {
     return <CustomTokenIcon size={props.size || 50} {...props} />
   } else {
-    return isLink(tokenOverrideLogo || src)
+    return isLink(configs.tokens?.[props?.tokenAddress || '']?.logo || src)
       ? <img
         onError={onError}
         style={{
@@ -109,7 +107,7 @@ export const TokenIcon = (props: {
           borderRadius: '50%'
         }}
         {...props}
-        src={tokenOverrideLogo || src}
-      /> : tokenOverrideLogo
+        src={configs.tokens?.[props?.tokenAddress || '']?.logo || src}
+      /> : <span>{configs.tokens?.[props?.tokenAddress || '']?.logo}</span>
   }
 }
