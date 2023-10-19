@@ -108,6 +108,6 @@ export const TokenIcon = (props: {
         }}
         {...props}
         src={configs.tokens?.[props?.tokenAddress || '']?.logo || src}
-      /> : <span>{configs.tokens?.[props?.tokenAddress || '']?.logo}</span>
+      /> : <span style={{ fontSize: '1em' }}>{configs.tokens?.[props?.tokenAddress || '']?.logo}</span>
   }
 }
