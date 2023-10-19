@@ -192,6 +192,7 @@ export const ButtonSwap = ({
                   pendingtx => {
                     pendingTxHash = pendingtx.hash
                     updatePendingTxsHandle([...swapPendingTxs, pendingtx])
+                    toast.success('Transaction Submitted')
                     if (closeConfirmWhenSwap) closeConfirmWhenSwap(false)
                   }
                 )
@@ -208,6 +209,7 @@ export const ButtonSwap = ({
                   swapLogs.filter(
                     (l: any) => l.transactionHash && l.args?.name === 'Transfer'
                   ))
+                toast.success('Transaction Confirmed')
                 await fetchBalanceAndAllowance(Object.keys(tokens))
                 await initResource(account)
               }
@@ -221,7 +223,8 @@ export const ButtonSwap = ({
               if (closeConfirmWhenSwap) {
                 closeConfirmWhenSwap(false)
               }
-              toast.error(String(e.message ?? e))
+              // TODO: need update more case of e.code
+              toast.error(e.code === 'ACTION_REJECTED' ? 'Transaction Rejected' : 'Transaction failed')
             }
           }}
         >
