@@ -94,7 +94,6 @@ export const TokenIcon = (props: {
   if (poolToken) {
     return <Fragment>{poolToken}</Fragment>
   }
-  console.log('#', isError, src, configs.tokens?.[props?.tokenAddress || '']?.logo)
   if (isError || !src) {
     return <CustomTokenIcon size={props.size || 50} {...props} />
   } else {
