@@ -4,6 +4,7 @@ import {
   decodeErc1155Address,
   isErc1155Address,
   mul,
+  parseCallStaticError,
   WEI
 } from '../../utils/helpers'
 import { toast } from 'react-toastify'
@@ -224,7 +225,7 @@ export const ButtonSwap = ({
                 closeConfirmWhenSwap(false)
               }
               // TODO: need update more case of e.code
-              toast.error(e.code === 'ACTION_REJECTED' ? 'Transaction Rejected' : 'Transaction Failed')
+              toast.error(e.reason || e.message || 'Transaction Failed')
             }
           }}
         >
