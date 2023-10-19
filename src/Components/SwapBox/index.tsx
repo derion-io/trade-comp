@@ -170,7 +170,7 @@ const Component = ({
   }, [outputTokenAddress, inputTokenAddress])
 
   useEffect(() => {
-    if (!tokensToSelect.includes(inputTokenAddress)) setInputTokenAddress(NATIVE_ADDRESS)
+    if (!tokensToSelect.includes(inputTokenAddress)) setInputTokenAddress(tokensToSelect.includes(NATIVE_ADDRESS) ? NATIVE_ADDRESS : tokensToSelect[0])
     if (!tokensToSelect.includes(outputTokenAddress) && tokenTypeToSelect === 'output') setOutputTokenAddress(tokensToSelect?.slice(-1)[0])
   }, [tokensToSelect, setInputTokenAddress])
   return (
