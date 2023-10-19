@@ -19,6 +19,7 @@ export const TokenIcon = (props: {
   className?: string
   tokenAddress?: string
   size?: number
+  charSize?: string
 }) => {
   const { pools } = useResource()
   const { configs } = useConfigs()
@@ -107,6 +108,6 @@ export const TokenIcon = (props: {
         }}
         {...props}
         src={configs.tokens?.[props?.tokenAddress || '']?.logo || src}
-      /> : <span style={{ fontSize: '1em' }}>{configs.tokens?.[props?.tokenAddress || '']?.logo}</span>
+      /> : <span style={{ fontSize: props.charSize || '1em' }}>{configs.tokens?.[props?.tokenAddress || '']?.logo}</span>
   }
 }

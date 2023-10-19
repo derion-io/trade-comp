@@ -676,7 +676,7 @@ export const NetValue = ({
   if (loading) return <SkeletonLoader loading/>
   const valueR = (
     <React.Fragment>
-      <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} />
+      <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} charSize='1.4ex'/>
       {formatLocalisedCompactNumber(formatFloat(value))}
     </React.Fragment>
   )
@@ -729,7 +729,7 @@ export const Pnl = ({
         {isShowValueInUsd(valueInUsdStatus, position?.pool) ? (
           '$'
         ) : (
-          <TokenIcon tokenAddress={position?.pool?.TOKEN_R} size={16} />
+          <TokenIcon tokenAddress={position?.pool?.TOKEN_R} size={16} charSize='1.4ex' />
         )}
         {formatLocalisedCompactNumber(formatFloat(valueChange))}
       </Text>
@@ -739,7 +739,7 @@ export const Pnl = ({
         {isShowValueInUsd(valueInUsdStatus, position?.pool) ? (
           '$'
         ) : (
-          <TokenIcon tokenAddress={position?.pool?.TOKEN_R} size={16} />
+          <TokenIcon tokenAddress={position?.pool?.TOKEN_R} size={16} charSize='1.4ex' />
         )}
         {formatLocalisedCompactNumber(-formatFloat(valueChange))}{' '}
       </Text>
