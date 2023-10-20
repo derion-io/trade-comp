@@ -14,7 +14,7 @@ import { CHART_TABS } from '../../state/currentPool/type'
 import { useResource } from '../../state/resources/hooks/useResource'
 import { useListTokens } from '../../state/token/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
-import { NATIVE_ADDRESS, POOL_IDS, TRADE_TYPE, ZERO_ADDRESS } from '../../utils/constant'
+import { NATIVE_ADDRESS, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
 import formatLocalisedCompactNumber from '../../utils/formatBalance'
 import {
   IEW,

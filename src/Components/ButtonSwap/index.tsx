@@ -23,7 +23,6 @@ import { useResource } from '../../state/resources/hooks/useResource'
 import { ConfirmPosition } from '../ConfirmPositionModal'
 import { useSwapPendingHistory } from '../../state/wallet/hooks/useSwapPendingHistory'
 import { PendingSwapTransactionType } from 'derivable-tools/dist/types'
-import { SwapStepType } from '../../utils/type'
 
 export const ButtonSwap = ({
   inputTokenAddress,
