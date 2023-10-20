@@ -68,26 +68,27 @@ export const FunctionPlot = (props: any) => {
     BD
   } = useMemo(() => {
     const { k, baseToken, quoteToken, states, MARK, FETCHER } = currentPool ?? {}
-    const version = (!FETCHER || FETCHER == ZERO_ADDRESS) ? 3 : 2
+    const exp = (!FETCHER || FETCHER == ZERO_ADDRESS) ? 2 : 1
     const decimalsOffset =
       (tokens[baseToken]?.decimal ?? 18) - (tokens[quoteToken]?.decimal ?? 18)
     const K = k?.toNumber() ?? 2
-    const P = version == 3 ? K/2 : K
+    const P = K/exp
     const R = formatFloat(IEW(states?.R))
     const a = formatFloat(IEW(states?.a))
     const b = formatFloat(IEW(states?.b))
-    const mark = MARK
-      ? MARK.mul(MARK)
+    let mark = !MARK ? 1 :
+      MARK
         .mul(bn(10).pow(decimalsOffset + 12))
-        .shr(256)
+        .shr(128)
         .toNumber() / PRECISION
-      : 1
+    mark **= exp
+
     const x =
       !states?.spot || !MARK
         ? 1
         : bn(states?.spot).mul(PRECISION).div(MARK).toNumber() /
         PRECISION
-    const X = version == 3 ? x*x : x
+    const X = x**exp
 
     let priceIndex = tokens[wrapToNativeAddress(baseToken)]?.symbol
     if (!isUSD(tokens[quoteToken]?.symbol)) {

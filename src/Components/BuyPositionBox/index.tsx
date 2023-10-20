@@ -14,7 +14,7 @@ import { CHART_TABS } from '../../state/currentPool/type'
 import { useResource } from '../../state/resources/hooks/useResource'
 import { useListTokens } from '../../state/token/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
-import { NATIVE_ADDRESS, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
+import { NATIVE_ADDRESS, POOL_IDS, TRADE_TYPE, ZERO_ADDRESS } from '../../utils/constant'
 import formatLocalisedCompactNumber from '../../utils/formatBalance'
 import {
   IEW,
@@ -221,10 +221,12 @@ const Component = ({
 
     const {
       states: { a, b, R, spot },
+      FETCHER,
       MARK,
       baseToken,
       quoteToken
     } = poolToShow
+    const exp = (!FETCHER || FETCHER == ZERO_ADDRESS) ? 2 : 1
     const k = poolToShow.k.toNumber()
     const kA = kx(k, R, a, spot, MARK)
     const kB = -kx(-k, R, b, spot, MARK)
@@ -235,7 +237,7 @@ const Component = ({
       const power = formatFloat(ek / 2, 2)
       return [
         'Effective Leverage',
-        ek < k / 2 ? (
+        ek < k / exp ? (
           <TextError>{power}x</TextError>
         ) : (
           <TextWarning>{power}x</TextWarning>
@@ -247,16 +249,16 @@ const Component = ({
       (tokens?.[baseToken]?.decimal ?? 18) -
       (tokens?.[quoteToken]?.decimal ?? 18)
     const mark = MARK
-      ? MARK.mul(MARK)
+      ? MARK
         .mul(bn(10).pow(decimalsOffset + 12))
-        .shr(256)
+        .shr(128)
         .toNumber() / 1000000000000
       : 1
 
     const xA = xr(k, R.shr(1), a)
     const xB = xr(-k, R.shr(1), b)
-    const dgA = xA * xA * mark
-    const dgB = xB * xB * mark
+    const dgA = (xA * mark) ** exp
+    const dgB = (xB * mark) ** exp
 
     if (sideToShow === POOL_IDS.A) {
       return ['Deleverage Price', <Text key={0}>{zerofy(dgA)}</Text>]
@@ -276,7 +278,9 @@ const Component = ({
     if (!poolToShow) {
       return 1
     }
-    return poolToShow.k.toNumber() / 2
+    const { FETCHER, k } = poolToShow
+    const exp = (!FETCHER || FETCHER == ZERO_ADDRESS) ? 2 : 1
+    return k.toNumber() / exp
   }, [poolToShow])
 
   const [interest, premium, fundingRate, interestRate, maxPremiumRate] = useMemo(() => {

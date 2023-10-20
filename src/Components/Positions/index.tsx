@@ -17,7 +17,8 @@ import {
   MIN_POSITON_VALUE_USD_TO_DISPLAY,
   POOL_IDS,
   POSITION_STATUS,
-  TRADE_TYPE
+  TRADE_TYPE,
+  ZERO_ADDRESS,
 } from '../../utils/constant'
 import formatLocalisedCompactNumber, {
   formatWeiToDisplayNumber
@@ -154,29 +155,31 @@ export const Positions = ({
       }
       const {
         states: { a, b, R },
+        FETCHER,
         MARK,
         baseToken,
         quoteToken,
         sides
       } = pool
+      const exp = (!FETCHER || FETCHER == ZERO_ADDRESS) ? 2 : 1
       const k = pool.k.toNumber()
       const ek = sides[side].k
-      const effectiveLeverage = Math.min(ek, k) / 2
+      const effectiveLeverage = Math.min(ek, k) / exp
 
       const decimalsOffset =
         (tokens?.[baseToken]?.decimal ?? 18) -
         (tokens?.[quoteToken]?.decimal ?? 18)
       const mark = MARK
-        ? MARK.mul(MARK)
+        ? MARK
           .mul(bn(10).pow(decimalsOffset + 12))
-          .shr(256)
+          .shr(128)
           .toNumber() / 1000000000000
         : 1
 
       const xA = xr(k, R.shr(1), a)
       const xB = xr(-k, R.shr(1), b)
-      const dgA = xA * xA * mark
-      const dgB = xB * xB * mark
+      const dgA = (xA * mark) ** exp
+      const dgB = (xB * mark) ** exp
       const deleveragePrice =
         side === POOL_IDS.A
           ? zerofy(dgA)
