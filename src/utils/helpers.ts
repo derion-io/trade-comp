@@ -159,8 +159,8 @@ export function overrideContract(provider: any, deployedBytecode: string) {
 
 const CALL_REVERT_REGEX = /reason string "(.*?)"/gm
 
-export const parseCallStaticError = (error: any) => {
-  const reason = error?.message ?? _extractErrorReason(error)?.reason ?? 'ERROR'
+export const parseCallStaticError = (err: any) => {
+  const reason = err?.message ?? err?.reason ?? _extractErrorReason(err)?.reason ?? 'ERROR'
   if (reason.includes('missing revert data in call exception')) {
     console.error(reason)
     return 'Execution Reverted'

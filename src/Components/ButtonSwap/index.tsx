@@ -4,6 +4,7 @@ import {
   decodeErc1155Address,
   isErc1155Address,
   mul,
+  parseCallStaticError,
   WEI
 } from '../../utils/helpers'
 import { toast } from 'react-toastify'
@@ -189,10 +190,10 @@ export const ButtonSwap = ({
                     }
                   ],
                   gasUsed && gasUsed.gt(0) ? gasUsed.mul(2) : undefined,
-                  undefined,
                   pendingtx => {
                     pendingTxHash = pendingtx.hash
                     updatePendingTxsHandle([...swapPendingTxs, pendingtx])
+                    toast.success('Transaction Submitted')
                     if (closeConfirmWhenSwap) closeConfirmWhenSwap(false)
                   }
                 )
@@ -209,6 +210,7 @@ export const ButtonSwap = ({
                   swapLogs.filter(
                     (l: any) => l.transactionHash && l.args?.name === 'Transfer'
                   ))
+                toast.success('Transaction Confirmed')
                 await fetchBalanceAndAllowance(Object.keys(tokens))
                 await initResource(account)
               }
@@ -222,7 +224,8 @@ export const ButtonSwap = ({
               if (closeConfirmWhenSwap) {
                 closeConfirmWhenSwap(false)
               }
-              toast.error(String(e.message ?? e))
+              // TODO: need update more case of e.code
+              toast.error(e?.reason ?? e?.message ?? 'Transaction Failed')
             }
           }}
         >

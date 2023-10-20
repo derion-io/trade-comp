@@ -212,7 +212,7 @@ const Component = ({
                   className='amount-input-box__head--balance'
                   onClick={() => {
                     setExternalTrigger(true)
-                    setValueInput(String(formatFloat(valueBalance === valueIn ? '' : valueBalance, undefined, 4, true)))
+                    setValueInput(String(formatFloat(valueBalance || valueIn, undefined, 4, true)))
                   }}
                 >
                   {power > 1 ? 'Size:' : 'Value:'} $
@@ -326,7 +326,7 @@ const Component = ({
                       key={percentage}
                       onClick={() => {
                         setExternalTrigger(false)
-                        const valueInput = valueBalance === valueIn ? '' : String(Number(valueBalance) * percentage / 100)
+                        const valueInput = Number(valueBalance || valueIn || 0) * percentage / 100
                         setValueInput(String(formatFloat(valueInput, undefined, 4, true)))
                       }}
                     >
