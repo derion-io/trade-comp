@@ -22,6 +22,7 @@ import { ApproveUtrModal } from '../ApproveUtrModal'
 import { useResource } from '../../state/resources/hooks/useResource'
 import { ConfirmPosition } from '../ConfirmPositionModal'
 import { useSwapPendingHistory } from '../../state/wallet/hooks/useSwapPendingHistory'
+import { PendingSwapTransactionType } from 'derivable-tools/dist/types'
 
 export const ButtonSwap = ({
   inputTokenAddress,
@@ -164,11 +165,19 @@ export const ButtonSwap = ({
                 tokens[outputTokenAddress]?.decimal || 18
                 )
                 console.log({
-                  amountIn: WEI(
-                    amountIn,
-                  tokens[inputTokenAddress]?.decimal || 18
+                  tokenIn: inputTokenAddress,
+                  tokenOut: outputTokenAddress,
+                  amountIn: bn(
+                    WEI(amountIn, tokens[inputTokenAddress]?.decimal || 18)
                   ),
-                  payloadAmountIn: payloadAmountIn?.toString()
+                  amountOutMin,
+                  payloadAmountIn,
+                  useSweep: !!(
+                    tokenOutMaturity?.gt(0) &&
+                    balances[outputTokenAddress] &&
+                    isErc1155Address(outputTokenAddress)
+                  ),
+                  currentBalanceOut: balances[outputTokenAddress]
                 })
                 let pendingTxHash: string = ''
                 const tx: any = await ddlEngine.SWAP.multiSwap(
@@ -182,21 +191,21 @@ export const ButtonSwap = ({
                       amountOutMin,
                       payloadAmountIn,
                       useSweep: !!(
-                      tokenOutMaturity?.gt(0) &&
-                      balances[outputTokenAddress] &&
-                      isErc1155Address(outputTokenAddress)
+                          tokenOutMaturity?.gt(0) &&
+                          balances[outputTokenAddress] &&
+                          isErc1155Address(outputTokenAddress)
                       ),
                       currentBalanceOut: balances[outputTokenAddress]
                     }
-                  ],
-                  gasUsed && gasUsed.gt(0) ? gasUsed.mul(2) : undefined,
-                  pendingtx => {
-                    pendingTxHash = pendingtx.hash
-                    updatePendingTxsHandle([...swapPendingTxs, pendingtx])
-                    toast.success('Transaction Submitted')
+                  ], {
+                  gasLimit: gasUsed?.gt(0) ? gasUsed.mul(3).div(2) : undefined,
+                  onSubmitted: (pendingTx: PendingSwapTransactionType) => {
+                    pendingTxHash = pendingTx.hash
+                    updatePendingTxsHandle([...swapPendingTxs, pendingTx])
                     if (closeConfirmWhenSwap) closeConfirmWhenSwap(false)
+                    toast.success('Transaction Submitted')
                   }
-                )
+                })
 
                 const swapLogs = ddlEngine.RESOURCE.parseDdlLogs(
                   tx && tx?.logs ? tx.logs : []

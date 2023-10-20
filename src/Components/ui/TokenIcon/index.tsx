@@ -3,7 +3,7 @@ import { CustomTokenIcon } from '../Icon'
 import { useHelper } from '../../../state/config/useHelper'
 import {
   decodeErc1155Address,
-  getTokenPower,
+  getPoolPower,
   isErc1155Address
 } from '../../../utils/helpers'
 import './style.scss'
@@ -50,12 +50,7 @@ export const TokenIcon = (props: {
       const { id, address } = decodeErc1155Address(props.tokenAddress)
       const pool = pools[address]
       if (!pool) return null
-      const power = getTokenPower(
-        pool.TOKEN_R,
-        pool.baseToken,
-        Number(id),
-        pool.k.toNumber()
-      )
+      const power = getPoolPower(pool)
       if (Number(id) === POOL_IDS.C) {
         return (
           <div style={style} className='pool-token-logo pool-token-logo__cp'>

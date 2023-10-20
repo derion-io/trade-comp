@@ -1,6 +1,7 @@
 import { BigNumber, ethers } from 'ethers'
-import { POOL_IDS, TRADE_TYPE } from './constant'
+import { POOL_IDS, TRADE_TYPE, ZERO_ADDRESS } from './constant'
 import _ from 'lodash'
+import { ListTokensType } from '../state/token/type'
 
 const mdp = require('move-decimal-point')
 
@@ -341,15 +342,10 @@ export const decimalsBySignificantDigits = (
   return Math.max(0, decimals)
 }
 
-export const getTokenPower = (
-  TOKEN_R: string,
-  baseToken: string,
-  id: number,
-  k: number
-) => {
-  return k / 2
-  // if (id === POOL_IDS.C) return k / 2
-  // return (TOKEN_R === baseToken && id !== POOL_IDS.C ? 1 : 0) + (id === POOL_IDS.B ? -1 : 1) * k / 2
+export const getPoolPower = (pool: any): number => {
+  const { k, FETCHER } = pool
+  const exp = (!FETCHER || FETCHER == ZERO_ADDRESS) ? 2 : 1
+  return k.toNumber() / exp
 }
 
 export const getTitleBuyTradeType = (type: TRADE_TYPE): string => {
@@ -454,4 +450,62 @@ export const calculateWeightedAverage = (numbers: number[], weights: number[]): 
 }
 export const oracleToPoolGroupId = (ORACLE: string): string => {
   return ethers.utils.getAddress('0x' + ORACLE.substring(26))
+}
+
+export const calcPoolSide = (
+  pool: any,
+  side: number,
+  tokens: ListTokensType = {}
+): any => {
+  const {
+    states: { a, b, R },
+    FETCHER,
+    MARK,
+    baseToken,
+    quoteToken,
+    sides
+  } = pool
+  const exp = (!FETCHER || FETCHER == ZERO_ADDRESS) ? 2 : 1
+  const k = pool.k.toNumber()
+  const leverage = k / exp
+  const ek = sides[side].k
+  const effectiveLeverage = Math.min(ek, k) / exp
+
+  const decimalsOffset =
+    (tokens[baseToken]?.decimal ?? 18) -
+    (tokens[quoteToken]?.decimal ?? 18)
+
+  const PRECISION_DECIMALS = 12
+  let mark = !MARK ? 1 :
+    MARK
+      .mul(bn(10).pow(decimalsOffset + PRECISION_DECIMALS))
+      .shr(128)
+      .toNumber() / 10**PRECISION_DECIMALS
+  mark **= exp
+
+  const xA = xr(k, R.shr(1), a)
+  const xB = xr(-k, R.shr(1), b)
+  const dgA = xA**exp * mark
+  const dgB = xB**exp * mark
+  const deleveragePrice =
+    side === POOL_IDS.A
+      ? zerofy(dgA)
+      : side === POOL_IDS.B
+        ? zerofy(dgB)
+        : `${zerofy(dgB)}-${zerofy(dgA)}`
+
+  const interest = sides[side].interest
+  const premium = sides[side].premium
+  const funding = interest + premium
+
+  return {
+    exp,
+    mark,
+    leverage,
+    effectiveLeverage,
+    deleveragePrice,
+    interest,
+    premium,
+    funding,
+  }
 }

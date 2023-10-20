@@ -275,7 +275,7 @@ const Component = ({ visible, pool }: { visible: boolean; pool: PoolType }) => {
                   onClick={async () => {
                     setDeleverageLoading(true)
                     // @ts-ignore
-                    await ddlEngine.SWAP.multiSwap([], undefined, true)
+                    await ddlEngine.SWAP.multiSwap([])
                     setDeleverageLoading(false)
                   }}
                 >

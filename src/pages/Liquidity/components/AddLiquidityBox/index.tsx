@@ -203,8 +203,6 @@ export const AddLiquidityBox = ({
                   amountOutMin: 0
                 }
               ],
-              undefined,
-              false
             )
             setAmountIn('')
             setAmountIn('')
