@@ -225,7 +225,7 @@ export const ButtonSwap = ({
                 closeConfirmWhenSwap(false)
               }
               // TODO: need update more case of e.code
-              toast.error(e.reason || e.message || 'Transaction Failed')
+              toast.error(e?.reason ?? e?.message ?? 'Transaction Failed')
             }
           }}
         >

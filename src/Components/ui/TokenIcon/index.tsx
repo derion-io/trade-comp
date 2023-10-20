@@ -19,7 +19,7 @@ export const TokenIcon = (props: {
   className?: string
   tokenAddress?: string
   size?: number
-  charSize?: string
+  iconSize?: string
 }) => {
   const { pools } = useResource()
   const { configs } = useConfigs()
@@ -109,8 +109,8 @@ export const TokenIcon = (props: {
         {...props}
         src={configs.tokens?.[props?.tokenAddress || '']?.logo || src}
       />
-      : <span style={{ fontSize: props.charSize || '1em' }} className = 'override-char'>
-        {configs.tokens?.[props?.tokenAddress || '']?.logo}
+      : <span style={{ fontSize: props.iconSize ?? '1em' }} className = 'override-char'>
+        {configs.tokens?.[props?.tokenAddress ?? '']?.logo}
       </span>
   }
 }
