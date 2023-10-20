@@ -7,6 +7,9 @@ import { bn, formatFloat, zerofy, isUSD, IEW } from '../../utils/helpers'
 import { CandleChartLoader } from '../ChartLoaders'
 import { useListTokens } from '../../state/token/hook'
 import { useHelper } from '../../state/config/useHelper'
+import { ZERO_ADDRESS } from '../../utils/constant'
+
+const PRECISION = 1000000000000
 
 const FX = 'f(P,x,v,R)=\\{vx^P<R/2:vx^P,R-R^2/(4vx^P)\\}'
 const GX = 'g(P,x,v,R)=\\{vx^{-P}<R/2:R-vx^{-P},R^2/(4vx^{-P})\\}'
@@ -64,11 +67,12 @@ export const FunctionPlot = (props: any) => {
     AD,
     BD
   } = useMemo(() => {
-    const { k, baseToken, quoteToken, states, MARK } = currentPool ?? {}
+    const { k, baseToken, quoteToken, states, MARK, FETCHER } = currentPool ?? {}
+    const version = (!FETCHER || FETCHER == ZERO_ADDRESS) ? 3 : 2
     const decimalsOffset =
       (tokens[baseToken]?.decimal ?? 18) - (tokens[quoteToken]?.decimal ?? 18)
     const K = k?.toNumber() ?? 2
-    const P = K / 2
+    const P = version == 3 ? K/2 : K
     const R = formatFloat(IEW(states?.R))
     const a = formatFloat(IEW(states?.a))
     const b = formatFloat(IEW(states?.b))
@@ -76,14 +80,14 @@ export const FunctionPlot = (props: any) => {
       ? MARK.mul(MARK)
         .mul(bn(10).pow(decimalsOffset + 12))
         .shr(256)
-        .toNumber() / 1000000000000
+        .toNumber() / PRECISION
       : 1
     const x =
       !states?.spot || !MARK
         ? 1
-        : bn(states?.spot).mul(1000000000000).div(MARK).toNumber() /
-          1000000000000
-    const X = x * x
+        : bn(states?.spot).mul(PRECISION).div(MARK).toNumber() /
+        PRECISION
+    const X = version == 3 ? x*x : x
 
     let priceIndex = tokens[wrapToNativeAddress(baseToken)]?.symbol
     if (!isUSD(tokens[quoteToken]?.symbol)) {
@@ -92,7 +96,7 @@ export const FunctionPlot = (props: any) => {
     const PX = X * 0.01
     const R1 = R + drA + drB + drC
 
-    const xk = x ** K
+    const xk = X ** P
     const rA = _r(xk, a, R)
     const rB = _r(1 / xk, b, R)
     const rA1 = rA + drA
