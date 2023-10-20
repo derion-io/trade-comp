@@ -19,14 +19,11 @@ import formatLocalisedCompactNumber from '../../utils/formatBalance'
 import {
   IEW,
   NUM,
-  bn,
+  calcPoolSide,
   decodeErc1155Address,
   div,
   formatFloat,
   isErc1155Address,
-  kx,
-  xr,
-  zerofy
 } from '../../utils/helpers'
 import { ApproveUtrModal } from '../ApproveUtrModal'
 import { ButtonSwap } from '../ButtonSwap'
@@ -213,64 +210,20 @@ const Component = ({
     [inputTokenAddress, outputTokenAddress]
   )
 
-  // TODO: kA, kB, xA, xB can be calculated in derivable-tools for each pool
   const [leverageKey, leverageValue] = useMemo(() => {
-    if (!poolToShow) {
+    if (!poolToShow || sideToShow == null) {
       return ['', null]
     }
 
     const {
-      states: { a, b, R, spot },
-      FETCHER,
-      MARK,
-      baseToken,
-      quoteToken
-    } = poolToShow
-    const exp = (!FETCHER || FETCHER == ZERO_ADDRESS) ? 2 : 1
-    const k = poolToShow.k.toNumber()
-    const kA = kx(k, R, a, spot, MARK)
-    const kB = -kx(-k, R, b, spot, MARK)
-    const ek =
-      sideToShow === POOL_IDS.A ? kA : sideToShow === POOL_IDS.B ? kB : k
+      deleveragePrice,
+    } = calcPoolSide(poolToShow, sideToShow, tokens)
 
-    if (ek < k) {
-      const power = formatFloat(ek / 2, 2)
-      return [
-        'Effective Leverage',
-        ek < k / exp ? (
-          <TextError>{power}x</TextError>
-        ) : (
-          <TextWarning>{power}x</TextWarning>
-        )
-      ]
-    }
-
-    const decimalsOffset =
-      (tokens?.[baseToken]?.decimal ?? 18) -
-      (tokens?.[quoteToken]?.decimal ?? 18)
-    const mark = MARK
-      ? MARK
-        .mul(bn(10).pow(decimalsOffset + 12))
-        .shr(128)
-        .toNumber() / 1000000000000
-      : 1
-
-    const xA = xr(k, R.shr(1), a)
-    const xB = xr(-k, R.shr(1), b)
-    const dgA = (xA * mark) ** exp
-    const dgB = (xB * mark) ** exp
-
-    if (sideToShow === POOL_IDS.A) {
-      return ['Deleverage Price', <Text key={0}>{zerofy(dgA)}</Text>]
-    }
-    if (sideToShow === POOL_IDS.B) {
-      return ['Deleverage Price', <Text key={0}>{zerofy(dgB)}</Text>]
-    }
     return [
-      'Full Leverage Range',
-      <Text key={0}>
-        {zerofy(dgB)}-{zerofy(dgA)}
-      </Text>
+      (sideToShow == POOL_IDS.A || sideToShow == POOL_IDS.B)
+        ? 'Deleverage Price'
+        : 'Full Leverage Range',
+      <Text>{deleveragePrice}</Text>
     ]
   }, [poolToShow, sideToShow, tokens])
 

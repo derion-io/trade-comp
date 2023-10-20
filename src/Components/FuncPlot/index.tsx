@@ -3,11 +3,11 @@ import { Expression, GraphingCalculator } from 'desmos-react'
 import './style.scss'
 import { Card } from '../ui/Card'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
-import { bn, formatFloat, zerofy, isUSD, IEW } from '../../utils/helpers'
+import { bn, formatFloat, zerofy, isUSD, IEW, calcPoolSide } from '../../utils/helpers'
 import { CandleChartLoader } from '../ChartLoaders'
 import { useListTokens } from '../../state/token/hook'
 import { useHelper } from '../../state/config/useHelper'
-import { ZERO_ADDRESS } from '../../utils/constant'
+import { POOL_IDS } from '../../utils/constant'
 
 const PRECISION = 1000000000000
 
@@ -67,21 +67,15 @@ export const FunctionPlot = (props: any) => {
     AD,
     BD
   } = useMemo(() => {
-    const { k, baseToken, quoteToken, states, MARK, FETCHER } = currentPool ?? {}
-    const exp = (!FETCHER || FETCHER == ZERO_ADDRESS) ? 2 : 1
-    const decimalsOffset =
-      (tokens[baseToken]?.decimal ?? 18) - (tokens[quoteToken]?.decimal ?? 18)
-    const K = k?.toNumber() ?? 2
-    const P = K/exp
+    const { k, baseToken, quoteToken, states, MARK } = currentPool ?? {}
+    const {
+      exp,
+      mark,
+      leverage: P
+    } = calcPoolSide(currentPool, POOL_IDS.C, tokens)
     const R = formatFloat(IEW(states?.R))
     const a = formatFloat(IEW(states?.a))
     const b = formatFloat(IEW(states?.b))
-    let mark = !MARK ? 1 :
-      MARK
-        .mul(bn(10).pow(decimalsOffset + 12))
-        .shr(128)
-        .toNumber() / PRECISION
-    mark **= exp
 
     const x =
       !states?.spot || !MARK

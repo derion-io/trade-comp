@@ -18,14 +18,13 @@ import {
   POOL_IDS,
   POSITION_STATUS,
   TRADE_TYPE,
-  ZERO_ADDRESS,
 } from '../../utils/constant'
 import formatLocalisedCompactNumber, {
   formatWeiToDisplayNumber
 } from '../../utils/formatBalance'
 import {
   IEW,
-  bn,
+  calcPoolSide,
   decodeErc1155Address,
   div,
   encodeErc1155Address,
@@ -36,7 +35,6 @@ import {
   oracleToPoolGroupId,
   shortenAddressString,
   sub,
-  xr,
   zerofy
 } from '../../utils/helpers'
 import { ClosingFeeCalculator, Position } from '../../utils/type'
@@ -154,44 +152,17 @@ export const Positions = ({
         return null
       }
       const {
-        states: { a, b, R },
-        FETCHER,
-        MARK,
-        baseToken,
-        quoteToken,
-        sides
-      } = pool
-      const exp = (!FETCHER || FETCHER == ZERO_ADDRESS) ? 2 : 1
-      const k = pool.k.toNumber()
-      const ek = sides[side].k
-      const effectiveLeverage = Math.min(ek, k) / exp
-
-      const decimalsOffset =
-        (tokens?.[baseToken]?.decimal ?? 18) -
-        (tokens?.[quoteToken]?.decimal ?? 18)
-      const mark = MARK
-        ? MARK
-          .mul(bn(10).pow(decimalsOffset + 12))
-          .shr(128)
-          .toNumber() / 1000000000000
-        : 1
-
-      const xA = xr(k, R.shr(1), a)
-      const xB = xr(-k, R.shr(1), b)
-      const dgA = (xA * mark) ** exp
-      const dgB = (xB * mark) ** exp
-      const deleveragePrice =
-        side === POOL_IDS.A
-          ? zerofy(dgA)
-          : side === POOL_IDS.B
-            ? zerofy(dgB)
-            : `${zerofy(dgB)}-${zerofy(dgA)}`
+        leverage,
+        effectiveLeverage,
+        deleveragePrice,
+        funding,
+      } = calcPoolSide(pool, side,  tokens)
 
       const sizeDisplay =
         side === POOL_IDS.A || side === POOL_IDS.B
           ? '$' +
             formatLocalisedCompactNumber(
-              formatFloat((Number(valueUsd) * k) / 2)
+              formatFloat(Number(valueUsd) * effectiveLeverage)
             )
           : ''
 
@@ -205,9 +176,6 @@ export const Positions = ({
       Object.keys(poolGroups).map(poolGroupKey => {
         if (poolGroups[poolGroupKey].pools?.[poolAddress]) currentPrice = poolGroups[poolGroupKey].basePrice
       })
-      const interest = sides[side].interest
-      const premium = sides[side].premium
-      const funding = interest + premium
 
       return {
         poolAddress,
@@ -222,7 +190,7 @@ export const Positions = ({
         sizeDisplay,
         value,
         valueUsd,
-        leverage: k / 2,
+        leverage,
         effectiveLeverage,
         deleveragePrice,
         funding,
