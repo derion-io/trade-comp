@@ -215,8 +215,6 @@ export const RemoveLiquidityBox = ({
                   amountOutMin: 0
                 }
               ],
-              undefined,
-              false
             )
             setAmountIn('')
             setAmountIn('')

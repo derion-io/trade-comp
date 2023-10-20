@@ -181,8 +181,8 @@ export const ButtonSwap = ({
                   currentBalanceOut: balances[outputTokenAddress]
                 })
                 let pendingTxHash: string = ''
-                const tx: any = await ddlEngine.SWAP.multiSwap({
-                  steps: [
+                const tx: any = await ddlEngine.SWAP.multiSwap(
+                  [
                     {
                       tokenIn: inputTokenAddress,
                       tokenOut: outputTokenAddress,
@@ -198,7 +198,8 @@ export const ButtonSwap = ({
                       ),
                       currentBalanceOut: balances[outputTokenAddress]
                     }
-                  ],
+                  ], {
+                  // TODO: correct the gasUsed here for submit
                   gasLimit: gasUsed && gasUsed.gt(0) ? gasUsed.mul(5) : undefined,
                   onSubmitted: (pendingTx: PendingSwapTransactionType) => {
                     pendingTxHash = pendingTx.hash
