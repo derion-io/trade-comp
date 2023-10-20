@@ -199,8 +199,7 @@ export const ButtonSwap = ({
                       currentBalanceOut: balances[outputTokenAddress]
                     }
                   ], {
-                  // TODO: correct the gasUsed here for submit
-                  gasLimit: gasUsed && gasUsed.gt(0) ? gasUsed.mul(5) : undefined,
+                  gasLimit: gasUsed?.gt(0) ? gasUsed.mul(3).div(2) : undefined,
                   onSubmitted: (pendingTx: PendingSwapTransactionType) => {
                     pendingTxHash = pendingTx.hash
                     updatePendingTxsHandle([...swapPendingTxs, pendingTx])
