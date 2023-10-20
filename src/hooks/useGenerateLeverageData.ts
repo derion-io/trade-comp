@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { TRADE_TYPE } from '../utils/constant'
 import { useCurrentPoolGroup } from '../state/currentPool/hooks/useCurrentPoolGroup'
-import { bn, getTokenPower, tradeTypeToId } from '../utils/helpers'
+import { bn, getPoolPower, tradeTypeToId } from '../utils/helpers'
 import { useSettings } from '../state/setting/hooks/useSettings'
 import { SORT_POOL_BY } from '../state/setting/type'
 
@@ -53,16 +53,7 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
         }
 
         const opacity = 1 - 0.95 * deleverageRisk
-        const power = Math.abs(
-          Number(
-            getTokenPower(
-              pool.TOKEN_R,
-              pool.baseToken,
-              tradeTypeToId(tradeType),
-              pool.k.toNumber()
-            )
-          )
-        )
+        const power = getPoolPower(pool)
         const size = pool.states.R
 
         if (!result[power]) {

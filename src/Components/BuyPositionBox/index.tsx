@@ -23,6 +23,7 @@ import {
   decodeErc1155Address,
   div,
   formatFloat,
+  getPoolPower,
   isErc1155Address,
 } from '../../utils/helpers'
 import { ApproveUtrModal } from '../ApproveUtrModal'
@@ -231,9 +232,7 @@ const Component = ({
     if (!poolToShow) {
       return 1
     }
-    const { FETCHER, k } = poolToShow
-    const exp = (!FETCHER || FETCHER == ZERO_ADDRESS) ? 2 : 1
-    return k.toNumber() / exp
+    return getPoolPower(poolToShow)
   }, [poolToShow])
 
   const [interest, premium, fundingRate, interestRate, maxPremiumRate] = useMemo(() => {

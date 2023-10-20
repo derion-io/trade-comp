@@ -2,7 +2,7 @@ import React, { useMemo } from 'react'
 import { useListTokens } from '../../../state/token/hook'
 import {
   decodeErc1155Address,
-  getTokenPower,
+  getPoolPower,
   isErc1155Address,
   isUSD
 } from '../../../utils/helpers'
@@ -57,7 +57,7 @@ export const TokenSymbol = ({
           : Number(id) === POOL_IDS.B
             ? 'Short'
             : 'Liquidity'
-      const power = getTokenPower(TOKEN_R, baseToken, Number(id), k.toNumber())
+      const power = getPoolPower(pool)
       const base = tokens[wrapToNativeAddress(baseToken)]?.symbol
       const quote = tokens[wrapToNativeAddress(quoteToken)]?.symbol
       const indexPrefix = isUSD(quote ?? '') ? '' : `/${quote}`
@@ -73,7 +73,7 @@ export const TokenSymbol = ({
       //   <span
       //     className='font-size-14'>{Number(id) === POOL_IDS.C && 'LP-'}{tokens[wrapToNativeAddress(baseToken)]?.symbol}</span>
       //   <sup className='font-size-12'>
-      //     {Number(id) === POOL_IDS.C && '±'}{getTokenPower(pool.TOKEN_R, baseToken, Number(id), pool?.k.toNumber())}
+      //     {Number(id) === POOL_IDS.C && '±'}{getPoolPower(pool.TOKEN_R, baseToken, Number(id), pool?.k.toNumber())}
       //   </sup>
       //   {
       //     (pool.TOKEN_R !== baseToken || Number(id) === POOL_IDS.C) &&

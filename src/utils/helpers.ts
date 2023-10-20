@@ -342,15 +342,10 @@ export const decimalsBySignificantDigits = (
   return Math.max(0, decimals)
 }
 
-export const getTokenPower = (
-  TOKEN_R: string,
-  baseToken: string,
-  id: number,
-  k: number
-) => {
-  return k / 2
-  // if (id === POOL_IDS.C) return k / 2
-  // return (TOKEN_R === baseToken && id !== POOL_IDS.C ? 1 : 0) + (id === POOL_IDS.B ? -1 : 1) * k / 2
+export const getPoolPower = (pool: any): number => {
+  const { k, FETCHER } = pool
+  const exp = (!FETCHER || FETCHER == ZERO_ADDRESS) ? 2 : 1
+  return k.toNumber() / exp
 }
 
 export const getTitleBuyTradeType = (type: TRADE_TYPE): string => {
