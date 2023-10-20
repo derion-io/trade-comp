@@ -73,7 +73,6 @@ export const useInitConfig = ({
         }
       })
       await engine.initServices()
-      console.log(engine.profile.configs)
       dispatch(
         addTokensReduce({
           tokens: [

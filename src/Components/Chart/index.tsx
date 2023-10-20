@@ -11,10 +11,12 @@ import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoo
 import { FunctionPlot } from '../FuncPlot'
 import { CHART_TABS } from '../../state/currentPool/type'
 import { formatFloat, zerofy } from '../../utils/helpers'
+import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 
 const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const { chainId, configs } = useConfigs()
   const { chartTab, setChartTab, basePrice, id } = useCurrentPoolGroup()
+  const { currentPool } = useCurrentPool()
 
   return (
     <div className='chart-box'>
@@ -55,7 +57,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
           (chartTab === CHART_TABS.LINE_CHART && configs.subGraph ? (
             <LineChart changedIn24h={changedIn24h} />
           ) : chartTab === CHART_TABS.FUNC_PLOT ? (
-            <FunctionPlot />
+            currentPool?.states && <FunctionPlot />
           ) : (
             <CandleChart />
           ))}

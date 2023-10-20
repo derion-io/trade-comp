@@ -77,7 +77,6 @@ const Component = ({
   }, [])
 
   useEffect(() => {
-    console.log(id, inputTokenAddress, outputTokenAddress)
     if (!inputTokenAddress) setInputTokenAddress(NATIVE_ADDRESS)
     if (!outputTokenAddress) {
       setOutputTokenAddress(dTokens?.[0] ?? NATIVE_ADDRESS)

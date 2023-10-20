@@ -33,7 +33,7 @@ const Component = ({
   displayFee?: boolean
 }) => {
   return (
-    <Modal setVisible={setVisible} visible={visible} title='Select token'>
+    <Modal setVisible={setVisible} visible={visible} title='Select Token'>
       <div className='select-token-modal'>
         {tokensToSelect.map((address: any, key: number) => {
           return (

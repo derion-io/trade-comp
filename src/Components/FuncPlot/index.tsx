@@ -67,7 +67,7 @@ export const FunctionPlot = (props: any) => {
     AD,
     BD
   } = useMemo(() => {
-    const { k, baseToken, quoteToken, states, MARK } = currentPool ?? {}
+    const { baseToken, quoteToken, states, MARK } = currentPool ?? {}
     const {
       exp,
       mark,
