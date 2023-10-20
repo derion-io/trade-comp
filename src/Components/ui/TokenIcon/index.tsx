@@ -108,6 +108,9 @@ export const TokenIcon = (props: {
         }}
         {...props}
         src={configs.tokens?.[props?.tokenAddress || '']?.logo || src}
-      /> : <span style={{ fontSize: props.charSize || '1em' }}>{configs.tokens?.[props?.tokenAddress || '']?.logo}</span>
+      />
+      : <span style={{ fontSize: props.charSize || '1em' }} className = 'override-char'>
+        {configs.tokens?.[props?.tokenAddress || '']?.logo}
+      </span>
   }
 }
