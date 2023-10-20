@@ -27,6 +27,7 @@ export const BlurBackground = ({ pointNumber, children }: { pointNumber: number,
         width: `${size}px`,
         height: `${size}px`,
         filter: `blur(${Math.floor(Math.random() * maxBlur) + minBlur}px)`,
+        transform: 'translate3d(0, 0, 0)',
         left: `${Math.floor(Math.random() * maxWidth)}px`,
         top: `${Math.floor(Math.random() * maxH) + 100 + minH}px`,
         background: colors[Math.floor(Math.random() * 2)]
