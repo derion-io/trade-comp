@@ -476,11 +476,12 @@ export const calcPoolSide = (
     (tokens[quoteToken]?.decimal ?? 18)
 
   const PRECISION_DECIMALS = 12
-  let mark = !MARK ? 1 :
+  let mark = !MARK ? 1 : NUM(IEW(
     MARK
-      .mul(bn(10).pow(decimalsOffset + PRECISION_DECIMALS))
-      .shr(128)
-      .toNumber() / 10**PRECISION_DECIMALS
+      .mul(bn(10).pow((decimalsOffset/exp) + PRECISION_DECIMALS))
+      .shr(128),
+    PRECISION_DECIMALS,
+  ))
   mark **= exp
 
   const xA = xr(k, R.shr(1), a)
