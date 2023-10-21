@@ -11,7 +11,6 @@ import { TokenType } from '../../state/token/type'
 import { SwapTxType } from '../../state/wallet/type'
 import { currentPoolState } from '../../state/currentPool/type'
 import moment from 'moment'
-import { useConfigs } from '../../state/config/useConfigs'
 
 const COLORS = {
   PINK: '#FF98E5',
@@ -46,27 +45,28 @@ const TIME_TO_UPDATE_CHART = 5000
 
 const wrappedToNativeSymbol = (symbol?: string): string => {
   if (!symbol) return ''
-  const { configs } = useConfigs()
+  const state = store.getState()
+  const configs = state.configs.configs
   return symbol === `W${configs.nativeSymbol}` ? configs.nativeSymbol : symbol
 }
 
-const handleChartRouteOption = (currency_id: string, baseAddress: string, cAddress: string, quoteAddress: string): {route: (string | undefined)[], quoteAddressSelect: string} => {
+const handleChartRouteOption = (currencyId: string, baseAddress: string, cAddress: string, quoteAddress: string): {route: (string | undefined)[], quoteAddressSelect: string} => {
   const state = store.getState()
-  const routes = state.configs.routes;
-  const defaultStableCoin = state.configs.configs.stablecoins?.[0];
-  let quoteAddressSelect = quoteAddress;
+  const routes = state.configs.routes
+  const defaultStableCoin = state.configs.configs.stablecoins?.[0]
+  let quoteAddressSelect = quoteAddress
   const isHavePool = Object.keys(routes).filter(poolRoute => (poolRoute.includes(defaultStableCoin) && poolRoute.includes(state.currentPool.quoteToken)))?.[0]
   const isQuoteStableCoin = state.configs.configs.stablecoins?.filter(stable => stable === state.currentPool.quoteToken)?.[0]
-  if(isHavePool && !isQuoteStableCoin) {
-    if (currency_id === 'USD') quoteAddressSelect = defaultStableCoin;
-    else if (currency_id === state.configs.configs.nativeSymbol) quoteAddressSelect = state.currentPool.quoteToken;
+  if (isHavePool && !isQuoteStableCoin) {
+    if (currencyId === 'USD') quoteAddressSelect = defaultStableCoin
+    else if (currencyId === state.configs.configs.nativeSymbol) quoteAddressSelect = state.currentPool.quoteToken
   }
   const routeKeys = Object.keys(routes).filter(poolRoute => (
     poolRoute.includes(defaultStableCoin) && poolRoute.includes(quoteAddressSelect)
-  ));
-  
-  const poolAddress = routeKeys.length > 0 ? routes[routeKeys[0]][0]?.address : undefined;
-  
+  ))
+
+  const poolAddress = routeKeys.length > 0 ? routes[routeKeys[0]][0]?.address : undefined
+
   return {
     route: [
       baseAddress,
@@ -74,8 +74,8 @@ const handleChartRouteOption = (currency_id: string, baseAddress: string, cAddre
       quoteAddress,
       ...(quoteAddressSelect === state.currentPool.quoteToken ? [] : [poolAddress, defaultStableCoin]
       )],
-      quoteAddressSelect,
-  };
+    quoteAddressSelect
+  }
 }
 export const Datafeed = {
   subscribeBarsInterval: {},
@@ -86,19 +86,21 @@ export const Datafeed = {
   realTimeCandle: {},
   onReady: (callback: any) => {
     const state = store.getState()
-    const { token0, token1 } = state.currentPool.pair;
-    const quoteTokenSymbol = token0?.address === state.currentPool.quoteToken ? token0.symbol : token1?.symbol;
-    const isQuoteTokenStable = state.configs.configs.stablecoins.includes(state.currentPool.quoteToken);
+    const { token0, token1 } = state.currentPool.pair
+    const quoteTokenSymbol = token0?.address === state.currentPool.quoteToken ? token0.symbol : token1?.symbol
+    const isQuoteTokenStable = state.configs.configs.stablecoins.includes(state.currentPool.quoteToken)
 
     const routes = state.configs.routes
     const defaultStableCoin = state.configs.configs.stablecoins?.[0]
     const isHavePool = Object.keys(routes).filter(poolRoute => (poolRoute.includes(defaultStableCoin) && poolRoute.includes(state.currentPool.quoteToken)))?.[0]
     const isQuoteStableCoin = state.configs.configs.stablecoins?.filter(stable => stable === state.currentPool.quoteToken)?.[0]
-    const currency_codes = (isHavePool && !isQuoteStableCoin) ? [wrappedToNativeSymbol(quoteTokenSymbol), (isQuoteTokenStable ? 'ETH' : 'USD')] : null
+    console.log('=====onReady running 1 ====')
+
+    const currencyCodes = (isHavePool && !isQuoteStableCoin) ? [wrappedToNativeSymbol(quoteTokenSymbol), (isQuoteTokenStable ? 'ETH' : 'USD')] : null
     console.log('=====onReady running====')
     const config = {
       ...configDefault,
-      currency_codes
+      currency_codes: currencyCodes
     }
 
     setTimeout(() => callback(config), 0)
@@ -111,12 +113,12 @@ export const Datafeed = {
     extension: any
   ) {
     const state = store.getState()
-    const { token0, token1 } = state.currentPool.pair;
-    const quoteTokenSymbol = token0?.address === state.currentPool.quoteToken ? token0.symbol : token1?.symbol;
+    const { token0, token1 } = state.currentPool.pair
+    const quoteTokenSymbol = token0?.address === state.currentPool.quoteToken ? token0.symbol : token1?.symbol
     const isQuoteStableCoin = state.configs.configs.stablecoins?.filter(stable => stable === state.currentPool.quoteToken)?.[0]
     console.log('======resolveSymbol running====')
     const [, , , name, , priceScale] = symbolInfo.split('-')
-    var symbolStub = {
+    const symbolStub = {
       name: name,
       description: '',
       type: 'crypto',
@@ -148,7 +150,7 @@ export const Datafeed = {
     const ticker = symbolInfo.ticker
     const [baseAddress, cAddress, quoteAddress, , chainId] = ticker.split('-')
     const tokens = state.tokens.tokens[chainId]
-    const {route, quoteAddressSelect} = handleChartRouteOption(symbolInfo?.currency_id, baseAddress, cAddress, quoteAddress);
+    const { route, quoteAddressSelect } = handleChartRouteOption(symbolInfo?.currency_id, baseAddress, cAddress, quoteAddress)
     const limit = calcLimitCandle(periodParams.from, periodParams.to, interval)
 
     if (periodParams.firstDataRequest) {
@@ -197,7 +199,7 @@ export const Datafeed = {
       const ticker = symbolInfo.ticker
       const [baseAddress, cAddress, quoteAddress, , chainId] = ticker.split('-')
       const tokens = state.tokens.tokens[chainId]
-      const {route, quoteAddressSelect} = handleChartRouteOption(symbolInfo?.currency_id, baseAddress, cAddress, quoteAddress);
+      const { route, quoteAddressSelect } = handleChartRouteOption(symbolInfo?.currency_id, baseAddress, cAddress, quoteAddress)
       historyProvider
         .getBars({
           route: route.join(','),
@@ -444,4 +446,3 @@ const calcLimitCandle = (
   if (!timeInCandle) return 320
   return Math.floor((toTime - fromTime) / timeInCandle) + 20
 }
-
