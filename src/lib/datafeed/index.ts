@@ -131,7 +131,7 @@ export const Datafeed = {
       supported_resolution: supportedResolutions,
       volume_precision: 8,
       data_status: 'streaming',
-      currency_code: wrappedToNativeSymbol(isQuoteStableCoin ? 'USD' : extension.currencyCode) || wrappedToNativeSymbol(quoteTokenSymbol)
+      currency_code: wrappedToNativeSymbol(isQuoteStableCoin ? 'USD' : extension.currencyCode) || 'USD'
     }
     onSymbolResolvedCallback(symbolStub)
   },
