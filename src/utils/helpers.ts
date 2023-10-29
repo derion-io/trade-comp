@@ -382,6 +382,7 @@ export const zerofy = (value: number, opts?: {
   maxZeros?: number,
   maximumSignificantDigits?: number,
   minimumSignificantDigits?: number,
+  maxExtraDigits?: number,
 }): string => {
   if (!isFinite(value)) {
     return STR(value)
@@ -389,8 +390,13 @@ export const zerofy = (value: number, opts?: {
   if (value < 0) {
     return '-' + zerofy(-value, opts)
   }
-  const minimumSignificantDigits = opts?.minimumSignificantDigits ?? 1
-  const maximumSignificantDigits = opts?.maximumSignificantDigits ?? 4
+  const maxExtraDigits = opts?.maxExtraDigits ?? 0
+  const extraDigits = Math.min(
+    maxExtraDigits,
+    value >= 1 ? 2 : value >= 0.1 ? 1 : 0,
+  )
+  const minimumSignificantDigits = extraDigits + (opts?.minimumSignificantDigits ?? 1)
+  const maximumSignificantDigits = extraDigits + (opts?.maximumSignificantDigits ?? 4)
   const stringOpts = {
     minimumSignificantDigits,
     maximumSignificantDigits,
