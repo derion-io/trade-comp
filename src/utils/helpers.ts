@@ -379,11 +379,11 @@ export const isUSD = (symbol: string): boolean => {
 }
 
 export const zerofy = (value: number, minZeroDecimal: number = 4): string => {
-  if (value < 0) {
-    return '-' + zerofy(-value)
-  }
   if (!isFinite(value)) {
     return STR(value)
+  }
+  if (value < 0) {
+    return '-' + zerofy(-value)
   }
   const x = value
   const countZeroAfterDot = -Math.floor(Math.log10(x) + 1)
