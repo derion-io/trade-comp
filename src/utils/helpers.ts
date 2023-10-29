@@ -379,6 +379,9 @@ export const isUSD = (symbol: string): boolean => {
 }
 
 export const zerofy = (value: number, minZeroDecimal: number = 4): string => {
+  if (value < 0) {
+    return '-' + zerofy(-value)
+  }
   if (!isFinite(value)) {
     return STR(value)
   }
