@@ -378,33 +378,39 @@ export const isUSD = (symbol: string): boolean => {
   )
 }
 
-export const zerofy = (value: number, minZeroDecimal: number = 4): string => {
+export const zerofy = (value: number, opts?: {
+  maxZeros?: number,
+  maximumSignificantDigits?: number,
+  minimumSignificantDigits?: number,
+}): string => {
   if (!isFinite(value)) {
     return STR(value)
   }
   if (value < 0) {
-    return '-' + zerofy(-value)
+    return '-' + zerofy(-value, opts)
   }
-  const x = value
-  const countZeroAfterDot = -Math.floor(Math.log10(x) + 1)
-  if (
-    Number.isFinite(countZeroAfterDot) &&
-    countZeroAfterDot >= minZeroDecimal
-  ) {
-    const ucZeros = String.fromCharCode(
-      parseInt(`+208${countZeroAfterDot}`, 16)
-    )
-    return x
-      .toLocaleString('fullwide', {
-        maximumSignificantDigits: 4,
-        maximumFractionDigits: 18
-      })
+  const minimumSignificantDigits = opts?.minimumSignificantDigits ?? 1
+  const maximumSignificantDigits = opts?.maximumSignificantDigits ?? 4
+  const stringOpts = {
+    minimumSignificantDigits,
+    maximumSignificantDigits,
+  }
+  let zeros = -Math.floor(Math.log10(value) + 1)
+  if (!Number.isFinite(zeros)) {
+    zeros = 0
+  }
+  const maxZeros = opts?.maxZeros ?? 3
+  if (zeros > maxZeros ) {
+    const zs = zeros.toString()
+    let ucZeros = ''
+    for (let i = 0; i < zs.length; ++i) {
+      ucZeros += String.fromCharCode(parseInt(`+208${zs[i]}`, 16))
+    }
+    return value
+      .toLocaleString(['en-US', 'fullwide'], stringOpts)
       .replace(/[.,]{1}0+/, `${whatDecimalSeparator()}0${ucZeros}`)
   }
-  return value.toLocaleString('fullwide', {
-    maximumSignificantDigits: 4,
-    maximumFractionDigits: 18
-  })
+  return value.toLocaleString(['en-US', 'fullwide'], stringOpts)
 }
 
 export const xr = (k: number, r: BigNumber, v: BigNumber): number => {
