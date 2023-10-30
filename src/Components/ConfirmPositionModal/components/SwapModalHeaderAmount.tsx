@@ -24,7 +24,7 @@ export const SwapModalHeaderAmount = ({
         <span className='text-grey' style={{ textAlign: 'center', width: '100%' }}>
           <span className='current-token' style={{ justifyContent: 'center' }}>
             <Text className='fs-16'>
-              {textBefore || ''} {zerofy(formatFloat(amountIn, undefined, 8, true), 8)}{' '}
+              {textBefore || ''} {zerofy(formatFloat(amountIn, undefined, 8, true), { maxZeros: 8 })}{' '}
             </Text>
             {!isErc1155Address(tokenAddress) ? <TokenIcon size={16} className='ml-0.1' tokenAddress={tokenAddress} /> : ''} {' '}
             <TokenSymbol
