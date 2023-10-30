@@ -24,6 +24,7 @@ import formatLocalisedCompactNumber, {
 } from '../../utils/formatBalance'
 import {
   IEW,
+  NUM,
   calcPoolSide,
   decodeErc1155Address,
   div,
@@ -702,7 +703,7 @@ export const Pnl = ({
         ) : (
           <TokenIcon tokenAddress={position?.pool?.TOKEN_R} size={16} iconSize='1.4ex' />
         )}
-        {formatLocalisedCompactNumber(formatFloat(valueChange))}
+        {zerofy(NUM(valueChange))}
       </Text>
     ) : (
       <Text className='d-flex align-item-center'>
@@ -712,29 +713,33 @@ export const Pnl = ({
         ) : (
           <TokenIcon tokenAddress={position?.pool?.TOKEN_R} size={16} iconSize='1.4ex' />
         )}
-        {formatLocalisedCompactNumber(-formatFloat(valueChange))}{' '}
+        {zerofy(-NUM(valueChange))}{' '}
       </Text>
     )
-  const pnl = div(valueChange, entryValue)
+  const pnl = NUM(div(valueChange, entryValue))
+  const pnlDisplay = formatPercent(pnl)
+  if (pnlDisplay == 0) {
+    return <React.Fragment></React.Fragment>
+  }
 
   if (isPhone) {
-    return Number(pnl) >= 0 ? (
+    return pnl >= 0 ? (
       <TextBuy className='pnl'>
-        (+{formatPercent(pnl)}%)&nbsp;{valueChangeDisplay}
+        (+{pnlDisplay}%)&nbsp;{valueChangeDisplay}
       </TextBuy>
     ) : (
       <TextSell className='pnl'>
-        ({formatPercent(pnl)}%)&nbsp;{valueChangeDisplay}
+        ({pnlDisplay}%)&nbsp;{valueChangeDisplay}
       </TextSell>
     )
   }
-  return Number(pnl) >= 0 ? (
+  return pnl >= 0 ? (
     <TextBuy className='pnl'>
-      {valueChangeDisplay}&nbsp;(+{formatPercent(pnl)}%)
+      {valueChangeDisplay}&nbsp;(+{pnlDisplay}%)
     </TextBuy>
   ) : (
     <TextSell className='pnl'>
-      {valueChangeDisplay}&nbsp;({formatPercent(pnl)}%)
+      {valueChangeDisplay}&nbsp;({pnlDisplay}%)
     </TextSell>
   )
 }
