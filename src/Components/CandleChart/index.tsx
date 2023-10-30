@@ -180,6 +180,7 @@ const Component = ({
           return {
             format: (price: number) => {
               return zerofy(price, {
+                maxExtraDigits: 2,
                 minimumSignificantDigits: 3,
                 maximumSignificantDigits: 3,
               })
