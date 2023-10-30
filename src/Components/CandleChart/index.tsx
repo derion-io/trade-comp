@@ -17,7 +17,16 @@ import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 import { CandleChartLoader } from '../ChartLoaders'
 import isEqual from 'react-fast-compare'
 import { useConfigs } from '../../state/config/useConfigs'
-import { decimalsBySignificantDigits } from '../../utils/helpers'
+import { cutDecimal, decimalsBySignificantDigits,  zerofy } from '../../utils/helpers'
+
+export const detectDecimalFromPrice = (price: number | string) => {
+  if (Number(price || 0) === 0 || Number(price || 0) >= 1) {
+    return 4
+  } else {
+    const rate = (1 / Number(price)).toString()
+    return rate.split('.')[0].length + 3
+  }
+}
 
 export interface ChartContainerProps {
   interval: ChartingLibraryWidgetOptions['interval']
@@ -30,7 +39,6 @@ export interface ChartContainerProps {
   fullscreen: ChartingLibraryWidgetOptions['fullscreen']
   autosize: ChartingLibraryWidgetOptions['autosize']
   studiesOverrides: ChartingLibraryWidgetOptions['studies_overrides']
-  containerId: ChartingLibraryWidgetOptions['container_id']
   logo?: any
 }
 
@@ -38,7 +46,6 @@ export interface ChartContainerProps {
 
 const Component = ({
   interval,
-  containerId,
   libraryPath,
   clientId,
   userId,
@@ -46,6 +53,7 @@ const Component = ({
   autosize,
   studiesOverrides
 }: ChartContainerProps) => {
+  const chartContainerRef = useRef<HTMLDivElement | null>(null)
   const [tradingviewWidget, setTradingviewWidget] = useState<any>()
   const { tokens } = useListTokens()
   const {
@@ -140,7 +148,6 @@ const Component = ({
       ].join('-'),
       datafeed: Datafeed,
       interval: interval as ChartingLibraryWidgetOptions['interval'],
-      container_id: containerId as ChartingLibraryWidgetOptions['container_id'],
       library_path: libraryPath as string,
       locale: 'en',
       data_status: 'streaming',
@@ -167,6 +174,19 @@ const Component = ({
       autosize: autosize,
       studies_overrides: studiesOverrides,
       timezone: timezone === 'Asia/Saigon' ? 'Asia/Ho_Chi_Minh' : timezone,
+      container: chartContainerRef.current,
+      custom_formatters: {
+        priceFormatterFactory: () => {
+          return {
+            format: (price: number) => {
+              if (price <= 0) {
+                return zerofy(Number(cutDecimal(price.toString(), 4)))
+              }
+              return zerofy(Number(cutDecimal(price.toString(), detectDecimalFromPrice(price))))
+            }
+          }
+        }
+      },
       loading_screen: {
         backgroundColor: 'transparent'
       }
@@ -229,7 +249,7 @@ const Component = ({
         className={`candle-chart-box ${candleChartIsLoading && 'transparent'}`}
       >
         <div
-          id={containerId}
+          ref={chartContainerRef}
           className='TVChartContainer'
           style={{
             width: '100%',
