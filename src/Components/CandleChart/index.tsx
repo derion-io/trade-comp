@@ -19,15 +19,6 @@ import isEqual from 'react-fast-compare'
 import { useConfigs } from '../../state/config/useConfigs'
 import { decimalsBySignificantDigits, zerofy } from '../../utils/helpers'
 
-export const detectDecimalFromPrice = (price: number | string) => {
-  if (Number(price || 0) === 0 || Number(price || 0) >= 1) {
-    return 4
-  } else {
-    const rate = (1 / Number(price)).toString()
-    return rate.split('.')[0].length + 3
-  }
-}
-
 export interface ChartContainerProps {
   interval: ChartingLibraryWidgetOptions['interval']
   datafeedUrl: string
