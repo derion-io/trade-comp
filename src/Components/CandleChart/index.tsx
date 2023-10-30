@@ -179,7 +179,10 @@ const Component = ({
         priceFormatterFactory: () => {
           return {
             format: (price: number) => {
-              return zerofy(price)
+              return zerofy(price, {
+                minimumSignificantDigits: 3,
+                maximumSignificantDigits: 3,
+              })
             }
           }
         }
