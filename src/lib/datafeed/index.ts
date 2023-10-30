@@ -127,7 +127,7 @@ export const Datafeed = {
       session: '24x7',
       exchange: '',
       minmov: 1,
-      pricescale: Math.pow(10, 10),
+      pricescale: Math.pow(10, priceScale),
       has_intraday: true,
       supported_resolution: supportedResolutions,
       volume_precision: 8,
