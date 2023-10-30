@@ -17,7 +17,7 @@ import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 import { CandleChartLoader } from '../ChartLoaders'
 import isEqual from 'react-fast-compare'
 import { useConfigs } from '../../state/config/useConfigs'
-import { cutDecimal, decimalsBySignificantDigits,  zerofy } from '../../utils/helpers'
+import { decimalsBySignificantDigits, zerofy } from '../../utils/helpers'
 
 export const detectDecimalFromPrice = (price: number | string) => {
   if (Number(price || 0) === 0 || Number(price || 0) >= 1) {
@@ -179,10 +179,7 @@ const Component = ({
         priceFormatterFactory: () => {
           return {
             format: (price: number) => {
-              if (price <= 0) {
-                return zerofy(Number(cutDecimal(price.toString(), 4)))
-              }
-              return zerofy(Number(cutDecimal(price.toString(), detectDecimalFromPrice(price))))
+              return zerofy(price)
             }
           }
         }
