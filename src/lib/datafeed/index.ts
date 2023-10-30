@@ -120,6 +120,7 @@ export const Datafeed = {
     const [, , , name, , priceScale] = symbolInfo.split('-')
     const symbolStub = {
       name: name,
+      full_name: name,
       description: '',
       type: 'crypto',
       ticker: symbolInfo,
