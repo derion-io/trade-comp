@@ -113,13 +113,14 @@ export const Datafeed = {
     extension: any
   ) {
     const state = store.getState()
-    const { token0, token1 } = state.currentPool.pair
-    const quoteTokenSymbol = token0?.address === state.currentPool.quoteToken ? token0.symbol : token1?.symbol
+    // const { token0, token1 } = state.currentPool.pair
+    // const quoteTokenSymbol = token0?.address === state.currentPool.quoteToken ? token0.symbol : token1?.symbol
     const isQuoteStableCoin = state.configs.configs.stablecoins?.filter(stable => stable === state.currentPool.quoteToken)?.[0]
     console.log('======resolveSymbol running====')
     const [, , , name, , priceScale] = symbolInfo.split('-')
     const symbolStub = {
       name: name,
+      full_name: name,
       description: '',
       type: 'crypto',
       ticker: symbolInfo,
