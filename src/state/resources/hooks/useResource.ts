@@ -18,7 +18,9 @@ export const useResource = () => {
 
   const initListPool = async (account: string) => {
     if (ddlEngine && configs.name) {
-      ddlEngine.RESOURCE.getResourceCached(account).then((data: any) => {
+      const { searchParams } = new URL(`https://1.com?${location.href.split('?')[1]}`)
+      const playMode = searchParams.has('play')
+      ddlEngine.RESOURCE.getResourceCached(account, playMode).then((data: any) => {
         dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
         dispatch(
           addPoolGroupsWithChain({ poolGroups: data.poolGroups, chainId })
@@ -26,7 +28,7 @@ export const useResource = () => {
         dispatch(addPoolsWithChain({ pools: data.pools, chainId }))
         updateSwapTxsHandle(account, data.swapLogs, data.transferLogs)
       })
-      ddlEngine.RESOURCE.getNewResource(account).then((data: any) => {
+      ddlEngine.RESOURCE.getNewResource(account, playMode).then((data: any) => {
         dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
         dispatch(
           addPoolGroupsWithChain({ poolGroups: data.poolGroups, chainId })
