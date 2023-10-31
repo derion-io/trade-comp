@@ -7,16 +7,16 @@ import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { Text, TextGrey } from '../ui/Text'
 import './style.scss'
-import formatLocalisedCompactNumber from '../../utils/formatBalance'
 import isEqual from 'react-fast-compare'
 import { useResource } from '../../state/resources/hooks/useResource'
 import {
   decodeErc1155Address,
-  formatFloat,
   isErc1155Address,
-  IEW
+  IEW,
+  NUM,
+  zerofy,
 } from '../../utils/helpers'
-import { ZERO_ADDRESS } from '../../utils/constant'
+import { MIN_POSITON_VALUE_USD_TO_DISPLAY, ZERO_ADDRESS } from '../../utils/constant'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
 
 const Component = ({
@@ -68,6 +68,10 @@ const Option = ({
     amount: IEW(balances[address], tokens[address]?.decimal || 18)
   })
 
+  if (NUM(value) < MIN_POSITON_VALUE_USD_TO_DISPLAY) {
+    return <React.Fragment/>
+  }
+
   const [reserve, tokenR] = useMemo(() => {
     if (isErc1155Address(address)) {
       const { address: poolAddress } = decodeErc1155Address(address)
@@ -78,7 +82,7 @@ const Option = ({
     return ['0', ZERO_ADDRESS]
   }, [])
 
-  const { value: lp } = useTokenValue({
+  const { value: price } = useTokenValue({
     tokenAddress: tokenR,
     amount: reserve
   })
@@ -95,10 +99,10 @@ const Option = ({
       <TokenIcon size={24} tokenAddress={address} />
       <div className='option__name-and-lp'>
         <Text>{symbol}</Text>
-        {lp && Number(lp) > 0 ? (
+        {price && Number(price) > 0 ? (
           <div>
             <TextGrey>
-              ${formatLocalisedCompactNumber(formatFloat(lp))}
+              ${zerofy(NUM(price))}
             </TextGrey>
           </div>
         ) : (
@@ -108,14 +112,10 @@ const Option = ({
       {balances[address] && balances[address].gt(0) && (
         <div className='option__balance'>
           <Text>
-            {formatLocalisedCompactNumber(
-              formatFloat(
-                IEW(balances[address], tokens[address]?.decimal ?? 18)
-              )
-            )}
+            {zerofy(NUM(IEW(balances[address], tokens[address]?.decimal ?? 18)))}
           </Text>
           <TextGrey>
-            ${formatLocalisedCompactNumber(formatFloat(value))}
+            ${zerofy(NUM(value))}
           </TextGrey>
         </div>
       )}
