@@ -12,7 +12,7 @@ export const useInitWeb3React = (
   web3ReactData: any,
   showConnectWalletModal: () => void
 ) => {
-  const { library, chainId, account, active } = web3ReactData()
+  const { provider, chainId, account, active } = web3ReactData()
 
   const dispatch = useDispatch()
 
@@ -20,9 +20,9 @@ export const useInitWeb3React = (
     dispatch(setActive({ active }))
     dispatch(setAccount({ account }))
     dispatch(setChainId({ chainId }))
-    dispatch(setProvider({ provider: library }))
+    dispatch(setProvider({ provider }))
     dispatch(setShowWalletModalCallback({ callback: showConnectWalletModal }))
-  }, [library, chainId, account])
+  }, [provider, chainId, account])
 }
 
 export const useWeb3React = () => {
