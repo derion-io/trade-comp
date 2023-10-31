@@ -24,7 +24,7 @@ export const TokenIcon = (props: {
   const { pools } = useResource()
   const { configs } = useConfigs()
   const { getTokenIconUrl } = useHelper()
-  const [tokenIconUrl, setTokenIconUrl] = useState<string>('')
+  const [tokenIcon, setTokenIcon] = useState<string>('')
   const [isError, setIsError] = useState<boolean>(!props.src)
   const style = {
     width: props.size || 50,
@@ -90,26 +90,26 @@ export const TokenIcon = (props: {
 
   useMemo(async () => {
     if (configs.tokens?.[props?.tokenAddress || '']?.logo) {
-      setTokenIconUrl(configs.tokens?.[props?.tokenAddress || '']?.logo)
+      setTokenIcon(configs.tokens?.[props?.tokenAddress || '']?.logo)
       return
     }
     if (props.src) {
-      setTokenIconUrl(props.src)
+      setTokenIcon(props.src)
       return
     }
     if (!props.tokenAddress) {
-      setTokenIconUrl('')
+      setTokenIcon('')
       return
     }
-    setTokenIconUrl(await getTokenIconUrl(props.tokenAddress || ''))
-  }, [pools, props.src, tokenIconUrl, props.tokenAddress])
+    setTokenIcon(await getTokenIconUrl(props.tokenAddress || ''))
+  }, [pools, props.src, tokenIcon, props.tokenAddress])
   if (poolToken) {
     return <Fragment>{poolToken}</Fragment>
   }
-  if (isError || !tokenIconUrl) {
+  if (isError || tokenIcon === 'notfound' || !tokenIcon) {
     return <CustomTokenIcon size={props.size || 50} {...props} />
   } else {
-    return isLink(tokenIconUrl)
+    return isLink(tokenIcon)
       ? <img
         onError={onError}
         style={{
@@ -118,10 +118,10 @@ export const TokenIcon = (props: {
           borderRadius: '50%'
         }}
         {...props}
-        src={tokenIconUrl}
+        src={tokenIcon}
       />
       : <span style={{ fontSize: props.iconSize ?? '1em' }} className = 'override-char'>
-        {tokenIconUrl}
+        {tokenIcon}
       </span>
   }
 }
