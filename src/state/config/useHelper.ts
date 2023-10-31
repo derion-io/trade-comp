@@ -4,7 +4,8 @@ import BASE_TOKEN_ICON_LINKS from '../../assets/tokenIconLinks/base.json'
 import { PoolType } from '../resources/type'
 import { VALUE_IN_USD_STATUS } from '../setting/type'
 import { useSettings } from '../setting/hooks/useSettings'
-
+import { getCoingeckoToken } from 'derivable-tools/dist/utils/helper'
+import { isErc1155Address } from '../../utils/helpers'
 export const useHelper = () => {
   const { configs, chainId } = useConfigs()
   const { settings } = useSettings()
@@ -24,7 +25,8 @@ export const useHelper = () => {
       : address
   }
 
-  const getTokenIconUrl = (address: string) => {
+  const getTokenIconUrl = async (address: string) => {
+    if (!address || isErc1155Address(address)) return ''
     if (chainId === CHAINS.BASE) {
       return BASE_TOKEN_ICON_LINKS[
         convertNativeAddressToWrapAddress(address || '')?.toLowerCase()
@@ -35,11 +37,22 @@ export const useHelper = () => {
         address || ''
       )?.toLowerCase()}.png`
     }
-    return `https://farm.army/bsc/token/${convertNativeAddressToWrapAddress(
-      address || ''
-    )?.toLowerCase()}.webp`
+    if (chainId === CHAINS.BSC) {
+      const wAddress = convertNativeAddressToWrapAddress(address)
+      const localWAddress = localStorage.getItem(wAddress)
+      if (localWAddress !== null) return localWAddress
+      if (localWAddress === 'notfound') return ''
+      const res = await getCoingeckoToken('bsc', wAddress.toLowerCase())
+      if (res?.status === 'success') {
+        localStorage.setItem(wAddress, res?.attributes?.image_url)
+        return res?.attributes?.image_url || ''
+      }
+      if (res?.status === 'notfound') {
+        localStorage.setItem(wAddress, 'notfound')
+        return ''
+      }
+    }
   }
-
   const isShowValueInUsd = (pool: PoolType) => {
     return (
       settings.showValueInUsd === VALUE_IN_USD_STATUS.USD ||

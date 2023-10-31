@@ -23,8 +23,8 @@ export const TokenIcon = (props: {
 }) => {
   const { pools } = useResource()
   const { configs } = useConfigs()
-
   const { getTokenIconUrl } = useHelper()
+  const [tokenIconUrl, setTokenIconUrl] = useState<string>('')
   const [isError, setIsError] = useState<boolean>(!props.src)
   const style = {
     width: props.size || 50,
@@ -81,19 +81,35 @@ export const TokenIcon = (props: {
     }
     return ''
   }, [pools, props.tokenAddress])
-  const src = useMemo(() => {
-    if (props.src) return props.src
-    if (!props.tokenAddress) return ''
-    return getTokenIconUrl(props.tokenAddress)
-  }, [props])
 
+  // useMemo(async () => {
+  //   if (!poolToken) return
+  //   if (props.src) setTokenIconUrl(props.src)
+  //   setTokenIconUrl(await getTokenIconUrl(props.tokenAddress || ''))
+  // }, [props, poolToken, tokenIconUrl])
+
+  useMemo(async () => {
+    if (configs.tokens?.[props?.tokenAddress || '']?.logo) {
+      setTokenIconUrl(configs.tokens?.[props?.tokenAddress || '']?.logo)
+      return
+    }
+    if (props.src) {
+      setTokenIconUrl(props.src)
+      return
+    }
+    if (!props.tokenAddress) {
+      setTokenIconUrl('')
+      return
+    }
+    setTokenIconUrl(await getTokenIconUrl(props.tokenAddress || ''))
+  }, [pools, props.src, tokenIconUrl, props.tokenAddress])
   if (poolToken) {
     return <Fragment>{poolToken}</Fragment>
   }
-  if (isError || !src) {
+  if (isError || !tokenIconUrl) {
     return <CustomTokenIcon size={props.size || 50} {...props} />
   } else {
-    return isLink(configs.tokens?.[props?.tokenAddress || '']?.logo || src)
+    return isLink(tokenIconUrl)
       ? <img
         onError={onError}
         style={{
@@ -102,10 +118,10 @@ export const TokenIcon = (props: {
           borderRadius: '50%'
         }}
         {...props}
-        src={configs.tokens?.[props?.tokenAddress || '']?.logo || src}
+        src={tokenIconUrl}
       />
       : <span style={{ fontSize: props.iconSize ?? '1em' }} className = 'override-char'>
-        {configs.tokens?.[props?.tokenAddress ?? '']?.logo}
+        {tokenIconUrl}
       </span>
   }
 }
