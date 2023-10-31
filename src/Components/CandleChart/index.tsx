@@ -190,7 +190,7 @@ const Component = ({
       setTradingviewWidget(tvWidget)
       tvWidget
         .activeChart()
-        .createStudy('Volume')
+        .createStudy('Volume', true) // forceOverlay
       tvWidget
         .activeChart()
         .onVisibleRangeChanged()
