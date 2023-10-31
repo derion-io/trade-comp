@@ -4,7 +4,6 @@ import BASE_TOKEN_ICON_LINKS from '../../assets/tokenIconLinks/base.json'
 import { PoolType } from '../resources/type'
 import { VALUE_IN_USD_STATUS } from '../setting/type'
 import { useSettings } from '../setting/hooks/useSettings'
-import { getCoingeckoToken } from 'derivable-tools/dist/utils/helper'
 import { isErc1155Address } from '../../utils/helpers'
 export const useHelper = () => {
   const { configs, chainId } = useConfigs()
@@ -26,31 +25,28 @@ export const useHelper = () => {
   }
 
   const getTokenIconUrl = async (address: string) => {
-    if (!address || isErc1155Address(address)) return ''
-    if (chainId === CHAINS.BASE) {
-      return BASE_TOKEN_ICON_LINKS[
-        convertNativeAddressToWrapAddress(address || '')?.toLowerCase()
-      ]
+    const wAddress = convertNativeAddressToWrapAddress(address)
+    const localWAddress = localStorage.getItem(wAddress)
+    if (!wAddress || isErc1155Address(wAddress)) return ''
+    if (localWAddress !== null) return localWAddress
+    if (localWAddress === 'notfound') return ''
+    const res = await getCoingeckoToken(configs.geckoTerminalSymbol, wAddress?.toLowerCase())
+    if (res?.status === 'success') {
+      localStorage.setItem(wAddress, res?.attributes?.image_url)
+      return res?.attributes?.image_url || ''
     }
-    if (chainId === CHAINS.ARBITRUM) {
-      return `https://cdn.arken.finance/token/arbitrum/${convertNativeAddressToWrapAddress(
-        address || ''
-      )?.toLowerCase()}.png`
+    if (res?.status === 'notfound') {
+      localStorage.setItem(wAddress, 'notfound')
+      return ''
     }
-    if (chainId === CHAINS.BSC) {
-      const wAddress = convertNativeAddressToWrapAddress(address)
-      const localWAddress = localStorage.getItem(wAddress)
-      if (localWAddress !== null) return localWAddress
-      if (localWAddress === 'notfound') return ''
-      const res = await getCoingeckoToken('bsc', wAddress.toLowerCase())
-      if (res?.status === 'success') {
-        localStorage.setItem(wAddress, res?.attributes?.image_url)
-        return res?.attributes?.image_url || ''
-      }
-      if (res?.status === 'notfound') {
-        localStorage.setItem(wAddress, 'notfound')
-        return ''
-      }
+  }
+  const getCoingeckoToken = async (chainSymbol: string, address: string) => {
+    try {
+      const res = await fetch(`https://api.geckoterminal.com/api/v2/networks/${chainSymbol}/tokens/${address.toLowerCase()}/info`)
+      if (res.status === 404) return { status: 'notfound' }
+      return { ...(await res.json()).data, status: 'success' }
+    } catch (e) {
+      return { status: 'error' }
     }
   }
   const isShowValueInUsd = (pool: PoolType) => {
