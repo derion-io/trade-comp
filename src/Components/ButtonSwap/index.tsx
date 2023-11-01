@@ -74,6 +74,15 @@ export const ButtonSwap = ({
   const [visibleConfirmPosition, setVisibleConfirmPosition] = useState<boolean>(false)
   const sideOut = Number(decodeErc1155Address(outputTokenAddress)?.id ?? 0)
 
+  let gasLimit: BigNumber | undefined
+  if (gasUsed?.gt(0)) {
+    let gasBuffer = gasUsed.shr(1)
+    if (gasBuffer.gt(100000)) {
+      gasBuffer = bn(100000)
+    }
+    gasLimit = gasUsed.add(gasBuffer)
+  }
+
   const ButtonComp =
     sideOut === POOL_IDS.A
       ? ButtonBuy
@@ -198,7 +207,7 @@ export const ButtonSwap = ({
                       currentBalanceOut: balances[outputTokenAddress]
                     }
                   ], {
-                  gasLimit: gasUsed?.gt(0) ? gasUsed.mul(3).div(2) : undefined,
+                  gasLimit,
                   onSubmitted: (pendingTx: PendingSwapTransactionType) => {
                     pendingTxHash = pendingTx.hash
                     updatePendingTxsHandle([...swapPendingTxs, pendingTx])
