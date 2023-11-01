@@ -1,5 +1,5 @@
 import React, { Fragment, useMemo } from 'react'
-import { IEW, calculateWeightedAverage, formatFloat, getTitleBuyTradeType, whatDecimalSeparator, zerofy } from '../../../utils/helpers'
+import { IEW, NUM, calculateWeightedAverage, numInt, numDec, formatFloat, getTitleBuyTradeType, zerofy } from '../../../utils/helpers'
 import formatLocalisedCompactNumber, { formatWeiToDisplayNumber } from '../../../utils/formatBalance'
 import { TokenSymbol } from '../../ui/TokenSymbol'
 import { TRADE_TYPE } from '../../../utils/constant'
@@ -108,24 +108,17 @@ export const EstimateBox = ({
                   </div>
                 )}
                 <div>
-                  ${zerofy(formatFloat(valueOutBefore)).split('.')[0]}
+                  ${numInt(zerofy(formatFloat(valueOutBefore)))}
                 </div>
                 {showSize && (
                   <div>
-                    $
-                    {
-                      zerofy(
-                        formatFloat(Number(valueOutBefore) * power)
-                      ).split('.')[0]
-                    }
+                    ${numInt(zerofy(Number(valueOutBefore) * power))}
                   </div>
                 )}
                 <div>
-                  {
-                    formatLocalisedCompactNumber(
-                      formatFloat(positionsWithEntry[outputTokenAddress]?.entryPrice || basePrice)
-                    ).split('.')[0]
-                  }
+                  {numInt(zerofy(
+                    positionsWithEntry[outputTokenAddress]?.entryPrice || basePrice
+                  ))}
                 </div>
                 {/* <div>
                     $
@@ -139,28 +132,25 @@ export const EstimateBox = ({
               <div className='position-delta--left'>
                 {settings.showBalance && (
                   <div>
-                    {formatWeiToDisplayNumber(
+                    {numDec(formatWeiToDisplayNumber(
                       balances[outputTokenAddress] ?? bn(0),
                       4,
                       tokens[outputTokenAddress]?.decimal || 18
-                    ).match(/\.\d+$/g) || '\u00A0'}
+                    ))}
                   </div>
                 )}
                 <div>
-                  {zerofy(formatFloat(valueOutBefore)).match(/\.\d+$/g) ||
-                    '\u00A0'}
+                  {numDec(zerofy(NUM(valueOutBefore)))}
                 </div>
                 {showSize && (
                   <div>
-                    {zerofy(
-                      formatFloat(Number(valueOutBefore) * power)
-                    ).match(/\.\d+$/g) || '\u00A0'}
+                    {numDec(zerofy(NUM(valueOutBefore) * power))}
                   </div>
                 )}
                 <div>
-                  {zerofy(
-                    formatFloat(positionsWithEntry[outputTokenAddress]?.entryPrice || basePrice)
-                  ).match(/\.\d+$/g) || '\u00A0'}
+                  {numDec(zerofy(
+                    NUM(positionsWithEntry[outputTokenAddress]?.entryPrice) || basePrice
+                  ))}
                 </div>
               </div>
             </div>
@@ -185,69 +175,69 @@ export const EstimateBox = ({
                 {settings.showBalance && (
                   <div>
                     {
-                      formatLocalisedCompactNumber(
+                      numInt(formatLocalisedCompactNumber(
                         formatFloat(Number(amountOut) + Number(formatWeiToDisplayNumber(
                           balances[outputTokenAddress] ?? bn(0),
                           4,
                             tokens[outputTokenAddress]?.decimal || 18
                         )))
-                      ).split(whatDecimalSeparator())[0]
+                      ))
                     }
                   </div>
                 )}
                 <div>
                   $
                   {
-                    formatLocalisedCompactNumber(
+                    numInt(formatLocalisedCompactNumber(
                       formatFloat(Number(valueOut) + Number(valueOutBefore))
-                    ).split(whatDecimalSeparator())[0]
+                    ))
                   }
                 </div>
                 {showSize && (
                   <div>
                     $
                     {
-                      formatLocalisedCompactNumber(
+                      numInt(formatLocalisedCompactNumber(
                         formatFloat(Number(valueOut) * power + Number(valueOutBefore) * power)
-                      ).split('.')[0]
+                      ))
                     }
                   </div>
                 )}
                 <div>
                   {
-                    formatLocalisedCompactNumber(
-                      formatFloat(afterEntryPrice || basePrice)
-                    ).split('.')[0]
+                    numInt(zerofy(
+                      NUM(afterEntryPrice || basePrice)
+                    ))
                   }
                 </div>
               </div>
               <div className='position-delta--left'>
                 {settings.showBalance && (
                   <div>
-                    {formatLocalisedCompactNumber(
+                    {numDec(formatLocalisedCompactNumber(
                       formatFloat(Number(amountOut) + Number(IEW(
                         balances[outputTokenAddress],
                             tokens[outputTokenAddress]?.decimal || 18
                       )))
-                    ).match(/\.\d+$/g) || '\u00A0'}
+                    ))}
                   </div>
                 )}
                 <div>
-                  {formatLocalisedCompactNumber(
+                  {numDec(formatLocalisedCompactNumber(
                     formatFloat(Number(valueOut) + Number(valueOutBefore))
-                  ).match(/\.\d+$/g) || '\u00A0'}
+                  ))}
                 </div>
                 {showSize && (
                   <div>
-                    {formatLocalisedCompactNumber(
+                    {numDec(formatLocalisedCompactNumber(
                       formatFloat(Number(valueOut) * power + Number(valueOutBefore) * power)
-                    ).match(/\.\d+$/g) || '\u00A0'}
+                    ))}
                   </div>
                 )}
                 <div>
-                  {zerofy(
-                    formatFloat(afterEntryPrice || basePrice)
-                  ).match(/\.\d+$/g) || '\u00A0'}
+                  {numDec(zerofy(
+                    NUM(afterEntryPrice || basePrice)
+                  ))}
                 </div>
               </div>
             </div>
