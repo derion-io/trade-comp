@@ -6,11 +6,12 @@ import {
   setChartIsOutDate
 } from '../../state/currentPool/reducer'
 import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
-import { isErc1155Address } from '../../utils/helpers'
+import { getPoolPower, isErc1155Address } from '../../utils/helpers'
 import { TokenType } from '../../state/token/type'
 import { SwapTxType } from '../../state/wallet/type'
 import { currentPoolState } from '../../state/currentPool/type'
 import moment from 'moment'
+import {useResource} from '../../state/resources/hooks/useResource'
 
 const COLORS = {
   PINK: '#FF98E5',
@@ -308,10 +309,6 @@ const detectMarkInfo = (
 ) => {
   const time = moment(swapTx.timeStamp * 1000).format('YYYY-MM-DD, HH:mm')
 
-  const arrow = `<span style='color: ${getColor(swapTx.tokenOut)}'>⇒</span>`
-
-  const explorerLink = `<a style='color: ${COLORS.BLUE}; margin-bottom: 1em' target='_blank' href='${configs.explorer}/tx/${swapTx.transactionHash}'>${time} (View)</a>`
-
   const l =
     resolution === '1D' || resolution === '1W' || resolution === '1M'
       ? 1
@@ -324,33 +321,28 @@ const detectMarkInfo = (
       : Math.floor(swapTx.timeStamp) - 60 * l
   }
   let label = getMarkLabel(swapTx.tokenOut)
-
+  let labelContent = getMarkLabelContent(swapTx.tokenIn,swapTx.tokenOut)
+  const [token1,token2,amount2] = labelContent.isClose ? 
+  [swapTx.tokenIn, swapTx.tokenOut, swapTx.amountOut] :
+   [swapTx.tokenOut, swapTx.tokenIn, swapTx.amountIn];
   result.color = getMarkColor(swapTx.tokenOut)
-
   if (timescaleMark) {
     result.tooltip = [
       time,
-      `<div>
-      <span style='color: ${getColor(swapTx.tokenIn)}'>${getMarkPosition(swapTx.tokenIn, tokens) ?? tokens[swapTx.tokenIn]?.symbol ?? 'unknown'}</span>
-        ${formatWeiToDisplayNumber(swapTx.amountIn, 4, tokens[swapTx.tokenIn]?.decimal || 18)}
-        ${arrow}
-        <span style='color: ${getColor(swapTx.tokenOut)}'>${getMarkPosition(swapTx.tokenOut, tokens) ?? tokens[swapTx.tokenOut]?.symbol ?? 'unknown'}</span>
-        ${formatWeiToDisplayNumber(swapTx.amountOut, 4, tokens[swapTx.tokenIn]?.decimal || 18)}
-      </div>`
+      `
+      ${labelContent.text} ${getMarkPosition(token1, tokens) ?? tokens[token1]?.symbol ?? 'unknown'} \n
+      ${labelContent.arrow}
+      ${formatWeiToDisplayNumber(amount2, 4, tokens[token2]?.decimal || 18)}\n
+      ${getMarkPosition(token2, tokens) ?? tokens[token2]?.symbol ?? 'unknown'} \n`
     ]
   } else {
     label = label.slice(0, 1)
     result.labelFontColor = '#ffffff'
-    result.text = `<div>
-      <div>${explorerLink}</div>
-      <div>
-        <span style='color: ${getColor(swapTx.tokenIn)}'>${getMarkPosition(swapTx.tokenIn, tokens) ?? tokens[swapTx.tokenIn]?.symbol ?? 'unknown'}</span>
-        ${formatWeiToDisplayNumber(swapTx.amountIn, 4, tokens[swapTx.tokenIn]?.decimal || 18)}
-        ${arrow}
-        <span style='color: ${getColor(swapTx.tokenOut)}'>${getMarkPosition(swapTx.tokenOut, tokens) ?? tokens[swapTx.tokenOut]?.symbol ?? 'unknown'}</span>
-        ${formatWeiToDisplayNumber(swapTx.amountOut, 4, tokens[swapTx.tokenIn]?.decimal || 18)}
-      </div>
-    </div>`
+    result.text = `
+      ${labelContent.text} ${getMarkPosition(token1, tokens) ?? tokens[token1]?.symbol ?? 'unknown'} \n
+      ${labelContent.arrow}
+      ${formatWeiToDisplayNumber(amount2, 4, tokens[token2]?.decimal || 18)}\n
+      ${getMarkPosition(token2, tokens) ?? tokens[token2]?.symbol ?? 'unknown'} \n`
   }
   result.label = label
   return result
@@ -372,7 +364,7 @@ const getColor = (address: string) => {
   }
 }
 
-const getMarkLabel = (address: string) => {
+const getMarkLabel = (address: string)=> {
   if (address === NATIVE_ADDRESS || !isErc1155Address(address)) {
     return 'C'
   }
@@ -387,6 +379,18 @@ const getMarkLabel = (address: string) => {
     return '-'
   }
 }
+const getMarkLabelContent = (addressIn: string, addressOut:string)  => {
+  const isClose = addressOut === NATIVE_ADDRESS || !isErc1155Address(addressOut)  
+  const addressInid = addressIn.split('-')[1]
+  const addressOutid = addressOut.split('-')[1]
+  if (Number(addressInid) === POOL_IDS.C || Number(addressOutid) === POOL_IDS.C) {
+    if(isClose) return {text: 'Remove',arrow: "⇒", isClose}
+    else return {text: "Add",arrow: "⇐", isClose}
+  } else {
+    if(isClose) return {text: "Close", arrow: "⇒", isClose}
+    else return {text: "Open",arrow: "⇐", isClose}
+  }
+}
 
 const getMarkPosition = (address: string, tokens: { [key: string]: TokenType; }) => {
   if (address === NATIVE_ADDRESS || !isErc1155Address(address)) {
@@ -396,9 +400,9 @@ const getMarkPosition = (address: string, tokens: { [key: string]: TokenType; })
   if (Number(id) === POOL_IDS.C) {
     return 'Liquidity'
   } else if (Number(id) === POOL_IDS.B) {
-    return 'Short'
+    return `Short`
   } else if (Number(id) === POOL_IDS.A) {
-    return 'Long'
+    return `Long`
   } else {
     return '-'
   }
