@@ -25,6 +25,7 @@ import {
   formatFloat,
   getPoolPower,
   isErc1155Address,
+  zerofy,
 } from '../../utils/helpers'
 import { ApproveUtrModal } from '../ApproveUtrModal'
 import { ButtonSwap } from '../ButtonSwap'
@@ -34,7 +35,7 @@ import { useCalculateSwap } from '../SwapBox/hooks/useCalculateSwap'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
 import { IconArrowDown } from '../ui/Icon'
 import NumberInput from '../ui/Input/InputNumber'
-import { Text, TextError, TextGrey, TextWarning } from '../ui/Text'
+import { Text, TextError, TextGrey, TextSell, TextWarning } from '../ui/Text'
 import { TokenIcon } from '../ui/TokenIcon'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { EstimateBox } from './components/EstimateBox'
@@ -217,8 +218,18 @@ const Component = ({
     }
 
     const {
+      leverage,
+      effectiveLeverage,
       deleveragePrice,
     } = calcPoolSide(poolToShow, sideToShow, tokens)
+
+    if (effectiveLeverage < leverage) {
+      const CompText = effectiveLeverage < leverage / 2 ? TextSell: TextWarning
+      return [
+        'Effective Leverage',
+        <CompText>{zerofy(effectiveLeverage)}</CompText>
+      ]
+    }
 
     return [
       (sideToShow == POOL_IDS.A || sideToShow == POOL_IDS.B)
