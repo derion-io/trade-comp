@@ -308,9 +308,9 @@ const detectMarkInfo = (
 ) => {
   const time = moment(swapTx.timeStamp * 1000).format('YYYY-MM-DD, HH:mm')
 
-  const arrow = `<span style='color: ${getColor(swapTx.tokenOut)}'>⇒</span>`
+  const arrow = `⇒`
 
-  const explorerLink = `<a style='color: ${COLORS.BLUE}; margin-bottom: 1em' target='_blank' href='${configs.explorer}/tx/${swapTx.transactionHash}'>${time} (View)</a>`
+  const explorerLink = `${configs.explorer}/tx/${swapTx.transactionHash}`
 
   const l =
     resolution === '1D' || resolution === '1W' || resolution === '1M'
@@ -330,27 +330,22 @@ const detectMarkInfo = (
   if (timescaleMark) {
     result.tooltip = [
       time,
-      `<div>
-      <span style='color: ${getColor(swapTx.tokenIn)}'>${getMarkPosition(swapTx.tokenIn, tokens) ?? tokens[swapTx.tokenIn]?.symbol ?? 'unknown'}</span>
-        ${formatWeiToDisplayNumber(swapTx.amountIn, 4, tokens[swapTx.tokenIn]?.decimal || 18)}
-        ${arrow}
-        <span style='color: ${getColor(swapTx.tokenOut)}'>${getMarkPosition(swapTx.tokenOut, tokens) ?? tokens[swapTx.tokenOut]?.symbol ?? 'unknown'}</span>
-        ${formatWeiToDisplayNumber(swapTx.amountOut, 4, tokens[swapTx.tokenIn]?.decimal || 18)}
-      </div>`
+      `
+        ${formatWeiToDisplayNumber(swapTx.amountIn, 4, tokens[swapTx.tokenIn]?.decimal || 18)} \n
+        ${arrow} \n
+        ${formatWeiToDisplayNumber(swapTx.amountOut, 4, tokens[swapTx.tokenIn]?.decimal || 18)} \n
+      `
     ]
   } else {
     label = label.slice(0, 1)
     result.labelFontColor = '#ffffff'
-    result.text = `<div>
-      <div>${explorerLink}</div>
-      <div>
-        <span style='color: ${getColor(swapTx.tokenIn)}'>${getMarkPosition(swapTx.tokenIn, tokens) ?? tokens[swapTx.tokenIn]?.symbol ?? 'unknown'}</span>
-        ${formatWeiToDisplayNumber(swapTx.amountIn, 4, tokens[swapTx.tokenIn]?.decimal || 18)}
+    result.text = `
+        ${getMarkPosition(swapTx.tokenIn, tokens) ?? tokens[swapTx.tokenIn]?.symbol ?? 'unknown'} \n
+        ${formatWeiToDisplayNumber(swapTx.amountIn, 4, tokens[swapTx.tokenIn]?.decimal || 18)}\n
         ${arrow}
-        <span style='color: ${getColor(swapTx.tokenOut)}'>${getMarkPosition(swapTx.tokenOut, tokens) ?? tokens[swapTx.tokenOut]?.symbol ?? 'unknown'}</span>
-        ${formatWeiToDisplayNumber(swapTx.amountOut, 4, tokens[swapTx.tokenIn]?.decimal || 18)}
-      </div>
-    </div>`
+        ${getMarkPosition(swapTx.tokenOut, tokens) ?? tokens[swapTx.tokenOut]?.symbol ?? 'unknown'} \n
+        ${formatWeiToDisplayNumber(swapTx.amountOut, 4, tokens[swapTx.tokenIn]?.decimal || 18)}\n
+    `
   }
   result.label = label
   return result

@@ -6,6 +6,7 @@ import {
   IChartingLibraryWidget,
   ResolutionString,
   TimeFrameType,
+  VisibilityType,
   widget
 } from '../../lib/charting_library'
 import { Datafeed, TIME_IN_RESOLUTION } from '../../lib/datafeed'
@@ -173,7 +174,7 @@ const Component = ({
               return zerofy(price, {
                 maxExtraDigits: 2,
                 minimumSignificantDigits: 3,
-                maximumSignificantDigits: 3,
+                maximumSignificantDigits: 3
               })
             }
           }
@@ -187,6 +188,7 @@ const Component = ({
     const tvWidget: IChartingLibraryWidget = new widget(widgetOptions)
     setTradingviewWidget(tvWidget)
     tvWidget.onChartReady(() => {
+      tvWidget.currencyAndUnitVisibility().setValue(VisibilityType.AlwaysOn)
       setTradingviewWidget(tvWidget)
       tvWidget
         .activeChart()
