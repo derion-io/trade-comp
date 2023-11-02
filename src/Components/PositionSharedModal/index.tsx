@@ -16,7 +16,7 @@ import {
   sub,
   zerofy
 } from '../../utils/helpers'
-import { toPng } from 'html-to-image'
+import { toBlob, toPng } from 'html-to-image'
 import { POOL_IDS } from '../../utils/constant'
 import { Position } from '../../utils/type'
 import { Modal } from '../ui/Modal'
@@ -26,7 +26,8 @@ import { Text, TextBlue, TextBuy, TextGrey, TextSell } from '../ui/Text'
 import { useWindowSize } from '../../hooks/useWindowSize'
 import { Button, ButtonBorder, ButtonBuy } from '../ui/Button'
 import { toast } from 'react-toastify'
-const config = { quality: 0.95, canvasWidth: 518, canvasHeight: 292, type: 'image/jpeg' }
+
+const imgConfig = { quality: 0.95, canvasWidth: 1024, canvasHeight: 600 }
 
 const Component = ({
   visible,
@@ -70,19 +71,30 @@ const Component = ({
     }
     return []
   }, [tokens, token, pools])
+
   async function handleDownload() {
     const element = cardRef.current
     if (!element) return
-    const imgBlob = await toPng(element, config)
+    const imgBlob = await toPng(element, imgConfig)
     await downloadImage(imgBlob, 'derivable-position.png')
   }
-  function handleCopy () {
-    navigator.clipboard.writeText(window.location.href)
-    toast.success('Copy url pool successfully')
-  }
+
+  // async function handleCopy () {
+  //   const element = cardRef.current
+  //   if (!element) return
+  //   const imgBlob = await toBlob(element, config)
+  //   if (!imgBlob) return
+  //   await navigator.clipboard.write([
+  //     new ClipboardItem({
+  //       [imgBlob.type]: imgBlob,
+  //     })
+  //   ])
+  //   toast.success('Copy image to clipboard successfully!')
+  // }
+
   const tweetLink = getTwitterIntentURL(
-    `Latest $${base} trade on @DerivableLabs`,
-    'https://app.derivable.org/'
+    `Long/Short $${base} on the first ever Perpetuals AMM Protocol @DerivableLabs`,
+    'https://app.derivable.org'
   )
   return (
     <Modal
@@ -123,9 +135,11 @@ const Component = ({
           </div>
         </div>
         <div className='actions'>
+          {/*
           <ButtonBorder fill='white' className='actions-button' onClick={() => handleCopy()}>
             <CopyIcon/>{' '} Copy
           </ButtonBorder>
+          */}
           <ButtonBorder fill='white' className='actions-button' onClick={() => handleDownload()}>
             <DownloadIcon/> {' '} Download
           </ButtonBorder>

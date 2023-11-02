@@ -3,7 +3,7 @@
   width: 100%;
   margin-top: 2rem;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
 }
 
 .position-share-modal .icon {
@@ -53,9 +53,10 @@
   padding-bottom: 0;
 }
 .position-share .info > .side {
-  border-radius: 10px;
+  border-radius: 6px;
   padding: 2px 0.5rem;
   margin-left: 1rem;
+  margin-top: -0.3rem;
   &.long {
     color: $color-buy;
     text-shadow: 0 0 2px, 0 0 1px $color-buy;
