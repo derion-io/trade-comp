@@ -6,12 +6,11 @@ import {
   setChartIsOutDate
 } from '../../state/currentPool/reducer'
 import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
-import { getPoolPower, isErc1155Address } from '../../utils/helpers'
+import { isErc1155Address } from '../../utils/helpers'
 import { TokenType } from '../../state/token/type'
 import { SwapTxType } from '../../state/wallet/type'
 import { currentPoolState } from '../../state/currentPool/type'
 import moment from 'moment'
-import {useResource} from '../../state/resources/hooks/useResource'
 
 const COLORS = {
   PINK: '#FF98E5',
@@ -349,21 +348,6 @@ const detectMarkInfo = (
   return result
 }
 
-const getColor = (address: string) => {
-  if (address === NATIVE_ADDRESS || !isErc1155Address(address)) {
-    return COLORS.PINK
-  }
-  const id = address.split('-')[1]
-  if (Number(id) === POOL_IDS.C) {
-    return COLORS.BLUE
-  } else if (Number(id) === POOL_IDS.B) {
-    return COLORS.SELL
-  } else if (Number(id) === POOL_IDS.A) {
-    return COLORS.BUY
-  } else {
-    return 'white'
-  }
-}
 
 const getMarkLabel = (address: string)=> {
   if (address === NATIVE_ADDRESS || !isErc1155Address(address)) {
@@ -401,9 +385,9 @@ const getMarkPosition = (address: string, tokens: { [key: string]: TokenType; })
   if (Number(id) === POOL_IDS.C) {
     return 'Liquidity'
   } else if (Number(id) === POOL_IDS.B) {
-    return `Short`
+    return 'Short'
   } else if (Number(id) === POOL_IDS.A) {
-    return `Long`
+    return 'Long'
   } else {
     return '-'
   }
