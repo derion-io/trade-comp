@@ -17,7 +17,7 @@ import {
   MIN_POSITON_VALUE_USD_TO_DISPLAY,
   POOL_IDS,
   POSITION_STATUS,
-  TRADE_TYPE
+  TRADE_TYPE,
 } from '../../utils/constant'
 import formatLocalisedCompactNumber, {
   formatWeiToDisplayNumber
@@ -83,7 +83,7 @@ export const Positions = ({
   const [valueInUsdStatus, setValueInUsdStatus] = useState<VALUE_IN_USD_STATUS>(
     VALUE_IN_USD_STATUS.TOKEN_R
   )
-  const [closeModalVisible, setCloseModalVisible] = useState<boolean>(false)
+  const [visible, setVisible] = useState<boolean>(false)
   const [sharedModalVisible, setSharedModalVisible] = useState<boolean>(true)
   const [closingPosition, setClosingPosition] = useState<Position | undefined>(
     undefined
@@ -162,7 +162,7 @@ export const Positions = ({
         leverage,
         effectiveLeverage,
         deleveragePrice,
-        funding
+        funding,
       } = calcPoolSide(pool, side, tokens)
 
       const sizeDisplay =
@@ -430,7 +430,7 @@ export const Positions = ({
                         setOutputTokenAddress(
                           wrapToNativeAddress(position.pool.TOKEN_R)
                         )
-                        setCloseModalVisible(true)
+                        setVisible(true)
                       }}
                     >
                       {position.side === POOL_IDS.C ? 'Remove' : 'Close'}
@@ -614,7 +614,7 @@ export const Positions = ({
                         onClick={(e) => {
                           setClosingPosition(position)
                           setOutputTokenAddress(wrapToNativeAddress(position.pool.TOKEN_R))
-                          setCloseModalVisible(true)
+                          setVisible(true)
                           e.stopPropagation() // stop the index from being changed
                         }}
                       >
@@ -633,10 +633,10 @@ export const Positions = ({
         setVisible={setSharedModalVisible}
         position={sharedPosition}
       /> : ''}
-      {closeModalVisible && closingPosition != null ? (
+      {visible && closingPosition != null ? (
         <ClosePosition
-          visible={closeModalVisible}
-          setVisible={setCloseModalVisible}
+          visible={visible}
+          setVisible={setVisible}
           position={closingPosition}
           outputTokenAddress={outputTokenAddress}
           setOutputTokenAddress={setOutputTokenAddress}
@@ -754,7 +754,7 @@ export const Pnl = ({
   const pnl = NUM(div(valueChange, entryValue))
   const pnlDisplay = formatPercent(pnl)
   if (pnlDisplay == 0) {
-    return <React.Fragment />
+    return <React.Fragment></React.Fragment>
   }
 
   if (isPhone) {

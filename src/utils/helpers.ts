@@ -2,6 +2,7 @@ import { BigNumber, ethers } from 'ethers'
 import { POOL_IDS, TRADE_TYPE, ZERO_ADDRESS } from './constant'
 import _ from 'lodash'
 import { ListTokensType } from '../state/token/type'
+
 const mdp = require('move-decimal-point')
 
 export const bn = ethers.BigNumber.from
@@ -391,13 +392,13 @@ export const zerofy = (value: number, opts?: {
   const maxExtraDigits = opts?.maxExtraDigits ?? 0
   const extraDigits = Math.min(
     maxExtraDigits,
-    value >= 1 ? 2 : value >= 0.1 ? 1 : 0
+    value >= 1 ? 2 : value >= 0.1 ? 1 : 0,
   )
   const minimumSignificantDigits = extraDigits + (opts?.minimumSignificantDigits ?? 1)
   const maximumSignificantDigits = extraDigits + (opts?.maximumSignificantDigits ?? 4)
   const stringOpts = {
     minimumSignificantDigits,
-    maximumSignificantDigits
+    maximumSignificantDigits,
   }
   let zeros = -Math.floor(Math.log10(value) + 1)
   if (!Number.isFinite(zeros)) {
@@ -490,16 +491,16 @@ export const calcPoolSide = (
   const PRECISION_DECIMALS = 12
   let mark = !MARK ? 1 : NUM(IEW(
     MARK
-      .mul(bn(10).pow((decimalsOffset / exp) + PRECISION_DECIMALS))
+      .mul(bn(10).pow((decimalsOffset/exp) + PRECISION_DECIMALS))
       .shr(128),
-    PRECISION_DECIMALS
+    PRECISION_DECIMALS,
   ))
   mark **= exp
 
   const xA = xr(k, R.shr(1), a)
   const xB = xr(-k, R.shr(1), b)
-  const dgA = xA ** exp * mark
-  const dgB = xB ** exp * mark
+  const dgA = xA**exp * mark
+  const dgB = xB**exp * mark
   const deleveragePrice =
     side === POOL_IDS.A
       ? zerofy(dgA)
@@ -519,7 +520,7 @@ export const calcPoolSide = (
     deleveragePrice,
     interest,
     premium,
-    funding
+    funding,
   }
 }
 
