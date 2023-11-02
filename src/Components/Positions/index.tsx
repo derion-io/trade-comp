@@ -57,6 +57,7 @@ import './style.scss'
 import { useSwapPendingHistory } from '../../state/wallet/hooks/useSwapPendingHistory'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { SharedPosition } from '../PositionSharedModal'
+import { SharedIcon } from '../ui/Icon'
 
 export enum VALUE_IN_USD_STATUS {
   AUTO,
@@ -423,11 +424,11 @@ export const Positions = ({
                       {position.side === POOL_IDS.C ? 'Remove' : 'Close'}
                     </ButtonSell>
                   }
-                  <ButtonSell size='small' onClick={(e) => {
+                  <span style={{ cursor: 'pointer' }} onClick={(e) => {
                     setSharedPosition(position)
                     setSharedModalVisible(true)
                     e.stopPropagation()
-                  }}>Shared</ButtonSell>
+                  }}><SharedIcon /></span>
                 </InfoRow>
               </div>
             )
@@ -601,11 +602,11 @@ export const Positions = ({
                         {position.side === POOL_IDS.C ? 'Remove' : 'Close'}
                       </ButtonSell>
                     )}
-                    <ButtonSell size='small' onClick={(e) => {
+                    <ButtonSell size='small' style={{ border: 'none' }} onClick={(e) => {
                       setSharedPosition(position)
                       setSharedModalVisible(true)
                       e.stopPropagation()
-                    }}>Shared</ButtonSell>
+                    }}><SharedIcon/></ButtonSell>
                   </td>
                 </tr>
               )
