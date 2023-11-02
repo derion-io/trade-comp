@@ -423,6 +423,11 @@ export const Positions = ({
                       {position.side === POOL_IDS.C ? 'Remove' : 'Close'}
                     </ButtonSell>
                   }
+                  <ButtonSell size='small' onClick={(e) => {
+                    setSharedPosition(position)
+                    setSharedModalVisible(true)
+                    e.stopPropagation()
+                  }}>Shared</ButtonSell>
                 </InfoRow>
               </div>
             )
@@ -612,7 +617,6 @@ export const Positions = ({
         visible={sharedModalVisible}
         setVisible={setSharedModalVisible}
         position={sharedPosition}
-        power={1}
       /> : ''}
       {closeModalVisible && closingPosition != null ? (
         <ClosePosition
@@ -864,7 +868,7 @@ export const Token = ({
   )
 }
 
-const isShowValueInUsd = (
+export const isShowValueInUsd = (
   valueInUsdStatus: VALUE_IN_USD_STATUS,
   pool: PoolType
 ) => {
