@@ -392,20 +392,20 @@ export const zerofy = (value: number, opts?: {
   const maxExtraDigits = opts?.maxExtraDigits ?? 0
   const extraDigits = Math.min(
     maxExtraDigits,
-    value >= 1 ? 2 : value >= 0.1 ? 1 : 0,
+    value >= 1 ? 2 : value >= 0.1 ? 1 : 0
   )
   const minimumSignificantDigits = extraDigits + (opts?.minimumSignificantDigits ?? 1)
   const maximumSignificantDigits = extraDigits + (opts?.maximumSignificantDigits ?? 4)
   const stringOpts = {
     minimumSignificantDigits,
-    maximumSignificantDigits,
+    maximumSignificantDigits
   }
   let zeros = -Math.floor(Math.log10(value) + 1)
   if (!Number.isFinite(zeros)) {
     zeros = 0
   }
   const maxZeros = opts?.maxZeros ?? 3
-  if (zeros > maxZeros ) {
+  if (zeros > maxZeros) {
     const zs = zeros.toString()
     let ucZeros = ''
     for (let i = 0; i < zs.length; ++i) {
@@ -491,16 +491,16 @@ export const calcPoolSide = (
   const PRECISION_DECIMALS = 12
   let mark = !MARK ? 1 : NUM(IEW(
     MARK
-      .mul(bn(10).pow((decimalsOffset/exp) + PRECISION_DECIMALS))
+      .mul(bn(10).pow((decimalsOffset / exp) + PRECISION_DECIMALS))
       .shr(128),
-    PRECISION_DECIMALS,
+    PRECISION_DECIMALS
   ))
   mark **= exp
 
   const xA = xr(k, R.shr(1), a)
   const xB = xr(-k, R.shr(1), b)
-  const dgA = xA**exp * mark
-  const dgB = xB**exp * mark
+  const dgA = xA ** exp * mark
+  const dgB = xB ** exp * mark
   const deleveragePrice =
     side === POOL_IDS.A
       ? zerofy(dgA)
@@ -520,7 +520,7 @@ export const calcPoolSide = (
     deleveragePrice,
     interest,
     premium,
-    funding,
+    funding
   }
 }
 
@@ -532,4 +532,26 @@ export const numInt = (v: any): string => {
 // extract the decimals part including the decimal point
 export const numDec = (v: any): string => {
   return v.match(/\.[\d₀₁₂₃₄₅₆₇₈₉]+$/g) || '\u00A0'
+}
+
+export default async function downloadImage(dataURI: string, filename: string) {
+  const blob = await (await fetch(dataURI)).blob()
+  if (typeof (window.navigator as any)?.msSaveBlob !== 'undefined') {
+    (window.navigator as any).msSaveBlob(blob, filename)
+    return
+  }
+  const blobURL = window.URL.createObjectURL(blob)
+  const tempLink = document.createElement('a')
+  tempLink.style.display = 'none'
+  tempLink.href = blobURL
+  tempLink.setAttribute('download', filename)
+  if (typeof tempLink.download === 'undefined') {
+    tempLink.setAttribute('target', '_blank')
+  }
+  document.body.appendChild(tempLink)
+  tempLink.click()
+  document.body.removeChild(tempLink)
+  setTimeout(() => {
+    window.URL.revokeObjectURL(blobURL)
+  }, 100)
 }

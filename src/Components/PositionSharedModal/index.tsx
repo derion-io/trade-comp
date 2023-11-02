@@ -1,9 +1,9 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useRef } from 'react'
 import isEqual from 'react-fast-compare'
 import { useHelper } from '../../state/config/useHelper'
 import { useResource } from '../../state/resources/hooks/useResource'
 import { useListTokens } from '../../state/token/hook'
-import {
+import downloadImage, {
   NUM,
   decodeErc1155Address,
   div,
@@ -14,6 +14,7 @@ import {
   sub,
   zerofy
 } from '../../utils/helpers'
+import { toJpeg } from 'html-to-image'
 import { POOL_IDS } from '../../utils/constant'
 import { Position } from '../../utils/type'
 import { Modal } from '../ui/Modal'
@@ -21,6 +22,8 @@ import './style.scss'
 import { DerivableIconSmall } from '../ui/Icon'
 import { Text, TextBlue, TextBuy, TextGrey, TextSell } from '../ui/Text'
 import { useWindowSize } from '../../hooks/useWindowSize'
+import { Button } from '../ui/Button'
+const config = { quality: 0.95, canvasWidth: 518, canvasHeight: 292, type: 'image/jpeg' }
 const Component = ({
   visible,
   setVisible,
@@ -36,6 +39,7 @@ const Component = ({
   const { token } = position
   const { width } = useWindowSize()
   const isPhone = width && width < 768
+  const cardRef = useRef<HTMLDivElement>(null)
   const [side, power, base, indexPrefix, pnl, pnlDisplay, entryPrice] = useMemo(() => {
     if (!pools) return []
     if (isErc1155Address(token)) {
@@ -62,6 +66,14 @@ const Component = ({
     }
     return []
   }, [tokens, token, pools])
+  async function handleDownload() {
+    const element = cardRef.current
+    if (!element) return
+    const imgBlob = await toJpeg(element, config)
+      .then(() => toJpeg(element, config))
+      .then(() => toJpeg(element, config))
+    downloadImage(imgBlob, 'share.jpeg')
+  }
 
   return (
     <Modal
@@ -69,7 +81,7 @@ const Component = ({
       visible={visible}
       width={isPhone ? '100%' : '600px'}
     >
-      <div className='position-share long'>
+      <div className='position-share long' ref={cardRef}>
         <DerivableIconSmall width={300} className='logo'/>
         <p className='info' >
           <span>{base}{indexPrefix}</span> {' '} <span className={`side ${side?.toLowerCase()}`}> {side}</span>
@@ -99,6 +111,18 @@ const Component = ({
         <div className='date'>
           <TextGrey>Date: {(new Date()).toLocaleDateString()}</TextGrey>
         </div>
+      </div>
+
+      <div className='actions'>
+        <Button className='mr-md'>
+          Copy
+        </Button>
+        <Button className='mr-md' onClick={() => handleDownload()}>
+          Download
+        </Button>
+        <Button className='mr-md' >
+          Tweet
+        </Button>
       </div>
 
     </Modal>
