@@ -16,7 +16,7 @@ import {
   sub,
   zerofy
 } from '../../utils/helpers'
-import { toJpeg } from 'html-to-image'
+import { toPng } from 'html-to-image'
 import { POOL_IDS } from '../../utils/constant'
 import { Position } from '../../utils/type'
 import { Modal } from '../ui/Modal'
@@ -73,10 +73,8 @@ const Component = ({
   async function handleDownload() {
     const element = cardRef.current
     if (!element) return
-    const imgBlob = await toJpeg(element, config)
-      .then(() => toJpeg(element, config))
-      .then(() => toJpeg(element, config))
-    await downloadImage(imgBlob, 'share.jpeg')
+    const imgBlob = await toPng(element, config)
+    await downloadImage(imgBlob, 'derivable-position.png')
   }
   function handleCopy () {
     navigator.clipboard.writeText(window.location.href)
