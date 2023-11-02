@@ -1,10 +1,7 @@
 @import "../../styles/abstracts/variables";
-.position-share-modal .Modal-content {
-  min-width: 36rem;
-  width: 40rem;
-}
 .position-share-modal .actions {
-  margin-top: 1.5rem;
+  width: 100%;
+  margin-top: 2rem;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
 }
@@ -12,6 +9,10 @@
 .position-share-modal .icon {
   vertical-align: middle;
   margin-right: 0.5rem;
+}
+.position-share-modal .actions .actions-button {
+  margin-left: 1rem;
+  margin-right: 1rem;
 }
 
 .position-share {
@@ -225,6 +226,7 @@ a.App-button-option.tweet-link.disabled {
 
   .position-share-modal .actions {
     margin-top: 1rem;
+    width: 100%;
   }
   .position-share-modal .actions .App-button-option {
     line-height: 1.25rem;

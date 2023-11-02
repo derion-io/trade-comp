@@ -2,7 +2,6 @@ import { BigNumber, ethers } from 'ethers'
 import { POOL_IDS, TRADE_TYPE, ZERO_ADDRESS } from './constant'
 import _ from 'lodash'
 import { ListTokensType } from '../state/token/type'
-
 const mdp = require('move-decimal-point')
 
 export const bn = ethers.BigNumber.from
@@ -534,7 +533,7 @@ export const numDec = (v: any): string => {
   return v.match(/\.[\d₀₁₂₃₄₅₆₇₈₉]+$/g) || '\u00A0'
 }
 
-export default async function downloadImage(dataURI: string, filename: string) {
+export async function downloadImage(dataURI: string, filename: string) {
   const blob = await (await fetch(dataURI)).blob()
   if (typeof (window.navigator as any)?.msSaveBlob !== 'undefined') {
     (window.navigator as any).msSaveBlob(blob, filename)
@@ -554,4 +553,18 @@ export default async function downloadImage(dataURI: string, filename: string) {
   setTimeout(() => {
     window.URL.revokeObjectURL(blobURL)
   }, 100)
+}
+
+export function getTwitterIntentURL(text: string, url = '', hashtag = '') {
+  let finalURL = 'https://twitter.com/intent/tweet?text='
+  if (text.length > 0) {
+    finalURL += Array.isArray(text) ? text.map((t) => encodeURIComponent(t)).join('%0a%0a') : encodeURIComponent(text)
+    if (hashtag.length > 0) {
+      finalURL += '&hashtags=' + encodeURIComponent(hashtag.replace(/#/g, ''))
+    }
+    if (url.length > 0) {
+      finalURL += '&url=' + encodeURIComponent(url)
+    }
+  }
+  return finalURL
 }
