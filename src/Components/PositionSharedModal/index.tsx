@@ -1,19 +1,10 @@
-import { BigNumber } from 'ethers'
-import React, { useMemo } from 'react'
+import React from 'react'
 import isEqual from 'react-fast-compare'
-import { useResource } from '../../state/resources/hooks/useResource'
-import {
-  POOL_IDS
-} from '../../utils/constant'
-import {
-  decodeErc1155Address
-} from '../../utils/helpers'
 import { Position } from '../../utils/type'
-import { VALUE_IN_USD_STATUS } from '../Positions'
-import { DerivableIcon, DerivableIconSmall } from '../ui/Icon'
+import { DerivableIconSmall } from '../ui/Icon'
 import { Modal } from '../ui/Modal'
-import './style.scss'
 import { TokenSymbol } from '../ui/TokenSymbol'
+import './style.scss'
 
 const Component = ({
   visible,
@@ -50,34 +41,11 @@ const Component = ({
             </div>
           </div>
           <div className='referral-code'>
-            <div>
-              {/* <QRCodeSVG
-                size={isMobile ? 24 : 32}
-                value={success && code ? `${homeURL}/#/?ref=${code}` : `${homeURL}`}
-              /> */}
-            </div>
-            <div className='referral-code-info'>
-              {/* {success && code ? (
-                <>
-                  <p className='label'>Referral Code:</p>
-                  <p className='code'>{code}</p>
-                </>
-              ) : ( */}
-              <p className='code'>https://gmx.io</p>
-              {/* )} */}
-            </div>
+            <div />
+            <div className='referral-code-info' />
           </div>
         </div>
-        {/* {loading && (
-          <div className='image-overlay-wrapper'>
-            <div className='image-overlay'>
-              <SpinningLoader />
-              <p className='loading-text'>
-                <Trans>Generating shareable image...</Trans>
-              </p>
-            </div>
-          </div>
-        )} */}
+
       </div>
     </Modal>
   )
