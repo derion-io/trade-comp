@@ -41,7 +41,7 @@ export const Trade = ({
   tab: TRADE_TYPE
   loadingData: boolean
 }) => {
-  const { chainId, useHistory, ddlEngine } = useConfigs()
+  const { chainId, useHistory, ddlEngine, configs: { chartReplacements } } = useConfigs()
   const history = useHistory()
   const [changedIn24h, setChangedIn24h] = useState<number>(0)
   const { poolGroups } = useResource()
@@ -87,7 +87,7 @@ export const Trade = ({
     ) {
       ddlEngine.PRICE.get24hChange({
         baseToken: tokens[baseToken],
-        cToken: id,
+        cToken: chartReplacements?.[id] ?? id,
         chainId: chainId.toString(),
         quoteToken: tokens[quoteToken],
         currentPrice: basePrice.toString()

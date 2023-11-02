@@ -53,11 +53,12 @@ const wrappedToNativeSymbol = (symbol?: string): string => {
 
 const handleChartRouteOption = (currencyId: string, baseAddress: string, cAddress: string, quoteAddress: string): {route: (string | undefined)[], quoteAddressSelect: string} => {
   const state = store.getState()
-  const routes = state.configs.routes
+  const { routes, configs: { chartReplacements } } = state.configs
+  cAddress = chartReplacements?.[cAddress] ?? cAddress
   const defaultStableCoin = state.configs.configs.stablecoins?.[0]
   let quoteAddressSelect = quoteAddress
   const isHavePool = Object.keys(routes).filter(poolRoute => (poolRoute.includes(defaultStableCoin) && poolRoute.includes(state.currentPool.quoteToken)))?.[0]
-  const isQuoteStableCoin = state.configs.configs.stablecoins?.filter(stable => stable === state.currentPool.quoteToken)?.[0]
+  const isQuoteStableCoin = state.configs.configs.stablecoins?.filter((stable: string) => stable === state.currentPool.quoteToken)?.[0]
   if (isHavePool && !isQuoteStableCoin) {
     if (currencyId === 'USD') quoteAddressSelect = defaultStableCoin
     else if (currencyId === state.configs.configs.nativeSymbol) quoteAddressSelect = state.currentPool.quoteToken
