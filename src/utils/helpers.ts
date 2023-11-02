@@ -405,7 +405,7 @@ export const zerofy = (value: number, opts?: {
     zeros = 0
   }
   const maxZeros = opts?.maxZeros ?? 3
-  if (zeros > maxZeros ) {
+  if (zeros > maxZeros) {
     const zs = zeros.toString()
     let ucZeros = ''
     for (let i = 0; i < zs.length; ++i) {
@@ -532,4 +532,40 @@ export const numInt = (v: any): string => {
 // extract the decimals part including the decimal point
 export const numDec = (v: any): string => {
   return v.match(/\.[\d₀₁₂₃₄₅₆₇₈₉]+$/g) || '\u00A0'
+}
+
+export async function downloadImage(dataURI: string, filename: string) {
+  const blob = await (await fetch(dataURI)).blob()
+  if (typeof (window.navigator as any)?.msSaveBlob !== 'undefined') {
+    (window.navigator as any).msSaveBlob(blob, filename)
+    return
+  }
+  const blobURL = window.URL.createObjectURL(blob)
+  const tempLink = document.createElement('a')
+  tempLink.style.display = 'none'
+  tempLink.href = blobURL
+  tempLink.setAttribute('download', filename)
+  if (typeof tempLink.download === 'undefined') {
+    tempLink.setAttribute('target', '_blank')
+  }
+  document.body.appendChild(tempLink)
+  tempLink.click()
+  document.body.removeChild(tempLink)
+  setTimeout(() => {
+    window.URL.revokeObjectURL(blobURL)
+  }, 100)
+}
+
+export function getTwitterIntentURL(text: string, url = '', hashtag = '') {
+  let finalURL = 'https://twitter.com/intent/tweet?text='
+  if (text.length > 0) {
+    finalURL += Array.isArray(text) ? text.map((t) => encodeURIComponent(t)).join('%0a%0a') : encodeURIComponent(text)
+    if (hashtag.length > 0) {
+      finalURL += '&hashtags=' + encodeURIComponent(hashtag.replace(/#/g, ''))
+    }
+    if (url.length > 0) {
+      finalURL += '&url=' + encodeURIComponent(url)
+    }
+  }
+  return finalURL
 }

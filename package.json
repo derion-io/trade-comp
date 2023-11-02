@@ -50,6 +50,7 @@
     "ethers": "^5.4.6",
     "graphql": "^15.5.0",
     "graphql-request": "^3.4.0",
+    "html-to-image": "^1.11.11",
     "leverage-slider": "git+ssh://git@github.com:derivable-labs/leverage-slider-comp.git",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",

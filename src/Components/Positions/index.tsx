@@ -41,7 +41,7 @@ import {
 import { ClosingFeeCalculator, Position } from '../../utils/type'
 import { ClosePosition } from '../ClosePositionModal'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
-import { ButtonSell } from '../ui/Button'
+import { Button, ButtonSell } from '../ui/Button'
 import { InfoRow } from '../ui/InfoRow'
 import {
   Text,
@@ -56,6 +56,8 @@ import { TokenSymbol } from '../ui/TokenSymbol'
 import './style.scss'
 import { useSwapPendingHistory } from '../../state/wallet/hooks/useSwapPendingHistory'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
+import { SharedPosition } from '../PositionSharedModal'
+import { SharedIcon } from '../ui/Icon'
 
 export enum VALUE_IN_USD_STATUS {
   AUTO,
@@ -82,7 +84,11 @@ export const Positions = ({
     VALUE_IN_USD_STATUS.TOKEN_R
   )
   const [visible, setVisible] = useState<boolean>(false)
+  const [sharedModalVisible, setSharedModalVisible] = useState<boolean>(true)
   const [closingPosition, setClosingPosition] = useState<Position | undefined>(
+    undefined
+  )
+  const [sharedPosition, setSharedPosition] = useState<Position | undefined>(
     undefined
   )
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
@@ -157,7 +163,7 @@ export const Positions = ({
         effectiveLeverage,
         deleveragePrice,
         funding,
-      } = calcPoolSide(pool, side,  tokens)
+      } = calcPoolSide(pool, side, tokens)
 
       const sizeDisplay =
         side === POOL_IDS.A || side === POOL_IDS.B
@@ -400,6 +406,18 @@ export const Positions = ({
                 </InfoRow> */}
 
                 <InfoRow>
+                  <Button
+                    size='small'
+                    className='share-position'
+                    style={{ border: 'none' }}
+                    onClick={(e) => {
+                      setSharedPosition(position)
+                      setSharedModalVisible(true)
+                      e.stopPropagation()
+                    }
+                  }>
+                    <SharedIcon/>
+                  </Button>
                   {position.status === POSITION_STATUS.OPENING
                     ? <ButtonSell className='btn-close' size='small' style={{ opacity: 0.5 }} disabled>
                       Pending...
@@ -566,6 +584,18 @@ export const Positions = ({
                   {/* <td><Reserve pool={position.pool}/></td> */}
                   {/* <td><ExplorerLink poolAddress={position.poolAddress}/></td> */}
                   <td className='text-right'>
+                    <ButtonSell
+                      size='small'
+                      className='share-position'
+                      style={{ border: 'none' }}
+                      onClick={(e) => {
+                        setSharedPosition(position)
+                        setSharedModalVisible(true)
+                        e.stopPropagation()
+                      }
+                    }>
+                      <SharedIcon/>
+                    </ButtonSell>
                     {position.status === POSITION_STATUS.OPENING ? (
                       <ButtonSell disabled size='small' style={{ opacity: 0.5 }}>
                         Pending
@@ -598,6 +628,11 @@ export const Positions = ({
           </tbody>
         </table>
       )}
+      {sharedModalVisible && sharedPosition != null ? <SharedPosition
+        visible={sharedModalVisible}
+        setVisible={setSharedModalVisible}
+        position={sharedPosition}
+      /> : ''}
       {visible && closingPosition != null ? (
         <ClosePosition
           visible={visible}
@@ -848,7 +883,7 @@ export const Token = ({
   )
 }
 
-const isShowValueInUsd = (
+export const isShowValueInUsd = (
   valueInUsdStatus: VALUE_IN_USD_STATUS,
   pool: PoolType
 ) => {

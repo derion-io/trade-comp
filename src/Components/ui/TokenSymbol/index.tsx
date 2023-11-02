@@ -17,12 +17,14 @@ type Props = {
   className?: string,
   color?: string
   hideSymbol?: boolean,
+  size?: number
 }
 export const TokenSymbol = ({
   token,
   textWrap,
   className,
   color,
+  size,
   hideSymbol
 }: Props) => {
   const { tokens } = useListTokens()
@@ -63,7 +65,7 @@ export const TokenSymbol = ({
       const indexPrefix = isUSD(quote ?? '') ? '' : `/${quote}`
 
       return (
-        <TextComp className={className}>
+        <TextComp fontSize={size || 14} className={className}>
           {side} {power}x {base}
           {indexPrefix}
         </TextComp>
