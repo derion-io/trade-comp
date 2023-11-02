@@ -17,7 +17,7 @@ import {
   MIN_POSITON_VALUE_USD_TO_DISPLAY,
   POOL_IDS,
   POSITION_STATUS,
-  TRADE_TYPE,
+  TRADE_TYPE
 } from '../../utils/constant'
 import formatLocalisedCompactNumber, {
   formatWeiToDisplayNumber
@@ -56,6 +56,7 @@ import { TokenSymbol } from '../ui/TokenSymbol'
 import './style.scss'
 import { useSwapPendingHistory } from '../../state/wallet/hooks/useSwapPendingHistory'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
+import { SharedPosition } from '../PositionSharedModal'
 
 export enum VALUE_IN_USD_STATUS {
   AUTO,
@@ -81,8 +82,12 @@ export const Positions = ({
   const [valueInUsdStatus, setValueInUsdStatus] = useState<VALUE_IN_USD_STATUS>(
     VALUE_IN_USD_STATUS.TOKEN_R
   )
-  const [visible, setVisible] = useState<boolean>(false)
+  const [closeModalVisible, setCloseModalVisible] = useState<boolean>(false)
+  const [sharedModalVisible, setSharedModalVisible] = useState<boolean>(true)
   const [closingPosition, setClosingPosition] = useState<Position | undefined>(
+    undefined
+  )
+  const [sharedPosition, setSharedPosition] = useState<Position | undefined>(
     undefined
   )
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
@@ -156,8 +161,8 @@ export const Positions = ({
         leverage,
         effectiveLeverage,
         deleveragePrice,
-        funding,
-      } = calcPoolSide(pool, side,  tokens)
+        funding
+      } = calcPoolSide(pool, side, tokens)
 
       const sizeDisplay =
         side === POOL_IDS.A || side === POOL_IDS.B
@@ -412,7 +417,7 @@ export const Positions = ({
                         setOutputTokenAddress(
                           wrapToNativeAddress(position.pool.TOKEN_R)
                         )
-                        setVisible(true)
+                        setCloseModalVisible(true)
                       }}
                     >
                       {position.side === POOL_IDS.C ? 'Remove' : 'Close'}
@@ -584,13 +589,18 @@ export const Positions = ({
                         onClick={(e) => {
                           setClosingPosition(position)
                           setOutputTokenAddress(wrapToNativeAddress(position.pool.TOKEN_R))
-                          setVisible(true)
+                          setCloseModalVisible(true)
                           e.stopPropagation() // stop the index from being changed
                         }}
                       >
                         {position.side === POOL_IDS.C ? 'Remove' : 'Close'}
                       </ButtonSell>
                     )}
+                    <ButtonSell size='small' onClick={(e) => {
+                      setSharedPosition(position)
+                      setSharedModalVisible(true)
+                      e.stopPropagation()
+                    }}>Shared</ButtonSell>
                   </td>
                 </tr>
               )
@@ -598,10 +608,16 @@ export const Positions = ({
           </tbody>
         </table>
       )}
-      {visible && closingPosition != null ? (
+      {sharedModalVisible && sharedPosition != null ? <SharedPosition
+        visible={sharedModalVisible}
+        setVisible={setSharedModalVisible}
+        position={sharedPosition}
+        power={1}
+      /> : ''}
+      {closeModalVisible && closingPosition != null ? (
         <ClosePosition
-          visible={visible}
-          setVisible={setVisible}
+          visible={closeModalVisible}
+          setVisible={setCloseModalVisible}
           position={closingPosition}
           outputTokenAddress={outputTokenAddress}
           setOutputTokenAddress={setOutputTokenAddress}
@@ -719,7 +735,7 @@ export const Pnl = ({
   const pnl = NUM(div(valueChange, entryValue))
   const pnlDisplay = formatPercent(pnl)
   if (pnlDisplay == 0) {
-    return <React.Fragment></React.Fragment>
+    return <React.Fragment />
   }
 
   if (isPhone) {
