@@ -343,8 +343,7 @@ export const decimalsBySignificantDigits = (
 }
 
 export const getPoolPower = (pool: any): number => {
-  const { k, FETCHER } = pool
-  const exp = (!FETCHER || FETCHER == ZERO_ADDRESS) ? 2 : 1
+  const { k, exp } = pool
   return k.toNumber() / exp
 }
 
@@ -474,13 +473,12 @@ export const calcPoolSide = (
 ): any => {
   const {
     states: { a, b, R },
-    FETCHER,
+    exp,
     MARK,
     baseToken,
     quoteToken,
     sides
   } = pool
-  const exp = (!FETCHER || FETCHER == ZERO_ADDRESS) ? 2 : 1
   const k = pool.k.toNumber()
   const leverage = k / exp
   const ek = sides[side].k
