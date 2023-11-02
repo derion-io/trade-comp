@@ -424,11 +424,11 @@ export const Positions = ({
                       {position.side === POOL_IDS.C ? 'Remove' : 'Close'}
                     </ButtonSell>
                   }
-                  <span style={{ cursor: 'pointer' }} onClick={(e) => {
+                  <ButtonSell size='small' style={{ border: 'none' }} onClick={(e) => {
                     setSharedPosition(position)
                     setSharedModalVisible(true)
                     e.stopPropagation()
-                  }}><SharedIcon /></span>
+                  }}><SharedIcon/></ButtonSell>
                 </InfoRow>
               </div>
             )
