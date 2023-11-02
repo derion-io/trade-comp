@@ -41,7 +41,7 @@ import {
 import { ClosingFeeCalculator, Position } from '../../utils/type'
 import { ClosePosition } from '../ClosePositionModal'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
-import { ButtonSell } from '../ui/Button'
+import { Button, ButtonSell } from '../ui/Button'
 import { InfoRow } from '../ui/InfoRow'
 import {
   Text,
@@ -406,6 +406,18 @@ export const Positions = ({
                 </InfoRow> */}
 
                 <InfoRow>
+                  <Button
+                    size='small'
+                    className='share-position'
+                    style={{ border: 'none' }}
+                    onClick={(e) => {
+                      setSharedPosition(position)
+                      setSharedModalVisible(true)
+                      e.stopPropagation()
+                    }
+                  }>
+                    <SharedIcon/>
+                  </Button>
                   {position.status === POSITION_STATUS.OPENING
                     ? <ButtonSell className='btn-close' size='small' style={{ opacity: 0.5 }} disabled>
                       Pending...
@@ -424,11 +436,6 @@ export const Positions = ({
                       {position.side === POOL_IDS.C ? 'Remove' : 'Close'}
                     </ButtonSell>
                   }
-                  <ButtonSell size='small' style={{ border: 'none' }} onClick={(e) => {
-                    setSharedPosition(position)
-                    setSharedModalVisible(true)
-                    e.stopPropagation()
-                  }}><SharedIcon/></ButtonSell>
                 </InfoRow>
               </div>
             )
@@ -577,6 +584,18 @@ export const Positions = ({
                   {/* <td><Reserve pool={position.pool}/></td> */}
                   {/* <td><ExplorerLink poolAddress={position.poolAddress}/></td> */}
                   <td className='text-right'>
+                    <ButtonSell
+                      size='small'
+                      className='share-position'
+                      style={{ border: 'none' }}
+                      onClick={(e) => {
+                        setSharedPosition(position)
+                        setSharedModalVisible(true)
+                        e.stopPropagation()
+                      }
+                    }>
+                      <SharedIcon/>
+                    </ButtonSell>
                     {position.status === POSITION_STATUS.OPENING ? (
                       <ButtonSell disabled size='small' style={{ opacity: 0.5 }}>
                         Pending
@@ -602,11 +621,6 @@ export const Positions = ({
                         {position.side === POOL_IDS.C ? 'Remove' : 'Close'}
                       </ButtonSell>
                     )}
-                    <ButtonSell size='small' style={{ border: 'none' }} onClick={(e) => {
-                      setSharedPosition(position)
-                      setSharedModalVisible(true)
-                      e.stopPropagation()
-                    }}><SharedIcon/></ButtonSell>
                   </td>
                 </tr>
               )
