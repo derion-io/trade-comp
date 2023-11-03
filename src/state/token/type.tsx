@@ -1,6 +1,6 @@
 // import configs from '../config/configs'
 
-import { CHAINS } from '../../utils/constant'
+import { SUPPORTED_CHAINS } from '../../utils/constant'
 
 export interface TokenType {
   decimal: number
@@ -25,8 +25,7 @@ export interface tokensState {
 }
 
 export const initialState: tokensState = {
-  tokens: {
-    [CHAINS.ARBITRUM]: {},
-    [CHAINS.BASE]: {}
-  }
+  tokens: Object.fromEntries(
+    SUPPORTED_CHAINS.map(chainId => [chainId, {}])
+  )
 }

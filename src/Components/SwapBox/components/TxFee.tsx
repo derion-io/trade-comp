@@ -40,7 +40,7 @@ export const TxFee = ({
   const [gasPrice, setGasPrice] = useState<any>(BigNumber.from(10 ** 8))
   const { feeData } = useFeeData()
   useEffect(() => {
-    setGasPrice(feeData.gasPrice)
+    setGasPrice(feeData?.gasPrice ?? 1)
   }, [feeData])
 
   const closingFee = position?.closingFee() ?? { fee: 0 }

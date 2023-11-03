@@ -7,6 +7,7 @@ import './styles/main.scss'
 import 'leverage-slider/dist/component.css'
 import { SWRConfig } from 'swr/_internal'
 import { ConfigProvider, theme as antdTheme } from 'antd'
+import { SUPPORTED_CHAINS } from './utils/constant'
 
 export default ({
   chainId,
@@ -31,6 +32,13 @@ export default ({
   env?: 'production' | 'development'
   useHistory?: any
 }) => {
+  if (!SUPPORTED_CHAINS.includes(chainId)) {
+    return <div style={{
+        textAlign: 'center',
+        margin: '10rem',
+      }}
+    >Unsupported Network</div>
+  }
   const { darkAlgorithm } = antdTheme
 
   return (
