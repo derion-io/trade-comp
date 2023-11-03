@@ -1,14 +1,18 @@
+import { toBlob, toPng } from 'html-to-image'
 import React, { useMemo, useRef } from 'react'
 import isEqual from 'react-fast-compare'
+import { toast } from 'react-toastify'
+import { useWindowSize } from '../../hooks/useWindowSize'
 import { useHelper } from '../../state/config/useHelper'
 import { useResource } from '../../state/resources/hooks/useResource'
 import { useListTokens } from '../../state/token/hook'
+import { POOL_IDS } from '../../utils/constant'
 import {
   NUM,
   decodeErc1155Address,
   div,
-  formatPercent,
   downloadImage,
+  formatPercent,
   getPoolPower,
   getTwitterIntentURL,
   isErc1155Address,
@@ -16,18 +20,28 @@ import {
   sub,
   zerofy
 } from '../../utils/helpers'
-import { toBlob, toPng } from 'html-to-image'
-import { POOL_IDS } from '../../utils/constant'
 import { Position } from '../../utils/type'
-import { Modal } from '../ui/Modal'
-import './style.scss'
+import { ButtonBorder } from '../ui/Button'
 import { CopyIcon, DerivableIconSmall, DownloadIcon, TwitterIcon } from '../ui/Icon'
-import { Text, TextBlue, TextBuy, TextGrey, TextSell } from '../ui/Text'
-import { useWindowSize } from '../../hooks/useWindowSize'
-import { Button, ButtonBorder, ButtonBuy } from '../ui/Button'
-import { toast } from 'react-toastify'
-
+import { Modal } from '../ui/Modal'
+import { Text, TextGrey } from '../ui/Text'
+import './style.scss'
 const imgConfig = { quality: 0.95, canvasWidth: 1024, canvasHeight: 600 }
+
+interface ClipboardItem {
+  readonly types: string[];
+  readonly presentationStyle: 'unspecified' | 'inline' | 'attachment';
+  getType(): Promise<Blob>;
+}
+
+interface ClipboardItemData {
+  [mimeType: string]: Blob | string | Promise<Blob | string>;
+}
+
+declare const ClipboardItem: {
+  prototype: ClipboardItem;
+  new (itemData: ClipboardItemData): ClipboardItem;
+}
 
 const Component = ({
   visible,
@@ -79,18 +93,22 @@ const Component = ({
     await downloadImage(imgBlob, 'derivable-position.png')
   }
 
-  // async function handleCopy () {
-  //   const element = cardRef.current
-  //   if (!element) return
-  //   const imgBlob = await toBlob(element, config)
-  //   if (!imgBlob) return
-  //   await navigator.clipboard.write([
-  //     new ClipboardItem({
-  //       [imgBlob.type]: imgBlob,
-  //     })
-  //   ])
-  //   toast.success('Copy image to clipboard successfully!')
-  // }
+  async function handleCopy () {
+    const element = cardRef.current
+    if (!element) return
+    const imgBlob = await toBlob(element, imgConfig)
+    if (!imgBlob) return
+    try {
+      await (navigator.clipboard as any).write([
+        new ClipboardItem({
+          [imgBlob.type]: imgBlob
+        })
+      ])
+      toast.success('Copy image to clipboard successfully!')
+    } catch (error) {
+      toast.error('Copy image to clipboard error!')
+    }
+  }
 
   const tweetLink = getTwitterIntentURL(
     `Long/Short $${base} on the first ever Perpetuals AMM Protocol @DerivableLabs`,
@@ -135,11 +153,11 @@ const Component = ({
           </div>
         </div>
         <div className='actions'>
-          {/*
+
           <ButtonBorder fill='white' className='actions-button' onClick={() => handleCopy()}>
-            <CopyIcon/>{' '} Copy
+            <CopyIcon/>{' '} Copy Image
           </ButtonBorder>
-          */}
+
           <ButtonBorder fill='white' className='actions-button' onClick={() => handleDownload()}>
             <DownloadIcon/> {' '} Download
           </ButtonBorder>
