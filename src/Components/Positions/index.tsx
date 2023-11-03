@@ -92,7 +92,7 @@ export const Positions = ({
     undefined
   )
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
-  const { ddlEngine } = useConfigs()
+  const { ddlEngine, configs } = useConfigs()
   const { swapLogs: sls } = useSwapHistory()
   const { swapPendingTxs } = useSwapPendingHistory()
   const { width } = useWindowSize()
@@ -310,23 +310,25 @@ export const Positions = ({
                   <InfoRow>
                     <Text>
                       PnL
-                      <Text
-                        className='text-link'
-                        onClick={() => {
-                          setValueInUsdStatus(
-                            valueInUsdStatus === VALUE_IN_USD_STATUS.USD
-                              ? VALUE_IN_USD_STATUS.TOKEN_R
-                              : VALUE_IN_USD_STATUS.USD
-                          )
-                        }}
-                      >
-                        {valueInUsdStatus === VALUE_IN_USD_STATUS.USD
-                          ? ` ⇄ ${
-                              tokens[wrapToNativeAddress(position.pool.TOKEN_R)]
-                                ?.symbol
-                            }`
-                          : ' ⇄ USD'}
-                      </Text>
+                      {position.pool.TOKEN_R != configs.derivable.playToken &&
+                        <Text
+                          className='text-link'
+                          onClick={() => {
+                            setValueInUsdStatus(
+                              valueInUsdStatus === VALUE_IN_USD_STATUS.USD
+                                ? VALUE_IN_USD_STATUS.TOKEN_R
+                                : VALUE_IN_USD_STATUS.USD
+                            )
+                          }}
+                        >
+                          {valueInUsdStatus === VALUE_IN_USD_STATUS.USD
+                            ? ` ⇄ ${
+                                tokens[wrapToNativeAddress(position.pool.TOKEN_R)]
+                                  ?.symbol
+                              }`
+                            : ' ⇄ USD'}
+                        </Text>
+                      }
                     </Text>
                     <Pnl
                       valueInUsdStatus={valueInUsdStatus}
@@ -448,7 +450,7 @@ export const Positions = ({
               <th>Position</th>
               <th className='no-wrap'>
                 Net Value
-                {positions?.length > 0 && (
+                {positions?.length > 0 && positions[0].pool.TOKEN_R != configs.derivable.playToken && (
                   <Text
                     className='text-link'
                     onClick={() => {
@@ -462,7 +464,7 @@ export const Positions = ({
                     {valueInUsdStatus === VALUE_IN_USD_STATUS.USD
                       ? ` ⇄ ${
                           tokens[
-                            wrapToNativeAddress(positions?.[0].pool.TOKEN_R)
+                            wrapToNativeAddress(positions[0].pool.TOKEN_R)
                           ]?.symbol
                         }`
                       : ' ⇄ USD'}

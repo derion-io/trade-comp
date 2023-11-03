@@ -7,6 +7,7 @@ import { useListTokens } from '../../../state/token/hook'
 import { Position } from '../../../utils/type'
 import { NetValue, Pnl, VALUE_IN_USD_STATUS } from '../../Positions'
 import { useHelper } from '../../../state/config/useHelper'
+import { useConfigs } from '../../../state/config/useConfigs'
 
 export const PositionInfo = ({
   position,
@@ -21,6 +22,7 @@ export const PositionInfo = ({
 }) => {
   const { wrapToNativeAddress } = useHelper()
   const { tokens } = useListTokens()
+  const { configs } = useConfigs()
   return (
     <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
       <InfoRow>
@@ -37,22 +39,24 @@ export const PositionInfo = ({
         <InfoRow>
           <Text>
             PnL
-            <Text
-              className='text-link'
-              onClick={() => {
-                setValueInUsdStatus(
-                  valueInUsdStatus === VALUE_IN_USD_STATUS.USD
-                    ? VALUE_IN_USD_STATUS.TOKEN_R
-                    : VALUE_IN_USD_STATUS.USD
-                )
-              }}
-            >
-              {valueInUsdStatus === VALUE_IN_USD_STATUS.USD
-                ? ` ⇄ ${
-                    tokens[wrapToNativeAddress(position.pool.TOKEN_R)]?.symbol
-                  }`
-                : ' ⇄ USD'}
-            </Text>
+            {position.pool.TOKEN_R != configs.derivable.playToken &&
+              <Text
+                className='text-link'
+                onClick={() => {
+                  setValueInUsdStatus(
+                    valueInUsdStatus === VALUE_IN_USD_STATUS.USD
+                      ? VALUE_IN_USD_STATUS.TOKEN_R
+                      : VALUE_IN_USD_STATUS.USD
+                  )
+                }}
+              >
+                {valueInUsdStatus === VALUE_IN_USD_STATUS.USD
+                  ? ` ⇄ ${
+                      tokens[wrapToNativeAddress(position.pool.TOKEN_R)]?.symbol
+                    }`
+                  : ' ⇄ USD'}
+              </Text>
+            }
           </Text>
           <Pnl
             valueInUsdStatus={valueInUsdStatus}
