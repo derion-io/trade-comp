@@ -1,6 +1,6 @@
 import { BigNumber } from 'ethers'
 import { ListTokensType } from '../token/type'
-import { CHAINS } from '../../utils/constant'
+import { SUPPORTED_CHAINS } from '../../utils/constant'
 
 export type BalancesType = { [key: string]: BigNumber }
 export type AllowancesType = { [key: string]: BigNumber }
@@ -60,11 +60,9 @@ export interface resourcesState {
   swapLogs: { [key: string]: any[] }
 }
 
-const initDataEachChain = {
-  [CHAINS.BASE]: {},
-  [CHAINS.ARBITRUM]: {},
-  [CHAINS.BSC]: {}
-}
+const initDataEachChain = Object.fromEntries(
+  SUPPORTED_CHAINS.map(chainId => [chainId, {}])
+)
 
 export const initialState: resourcesState = {
   poolGroups: initDataEachChain,
