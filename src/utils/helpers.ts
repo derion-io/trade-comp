@@ -403,6 +403,7 @@ export const zerofy = (value: number, opts?: {
   minimumSignificantDigits?: number,
   maxExtraDigits?: number,
 }): string => {
+  value = NUM(value)
   if (!isFinite(value)) {
     return STR(value)
   }
