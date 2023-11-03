@@ -404,7 +404,7 @@ export const zerofy = (value: number, opts?: {
   maxExtraDigits?: number,
 }): string => {
   if (typeof value !== 'number') {
-  value = NUM(value)
+    value = NUM(value)
   }
   if (!isFinite(value)) {
     return STR(value)
@@ -521,7 +521,7 @@ export const calcPoolSide = (
   const xB = xr(-k, R.shr(1), b)
   const dgA = xA**exp * mark
   const dgB = xB**exp * mark
-  const deleveragePrice =
+  const deleverageRangeDisplay =
     side === POOL_IDS.A
       ? zerofy(dgA)
       : side === POOL_IDS.B
@@ -537,7 +537,7 @@ export const calcPoolSide = (
     mark,
     leverage,
     effectiveLeverage,
-    deleveragePrice,
+    deleverageRangeDisplay,
     interest,
     premium,
     funding,

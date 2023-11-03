@@ -161,7 +161,7 @@ export const Positions = ({
       const {
         leverage,
         effectiveLeverage,
-        deleveragePrice,
+        deleverageRangeDisplay,
         funding,
       } = calcPoolSide(pool, side, tokens)
 
@@ -199,7 +199,7 @@ export const Positions = ({
         valueUsd,
         leverage,
         effectiveLeverage,
-        deleveragePrice,
+        deleverageRangeDisplay,
         funding,
         closingFee: (now?: number): any => {
           return feeCalculator.calculateFee(now)
@@ -362,11 +362,11 @@ export const Positions = ({
                 <InfoRow>
                   <Text>Deleverage Price</Text>
                   {position.effectiveLeverage < position.leverage / 2 ? (
-                    <TextError>{position.deleveragePrice}</TextError>
+                    <TextError>{position.deleverageRangeDisplay}</TextError>
                   ) : position.effectiveLeverage < position.leverage ? (
-                    <TextWarning>{position.deleveragePrice}</TextWarning>
+                    <TextWarning>{position.deleverageRangeDisplay}</TextWarning>
                   ) : (
-                    <Text>{position.deleveragePrice}</Text>
+                    <Text>{position.deleverageRangeDisplay}</Text>
                   )}
                 </InfoRow>
                 <InfoRow>
@@ -557,11 +557,11 @@ export const Positions = ({
                   </td>
                   <td>
                     {position.effectiveLeverage < position.leverage / 2 ? (
-                      <TextError>{position.deleveragePrice}</TextError>
+                      <TextError>{position.deleverageRangeDisplay}</TextError>
                     ) : position.effectiveLeverage < position.leverage ? (
-                      <TextWarning>{position.deleveragePrice}</TextWarning>
+                      <TextWarning>{position.deleverageRangeDisplay}</TextWarning>
                     ) : (
-                      <Text>{position.deleveragePrice}</Text>
+                      <Text>{position.deleverageRangeDisplay}</Text>
                     )}
                   </td>
                   <td>

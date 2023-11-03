@@ -87,7 +87,7 @@ export type Position = {
   valueUsd: string
   leverage: number
   effectiveLeverage: number
-  deleveragePrice: string
+  deleverageRangeDisplay: string
   funding: number
   closingFee: (now?: number) => any
 }

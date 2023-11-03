@@ -220,7 +220,7 @@ const Component = ({
     const {
       leverage,
       effectiveLeverage,
-      deleveragePrice,
+      deleverageRangeDisplay,
     } = calcPoolSide(poolToShow, sideToShow, tokens)
 
     const CompText =
@@ -231,7 +231,7 @@ const Component = ({
     if (sideToShow == POOL_IDS.C) {
       return [
         'Full Leverage Range',
-        <CompText>{deleveragePrice}</CompText>
+        <CompText>{deleverageRangeDisplay}</CompText>
       ]
     }
 
@@ -239,13 +239,13 @@ const Component = ({
       const CompText = effectiveLeverage < leverage / 2 ? TextSell: TextWarning
       return [
         'Effective Leverage',
-        <CompText>{zerofy(effectiveLeverage)}</CompText>
+        <CompText>{zerofy(effectiveLeverage)}x</CompText>
       ]
     }
 
     return [
       'Deleverage Price',
-      <Text>{zerofy(deleveragePrice)}</Text>
+      <Text>{deleverageRangeDisplay}</Text>
     ]
   }, [poolToShow, sideToShow, tokens])
 
