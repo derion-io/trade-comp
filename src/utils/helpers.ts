@@ -2,6 +2,7 @@ import { BigNumber, ethers } from 'ethers'
 import { POOL_IDS, TRADE_TYPE, ZERO_ADDRESS } from './constant'
 import _ from 'lodash'
 import { ListTokensType } from '../state/token/type'
+import { Q128 } from './type'
 
 const mdp = require('move-decimal-point')
 
@@ -105,6 +106,10 @@ export const truncate = (num: string, decimals: number = 0, rounding: boolean = 
   return num.substring(0, index)
 }
 
+export const round = (num: string, decimals: number = 0): string => {
+  return truncate(num, decimals, true)
+}
+
 function _replaceAt(str: string, index: number, replacement: string) {
   return str.substring(0, index) + replacement + str.substring(index + replacement.length)
 }
@@ -125,6 +130,20 @@ export const IEW = (
 /// numberToWei
 export const WEI = (num: number | string, decimals: number = 18): string => {
   return truncate(mdp(STR(num), decimals))
+}
+
+export const DIV = (a: BigNumber, b: BigNumber, precision = 4): string => {
+  const al = a.toString().length
+  const bl = b.toString().length
+  const d = al - bl
+  if (d > 0) {
+      b = b.mul(WEI(1, d))
+  } else if (d < 0) {
+      a = a.mul(WEI(1, -d))
+  }
+  a = a.mul(WEI(1, precision))
+  const c = truncate(a.div(b).toString(), 0, true)
+  return mdp(c, d - precision)
 }
 
 export const max = (a: number, b: number) => {
@@ -220,11 +239,12 @@ export const sub = (a: any, b: any) => {
   return IEW(BIG(WEI(a)).sub(WEI(b)))
 }
 
-export const div = (a: any, b: any) => {
-  if (STR(b) === '0') {
-    return IEW(WEI(NUM(a) / NUM(b)))
-  }
-  return IEW(BIG(WEI(a, 36)).div(WEI(b)))
+export const div = (a: any, b: any, precision: number = 4) => {
+  return DIV(
+    BIG(round(mdp(STR(a), precision))),
+    BIG(round(mdp(STR(b), precision))),
+    precision,
+  )
 }
 
 export const add = (a: any, b: any) => {
@@ -484,18 +504,15 @@ export const calcPoolSide = (
   const ek = sides[side].k
   const effectiveLeverage = Math.min(ek, k) / exp
 
-  const decimalsOffset =
+  const decimalsOffset = Math.floor((
     (tokens[baseToken]?.decimal ?? 18) -
     (tokens[quoteToken]?.decimal ?? 18)
+  ) / exp)
 
-  const PRECISION_DECIMALS = 12
-  let mark = !MARK ? 1 : NUM(IEW(
-    MARK
-      .mul(bn(10).pow((decimalsOffset/exp) + PRECISION_DECIMALS))
-      .shr(128),
-    PRECISION_DECIMALS,
-  ))
-  mark **= exp
+  const mark = !MARK ? 1 : NUM(DIV(
+    MARK.mul(decimalsOffset > 0 ? bn(10).pow(decimalsOffset) : 1),
+    Q128.mul(decimalsOffset < 0 ? bn(10).pow(-decimalsOffset) : 1),
+  ))**exp
 
   const xA = xr(k, R.shr(1), a)
   const xB = xr(-k, R.shr(1), b)
