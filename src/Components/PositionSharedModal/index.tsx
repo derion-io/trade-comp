@@ -26,8 +26,21 @@ import { Text, TextBlue, TextBuy, TextGrey, TextSell } from '../ui/Text'
 import { useWindowSize } from '../../hooks/useWindowSize'
 import { Button, ButtonBorder, ButtonBuy } from '../ui/Button'
 import { toast } from 'react-toastify'
-
 const imgConfig = { quality: 0.95, canvasWidth: 1024, canvasHeight: 600 }
+interface ClipboardItem {
+  readonly types: string[];
+  readonly presentationStyle: 'unspecified' | 'inline' | 'attachment';
+  getType(): Promise<Blob>;
+}
+
+interface ClipboardItemData {
+  [mimeType: string]: Blob | string | Promise<Blob | string>;
+}
+
+declare const ClipboardItem: {
+  prototype: ClipboardItem;
+  new (itemData: ClipboardItemData): ClipboardItem;
+}
 
 const Component = ({
   visible,
@@ -79,18 +92,22 @@ const Component = ({
     await downloadImage(imgBlob, 'derivable-position.png')
   }
 
-  // async function handleCopy () {
-  //   const element = cardRef.current
-  //   if (!element) return
-  //   const imgBlob = await toBlob(element, config)
-  //   if (!imgBlob) return
-  //   await navigator.clipboard.write([
-  //     new ClipboardItem({
-  //       [imgBlob.type]: imgBlob,
-  //     })
-  //   ])
-  //   toast.success('Copy image to clipboard successfully!')
-  // }
+  async function handleCopy () {
+    const element = cardRef.current
+    if (!element) return
+    const imgBlob = await toBlob(element, imgConfig)
+    if (!imgBlob) return
+    try {
+      await (navigator.clipboard as any).write([
+        new ClipboardItem({
+          [imgBlob.type]: imgBlob
+        })
+      ])
+      toast.success('Copy image to clipboard successfully!')
+    } catch (error) {
+      toast.error('Copy image to clipboard error!')
+    }
+  }
 
   const tweetLink = getTwitterIntentURL(
     `Long/Short $${base} on the first ever Perpetuals AMM Protocol @DerivableLabs`,
@@ -135,11 +152,11 @@ const Component = ({
           </div>
         </div>
         <div className='actions'>
-          {/*
+
           <ButtonBorder fill='white' className='actions-button' onClick={() => handleCopy()}>
             <CopyIcon/>{' '} Copy
           </ButtonBorder>
-          */}
+
           <ButtonBorder fill='white' className='actions-button' onClick={() => handleDownload()}>
             <DownloadIcon/> {' '} Download
           </ButtonBorder>
