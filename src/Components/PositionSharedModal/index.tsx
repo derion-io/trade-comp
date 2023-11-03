@@ -27,6 +27,7 @@ import { Modal } from '../ui/Modal'
 import { Text, TextGrey } from '../ui/Text'
 import './style.scss'
 const imgConfig = { quality: 0.95, canvasWidth: 1024, canvasHeight: 600 }
+
 interface ClipboardItem {
   readonly types: string[];
   readonly presentationStyle: 'unspecified' | 'inline' | 'attachment';
