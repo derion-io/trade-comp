@@ -16,6 +16,13 @@ import { useSwapHistory } from '../../../state/wallet/hooks/useSwapHistory'
 import { useResource } from '../../../state/resources/hooks/useResource'
 import { cloneDeep } from 'lodash'
 
+function numSplit(v: string) {
+  return <div>
+    <span className='position-delta--right'>{numInt(v)}</span>
+    <span className='position-delta--left'>{numDec(v)}</span>
+  </div>
+}
+
 type Props = {
     outputTokenAddress: string,
     tradeType: TRADE_TYPE,
@@ -98,25 +105,25 @@ export const EstimateBox = ({
               <div className='position-delta--right'>
                 {settings.showBalance && (
                   <div>
-                    {
+                    {numSplit(zerofy(NUM(
                       formatWeiToDisplayNumber(
                         balances[outputTokenAddress] ?? bn(0),
                         4,
                         tokens[outputTokenAddress]?.decimal || 18
-                      ).split('.')[0]
-                    }
+                      )
+                    )))}
                   </div>
                 )}
                 <div>
-                  ${numInt(zerofy(formatFloat(valueOutBefore)))}
+                  ${numSplit(zerofy(formatFloat(valueOutBefore)))}
                 </div>
                 {showSize && (
                   <div>
-                    ${numInt(zerofy(Number(valueOutBefore) * power))}
+                    ${numSplit(zerofy(Number(valueOutBefore) * power))}
                   </div>
                 )}
                 <div>
-                  {numInt(zerofy(
+                  {numSplit(zerofy(
                     positionsWithEntry[outputTokenAddress]?.entryPrice || basePrice
                   ))}
                 </div>
@@ -129,6 +136,7 @@ export const EstimateBox = ({
                   }
                 </div> */}
               </div>
+              {/*
               <div className='position-delta--left'>
                 {settings.showBalance && (
                   <div>
@@ -153,6 +161,7 @@ export const EstimateBox = ({
                   ))}
                 </div>
               </div>
+              */}
             </div>
           )}
         </SkeletonLoader>
@@ -175,12 +184,13 @@ export const EstimateBox = ({
                 {settings.showBalance && (
                   <div>
                     {
-                      numInt(formatLocalisedCompactNumber(
-                        formatFloat(Number(amountOut) + Number(formatWeiToDisplayNumber(
+                      numSplit(zerofy(
+                        NUM(amountOut) +
+                        NUM(formatWeiToDisplayNumber(
                           balances[outputTokenAddress] ?? bn(0),
                           4,
-                            tokens[outputTokenAddress]?.decimal || 18
-                        )))
+                          tokens[outputTokenAddress]?.decimal || 18
+                        ))
                       ))
                     }
                   </div>
@@ -188,7 +198,7 @@ export const EstimateBox = ({
                 <div>
                   $
                   {
-                    numInt(formatLocalisedCompactNumber(
+                    numSplit(formatLocalisedCompactNumber(
                       formatFloat(Number(valueOut) + Number(valueOutBefore))
                     ))
                   }
@@ -197,7 +207,7 @@ export const EstimateBox = ({
                   <div>
                     $
                     {
-                      numInt(formatLocalisedCompactNumber(
+                      numSplit(formatLocalisedCompactNumber(
                         formatFloat(Number(valueOut) * power + Number(valueOutBefore) * power)
                       ))
                     }
@@ -205,12 +215,13 @@ export const EstimateBox = ({
                 )}
                 <div>
                   {
-                    numInt(zerofy(
+                    numSplit(zerofy(
                       NUM(afterEntryPrice || basePrice)
                     ))
                   }
                 </div>
               </div>
+              {/*
               <div className='position-delta--left'>
                 {settings.showBalance && (
                   <div>
@@ -240,6 +251,7 @@ export const EstimateBox = ({
                   ))}
                 </div>
               </div>
+              */}
             </div>
           </SkeletonLoader>
         )}
