@@ -154,7 +154,7 @@ const Component = ({
         <div className='actions'>
 
           <ButtonBorder fill='white' className='actions-button' onClick={() => handleCopy()}>
-            <CopyIcon/>{' '} Copy
+            <CopyIcon/>{' '} Copy Image
           </ButtonBorder>
 
           <ButtonBorder fill='white' className='actions-button' onClick={() => handleDownload()}>
