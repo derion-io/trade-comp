@@ -223,6 +223,18 @@ const Component = ({
       deleveragePrice,
     } = calcPoolSide(poolToShow, sideToShow, tokens)
 
+    const CompText =
+      effectiveLeverage < leverage / 2 ? TextSell :
+      effectiveLeverage < leverage ? TextWarning :
+      Text
+
+    if (sideToShow == POOL_IDS.C) {
+      return [
+        'Full Leverage Range',
+        <CompText>{deleveragePrice}</CompText>
+      ]
+    }
+
     if (effectiveLeverage < leverage) {
       const CompText = effectiveLeverage < leverage / 2 ? TextSell: TextWarning
       return [
@@ -232,10 +244,8 @@ const Component = ({
     }
 
     return [
-      (sideToShow == POOL_IDS.A || sideToShow == POOL_IDS.B)
-        ? 'Deleverage Price'
-        : 'Full Leverage Range',
-      <Text>{deleveragePrice}</Text>
+      'Deleverage Price',
+      <Text>{zerofy(deleveragePrice)}</Text>
     ]
   }, [poolToShow, sideToShow, tokens])
 
