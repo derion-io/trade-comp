@@ -270,7 +270,7 @@ export const Datafeed = {
         configs.configs,
         true
       )
-    })
+    }).filter(m => m )
     onDataCallback(result)
   },
   getMarks: async function(
@@ -294,7 +294,7 @@ export const Datafeed = {
         tokens,
         configs.configs
       )
-    })
+  }).filter(m => m )
     onDataCallback(result)
   }
 }
@@ -325,6 +325,7 @@ const detectMarkInfo = (
   const [token1,token2,amount2] = labelContent.isClose ? 
   [swapTx.tokenIn, swapTx.tokenOut, swapTx.amountOut] :
    [swapTx.tokenOut, swapTx.tokenIn, swapTx.amountIn];
+  if(!currentPool.pools[token1.split('-')[0]]) return null;
   result.color = getMarkColor(swapTx.tokenOut)
   if (timescaleMark) {
     result.tooltip = [
