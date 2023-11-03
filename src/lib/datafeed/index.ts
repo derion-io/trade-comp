@@ -261,7 +261,9 @@ export const Datafeed = {
     const configs = state.configs
     const tokens = state.tokens.tokens[configs.chainId]
 
-    const result = walletTxs.map((t: any) => {
+    const result = walletTxs
+    .filter(tx => currentPool.pools[tx.poolIn] || currentPool.pools[tx.poolOut])
+    .map((t: any) => {
       return detectMarkInfo(
         t,
         resolution,
@@ -286,7 +288,9 @@ export const Datafeed = {
     const configs = state.configs
     const tokens = state.tokens.tokens[configs.chainId]
 
-    const result = walletTxs.map((t: any) => {
+    const result = walletTxs
+    .filter(tx => currentPool.pools[tx.poolIn] || currentPool.pools[tx.poolOut])
+    .map((t: any) => {
       return detectMarkInfo(
         t,
         resolution,
@@ -294,7 +298,7 @@ export const Datafeed = {
         tokens,
         configs.configs
       )
-    })
+  })
     onDataCallback(result)
   }
 }

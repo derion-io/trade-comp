@@ -140,7 +140,7 @@ export const TxFee = ({
                   <div>
                     <TextGrey>{configs.nativeSymbol} Price:&nbsp;</TextGrey>
                     <Text>
-                      ${formatFloat(configs.nativePriceUSD, undefined, 4, true)}
+                      ${formatFloat(nativePrice || configs.nativePriceUSD, undefined, 4, true)}
                     </Text>
                   </div>
                 </div>
