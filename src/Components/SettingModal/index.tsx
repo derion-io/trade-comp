@@ -113,7 +113,7 @@ const Component = ({
             </div>
           </Box>
           <div
-            className='advance-setting-row'
+            className='advanced-settings-row'
             onClick={() => setVisibleAdvance(!visibleAdvance)}
           >
             <TextBlue>Go to Advanced Settings</TextBlue>
@@ -149,7 +149,7 @@ const Component = ({
                 defaultValue={settings.scanApiKey[chainId]}
               />
               <div
-                className='advance-setting-row'
+                className='advanced-settings-row'
                 onClick={() => setVisibleAdvance(!visibleAdvance)}
               >
                 <TextBlue>Back to Settings</TextBlue>
