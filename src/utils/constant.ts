@@ -68,3 +68,8 @@ export const COLORS = {
   BUY: '#3DBAA2',
   SELL: '#FF7A68'
 }
+
+export const UNWRAP = {
+  'WETH': 'ETH',
+  'WBNB': 'BNB',
+}

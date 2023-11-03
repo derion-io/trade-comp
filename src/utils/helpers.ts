@@ -1,5 +1,5 @@
 import { BigNumber, ethers } from 'ethers'
-import { POOL_IDS, TRADE_TYPE, ZERO_ADDRESS } from './constant'
+import { POOL_IDS, TRADE_TYPE, UNWRAP } from './constant'
 import _ from 'lodash'
 import { ListTokensType } from '../state/token/type'
 import { Q128 } from './type'
@@ -7,6 +7,10 @@ import { Q128 } from './type'
 const mdp = require('move-decimal-point')
 
 export const bn = ethers.BigNumber.from
+
+export const unwrap = (symbol: string) => {
+  return UNWRAP[symbol] ?? symbol
+}
 
 export const shortenAddressString = (address: string) => {
   return (

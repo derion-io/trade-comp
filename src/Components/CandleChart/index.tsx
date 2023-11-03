@@ -18,7 +18,7 @@ import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 import { CandleChartLoader } from '../ChartLoaders'
 import isEqual from 'react-fast-compare'
 import { useConfigs } from '../../state/config/useConfigs'
-import { decimalsBySignificantDigits, zerofy } from '../../utils/helpers'
+import { decimalsBySignificantDigits, unwrap, zerofy } from '../../utils/helpers'
 
 export interface ChartContainerProps {
   interval: ChartingLibraryWidgetOptions['interval']
@@ -134,7 +134,7 @@ const Component = ({
         baseToken,
         cToken,
         quoteToken,
-        tokens[baseToken]?.symbol + '/' + tokens[quoteToken]?.symbol,
+        unwrap(tokens[baseToken]?.symbol) + '/' + unwrap(tokens[quoteToken]?.symbol),
         chainId,
         decimalsBySignificantDigits(basePrice)
       ].join('-'),

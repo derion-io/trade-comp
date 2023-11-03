@@ -10,7 +10,7 @@ import {
   POOL_IDS
 } from '../../utils/constant'
 import { TokenIcon } from '../ui/TokenIcon'
-import { IEW, bn, formatFloat } from '../../utils/helpers'
+import { IEW, bn, formatFloat, unwrap } from '../../utils/helpers'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
 import { useConfigs } from '../../state/config/useConfigs'
 import { TextGrey } from '../ui/Text'
@@ -187,8 +187,8 @@ const PoolGroupOption = ({
       }}
     >
       <span>
-        {tokens[poolGroup.baseToken]?.symbol}/
-        {tokens[poolGroup.quoteToken]?.symbol}{' '}
+        {unwrap(tokens[poolGroup.baseToken]?.symbol)}/
+        {unwrap(tokens[poolGroup.quoteToken]?.symbol)}{' '}
         {className !== 'active' || active ? (
           <TextGrey>
             {`${

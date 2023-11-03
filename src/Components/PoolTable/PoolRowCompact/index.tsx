@@ -5,6 +5,7 @@ import { useCurrentPoolGroup } from '../../../state/currentPool/hooks/useCurrent
 import { Text } from '../../ui/Text'
 import { TokenIcon } from '../../ui/TokenIcon'
 import isEqual from 'react-fast-compare'
+import { unwrap } from '../../../utils/helpers'
 
 const Component = ({ pool }: { pool: PoolType }) => {
   const { tokens } = useListTokens()
@@ -49,7 +50,7 @@ const Component = ({ pool }: { pool: PoolType }) => {
             <TokenIcon size={20} tokenAddress={quoteToken} />
           </span>
           <Text>
-            {tokens[baseToken]?.symbol}/{tokens[quoteToken]?.symbol}
+            {unwrap(tokens[baseToken]?.symbol)}/{unwrap(tokens[quoteToken]?.symbol)}
           </Text>
         </td>
         <td className='text-left'>
