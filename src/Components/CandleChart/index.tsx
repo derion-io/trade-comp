@@ -146,6 +146,7 @@ const Component = ({
       enabled_features: [
         'hide_left_toolbar_by_default',
         // 'disable_resolution_rebuild',
+        'iframe_loading_compatibility_mode',
         'pricescale_currency'
       ],
       disabled_features: [
