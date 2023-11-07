@@ -129,6 +129,7 @@ export const Datafeed = {
       exchange: '',
       minmov: 1,
       pricescale: Math.pow(10, priceScale),
+      visible_plots_set: 'ohlcv',
       has_intraday: true,
       supported_resolution: supportedResolutions,
       volume_precision: 8,

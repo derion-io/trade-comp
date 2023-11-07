@@ -193,9 +193,6 @@ const Component = ({
       setTradingviewWidget(tvWidget)
       tvWidget
         .activeChart()
-        .createStudy('Volume', true) // forceOverlay
-      tvWidget
-        .activeChart()
         .onVisibleRangeChanged()
         .subscribe(null, ({ from, to }) => {
           if (timeRangeRef) {
