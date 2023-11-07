@@ -142,7 +142,10 @@ export const Trade = ({
           }}
         >
           <TabList>
-            <Tab>Positions</Tab>
+            <Tab>{
+              tab === TRADE_TYPE.SWAP ? 'Positions and LPs' :
+              tab === TRADE_TYPE.LIQUIDITY ? 'LPs' : 'Positions'
+            }</Tab>
             <Tab>History</Tab>
           </TabList>
           <TabPanel>
