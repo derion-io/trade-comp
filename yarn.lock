@@ -5497,7 +5497,7 @@ depd@~1.1.2:
 
 "derivable-tools@git+ssh://git@github.com:derivable-labs/derivable-tools.git#dev-build":
   version "1.0.0"
-  resolved "git+ssh://git@github.com:derivable-labs/derivable-tools.git#694ea38193beafe38b714975c0bada081c9714ff"
+  resolved "git+ssh://git@github.com:derivable-labs/derivable-tools.git#238e6f945ae1bd4804ef927000a60dd2b7d2a37b"
   dependencies:
     "@ethersproject/providers" "https://gitpkg.now.sh/derivable-labs/ethers.js/packages/providers?master"
     "@zoltu/ethereum-crypto" "^2.3.0"
