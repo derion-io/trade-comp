@@ -57,7 +57,7 @@ const handleChartRouteOption = (currencyId: string, baseAddress: string, cAddres
   const defaultStableCoin = state.configs.configs.stablecoins?.[0]
   let quoteAddressSelect = quoteAddress
   const isHavePool = Object.keys(routes).filter(poolRoute => (poolRoute.includes(defaultStableCoin) && poolRoute.includes(state.currentPool.quoteToken)))?.[0]
-  const isQuoteStableCoin = state.configs.configs.stablecoins?.filter((stable: string) => stable === state.currentPool.quoteToken)?.[0]
+  const isQuoteStableCoin = state.configs.configs.stablecoins?.some((stable: string) => stable === state.currentPool.quoteToken)
   if (isHavePool && !isQuoteStableCoin) {
     if (currencyId === 'USD') quoteAddressSelect = defaultStableCoin
     else if (currencyId === state.configs.configs.nativeSymbol) quoteAddressSelect = state.currentPool.quoteToken
@@ -94,7 +94,7 @@ export const Datafeed = {
     const routes = state.configs.routes
     const defaultStableCoin = state.configs.configs.stablecoins?.[0]
     const isHavePool = Object.keys(routes).filter(poolRoute => (poolRoute.includes(defaultStableCoin) && poolRoute.includes(state.currentPool.quoteToken)))?.[0]
-    const isQuoteStableCoin = state.configs.configs.stablecoins?.filter(stable => stable === state.currentPool.quoteToken)?.[0]
+    const isQuoteStableCoin = state.configs.configs.stablecoins?.some(stable => stable === state.currentPool.quoteToken)
     console.log('=====onReady running 1 ====')
 
     const currencyCodes = (isHavePool && !isQuoteStableCoin) ? [wrappedToNativeSymbol(quoteTokenSymbol), (isQuoteTokenStable ? 'ETH' : 'USD')] : null
@@ -116,7 +116,7 @@ export const Datafeed = {
     const state = store.getState()
     // const { token0, token1 } = state.currentPool.pair
     // const quoteTokenSymbol = token0?.address === state.currentPool.quoteToken ? token0.symbol : token1?.symbol
-    const isQuoteStableCoin = state.configs.configs.stablecoins?.filter(stable => stable === state.currentPool.quoteToken)?.[0]
+    const isQuoteStableCoin = state.configs.configs.stablecoins?.some(stable => stable === state.currentPool.quoteToken)
     console.log('======resolveSymbol running====')
     const [, , , name, , priceScale] = symbolInfo.split('-')
     const symbolStub = {
