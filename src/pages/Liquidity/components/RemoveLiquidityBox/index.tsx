@@ -145,7 +145,7 @@ export const RemoveLiquidityBox = ({
     if (!tokens[tokenAdd] || loading) {
       return (
         <ButtonExecute className='add-liquidity__action' disabled>
-          Loading...
+          Waiting for Confirmation...
         </ButtonExecute>
       )
     } else if (!account) {

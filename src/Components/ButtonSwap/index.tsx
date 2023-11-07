@@ -96,7 +96,7 @@ export const ButtonSwap = ({
     if (!tokens[inputTokenAddress] || loading) {
       return (
         <ButtonExecute className='swap-button' disabled>
-          Loading...
+          Waiting for Confirmation...
         </ButtonExecute>
       )
     } else if (!account) {
