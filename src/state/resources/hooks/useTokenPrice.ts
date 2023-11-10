@@ -40,7 +40,7 @@ export const useFetchTokenPrice = () => {
       )
 
       if (ddlEngine?.PRICE && tokenAddress.length > 0) {
-        ddlEngine.PRICE.getTokenPrices(tokenAddress)
+        ddlEngine.PRICE.getTokenPriceByRoutes()
           .then((data: any) => {
             dispatch(
               addTokenPriceWithChain({
@@ -53,7 +53,7 @@ export const useFetchTokenPrice = () => {
             console.error(e)
             const data = {}
             tokenAddress.map((a: string) => {
-              data[a] = bn('0x02d198f44116169890a410')
+              data[a] = '1'
             })
             addTokenPriceWithChain({
               prices: data,

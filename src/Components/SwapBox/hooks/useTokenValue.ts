@@ -62,28 +62,17 @@ export const useTokenValue = ({
               : pool.states.sC
 
         // TOTO: need remove mul(numberToWei(1, 9) after fix parseSqrtX96 function
-        const tokenPrice =
-          prices[pool.TOKEN_R] && prices[pool.TOKEN_R].gt(0) && valueInUsd
-            ? parseSqrtX96(
-                prices[pool.TOKEN_R]?.mul(WEI(1, 9)) || bn(0),
-                tokens[pool.TOKEN_R] || {},
-                tokens[configs.stablecoins[0]] || {}
-            )
-            : WEI(1, 18)
-        value = IEW(BIG(WEI(_amount)).mul(WEI(tokenPrice)).mul(rX).div(sX), 54)
+        const tokenPrice = valueInUsd && NUM(prices[pool.TOKEN_R] ?? 0) > 0
+          ? prices[pool.TOKEN_R] : 0
+        value = IEW(BIG(WEI(_amount)).mul(WEI(tokenPrice)).mul(rX).div(sX), 36)
       }
     } else {
       // TOTO: need remove mul(numberToWei(1, 9) after fix parseSqrtX96 function
       try {
         if (configs.stablecoins.includes(address)) return _amount
-        const tokenPrice = prices[address] && prices[address].gt(0) && valueInUsd
-          ? parseSqrtX96(
-              prices[address]?.mul(WEI(1, 9)) || bn(0),
-              tokens[address] || {},
-              tokens[configs.stablecoins[0]] || {}
-          )
-          : 0
-        value = IEW(BIG?.(WEI(_amount)).mul(WEI(tokenPrice)), 54)
+        const tokenPrice = valueInUsd && NUM(prices[address] ?? 0) > 0
+          ? prices[address] : 0
+        value = IEW(BIG?.(WEI(_amount)).mul(WEI(tokenPrice)), 36)
       } catch (error) {
         return '0'
       }
