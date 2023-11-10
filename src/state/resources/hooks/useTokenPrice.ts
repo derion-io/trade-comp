@@ -40,7 +40,6 @@ export const useFetchTokenPrice = () => {
       )
 
       if (ddlEngine?.PRICE && tokenAddress.length > 0) {
-        console.log(tokens)
         ddlEngine.PRICE.getTokenPriceByRoutes()
           .then((data: any) => {
             dispatch(
