@@ -52,7 +52,7 @@ export interface resourcesState {
     [key: string]: ListTokensType
   }
   prices: {
-    [key: number]: { [key: string]: BigNumber }
+    [key: number]: { [key: string]: string }
   }
   feeData: {
     [key: string]: { [key: string]: FeeDataType }

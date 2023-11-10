@@ -8,12 +8,8 @@ export const useNativePrice = () => {
   const { configs } = useConfigs()
   const { prices } = useTokenPrice()
   const { tokens } = useListTokens()
-  if (prices[configs.wrappedTokenAddress] && tokens[configs.wrappedTokenAddress] && prices[configs.wrappedTokenAddress].gte(0)) {
-    const wrappedTokenValue = parseSqrtX96(
-      prices[configs.wrappedTokenAddress] || bn(0),
-      tokens[configs.wrappedTokenAddress] || {},
-      tokens[configs.stablecoins[0]] || {}
-    )
+  if (prices[configs.wrappedTokenAddress] && tokens[configs.wrappedTokenAddress] && Number(prices[configs.wrappedTokenAddress]) > 0) {
+    const wrappedTokenValue = prices[configs.wrappedTokenAddress] || bn(0)
     return { data: wrappedTokenValue }
   }
   return { data: configs.nativePriceUSD ?? 1600 }
