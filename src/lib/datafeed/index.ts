@@ -141,20 +141,20 @@ export const Datafeed = {
 
   getBars: async function (
     symbolInfo: any,
-    interval: any,
+    resolution: any,
     periodParams: any,
     onHistoryCallback: any,
     onErrorCallback: any
   ) {
     console.log('=====getBars running======', { periodParams, symbolInfo })
-    localStorage.setItem('chart_resolution', interval)
+    localStorage.setItem('chart_resolution', resolution)
 
     const state = store.getState()
     const ticker = symbolInfo.ticker
     const [baseAddress, cAddress, quoteAddress, , chainId] = ticker.split('-')
     const tokens = state.tokens.tokens[chainId]
     const { route, quoteAddressSelect } = handleChartRouteOption(symbolInfo?.currency_id, baseAddress, cAddress, quoteAddress)
-    const limit = calcLimitCandle(periodParams.from, periodParams.to, interval)
+    const limit = calcLimitCandle(periodParams.from, periodParams.to, resolution)
 
     if (periodParams.firstDataRequest) {
       store.dispatch(setChartIntervalIsUpdated({ status: false }))
@@ -164,7 +164,7 @@ export const Datafeed = {
       .getBars({
         route: route.join(','),
         chainId,
-        resolution: interval,
+        resolution,
         to: periodParams.to,
         limit: limit,
         inputToken: tokens[baseAddress],
@@ -175,7 +175,7 @@ export const Datafeed = {
           if (periodParams.firstDataRequest) {
             store.dispatch(setCandleChartIsLoadingReduce({ status: false }))
             store.dispatch(setChartIntervalIsUpdated({ status: true }))
-            detectChartIsOutdate(bars)
+            detectChartIsOutdate(bars, resolution)
           }
 
           onHistoryCallback(bars, { noData: false })
@@ -233,7 +233,7 @@ export const Datafeed = {
               this.lastCandle[baseAddress + '-' + quoteAddress + '-' + resolution] = { ...candle }
             }
 
-            detectChartIsOutdate(data)
+            detectChartIsOutdate(data, resolution)
             onRealtimeCallback(candle)
           }
         })
@@ -414,7 +414,7 @@ const getMarkColor = (address: string) => {
   }
 }
 
-const detectChartIsOutdate = (candles: CandleType[]) => {
+const detectChartIsOutdate = (candles: CandleType[], resolution: any) => {
   if (candles.length < 2) {
     return
   }
@@ -422,11 +422,12 @@ const detectChartIsOutdate = (candles: CandleType[]) => {
   const first = candles[0]
   const last = candles[range]
 
-  const duration = Number(last.time) - Number(first.time)
+  const duration = last.time - first.time
   const avg = duration / range
 
   // thrice the average tx time
-  const nextTime = Number(last.time) + 3 * avg
+  const resTime = TIME_IN_RESOLUTION[resolution] ?? 60
+  const nextTime = last.time + resTime + 4 * avg
   const status = nextTime < new Date().getTime()
 
   store.dispatch(setChartIsOutDate({ status }))
