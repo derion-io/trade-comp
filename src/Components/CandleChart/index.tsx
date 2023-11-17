@@ -131,6 +131,17 @@ const Component = ({
     setChartTimeFocus(0)
     setCandleChartIsLoading(true)
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+
+    const zerofyFormatter = {
+      format: (value: number) => {
+        return zerofy(value, {
+          maxExtraDigits: 2,
+          minimumSignificantDigits: 3,
+          maximumSignificantDigits: 3,
+        })
+      }
+    }
+
     const widgetOptions: any = {
       symbol: [
         baseToken,
@@ -171,17 +182,8 @@ const Component = ({
       timezone: timezone === 'Asia/Saigon' ? 'Asia/Ho_Chi_Minh' : timezone,
       container: chartContainerRef.current,
       custom_formatters: {
-        priceFormatterFactory: () => {
-          return {
-            format: (price: number) => {
-              return zerofy(price, {
-                maxExtraDigits: 2,
-                minimumSignificantDigits: 3,
-                maximumSignificantDigits: 3
-              })
-            }
-          }
-        }
+        priceFormatterFactory: () => { return zerofyFormatter },
+        studyFormatterFactory: () => { return zerofyFormatter },
       },
       loading_screen: {
         backgroundColor: 'transparent'
