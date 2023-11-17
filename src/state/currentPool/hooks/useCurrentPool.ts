@@ -5,12 +5,13 @@ import { setCurrentPoolAddressReduce, setDrReduce } from '../reducer'
 
 export const useCurrentPool = () => {
   const { pools } = useResource()
-  const { currentPoolAddress, drA, drB, drC } = useSelector((state: State) => {
+  const { currentPoolAddress, drA, drB, drC, priceByIndexR } = useSelector((state: State) => {
     return {
       currentPoolAddress: state.currentPool.currentPoolAddress,
       drA: state.currentPool.drA,
       drB: state.currentPool.drB,
-      drC: state.currentPool.drC
+      drC: state.currentPool.drC,
+      priceByIndexR: state.currentPool.priceByIndexR
     }
   })
   const dispatch = useDispatch()
@@ -27,6 +28,7 @@ export const useCurrentPool = () => {
     drA,
     drB,
     drC,
+    priceByIndexR,
     currentPool:
       pools && pools[currentPoolAddress] ? pools[currentPoolAddress] : {},
     setCurrentPoolAddress,

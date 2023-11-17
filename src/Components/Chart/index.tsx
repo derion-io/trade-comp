@@ -12,12 +12,13 @@ import { FunctionPlot } from '../FuncPlot'
 import { CHART_TABS } from '../../state/currentPool/type'
 import { formatFloat, zerofy } from '../../utils/helpers'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
+import { useNativePrice } from '../../hooks/useTokenPrice'
 
 const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const { chainId, configs } = useConfigs()
   const { chartTab, setChartTab, basePrice, id } = useCurrentPoolGroup()
+  const { data: nativePrice } = useNativePrice()
   const { currentPool } = useCurrentPool()
-
   return (
     <div className='chart-box'>
       <div className='chart__head'>
@@ -25,7 +26,9 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
           <SelectPoolGroup />
           {!!id && basePrice && (
             <span>
-              <Text>{zerofy(formatFloat(basePrice))}</Text>
+              <Text>
+                {[configs.wrappedTokenAddress, ...configs.stablecoins].includes(currentPool.TOKEN_R) ? '$' : '' }
+                {zerofy(formatFloat(basePrice) * (currentPool.TOKEN_R === configs.wrappedTokenAddress ? nativePrice : 1))}</Text>
               {changedIn24h > 0 ? (
                 <TextBuy>(+{changedIn24h}%)</TextBuy>
               ) : (
