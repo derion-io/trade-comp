@@ -150,6 +150,23 @@ export const DIV = (a: BigNumber, b: BigNumber, precision = 4): string => {
   return mdp(c, d - precision)
 }
 
+export const MUL = (a: any, b: any): string => {
+  a = STR(a)
+  b = STR(b)
+  const [aa, da] = remDec(a)
+  const [bb, db] = remDec(b)
+  return mdp(STR(BIG(aa).mul(BIG(bb))), -da-db)
+}
+
+export const remDec = (s: string): [string, number] => {
+  const ss = s.split('.')
+  return [ss.join(''), ss[1]?.length ?? 0]
+}
+
+export const countDecimals = (s: string): number => {
+  return s.split('.')[1]?.length ?? 0; 
+}
+
 export const max = (a: number, b: number) => {
   return a > b ? a : b
 }
@@ -234,9 +251,8 @@ export const cutDecimal = (num: string, decimals?: number): string => {
   return truncate(num, decimals)
 }
 
-export const mul = (a: any, b: any) => {
-  const result = IEW(BIG(WEI(a)).mul(WEI(b)), 36)
-  return truncate(result, 18)
+export const mul = (a: any, b: any): string => {
+  return MUL(a, b)
 }
 
 export const sub = (a: any, b: any) => {
