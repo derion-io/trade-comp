@@ -224,12 +224,9 @@ const Component = ({
   }
 
   const detectRange = (resolution: string, from: number, to: number) => {
-    const timePerCandle = TIME_IN_RESOLUTION[resolution]
-    const middleTime = (from + to) / 2
-    return {
-      from: middleTime - timePerCandle * 50,
-      to: middleTime + timePerCandle * 50
-    }
+    const size = TIME_IN_RESOLUTION[resolution]
+    from = Math.min(from, to - size * 40)
+    return { from, to }
   }
 
   return (
