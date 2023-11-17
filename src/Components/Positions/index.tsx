@@ -17,7 +17,7 @@ import {
   MIN_POSITON_VALUE_USD_TO_DISPLAY,
   POOL_IDS,
   POSITION_STATUS,
-  TRADE_TYPE,
+  TRADE_TYPE
 } from '../../utils/constant'
 import formatLocalisedCompactNumber, {
   formatWeiToDisplayNumber
@@ -81,7 +81,7 @@ export const Positions = ({
   const { wrapToNativeAddress } = useHelper()
   const { settings } = useSettings()
   const [valueInUsdStatus, setValueInUsdStatus] = useState<VALUE_IN_USD_STATUS>(
-    VALUE_IN_USD_STATUS.TOKEN_R
+    VALUE_IN_USD_STATUS.USD
   )
   const [visible, setVisible] = useState<boolean>(false)
   const [sharedModalVisible, setSharedModalVisible] = useState<boolean>(true)
@@ -162,7 +162,7 @@ export const Positions = ({
         leverage,
         effectiveLeverage,
         deleverageRangeDisplay,
-        funding,
+        funding
       } = calcPoolSide(pool, side, tokens)
 
       const sizeDisplay =
@@ -415,7 +415,7 @@ export const Positions = ({
                       setSharedModalVisible(true)
                       e.stopPropagation()
                     }
-                  }>
+                    }>
                     <SharedIcon/>
                   </Button>
                   {position.status === POSITION_STATUS.OPENING
@@ -593,7 +593,7 @@ export const Positions = ({
                         setSharedModalVisible(true)
                         e.stopPropagation()
                       }
-                    }>
+                      }>
                       <SharedIcon/>
                     </ButtonSell>
                     {position.status === POSITION_STATUS.OPENING ? (
@@ -754,7 +754,7 @@ export const Pnl = ({
   const pnl = NUM(div(valueChange, entryValue))
   const pnlDisplay = formatPercent(pnl)
   if (pnlDisplay == 0) {
-    return <React.Fragment></React.Fragment>
+    return <React.Fragment />
   }
 
   if (isPhone) {

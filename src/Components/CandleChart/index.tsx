@@ -19,6 +19,8 @@ import { CandleChartLoader } from '../ChartLoaders'
 import isEqual from 'react-fast-compare'
 import { useConfigs } from '../../state/config/useConfigs'
 import { decimalsBySignificantDigits, unwrap, zerofy } from '../../utils/helpers'
+import { store } from '../../state'
+import { setPriceByIndexR } from '../../state/currentPool/reducer'
 
 export interface ChartContainerProps {
   interval: ChartingLibraryWidgetOptions['interval']
@@ -199,6 +201,12 @@ const Component = ({
             timeRangeRef.current.value = from + ',' + to
           }
         })
+      tvWidget.activeChart().onSymbolChanged().subscribe(null,
+        // @ts-ignore
+        (symbolEx) => {
+          store.dispatch(setPriceByIndexR({ status: symbolEx.currency_code !== 'USD' }))
+        }
+      )
       tvWidget
         .activeChart()
         .onIntervalChanged()
@@ -224,12 +232,9 @@ const Component = ({
   }
 
   const detectRange = (resolution: string, from: number, to: number) => {
-    const timePerCandle = TIME_IN_RESOLUTION[resolution]
-    const middleTime = (from + to) / 2
-    return {
-      from: middleTime - timePerCandle * 50,
-      to: middleTime + timePerCandle * 50
-    }
+    const size = TIME_IN_RESOLUTION[resolution]
+    from = Math.min(from, to - size * 40)
+    return { from, to }
   }
 
   return (
