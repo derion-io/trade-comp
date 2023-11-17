@@ -204,8 +204,6 @@ const Component = ({
       tvWidget.activeChart().onSymbolChanged().subscribe(null,
         () => {
           store.dispatch(setPriceQuote())
-          console.log('#', tvWidget.activeChart())
-          console.log('# The symbol is changed')
         }
       )
 
