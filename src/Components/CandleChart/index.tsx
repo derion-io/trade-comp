@@ -19,6 +19,8 @@ import { CandleChartLoader } from '../ChartLoaders'
 import isEqual from 'react-fast-compare'
 import { useConfigs } from '../../state/config/useConfigs'
 import { decimalsBySignificantDigits, unwrap, zerofy } from '../../utils/helpers'
+import { store } from '../../state'
+import { setPriceQuote } from '../../state/currentPool/reducer'
 
 export interface ChartContainerProps {
   interval: ChartingLibraryWidgetOptions['interval']
@@ -199,6 +201,14 @@ const Component = ({
             timeRangeRef.current.value = from + ',' + to
           }
         })
+      tvWidget.activeChart().onSymbolChanged().subscribe(null,
+        () => {
+          store.dispatch(setPriceQuote())
+          console.log('#', tvWidget.activeChart())
+          console.log('# The symbol is changed')
+        }
+      )
+
       tvWidget
         .activeChart()
         .onIntervalChanged()

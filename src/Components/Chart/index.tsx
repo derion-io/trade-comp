@@ -18,7 +18,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const { chainId, configs } = useConfigs()
   const { chartTab, setChartTab, basePrice, id } = useCurrentPoolGroup()
   const { data: nativePrice } = useNativePrice()
-  const { currentPool } = useCurrentPool()
+  const { currentPool, priceByIndexR } = useCurrentPool()
   return (
     <div className='chart-box'>
       <div className='chart__head'>
@@ -27,8 +27,17 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
           {!!id && basePrice && (
             <span>
               <Text>
-                {[configs.wrappedTokenAddress, ...configs.stablecoins].includes(currentPool.TOKEN_R) ? '$' : '' }
-                {zerofy(formatFloat(basePrice) * (currentPool.TOKEN_R === configs.wrappedTokenAddress ? nativePrice : 1))}</Text>
+                {priceByIndexR &&
+                 [configs.wrappedTokenAddress, ...Object.keys(configs.tokens || {})]
+                   .includes(currentPool?.quoteToken)
+                  ? zerofy(formatFloat(basePrice))
+                  : '$' + zerofy(formatFloat(basePrice) * (
+                    currentPool?.quoteToken === configs.wrappedTokenAddress
+                      ? nativePrice
+                      : 1))
+                }
+
+              </Text>
               {changedIn24h > 0 ? (
                 <TextBuy>(+{changedIn24h}%)</TextBuy>
               ) : (
