@@ -203,7 +203,7 @@ const Component = ({
         })
       tvWidget.activeChart().onSymbolChanged().subscribe(null,
         () => {
-          store.dispatch(setPriceQuote())
+          store.dispatch(setPriceQuote({}))
         }
       )
 

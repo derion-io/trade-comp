@@ -9,9 +9,14 @@ export const tokens = createSlice({
   initialState,
   reducers: {
     setPriceQuote: (
-      state
+      state,
+      action: PayloadAction<{
+        status?: boolean
+      }>
     ) => {
-      state.priceByIndexR = !state.priceByIndexR
+      state.priceByIndexR = action.payload.status !== undefined
+        ? action.payload.status
+        : !state.priceByIndexR
     },
     setChartIsOutDate: (
       state,
