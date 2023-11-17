@@ -1,7 +1,6 @@
-import { parseSqrtX96 } from 'derivable-tools/dist/utils/helper'
 import { useConfigs } from '../state/config/useConfigs'
 import { useTokenPrice } from '../state/resources/hooks/useTokenPrice'
-import { NUM, bn } from '../utils/helpers'
+import { NUM } from '../utils/helpers'
 import { useListTokens } from '../state/token/hook'
 
 export const useNativePrice = () => {
