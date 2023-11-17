@@ -63,7 +63,7 @@ export const useTokenValue = ({
 
         // TOTO: need remove mul(numberToWei(1, 9) after fix parseSqrtX96 function
         const tokenPrice = valueInUsd && NUM(prices[pool.TOKEN_R] ?? 0) > 0
-          ? prices[pool.TOKEN_R] : 0
+          ? prices[pool.TOKEN_R] : 1
         value = IEW(BIG(WEI(_amount)).mul(WEI(tokenPrice)).mul(rX).div(sX), 36)
       }
     } else {
