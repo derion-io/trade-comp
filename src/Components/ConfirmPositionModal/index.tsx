@@ -147,7 +147,7 @@ const Component = ({
         } = poolToShow
         const k = poolToShow.k.toNumber()
         const kA = kx(k, R, a, spot, MARK)
-        const kB = -kx(-k, R, b, spot, MARK)
+        const kB = kx(-k, R, b, spot, MARK)
         const ek =
           sideToShow === POOL_IDS.A ? kA : sideToShow === POOL_IDS.B ? kB : k
 
