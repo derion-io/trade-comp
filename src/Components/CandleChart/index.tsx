@@ -20,7 +20,7 @@ import isEqual from 'react-fast-compare'
 import { useConfigs } from '../../state/config/useConfigs'
 import { decimalsBySignificantDigits, unwrap, zerofy } from '../../utils/helpers'
 import { store } from '../../state'
-import { setPriceQuote } from '../../state/currentPool/reducer'
+import { setPriceByIndexR } from '../../state/currentPool/reducer'
 
 export interface ChartContainerProps {
   interval: ChartingLibraryWidgetOptions['interval']
@@ -202,11 +202,11 @@ const Component = ({
           }
         })
       tvWidget.activeChart().onSymbolChanged().subscribe(null,
-        () => {
-          store.dispatch(setPriceQuote({}))
+        // @ts-ignore
+        (symbolEx) => {
+          store.dispatch(setPriceByIndexR({ status: symbolEx.currency_code !== 'USD' }))
         }
       )
-
       tvWidget
         .activeChart()
         .onIntervalChanged()

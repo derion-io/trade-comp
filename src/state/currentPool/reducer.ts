@@ -8,15 +8,13 @@ export const tokens = createSlice({
   name: 'pool',
   initialState,
   reducers: {
-    setPriceQuote: (
+    setPriceByIndexR: (
       state,
       action: PayloadAction<{
-        status?: boolean
+        status: boolean
       }>
     ) => {
-      state.priceByIndexR = action.payload.status !== undefined
-        ? action.payload.status
-        : !state.priceByIndexR
+      state.priceByIndexR = action.payload.status
     },
     setChartIsOutDate: (
       state,
@@ -145,7 +143,7 @@ export const tokens = createSlice({
 // Actions
 export const {
   setChartTimeFocusReduce,
-  setPriceQuote,
+  setPriceByIndexR,
   setChartIsOutDate,
   setCurrentPoolInfo,
   setCandleChartIsLoadingReduce,

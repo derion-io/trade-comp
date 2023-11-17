@@ -3,7 +3,8 @@ import { LASTEST_BLOCK_NUMBER, NATIVE_ADDRESS, POOL_IDS } from '../../utils/cons
 import { store } from '../../state'
 import {
   setCandleChartIsLoadingReduce, setChartIntervalIsUpdated,
-  setChartIsOutDate
+  setChartIsOutDate,
+  setPriceByIndexR
 } from '../../state/currentPool/reducer'
 import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import { isErc1155Address } from '../../utils/helpers'
@@ -50,7 +51,7 @@ const wrappedToNativeSymbol = (symbol?: string): string => {
   return symbol === `W${configs.nativeSymbol}` ? configs.nativeSymbol : symbol
 }
 
-const handleChartRouteOption = (currencyId: string, baseAddress: string, cAddress: string, quoteAddress: string): {route: (string | undefined)[], quoteAddressSelect: string} => {
+const handleChartRouteOption = (currencyId: string, baseAddress: string, cAddress: string, quoteAddress: string): {route: (string | undefined)[],isPriceByIndexR: boolean, quoteAddressSelect: string} => {
   const state = store.getState()
   const { routes, configs: { chartReplacements } } = state.configs
   cAddress = chartReplacements?.[cAddress] ?? cAddress
@@ -75,7 +76,8 @@ const handleChartRouteOption = (currencyId: string, baseAddress: string, cAddres
       quoteAddress,
       ...(quoteAddressSelect === state.currentPool.quoteToken ? [] : [poolAddress, defaultStableCoin]
       )],
-    quoteAddressSelect
+    quoteAddressSelect,
+    isPriceByIndexR: quoteAddressSelect !== defaultStableCoin
   }
 }
 export const Datafeed = {
@@ -153,9 +155,9 @@ export const Datafeed = {
     const ticker = symbolInfo.ticker
     const [baseAddress, cAddress, quoteAddress, , chainId] = ticker.split('-')
     const tokens = state.tokens.tokens[chainId]
-    const { route, quoteAddressSelect } = handleChartRouteOption(symbolInfo?.currency_id, baseAddress, cAddress, quoteAddress)
+    const { route, quoteAddressSelect, isPriceByIndexR } = handleChartRouteOption(symbolInfo?.currency_id, baseAddress, cAddress, quoteAddress)
     const limit = calcLimitCandle(periodParams.from, periodParams.to, resolution)
-
+    store.dispatch(setPriceByIndexR({ status: isPriceByIndexR}))
     if (periodParams.firstDataRequest) {
       store.dispatch(setChartIntervalIsUpdated({ status: false }))
     }

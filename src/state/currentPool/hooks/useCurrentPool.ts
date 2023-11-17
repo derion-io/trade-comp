@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../types'
 import { useResource } from '../../resources/hooks/useResource'
-import { setCurrentPoolAddressReduce, setDrReduce, setPriceQuote } from '../reducer'
+import { setCurrentPoolAddressReduce, setDrReduce } from '../reducer'
 
 export const useCurrentPool = () => {
   const { pools } = useResource()
@@ -17,7 +17,6 @@ export const useCurrentPool = () => {
   const dispatch = useDispatch()
 
   const setCurrentPoolAddress = (address: string) => {
-    dispatch(setPriceQuote({ status: false }))
     dispatch(setCurrentPoolAddressReduce({ address }))
   }
 
