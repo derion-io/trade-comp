@@ -333,6 +333,7 @@ export const Positions = ({
                     <EntryPrice
                       position={position}
                       loading={position.status === POSITION_STATUS.OPENING}
+                      isPhone
                     />
                   </InfoRow>
                 )}
@@ -498,6 +499,7 @@ export const Positions = ({
           <thead>
             <tr>
               <th>Position</th>
+              <th>Entry Price</th>
               <th className='no-wrap'>
                 Net Value
                 {positions?.length > 0 && (
@@ -523,7 +525,6 @@ export const Positions = ({
               </th>
               <th>Funding</th>
               {showSize && <th>Size</th>}
-              <th>Entry Price</th>
               <th>Delev. Price</th>
               {!hasClosingFee || <th>Closing Fee</th>}
               {/* <th>Reserve</th> */}
@@ -571,6 +572,14 @@ export const Positions = ({
                           )
                       }
                     />
+                  </td>
+                  <td>
+                    <SkeletonLoader loading={position.status === POSITION_STATUS.OPENING}>
+                      {!position.entryPrice || <EntryPrice
+                        position={position}
+                        loading={position.status === POSITION_STATUS.OPENING}
+                      />}
+                    </SkeletonLoader>
                   </td>
                   <td>
                     <div className='net-value-and-pnl'>
@@ -625,13 +634,6 @@ export const Positions = ({
                       </SkeletonLoader>
                     </td>
                   )}
-                  <td>
-                    <SkeletonLoader loading={position.status === POSITION_STATUS.OPENING}>
-                      {!position.entryPrice || (
-                        <Text>{zerofy(formatFloat(position.entryPrice || position.currentPrice))}</Text>
-                      )}
-                    </SkeletonLoader>
-                  </td>
                   <td>
                     {position.effectiveLeverage < position.leverage / 2 ? (
                       <TextError>{position.deleverageRangeDisplay}</TextError>
@@ -748,11 +750,18 @@ export const EntryPrice = ({
     ? <TextBuy>+{formatFloat(mdp(priceRate, 2), undefined, 3, true)}%</TextBuy>
     : <TextSell>{formatFloat(mdp(priceRate, 2), undefined, 3, true)}%</TextSell>
 
-  return <Text>
-    <TextGrey>{zerofy(formatFloat(entryPrice))}</TextGrey>
-    &nbsp;
-    {rateDisplay}
-  </Text>
+  if (isPhone) {
+    return <Text>
+      <TextGrey>{zerofy(formatFloat(entryPrice))}</TextGrey>
+      &nbsp;
+      {rateDisplay}
+    </Text>
+  }
+
+  return <React.Fragment>
+    <div><TextGrey>{zerofy(formatFloat(entryPrice))}</TextGrey></div>
+    <div>{rateDisplay}</div>
+  </React.Fragment>
 }
 
 export const NetValue = ({
