@@ -20,7 +20,7 @@ export const shortenAddressString = (address: string) => {
   )
 }
 
-export const STR = (num: number | string | BigNumber): string => {
+export const STR = (num: number | string | BigNumber, minimumSignificantDigits?: number): string => {
   if (!num) {
     return '0'
   }
@@ -34,7 +34,10 @@ export const STR = (num: number | string | BigNumber): string => {
       if (!isFinite(num)) {
         return num > 0 ? '∞' : '-∞'
       }
-      return num.toLocaleString(['en-US', 'fullwide'], { useGrouping: false })
+      return num.toLocaleString(['en-US', 'fullwide'], {
+        useGrouping: false,
+        minimumSignificantDigits,
+      })
     default:
       return String(num)
   }
@@ -151,8 +154,8 @@ export const DIV = (a: BigNumber, b: BigNumber, precision = 4): string => {
 }
 
 export const MUL = (a: any, b: any): string => {
-  a = STR(a)
-  b = STR(b)
+  a = STR(a, 4)
+  b = STR(b, 4)
   const [aa, da] = remDec(a)
   const [bb, db] = remDec(b)
   return mdp(STR(BIG(aa).mul(BIG(bb))), -da-db)
@@ -174,12 +177,16 @@ export const pow = (x: any, k: number): string => {
 }
 
 export const remDec = (s: string): [string, number] => {
-  const ss = s.split('.')
-  return [ss.join(''), ss[1]?.length ?? 0]
+  const d = countDecimals(s)
+  return [mdp(s, d), d]
 }
 
 export const countDecimals = (s: string): number => {
-  return s.split('.')[1]?.length ?? 0; 
+  return countDigits(s)[1] ?? 0
+}
+
+export const countDigits = (s: string): number[] => {
+  return s.split('.').map(p => p.length)
 }
 
 export const max = (a: number, b: number) => {
@@ -253,7 +260,7 @@ export const formatFloat = (
   significantDigits?: number,
   rounding: boolean = false
 ): number => {
-  if (decimals == undefined) {
+  if (decimals == null) {
     decimals = decimalsBySignificantDigits(number, significantDigits)
   }
   return NUM(truncate(STR(number), decimals, rounding))
@@ -270,23 +277,29 @@ export const mul = (a: any, b: any): string => {
   return MUL(a, b)
 }
 
+export const add = (a: any, b: any) => {
+  a = STR(a, 4)
+  b = STR(b, 4)
+  const d = Math.max(countDecimals(a), countDecimals(b))
+  return mdp(BIG(mdp(a, d)).add(mdp(b, d)), -d)
+}
+
 export const sub = (a: any, b: any) => {
-  return IEW(BIG(WEI(a)).sub(WEI(b)))
+  a = STR(a, 4)
+  b = STR(b, 4)
+  const d = Math.max(countDecimals(a), countDecimals(b))
+  return mdp(BIG(mdp(a, d)).sub(mdp(b, d)), -d)
 }
 
 export const div = (a: any, b: any, precision: number = 4) => {
-  a = STR(a)
-  b = STR(b)
+  a = STR(a, 4)
+  b = STR(b, 4)
   const [bb, db] = remDec(b)
   const aa = truncate(mdp(a, db + precision))
   return mdp(
     DIV(BIG(aa), BIG(bb)),
     -precision
   )
-}
-
-export const add = (a: any, b: any) => {
-  return IEW(BIG(WEI(a)).add(WEI(b)))
 }
 
 export const formatPercent = (
@@ -390,8 +403,8 @@ export const decimalsBySignificantDigits = (
   }
   const decimals =
     num >= 1
-      ? significantDigits - STR(Math.floor(num)).length
-      : significantDigits + STR(Math.floor(1 / num)).length - 1
+      ? significantDigits - countDigits(STR(num))[0]
+      : significantDigits + countDigits(STR(1/num))[0] - 1
 
   return Math.max(0, decimals)
 }
@@ -523,7 +536,8 @@ export const oracleToPoolGroupId = (ORACLE: string): string => {
 export const calcPoolSide = (
   pool: any,
   side: number,
-  tokens: ListTokensType = {}
+  tokens: ListTokensType = {},
+  currentPrice?: string | number,
 ): any => {
   const {
     states: { a, b, R },
@@ -552,12 +566,26 @@ export const calcPoolSide = (
   const xB = xr(-k, R.shr(1), b)
   const dgA = xA**exp * mark
   const dgB = xB**exp * mark
+
+  const deltas = [dgA, dgB].map(dg => {
+    if (currentPrice == null) {
+      return zerofy(dg)
+    }
+    const rate = NUM(div(dg, currentPrice))
+    if (rate >= 2) {
+      return `(×${formatFloat(rate, undefined, 2, true)}) ${zerofy(dg)}`
+    }
+    if (rate <= 0.5) {
+      return `(÷${formatFloat(1/rate, undefined, 2, true)}) ${zerofy(dg)}`
+    }
+    const delta = formatFloat(mdp(div(sub(dg, currentPrice), currentPrice), 2), undefined, 3, true)
+    return `(${delta >= 0 ? '+' : ''}${delta}%) ${zerofy(dg)}`
+  })
+
   const deleverageRangeDisplay =
-    side === POOL_IDS.A
-      ? zerofy(dgA)
-      : side === POOL_IDS.B
-        ? zerofy(dgB)
-        : `${zerofy(dgB)}-${zerofy(dgA)}`
+    side === POOL_IDS.A ? deltas[0]
+      : side === POOL_IDS.B ? deltas[1]
+      : `${zerofy(dgB)}-${zerofy(dgA)}`
 
   const interest = sides[side].interest
   const premium = sides[side].premium

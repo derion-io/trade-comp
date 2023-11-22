@@ -23,7 +23,6 @@ import formatLocalisedCompactNumber, {
   formatWeiToDisplayNumber
 } from '../../utils/formatBalance'
 import {
-  DIV,
   IEW,
   mul,
   NUM,
@@ -64,6 +63,8 @@ import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { SharedPosition } from '../PositionSharedModal'
 import { SharedIcon } from '../ui/Icon'
 import { useTokenPrice } from '../../state/resources/hooks/useTokenPrice'
+
+const mdp = require('move-decimal-point')
 
 export enum VALUE_IN_USD_STATUS {
   AUTO,
@@ -157,12 +158,18 @@ export const Positions = ({
       if (Number(valueU) < MIN_POSITON_VALUE_USD_TO_DISPLAY && !pendingTxData) {
         return null
       }
+
+      const poolIndex = Object.keys(poolGroups).find(index => 
+        !!poolGroups?.[index]?.pools?.[poolAddress]
+      )
+      const currentPrice = poolGroups[poolIndex ?? '']?.basePrice ?? 0
+      
       const {
         leverage,
         effectiveLeverage,
         deleverageRangeDisplay,
         funding
-      } = calcPoolSide(pool, side, tokens)
+      } = calcPoolSide(pool, side, tokens, currentPrice)
 
       const sizeDisplay =
         side === POOL_IDS.A || side === POOL_IDS.B
@@ -179,19 +186,19 @@ export const Positions = ({
         maturity: maturities?.[token]?.toNumber() ?? 0
       })
       
-      const poolIndex = Object.keys(poolGroups).find(index => 
-        !!poolGroups?.[index]?.pools?.[poolAddress]
-      )
-      const currentPrice = poolGroups[poolIndex ?? '']?.basePrice ?? 0
-      
       const L = side == POOL_IDS.A ? NUM(leverage) : side == POOL_IDS.B ? -NUM(leverage) : 0
       let valueRLinear
       let valueRCompound
       if (L != 0) {
         const priceRate = div(currentPrice, entryPrice)
-        valueRLinear = add(entryValueR, mul(entryValueR, mul(sub(priceRate, 1), L)))
-        if (valueRLinear.startsWith('-')) {
+        const leveragedPriceRate = add(1, div(
+          mul(L, sub(currentPrice, entryPrice)),
+          entryPrice,
+        ))
+        if (leveragedPriceRate.startsWith('-')) {
           valueRLinear = '0'
+        } else {
+          valueRLinear = mul(entryValueR, leveragedPriceRate)
         }
         valueRCompound = mul(entryValueR, pow(priceRate, L))
       }
@@ -293,8 +300,19 @@ export const Positions = ({
             return (
               <div className='positions-list__item' key={key}>
                 <InfoRow>
-                  <Text>Position</Text>
                   <Token token={position.token} />
+                  <Button
+                    size='small'
+                    className='share-position'
+                    style={{ border: 'none' }}
+                    onClick={(e) => {
+                      setSharedPosition(position)
+                      setSharedModalVisible(true)
+                      e.stopPropagation()
+                    }
+                    }>
+                    <SharedIcon/>
+                  </Button>
                 </InfoRow>
                 {!settings.showBalance || (
                   <InfoRow>
@@ -308,8 +326,19 @@ export const Positions = ({
                     </Text>
                   </InfoRow>
                 )}
+
+                {!position.entryPrice || (
+                  <InfoRow>
+                    <TextGrey>Entry Price</TextGrey>
+                    <EntryPrice
+                      position={position}
+                      loading={position.status === POSITION_STATUS.OPENING}
+                    />
+                  </InfoRow>
+                )}
+
                 <InfoRow>
-                  <Text>
+                  <TextGrey>
                     Net Value
                     <Text
                         className='text-link'
@@ -328,7 +357,7 @@ export const Positions = ({
                             }`
                           : ' ⇄ USD'}
                     </Text>
-                  </Text>
+                  </TextGrey>
                   <NetValue
                     position={position}
                     valueInUsdStatus={valueInUsdStatus}
@@ -339,7 +368,7 @@ export const Positions = ({
 
                 {!position.valueRLinear || (
                   <InfoRow>
-                    <Text>PnL</Text>
+                    <TextGrey>PnL</TextGrey>
                     <PnL
                       valueInUsdStatus={valueInUsdStatus}
                       position={position}
@@ -351,7 +380,7 @@ export const Positions = ({
 
                 {!position.valueRCompound || (
                   <InfoRow>
-                    <Text>Compounding</Text>
+                    <TextGrey>Compound</TextGrey>
                     <PnLCompound
                       valueInUsdStatus={valueInUsdStatus}
                       position={position}
@@ -363,7 +392,7 @@ export const Positions = ({
 
                 {!position.entryValueR || (
                   <InfoRow>
-                    <Text>Funding</Text>
+                    <TextGrey>Funding</TextGrey>
                     <Funding
                       valueInUsdStatus={valueInUsdStatus}
                       position={position}
@@ -373,44 +402,12 @@ export const Positions = ({
                   </InfoRow>
                 )}
 
-                {!showSize || !position.sizeDisplay || (
-                  <InfoRow>
-                    <Text>Size</Text>
-                    <SkeletonLoader loading={position.status === POSITION_STATUS.OPENING}>
-                      {position.effectiveLeverage < position.leverage / 2 ? (
-                        <TextError>{position.sizeDisplay}</TextError>
-                      ) : position.effectiveLeverage < position.leverage ? (
-                        <TextWarning>{position.sizeDisplay}</TextWarning>
-                      ) : (
-                        <Text>{position.sizeDisplay}</Text>
-                      )}
-                    </SkeletonLoader>
-                  </InfoRow>
-                )}
-                {!position.entryPrice || (
-                  <InfoRow>
-                    <Text>Entry Price</Text>
-                    <SkeletonLoader loading={position.status === POSITION_STATUS.OPENING}>
-                      <Text>{zerofy(formatFloat(position.entryPrice))}</Text>
-                    </SkeletonLoader>
-                  </InfoRow>
-                )}
                 <InfoRow>
-                  <Text>Deleverage Price</Text>
-                  {position.effectiveLeverage < position.leverage / 2 ? (
-                    <TextError>{position.deleverageRangeDisplay}</TextError>
-                  ) : position.effectiveLeverage < position.leverage ? (
-                    <TextWarning>{position.deleverageRangeDisplay}</TextWarning>
-                  ) : (
-                    <Text>{position.deleverageRangeDisplay}</Text>
-                  )}
-                </InfoRow>
-                <InfoRow>
-                  <Text>
+                  <TextGrey>
                     {position.side === POOL_IDS.C
                       ? 'Funding Yield'
                       : 'Funding Rate'}
-                  </Text>
+                  </TextGrey>
                   <Text
                     className={
                       position.funding < 0 || position.side === POOL_IDS.C
@@ -419,12 +416,38 @@ export const Positions = ({
                     }
                   >
                     {zerofy(formatFloat(position.funding * 100, undefined, 3, true))}%
+                    <TextGrey>/day</TextGrey>
                   </Text>
+                </InfoRow>
+
+                {!showSize || !position.sizeDisplay || (
+                  <InfoRow>
+                    <TextGrey>Size</TextGrey>
+                    <SkeletonLoader loading={position.status === POSITION_STATUS.OPENING}>
+                      {position.effectiveLeverage < position.leverage / 2 ? (
+                        <TextError>({position.leverage}x) {position.sizeDisplay}</TextError>
+                      ) : position.effectiveLeverage < position.leverage ? (
+                        <TextWarning>({position.leverage}x) {position.sizeDisplay}</TextWarning>
+                      ) : (
+                        <TextGrey>({position.leverage}x) {position.sizeDisplay}</TextGrey>
+                      )}
+                    </SkeletonLoader>
+                  </InfoRow>
+                )}
+                <InfoRow>
+                  <TextGrey>Deleverage Price</TextGrey>
+                  {position.effectiveLeverage < position.leverage / 2 ? (
+                    <TextError>{position.deleverageRangeDisplay}</TextError>
+                  ) : position.effectiveLeverage < position.leverage ? (
+                    <TextWarning>{position.deleverageRangeDisplay}</TextWarning>
+                  ) : (
+                    <TextGrey>{position.deleverageRangeDisplay}</TextGrey>
+                  )}
                 </InfoRow>
 
                 {!position?.closingFee?.(now)?.fee || (
                   <InfoRow>
-                    <Text>Closing Fee</Text>
+                    <TextGrey>Closing Fee</TextGrey>
                     <ClosingFee
                       now={now}
                       position={position}
@@ -442,18 +465,6 @@ export const Positions = ({
                 </InfoRow> */}
 
                 <InfoRow>
-                  <Button
-                    size='small'
-                    className='share-position'
-                    style={{ border: 'none' }}
-                    onClick={(e) => {
-                      setSharedPosition(position)
-                      setSharedModalVisible(true)
-                      e.stopPropagation()
-                    }
-                    }>
-                    <SharedIcon/>
-                  </Button>
                   {position.status === POSITION_STATUS.OPENING
                     ? <ButtonSell className='btn-close' size='small' style={{ opacity: 0.5 }} disabled>
                       Pending...
@@ -699,6 +710,30 @@ export const Positions = ({
   )
 }
 
+export const EntryPrice = ({
+  position,
+  isPhone,
+  loading
+}: {
+  position: Position
+  isPhone?: boolean
+  loading?: boolean
+}) => {
+  if (loading) return <SkeletonLoader loading/>
+
+  const { entryPrice, currentPrice } = position
+  const priceRate = div(sub(currentPrice, entryPrice), entryPrice)
+  const rateDisplay = priceRate > 0
+    ? <TextBuy>+{formatFloat(mdp(priceRate, 2), undefined, 3, true)}%</TextBuy>
+    : <TextSell>{formatFloat(mdp(priceRate, 2), undefined, 3, true)}%</TextSell>
+
+  return <Text>
+    <TextGrey>{zerofy(formatFloat(entryPrice))}</TextGrey>
+    &nbsp;
+    {rateDisplay}
+  </Text>
+}
+
 export const NetValue = ({
   position,
   valueInUsdStatus,
@@ -812,9 +847,6 @@ export const PnLCompound = ({
     return <React.Fragment/>
   }
   const rate = formatPercent(div(valueChange, maxValue), undefined, true)
-  if (rate == 0) {
-    return <React.Fragment />
-  }
   const rateDisplay = (rate >= 0 ? '+' : '') + STR(rate)
   const TextComp = rate >= 0 ? TextBuy : TextSell
   if (isPhone) {
