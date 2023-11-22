@@ -731,62 +731,34 @@ export const PnL = ({
   const { pool, valueRCompound, entryValueU, entryValueR } = position
   const { prices } = useTokenPrice()
   const priceR = prices[pool.TOKEN_R] ?? 1
-  const compoundValueU = mul(valueRCompound, priceR)
+  const valueUCompound = mul(valueRCompound, priceR)
   const [value, entryValue] = isShowValueInUsd(valueInUsdStatus, pool)
-    ? [compoundValueU, entryValueU]
+    ? [valueUCompound, entryValueU]
     : [valueRCompound, entryValueR]
   if (!entryValue || !Number(entryValue)) {
     return <React.Fragment />
   }
   const valueChange = NUM(sub(value, entryValue))
   const valueChangeDisplay =
-    valueChange >= 0 ? (
       <Text className='d-flex align-item-center'>
-        +
-        {isShowValueInUsd(valueInUsdStatus, pool) ? (
-          '$'
-        ) : (
-          <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex' />
-        )}
-        {zerofy(valueChange)}
+      {valueChange >= 0 ? '+' : '-'}
+      {isShowValueInUsd(valueInUsdStatus, pool) ? '$' : <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex' />}
+      {zerofy(Math.abs(valueChange))}
       </Text>
-    ) : (
-      <Text className='d-flex align-item-center'>
-        -
-        {isShowValueInUsd(valueInUsdStatus, pool) ? (
-          '$'
-        ) : (
-          <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex' />
-        )}
-        {zerofy(-valueChange)}{' '}
-      </Text>
-    )
-  const pnl = NUM(div(valueChange, entryValue))
-  const pnlDisplay = formatPercent(pnl)
-  if (pnlDisplay == 0) {
+  const rate = formatPercent(div(valueChange, entryValue), undefined, true)
+  if (rate == 0) {
     return <React.Fragment />
   }
-
+  const rateDisplay = (rate >= 0 ? '+' : '') + STR(rate)
+  const TextComp = rate >= 0 ? TextBuy : TextSell
   if (isPhone) {
-    return pnl >= 0 ? (
-      <TextBuy className='pnl'>
-        (+{pnlDisplay}%)&nbsp;{valueChangeDisplay}
-      </TextBuy>
-    ) : (
-      <TextSell className='pnl'>
-        ({pnlDisplay}%)&nbsp;{valueChangeDisplay}
-      </TextSell>
-    )
+    return <TextComp className='pnl'>
+      ({rateDisplay}%)&nbsp;{valueChangeDisplay}
+    </TextComp>
   }
-  return pnl >= 0 ? (
-    <TextBuy className='pnl'>
-      {valueChangeDisplay}&nbsp;(+{pnlDisplay}%)
-    </TextBuy>
-  ) : (
-    <TextSell className='pnl'>
-      {valueChangeDisplay}&nbsp;({pnlDisplay}%)
-    </TextSell>
-  )
+  return <TextComp className='pnl'>
+    {valueChangeDisplay}&nbsp;({rateDisplay}%)
+  </TextComp>
 }
 
 export const Funding = ({
