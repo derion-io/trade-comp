@@ -411,6 +411,7 @@ export const Positions = ({
                 </React.Fragment>
                 }
 
+                {!position.funding ||
                 <InfoRow>
                   <TextGrey>
                     {position.side === POOL_IDS.C
@@ -419,6 +420,7 @@ export const Positions = ({
                   </TextGrey>
                   <FundingRate position={position} />
                 </InfoRow>
+                }
 
                 {!showSize || !position.sizeDisplay || (
                   <InfoRow>
@@ -996,11 +998,11 @@ export const Funding = ({
 
   if (!isPhone) {
     return paidR >= 0 ? (
-      <TextBuy className='pnl'>
+      <TextBuy>
         {valueChangeDisplay}
       </TextBuy>
     ) : (
-      <TextSell className='pnl'>
+      <TextSell>
         {valueChangeDisplay}
       </TextSell>
     )
@@ -1043,7 +1045,7 @@ export const DeleveragePrice = ({
       return `(×${formatFloat(rate, undefined, 2, true)})`
     }
     if (rate <= 0.5) {
-      return `(÷${formatFloat(1/rate, undefined, 2, true)})`
+      return `(1/${formatFloat(1/rate, undefined, 2, true)})`
     }
     const delta = formatFloat(mdp(div(sub(dg, currentPrice), currentPrice), 2), undefined, 3, true)
     return `(${delta >= 0 ? '+' : ''}${delta}%)`
@@ -1089,7 +1091,7 @@ export const FundingRate = ({
   }
   return <TextComp>
     {fundingFormat}%
-    <TextGrey>/day</TextGrey>
+    <TextGrey>/24h</TextGrey>
   </TextComp>
 }
 
