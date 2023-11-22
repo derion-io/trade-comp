@@ -366,31 +366,25 @@ export const Positions = ({
                   />
                 </InfoRow>
 
-                {!position.valueRLinear || (
+                {!!position.valueRCompound ? <React.Fragment>
                   <InfoRow>
                     <TextGrey>PnL</TextGrey>
-                    <PnL
+                    <LinearPnL
                       valueInUsdStatus={valueInUsdStatus}
                       position={position}
                       loading={position.status === POSITION_STATUS.OPENING}
                       isPhone
                     />
                   </InfoRow>
-                )}
-
-                {!position.valueRCompound || (
                   <InfoRow>
                     <TextGrey>Compound</TextGrey>
-                    <PnLCompound
+                    <CompoundToLinearPnL
                       valueInUsdStatus={valueInUsdStatus}
                       position={position}
                       loading={position.status === POSITION_STATUS.OPENING}
                       isPhone
                     />
                   </InfoRow>
-                )}
-
-                {!position.entryValueR || (
                   <InfoRow>
                     <TextGrey>Funding</TextGrey>
                     <Funding
@@ -400,7 +394,18 @@ export const Positions = ({
                       isPhone
                     />
                   </InfoRow>
-                )}
+                </React.Fragment> : <React.Fragment>
+                  <InfoRow>
+                    <TextGrey>PnL</TextGrey>
+                    <PnL
+                      valueInUsdStatus={valueInUsdStatus}
+                      position={position}
+                      loading={position.status === POSITION_STATUS.OPENING}
+                      isPhone
+                    />
+                  </InfoRow>
+                </React.Fragment>
+                }
 
                 <InfoRow>
                   <TextGrey>
@@ -574,7 +579,7 @@ export const Positions = ({
                         valueInUsdStatus={valueInUsdStatus}
                         loading={position.status === POSITION_STATUS.OPENING}
                       />
-                      <PnL
+                      <CompoundPnL
                         loading={position.status === POSITION_STATUS.OPENING}
                         valueInUsdStatus={valueInUsdStatus}
                         position={position}
@@ -771,7 +776,7 @@ export const NetValue = ({
   )
 }
 
-export const PnL = ({
+export const LinearPnL = ({
   position,
   isPhone,
   valueInUsdStatus,
@@ -816,7 +821,7 @@ export const PnL = ({
   </TextComp>
 }
 
-export const PnLCompound = ({
+export const CompoundToLinearPnL = ({
   position,
   isPhone,
   valueInUsdStatus,
@@ -836,6 +841,89 @@ export const PnLCompound = ({
   const [value, entryValue] = isShowValueInUsd(valueInUsdStatus, pool)
     ? [valueUCompound, valueULinear]
     : [valueRCompound, valueRLinear]
+  const valueChange = NUM(sub(value, entryValue))
+  const valueChangeDisplay =
+    <Text className='d-flex align-item-center'>
+      {valueChange >= 0 ? '+' : '-'}
+      {isShowValueInUsd(valueInUsdStatus, pool) ? '$' : <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex' />}
+      {zerofy(Math.abs(valueChange))}
+    </Text>
+  const maxValue = Math.max(NUM(value ?? 0), NUM(entryValue ?? 0))
+  if (maxValue == 0) {
+    return <React.Fragment/>
+  }
+  const rate = formatPercent(div(valueChange, maxValue), undefined, true)
+  const rateDisplay = (rate >= 0 ? '+' : '') + STR(rate)
+  const TextComp = rate >= 0 ? TextBuy : TextSell
+  if (isPhone) {
+    return <TextComp className='pnl'>
+      ({rateDisplay}%)&nbsp;{valueChangeDisplay}
+    </TextComp>
+  }
+  return <TextComp className='pnl'>
+    {valueChangeDisplay}&nbsp;({rateDisplay}%)
+  </TextComp>
+}
+
+export const CompoundPnL = ({
+  position,
+  isPhone,
+  valueInUsdStatus,
+  loading
+}: {
+  position: Position
+  isPhone?: boolean
+  loading?:boolean
+  valueInUsdStatus: VALUE_IN_USD_STATUS
+}) => {
+  if (loading) return <SkeletonLoader loading/>
+  const { pool, valueRCompound, entryValueU, entryValueR } = position
+  const { prices } = useTokenPrice()
+  const priceR = prices[pool.TOKEN_R] ?? 1
+  const valueUCompound = mul(valueRCompound, priceR)
+  const [value, entryValue] = isShowValueInUsd(valueInUsdStatus, pool)
+    ? [valueUCompound, entryValueU]
+    : [valueRCompound, entryValueR]
+  const valueChange = NUM(sub(value, entryValue))
+  const valueChangeDisplay =
+    <Text className='d-flex align-item-center'>
+      {valueChange >= 0 ? '+' : '-'}
+      {isShowValueInUsd(valueInUsdStatus, pool) ? '$' : <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex' />}
+      {zerofy(Math.abs(valueChange))}
+    </Text>
+  const maxValue = Math.max(NUM(value ?? 0), NUM(entryValue ?? 0))
+  if (maxValue == 0) {
+    return <React.Fragment/>
+  }
+  const rate = formatPercent(div(valueChange, maxValue), undefined, true)
+  const rateDisplay = (rate >= 0 ? '+' : '') + STR(rate)
+  const TextComp = rate >= 0 ? TextBuy : TextSell
+  if (isPhone) {
+    return <TextComp className='pnl'>
+      ({rateDisplay}%)&nbsp;{valueChangeDisplay}
+    </TextComp>
+  }
+  return <TextComp className='pnl'>
+    {valueChangeDisplay}&nbsp;({rateDisplay}%)
+  </TextComp>
+}
+
+export const PnL = ({
+  position,
+  isPhone,
+  valueInUsdStatus,
+  loading
+}: {
+  position: Position
+  isPhone?: boolean
+  loading?:boolean
+  valueInUsdStatus: VALUE_IN_USD_STATUS
+}) => {
+  if (loading) return <SkeletonLoader loading/>
+  const { pool, entryValueU, entryValueR, valueR, valueU } = position
+  const [value, entryValue] = isShowValueInUsd(valueInUsdStatus, pool)
+    ? [valueU, entryValueU]
+    : [valueR, entryValueR]
   const valueChange = NUM(sub(value, entryValue))
   const valueChangeDisplay =
     <Text className='d-flex align-item-center'>
