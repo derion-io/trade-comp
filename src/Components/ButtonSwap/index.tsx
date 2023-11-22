@@ -4,18 +4,17 @@ import {
   decodeErc1155Address,
   isErc1155Address,
   mul,
-  parseCallStaticError,
   WEI
 } from '../../utils/helpers'
 import { toast } from 'react-toastify'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useListTokens } from '../../state/token/hook'
 import { useWeb3React } from '../../state/customWeb3React/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useConfigs } from '../../state/config/useConfigs'
 import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 import { BigNumber } from 'ethers'
-import { CHAINS, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
+import { CHAINS, POOL_IDS, TRADE_TYPE, ZERO_ADDRESS } from '../../utils/constant'
 import { TextSell } from '../ui/Text'
 import { useSettings } from '../../state/setting/hooks/useSettings'
 import { ApproveUtrModal } from '../ApproveUtrModal'
@@ -23,8 +22,12 @@ import { useResource } from '../../state/resources/hooks/useResource'
 import { ConfirmPosition } from '../ConfirmPositionModal'
 import { useSwapPendingHistory } from '../../state/wallet/hooks/useSwapPendingHistory'
 import { PendingSwapTransactionType } from 'derivable-tools/dist/types'
+import { useDetectPool } from '../../hooks/useDetectPool'
+
+const TIME_TO_REFRESH_FETCHER_DATA = 10000
 
 export const ButtonSwap = ({
+  submitFetcherV2,
   inputTokenAddress,
   outputTokenAddress,
   amountIn,
@@ -39,8 +42,11 @@ export const ButtonSwap = ({
   payoffRate,
   tokenOutMaturity,
   confirmModal,
-  closeConfirmWhenSwap
+  closeConfirmWhenSwap,
+  isClosePosition
 }: {
+  isClosePosition?: boolean,
+  submitFetcherV2: boolean,
   inputTokenAddress: string
   outputTokenAddress: string
   amountIn: string
@@ -69,10 +75,34 @@ export const ButtonSwap = ({
   const { initResource } = useResource()
   const { swapPendingTxs, updatePendingTxsHandle } = useSwapPendingHistory()
   const slippage = 1 - Math.min(1, payoffRate ?? 0)
+  const [fetcherData, setFetcherData] = useState<any>()
+  const [amountOutSnapshot, setAmountOutSnapshot] = useState<string>('')
+  const currentPool = useDetectPool({ inputTokenAddress, outputTokenAddress })
 
   const { updateSwapTxsHandle } = useSwapHistory()
   const [visibleConfirmPosition, setVisibleConfirmPosition] = useState<boolean>(false)
   const sideOut = Number(decodeErc1155Address(outputTokenAddress)?.id ?? 0)
+
+  const refreshFetcherData = useCallback(async () => {
+    if ((!confirmModal || isClosePosition) && ddlEngine && currentPool && currentPool.FETCHER !== ZERO_ADDRESS) {
+      const data = await ddlEngine.SWAP.fetchPriceTx(currentPool)
+      setFetcherData(data)
+      return data
+    }
+    return null
+  }, [ddlEngine, currentPool, confirmModal, isClosePosition])
+
+  useEffect(() => {
+    if (visibleConfirmPosition) {
+      setAmountOutSnapshot(amountOut)
+    }
+  }, [visibleConfirmPosition])
+
+  useEffect(() => {
+    refreshFetcherData()
+    const intervalId = setInterval(refreshFetcherData, TIME_TO_REFRESH_FETCHER_DATA)
+    return () => clearInterval(intervalId)
+  }, [refreshFetcherData])
 
   let gasLimit: BigNumber | undefined
   if (gasUsed?.gt(0)) {
@@ -173,48 +203,37 @@ export const ButtonSwap = ({
                   mul(amountOut, 1 - settings.slippageTolerance),
                 tokens[outputTokenAddress]?.decimal || 18
                 )
-                console.log({
-                  tokenIn: inputTokenAddress,
-                  tokenOut: outputTokenAddress,
-                  amountIn: bn(
-                    WEI(amountIn, tokens[inputTokenAddress]?.decimal || 18)
-                  ),
-                  amountOutMin,
-                  payloadAmountIn,
-                  useSweep: !!(
-                    tokenOutMaturity?.gt(0) &&
-                    balances[outputTokenAddress] &&
-                    isErc1155Address(outputTokenAddress)
-                  ),
-                  currentBalanceOut: balances[outputTokenAddress]
-                })
                 let pendingTxHash: string = ''
                 const tx: any = await ddlEngine.SWAP.multiSwap(
-                  [
-                    {
-                      tokenIn: inputTokenAddress,
-                      tokenOut: outputTokenAddress,
-                      amountIn: bn(
-                        WEI(amountIn, tokens[inputTokenAddress]?.decimal || 18)
-                      ),
-                      amountOutMin,
-                      payloadAmountIn,
-                      useSweep: !!(
+                  {
+                    steps: [
+                      {
+                        tokenIn: inputTokenAddress,
+                        tokenOut: outputTokenAddress,
+                        amountIn: bn(
+                          WEI(amountIn, tokens[inputTokenAddress]?.decimal || 18)
+                        ),
+                        amountOutMin,
+                        payloadAmountIn,
+                        useSweep: !!(
                           tokenOutMaturity?.gt(0) &&
                           balances[outputTokenAddress] &&
                           isErc1155Address(outputTokenAddress)
-                      ),
-                      currentBalanceOut: balances[outputTokenAddress]
-                    }
-                  ], {
-                  gasLimit,
-                  onSubmitted: (pendingTx: PendingSwapTransactionType) => {
-                    pendingTxHash = pendingTx.hash
-                    updatePendingTxsHandle([...swapPendingTxs, pendingTx])
-                    if (closeConfirmWhenSwap) closeConfirmWhenSwap(false)
-                    toast.success('Transaction Submitted')
+                        ),
+                        currentBalanceOut: balances[outputTokenAddress]
+                      }
+                    ],
+                    gasLimit,
+                    onSubmitted: (pendingTx: PendingSwapTransactionType) => {
+                      pendingTxHash = pendingTx.hash
+                      updatePendingTxsHandle([...swapPendingTxs, pendingTx])
+                      if (closeConfirmWhenSwap) closeConfirmWhenSwap(false)
+                      toast.success('Transaction Submitted')
+                    },
+                    fetcherData: fetcherData || await refreshFetcherData(),
+                    submitFetcherV2
                   }
-                })
+                )
 
                 const swapLogs = ddlEngine.RESOURCE.parseDdlLogs(
                   tx && tx?.logs ? tx.logs : []
@@ -252,6 +271,9 @@ export const ButtonSwap = ({
       )
     }
   }, [
+    refreshFetcherData,
+    submitFetcherV2,
+    fetcherData,
     chainId,
     amountOut,
     slippage,
@@ -284,6 +306,7 @@ export const ButtonSwap = ({
         )}
       {button}
       {confirmModal ? <ConfirmPosition
+        submitFetcherV2={submitFetcherV2}
         visible={visibleConfirmPosition}
         setVisible={setVisibleConfirmPosition}
         loadingAmountOut={loadingAmountOut}
@@ -292,7 +315,7 @@ export const ButtonSwap = ({
         payloadAmountIn={payloadAmountIn}
         outputTokenAddress={outputTokenAddress}
         amountIn={amountIn}
-        amountOut={amountOut}
+        amountOut={amountOutSnapshot}
         tradeType={tradeType}
         callError={callError}
         gasUsed={gasUsed}

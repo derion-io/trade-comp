@@ -54,7 +54,7 @@ const Component = ({
   const { setCurrentPoolAddress } = useCurrentPool()
   const { balances, accFetchBalance } = useWalletBalance()
   const { tokens } = useListTokens()
-  const { callError, gasUsed, amountOut, payloadAmountIn } = useCalculateSwap({
+  const { submitFetcherV2, callError, gasUsed, amountOut, payloadAmountIn } = useCalculateSwap({
     amountIn,
     setAmountIn,
     inputTokenAddress,
@@ -305,6 +305,7 @@ const Component = ({
 
       <div className='actions'>
         <ButtonSwap
+          submitFetcherV2={submitFetcherV2}
           payoffRate={payoffRate}
           payloadAmountIn={payloadAmountIn}
           confirmModal

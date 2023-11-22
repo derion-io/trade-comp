@@ -6,12 +6,15 @@ import {
   parseCallStaticError,
   IEW
 } from '../../../utils/helpers'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useListTokens } from '../../../state/token/hook'
 import { BigNumber } from 'ethers'
 import { useConfigs } from '../../../state/config/useConfigs'
 import { useWalletBalance } from '../../../state/wallet/hooks/useBalances'
+import { ZERO_ADDRESS } from '../../../utils/constant'
+import { useDetectPool } from '../../../hooks/useDetectPool'
 
+const TIME_TO_REFRESH_FETCHER_DATA = 10000
 const ITERATION = 10
 const REASONS_TO_RETRY = [
   'INSUFFICIENT_PAYMENT',
@@ -44,6 +47,26 @@ export const useCalculateSwap = ({
   const [loading, setLoading] = useState<boolean>(false)
   const { ddlEngine } = useConfigs()
   const { balances, routerAllowances } = useWalletBalance()
+  const [fetcherData, setFetcherData] = useState<any>()
+  const [submitFetcherV2, setSubmitFetcherV2] = useState<boolean>(false)
+  const currentPool = useDetectPool({ inputTokenAddress, outputTokenAddress })
+
+  const refreshFetcherData = useCallback(() => {
+    if (ddlEngine && currentPool && currentPool.FETCHER !== ZERO_ADDRESS) {
+      ddlEngine.SWAP.fetchPriceMockTx(currentPool).then((e) => {
+        setFetcherData(e)
+      })
+      ddlEngine.SWAP.needToSubmitFetcher(currentPool).then((status) => {
+        setSubmitFetcherV2(status)
+      })
+    }
+  }, [ddlEngine, currentPool])
+
+  useEffect(() => {
+    refreshFetcherData()
+    const intervalId = setInterval(refreshFetcherData, TIME_TO_REFRESH_FETCHER_DATA)
+    return () => clearInterval(intervalId)
+  }, [refreshFetcherData])
 
   // useEffect(() => {
   //   const poolAddress = isErc1155Address(inputTokenAddress)
@@ -92,6 +115,24 @@ export const useCalculateSwap = ({
     JSON.stringify(routerAllowances[inputTokenAddress] || {})
   ])
 
+  useEffect(() => {
+    if (
+      tokens[inputTokenAddress] &&
+      tokens[outputTokenAddress] &&
+      amountIn &&
+      Number(amountIn) &&
+      (isErc1155Address(inputTokenAddress) ||
+        routerAllowances[inputTokenAddress]?.gt(
+          WEI(amountIn, tokens[inputTokenAddress]?.decimal || 18)
+        ))
+    ) {
+      calcAmountOut()
+    }
+  }, [
+    fetcherData,
+    submitFetcherV2
+  ])
+
   const calcAmountOut = async (i: number = 0): Promise<any> => {
     try {
       const inputAmount = WEI(
@@ -112,23 +153,27 @@ export const useCalculateSwap = ({
         })
       }
       // @ts-ignore
-      const res = await ddlEngine.SWAP.calculateAmountOuts([
-        {
-          tokenIn: inputTokenAddress,
-          tokenOut: outputTokenAddress,
-          amountOutMin: 0,
-          amountIn: BIG(
-            WEI(amountIn, tokens[inputTokenAddress]?.decimal || 18)
-          ),
-          payloadAmountIn: _payloadAmountIn,
-          useSweep: !!(
+      const res = await ddlEngine.SWAP.calculateAmountOuts({
+        fetcherData,
+        fetcherV2: submitFetcherV2,
+        steps: [
+          {
+            tokenIn: inputTokenAddress,
+            tokenOut: outputTokenAddress,
+            amountOutMin: 0,
+            amountIn: BIG(
+              WEI(amountIn, tokens[inputTokenAddress]?.decimal || 18)
+            ),
+            payloadAmountIn: _payloadAmountIn,
+            useSweep: !!(
             tokenOutMaturity?.gt(0) &&
             balances[outputTokenAddress] &&
             isErc1155Address(outputTokenAddress)
-          ),
-          currentBalanceOut: balances[outputTokenAddress]
-        }
-      ])
+            ),
+            currentBalanceOut: balances[outputTokenAddress]
+          }
+        ]
+      })
       console.log('calculate amountOut response', res)
       if (amountIn !== amountInLast) {
         return // skip the calcuation and update for outdated input
@@ -155,6 +200,7 @@ export const useCalculateSwap = ({
       setAmountOut('0')
       setTxFee(bn(0))
       setGasUsed(bn(0))
+      console.log(e)
       setCallError(reason ?? e)
       setPayloadAmountIn(undefined)
       if (i >= ITERATION) {
@@ -172,6 +218,7 @@ export const useCalculateSwap = ({
   }
 
   return {
+    submitFetcherV2,
     loading,
     callError,
     txFee,

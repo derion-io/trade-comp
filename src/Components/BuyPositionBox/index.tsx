@@ -96,7 +96,7 @@ const Component = ({
     }
   }, [barData])
 
-  const { callError, loading, gasUsed, amountOut, payloadAmountIn } =
+  const { submitFetcherV2, callError, loading, gasUsed, amountOut, payloadAmountIn } =
     useCalculateSwap({
       amountIn,
       setAmountIn,
@@ -419,6 +419,7 @@ const Component = ({
 
       <div className='actions'>
         <ButtonSwap
+          submitFetcherV2={submitFetcherV2}
           payoffRate={payoffRate}
           inputTokenAddress={inputTokenAddress}
           outputTokenAddress={outputTokenAddress}
