@@ -881,11 +881,7 @@ export const CompoundPnL = ({
       {isShowValueInUsd(valueInUsdStatus, pool) ? '$' : <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex' />}
       {zerofy(ABS(valueChange))}
     </Text>
-  const maxValue = Math.max(NUM(value ?? 0), NUM(entryValue ?? 0))
-  if (maxValue == 0) {
-    return <React.Fragment/>
-  }
-  const rate = formatPercent(div(valueChange, maxValue), undefined, true)
+  const rate = formatPercent(div(valueChange, entryValue), undefined, true)
   const rateDisplay = (rate >= 0 ? '+' : '') + STR(rate)
   const TextComp = rate >= 0 ? TextBuy : TextSell
   if (isPhone) {
