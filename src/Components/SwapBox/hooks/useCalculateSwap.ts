@@ -6,12 +6,15 @@ import {
   parseCallStaticError,
   IEW
 } from '../../../utils/helpers'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useListTokens } from '../../../state/token/hook'
 import { BigNumber } from 'ethers'
 import { useConfigs } from '../../../state/config/useConfigs'
 import { useWalletBalance } from '../../../state/wallet/hooks/useBalances'
+import { useCurrentPool } from '../../../state/currentPool/hooks/useCurrentPool'
+import { ZERO_ADDRESS } from '../../../utils/constant'
 
+const TIME_TO_REFRESH_FETCHER_DATA = 10000
 const ITERATION = 10
 const REASONS_TO_RETRY = [
   'INSUFFICIENT_PAYMENT',
@@ -44,6 +47,22 @@ export const useCalculateSwap = ({
   const [loading, setLoading] = useState<boolean>(false)
   const { ddlEngine } = useConfigs()
   const { balances, routerAllowances } = useWalletBalance()
+  const [fetcherData, setFetcherData] = useState<any>()
+  const { currentPool } = useCurrentPool()
+
+  const refreshFetcherData = useCallback(() => {
+    if (ddlEngine && currentPool && currentPool.FETCHER !== ZERO_ADDRESS) {
+      ddlEngine.SWAP.fetchPriceMockTx(currentPool).then((e) => {
+        setFetcherData(e)
+      })
+    }
+  }, [ddlEngine, currentPool])
+
+  useEffect(() => {
+    refreshFetcherData()
+    const intervalId = setInterval(refreshFetcherData, TIME_TO_REFRESH_FETCHER_DATA)
+    return () => clearInterval(intervalId)
+  }, [refreshFetcherData])
 
   // useEffect(() => {
   //   const poolAddress = isErc1155Address(inputTokenAddress)
@@ -85,6 +104,7 @@ export const useCalculateSwap = ({
       setAmountOutWei(bn(0))
     }
   }, [
+    fetcherData,
     tokens[inputTokenAddress]?.address,
     tokens[outputTokenAddress]?.address,
     tokenOutMaturity.toString(),
@@ -112,23 +132,26 @@ export const useCalculateSwap = ({
         })
       }
       // @ts-ignore
-      const res = await ddlEngine.SWAP.calculateAmountOuts([
-        {
-          tokenIn: inputTokenAddress,
-          tokenOut: outputTokenAddress,
-          amountOutMin: 0,
-          amountIn: BIG(
-            WEI(amountIn, tokens[inputTokenAddress]?.decimal || 18)
-          ),
-          payloadAmountIn: _payloadAmountIn,
-          useSweep: !!(
-            tokenOutMaturity?.gt(0) &&
-            balances[outputTokenAddress] &&
-            isErc1155Address(outputTokenAddress)
-          ),
-          currentBalanceOut: balances[outputTokenAddress]
-        }
-      ])
+      const res = await ddlEngine.SWAP.calculateAmountOuts({
+        fetcherData,
+        steps: [
+          {
+            tokenIn: inputTokenAddress,
+            tokenOut: outputTokenAddress,
+            amountOutMin: 0,
+            amountIn: BIG(
+              WEI(amountIn, tokens[inputTokenAddress]?.decimal || 18)
+            ),
+            payloadAmountIn: _payloadAmountIn,
+            useSweep: !!(
+              tokenOutMaturity?.gt(0) &&
+              balances[outputTokenAddress] &&
+              isErc1155Address(outputTokenAddress)
+            ),
+            currentBalanceOut: balances[outputTokenAddress]
+          }
+        ]
+      })
       console.log('calculate amountOut response', res)
       if (amountIn !== amountInLast) {
         return // skip the calcuation and update for outdated input
@@ -155,6 +178,7 @@ export const useCalculateSwap = ({
       setAmountOut('0')
       setTxFee(bn(0))
       setGasUsed(bn(0))
+      console.log(e)
       setCallError(reason ?? e)
       setPayloadAmountIn(undefined)
       if (i >= ITERATION) {

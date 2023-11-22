@@ -4,18 +4,17 @@ import {
   decodeErc1155Address,
   isErc1155Address,
   mul,
-  parseCallStaticError,
   WEI
 } from '../../utils/helpers'
 import { toast } from 'react-toastify'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useListTokens } from '../../state/token/hook'
 import { useWeb3React } from '../../state/customWeb3React/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useConfigs } from '../../state/config/useConfigs'
 import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 import { BigNumber } from 'ethers'
-import { CHAINS, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
+import { CHAINS, POOL_IDS, TRADE_TYPE, ZERO_ADDRESS } from '../../utils/constant'
 import { TextSell } from '../ui/Text'
 import { useSettings } from '../../state/setting/hooks/useSettings'
 import { ApproveUtrModal } from '../ApproveUtrModal'
@@ -23,6 +22,9 @@ import { useResource } from '../../state/resources/hooks/useResource'
 import { ConfirmPosition } from '../ConfirmPositionModal'
 import { useSwapPendingHistory } from '../../state/wallet/hooks/useSwapPendingHistory'
 import { PendingSwapTransactionType } from 'derivable-tools/dist/types'
+import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
+
+const TIME_TO_REFRESH_FETCHER_DATA = 10000
 
 export const ButtonSwap = ({
   inputTokenAddress,
@@ -69,10 +71,26 @@ export const ButtonSwap = ({
   const { initResource } = useResource()
   const { swapPendingTxs, updatePendingTxsHandle } = useSwapPendingHistory()
   const slippage = 1 - Math.min(1, payoffRate ?? 0)
+  const [fetcherData, setFetcherData] = useState<any>()
+  const { currentPool } = useCurrentPool()
 
   const { updateSwapTxsHandle } = useSwapHistory()
   const [visibleConfirmPosition, setVisibleConfirmPosition] = useState<boolean>(false)
   const sideOut = Number(decodeErc1155Address(outputTokenAddress)?.id ?? 0)
+
+  const refreshFetcherData = useCallback(() => {
+    if (ddlEngine && currentPool && currentPool.FETCHER !== ZERO_ADDRESS) {
+      ddlEngine.SWAP.fetchPriceTx(currentPool).then((e) => {
+        setFetcherData(e)
+      })
+    }
+  }, [ddlEngine, currentPool])
+
+  useEffect(() => {
+    refreshFetcherData()
+    const intervalId = setInterval(refreshFetcherData, TIME_TO_REFRESH_FETCHER_DATA)
+    return () => clearInterval(intervalId)
+  }, [refreshFetcherData])
 
   let gasLimit: BigNumber | undefined
   if (gasUsed?.gt(0)) {
@@ -207,14 +225,16 @@ export const ButtonSwap = ({
                       currentBalanceOut: balances[outputTokenAddress]
                     }
                   ], {
-                  gasLimit,
-                  onSubmitted: (pendingTx: PendingSwapTransactionType) => {
-                    pendingTxHash = pendingTx.hash
-                    updatePendingTxsHandle([...swapPendingTxs, pendingTx])
-                    if (closeConfirmWhenSwap) closeConfirmWhenSwap(false)
-                    toast.success('Transaction Submitted')
-                  }
-                })
+                    gasLimit,
+                    onSubmitted: (pendingTx: PendingSwapTransactionType) => {
+                      pendingTxHash = pendingTx.hash
+                      updatePendingTxsHandle([...swapPendingTxs, pendingTx])
+                      if (closeConfirmWhenSwap) closeConfirmWhenSwap(false)
+                      toast.success('Transaction Submitted')
+                    }
+                  },
+                  fetcherData
+                )
 
                 const swapLogs = ddlEngine.RESOURCE.parseDdlLogs(
                   tx && tx?.logs ? tx.logs : []
@@ -252,6 +272,7 @@ export const ButtonSwap = ({
       )
     }
   }, [
+    fetcherData,
     chainId,
     amountOut,
     slippage,
