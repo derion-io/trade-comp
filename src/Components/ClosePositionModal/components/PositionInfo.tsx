@@ -27,13 +27,13 @@ export const PositionInfo = ({
         <Text>Net Value</Text>
         <NetValue
           valueInUsdStatus={valueInUsdStatus}
-          valueUsd={position.valueUsd}
-          value={position.value}
+          valueU={position.valueU}
+          valueR={position.valueR}
           pool={position.pool}
           isPhone
         />
       </InfoRow>
-      {!position.entryValue || (
+      {!position.entryValueU || (
         <InfoRow>
           <Text>
             PnL

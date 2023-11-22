@@ -134,7 +134,7 @@ export const Positions = ({
       const pool = pools[pendingTxData?.token ? pendingTxPool.address : poolAddress]
       const posWithEntry = positionsWithEntry[token]
       const entryPrice = posWithEntry?.entryPrice
-      const entryValue = posWithEntry?.balance?.gt(0)
+      const entryValueU = posWithEntry?.balance?.gt(0)
         ? div(
           mul(balances[token], posWithEntry?.entry ?? 0),
           posWithEntry.balance
@@ -144,18 +144,18 @@ export const Positions = ({
         posWithEntry?.totalEntryR ?? 0,
         tokens[pool.TOKEN_R]?.decimal ?? 18
       )
-      const value = getTokenValue(
+      const valueR = getTokenValue(
         token,
         IEW(balances[token], tokens[token]?.decimal || 18),
         false
       )
-      const valueUsd = getTokenValue(
+      const valueU = getTokenValue(
         token,
         IEW(balances[token], tokens[token]?.decimal || 18),
         true
       )
 
-      if (Number(valueUsd) < MIN_POSITON_VALUE_USD_TO_DISPLAY && !pendingTxData) {
+      if (Number(valueU) < MIN_POSITON_VALUE_USD_TO_DISPLAY && !pendingTxData) {
         return null
       }
       const {
@@ -169,7 +169,7 @@ export const Positions = ({
         side === POOL_IDS.A || side === POOL_IDS.B
           ? '$' +
             formatLocalisedCompactNumber(
-              formatFloat(Number(valueUsd) * effectiveLeverage)
+              formatFloat(Number(valueU) * effectiveLeverage)
             )
           : ''
 
@@ -192,11 +192,11 @@ export const Positions = ({
         side,
         balance: balances[token],
         entryValueR,
-        entryValue,
+        entryValueU,
         entryPrice,
         sizeDisplay,
-        value,
-        valueUsd,
+        valueR,
+        valueU,
         leverage,
         effectiveLeverage,
         deleverageRangeDisplay,
@@ -298,15 +298,15 @@ export const Positions = ({
                   <Text>Net Value</Text>
                   <NetValue
                     valueInUsdStatus={valueInUsdStatus}
-                    valueUsd={position.valueUsd}
-                    value={position.value}
+                    valueU={position.valueU}
+                    valueR={position.valueR}
                     pool={position.pool}
                     loading={position.status === POSITION_STATUS.OPENING}
                     isPhone
                   />
                 </InfoRow>
 
-                {!position.entryValue || (
+                {!position.entryValueU || (
                   <InfoRow>
                     <Text>
                       PnL
@@ -523,8 +523,8 @@ export const Positions = ({
                     <div className='net-value-and-pnl'>
                       <NetValue
                         valueInUsdStatus={valueInUsdStatus}
-                        valueUsd={position.valueUsd}
-                        value={position.value}
+                        valueU={position.valueU}
+                        valueR={position.valueR}
                         pool={position.pool}
                         loading={position.status === POSITION_STATUS.OPENING}
                       />
@@ -666,31 +666,31 @@ export const Positions = ({
 }
 
 export const NetValue = ({
-  value,
-  valueUsd,
+  valueR,
+  valueU,
   pool,
   valueInUsdStatus,
   isPhone,
   loading
 }: {
-  value: string
-  valueUsd: string
+  valueR: string
+  valueU: string
   pool: PoolType
   loading?: boolean
   valueInUsdStatus: VALUE_IN_USD_STATUS
   isPhone?: boolean
 }) => {
   if (loading) return <SkeletonLoader loading/>
-  const valueR = (
+  const valueRes = (
     <React.Fragment>
       <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex'/>
-      {formatLocalisedCompactNumber(formatFloat(value))}
+      {formatLocalisedCompactNumber(formatFloat(valueR))}
     </React.Fragment>
   )
-  const valueUSD = '$' + formatLocalisedCompactNumber(formatFloat(valueUsd))
+  const valueUSD = '$' + formatLocalisedCompactNumber(formatFloat(valueU))
   const valueMain = (
     <React.Fragment>
-      {isShowValueInUsd(valueInUsdStatus, pool) ? valueUSD : valueR}
+      {isShowValueInUsd(valueInUsdStatus, pool) ? valueUSD : valueRes}
     </React.Fragment>
   )
   const valueSub = isShowValueInUsd(valueInUsdStatus, pool)
@@ -723,8 +723,8 @@ export const Pnl = ({
 }) => {
   if (loading) return <SkeletonLoader loading/>
   const [value, entryValue] = isShowValueInUsd(valueInUsdStatus, position?.pool)
-    ? [position.valueUsd, position.entryValue]
-    : [position.value, position.entryValueR]
+    ? [position.valueU, position.entryValueU]
+    : [position.valueR, position.entryValueR]
   if (!entryValue || !Number(entryValue)) {
     return <React.Fragment />
   }
