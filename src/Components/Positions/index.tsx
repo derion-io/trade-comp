@@ -50,6 +50,7 @@ import {
   Text,
   TextBuy,
   TextError,
+  TextGreen,
   TextGrey,
   TextLink,
   TextSell,
@@ -416,16 +417,7 @@ export const Positions = ({
                       ? 'Funding Yield'
                       : 'Funding Rate'}
                   </TextGrey>
-                  <Text
-                    className={
-                      position.funding < 0 || position.side === POOL_IDS.C
-                        ? 'text-green'
-                        : 'text-warning'
-                    }
-                  >
-                    {zerofy(formatFloat(position.funding * 100, undefined, 3, true))}%
-                    <TextGrey>/day</TextGrey>
-                  </Text>
+                  <FundingRate position={position} />
                 </InfoRow>
 
                 {!showSize || !position.sizeDisplay || (
@@ -599,16 +591,7 @@ export const Positions = ({
                     </div>
                   </td>
                   <td>
-                    <Text
-                      className={
-                        position.funding < 0 || position.side === POOL_IDS.C
-                          ? 'text-green'
-                          : 'text-warning'
-                      }
-                    >
-                      {zerofy(formatFloat(position.funding * 100, undefined, 3, true))}%
-                      <TextGrey>/day</TextGrey>
-                    </Text>
+                    <FundingRate position={position} />
                     {!position.valueRCompound ||
                       <Funding
                         valueInUsdStatus={valueInUsdStatus}
@@ -1091,6 +1074,23 @@ export const DeleveragePrice = ({
       <div><TextComp>{zerofy(dgA)}</TextComp></div>
       <TextComp>{zerofy(dgB)}</TextComp>
     </React.Fragment>
+}
+
+export const FundingRate = ({
+  position,
+}: {
+  position: Position
+}) => {
+  const { side, funding } = position
+  const TextComp = funding < 0 || side === POOL_IDS.C ? TextGreen : TextWarning
+  const fundingFormat = zerofy(formatFloat(funding * 100, undefined, 3, true))
+  if (fundingFormat == '0') {
+    return <React.Fragment></React.Fragment>
+  }
+  return <TextComp>
+    {fundingFormat}%
+    <TextGrey>/day</TextGrey>
+  </TextComp>
 }
 
 export const ClosingFee = ({
