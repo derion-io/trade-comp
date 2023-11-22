@@ -81,6 +81,7 @@ export type Position = {
   entryValueR: string
   entryValueU: string
   entryPrice: string
+  valueRLinear?: string
   valueRCompound?: string
   sizeDisplay: string
   valueU: string

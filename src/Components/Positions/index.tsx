@@ -39,7 +39,8 @@ import {
   shortenAddressString,
   sub,
   zerofy,
-  STR
+  STR,
+  add,
 } from '../../utils/helpers'
 import { ClosingFeeCalculator, Position } from '../../utils/type'
 import { ClosePosition } from '../ClosePositionModal'
@@ -183,10 +184,15 @@ export const Positions = ({
       )
       const currentPrice = poolGroups[poolIndex ?? '']?.basePrice ?? 0
       
-      const L = side == POOL_IDS.A ? leverage : side == POOL_IDS.B ? -leverage : 0
+      const L = side == POOL_IDS.A ? NUM(leverage) : side == POOL_IDS.B ? -NUM(leverage) : 0
+      let valueRLinear
       let valueRCompound
       if (L != 0) {
         const priceRate = div(currentPrice, entryPrice)
+        valueRLinear = add(entryValueR, mul(entryValueR, mul(sub(priceRate, 1), L)))
+        if (valueRLinear.startsWith('-')) {
+          valueRLinear = '0'
+        }
         valueRCompound = mul(entryValueR, pow(priceRate, L))
       }
 
@@ -200,6 +206,7 @@ export const Positions = ({
         entryValueR,
         entryValueU,
         entryPrice,
+        valueRLinear,
         valueRCompound,
         sizeDisplay,
         valueR,
@@ -302,20 +309,9 @@ export const Positions = ({
                   </InfoRow>
                 )}
                 <InfoRow>
-                  <Text>Net Value</Text>
-                  <NetValue
-                    position={position}
-                    valueInUsdStatus={valueInUsdStatus}
-                    loading={position.status === POSITION_STATUS.OPENING}
-                    isPhone
-                  />
-                </InfoRow>
-
-                {!position.entryValueU || (
-                  <InfoRow>
-                    <Text>
-                      PnL
-                      <Text
+                  <Text>
+                    Net Value
+                    <Text
                         className='text-link'
                         onClick={() => {
                           setValueInUsdStatus(
@@ -331,8 +327,19 @@ export const Positions = ({
                                 ?.symbol
                             }`
                           : ' ⇄ USD'}
-                      </Text>
                     </Text>
+                  </Text>
+                  <NetValue
+                    position={position}
+                    valueInUsdStatus={valueInUsdStatus}
+                    loading={position.status === POSITION_STATUS.OPENING}
+                    isPhone
+                  />
+                </InfoRow>
+
+                {!position.valueRLinear || (
+                  <InfoRow>
+                    <Text>PnL</Text>
                     <PnL
                       valueInUsdStatus={valueInUsdStatus}
                       position={position}
@@ -343,6 +350,18 @@ export const Positions = ({
                 )}
 
                 {!position.valueRCompound || (
+                  <InfoRow>
+                    <Text>Compounding</Text>
+                    <PnLCompound
+                      valueInUsdStatus={valueInUsdStatus}
+                      position={position}
+                      loading={position.status === POSITION_STATUS.OPENING}
+                      isPhone
+                    />
+                  </InfoRow>
+                )}
+
+                {!position.entryValueR || (
                   <InfoRow>
                     <Text>Funding</Text>
                     <Funding
@@ -728,24 +747,71 @@ export const PnL = ({
   valueInUsdStatus: VALUE_IN_USD_STATUS
 }) => {
   if (loading) return <SkeletonLoader loading/>
-  const { pool, valueRCompound, entryValueU, entryValueR } = position
+  const { pool, valueRLinear, entryValueU, entryValueR } = position
   const { prices } = useTokenPrice()
   const priceR = prices[pool.TOKEN_R] ?? 1
-  const valueUCompound = mul(valueRCompound, priceR)
+  const valueULinear = mul(valueRLinear, priceR)
   const [value, entryValue] = isShowValueInUsd(valueInUsdStatus, pool)
-    ? [valueUCompound, entryValueU]
-    : [valueRCompound, entryValueR]
+    ? [valueULinear, entryValueU]
+    : [valueRLinear, entryValueR]
   if (!entryValue || !Number(entryValue)) {
     return <React.Fragment />
   }
   const valueChange = NUM(sub(value, entryValue))
   const valueChangeDisplay =
-      <Text className='d-flex align-item-center'>
+    <Text className='d-flex align-item-center'>
       {valueChange >= 0 ? '+' : '-'}
       {isShowValueInUsd(valueInUsdStatus, pool) ? '$' : <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex' />}
       {zerofy(Math.abs(valueChange))}
-      </Text>
+    </Text>
   const rate = formatPercent(div(valueChange, entryValue), undefined, true)
+  if (rate == 0) {
+    return <React.Fragment />
+  }
+  const rateDisplay = rate <= -99.9 ? 'LIQUIDATED' : ((rate >= 0 ? '+' : '') + STR(rate) + '%')
+  const TextComp = rate >= 0 ? TextBuy : TextSell
+  if (isPhone) {
+    return <TextComp className='pnl'>
+      ({rateDisplay})&nbsp;{valueChangeDisplay}
+    </TextComp>
+  }
+  return <TextComp className='pnl'>
+    {valueChangeDisplay}&nbsp;({rateDisplay})
+  </TextComp>
+}
+
+export const PnLCompound = ({
+  position,
+  isPhone,
+  valueInUsdStatus,
+  loading
+}: {
+  position: Position
+  isPhone?: boolean
+  loading?:boolean
+  valueInUsdStatus: VALUE_IN_USD_STATUS
+}) => {
+  if (loading) return <SkeletonLoader loading/>
+  const { pool, valueRCompound, valueRLinear } = position
+  const { prices } = useTokenPrice()
+  const priceR = prices[pool.TOKEN_R] ?? 1
+  const valueUCompound = mul(valueRCompound, priceR)
+  const valueULinear = mul(valueRLinear, priceR)
+  const [value, entryValue] = isShowValueInUsd(valueInUsdStatus, pool)
+    ? [valueUCompound, valueULinear]
+    : [valueRCompound, valueRLinear]
+  const valueChange = NUM(sub(value, entryValue))
+  const valueChangeDisplay =
+    <Text className='d-flex align-item-center'>
+      {valueChange >= 0 ? '+' : '-'}
+      {isShowValueInUsd(valueInUsdStatus, pool) ? '$' : <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex' />}
+      {zerofy(Math.abs(valueChange))}
+    </Text>
+  const maxValue = Math.max(NUM(value ?? 0), NUM(entryValue ?? 0))
+  if (maxValue == 0) {
+    return <React.Fragment/>
+  }
+  const rate = formatPercent(div(valueChange, maxValue), undefined, true)
   if (rate == 0) {
     return <React.Fragment />
   }
@@ -798,10 +864,10 @@ export const Funding = ({
     rate = div(paidR, valueRCompound)
   }
 
-  const rateDisplay = formatPercent(rate)
-  if (rateDisplay == 0) {
+  if (paidR == 0) {
     return <React.Fragment />
   }
+  const rateDisplay = formatPercent(rate)
 
   if (isPhone) {
     return paidR >= 0 ? (
