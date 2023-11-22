@@ -521,10 +521,10 @@ export const Positions = ({
                   </Text>
                 )}
               </th>
+              <th>Funding</th>
               {showSize && <th>Size</th>}
               <th>Entry Price</th>
               <th>Delev. Price</th>
-              <th>Funding</th>
               {!hasClosingFee || <th>Closing Fee</th>}
               {/* <th>Reserve</th> */}
               {/* <th>Pool</th> */}
@@ -579,12 +579,38 @@ export const Positions = ({
                         valueInUsdStatus={valueInUsdStatus}
                         loading={position.status === POSITION_STATUS.OPENING}
                       />
-                      <CompoundPnL
-                        loading={position.status === POSITION_STATUS.OPENING}
+                      {position.valueRCompound
+                      ? <CompoundPnL
+                          loading={position.status === POSITION_STATUS.OPENING}
+                          valueInUsdStatus={valueInUsdStatus}
+                          position={position}
+                        />
+                      : <PnL
+                          loading={position.status === POSITION_STATUS.OPENING}
+                          valueInUsdStatus={valueInUsdStatus}
+                          position={position}
+                        />
+                      }
+                    </div>
+                  </td>
+                  <td>
+                    <Text
+                      className={
+                        position.funding < 0 || position.side === POOL_IDS.C
+                          ? 'text-green'
+                          : 'text-warning'
+                      }
+                    >
+                      {zerofy(formatFloat(position.funding * 100, undefined, 3, true))}%
+                      <TextGrey>/day</TextGrey>
+                    </Text>
+                    {!position.valueRCompound ||
+                      <Funding
                         valueInUsdStatus={valueInUsdStatus}
                         position={position}
+                        loading={position.status === POSITION_STATUS.OPENING}
                       />
-                    </div>
+                    }
                   </td>
                   {!showSize || (
                     <td>
@@ -614,17 +640,6 @@ export const Positions = ({
                     ) : (
                       <Text>{position.deleverageRangeDisplay}</Text>
                     )}
-                  </td>
-                  <td>
-                    <Text
-                      className={
-                        position.funding < 0 || position.side === POOL_IDS.C
-                          ? 'text-green'
-                          : 'text-warning'
-                      }
-                    >
-                      {zerofy(formatFloat(position.funding * 100, undefined, 3, true))}%
-                    </Text>
                   </td>
 
                   {!hasClosingFee || (
@@ -996,26 +1011,27 @@ export const Funding = ({
   if (paidR == 0) {
     return <React.Fragment />
   }
-  const rateDisplay = formatPercent(rate)
 
-  if (isPhone) {
+  if (!isPhone) {
     return paidR >= 0 ? (
       <TextBuy className='pnl'>
-        (+{rateDisplay}%)&nbsp;{valueChangeDisplay}
+        {valueChangeDisplay}
       </TextBuy>
     ) : (
       <TextSell className='pnl'>
-        ({rateDisplay}%)&nbsp;{valueChangeDisplay}
+        {valueChangeDisplay}
       </TextSell>
     )
   }
+
+  const rateDisplay = formatPercent(rate)
   return paidR >= 0 ? (
     <TextBuy className='pnl'>
-      {valueChangeDisplay}&nbsp;(+{rateDisplay}%)
+      (+{rateDisplay}%)&nbsp;{valueChangeDisplay}
     </TextBuy>
   ) : (
     <TextSell className='pnl'>
-      {valueChangeDisplay}&nbsp;({rateDisplay}%)
+      ({rateDisplay}%)&nbsp;{valueChangeDisplay}
     </TextSell>
   )
 }
