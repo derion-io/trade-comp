@@ -92,7 +92,6 @@ export const Positions = ({
     VALUE_IN_USD_STATUS.USD
   )
   const [visible, setVisible] = useState<boolean>(false)
-  const [sharedModalVisible, setSharedModalVisible] = useState<boolean>(true)
   const [closingPosition, setClosingPosition] = useState<Position | undefined>(
     undefined
   )
@@ -304,18 +303,17 @@ export const Positions = ({
               <div className='positions-list__item' key={key}>
                 <InfoRow>
                   <Token token={position.token} />
-                  <Button
+                  <ButtonSell
                     size='small'
                     className='share-position'
                     style={{ border: 'none' }}
                     onClick={(e) => {
                       setSharedPosition(position)
-                      setSharedModalVisible(true)
                       e.stopPropagation()
                     }
                     }>
                     <SharedIcon/>
-                  </Button>
+                  </ButtonSell>
                 </InfoRow>
                 {!settings.showBalance || (
                   <InfoRow>
@@ -617,7 +615,6 @@ export const Positions = ({
                       style={{ border: 'none' }}
                       onClick={(e) => {
                         setSharedPosition(position)
-                        setSharedModalVisible(true)
                         e.stopPropagation()
                       }
                       }>
@@ -655,9 +652,9 @@ export const Positions = ({
           </tbody>
         </table>
       )}
-      {sharedModalVisible && sharedPosition != null ? <SharedPosition
-        visible={sharedModalVisible}
-        setVisible={setSharedModalVisible}
+      {sharedPosition != null ? <SharedPosition
+        visible={sharedPosition != null}
+        setVisible={() => {setSharedPosition(undefined)}}
         position={sharedPosition}
       /> : ''}
       {visible && closingPosition != null ? (
@@ -1221,8 +1218,8 @@ export const Token = ({
         <div>
           <TokenSymbol token={token} only={doubleLines ? 'type' : undefined} />
         </div>
-        {!balance || <div><Text>{balance}</Text></div>}
         {!doubleLines || <div><TokenSymbol token={token} only='index' /></div>}
+        {!balance || <div><Text>{balance}</Text></div>}
       </div>
     </div>
   )
