@@ -1,12 +1,13 @@
-import { Text, TextGrey } from '../../ui/Text'
-import { formatFloat, zerofy } from '../../../utils/helpers'
+import { Text, TextBuy, TextGrey, TextSell } from '../../ui/Text'
+import { div, formatFloat, sub, zerofy } from '../../../utils/helpers'
 import { Box } from '../../ui/Box'
 import React from 'react'
 import { InfoRow } from '../../ui/InfoRow'
 import { useListTokens } from '../../../state/token/hook'
 import { Position } from '../../../utils/type'
-import { NetValue, LinearPnL, VALUE_IN_USD_STATUS, CompoundToLinearPnL, Funding, PnL } from '../../Positions'
+import { NetValue, LinearPnL, VALUE_IN_USD_STATUS, CompoundToLinearPnL, Funding, PnL, EntryPrice } from '../../Positions'
 import { useHelper } from '../../../state/config/useHelper'
+const mdp = require('move-decimal-point')
 
 export const PositionInfo = ({
   position,
@@ -21,10 +22,16 @@ export const PositionInfo = ({
 }) => {
   const { wrapToNativeAddress } = useHelper()
   const { tokens } = useListTokens()
-  return (
+  const { entryPrice, currentPrice } = position
+  const priceRate = div(sub(currentPrice, entryPrice), entryPrice)
+  const rateDisplay = priceRate > 0
+    ? <TextBuy>(+{formatFloat(mdp(priceRate, 2), undefined, 3, true)}%)</TextBuy>
+    : <TextSell>({formatFloat(mdp(priceRate, 2), undefined, 3, true)}%)</TextSell>
+
+    return (
     <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
       <InfoRow>
-        <Text>
+        <TextGrey>
           Net Value
           <Text
               className='text-link'
@@ -42,7 +49,7 @@ export const PositionInfo = ({
                   }`
                 : ' ⇄ USD'}
             </Text>
-          </Text>
+        </TextGrey>
         <NetValue
           position={position}
           valueInUsdStatus={valueInUsdStatus}
@@ -85,18 +92,18 @@ export const PositionInfo = ({
         </InfoRow>
       </React.Fragment>
       }
-      {!position.entryPrice || (
+      {!entryPrice || (
         <InfoRow>
-          <Text>Entry Price</Text>
-          <Text>{zerofy(formatFloat(position.entryPrice))}</Text>
+          <TextGrey>Entry Price</TextGrey>
+          <TextGrey>{zerofy(formatFloat(entryPrice))}</TextGrey>
         </InfoRow>
       )}
-      {position?.currentPrice ? (
+      {!currentPrice || (
         <InfoRow>
-          <Text>Exit Price</Text>
-          <Text>{zerofy(formatFloat(position.currentPrice))}</Text>
+          <TextGrey>Exit Price</TextGrey>
+          <Text>{rateDisplay} {zerofy(formatFloat(currentPrice))}</Text>
         </InfoRow>
-      ) : ''}
+      )}
     </Box>
   )
 }
