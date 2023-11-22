@@ -746,7 +746,13 @@ export const NetValue = ({
   isPhone,
   loading
 }: {
-  position: Position
+  position: {
+    pool: PoolType,
+    valueR: string,
+    valueU: string,
+    entryValueR?: string,
+    entryValueU?: string,
+  }
   loading?: boolean
   valueInUsdStatus: VALUE_IN_USD_STATUS
   isPhone?: boolean
@@ -767,9 +773,11 @@ export const NetValue = ({
 
   return (
     <div className='d-flex align-item-center'>
-      {fromCurrency}
-      <TextGrey>{zerofy(NUM(from))}</TextGrey>
-      <TextGrey className='mr-05 ml-05'>→</TextGrey>
+      {from && <React.Fragment>
+        {fromCurrency}
+        <TextGrey>{zerofy(NUM(from))}</TextGrey>
+        <TextGrey className='mr-05 ml-05'>→</TextGrey>
+      </React.Fragment>}
       {toCurrency}
       <Text>{zerofy(NUM(to))}</Text>
     </div>
