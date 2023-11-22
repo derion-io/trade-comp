@@ -24,6 +24,7 @@ import formatLocalisedCompactNumber, {
 } from '../../utils/formatBalance'
 import {
   IEW,
+  MUL,
   NUM,
   calcPoolSide,
   decodeErc1155Address,
@@ -32,7 +33,6 @@ import {
   formatFloat,
   formatPercent,
   isErc1155Address,
-  mul,
   oracleToPoolGroupId,
   shortenAddressString,
   sub,
@@ -133,17 +133,10 @@ export const Positions = ({
     if (balances[token]?.gt(0) || pendingTxData?.token) {
       const pool = pools[pendingTxData?.token ? pendingTxPool.address : poolAddress]
       const posWithEntry = positionsWithEntry[token]
-      const entryPrice = posWithEntry?.entryPrice
-      const entryValueU = posWithEntry?.balance?.gt(0)
-        ? div(
-          mul(balances[token], posWithEntry?.entry ?? 0),
-          posWithEntry.balance
-        )
-        : '0'
-      const entryValueR = IEW(
-        posWithEntry?.totalEntryR ?? 0,
-        tokens[pool.TOKEN_R]?.decimal ?? 18
-      )
+      const { avgPrice, avgPriceR, amountR } = posWithEntry ?? {}
+      const entryPrice = avgPrice
+      const entryValueR = IEW(amountR)
+      const entryValueU = MUL(entryValueR, avgPriceR)
       const valueR = getTokenValue(
         token,
         IEW(balances[token], tokens[token]?.decimal || 18),
