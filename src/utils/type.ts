@@ -79,15 +79,18 @@ export type Position = {
   side: number
   balance: BigNumber
   entryValueR: string
-  entryValue: string
+  entryValueU: string
   entryPrice: string
+  valueRLinear?: string
+  valueRCompound?: string
   sizeDisplay: string
-  value: string
+  valueU: string
+  valueR: string
   currentPrice: string
-  valueUsd: string
+  dgA: number
+  dgB: number
   leverage: number
   effectiveLeverage: number
-  deleverageRangeDisplay: string
   funding: number
   closingFee: (now?: number) => any
 }

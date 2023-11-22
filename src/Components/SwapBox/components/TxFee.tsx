@@ -89,9 +89,11 @@ export const TxFee = ({
           <SkeletonLoader loading={!!loading}>
             <NetValue
               valueInUsdStatus={valueInUsdStatus}
-              valueUsd={String(Number(isMaxBalance ? position?.valueUsd : valueIn) * (1 - settings.slippageTolerance)) || '0'}
-              value={String(Number(isMaxBalance ? position?.value : amountIn) * (1 - settings.slippageTolerance)) || '0'}
-              pool={position?.pool}
+              position={{
+                valueU: String(Number(isMaxBalance ? position?.valueU : valueIn) * (1 - settings.slippageTolerance)) || '0',
+                valueR: String(Number(isMaxBalance ? position?.valueR : amountIn) * (1 - settings.slippageTolerance)) || '0',
+                pool: position?.pool,
+              }}
               isPhone
             />
           </SkeletonLoader>

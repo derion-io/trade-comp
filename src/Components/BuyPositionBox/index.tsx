@@ -35,11 +35,12 @@ import { useCalculateSwap } from '../SwapBox/hooks/useCalculateSwap'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
 import { IconArrowDown } from '../ui/Icon'
 import NumberInput from '../ui/Input/InputNumber'
-import { Text, TextError, TextGrey, TextSell, TextWarning } from '../ui/Text'
+import { Text, TextGrey, TextSell, TextWarning } from '../ui/Text'
 import { TokenIcon } from '../ui/TokenIcon'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { EstimateBox } from './components/EstimateBox'
 import { SwapInfoBox } from './components/SwapInfoBox'
+import { DeleveragePrice } from '../Positions'
 import './style.scss'
 
 const Component = ({
@@ -220,22 +221,11 @@ const Component = ({
     const {
       leverage,
       effectiveLeverage,
-      deleverageRangeDisplay,
+      dgA,
+      dgB,
     } = calcPoolSide(poolToShow, sideToShow, tokens)
 
-    const CompText =
-      effectiveLeverage < leverage / 2 ? TextSell :
-      effectiveLeverage < leverage ? TextWarning :
-      Text
-
-    if (sideToShow == POOL_IDS.C) {
-      return [
-        'Full Leverage Range',
-        <CompText>{deleverageRangeDisplay}</CompText>
-      ]
-    }
-
-    if (effectiveLeverage < leverage) {
+    if (sideToShow != POOL_IDS.C && effectiveLeverage < leverage) {
       const CompText = effectiveLeverage < leverage / 2 ? TextSell: TextWarning
       return [
         'Effective Leverage',
@@ -243,9 +233,19 @@ const Component = ({
       ]
     }
 
+    const title = sideToShow == POOL_IDS.C ? 'Full Leverage Range' : 'Deleverage Price'
     return [
-      'Deleverage Price',
-      <Text>{deleverageRangeDisplay}</Text>
+      title,
+      <DeleveragePrice
+        position={{
+          side: sideToShow,
+          leverage,
+          effectiveLeverage,
+          dgA,
+          dgB,
+        }}
+        isPhone
+      />
     ]
   }, [poolToShow, sideToShow, tokens])
 

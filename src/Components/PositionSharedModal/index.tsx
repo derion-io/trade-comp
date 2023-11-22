@@ -74,7 +74,7 @@ const Component = ({
           : Number(id) === POOL_IDS.B
             ? 'Short'
             : 'Liquidity'
-      const _pnl = NUM(div(sub(position.value, position.entryValueR), position.entryValueR))
+      const _pnl = NUM(div(sub(position.valueR, position.entryValueR), position.entryValueR))
       const _pnlDisplay = formatPercent(_pnl)
       const _power = getPoolPower(pool)
       const _base = tokens[wrapToNativeAddress(baseToken)]?.symbol

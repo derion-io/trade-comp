@@ -1,11 +1,11 @@
-import { Text } from '../../ui/Text'
+import { Text, TextGrey } from '../../ui/Text'
 import { formatFloat, zerofy } from '../../../utils/helpers'
 import { Box } from '../../ui/Box'
 import React from 'react'
 import { InfoRow } from '../../ui/InfoRow'
 import { useListTokens } from '../../../state/token/hook'
 import { Position } from '../../../utils/type'
-import { NetValue, Pnl, VALUE_IN_USD_STATUS } from '../../Positions'
+import { NetValue, LinearPnL, VALUE_IN_USD_STATUS, CompoundToLinearPnL, Funding, PnL } from '../../Positions'
 import { useHelper } from '../../../state/config/useHelper'
 
 export const PositionInfo = ({
@@ -24,20 +24,9 @@ export const PositionInfo = ({
   return (
     <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
       <InfoRow>
-        <Text>Net Value</Text>
-        <NetValue
-          valueInUsdStatus={valueInUsdStatus}
-          valueUsd={position.valueUsd}
-          value={position.value}
-          pool={position.pool}
-          isPhone
-        />
-      </InfoRow>
-      {!position.entryValue || (
-        <InfoRow>
-          <Text>
-            PnL
-            <Text
+        <Text>
+          Net Value
+          <Text
               className='text-link'
               onClick={() => {
                 setValueInUsdStatus(
@@ -54,13 +43,48 @@ export const PositionInfo = ({
                 : ' ⇄ USD'}
             </Text>
           </Text>
-          <Pnl
+        <NetValue
+          position={position}
+          valueInUsdStatus={valueInUsdStatus}
+          isPhone
+        />
+      </InfoRow>
+      {!!position.valueRCompound ? <React.Fragment>
+        <InfoRow>
+          <TextGrey>PnL</TextGrey>
+          <LinearPnL
             valueInUsdStatus={valueInUsdStatus}
             position={position}
             isPhone
           />
         </InfoRow>
-      )}
+        <InfoRow>
+          <TextGrey>Compound</TextGrey>
+          <CompoundToLinearPnL
+            valueInUsdStatus={valueInUsdStatus}
+            position={position}
+            isPhone
+          />
+        </InfoRow>
+        <InfoRow>
+          <TextGrey>Funding</TextGrey>
+          <Funding
+            valueInUsdStatus={valueInUsdStatus}
+            position={position}
+            isPhone
+          />
+        </InfoRow>
+      </React.Fragment> : <React.Fragment>
+        <InfoRow>
+          <TextGrey>PnL</TextGrey>
+          <PnL
+            valueInUsdStatus={valueInUsdStatus}
+            position={position}
+            isPhone
+          />
+        </InfoRow>
+      </React.Fragment>
+      }
       {!position.entryPrice || (
         <InfoRow>
           <Text>Entry Price</Text>

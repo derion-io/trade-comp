@@ -24,7 +24,9 @@ import formatLocalisedCompactNumber, {
 } from '../../utils/formatBalance'
 import {
   IEW,
+  mul,
   NUM,
+  pow,
   calcPoolSide,
   decodeErc1155Address,
   div,
@@ -32,11 +34,12 @@ import {
   formatFloat,
   formatPercent,
   isErc1155Address,
-  mul,
   oracleToPoolGroupId,
   shortenAddressString,
   sub,
-  zerofy
+  zerofy,
+  STR,
+  add,
 } from '../../utils/helpers'
 import { ClosingFeeCalculator, Position } from '../../utils/type'
 import { ClosePosition } from '../ClosePositionModal'
@@ -47,6 +50,8 @@ import {
   Text,
   TextBuy,
   TextError,
+  TextGreen,
+  TextGrey,
   TextLink,
   TextSell,
   TextWarning
@@ -58,6 +63,9 @@ import { useSwapPendingHistory } from '../../state/wallet/hooks/useSwapPendingHi
 import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { SharedPosition } from '../PositionSharedModal'
 import { SharedIcon } from '../ui/Icon'
+import { useTokenPrice } from '../../state/resources/hooks/useTokenPrice'
+
+const mdp = require('move-decimal-point')
 
 export enum VALUE_IN_USD_STATUS {
   AUTO,
@@ -84,7 +92,6 @@ export const Positions = ({
     VALUE_IN_USD_STATUS.USD
   )
   const [visible, setVisible] = useState<boolean>(false)
-  const [sharedModalVisible, setSharedModalVisible] = useState<boolean>(true)
   const [closingPosition, setClosingPosition] = useState<Position | undefined>(
     undefined
   )
@@ -133,43 +140,43 @@ export const Positions = ({
     if (balances[token]?.gt(0) || pendingTxData?.token) {
       const pool = pools[pendingTxData?.token ? pendingTxPool.address : poolAddress]
       const posWithEntry = positionsWithEntry[token]
-      const entryPrice = posWithEntry?.entryPrice
-      const entryValue = posWithEntry?.balance?.gt(0)
-        ? div(
-          mul(balances[token], posWithEntry?.entry ?? 0),
-          posWithEntry.balance
-        )
-        : '0'
-      const entryValueR = IEW(
-        posWithEntry?.totalEntryR ?? 0,
-        tokens[pool.TOKEN_R]?.decimal ?? 18
-      )
-      const value = getTokenValue(
+      const { avgPrice, avgPriceR, amountR } = posWithEntry ?? {}
+      const entryPrice = avgPrice
+      const entryValueR = IEW(amountR)
+      const entryValueU = mul(entryValueR, avgPriceR)
+      const valueR = getTokenValue(
         token,
         IEW(balances[token], tokens[token]?.decimal || 18),
         false
       )
-      const valueUsd = getTokenValue(
+      const valueU = getTokenValue(
         token,
         IEW(balances[token], tokens[token]?.decimal || 18),
         true
       )
 
-      if (Number(valueUsd) < MIN_POSITON_VALUE_USD_TO_DISPLAY && !pendingTxData) {
+      if (Number(valueU) < MIN_POSITON_VALUE_USD_TO_DISPLAY && !pendingTxData) {
         return null
       }
+
+      const poolIndex = Object.keys(poolGroups).find(index => 
+        !!poolGroups?.[index]?.pools?.[poolAddress]
+      )
+      const currentPrice = poolGroups[poolIndex ?? '']?.basePrice ?? 0
+      
       const {
         leverage,
         effectiveLeverage,
-        deleverageRangeDisplay,
+        dgA,
+        dgB,
         funding
-      } = calcPoolSide(pool, side, tokens)
+      } = calcPoolSide(pool, side, tokens, currentPrice)
 
       const sizeDisplay =
         side === POOL_IDS.A || side === POOL_IDS.B
           ? '$' +
             formatLocalisedCompactNumber(
-              formatFloat(Number(valueUsd) * effectiveLeverage)
+              formatFloat(Number(valueU) * effectiveLeverage)
             )
           : ''
 
@@ -179,10 +186,23 @@ export const Positions = ({
         MATURITY_RATE: pool.MATURITY_RATE,
         maturity: maturities?.[token]?.toNumber() ?? 0
       })
-      let currentPrice = '0'
-      Object.keys(poolGroups).map(poolGroupKey => {
-        if (poolGroups[poolGroupKey].pools?.[poolAddress]) currentPrice = poolGroups[poolGroupKey].basePrice
-      })
+      
+      const L = side == POOL_IDS.A ? NUM(leverage) : side == POOL_IDS.B ? -NUM(leverage) : 0
+      let valueRLinear
+      let valueRCompound
+      if (L != 0) {
+        const priceRate = div(currentPrice, entryPrice)
+        const leveragedPriceRate = add(1, div(
+          mul(L, sub(currentPrice, entryPrice)),
+          entryPrice,
+        ))
+        if (leveragedPriceRate.startsWith('-')) {
+          valueRLinear = '0'
+        } else {
+          valueRLinear = mul(entryValueR, leveragedPriceRate)
+        }
+        valueRCompound = mul(entryValueR, pow(priceRate, L))
+      }
 
       return {
         poolAddress,
@@ -192,14 +212,17 @@ export const Positions = ({
         side,
         balance: balances[token],
         entryValueR,
-        entryValue,
+        entryValueU,
         entryPrice,
+        valueRLinear,
+        valueRCompound,
         sizeDisplay,
-        value,
-        valueUsd,
+        valueR,
+        valueU,
         leverage,
         effectiveLeverage,
-        deleverageRangeDisplay,
+        dgA,
+        dgB,
         funding,
         closingFee: (now?: number): any => {
           return feeCalculator.calculateFee(now)
@@ -279,8 +302,18 @@ export const Positions = ({
             return (
               <div className='positions-list__item' key={key}>
                 <InfoRow>
-                  <Text>Position</Text>
                   <Token token={position.token} />
+                  <ButtonSell
+                    size='small'
+                    className='share-position'
+                    style={{ border: 'none' }}
+                    onClick={(e) => {
+                      setSharedPosition(position)
+                      e.stopPropagation()
+                    }
+                    }>
+                    <SharedIcon/>
+                  </ButtonSell>
                 </InfoRow>
                 {!settings.showBalance || (
                   <InfoRow>
@@ -294,23 +327,22 @@ export const Positions = ({
                     </Text>
                   </InfoRow>
                 )}
-                <InfoRow>
-                  <Text>Net Value</Text>
-                  <NetValue
-                    valueInUsdStatus={valueInUsdStatus}
-                    valueUsd={position.valueUsd}
-                    value={position.value}
-                    pool={position.pool}
-                    loading={position.status === POSITION_STATUS.OPENING}
-                    isPhone
-                  />
-                </InfoRow>
 
-                {!position.entryValue || (
+                {!position.entryPrice || (
                   <InfoRow>
-                    <Text>
-                      PnL
-                      <Text
+                    <TextGrey>Entry Price</TextGrey>
+                    <EntryPrice
+                      position={position}
+                      loading={position.status === POSITION_STATUS.OPENING}
+                      isPhone
+                    />
+                  </InfoRow>
+                )}
+
+                <InfoRow>
+                  <TextGrey>
+                    Net Value
+                    <Text
                         className='text-link'
                         onClick={() => {
                           setValueInUsdStatus(
@@ -326,69 +358,82 @@ export const Positions = ({
                                 ?.symbol
                             }`
                           : ' ⇄ USD'}
-                      </Text>
                     </Text>
-                    <Pnl
+                  </TextGrey>
+                  <NetValue
+                    position={position}
+                    valueInUsdStatus={valueInUsdStatus}
+                    loading={position.status === POSITION_STATUS.OPENING}
+                    isPhone
+                  />
+                </InfoRow>
+
+                {!!position.valueRCompound ? <React.Fragment>
+                  <InfoRow>
+                    <TextGrey>PnL</TextGrey>
+                    <LinearPnL
                       valueInUsdStatus={valueInUsdStatus}
                       position={position}
                       loading={position.status === POSITION_STATUS.OPENING}
                       isPhone
                     />
                   </InfoRow>
+                  <InfoRow>
+                    <TextGrey>Compound</TextGrey>
+                    <CompoundToLinearPnL
+                      valueInUsdStatus={valueInUsdStatus}
+                      position={position}
+                      loading={position.status === POSITION_STATUS.OPENING}
+                      isPhone
+                    />
+                  </InfoRow>
+                  <InfoRow>
+                    <TextGrey>Funding</TextGrey>
+                    <Funding
+                      valueInUsdStatus={valueInUsdStatus}
+                      position={position}
+                      loading={position.status === POSITION_STATUS.OPENING}
+                      isPhone
+                    />
+                  </InfoRow>
+                </React.Fragment> : <React.Fragment>
+                  <InfoRow>
+                    <TextGrey>PnL</TextGrey>
+                    <PnL
+                      valueInUsdStatus={valueInUsdStatus}
+                      position={position}
+                      loading={position.status === POSITION_STATUS.OPENING}
+                      isPhone
+                    />
+                  </InfoRow>
+                </React.Fragment>
+                }
 
-                )}
-                {!showSize || !position.sizeDisplay || (
-                  <InfoRow>
-                    <Text>Size</Text>
-                    <SkeletonLoader loading={position.status === POSITION_STATUS.OPENING}>
-                      {position.effectiveLeverage < position.leverage / 2 ? (
-                        <TextError>{position.sizeDisplay}</TextError>
-                      ) : position.effectiveLeverage < position.leverage ? (
-                        <TextWarning>{position.sizeDisplay}</TextWarning>
-                      ) : (
-                        <Text>{position.sizeDisplay}</Text>
-                      )}
-                    </SkeletonLoader>
-                  </InfoRow>
-                )}
-                {!position.entryPrice || (
-                  <InfoRow>
-                    <Text>Entry Price</Text>
-                    <SkeletonLoader loading={position.status === POSITION_STATUS.OPENING}>
-                      <Text>{zerofy(formatFloat(position.entryPrice))}</Text>
-                    </SkeletonLoader>
-                  </InfoRow>
-                )}
+                {!position.funding ||
                 <InfoRow>
-                  <Text>Deleverage Price</Text>
-                  {position.effectiveLeverage < position.leverage / 2 ? (
-                    <TextError>{position.deleverageRangeDisplay}</TextError>
-                  ) : position.effectiveLeverage < position.leverage ? (
-                    <TextWarning>{position.deleverageRangeDisplay}</TextWarning>
-                  ) : (
-                    <Text>{position.deleverageRangeDisplay}</Text>
-                  )}
-                </InfoRow>
-                <InfoRow>
-                  <Text>
+                  <TextGrey>
                     {position.side === POOL_IDS.C
                       ? 'Funding Yield'
                       : 'Funding Rate'}
-                  </Text>
-                  <Text
-                    className={
-                      position.funding < 0 || position.side === POOL_IDS.C
-                        ? 'text-green'
-                        : 'text-warning'
-                    }
-                  >
-                    {zerofy(formatFloat(position.funding * 100, undefined, 3, true))}%
-                  </Text>
+                  </TextGrey>
+                  <FundingRate position={position} />
+                </InfoRow>
+                }
+
+                {!showSize || !position.sizeDisplay || (
+                  <InfoRow>
+                    <TextGrey>Size</TextGrey>
+                    <Size position={position} isPhone />
+                  </InfoRow>
+                )}
+                <InfoRow>
+                  <TextGrey>Deleverage Price</TextGrey>
+                  <DeleveragePrice position={position} isPhone />
                 </InfoRow>
 
                 {!position?.closingFee?.(now)?.fee || (
                   <InfoRow>
-                    <Text>Closing Fee</Text>
+                    <TextGrey>Closing Fee</TextGrey>
                     <ClosingFee
                       now={now}
                       position={position}
@@ -406,18 +451,6 @@ export const Positions = ({
                 </InfoRow> */}
 
                 <InfoRow>
-                  <Button
-                    size='small'
-                    className='share-position'
-                    style={{ border: 'none' }}
-                    onClick={(e) => {
-                      setSharedPosition(position)
-                      setSharedModalVisible(true)
-                      e.stopPropagation()
-                    }
-                    }>
-                    <SharedIcon/>
-                  </Button>
                   {position.status === POSITION_STATUS.OPENING
                     ? <ButtonSell className='btn-close' size='small' style={{ opacity: 0.5 }} disabled>
                       Pending...
@@ -446,6 +479,7 @@ export const Positions = ({
           <thead>
             <tr>
               <th>Position</th>
+              <th>Entry Price</th>
               <th className='no-wrap'>
                 Net Value
                 {positions?.length > 0 && (
@@ -469,10 +503,9 @@ export const Positions = ({
                   </Text>
                 )}
               </th>
-              {showSize && <th>Size</th>}
-              <th>Entry Price</th>
-              <th>Delev. Price</th>
               <th>Funding</th>
+              {showSize && <th>Size</th>}
+              <th>Delev. Price</th>
               {!hasClosingFee || <th>Closing Fee</th>}
               {/* <th>Reserve</th> */}
               {/* <th>Pool</th> */}
@@ -508,6 +541,7 @@ export const Positions = ({
                   <td>
                     <Token
                       token={position.token}
+                      doubleLines
                       balance={
                         !settings.showBalance
                           ? undefined
@@ -520,60 +554,51 @@ export const Positions = ({
                     />
                   </td>
                   <td>
-                    <div className='net-value-and-pnl'>
-                      <NetValue
-                        valueInUsdStatus={valueInUsdStatus}
-                        valueUsd={position.valueUsd}
-                        value={position.value}
-                        pool={position.pool}
-                        loading={position.status === POSITION_STATUS.OPENING}
-                      />
-                      <Pnl
-                        loading={position.status === POSITION_STATUS.OPENING}
-                        valueInUsdStatus={valueInUsdStatus}
-                        position={position}
-                      />
-                    </div>
-                  </td>
-                  {!showSize || (
-                    <td>
-                      <SkeletonLoader loading={position.status === POSITION_STATUS.OPENING}>
-                        {position.effectiveLeverage < position.leverage / 2 ? (
-                          <TextError>{position.sizeDisplay}</TextError>
-                        ) : position.effectiveLeverage < position.leverage ? (
-                          <TextWarning>{position.sizeDisplay}</TextWarning>
-                        ) : (
-                          <Text>{position.sizeDisplay}</Text>
-                        )}
-                      </SkeletonLoader>
-                    </td>
-                  )}
-                  <td>
                     <SkeletonLoader loading={position.status === POSITION_STATUS.OPENING}>
-                      {!position.entryPrice || (
-                        <Text>{zerofy(formatFloat(position.entryPrice || position.currentPrice))}</Text>
-                      )}
+                      {!position.entryPrice || <EntryPrice
+                        position={position}
+                        loading={position.status === POSITION_STATUS.OPENING}
+                      />}
                     </SkeletonLoader>
                   </td>
                   <td>
-                    {position.effectiveLeverage < position.leverage / 2 ? (
-                      <TextError>{position.deleverageRangeDisplay}</TextError>
-                    ) : position.effectiveLeverage < position.leverage ? (
-                      <TextWarning>{position.deleverageRangeDisplay}</TextWarning>
-                    ) : (
-                      <Text>{position.deleverageRangeDisplay}</Text>
-                    )}
+                    <div className='net-value-and-pnl'>
+                      <NetValue
+                        position={position}
+                        valueInUsdStatus={valueInUsdStatus}
+                        loading={position.status === POSITION_STATUS.OPENING}
+                      />
+                      {position.valueRCompound
+                      ? <CompoundPnL
+                          loading={position.status === POSITION_STATUS.OPENING}
+                          valueInUsdStatus={valueInUsdStatus}
+                          position={position}
+                        />
+                      : <PnL
+                          loading={position.status === POSITION_STATUS.OPENING}
+                          valueInUsdStatus={valueInUsdStatus}
+                          position={position}
+                        />
+                      }
+                    </div>
                   </td>
                   <td>
-                    <Text
-                      className={
-                        position.funding < 0 || position.side === POOL_IDS.C
-                          ? 'text-green'
-                          : 'text-warning'
-                      }
-                    >
-                      {zerofy(formatFloat(position.funding * 100, undefined, 3, true))}%
-                    </Text>
+                    <FundingRate position={position} />
+                    {!position.valueRCompound ||
+                      <Funding
+                        valueInUsdStatus={valueInUsdStatus}
+                        position={position}
+                        loading={position.status === POSITION_STATUS.OPENING}
+                      />
+                    }
+                  </td>
+                  {!showSize || (
+                    <td>
+                      <Size position={position} />
+                    </td>
+                  )}
+                  <td>
+                    <DeleveragePrice position={position} />
                   </td>
 
                   {!hasClosingFee || (
@@ -590,7 +615,6 @@ export const Positions = ({
                       style={{ border: 'none' }}
                       onClick={(e) => {
                         setSharedPosition(position)
-                        setSharedModalVisible(true)
                         e.stopPropagation()
                       }
                       }>
@@ -628,9 +652,9 @@ export const Positions = ({
           </tbody>
         </table>
       )}
-      {sharedModalVisible && sharedPosition != null ? <SharedPosition
-        visible={sharedModalVisible}
-        setVisible={setSharedModalVisible}
+      {sharedPosition != null ? <SharedPosition
+        visible={sharedPosition != null}
+        setVisible={() => {setSharedPosition(undefined)}}
         position={sharedPosition}
       /> : ''}
       {visible && closingPosition != null ? (
@@ -665,52 +689,82 @@ export const Positions = ({
   )
 }
 
+export const EntryPrice = ({
+  position,
+  isPhone,
+  loading
+}: {
+  position: Position
+  isPhone?: boolean
+  loading?: boolean
+}) => {
+  if (loading) return <SkeletonLoader loading/>
+
+  const { entryPrice, currentPrice } = position
+  const priceRate = div(sub(currentPrice, entryPrice), entryPrice)
+  const rateDisplay = priceRate > 0
+    ? <TextBuy>+{formatFloat(mdp(priceRate, 2), undefined, 3, true)}%</TextBuy>
+    : <TextSell>{formatFloat(mdp(priceRate, 2), undefined, 3, true)}%</TextSell>
+
+  if (isPhone) {
+    return <Text>
+      <TextGrey>{zerofy(formatFloat(entryPrice))}</TextGrey>
+      &nbsp;
+      {rateDisplay}
+    </Text>
+  }
+
+  return <React.Fragment>
+    <div><TextGrey>{zerofy(formatFloat(entryPrice))}</TextGrey></div>
+    <div>{rateDisplay}</div>
+  </React.Fragment>
+}
+
 export const NetValue = ({
-  value,
-  valueUsd,
-  pool,
+  position,
   valueInUsdStatus,
   isPhone,
   loading
 }: {
-  value: string
-  valueUsd: string
-  pool: PoolType
+  position: {
+    pool: PoolType,
+    valueR: string,
+    valueU: string,
+    entryValueR?: string,
+    entryValueU?: string,
+  }
   loading?: boolean
   valueInUsdStatus: VALUE_IN_USD_STATUS
   isPhone?: boolean
 }) => {
   if (loading) return <SkeletonLoader loading/>
-  const valueR = (
-    <React.Fragment>
-      <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex'/>
-      {formatLocalisedCompactNumber(formatFloat(value))}
-    </React.Fragment>
-  )
-  const valueUSD = '$' + formatLocalisedCompactNumber(formatFloat(valueUsd))
-  const valueMain = (
-    <React.Fragment>
-      {isShowValueInUsd(valueInUsdStatus, pool) ? valueUSD : valueR}
-    </React.Fragment>
-  )
-  const valueSub = isShowValueInUsd(valueInUsdStatus, pool)
-    ? ''
-    : `(${valueUSD})`
-  if (isPhone) {
-    return (
-      <Text className='d-flex align-item-center'>
-        {valueSub}&nbsp;{valueMain}
-      </Text>
-    )
-  }
+  const { pool, valueR, valueU, entryValueR, entryValueU } = position
+  const [from, to] = isShowValueInUsd(valueInUsdStatus, pool)
+    ? [entryValueU, valueU]
+    : [entryValueR, valueR]
+  
+  const fromCurrency = isShowValueInUsd(valueInUsdStatus, pool)
+    ? <TextGrey>$</TextGrey>
+    : <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex'/>
+
+  const toCurrency = isShowValueInUsd(valueInUsdStatus, pool)
+    ? <Text>$</Text>
+    : <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex'/>
+
   return (
-    <Text className='d-flex align-item-center'>
-      {valueMain}&nbsp;{valueSub}
-    </Text>
+    <div className='d-flex align-item-center'>
+      {from && <React.Fragment>
+        {fromCurrency}
+        <TextGrey>{zerofy(NUM(from))}</TextGrey>
+        <TextGrey className='mr-05 ml-05'>→</TextGrey>
+      </React.Fragment>}
+      {toCurrency}
+      <Text>{zerofy(NUM(to))}</Text>
+    </div>
   )
 }
 
-export const Pnl = ({
+export const LinearPnL = ({
   position,
   isPhone,
   valueInUsdStatus,
@@ -722,61 +776,349 @@ export const Pnl = ({
   valueInUsdStatus: VALUE_IN_USD_STATUS
 }) => {
   if (loading) return <SkeletonLoader loading/>
-  const [value, entryValue] = isShowValueInUsd(valueInUsdStatus, position?.pool)
-    ? [position.valueUsd, position.entryValue]
-    : [position.value, position.entryValueR]
+  const { pool, valueRLinear, entryValueU, entryValueR } = position
+  const { prices } = useTokenPrice()
+  const priceR = prices[pool.TOKEN_R] ?? 1
+  const valueULinear = mul(valueRLinear, priceR)
+  const [value, entryValue] = isShowValueInUsd(valueInUsdStatus, pool)
+    ? [valueULinear, entryValueU]
+    : [valueRLinear, entryValueR]
   if (!entryValue || !Number(entryValue)) {
     return <React.Fragment />
   }
-  const valueChange = sub(value, entryValue)
+  const valueChange = NUM(sub(value, entryValue))
   const valueChangeDisplay =
-    Number(valueChange) >= 0 ? (
-      <Text className='d-flex align-item-center'>
-        +
-        {isShowValueInUsd(valueInUsdStatus, position?.pool) ? (
-          '$'
-        ) : (
-          <TokenIcon tokenAddress={position?.pool?.TOKEN_R} size={16} iconSize='1.4ex' />
-        )}
-        {zerofy(NUM(valueChange))}
-      </Text>
-    ) : (
-      <Text className='d-flex align-item-center'>
-        -
-        {isShowValueInUsd(valueInUsdStatus, position?.pool) ? (
-          '$'
-        ) : (
-          <TokenIcon tokenAddress={position?.pool?.TOKEN_R} size={16} iconSize='1.4ex' />
-        )}
-        {zerofy(-NUM(valueChange))}{' '}
-      </Text>
-    )
-  const pnl = NUM(div(valueChange, entryValue))
-  const pnlDisplay = formatPercent(pnl)
-  if (pnlDisplay == 0) {
+    <Text className='d-flex align-item-center'>
+      {valueChange >= 0 ? '+' : '-'}
+      {isShowValueInUsd(valueInUsdStatus, pool) ? '$' : <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex' />}
+      {zerofy(Math.abs(valueChange))}
+    </Text>
+  const rate = formatPercent(div(valueChange, entryValue), undefined, true)
+  if (rate == 0) {
+    return <React.Fragment />
+  }
+  const rateDisplay = rate <= -99.9 ? 'LIQUIDATED' : ((rate >= 0 ? '+' : '') + STR(rate) + '%')
+  const TextComp = rate >= 0 ? TextBuy : TextSell
+  if (isPhone) {
+    return <TextComp className='pnl'>
+      ({rateDisplay})&nbsp;{valueChangeDisplay}
+    </TextComp>
+  }
+  return <TextComp className='pnl'>
+    {valueChangeDisplay}&nbsp;({rateDisplay})
+  </TextComp>
+}
+
+export const CompoundToLinearPnL = ({
+  position,
+  isPhone,
+  valueInUsdStatus,
+  loading
+}: {
+  position: Position
+  isPhone?: boolean
+  loading?:boolean
+  valueInUsdStatus: VALUE_IN_USD_STATUS
+}) => {
+  if (loading) return <SkeletonLoader loading/>
+  const { pool, valueRCompound, valueRLinear } = position
+  const { prices } = useTokenPrice()
+  const priceR = prices[pool.TOKEN_R] ?? 1
+  const valueUCompound = mul(valueRCompound, priceR)
+  const valueULinear = mul(valueRLinear, priceR)
+  const [value, entryValue] = isShowValueInUsd(valueInUsdStatus, pool)
+    ? [valueUCompound, valueULinear]
+    : [valueRCompound, valueRLinear]
+  const valueChange = NUM(sub(value, entryValue))
+  const valueChangeDisplay =
+    <Text className='d-flex align-item-center'>
+      {valueChange >= 0 ? '+' : '-'}
+      {isShowValueInUsd(valueInUsdStatus, pool) ? '$' : <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex' />}
+      {zerofy(Math.abs(valueChange))}
+    </Text>
+  const maxValue = Math.max(NUM(value ?? 0), NUM(entryValue ?? 0))
+  if (maxValue == 0) {
+    return <React.Fragment/>
+  }
+  const rate = formatPercent(div(valueChange, maxValue), undefined, true)
+  const rateDisplay = (rate >= 0 ? '+' : '') + STR(rate)
+  const TextComp = rate >= 0 ? TextBuy : TextSell
+  if (isPhone) {
+    return <TextComp className='pnl'>
+      ({rateDisplay}%)&nbsp;{valueChangeDisplay}
+    </TextComp>
+  }
+  return <TextComp className='pnl'>
+    {valueChangeDisplay}&nbsp;({rateDisplay}%)
+  </TextComp>
+}
+
+export const CompoundPnL = ({
+  position,
+  isPhone,
+  valueInUsdStatus,
+  loading
+}: {
+  position: Position
+  isPhone?: boolean
+  loading?:boolean
+  valueInUsdStatus: VALUE_IN_USD_STATUS
+}) => {
+  if (loading) return <SkeletonLoader loading/>
+  const { pool, valueRCompound, entryValueU, entryValueR } = position
+  const { prices } = useTokenPrice()
+  const priceR = prices[pool.TOKEN_R] ?? 1
+  const valueUCompound = mul(valueRCompound, priceR)
+  const [value, entryValue] = isShowValueInUsd(valueInUsdStatus, pool)
+    ? [valueUCompound, entryValueU]
+    : [valueRCompound, entryValueR]
+  const valueChange = NUM(sub(value, entryValue))
+  const valueChangeDisplay =
+    <Text className='d-flex align-item-center'>
+      {valueChange >= 0 ? '+' : '-'}
+      {isShowValueInUsd(valueInUsdStatus, pool) ? '$' : <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex' />}
+      {zerofy(Math.abs(valueChange))}
+    </Text>
+  const maxValue = Math.max(NUM(value ?? 0), NUM(entryValue ?? 0))
+  if (maxValue == 0) {
+    return <React.Fragment/>
+  }
+  const rate = formatPercent(div(valueChange, maxValue), undefined, true)
+  const rateDisplay = (rate >= 0 ? '+' : '') + STR(rate)
+  const TextComp = rate >= 0 ? TextBuy : TextSell
+  if (isPhone) {
+    return <TextComp className='pnl'>
+      ({rateDisplay}%)&nbsp;{valueChangeDisplay}
+    </TextComp>
+  }
+  return <TextComp className='pnl'>
+    {valueChangeDisplay}&nbsp;({rateDisplay}%)
+  </TextComp>
+}
+
+export const PnL = ({
+  position,
+  isPhone,
+  valueInUsdStatus,
+  loading
+}: {
+  position: Position
+  isPhone?: boolean
+  loading?:boolean
+  valueInUsdStatus: VALUE_IN_USD_STATUS
+}) => {
+  if (loading) return <SkeletonLoader loading/>
+  const { pool, entryValueU, entryValueR, valueR, valueU } = position
+  const [value, entryValue] = isShowValueInUsd(valueInUsdStatus, pool)
+    ? [valueU, entryValueU]
+    : [valueR, entryValueR]
+  const valueChange = NUM(sub(value, entryValue))
+  const valueChangeDisplay =
+    <Text className='d-flex align-item-center'>
+      {valueChange >= 0 ? '+' : '-'}
+      {isShowValueInUsd(valueInUsdStatus, pool) ? '$' : <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex' />}
+      {zerofy(Math.abs(valueChange))}
+    </Text>
+  const maxValue = Math.max(NUM(value ?? 0), NUM(entryValue ?? 0))
+  if (maxValue == 0) {
+    return <React.Fragment/>
+  }
+  const rate = formatPercent(div(valueChange, maxValue), undefined, true)
+  const rateDisplay = (rate >= 0 ? '+' : '') + STR(rate)
+  const TextComp = rate >= 0 ? TextBuy : TextSell
+  if (isPhone) {
+    return <TextComp className='pnl'>
+      ({rateDisplay}%)&nbsp;{valueChangeDisplay}
+    </TextComp>
+  }
+  return <TextComp className='pnl'>
+    {valueChangeDisplay}&nbsp;({rateDisplay}%)
+  </TextComp>
+}
+
+export const Funding = ({
+  position,
+  isPhone,
+  valueInUsdStatus,
+  loading
+}: {
+  position: Position
+  isPhone?: boolean
+  loading?:boolean
+  valueInUsdStatus: VALUE_IN_USD_STATUS
+}) => {
+  if (loading) return <SkeletonLoader loading/>
+  const { pool, valueR, valueRCompound, valueU } = position
+  const { prices } = useTokenPrice()
+  const priceR = prices[pool.TOKEN_R] ?? 1
+  const paidR = NUM(sub(valueR, valueRCompound))
+
+  let valueChangeDisplay
+  let rate
+
+  if (isShowValueInUsd(valueInUsdStatus, pool)) {
+    const compoundValueU = mul(valueRCompound, priceR)
+    const paidU = NUM(sub(valueU, compoundValueU))
+    valueChangeDisplay = <Text className='d-flex align-item-center'>
+      {paidU >= 0 ? '+$' : '-$'}
+      {zerofy(Math.abs(paidU))}
+    </Text>
+    rate = div(paidU, compoundValueU)
+  } else {
+    valueChangeDisplay = <Text className='d-flex align-item-center'>
+      {paidR > 0 ? '+' : '-'}
+      <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex' />
+      {zerofy(Math.abs(paidR))}
+    </Text>
+    rate = div(paidR, valueRCompound)
+  }
+
+  if (paidR == 0) {
     return <React.Fragment />
   }
 
-  if (isPhone) {
-    return pnl >= 0 ? (
-      <TextBuy className='pnl'>
-        (+{pnlDisplay}%)&nbsp;{valueChangeDisplay}
+  if (!isPhone) {
+    return paidR >= 0 ? (
+      <TextBuy>
+        {valueChangeDisplay}
       </TextBuy>
     ) : (
-      <TextSell className='pnl'>
-        ({pnlDisplay}%)&nbsp;{valueChangeDisplay}
+      <TextSell>
+        {valueChangeDisplay}
       </TextSell>
     )
   }
-  return pnl >= 0 ? (
+
+  const rateDisplay = formatPercent(rate)
+  return paidR >= 0 ? (
     <TextBuy className='pnl'>
-      {valueChangeDisplay}&nbsp;(+{pnlDisplay}%)
+      (+{rateDisplay}%)&nbsp;{valueChangeDisplay}
     </TextBuy>
   ) : (
     <TextSell className='pnl'>
-      {valueChangeDisplay}&nbsp;({pnlDisplay}%)
+      ({rateDisplay}%)&nbsp;{valueChangeDisplay}
     </TextSell>
   )
+}
+
+export const DeleveragePrice = ({
+  position,
+  isPhone,
+}: {
+  position: {
+    dgA: number
+    dgB: number
+    currentPrice?: string
+    side: number
+    effectiveLeverage: number
+    leverage: number
+  }
+  isPhone?: boolean
+}) => {
+  const { dgA, dgB, currentPrice, side, effectiveLeverage, leverage } = position
+
+  const deltas = [dgA, dgB].map(dg => {
+    if (currentPrice == null) {
+      return ''
+    }
+    const rate = NUM(div(dg, currentPrice))
+    if (rate >= 2) {
+      return `(×${formatFloat(rate, undefined, 2, true)})`
+    }
+    if (rate <= 0.5) {
+      return `(1/${formatFloat(1/rate, undefined, 2, true)})`
+    }
+    const delta = formatFloat(mdp(div(sub(dg, currentPrice), currentPrice), 2), undefined, 3, true)
+    return `(${delta >= 0 ? '+' : ''}${delta}%)`
+  })
+
+  const TextComp =
+    effectiveLeverage < leverage / 2 ? TextSell
+    : effectiveLeverage < leverage ? TextWarning
+    : TextGrey
+
+  if (isPhone) {
+    return side === POOL_IDS.A
+      ? <TextComp>{deltas[0]} {zerofy(dgA)}</TextComp>
+      : side === POOL_IDS.B ? <TextComp>{deltas[1]} {zerofy(dgB)}</TextComp>
+      : <TextComp>{zerofy(dgB)}-{zerofy(dgA)}</TextComp>
+  }
+
+  return side === POOL_IDS.A
+    ? <React.Fragment>
+      <div><TextComp>{zerofy(dgA)}</TextComp></div>
+      <TextComp>{deltas[0]}</TextComp>
+    </React.Fragment>
+    : side === POOL_IDS.B ? <React.Fragment>
+      <div><TextComp>{zerofy(dgB)}</TextComp></div>
+      <TextComp>{deltas[1]}</TextComp>
+    </React.Fragment>
+    : <React.Fragment>
+      <div><TextComp>{zerofy(dgA)}</TextComp></div>
+      <TextComp>{zerofy(dgB)}</TextComp>
+    </React.Fragment>
+}
+
+export const FundingRate = ({
+  position,
+}: {
+  position: Position
+}) => {
+  const { side, funding } = position
+  const TextComp = funding < 0 || side === POOL_IDS.C ? TextGreen : TextWarning
+  const fundingFormat = zerofy(formatFloat(funding * 100, undefined, 3, true))
+  if (fundingFormat == '0') {
+    return <React.Fragment></React.Fragment>
+  }
+  return <TextComp>
+    {fundingFormat}%
+    <TextGrey>/24h</TextGrey>
+  </TextComp>
+}
+
+export const Size = ({
+  position,
+  isPhone,
+}: {
+  position: Position
+  isPhone?: boolean
+}) => {
+  const { status, leverage, effectiveLeverage, sizeDisplay } = position
+  if (!sizeDisplay) {
+    return <React.Fragment/>
+  }
+  if (!isPhone) {
+    return <SkeletonLoader loading={status === POSITION_STATUS.OPENING}>
+      {effectiveLeverage < leverage / 2 ?
+        <TextError>{sizeDisplay}
+        <div><TextGrey>({leverage}x)</TextGrey></div>
+        </TextError>
+      : effectiveLeverage < leverage ?
+        <TextWarning>{sizeDisplay}
+        <div><TextGrey>({leverage}x)</TextGrey></div>
+        </TextWarning>
+      :
+        <TextGrey>{sizeDisplay}
+        <div><TextGrey>({leverage}x)</TextGrey></div>
+        </TextGrey>
+      }
+    </SkeletonLoader>
+  }
+  return <SkeletonLoader loading={status === POSITION_STATUS.OPENING}>
+    {effectiveLeverage < leverage / 2 ? (
+      <TextError>
+        ({leverage}x) {sizeDisplay}
+      </TextError>
+    ) : effectiveLeverage < leverage ? (
+      <TextWarning>
+        ({leverage}x) {sizeDisplay}
+      </TextWarning>
+    ) : (
+      <TextGrey>
+        ({leverage}x) {sizeDisplay}
+      </TextGrey>
+    )}
+  </SkeletonLoader>
 }
 
 export const ClosingFee = ({
@@ -858,26 +1200,26 @@ export const ExplorerLink = ({ poolAddress }: { poolAddress: string }) => {
 
 export const Token = ({
   token,
-  balance
+  balance,
+  doubleLines,
 }: {
   token: string
   balance?: string
+  doubleLines?: boolean
 }) => {
   const { width } = useWindowSize()
   const isPhone = width && width < 992
+  doubleLines = !!doubleLines && !balance && !isPhone
 
   return (
     <div className='d-flex gap-05 align-items-center'>
       <TokenIcon size={isPhone ? 18 : 24} tokenAddress={token} />
       <div>
         <div>
-          <TokenSymbol token={token} />
+          <TokenSymbol token={token} only={doubleLines ? 'type' : undefined} />
         </div>
-        {!balance || (
-          <div>
-            <Text>{balance}</Text>
-          </div>
-        )}
+        {!doubleLines || <div><TokenSymbol token={token} only='index' /></div>}
+        {!balance || <div><Text>{balance}</Text></div>}
       </div>
     </div>
   )
