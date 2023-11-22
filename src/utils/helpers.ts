@@ -293,12 +293,8 @@ export const formatPercent = (
   floatNumber: any,
   decimal: number = 2,
   rounding: boolean = false
-) => {
-  if (rounding) {
-    return Math.round(Number(floatNumber) * 10 ** (decimal + 2)) / 10 ** decimal
-  }
-  floatNumber = floatNumber.toString()
-  return formatFloat(IEW(WEI(floatNumber), 16), decimal)
+): number => {
+  return NUM(truncate(mdp(STR(floatNumber), 2), decimal, rounding))
 }
 
 export const getNormalAddress = (addresses: string[]) => {
