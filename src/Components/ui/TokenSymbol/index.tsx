@@ -18,6 +18,7 @@ type Props = {
   color?: string
   hideSymbol?: boolean,
   size?: number
+  only?: 'type' | 'index'
 }
 export const TokenSymbol = ({
   token,
@@ -25,7 +26,8 @@ export const TokenSymbol = ({
   className,
   color,
   size,
-  hideSymbol
+  only,
+  hideSymbol,
 }: Props) => {
   const { tokens } = useListTokens()
   const { pools } = useResource()
@@ -60,9 +62,26 @@ export const TokenSymbol = ({
             ? 'Short'
             : 'Liquidity'
       const power = getPoolPower(pool)
+
+      if (only == 'type') {
+        return (
+          <TextComp fontSize={size || 14} className={className}>
+            {side} {power}x
+          </TextComp>
+        )
+      }
+
       const base = tokens[wrapToNativeAddress(baseToken)]?.symbol
       const quote = tokens[wrapToNativeAddress(quoteToken)]?.symbol
       const indexPrefix = isUSD(quote ?? '') ? '' : `/${quote}`
+
+      if (only == 'index') {
+        return (
+          <TextComp fontSize={size || 14} className={className}>
+            {base}{indexPrefix}
+          </TextComp>
+        )
+      }
 
       return (
         <TextComp fontSize={size || 14} className={className}>

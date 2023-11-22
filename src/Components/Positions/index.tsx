@@ -555,6 +555,7 @@ export const Positions = ({
                   <td>
                     <Token
                       token={position.token}
+                      doubleLines
                       balance={
                         !settings.showBalance
                           ? undefined
@@ -1002,26 +1003,26 @@ export const ExplorerLink = ({ poolAddress }: { poolAddress: string }) => {
 
 export const Token = ({
   token,
-  balance
+  balance,
+  doubleLines,
 }: {
   token: string
   balance?: string
+  doubleLines?: boolean
 }) => {
   const { width } = useWindowSize()
   const isPhone = width && width < 992
+  doubleLines = !!doubleLines && !balance && !isPhone
 
   return (
     <div className='d-flex gap-05 align-items-center'>
       <TokenIcon size={isPhone ? 18 : 24} tokenAddress={token} />
       <div>
         <div>
-          <TokenSymbol token={token} />
+          <TokenSymbol token={token} only={doubleLines ? 'type' : undefined} />
         </div>
-        {!balance || (
-          <div>
-            <Text>{balance}</Text>
-          </div>
-        )}
+        {!balance || <div><Text>{balance}</Text></div>}
+        {!doubleLines || <div><TokenSymbol token={token} only='index' /></div>}
       </div>
     </div>
   )
