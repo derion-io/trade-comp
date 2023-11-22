@@ -40,6 +40,8 @@ import {
   zerofy,
   STR,
   add,
+  IS_NEG,
+  ABS,
 } from '../../utils/helpers'
 import { ClosingFeeCalculator, Position } from '../../utils/type'
 import { ClosePosition } from '../ClosePositionModal'
@@ -786,12 +788,12 @@ export const LinearPnL = ({
   if (!entryValue || !Number(entryValue)) {
     return <React.Fragment />
   }
-  const valueChange = NUM(sub(value, entryValue))
+  const valueChange = sub(value, entryValue)
   const valueChangeDisplay =
     <Text className='d-flex align-item-center'>
-      {valueChange >= 0 ? '+' : '-'}
+      {IS_NEG(valueChange) ? '-' : '+'}
       {isShowValueInUsd(valueInUsdStatus, pool) ? '$' : <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex' />}
-      {zerofy(Math.abs(valueChange))}
+      {zerofy(ABS(valueChange))}
     </Text>
   const rate = formatPercent(div(valueChange, entryValue), undefined, true)
   if (rate == 0) {
@@ -829,12 +831,12 @@ export const CompoundToLinearPnL = ({
   const [value, entryValue] = isShowValueInUsd(valueInUsdStatus, pool)
     ? [valueUCompound, valueULinear]
     : [valueRCompound, valueRLinear]
-  const valueChange = NUM(sub(value, entryValue))
+  const valueChange = sub(value, entryValue)
   const valueChangeDisplay =
     <Text className='d-flex align-item-center'>
-      {valueChange >= 0 ? '+' : '-'}
+      {IS_NEG(valueChange) ? '-' : '+'}
       {isShowValueInUsd(valueInUsdStatus, pool) ? '$' : <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex' />}
-      {zerofy(Math.abs(valueChange))}
+      {zerofy(ABS(valueChange))}
     </Text>
   const maxValue = Math.max(NUM(value ?? 0), NUM(entryValue ?? 0))
   if (maxValue == 0) {
@@ -872,12 +874,12 @@ export const CompoundPnL = ({
   const [value, entryValue] = isShowValueInUsd(valueInUsdStatus, pool)
     ? [valueUCompound, entryValueU]
     : [valueRCompound, entryValueR]
-  const valueChange = NUM(sub(value, entryValue))
+  const valueChange = sub(value, entryValue)
   const valueChangeDisplay =
     <Text className='d-flex align-item-center'>
-      {valueChange >= 0 ? '+' : '-'}
+      {IS_NEG(valueChange) ? '-' : '+'}
       {isShowValueInUsd(valueInUsdStatus, pool) ? '$' : <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex' />}
-      {zerofy(Math.abs(valueChange))}
+      {zerofy(ABS(valueChange))}
     </Text>
   const maxValue = Math.max(NUM(value ?? 0), NUM(entryValue ?? 0))
   if (maxValue == 0) {
@@ -912,12 +914,12 @@ export const PnL = ({
   const [value, entryValue] = isShowValueInUsd(valueInUsdStatus, pool)
     ? [valueU, entryValueU]
     : [valueR, entryValueR]
-  const valueChange = NUM(sub(value, entryValue))
+  const valueChange = sub(value, entryValue)
   const valueChangeDisplay =
     <Text className='d-flex align-item-center'>
-      {valueChange >= 0 ? '+' : '-'}
+      {IS_NEG(valueChange) ? '-' : '+'}
       {isShowValueInUsd(valueInUsdStatus, pool) ? '$' : <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex' />}
-      {zerofy(Math.abs(valueChange))}
+      {zerofy(ABS(valueChange))}
     </Text>
   const maxValue = Math.max(NUM(value ?? 0), NUM(entryValue ?? 0))
   if (maxValue == 0) {

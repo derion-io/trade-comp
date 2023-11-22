@@ -79,6 +79,31 @@ export const BIG = (num: number | string | BigNumber): BigNumber => {
   }
 }
 
+export const NEG = (num: string): string => {
+  if (num?.[0] == '-') {
+    return num.substring(1)
+  }
+  return '-' + num
+}
+
+export const IS_NEG = (num: string | number | BigNumber): boolean => {
+  switch (typeof num) {
+    case 'string':
+      return num?.[0] == '-'
+    case 'number':
+      return num < 0
+    default:
+      return num.isNegative()
+  }
+}
+
+export const ABS = (num: string): string => {
+  if (num?.[0] == '-') {
+    return num.substring(1)
+  }
+  return num
+}
+
 export const truncate = (num: string, decimals: number = 0, rounding: boolean = false): string => {
   let index = Math.max(num.lastIndexOf('.'), num.lastIndexOf(','))
   if (index < 0) {
@@ -444,21 +469,11 @@ export const isUSD = (symbol: string): boolean => {
   )
 }
 
-export const zerofy = (value: number, opts?: {
-  maxZeros?: number,
+export const precisionize = (value: number, opts?: {
   maximumSignificantDigits?: number,
   minimumSignificantDigits?: number,
   maxExtraDigits?: number,
 }): string => {
-  if (typeof value !== 'number') {
-    value = NUM(value)
-  }
-  if (!isFinite(value)) {
-    return STR(value)
-  }
-  if (value < 0) {
-    return '-' + zerofy(-value, opts)
-  }
   const maxExtraDigits = opts?.maxExtraDigits ?? 0
   const extraDigits = Math.min(
     maxExtraDigits,
@@ -470,9 +485,40 @@ export const zerofy = (value: number, opts?: {
     minimumSignificantDigits,
     maximumSignificantDigits,
   }
-  let zeros = -Math.floor(Math.log10(value) + 1)
-  if (!Number.isFinite(zeros)) {
-    zeros = 0
+  return value.toLocaleString(['en-US', 'fullwide'], stringOpts)
+}
+
+export const zerofy = (value: number | string, opts?: {
+  maxZeros?: number,
+  maximumSignificantDigits?: number,
+  minimumSignificantDigits?: number,
+  maxExtraDigits?: number,
+}): string => {
+  let zeros = 0
+  if (typeof value === 'number') {
+    if (value < 0) {
+      return '-' + zerofy(-value, opts)
+    }
+    zeros = -Math.floor(Math.log10(value) + 1)
+    if (!Number.isFinite(zeros)) {
+      zeros = 0
+    }
+    value = precisionize(value)
+  } else {
+    value = STR(value)
+    if (IS_NEG(value)) {
+      return '-' + zerofy(NEG(value), opts) 
+    }
+    let [int, dec] = value.split('.')
+    if (dec?.length > 0) {
+      const fake = int.substring(Math.max(0, int.length-2)) + '.' + dec
+      dec = precisionize(NUM(fake))
+      dec = dec.split('.')[1]
+      if (dec?.length > 0) {
+        value = int + '.' + dec
+        zeros = dec.match(/^0+/)?.[0]?.length ?? 0
+      }
+    }
   }
   const maxZeros = opts?.maxZeros ?? 3
   if (zeros > maxZeros) {
@@ -481,11 +527,9 @@ export const zerofy = (value: number, opts?: {
     for (let i = 0; i < zs.length; ++i) {
       ucZeros += String.fromCharCode(parseInt(`+208${zs[i]}`, 16))
     }
-    return value
-      .toLocaleString(['en-US', 'fullwide'], stringOpts)
-      .replace(/[.,]{1}0+/, `${whatDecimalSeparator()}0${ucZeros}`)
+    value = value.replace(/[.,]{1}0+/, `${whatDecimalSeparator()}0${ucZeros}`)
   }
-  return value.toLocaleString(['en-US', 'fullwide'], stringOpts)
+  return value
 }
 
 export const xr = (k: number, r: BigNumber, v: BigNumber): number => {
