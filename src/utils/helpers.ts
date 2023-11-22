@@ -158,6 +158,21 @@ export const MUL = (a: any, b: any): string => {
   return mdp(STR(BIG(aa).mul(BIG(bb))), -da-db)
 }
 
+export const pow = (x: any, k: number): string => {
+  if (k == 0) {
+    return '1'
+  }
+  let xk = x
+  const p = Math.abs(k)
+  for (let i = 1; i < p; ++i) {
+    xk = mul(xk, x)
+  }
+  if (k < 0) {
+    xk = div(1, xk)
+  }
+  return xk
+}
+
 export const remDec = (s: string): [string, number] => {
   const ss = s.split('.')
   return [ss.join(''), ss[1]?.length ?? 0]
@@ -260,10 +275,13 @@ export const sub = (a: any, b: any) => {
 }
 
 export const div = (a: any, b: any, precision: number = 4) => {
-  return DIV(
-    BIG(round(mdp(STR(a), precision))),
-    BIG(round(mdp(STR(b), precision))),
-    precision,
+  a = STR(a)
+  b = STR(b)
+  const [bb, db] = remDec(b)
+  const aa = truncate(mdp(a, db + precision))
+  return mdp(
+    DIV(BIG(aa), BIG(bb)),
+    -precision
   )
 }
 
