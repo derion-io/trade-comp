@@ -11,8 +11,8 @@ import { useListTokens } from '../../../state/token/hook'
 import { BigNumber } from 'ethers'
 import { useConfigs } from '../../../state/config/useConfigs'
 import { useWalletBalance } from '../../../state/wallet/hooks/useBalances'
-import { useCurrentPool } from '../../../state/currentPool/hooks/useCurrentPool'
 import { ZERO_ADDRESS } from '../../../utils/constant'
+import { useDetectPool } from '../../../hooks/useDetectPool'
 
 const TIME_TO_REFRESH_FETCHER_DATA = 10000
 const ITERATION = 10
@@ -48,12 +48,16 @@ export const useCalculateSwap = ({
   const { ddlEngine } = useConfigs()
   const { balances, routerAllowances } = useWalletBalance()
   const [fetcherData, setFetcherData] = useState<any>()
-  const { currentPool } = useCurrentPool()
+  const [submitFetcherV2, setSubmitFetcherV2] = useState<boolean>(false)
+  const currentPool = useDetectPool({ inputTokenAddress, outputTokenAddress })
 
   const refreshFetcherData = useCallback(() => {
     if (ddlEngine && currentPool && currentPool.FETCHER !== ZERO_ADDRESS) {
       ddlEngine.SWAP.fetchPriceMockTx(currentPool).then((e) => {
         setFetcherData(e)
+      })
+      ddlEngine.SWAP.needToSubmitFetcher(currentPool).then((status) => {
+        setSubmitFetcherV2(status)
       })
     }
   }, [ddlEngine, currentPool])
@@ -126,6 +130,7 @@ export const useCalculateSwap = ({
     }
   }, [
     fetcherData,
+    submitFetcherV2
   ])
 
   const calcAmountOut = async (i: number = 0): Promise<any> => {
@@ -150,22 +155,23 @@ export const useCalculateSwap = ({
       // @ts-ignore
       const res = await ddlEngine.SWAP.calculateAmountOuts({
         fetcherData,
+        fetcherV2: submitFetcherV2,
         steps: [
-        {
-          tokenIn: inputTokenAddress,
-          tokenOut: outputTokenAddress,
-          amountOutMin: 0,
-          amountIn: BIG(
-            WEI(amountIn, tokens[inputTokenAddress]?.decimal || 18)
-          ),
-          payloadAmountIn: _payloadAmountIn,
-          useSweep: !!(
+          {
+            tokenIn: inputTokenAddress,
+            tokenOut: outputTokenAddress,
+            amountOutMin: 0,
+            amountIn: BIG(
+              WEI(amountIn, tokens[inputTokenAddress]?.decimal || 18)
+            ),
+            payloadAmountIn: _payloadAmountIn,
+            useSweep: !!(
             tokenOutMaturity?.gt(0) &&
             balances[outputTokenAddress] &&
             isErc1155Address(outputTokenAddress)
-          ),
-          currentBalanceOut: balances[outputTokenAddress]
-        }
+            ),
+            currentBalanceOut: balances[outputTokenAddress]
+          }
         ]
       })
       console.log('calculate amountOut response', res)
@@ -212,6 +218,7 @@ export const useCalculateSwap = ({
   }
 
   return {
+    submitFetcherV2,
     loading,
     callError,
     txFee,

@@ -22,11 +22,12 @@ import { useResource } from '../../state/resources/hooks/useResource'
 import { ConfirmPosition } from '../ConfirmPositionModal'
 import { useSwapPendingHistory } from '../../state/wallet/hooks/useSwapPendingHistory'
 import { PendingSwapTransactionType } from 'derivable-tools/dist/types'
-import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
+import { useDetectPool } from '../../hooks/useDetectPool'
 
 const TIME_TO_REFRESH_FETCHER_DATA = 10000
 
 export const ButtonSwap = ({
+  submitFetcherV2,
   inputTokenAddress,
   outputTokenAddress,
   amountIn,
@@ -41,8 +42,11 @@ export const ButtonSwap = ({
   payoffRate,
   tokenOutMaturity,
   confirmModal,
-  closeConfirmWhenSwap
+  closeConfirmWhenSwap,
+  isClosePosition
 }: {
+  isClosePosition?: boolean,
+  submitFetcherV2: boolean,
   inputTokenAddress: string
   outputTokenAddress: string
   amountIn: string
@@ -72,19 +76,27 @@ export const ButtonSwap = ({
   const { swapPendingTxs, updatePendingTxsHandle } = useSwapPendingHistory()
   const slippage = 1 - Math.min(1, payoffRate ?? 0)
   const [fetcherData, setFetcherData] = useState<any>()
-  const { currentPool } = useCurrentPool()
+  const [amountOutSnapshot, setAmountOutSnapshot] = useState<string>('')
+  const currentPool = useDetectPool({ inputTokenAddress, outputTokenAddress })
 
   const { updateSwapTxsHandle } = useSwapHistory()
   const [visibleConfirmPosition, setVisibleConfirmPosition] = useState<boolean>(false)
   const sideOut = Number(decodeErc1155Address(outputTokenAddress)?.id ?? 0)
 
-  const refreshFetcherData = useCallback(() => {
-    if (ddlEngine && currentPool && currentPool.FETCHER !== ZERO_ADDRESS) {
-      ddlEngine.SWAP.fetchPriceTx(currentPool).then((e) => {
-        setFetcherData(e)
-      })
+  const refreshFetcherData = useCallback(async () => {
+    if ((!confirmModal || isClosePosition) && ddlEngine && currentPool && currentPool.FETCHER !== ZERO_ADDRESS) {
+      const data = await ddlEngine.SWAP.fetchPriceTx(currentPool)
+      setFetcherData(data)
+      return data
     }
-  }, [ddlEngine, currentPool])
+    return null
+  }, [ddlEngine, currentPool, confirmModal, isClosePosition])
+
+  useEffect(() => {
+    if (visibleConfirmPosition) {
+      setAmountOutSnapshot(amountOut)
+    }
+  }, [visibleConfirmPosition])
 
   useEffect(() => {
     refreshFetcherData()
@@ -191,49 +203,36 @@ export const ButtonSwap = ({
                   mul(amountOut, 1 - settings.slippageTolerance),
                 tokens[outputTokenAddress]?.decimal || 18
                 )
-                console.log({
-                  tokenIn: inputTokenAddress,
-                  tokenOut: outputTokenAddress,
-                  amountIn: bn(
-                    WEI(amountIn, tokens[inputTokenAddress]?.decimal || 18)
-                  ),
-                  amountOutMin,
-                  payloadAmountIn,
-                  useSweep: !!(
-                    tokenOutMaturity?.gt(0) &&
-                    balances[outputTokenAddress] &&
-                    isErc1155Address(outputTokenAddress)
-                  ),
-                  currentBalanceOut: balances[outputTokenAddress]
-                })
                 let pendingTxHash: string = ''
                 const tx: any = await ddlEngine.SWAP.multiSwap(
-                  [
-                    {
-                      tokenIn: inputTokenAddress,
-                      tokenOut: outputTokenAddress,
-                      amountIn: bn(
-                        WEI(amountIn, tokens[inputTokenAddress]?.decimal || 18)
-                      ),
-                      amountOutMin,
-                      payloadAmountIn,
-                      useSweep: !!(
+                  {
+                    steps: [
+                      {
+                        tokenIn: inputTokenAddress,
+                        tokenOut: outputTokenAddress,
+                        amountIn: bn(
+                          WEI(amountIn, tokens[inputTokenAddress]?.decimal || 18)
+                        ),
+                        amountOutMin,
+                        payloadAmountIn,
+                        useSweep: !!(
                           tokenOutMaturity?.gt(0) &&
                           balances[outputTokenAddress] &&
                           isErc1155Address(outputTokenAddress)
-                      ),
-                      currentBalanceOut: balances[outputTokenAddress]
-                    }
-                  ], {
+                        ),
+                        currentBalanceOut: balances[outputTokenAddress]
+                      }
+                    ],
                     gasLimit,
                     onSubmitted: (pendingTx: PendingSwapTransactionType) => {
                       pendingTxHash = pendingTx.hash
                       updatePendingTxsHandle([...swapPendingTxs, pendingTx])
                       if (closeConfirmWhenSwap) closeConfirmWhenSwap(false)
                       toast.success('Transaction Submitted')
-                    }
-                  },
-                  fetcherData
+                    },
+                    fetcherData: fetcherData || await refreshFetcherData(),
+                    submitFetcherV2
+                  }
                 )
 
                 const swapLogs = ddlEngine.RESOURCE.parseDdlLogs(
@@ -272,6 +271,8 @@ export const ButtonSwap = ({
       )
     }
   }, [
+    refreshFetcherData,
+    submitFetcherV2,
     fetcherData,
     chainId,
     amountOut,
@@ -305,6 +306,7 @@ export const ButtonSwap = ({
         )}
       {button}
       {confirmModal ? <ConfirmPosition
+        submitFetcherV2={submitFetcherV2}
         visible={visibleConfirmPosition}
         setVisible={setVisibleConfirmPosition}
         loadingAmountOut={loadingAmountOut}
@@ -313,7 +315,7 @@ export const ButtonSwap = ({
         payloadAmountIn={payloadAmountIn}
         outputTokenAddress={outputTokenAddress}
         amountIn={amountIn}
-        amountOut={amountOut}
+        amountOut={amountOutSnapshot}
         tradeType={tradeType}
         callError={callError}
         gasUsed={gasUsed}

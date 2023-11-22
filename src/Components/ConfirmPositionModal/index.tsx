@@ -34,6 +34,7 @@ import './style.scss'
 import { SwapInfoBox } from '../BuyPositionBox/components/SwapInfoBox'
 
 const Component = ({
+  submitFetcherV2,
   visible,
   setVisible,
   inputTokenAddress,
@@ -51,6 +52,7 @@ const Component = ({
   confirmModal,
   title
 }: {
+  submitFetcherV2: boolean
   visible: boolean
   setVisible: any
   inputTokenAddress: string
@@ -244,6 +246,7 @@ const Component = ({
         />
         <div className='actions'>
           <ButtonSwap
+            submitFetcherV2={submitFetcherV2}
             loadingAmountOut={loadingAmountOut}
             payoffRate={payoffRate}
             inputTokenAddress={inputTokenAddress}

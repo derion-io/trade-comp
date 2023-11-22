@@ -124,7 +124,7 @@ const Component = ({
     }
   }, [valueBalance])
 
-  const { callError, gasUsed, amountOut, loading, payloadAmountIn } =
+  const { submitFetcherV2, callError, gasUsed, amountOut, loading, payloadAmountIn } =
     useCalculateSwap({
       amountIn,
       setAmountIn,
@@ -406,6 +406,7 @@ const Component = ({
 
         <div className='actions'>
           <ButtonSwap
+            submitFetcherV2={submitFetcherV2}
             loadingAmountOut={loading}
             payoffRate={payoffRate}
             inputTokenAddress={inputTokenAddress}
