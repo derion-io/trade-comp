@@ -23,9 +23,11 @@ import formatLocalisedCompactNumber, {
   formatWeiToDisplayNumber
 } from '../../utils/formatBalance'
 import {
+  DIV,
   IEW,
-  MUL,
+  mul,
   NUM,
+  pow,
   calcPoolSide,
   decodeErc1155Address,
   div,
@@ -36,7 +38,8 @@ import {
   oracleToPoolGroupId,
   shortenAddressString,
   sub,
-  zerofy
+  zerofy,
+  STR
 } from '../../utils/helpers'
 import { ClosingFeeCalculator, Position } from '../../utils/type'
 import { ClosePosition } from '../ClosePositionModal'
@@ -47,6 +50,7 @@ import {
   Text,
   TextBuy,
   TextError,
+  TextGrey,
   TextLink,
   TextSell,
   TextWarning
@@ -58,6 +62,7 @@ import { useSwapPendingHistory } from '../../state/wallet/hooks/useSwapPendingHi
 import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { SharedPosition } from '../PositionSharedModal'
 import { SharedIcon } from '../ui/Icon'
+import { useTokenPrice } from '../../state/resources/hooks/useTokenPrice'
 
 export enum VALUE_IN_USD_STATUS {
   AUTO,
@@ -136,7 +141,7 @@ export const Positions = ({
       const { avgPrice, avgPriceR, amountR } = posWithEntry ?? {}
       const entryPrice = avgPrice
       const entryValueR = IEW(amountR)
-      const entryValueU = MUL(entryValueR, avgPriceR)
+      const entryValueU = mul(entryValueR, avgPriceR)
       const valueR = getTokenValue(
         token,
         IEW(balances[token], tokens[token]?.decimal || 18),
@@ -172,10 +177,18 @@ export const Positions = ({
         MATURITY_RATE: pool.MATURITY_RATE,
         maturity: maturities?.[token]?.toNumber() ?? 0
       })
-      let currentPrice = '0'
-      Object.keys(poolGroups).map(poolGroupKey => {
-        if (poolGroups[poolGroupKey].pools?.[poolAddress]) currentPrice = poolGroups[poolGroupKey].basePrice
-      })
+      
+      const poolIndex = Object.keys(poolGroups).find(index => 
+        !!poolGroups?.[index]?.pools?.[poolAddress]
+      )
+      const currentPrice = poolGroups[poolIndex ?? '']?.basePrice ?? 0
+      
+      const L = side == POOL_IDS.A ? leverage : side == POOL_IDS.B ? -leverage : 0
+      let valueRCompound
+      if (L != 0) {
+        const priceRate = div(currentPrice, entryPrice)
+        valueRCompound = mul(entryValueR, pow(priceRate, L))
+      }
 
       return {
         poolAddress,
@@ -187,6 +200,7 @@ export const Positions = ({
         entryValueR,
         entryValueU,
         entryPrice,
+        valueRCompound,
         sizeDisplay,
         valueR,
         valueU,
@@ -290,10 +304,8 @@ export const Positions = ({
                 <InfoRow>
                   <Text>Net Value</Text>
                   <NetValue
+                    position={position}
                     valueInUsdStatus={valueInUsdStatus}
-                    valueU={position.valueU}
-                    valueR={position.valueR}
-                    pool={position.pool}
                     loading={position.status === POSITION_STATUS.OPENING}
                     isPhone
                   />
@@ -321,15 +333,27 @@ export const Positions = ({
                           : ' ⇄ USD'}
                       </Text>
                     </Text>
-                    <Pnl
+                    <PnL
                       valueInUsdStatus={valueInUsdStatus}
                       position={position}
                       loading={position.status === POSITION_STATUS.OPENING}
                       isPhone
                     />
                   </InfoRow>
-
                 )}
+
+                {!position.valueRCompound || (
+                  <InfoRow>
+                    <Text>Funding</Text>
+                    <Funding
+                      valueInUsdStatus={valueInUsdStatus}
+                      position={position}
+                      loading={position.status === POSITION_STATUS.OPENING}
+                      isPhone
+                    />
+                  </InfoRow>
+                )}
+
                 {!showSize || !position.sizeDisplay || (
                   <InfoRow>
                     <Text>Size</Text>
@@ -515,13 +539,11 @@ export const Positions = ({
                   <td>
                     <div className='net-value-and-pnl'>
                       <NetValue
+                        position={position}
                         valueInUsdStatus={valueInUsdStatus}
-                        valueU={position.valueU}
-                        valueR={position.valueR}
-                        pool={position.pool}
                         loading={position.status === POSITION_STATUS.OPENING}
                       />
-                      <Pnl
+                      <PnL
                         loading={position.status === POSITION_STATUS.OPENING}
                         valueInUsdStatus={valueInUsdStatus}
                         position={position}
@@ -659,51 +681,42 @@ export const Positions = ({
 }
 
 export const NetValue = ({
-  valueR,
-  valueU,
-  pool,
+  position,
   valueInUsdStatus,
   isPhone,
   loading
 }: {
-  valueR: string
-  valueU: string
-  pool: PoolType
+  position: Position
   loading?: boolean
   valueInUsdStatus: VALUE_IN_USD_STATUS
   isPhone?: boolean
 }) => {
   if (loading) return <SkeletonLoader loading/>
-  const valueRes = (
-    <React.Fragment>
-      <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex'/>
-      {formatLocalisedCompactNumber(formatFloat(valueR))}
-    </React.Fragment>
-  )
-  const valueUSD = '$' + formatLocalisedCompactNumber(formatFloat(valueU))
-  const valueMain = (
-    <React.Fragment>
-      {isShowValueInUsd(valueInUsdStatus, pool) ? valueUSD : valueRes}
-    </React.Fragment>
-  )
-  const valueSub = isShowValueInUsd(valueInUsdStatus, pool)
-    ? ''
-    : `(${valueUSD})`
-  if (isPhone) {
-    return (
-      <Text className='d-flex align-item-center'>
-        {valueSub}&nbsp;{valueMain}
-      </Text>
-    )
-  }
+  const { pool, valueR, valueU, entryValueR, entryValueU } = position
+  const [from, to] = isShowValueInUsd(valueInUsdStatus, pool)
+    ? [entryValueU, valueU]
+    : [entryValueR, valueR]
+  
+  const fromCurrency = isShowValueInUsd(valueInUsdStatus, pool)
+    ? <TextGrey>$</TextGrey>
+    : <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex'/>
+
+  const toCurrency = isShowValueInUsd(valueInUsdStatus, pool)
+    ? <Text>$</Text>
+    : <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex'/>
+
   return (
-    <Text className='d-flex align-item-center'>
-      {valueMain}&nbsp;{valueSub}
-    </Text>
+    <div className='d-flex align-item-center'>
+      {fromCurrency}
+      <TextGrey>{zerofy(NUM(from))}</TextGrey>
+      <TextGrey className='mr-05 ml-05'>→</TextGrey>
+      {toCurrency}
+      <Text>{zerofy(NUM(to))}</Text>
+    </div>
   )
 }
 
-export const Pnl = ({
+export const PnL = ({
   position,
   isPhone,
   valueInUsdStatus,
@@ -715,33 +728,37 @@ export const Pnl = ({
   valueInUsdStatus: VALUE_IN_USD_STATUS
 }) => {
   if (loading) return <SkeletonLoader loading/>
-  const [value, entryValue] = isShowValueInUsd(valueInUsdStatus, position?.pool)
-    ? [position.valueU, position.entryValueU]
-    : [position.valueR, position.entryValueR]
+  const { pool, valueRCompound, entryValueU, entryValueR } = position
+  const { prices } = useTokenPrice()
+  const priceR = prices[pool.TOKEN_R] ?? 1
+  const compoundValueU = mul(valueRCompound, priceR)
+  const [value, entryValue] = isShowValueInUsd(valueInUsdStatus, pool)
+    ? [compoundValueU, entryValueU]
+    : [valueRCompound, entryValueR]
   if (!entryValue || !Number(entryValue)) {
     return <React.Fragment />
   }
-  const valueChange = sub(value, entryValue)
+  const valueChange = NUM(sub(value, entryValue))
   const valueChangeDisplay =
-    Number(valueChange) >= 0 ? (
+    valueChange >= 0 ? (
       <Text className='d-flex align-item-center'>
         +
-        {isShowValueInUsd(valueInUsdStatus, position?.pool) ? (
+        {isShowValueInUsd(valueInUsdStatus, pool) ? (
           '$'
         ) : (
-          <TokenIcon tokenAddress={position?.pool?.TOKEN_R} size={16} iconSize='1.4ex' />
+          <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex' />
         )}
-        {zerofy(NUM(valueChange))}
+        {zerofy(valueChange)}
       </Text>
     ) : (
       <Text className='d-flex align-item-center'>
         -
-        {isShowValueInUsd(valueInUsdStatus, position?.pool) ? (
+        {isShowValueInUsd(valueInUsdStatus, pool) ? (
           '$'
         ) : (
-          <TokenIcon tokenAddress={position?.pool?.TOKEN_R} size={16} iconSize='1.4ex' />
+          <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex' />
         )}
-        {zerofy(-NUM(valueChange))}{' '}
+        {zerofy(-valueChange)}{' '}
       </Text>
     )
   const pnl = NUM(div(valueChange, entryValue))
@@ -768,6 +785,70 @@ export const Pnl = ({
   ) : (
     <TextSell className='pnl'>
       {valueChangeDisplay}&nbsp;({pnlDisplay}%)
+    </TextSell>
+  )
+}
+
+export const Funding = ({
+  position,
+  isPhone,
+  valueInUsdStatus,
+  loading
+}: {
+  position: Position
+  isPhone?: boolean
+  loading?:boolean
+  valueInUsdStatus: VALUE_IN_USD_STATUS
+}) => {
+  if (loading) return <SkeletonLoader loading/>
+  const { pool, valueR, valueRCompound, valueU } = position
+  const { prices } = useTokenPrice()
+  const priceR = prices[pool.TOKEN_R] ?? 1
+  const paidR = NUM(sub(valueR, valueRCompound))
+
+  let valueChangeDisplay
+  let rate
+
+  if (isShowValueInUsd(valueInUsdStatus, pool)) {
+    const compoundValueU = mul(valueRCompound, priceR)
+    const paidU = NUM(sub(valueU, compoundValueU))
+    valueChangeDisplay = <Text className='d-flex align-item-center'>
+      {paidU >= 0 ? '+$' : '-$'}
+      {zerofy(Math.abs(paidU))}
+    </Text>
+    rate = div(paidU, compoundValueU)
+  } else {
+    valueChangeDisplay = <Text className='d-flex align-item-center'>
+      {paidR > 0 ? '+' : '-'}
+      <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex' />
+      {zerofy(Math.abs(paidR))}
+    </Text>
+    rate = div(paidR, valueRCompound)
+  }
+
+  const rateDisplay = formatPercent(rate)
+  if (rateDisplay == 0) {
+    return <React.Fragment />
+  }
+
+  if (isPhone) {
+    return paidR >= 0 ? (
+      <TextBuy className='pnl'>
+        (+{rateDisplay}%)&nbsp;{valueChangeDisplay}
+      </TextBuy>
+    ) : (
+      <TextSell className='pnl'>
+        ({rateDisplay}%)&nbsp;{valueChangeDisplay}
+      </TextSell>
+    )
+  }
+  return paidR >= 0 ? (
+    <TextBuy className='pnl'>
+      {valueChangeDisplay}&nbsp;(+{rateDisplay}%)
+    </TextBuy>
+  ) : (
+    <TextSell className='pnl'>
+      {valueChangeDisplay}&nbsp;({rateDisplay}%)
     </TextSell>
   )
 }

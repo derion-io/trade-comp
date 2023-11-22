@@ -5,7 +5,7 @@ import React from 'react'
 import { InfoRow } from '../../ui/InfoRow'
 import { useListTokens } from '../../../state/token/hook'
 import { Position } from '../../../utils/type'
-import { NetValue, Pnl, VALUE_IN_USD_STATUS } from '../../Positions'
+import { NetValue, PnL, VALUE_IN_USD_STATUS } from '../../Positions'
 import { useHelper } from '../../../state/config/useHelper'
 
 export const PositionInfo = ({
@@ -26,10 +26,8 @@ export const PositionInfo = ({
       <InfoRow>
         <Text>Net Value</Text>
         <NetValue
+          position={position}
           valueInUsdStatus={valueInUsdStatus}
-          valueU={position.valueU}
-          valueR={position.valueR}
-          pool={position.pool}
           isPhone
         />
       </InfoRow>
@@ -54,7 +52,7 @@ export const PositionInfo = ({
                 : ' ⇄ USD'}
             </Text>
           </Text>
-          <Pnl
+          <PnL
             valueInUsdStatus={valueInUsdStatus}
             position={position}
             isPhone
