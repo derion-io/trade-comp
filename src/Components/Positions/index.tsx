@@ -425,15 +425,7 @@ export const Positions = ({
                 {!showSize || !position.sizeDisplay || (
                   <InfoRow>
                     <TextGrey>Size</TextGrey>
-                    <SkeletonLoader loading={position.status === POSITION_STATUS.OPENING}>
-                      {position.effectiveLeverage < position.leverage / 2 ? (
-                        <TextError>({position.leverage}x) {position.sizeDisplay}</TextError>
-                      ) : position.effectiveLeverage < position.leverage ? (
-                        <TextWarning>({position.leverage}x) {position.sizeDisplay}</TextWarning>
-                      ) : (
-                        <TextGrey>({position.leverage}x) {position.sizeDisplay}</TextGrey>
-                      )}
-                    </SkeletonLoader>
+                    <Size position={position} isPhone />
                   </InfoRow>
                 )}
                 <InfoRow>
@@ -604,15 +596,7 @@ export const Positions = ({
                   </td>
                   {!showSize || (
                     <td>
-                      <SkeletonLoader loading={position.status === POSITION_STATUS.OPENING}>
-                        {position.effectiveLeverage < position.leverage / 2 ? (
-                          <TextError>{position.sizeDisplay}</TextError>
-                        ) : position.effectiveLeverage < position.leverage ? (
-                          <TextWarning>{position.sizeDisplay}</TextWarning>
-                        ) : (
-                          <Text>{position.sizeDisplay}</Text>
-                        )}
-                      </SkeletonLoader>
+                      <Size position={position} />
                     </td>
                   )}
                   <td>
@@ -1093,6 +1077,51 @@ export const FundingRate = ({
     {fundingFormat}%
     <TextGrey>/24h</TextGrey>
   </TextComp>
+}
+
+export const Size = ({
+  position,
+  isPhone,
+}: {
+  position: Position
+  isPhone?: boolean
+}) => {
+  const { status, leverage, effectiveLeverage, sizeDisplay } = position
+  if (!sizeDisplay) {
+    return <React.Fragment/>
+  }
+  if (!isPhone) {
+    return <SkeletonLoader loading={status === POSITION_STATUS.OPENING}>
+      {effectiveLeverage < leverage / 2 ?
+        <TextError>{sizeDisplay}
+        <div><TextGrey>({leverage}x)</TextGrey></div>
+        </TextError>
+      : effectiveLeverage < leverage ?
+        <TextWarning>{sizeDisplay}
+        <div><TextGrey>({leverage}x)</TextGrey></div>
+        </TextWarning>
+      :
+        <TextGrey>{sizeDisplay}
+        <div><TextGrey>({leverage}x)</TextGrey></div>
+        </TextGrey>
+      }
+    </SkeletonLoader>
+  }
+  return <SkeletonLoader loading={status === POSITION_STATUS.OPENING}>
+    {effectiveLeverage < leverage / 2 ? (
+      <TextError>
+        ({leverage}x) {sizeDisplay}
+      </TextError>
+    ) : effectiveLeverage < leverage ? (
+      <TextWarning>
+        ({leverage}x) {sizeDisplay}
+      </TextWarning>
+    ) : (
+      <TextGrey>
+        ({leverage}x) {sizeDisplay}
+      </TextGrey>
+    )}
+  </SkeletonLoader>
 }
 
 export const ClosingFee = ({
