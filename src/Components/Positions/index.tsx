@@ -167,7 +167,8 @@ export const Positions = ({
       const {
         leverage,
         effectiveLeverage,
-        deleverageRangeDisplay,
+        dgA,
+        dgB,
         funding
       } = calcPoolSide(pool, side, tokens, currentPrice)
 
@@ -220,7 +221,8 @@ export const Positions = ({
         valueU,
         leverage,
         effectiveLeverage,
-        deleverageRangeDisplay,
+        dgA,
+        dgB,
         funding,
         closingFee: (now?: number): any => {
           return feeCalculator.calculateFee(now)
@@ -442,13 +444,7 @@ export const Positions = ({
                 )}
                 <InfoRow>
                   <TextGrey>Deleverage Price</TextGrey>
-                  {position.effectiveLeverage < position.leverage / 2 ? (
-                    <TextError>{position.deleverageRangeDisplay}</TextError>
-                  ) : position.effectiveLeverage < position.leverage ? (
-                    <TextWarning>{position.deleverageRangeDisplay}</TextWarning>
-                  ) : (
-                    <TextGrey>{position.deleverageRangeDisplay}</TextGrey>
-                  )}
+                  <DeleveragePrice position={position} isPhone />
                 </InfoRow>
 
                 {!position?.closingFee?.(now)?.fee || (
@@ -635,13 +631,7 @@ export const Positions = ({
                     </td>
                   )}
                   <td>
-                    {position.effectiveLeverage < position.leverage / 2 ? (
-                      <TextError>{position.deleverageRangeDisplay}</TextError>
-                    ) : position.effectiveLeverage < position.leverage ? (
-                      <TextWarning>{position.deleverageRangeDisplay}</TextWarning>
-                    ) : (
-                      <Text>{position.deleverageRangeDisplay}</Text>
-                    )}
+                    <DeleveragePrice position={position} />
                   </td>
 
                   {!hasClosingFee || (
@@ -1043,6 +1033,64 @@ export const Funding = ({
       ({rateDisplay}%)&nbsp;{valueChangeDisplay}
     </TextSell>
   )
+}
+
+export const DeleveragePrice = ({
+  position,
+  isPhone,
+}: {
+  position: {
+    dgA: number
+    dgB: number
+    currentPrice?: string
+    side: number
+    effectiveLeverage: number
+    leverage: number
+  }
+  isPhone?: boolean
+}) => {
+  const { dgA, dgB, currentPrice, side, effectiveLeverage, leverage } = position
+
+  const deltas = [dgA, dgB].map(dg => {
+    if (currentPrice == null) {
+      return ''
+    }
+    const rate = NUM(div(dg, currentPrice))
+    if (rate >= 2) {
+      return `(×${formatFloat(rate, undefined, 2, true)})`
+    }
+    if (rate <= 0.5) {
+      return `(÷${formatFloat(1/rate, undefined, 2, true)})`
+    }
+    const delta = formatFloat(mdp(div(sub(dg, currentPrice), currentPrice), 2), undefined, 3, true)
+    return `(${delta >= 0 ? '+' : ''}${delta}%)`
+  })
+
+  const TextComp =
+    effectiveLeverage < leverage / 2 ? TextSell
+    : effectiveLeverage < leverage ? TextWarning
+    : TextGrey
+
+  if (isPhone) {
+    return side === POOL_IDS.A
+      ? <TextComp>{deltas[0]} {zerofy(dgA)}</TextComp>
+      : side === POOL_IDS.B ? <TextComp>{deltas[1]} {zerofy(dgB)}</TextComp>
+      : <TextComp>{zerofy(dgB)}-{zerofy(dgA)}</TextComp>
+  }
+
+  return side === POOL_IDS.A
+    ? <React.Fragment>
+      <div><TextComp>{zerofy(dgA)}</TextComp></div>
+      <TextComp>{deltas[0]}</TextComp>
+    </React.Fragment>
+    : side === POOL_IDS.B ? <React.Fragment>
+      <div><TextComp>{zerofy(dgB)}</TextComp></div>
+      <TextComp>{deltas[1]}</TextComp>
+    </React.Fragment>
+    : <React.Fragment>
+      <div><TextComp>{zerofy(dgA)}</TextComp></div>
+      <TextComp>{zerofy(dgB)}</TextComp>
+    </React.Fragment>
 }
 
 export const ClosingFee = ({

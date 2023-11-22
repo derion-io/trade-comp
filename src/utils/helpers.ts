@@ -567,25 +567,6 @@ export const calcPoolSide = (
   const dgA = xA**exp * mark
   const dgB = xB**exp * mark
 
-  const deltas = [dgA, dgB].map(dg => {
-    if (currentPrice == null) {
-      return zerofy(dg)
-    }
-    const rate = NUM(div(dg, currentPrice))
-    if (rate >= 2) {
-      return `(×${formatFloat(rate, undefined, 2, true)}) ${zerofy(dg)}`
-    }
-    if (rate <= 0.5) {
-      return `(÷${formatFloat(1/rate, undefined, 2, true)}) ${zerofy(dg)}`
-    }
-    const delta = formatFloat(mdp(div(sub(dg, currentPrice), currentPrice), 2), undefined, 3, true)
-    return `(${delta >= 0 ? '+' : ''}${delta}%) ${zerofy(dg)}`
-  })
-
-  const deleverageRangeDisplay =
-    side === POOL_IDS.A ? deltas[0]
-      : side === POOL_IDS.B ? deltas[1]
-      : `${zerofy(dgB)}-${zerofy(dgA)}`
 
   const interest = sides[side].interest
   const premium = sides[side].premium
@@ -596,7 +577,8 @@ export const calcPoolSide = (
     mark,
     leverage,
     effectiveLeverage,
-    deleverageRangeDisplay,
+    dgA,
+    dgB,
     interest,
     premium,
     funding,
