@@ -104,12 +104,28 @@ export const useCalculateSwap = ({
       setAmountOutWei(bn(0))
     }
   }, [
-    fetcherData,
     tokens[inputTokenAddress]?.address,
     tokens[outputTokenAddress]?.address,
     tokenOutMaturity.toString(),
     amountIn,
     JSON.stringify(routerAllowances[inputTokenAddress] || {})
+  ])
+
+  useEffect(() => {
+    if (
+      tokens[inputTokenAddress] &&
+      tokens[outputTokenAddress] &&
+      amountIn &&
+      Number(amountIn) &&
+      (isErc1155Address(inputTokenAddress) ||
+        routerAllowances[inputTokenAddress]?.gt(
+          WEI(amountIn, tokens[inputTokenAddress]?.decimal || 18)
+        ))
+    ) {
+      calcAmountOut()
+    }
+  }, [
+    fetcherData,
   ])
 
   const calcAmountOut = async (i: number = 0): Promise<any> => {
@@ -135,21 +151,21 @@ export const useCalculateSwap = ({
       const res = await ddlEngine.SWAP.calculateAmountOuts({
         fetcherData,
         steps: [
-          {
-            tokenIn: inputTokenAddress,
-            tokenOut: outputTokenAddress,
-            amountOutMin: 0,
-            amountIn: BIG(
-              WEI(amountIn, tokens[inputTokenAddress]?.decimal || 18)
-            ),
-            payloadAmountIn: _payloadAmountIn,
-            useSweep: !!(
-              tokenOutMaturity?.gt(0) &&
-              balances[outputTokenAddress] &&
-              isErc1155Address(outputTokenAddress)
-            ),
-            currentBalanceOut: balances[outputTokenAddress]
-          }
+        {
+          tokenIn: inputTokenAddress,
+          tokenOut: outputTokenAddress,
+          amountOutMin: 0,
+          amountIn: BIG(
+            WEI(amountIn, tokens[inputTokenAddress]?.decimal || 18)
+          ),
+          payloadAmountIn: _payloadAmountIn,
+          useSweep: !!(
+            tokenOutMaturity?.gt(0) &&
+            balances[outputTokenAddress] &&
+            isErc1155Address(outputTokenAddress)
+          ),
+          currentBalanceOut: balances[outputTokenAddress]
+        }
         ]
       })
       console.log('calculate amountOut response', res)
