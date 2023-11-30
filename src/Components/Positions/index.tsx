@@ -382,7 +382,7 @@ export const Positions = ({
                   </InfoRow>
                   <InfoRow>
                     <TextGrey>Compound</TextGrey>
-                    <CompoundToLinearPnL
+                    <CompoundPnL
                       valueInUsdStatus={valueInUsdStatus}
                       position={position}
                       loading={position.status === POSITION_STATUS.OPENING}
@@ -811,49 +811,49 @@ export const LinearPnL = ({
   </TextComp>
 }
 
-export const CompoundToLinearPnL = ({
-  position,
-  isPhone,
-  valueInUsdStatus,
-  loading
-}: {
-  position: Position
-  isPhone?: boolean
-  loading?:boolean
-  valueInUsdStatus: VALUE_IN_USD_STATUS
-}) => {
-  if (loading) return <SkeletonLoader loading/>
-  const { pool, valueRCompound, valueRLinear } = position
-  const { prices } = useTokenPrice()
-  const priceR = prices[pool.TOKEN_R] ?? 1
-  const valueUCompound = mul(valueRCompound, priceR)
-  const valueULinear = mul(valueRLinear, priceR)
-  const [value, entryValue] = isShowValueInUsd(valueInUsdStatus, pool)
-    ? [valueUCompound, valueULinear]
-    : [valueRCompound, valueRLinear]
-  const valueChange = sub(value, entryValue)
-  const valueChangeDisplay =
-    <Text className='d-flex align-item-center'>
-      {IS_NEG(valueChange) ? '-' : '+'}
-      {isShowValueInUsd(valueInUsdStatus, pool) ? '$' : <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex' />}
-      {zerofy(ABS(valueChange))}
-    </Text>
-  const maxValue = Math.max(NUM(value ?? 0), NUM(entryValue ?? 0))
-  if (maxValue == 0) {
-    return <React.Fragment/>
-  }
-  const rate = formatPercent(div(valueChange, maxValue), undefined, true)
-  const rateDisplay = (rate >= 0 ? '+' : '') + STR(rate)
-  const TextComp = rate >= 0 ? TextBuy : TextSell
-  if (isPhone) {
-    return <TextComp className='pnl'>
-      ({rateDisplay}%)&nbsp;{valueChangeDisplay}
-    </TextComp>
-  }
-  return <TextComp className='pnl'>
-    {valueChangeDisplay}&nbsp;({rateDisplay}%)
-  </TextComp>
-}
+// export const CompoundToLinearPnL = ({
+//   position,
+//   isPhone,
+//   valueInUsdStatus,
+//   loading
+// }: {
+//   position: Position
+//   isPhone?: boolean
+//   loading?:boolean
+//   valueInUsdStatus: VALUE_IN_USD_STATUS
+// }) => {
+//   if (loading) return <SkeletonLoader loading/>
+//   const { pool, valueRCompound, valueRLinear } = position
+//   const { prices } = useTokenPrice()
+//   const priceR = prices[pool.TOKEN_R] ?? 1
+//   const valueUCompound = mul(valueRCompound, priceR)
+//   const valueULinear = mul(valueRLinear, priceR)
+//   const [value, entryValue] = isShowValueInUsd(valueInUsdStatus, pool)
+//     ? [valueUCompound, valueULinear]
+//     : [valueRCompound, valueRLinear]
+//   const valueChange = sub(value, entryValue)
+//   const valueChangeDisplay =
+//     <Text className='d-flex align-item-center'>
+//       {IS_NEG(valueChange) ? '-' : '+'}
+//       {isShowValueInUsd(valueInUsdStatus, pool) ? '$' : <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex' />}
+//       {zerofy(ABS(valueChange))}
+//     </Text>
+//   const maxValue = Math.max(NUM(value ?? 0), NUM(entryValue ?? 0))
+//   if (maxValue == 0) {
+//     return <React.Fragment/>
+//   }
+//   const rate = formatPercent(div(valueChange, maxValue), undefined, true)
+//   const rateDisplay = (rate >= 0 ? '+' : '') + STR(rate)
+//   const TextComp = rate >= 0 ? TextBuy : TextSell
+//   if (isPhone) {
+//     return <TextComp className='pnl'>
+//       ({rateDisplay}%)&nbsp;{valueChangeDisplay}
+//     </TextComp>
+//   }
+//   return <TextComp className='pnl'>
+//     {valueChangeDisplay}&nbsp;({rateDisplay}%)
+//   </TextComp>
+// }
 
 export const CompoundPnL = ({
   position,

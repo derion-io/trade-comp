@@ -5,7 +5,7 @@ import React from 'react'
 import { InfoRow } from '../../ui/InfoRow'
 import { useListTokens } from '../../../state/token/hook'
 import { Position } from '../../../utils/type'
-import { NetValue, LinearPnL, VALUE_IN_USD_STATUS, CompoundToLinearPnL, Funding, PnL, EntryPrice } from '../../Positions'
+import { NetValue, LinearPnL, VALUE_IN_USD_STATUS, CompoundPnL, Funding, PnL } from '../../Positions'
 import { useHelper } from '../../../state/config/useHelper'
 const mdp = require('move-decimal-point')
 
@@ -67,7 +67,7 @@ export const PositionInfo = ({
         </InfoRow>
         <InfoRow>
           <TextGrey>Compound</TextGrey>
-          <CompoundToLinearPnL
+          <CompoundPnL
             valueInUsdStatus={valueInUsdStatus}
             position={position}
             isPhone
