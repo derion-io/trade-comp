@@ -503,7 +503,7 @@ export const zerofy = (value: number | string, opts?: {
     if (!Number.isFinite(zeros)) {
       zeros = 0
     }
-    value = precisionize(value)
+    value = precisionize(value, opts)
   } else {
     value = STR(value)
     if (IS_NEG(value)) {
@@ -512,7 +512,7 @@ export const zerofy = (value: number | string, opts?: {
     let [int, dec] = value.split('.')
     if (dec?.length > 0) {
       const fake = int.substring(Math.max(0, int.length-2)) + '.' + dec
-      dec = precisionize(NUM(fake))
+      dec = precisionize(NUM(fake), opts)
       dec = dec.split('.')[1]
       if (dec?.length > 0) {
         value = int + '.' + dec
