@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useResource } from '../../state/resources/hooks/useResource'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 import { useListTokens } from '../../state/token/hook'
@@ -17,6 +17,8 @@ import { TextGrey } from '../ui/Text'
 import formatLocalisedCompactNumber from '../../utils/formatBalance'
 import { useWindowSize } from '../../hooks/useWindowSize'
 import { useAllLists } from '../../state/lists/hooks'
+import { useFetchListCallback } from '../../state/lists/hook/useFetchListCallback'
+import { DEFAULT_LIST_OF_LISTS, UNSUPPORTED_LIST_URLS } from '../../state/lists/constants/lists'
 
 export const SelectPoolGroup = () => {
   const [active, setActive] = useState<boolean>(false)
@@ -26,10 +28,25 @@ export const SelectPoolGroup = () => {
   useOutsideAlerter(wrapperRef, () => setActive(false))
   const { balances } = useWalletBalance()
   const { tokens } = useListTokens()
-  const lists = useAllLists()
   const { getTokenValue } = useTokenValue({})
   const [poolGroupsValue, setPoolGroupsValue] = useState<any>()
   const { width } = useWindowSize()
+
+  // * list will have data here
+
+  // const fetchList = useFetchListCallback()
+  // const lists = useAllLists()
+  // const fetchAllListsCallback = useCallback(() => {
+  //   DEFAULT_LIST_OF_LISTS.forEach((url) => {
+  //     const isUnsupportedList = UNSUPPORTED_LIST_URLS.includes(url)
+  //     fetchList(url, isUnsupportedList).catch((error) => console.debug('interval list fetching error', error))
+  //   })
+  // }, [fetchList])
+  // useMemo(() => {
+  //   fetchAllListsCallback()
+  //   console.log('#', lists)
+  // }, [lists])
+
   const isPhone = width && width < 768
   const getPoolValue = (pool: any): number => {
     return Number(
@@ -40,9 +57,6 @@ export const SelectPoolGroup = () => {
       )
     )
   }
-  useMemo(() => {
-    console.log('#', lists)
-  }, [lists])
   useMemo(() => {
     const poolGroupsUSDs = {}
     Object.keys(poolGroups).map((poolGroupKey: string) => {

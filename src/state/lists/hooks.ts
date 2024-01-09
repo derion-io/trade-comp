@@ -13,7 +13,9 @@ type Mutable<T> = {
 export const useAppSelector: TypedUseSelectorHook<ReturnType<typeof store.getState>> = useSelector
 
 export function useAllLists(): any {
-  return useAppSelector((state) => state.lists.byUrl)
+  return useAppSelector((state) => {
+    return state.lists.byUrl
+  })
 }
 
 /**

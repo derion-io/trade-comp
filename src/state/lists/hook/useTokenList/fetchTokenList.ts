@@ -1,8 +1,6 @@
 import type { TokenList } from '@uniswap/token-lists'
-import contenthashToUri from 'lib/utils/contenthashToUri'
-import parseENSAddress from 'lib/utils/parseENSAddress'
-import uriToHttp from 'lib/utils/uriToHttp'
-import { validateTokenList } from 'utils/validateTokenList'
+import parseENSAddress from '../../utils/parseENSAddress'
+import uriToHttp from '../../utils/uriToHttp'
 
 const listCache = new Map<string, TokenList>()
 
@@ -13,7 +11,7 @@ const listCache = new Map<string, TokenList>()
  */
 export default async function fetchTokenList(
   listUrl: string,
-  resolveENSContentHash: (ensName: string) => Promise<string>,
+  resolveENSContentHash: (ensName: string) => string,
   skipValidation?: boolean
 ): Promise<TokenList> {
   const cached = listCache?.get(listUrl) // avoid spurious re-fetches
@@ -24,22 +22,13 @@ export default async function fetchTokenList(
   let urls: string[]
   const parsedENS = parseENSAddress(listUrl)
   if (parsedENS) {
-    let contentHashUri
     try {
-      contentHashUri = await resolveENSContentHash(parsedENS.ensName)
     } catch (error) {
       const message = `failed to resolve ENS name: ${parsedENS.ensName}`
       console.debug(message, error)
       throw new Error(message)
     }
     let translatedUri
-    try {
-      translatedUri = contenthashToUri(contentHashUri)
-    } catch (error) {
-      const message = `failed to translate contenthash to URI: ${contentHashUri}`
-      console.debug(message, error)
-      throw new Error(message)
-    }
     urls = uriToHttp(`${translatedUri}${parsedENS.ensPath ?? ''}`)
   } else {
     urls = uriToHttp(listUrl)
@@ -69,7 +58,8 @@ export default async function fetchTokenList(
       // The content of the result is sometimes invalid even with a 200 status code.
       // A response can be invalid if it's not a valid JSON or if it doesn't match the TokenList schema.
       const json = await response.json()
-      const list = skipValidation ? json : await validateTokenList(json)
+      const list = json
+      // eslint-disable-next-line no-unused-expressions
       listCache?.set(listUrl, list)
       return list
     } catch (error) {
