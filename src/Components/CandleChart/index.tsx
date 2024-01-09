@@ -273,7 +273,7 @@ const Component = ({
               width: '100%',
               height: '100%'
             }}
-            src={`http://www.dextools.io/widget-chart/en/bnb/pe-light/${pairAddress.toLowerCase()}?theme=dark&chartType=1&chartResolution=30&drawingToolbars=false`} />
+            src={`https://www.dextools.io/widget-chart/en/bnb/pe-light/${pairAddress.toLowerCase()}?theme=dark&chartType=1&chartResolution=30&drawingToolbars=false`} />
         </div>
         : candleChartIsLoading && (
           <div className='loading'>
