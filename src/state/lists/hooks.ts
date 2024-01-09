@@ -1,11 +1,12 @@
 import { TokenAddressMap, tokensToChainTokenMap } from './hook/useTokenList/utils'
 import { useMemo } from 'react'
 import sortByListPriority from './utils/listSort'
-
 import BROKEN_LIST from './constants/tokenLists/broken.tokenlist.json'
-import { DEFAULT_ACTIVE_LIST_URLS, UNSUPPORTED_LIST_URLS } from './constants/lists'
+import { DEFAULT_ACTIVE_LIST_URLS, DEFAULT_INACTIVE_LIST_URLS, UNSUPPORTED_LIST_URLS } from './constants/lists'
 import { TypedUseSelectorHook, useSelector } from 'react-redux'
 import { store } from '../index'
+import { CHAIN_INFO } from './constants/chainInfo'
+import { useWeb3React } from '../customWeb3React/hook'
 
 type Mutable<T> = {
   -readonly [P in keyof T]: Mutable<T[P]>
@@ -68,14 +69,15 @@ export function useCombinedTokenMapFromUrls(urls: string[] | undefined): TokenAd
 }
 
 // get all the tokens from active lists, combine with local default tokens
-export function useCombinedActiveList(): TokenAddressMap {
-  const activeTokens = useCombinedTokenMapFromUrls(DEFAULT_ACTIVE_LIST_URLS)
+export function useCombinedActiveList(chainId: number = 56): TokenAddressMap {
+  const chain = CHAIN_INFO[chainId]
+  const activeTokens = useCombinedTokenMapFromUrls(chain?.defaultListUrl ? [chain?.defaultListUrl] : DEFAULT_ACTIVE_LIST_URLS)
   return activeTokens
 }
 
 // list of tokens not supported on interface for various reasons, used to show warnings and prevent swaps and adds
 export function useUnsupportedTokenList(): TokenAddressMap {
-  // get hard-coded broken tokens
+  // get hard-coded broken tokensFuseTokenInfoFromActiveList
   const brokenListMap = useMemo(() => tokensToChainTokenMap(BROKEN_LIST), [])
 
   // get dynamic list of unsupported tokens

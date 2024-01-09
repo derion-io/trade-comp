@@ -1,12 +1,13 @@
 import { ChainId, Token } from '@uniswap/sdk-core'
-import { useWeb3React } from '@web3-react/core'
 import { useMemo } from 'react'
-import { useAllLists, useCombinedActiveList } from '../hooks'
+import { useAllLists, useCombinedActiveList, useUnsupportedTokenList } from '../hooks'
 import { getTokenFilter } from './useTokenList/filtering'
 import { TokenAddressMap } from './useTokenList/utils'
 
 import { DEFAULT_INACTIVE_LIST_URLS } from '../constants/lists'
 import { TokenFromList } from '../tokenFromList'
+import { useWeb3React } from '../../customWeb3React/hook'
+import { CHAIN_INFO, getChainInfo } from '../constants/chainInfo'
 
 type Maybe<T> = T | null | undefined
 
@@ -27,7 +28,7 @@ function useTokensFromMap(tokenMap: TokenAddressMap, chainId: Maybe<ChainId>): {
 
 /** Returns all tokens from the default list + user added tokens */
 export function useDefaultActiveTokens(chainId: Maybe<ChainId>): { [address: string]: TokenFromList } {
-  const defaultListTokens = useCombinedActiveList()
+  const defaultListTokens = useCombinedActiveList(chainId || 56)
   const tokensFromMap = useTokensFromMap(defaultListTokens, chainId)
   return useMemo(() => {
     return tokensFromMap
@@ -42,51 +43,6 @@ export function useDefaultActiveTokens(chainId: Maybe<ChainId>): { [address: str
 //     destBridgeAddress: string
 //   }
 // >
-
-// export function useUnsupportedTokens(): { [address: string]: Token } {
-//   const { chainId } = useWeb3React()
-//   const listsByUrl = useAllLists()
-//   const unsupportedTokensMap = useUnsupportedTokenList()
-//   const unsupportedTokens = useTokensFromMap(unsupportedTokensMap, chainId)
-
-//   // checks the default L2 lists to see if `bridgeInfo` has an L1 address value that is unsupported
-//   const l2InferredBlockedTokens: typeof unsupportedTokens = useMemo(() => {
-//     if (!chainId || !isL2ChainId(chainId)) {
-//       return {}
-//     }
-
-//     if (!listsByUrl) {
-//       return {}
-//     }
-
-//     const listUrl = getChainInfo(chainId).defaultListUrl
-
-//     const list = listsByUrl[listUrl]?.current
-//     if (!list) {
-//       return {}
-//     }
-
-//     const unsupportedSet = new Set(Object.keys(unsupportedTokens))
-
-//     return list.tokens.reduce((acc: Currency, tokenInfo: any) => {
-//       const bridgeInfo = tokenInfo.extensions?.bridgeInfo as unknown as BridgeInfo
-//       if (
-//         bridgeInfo &&
-//         bridgeInfo[ChainId.MAINNET] &&
-//         bridgeInfo[ChainId.MAINNET].tokenAddress &&
-//         unsupportedSet.has(bridgeInfo[ChainId.MAINNET].tokenAddress)
-//       ) {
-//         const address = bridgeInfo[ChainId.MAINNET].tokenAddress
-//         // don't rely on decimals--it's possible that a token could be bridged w/ different decimals on the L2
-//         return { ...acc, [address]: new Token(ChainId.MAINNET, address, tokenInfo.decimals) }
-//       }
-//       return acc
-//     }, {})
-//   }, [chainId, listsByUrl, unsupportedTokens])
-
-//   return { ...unsupportedTokens, ...l2InferredBlockedTokens }
-// }
-
 export function useSearchInactiveTokenLists(search: string | undefined, minResults = 10): TokenFromList[] {
   const lists = useAllLists()
   const inactiveUrls = DEFAULT_INACTIVE_LIST_URLS

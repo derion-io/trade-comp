@@ -22,7 +22,7 @@ const Component = ({
   setVisible: any
 }) => {
   if (!visible) return <Fragment/>
-  const defaultTokens = useDefaultActiveTokens(1)
+  const defaultTokens = useDefaultActiveTokens(56)
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedQuery = useDebounce(searchQuery, 200)
   const isAddressSearch = isAddress(debouncedQuery)

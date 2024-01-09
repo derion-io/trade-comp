@@ -7,7 +7,8 @@ import { CurrencyLogo } from '../../ui/CurrencyLogo'
 import { Text } from '../../ui/Text'
 import './index.scss'
 export const CommonCurrencies = () => {
-  const bases = COMMON_BASES[56]
+  const chainId = 56
+  const bases = COMMON_BASES[chainId]
 
   return (
     <div className='common-currencies'>
@@ -18,7 +19,7 @@ export const CommonCurrencies = () => {
             className='common-currencies__item'
           >
             <span className='chart-token-selector--current inline-items-center' >
-              <CurrencyLogoFromList currency={currency} />
+              <CurrencyLogoFromList currency={currency} chainId={chainId}/>
               <Text fontWeight={535} fontSize={16}>
                 {currency.symbol}
               </Text>
@@ -30,8 +31,7 @@ export const CommonCurrencies = () => {
   )
 }
 
-function CurrencyLogoFromList({ currency }: { currency: Currency }) {
-  const token = useTokenInfoFromActiveList(currency)
-  console.log('#', currency)
+function CurrencyLogoFromList({ currency, chainId }: { currency: Currency, chainId: number }) {
+  const token = useTokenInfoFromActiveList(currency, chainId)
   return <CurrencyLogo currencyURI={(token as TokenInfo).logoURI} size={24} />
 }
