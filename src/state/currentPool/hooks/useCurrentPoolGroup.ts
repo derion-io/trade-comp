@@ -19,7 +19,6 @@ export const useCurrentPoolGroup = () => {
   const { ddlEngine } = useConfigs()
   const { account } = useWeb3React()
   const dispatch = useDispatch()
-
   const currentPool = useSelector((state: State) => {
     return {
       ...state.currentPool
@@ -40,6 +39,7 @@ export const useCurrentPoolGroup = () => {
   }
   const updateCurrentPoolGroup = async (uniPoolAddress: string, poolAddresses?: string[]) => {
     let poolGroup = poolGroups[uniPoolAddress]
+    console.log('#', poolGroups, poolAddresses)
     if (!poolGroup && poolAddresses) {
       // eslint-disable-next-line no-unused-expressions
       ddlEngine?.RESOURCE.generateData({ poolAddresses, transferLogs: [] }).then(data => {

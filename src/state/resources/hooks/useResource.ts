@@ -4,6 +4,13 @@ import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../types'
 import { addTokensReduce } from '../../token/reducer'
 import { useSwapHistory } from '../../wallet/hooks/useSwapHistory'
+import { useMemo } from 'react'
+import { useWalletBalance } from '../../wallet/hooks/useBalances'
+import { useTokenValue } from '../../../Components/SwapBox/hooks/useTokenValue'
+import { IEW } from '../../../utils/helpers'
+import { useListTokens } from '../../token/hook'
+import { POOL_IDS } from '../../../utils/constant'
+import { PoolGroupType, PoolGroupValueType } from '../type'
 
 export const useResource = () => {
   const { poolGroups, pools } = useSelector((state: State) => {
@@ -42,10 +49,72 @@ export const useResource = () => {
       })
     }
   }
-
+  const useCalculatePoolGroupsValue = () => {
+    const { balances } = useWalletBalance()
+    const { getTokenValue } = useTokenValue({})
+    const { tokens } = useListTokens()
+    const { chainId } = useConfigs()
+    return useMemo(() => {
+      const getPoolValue = (pool: any): number => {
+        return Number(
+          getTokenValue(
+          pool?.TOKEN_R,
+          IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimals),
+          true
+          )
+        )
+      }
+      const poolGroupsValue: PoolGroupValueType = {}
+      Object.keys(poolGroups[chainId]).map((indexKey:string) => {
+        const poolGroup = poolGroups[chainId][indexKey]
+        let poolGroupValue = 0
+        let poolGroupPositionValue = 0
+        console.log('#poolGroup', poolGroup)
+        console.log('#poolGroups', poolGroups[chainId])
+        if (!poolGroup?.pools) return
+        const results = []
+        if (Object.keys(balances).length === 0) {
+          for (const poolAddress of Object.keys(poolGroup.pools)) {
+            poolGroupValue += getPoolValue(poolGroup.pools[poolAddress])
+          }
+        } else {
+          for (const poolAddress of Object.keys(poolGroup.pools)) {
+            if (balances[poolAddress + '-' + POOL_IDS.A]) {
+              results.push(poolAddress + '-' + POOL_IDS.A)
+            }
+            if (balances[poolAddress + '-' + POOL_IDS.B]) {
+              results.push(poolAddress + '-' + POOL_IDS.B)
+            }
+            if (balances[poolAddress + '-' + POOL_IDS.C]) {
+              results.unshift(poolAddress + '-' + POOL_IDS.C)
+              poolGroupValue += getPoolValue(poolGroup.pools[poolAddress])
+            }
+          }
+        }
+        const poolGroupPositions = results.map((address) => {
+          const value = Number(
+            getTokenValue(
+              address,
+              IEW(balances[address], tokens[address]?.decimal || 18),
+              true
+            )
+          )
+          poolGroupPositionValue += value
+          return { address, value }
+        }).filter(token => token.address !== null && token.value > 0)
+        poolGroupsValue[indexKey] = {
+          poolGroupValue,
+          poolGroupPositionValue,
+          poolGroupPositions
+        }
+      })
+      return { poolGroupsValue }
+    }, [poolGroups, chainId])
+  }
   return {
     initResource: initListPool,
     updateSwapTxsHandle,
+    useCalculatePoolGroupsValue,
     addNewResource,
     poolGroups: poolGroups[chainId],
     pools: pools[chainId]

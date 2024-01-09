@@ -12,6 +12,14 @@ export type ParseLogType = {
   args: any
 }
 export type PoolGroupType = any
+export type PoolGroupValueType = {[indexKey: string]: {
+  poolGroupValue: number
+  poolGroupPositionValue: number
+  poolGroupPositions: {
+    address:string,
+    value: number
+  }[],
+}}
 export type PoolType = any
 export type FeeDataType = {
   gasPrice: BigNumber

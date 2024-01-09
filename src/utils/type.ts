@@ -84,6 +84,7 @@ export type Position = {
   pool: PoolType
   side: number
   balance: BigNumber
+  token:string,
   entryValueR: string
   entryValueU: string
   entryPrice: string
