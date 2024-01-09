@@ -42,7 +42,7 @@ export const Trade = ({
   tab: TRADE_TYPE
   loadingData: boolean
 }) => {
-  const { chainId, useHistory, ddlEngine, configs: { chartReplacements } } = useConfigs()
+  const { chainId, useHistory, ddlEngine, configs } = useConfigs()
   const history = useHistory()
   const [changedIn24h, setChangedIn24h] = useState<number>(0)
   const { poolGroups } = useResource()
@@ -81,15 +81,16 @@ export const Trade = ({
   useEffect(() => {
     if (
       id &&
-      ddlEngine) {
+      configs) {
+      console.log('#configs', configs)
       fetch24hChange({
-        pairAddress: chartReplacements?.[id] ?? id,
-        gtID: ddlEngine.profile.configs.gtID
+        pairAddress: configs?.chartReplacements?.[id] ?? id,
+        gtID: configs.gtID
       }).then((res) => {
-        setChangedIn24h(Number(res.h24))
+        setChangedIn24h(Number(res?.h24 || 0))
       })
     }
-  }, [chainId, ddlEngine, id])
+  }, [id, configs])
 
   useEffect(() => {
     if (poolGroups && Object.keys(poolGroups).length > 0) {
