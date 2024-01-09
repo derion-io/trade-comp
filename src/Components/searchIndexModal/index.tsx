@@ -11,6 +11,9 @@ import { Modal } from '../ui/Modal'
 import { ListCurrencies } from './components/listCurrencies'
 import { SearchCurrencies } from './components/searchCurrencies'
 import './style.scss'
+import { TokenFromList } from '../../state/lists/tokenFromList'
+import { CommonCurrencies } from './components/commonCurrencies'
+import { Divider } from '../ui/Divider'
 const Component = ({
   visible,
   setVisible
@@ -19,7 +22,7 @@ const Component = ({
   setVisible: any
 }) => {
   if (!visible) return <Fragment/>
-  const defaultTokens = useDefaultActiveTokens(56)
+  const defaultTokens = useDefaultActiveTokens(1)
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedQuery = useDebounce(searchQuery, 200)
   const isAddressSearch = isAddress(debouncedQuery)
@@ -32,7 +35,7 @@ const Component = ({
     // if (balancesAreLoading) {
     //   return mergedTokens
     // }
-
+    console.log('#', mergedTokens)
     return mergedTokens
     // .filter((token) => {
     // if (onlyShowCurrenciesWithBalance) {
@@ -61,7 +64,7 @@ const Component = ({
 
   // const isLoading = Boolean(balancesAreLoading && !tokenLoaderTimerElapsed)
 
-  const filteredSortedTokens = useSortTokensByQuery(debouncedQuery, sortedTokens)
+  const filteredSortedTokens = useSortTokensByQuery(debouncedQuery, sortedTokens) as TokenFromList[]
 
   useEffect(() => {
     console.log('#', filteredSortedTokens)
@@ -77,8 +80,9 @@ const Component = ({
         value='123'
         placeholder='Search name or paste address'
       />
-      {/* <CommonCurrencies commonCurrenies={defaultTokens}/> */}
-      <ListCurrencies/>
+      <CommonCurrencies/>
+      <div className='search-index__hr'/>
+      <ListCurrencies currencies={filteredSortedTokens}/>
     </Modal>
   )
 }

@@ -1,57 +1,37 @@
-import React, { Fragment } from 'react'
+import { Currency } from '@uniswap/sdk-core'
+import { TokenInfo } from '@uniswap/token-lists'
+import React from 'react'
+import { useTokenInfoFromActiveList } from '../../../hooks/useTokenInfoFromActiveList'
 import { COMMON_BASES } from '../../../state/lists/constants/routing'
+import { CurrencyLogo } from '../../ui/CurrencyLogo'
 import { Text } from '../../ui/Text'
-import '../style.scss'
+import './index.scss'
 export const CommonCurrencies = () => {
-  const bases = COMMON_BASES[56] ?? []
-  return (<Fragment />
-  // <AutoRow gap='4px'>
-  //   {bases.map((currency, _) => {
-  //     // const isSelected = selectedCurrency?.equals(currency)
+  const bases = COMMON_BASES[56]
 
-  //     return (
-  //       <div key = {_}>
-  //         <BaseWrapper
-  //           tabIndex={0}
-  //           // onKeyPress={(e) => !isSelected && e.key === 'Enter' && onSelect(currency)}
-  //           // onClick={() => !isSelected && onSelect(currency)}
-  //           // disable={isSelected}
-  //           // key={currencyId(currency)}
-  //           data-testid={`common-base-${currency.symbol}`}
-  //         >
-  //           <CurrencyLogoFromList currency={currency} />
-  //           <Text fontWeight={535} fontSize={16} lineHeight='16px'>
-  //             {currency.symbol}
-  //           </Text>
-  //         </BaseWrapper>
-  //       </div>
-  //     )
-  //   })}
-  // </AutoRow>
-  // <div className='common-currenies' style={{ margin: 0 }} >
-  //   {
-  //     Object.keys(commonCurrenies).map((k, _) => {
-  //       return (
-  //         <span
-  //           className='common-currenies__infor'
-  //           key={_}
-  //         >
-  //           <span className=''>
-  //             <CurrencyLogo size={36} currencyURI={commonCurrenies[k].tokenInfo.logoURI} />
-  //             <div className='common-currenies__text'>
-  //               <Text>
-  //                 {commonCurrenies[k].tokenInfo.name || ''}
-  //               </Text>
-  //               <TextGrey>
-  //                 {commonCurrenies[k].tokenInfo.symbol || ''}
-  //               </TextGrey>
-  //             </div>
-  //           </span>
-  //         </span>
-  //       )
-  //     })
-  //   }
-
-  // </div>
+  return (
+    <div className='common-currencies'>
+      {bases.map((currency: Currency, _:number) => {
+        return (
+          <div
+            key={_}
+            className='common-currencies__item'
+          >
+            <span className='chart-token-selector--current inline-items-center' >
+              <CurrencyLogoFromList currency={currency} />
+              <Text fontWeight={535} fontSize={16}>
+                {currency.symbol}
+              </Text>
+            </span>
+          </div>
+        )
+      })}
+    </div>
   )
+}
+
+function CurrencyLogoFromList({ currency }: { currency: Currency }) {
+  const token = useTokenInfoFromActiveList(currency)
+  console.log('#', currency)
+  return <CurrencyLogo currencyURI={(token as TokenInfo).logoURI} size={24} />
 }

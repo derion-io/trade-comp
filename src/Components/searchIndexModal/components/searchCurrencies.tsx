@@ -26,6 +26,8 @@ export const SearchCurrencies = (
   )
 
   return (
-    <Input placeholder={props.placeholder}/>
+    <Input inputWrapProps={{
+      style: { borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.07)' }
+    }}placeholder={props.placeholder}/>
   )
 }
