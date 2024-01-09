@@ -14,7 +14,8 @@ export const CurrencyLogo = (props: {
     style={{
       width: props.size || 50,
       height: props.size || 50,
-      borderRadius: '50%'
+      borderRadius: '50%',
+      transition: 'opacity 250ms ease-in 0s'
     }}
     {...props}
     src={props.currencyURI}
