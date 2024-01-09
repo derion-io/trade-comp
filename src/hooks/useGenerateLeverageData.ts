@@ -26,7 +26,7 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
 
   return useMemo(() => {
     const result = {}
-    if (Object.values(pools).length > 0) {
+    if (Object.values(pools || {})?.length > 0) {
       const sumR = Object.values(pools).reduce((sumR, pool) => {
         return (sumR = sumR.add(pool.states.R))
       }, bn(0))

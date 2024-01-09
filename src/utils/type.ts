@@ -75,7 +75,7 @@ export type TokenFromPoolGroup = {
   symbol: string
   address: string,
   logoURI: string
-  poolGroup: PoolGroupType
+  poolGroup: PoolGroupType[]
 }
 
 export type Position = {

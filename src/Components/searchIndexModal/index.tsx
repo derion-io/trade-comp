@@ -1,25 +1,22 @@
-import { Token, Currency } from '@uniswap/sdk-core'
+import { Currency } from '@uniswap/sdk-core'
 import 'rc-slider/assets/index.css'
 import React, { ChangeEvent, Fragment, KeyboardEvent, RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import isEqual from 'react-fast-compare'
-import useDebounce from '../../hooks/useDebounce'
 import { getTokenFilter } from '../../utils/filtering'
-import { tokenComparator, useSortTokensByQuery } from '../../state/lists/hook/useTokenList/sorting'
-import { useDefaultActiveTokens, useSearchInactiveTokenLists } from '../../state/lists/hook/useTokens'
-import { isAddress } from '../../state/lists/utils/isAddress'
 import { Modal } from '../ui/Modal'
 import { ListCurrencies } from './components/listCurrencies'
 // import { SearchCurrencies } from './components/searchCurrencies'
-import './style.scss'
-import { TokenFromList } from '../../state/lists/tokenFromList'
-import { CommonCurrencies } from './components/commonCurrencies'
-import { Divider } from '../ui/Divider'
-import { Input } from '../ui/Input'
+import { useDispatch } from 'react-redux'
 import { useConfigs } from '../../state/config/useConfigs'
-import { useResource } from '../../state/resources/hooks/useResource'
 import { useHelper } from '../../state/config/useHelper'
-import { TokenFromPoolGroup } from '../../utils/type'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
+import { useWeb3React } from '../../state/customWeb3React/hook'
+import { useResource } from '../../state/resources/hooks/useResource'
+import { oracleToPoolGroupId } from '../../utils/helpers'
+import { TokenFromPoolGroup } from '../../utils/type'
+import { Input } from '../ui/Input'
+import { CommonCurrencies } from './components/commonCurrencies'
+import './style.scss'
 const Component = ({
   visible,
   setVisible,
@@ -71,11 +68,11 @@ const Component = ({
   }, [])
 
   const handleCurrencySelect = useCallback(
-    (currency: TokenFromPoolGroup, hasWarning?: boolean) => {
-      onCurrencySelect(currency, hasWarning)
-      const oracle = currency.poolGroup?.[0]?.ORACLE
-      const newID = oracle ? '0x' + (oracle as String).slice(oracle.length - 40, oracle.length) : ''
-      updateCurrentPoolGroup(newID)
+    (searchPool: TokenFromPoolGroup, hasWarning?: boolean) => {
+      onCurrencySelect(searchPool, hasWarning)
+      const oracle = searchPool.poolGroup?.[0]?.ORACLE
+      const poolAddresses = searchPool.poolGroup.map(pool => pool?.[10])
+      updateCurrentPoolGroup(oracleToPoolGroupId(oracle || ''), poolAddresses)
       setVisible(false)
       if (!hasWarning) onDismiss()
     },
@@ -86,6 +83,7 @@ const Component = ({
     if (e.key !== 'Enter') return
     setIsLoadingSearch(true)
     const poolsSearch = await ddlEngine?.RESOURCE.searchIndex(searchQuery.toUpperCase())
+    console.log('#poolsSearch', poolsSearch)
     setWhiteListFilterPools((await Promise.all(Object.keys(poolsSearch).map(async (key) => {
       const poolSearch = poolsSearch[key]
       const bti = poolSearch?.pools?.[0]?.ORACLE === '0' ? 1 : 0

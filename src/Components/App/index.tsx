@@ -59,10 +59,11 @@ export const App = () => {
   }, [ddlEngine, poolGroups, id])
   useEffect(() => {
     initResource(account)
-    const intervalId = setInterval(() => {
-      initResource(account)
-    }, TIME_TO_REFRESH_STATE)
-    return () => clearInterval(intervalId)
+    // initResource(account)
+    // const intervalId = setInterval(() => {
+    //   initResource(account)
+    // }, TIME_TO_REFRESH_STATE)
+    // return () => clearInterval(intervalId)
   }, [ddlEngine, configs.name])
 
   useEffect(() => {
