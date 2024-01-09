@@ -18,7 +18,7 @@ type Props = {
   handlePoolSelect: (pool: PoolSearch, hasWarning?: boolean) => void
   isLoading: boolean
 }
-export const ListCurrencies = ({ poolsFilterSearch, isLoading, handlePoolSelect }: Props) => {
+export const ListIndexs = ({ poolsFilterSearch, isLoading, handlePoolSelect }: Props) => {
   const { tokens } = useListTokens()
   const { balances } = useWalletBalance()
   const { useCalculatePoolGroupsValue } = useResource()
@@ -51,7 +51,7 @@ export const ListCurrencies = ({ poolsFilterSearch, isLoading, handlePoolSelect 
               >
                 <div className='token-item'>
                   <span className='chart-token-selector--current inline-items-center'>
-                    <CurrencyGroupLogo currencyURIs={[index?.baseToken.logoURI, index?.quoteToken.logoURI]} size={36}/>
+                    <CurrencyGroupLogo currencyURIs={[index?.baseToken.logoURI, index?.quoteToken.logoURI]} size={[48, 36]}/>
                     <div className='chart-token-symbol'>
                       <Text>
                         {unwrap(index.baseToken.symbol)}/{unwrap(index.quoteToken.symbol)}

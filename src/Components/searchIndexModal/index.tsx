@@ -12,7 +12,7 @@ import { IEW, NUM, poolToIndexID } from '../../utils/helpers'
 import { PoolSearch } from '../../utils/type'
 import { Input } from '../ui/Input'
 import { Modal } from '../ui/Modal'
-import { ListCurrencies } from './components/listCurrencies'
+import { ListIndexs } from './components/listIndexs'
 import './style.scss'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
 import { useListTokens } from '../../state/token/hook'
@@ -224,7 +224,7 @@ const Component = ({
       />
 
       {/* <CommonCurrencies/> */}
-      <ListCurrencies
+      <ListIndexs
         handlePoolSelect={handlePoolSelect}
         poolsFilterSearch={poolsFilterSearch}
         isLoading={isLoadingSearch}

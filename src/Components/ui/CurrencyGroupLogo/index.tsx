@@ -5,7 +5,7 @@ export const CurrencyGroupLogo = (props: {
   src?: string
   className?: string
   currencyURIs?: string[]
-  size?: number
+  size?: number[]
 }) => {
   return (<div className='currency-group'>
     {props.currencyURIs?.map((uri, _) => {
@@ -15,8 +15,8 @@ export const CurrencyGroupLogo = (props: {
           loading='lazy'
           className='currency-group__item'
           style={{
-            width: props.size || 50,
-            height: props.size || 50
+            width: props.size?.[_] || 50,
+            height: props.size?.[_] || 50
             // ...(_ === 0 ? { marginLeft: 0 } : {})
           }}
           {...props}
