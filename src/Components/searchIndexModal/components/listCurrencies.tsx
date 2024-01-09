@@ -1,18 +1,17 @@
 import moment from 'moment'
 import React, { useEffect } from 'react'
-import { PoolGroupValueType, PoolType } from '../../../state/resources/type'
+import { PoolGroupValueType } from '../../../state/resources/type'
+import { useListTokens } from '../../../state/token/hook'
+import { useWalletBalance } from '../../../state/wallet/hooks/useBalances'
+import { MIN_POSITON_VALUE_USD_TO_DISPLAY } from '../../../utils/constant'
 import formatLocalisedCompactNumber from '../../../utils/formatBalance'
-import { IEW, NUM, bn, formatFloat, poolToIndexID, unwrap, zerofy } from '../../../utils/helpers'
+import { bn, formatFloat, unwrap, zerofy } from '../../../utils/helpers'
 import { PoolSearch } from '../../../utils/type'
 import { CurrencyGroupLogo } from '../../ui/CurrencyGroupLogo'
 import { SkeletonLoader } from '../../ui/SkeletonLoader'
-import { Text, TextGrey } from '../../ui/Text'
-import './index.scss'
-import { useTokenValue } from '../../SwapBox/hooks/useTokenValue'
-import { useListTokens } from '../../../state/token/hook'
-import { MIN_POSITON_VALUE_USD_TO_DISPLAY } from '../../../utils/constant'
-import { useWalletBalance } from '../../../state/wallet/hooks/useBalances'
+import { Text, TextGrey, TextPink } from '../../ui/Text'
 import { TokenIcon } from '../../ui/TokenIcon'
+import './index.scss'
 type Props = {
   poolsFilterSearch: PoolSearch[],
   poolGroupsValue?: PoolGroupValueType
@@ -48,10 +47,25 @@ export const ListCurrencies = ({ poolsFilterSearch, poolGroupsValue, isLoading =
                         <Text>
                           {unwrap(index.baseToken.symbol)}/{unwrap(index.quoteToken.symbol)}
                         </Text><br/>
-                        <TextGrey>  {pool?.timeStamp ? moment
-                          .unix(pool?.timeStamp)
-                          .fromNow()
-                          .toLocaleLowerCase() : ''} </TextGrey>
+                        <div className='pool-positions-list__wrap'>
+                          {/* <TextGrey>Positions</TextGrey> */}
+                          <div className='pool-positions-list'>
+                            {pool.poolPositions?.length !== 0 ? pool.poolPositions.map((playingToken:any) => {
+                              const { address, value } = playingToken
+                              if (value < MIN_POSITON_VALUE_USD_TO_DISPLAY) return null
+                              if (balances[address] && bn(balances[address]).gt(0)) {
+                                return <TokenIcon key={address} size={20} tokenAddress={address} />
+                              } else {
+                                return null
+                              }
+                            })
+                              : <TextGrey>  {pool?.timeStamp ? moment
+                                .unix(pool?.timeStamp)
+                                .fromNow()
+                                .toLocaleLowerCase() : ''} </TextGrey>}
+                          </div>
+                        </div>
+
                       </div>
 
                     </span>
@@ -60,7 +74,10 @@ export const ListCurrencies = ({ poolsFilterSearch, poolGroupsValue, isLoading =
 
                   <div className='index-value-item'>
                     {pool?.poolValueR > 0
-                      ? <TextGrey>{`${zerofy(pool?.poolValueR)} ${unwrap(tokens[pool?.TOKEN_R].symbol)}`}<br/></TextGrey>
+                      ? <div style={{ margin: 0 }}>
+                        <TextPink> {`${unwrap(tokens[pool?.TOKEN_R].symbol)}`}</TextPink>
+                        <Text>{`${zerofy(pool?.poolValueR)}`}</Text>
+                      </div>
                       : <SkeletonLoader textLoading='   ' loading/>}
 
                     {pool?.poolValue > 0
@@ -68,20 +85,7 @@ export const ListCurrencies = ({ poolsFilterSearch, poolGroupsValue, isLoading =
                       : <SkeletonLoader textLoading='   ' loading/>}
                   </div>
                 </div>
-                <div className='pool-positions-list__wrap'>
-                  <TextGrey>Positions</TextGrey>
-                  <div className='pool-positions-list'>
-                    {pool.poolPositions.map((playingToken:any) => {
-                      const { address, value } = playingToken
-                      if (value < MIN_POSITON_VALUE_USD_TO_DISPLAY) return null
-                      if (balances[address] && bn(balances[address]).gt(0)) {
-                        return <TokenIcon key={address} size={20} tokenAddress={address} />
-                      } else {
-                        return null
-                      }
-                    })}
-                  </div>
-                </div>
+
               </div>
             )
           })

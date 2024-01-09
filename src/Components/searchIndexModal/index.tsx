@@ -167,7 +167,7 @@ const Component = ({
     >
       <Input
         inputWrapProps={{
-          style: { borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.07)' }
+          style: { borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.07)', marginBottom: '1rem' }
         }}
         type='text'
         id='token-search-input'

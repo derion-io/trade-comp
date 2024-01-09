@@ -7,19 +7,20 @@ import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoo
 import { CHART_TABS } from '../../state/currentPool/type'
 import { useResource } from '../../state/resources/hooks/useResource'
 import { useListTokens } from '../../state/token/hook'
-import { detectTradeTab, formatFloat, unwrap, zerofy } from '../../utils/helpers'
+import { MIN_POSITON_VALUE_USD_TO_DISPLAY, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
+import { bn, detectTradeTab, formatFloat, unwrap, zerofy } from '../../utils/helpers'
+import { PoolSearch } from '../../utils/type'
 import { CandleChart } from '../CandleChart'
 import { FunctionPlot } from '../FuncPlot'
 import { LineChart } from '../LineChart'
 import { SearchIndexModal } from '../searchIndexModal'
-import { ButtonBorder } from '../ui/Button'
 import { Card } from '../ui/Card'
 import { Tabs } from '../ui/Tabs'
 import { Text, TextBuy, TextSell } from '../ui/Text'
 import './style.scss'
-import { PoolType } from '../../state/resources/type'
-import { POOL_IDS, TRADE_TYPE } from '../../utils/constant'
-import { PoolSearch } from '../../utils/type'
+import { TokenIcon } from '../ui/TokenIcon'
+import { useWindowSize } from '../../hooks/useWindowSize'
+import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 const Component = ({ changedIn24h, inputTokenAddress, outputTokenAddress, setInputTokenAddress, setOutputTokenAddress }: {
   changedIn24h: number,
   inputTokenAddress: string
@@ -29,10 +30,14 @@ const Component = ({ changedIn24h, inputTokenAddress, outputTokenAddress, setInp
   const { chainId, configs, location } = useConfigs()
   const { chartTab, setChartTab, basePrice, id, chartIsOutDate } = useCurrentPoolGroup()
   const { data: nativePrice } = useNativePrice()
+  const { width } = useWindowSize()
+  const isPhone = width && width < 768
   const { currentPool, priceByIndexR } = useCurrentPool()
   const { tokens } = useListTokens()
+  const { balances } = useWalletBalance()
   const [onSearchCurrenies, setOnSearchCurrenies] = useState<boolean>(false)
-  const { poolGroups } = useResource()
+  const { poolGroups, useCalculatePoolGroupsValue } = useResource()
+  const { poolGroupsValue } = useCalculatePoolGroupsValue()
   const [isUseDextool, setUseDexTool] = useState<boolean>(false)
   const pairAddress = poolGroups[id] ? '0x' + (poolGroups[id]?.ORACLE as String).slice(poolGroups[id]?.ORACLE.length - 40, poolGroups[id]?.ORACLE.length) : ''
   useEffect(() => {
@@ -61,12 +66,29 @@ const Component = ({ changedIn24h, inputTokenAddress, outputTokenAddress, setInp
                 setOutputTokenAddress(poolAddress + '-' + POOL_IDS.C)
               }
             }
-          }}/>
-          <ButtonBorder onClick={() => { setOnSearchCurrenies(true) }} >
-            {unwrap(tokens[poolGroups?.[id]?.baseToken]?.symbol)}/
-            {unwrap(tokens[poolGroups?.[id]?.quoteToken]?.symbol)}
-            {/* <SelectPoolGroup /> */}
-          </ButtonBorder>
+          }} />
+          <div className='select-pool-group'>
+            <div
+              className='select-pool-group__option noselect active'
+              onClick={() => { setOnSearchCurrenies(true) }}
+            >  <span>
+                {unwrap(tokens[poolGroups?.[id]?.baseToken]?.symbol)}/
+                {unwrap(tokens[poolGroups?.[id]?.quoteToken]?.symbol)}
+              </span>
+              {((isPhone
+                ? poolGroupsValue?.[id]?.poolGroupPositions?.slice(0, 3)
+                : poolGroupsValue?.[id]?.poolGroupPositions
+              ) || []).map((playingToken: any) => {
+                const { address, value } = playingToken
+                if (value < MIN_POSITON_VALUE_USD_TO_DISPLAY) return null
+                if (balances[address] && bn(balances[address]).gt(0)) {
+                  return <TokenIcon key={address} size={20} tokenAddress={address} />
+                } else {
+                  return null
+                }
+              })}
+            </div>
+          </div>
           {!!id && basePrice && (
             <span>
               <Text>

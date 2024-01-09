@@ -30,3 +30,72 @@
     height: 320px;
   }
 }
+
+.select-pool-group {
+  background: $color-card-bg;
+  border: 1px solid $color-primary;
+  position: relative;
+  border-radius: 10px;
+  width: 100%;
+  &__wrap {
+    position: relative;
+    height: 35px;
+    z-index: 1000;
+
+    @include respond(phone) {
+      height: 26px;
+    }
+  }
+  &-open {
+    margin-right: 1vw;
+    width: auto;
+    position: relative;
+  }
+  &-close {
+    margin-right: 0;
+    margin-top: 1rem;
+    position: absolute;
+  }
+  & * {
+    box-sizing: border-box;
+  }
+  .full-width {
+    width: 100vw
+  }
+  &__dropdown {
+    width: 100%;
+    transition: all ease-out 0.25s;
+    &.un-active {
+      height: 0;
+    }
+  }
+
+  &__option {
+    padding: 0.5rem 2rem;
+    text-align: center;
+    cursor: pointer;
+    width: 100%;
+    display: flex;
+    align-items: center;
+
+    & > *:not(:last-child) {
+      margin-right: 1rem;
+    }
+
+    &:hover {
+      background: $color-grey
+    }
+
+    &.active {
+      //padding: 1rem 2rem;
+      background: $color-grey
+    }
+
+    &>*:not(:first-child){
+      @include respond(phone) {
+        // display: none;
+      }
+    }
+  }
+}
+
