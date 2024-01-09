@@ -1,5 +1,5 @@
 import moment from 'moment'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { PoolGroupValueType, PoolType } from '../../../state/resources/type'
 import formatLocalisedCompactNumber from '../../../utils/formatBalance'
 import { IEW, NUM, bn, formatFloat, poolToIndexID, unwrap, zerofy } from '../../../utils/helpers'
@@ -20,26 +20,17 @@ type Props = {
   isLoading: boolean
 }
 export const ListCurrencies = ({ poolsFilterSearch, poolGroupsValue, isLoading = false, handlePoolSelect }: Props) => {
-  const { getTokenValue } = useTokenValue({})
   const { tokens } = useListTokens()
   const { balances } = useWalletBalance()
-  console.log('#poolGroupsValue', poolGroupsValue)
+  useEffect(() => {
+    console.log('#poolGroupsValue', poolGroupsValue)
+    console.log('#poolsFilterSearch', poolsFilterSearch)
+  }, [poolGroupsValue, poolsFilterSearch])
   return (
     <div className='token-list'>
       <div>
-        {/* {poolsFilterSearch.length > 0 && (
-          <tr className='table-head'>
-            <th />
-          </tr>
-        )} */}
         {poolsFilterSearch.map((index, _) => {
           return index.pools.map((pool, __) => {
-            const poolValue = NUM(getTokenValue(
-              pool?.TOKEN_R,
-              IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimals),
-              true
-            ))
-            const poolValueR = NUM(IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimals))
             return (
               <div key={_ + __} className='position-token-list'>
                 <div
@@ -68,19 +59,19 @@ export const ListCurrencies = ({ poolsFilterSearch, poolGroupsValue, isLoading =
                   </div>
 
                   <div className='index-value-item'>
-                    {poolValueR > 0
-                      ? <TextGrey>{`${zerofy(poolValueR)} ${unwrap(tokens[pool?.TOKEN_R].symbol)}`}<br/></TextGrey>
+                    {pool?.poolValueR > 0
+                      ? <TextGrey>{`${zerofy(pool?.poolValueR)} ${unwrap(tokens[pool?.TOKEN_R].symbol)}`}<br/></TextGrey>
                       : <SkeletonLoader textLoading='   ' loading/>}
 
-                    {poolValue > 0
-                      ? <TextGrey>{`$${formatLocalisedCompactNumber(formatFloat(poolValue))}` }</TextGrey>
+                    {pool?.poolValue > 0
+                      ? <TextGrey>{`$${formatLocalisedCompactNumber(formatFloat(pool?.poolValue))}` }</TextGrey>
                       : <SkeletonLoader textLoading='   ' loading/>}
                   </div>
                 </div>
                 <div className='pool-positions-list__wrap'>
                   <TextGrey>Positions</TextGrey>
                   <div className='pool-positions-list'>
-                    {poolGroupsValue ? poolGroupsValue?.[poolToIndexID(pool)]?.poolGroupPositions.map((playingToken:any) => {
+                    {pool.poolPositions.map((playingToken:any) => {
                       const { address, value } = playingToken
                       if (value < MIN_POSITON_VALUE_USD_TO_DISPLAY) return null
                       if (balances[address] && bn(balances[address]).gt(0)) {
@@ -88,7 +79,7 @@ export const ListCurrencies = ({ poolsFilterSearch, poolGroupsValue, isLoading =
                       } else {
                         return null
                       }
-                    }) : ''}
+                    })}
                   </div>
                 </div>
               </div>

@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useTokenValue } from '../../../Components/SwapBox/hooks/useTokenValue'
 import { POOL_IDS } from '../../../utils/constant'
@@ -10,7 +10,7 @@ import { State } from '../../types'
 import { useWalletBalance } from '../../wallet/hooks/useBalances'
 import { useSwapHistory } from '../../wallet/hooks/useSwapHistory'
 import { addPoolGroupsWithChain, addPoolsWithChain } from '../reducer'
-import { PoolGroupValueType } from '../type'
+import { PoolGroupValueType, PoolType } from '../type'
 
 export const useResource = () => {
   const { poolGroups, pools } = useSelector((state: State) => {
@@ -112,10 +112,54 @@ export const useResource = () => {
       return { poolGroupsValue }
     }, [poolGroups, tokens, balances])
   }
+  const useCalculatePoolValue = () => {
+    const { balances } = useWalletBalance()
+    const { getTokenValue } = useTokenValue({})
+    const { tokens } = useListTokens()
+    return useCallback((pool: PoolType) => {
+      const { poolAddress } = pool
+      const results:string[] = []
+      let poolPositionsValue = 0
+      const poolValue = NUM(getTokenValue(
+        pool?.TOKEN_R,
+        IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimals),
+        true
+      ))
+      const poolValueR = NUM(IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimals))
+      if (balances[poolAddress + '-' + POOL_IDS.A]) {
+        results.push(poolAddress + '-' + POOL_IDS.A)
+      }
+      if (balances[poolAddress + '-' + POOL_IDS.B]) {
+        results.push(poolAddress + '-' + POOL_IDS.B)
+      }
+      if (balances[poolAddress + '-' + POOL_IDS.C]) {
+        results.unshift(poolAddress + '-' + POOL_IDS.C)
+      }
+      const poolPositions = results.map((address) => {
+        const value = Number(
+          getTokenValue(
+            address,
+            IEW(balances[address], tokens[address]?.decimal || 18),
+            true
+          )
+        )
+        poolPositionsValue += value
+        return { address, value }
+      }).filter(token => token.address !== null && token.value > 0)
+
+      return {
+        poolValue,
+        poolValueR,
+        poolPositions,
+        poolPositionsValue
+      }
+    }, [poolGroups, tokens, balances])
+  }
   return {
     initResource: initListPool,
     updateSwapTxsHandle,
     useCalculatePoolGroupsValue,
+    useCalculatePoolValue,
     addNewResource,
     poolGroups: poolGroups[chainId],
     pools: pools[chainId]

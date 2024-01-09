@@ -8,12 +8,15 @@ import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoo
 import { useWeb3React } from '../../state/customWeb3React/hook'
 import { useResource } from '../../state/resources/hooks/useResource'
 import { getTokenFilter } from '../../utils/filtering'
-import { poolToIndexID } from '../../utils/helpers'
+import { IEW, NUM, poolToIndexID } from '../../utils/helpers'
 import { PoolSearch } from '../../utils/type'
 import { Input } from '../ui/Input'
 import { Modal } from '../ui/Modal'
 import { ListCurrencies } from './components/listCurrencies'
 import './style.scss'
+import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
+import { useListTokens } from '../../state/token/hook'
+import { PoolType } from '../../state/resources/type'
 const Component = ({
   visible,
   setVisible,
@@ -30,10 +33,13 @@ const Component = ({
   const [searchQuery, setSearchQuery] = useState<string>('')
   const { ddlEngine } = useConfigs()
   const { account } = useWeb3React()
+  const { tokens } = useListTokens()
   const { getTokenIconUrl } = useHelper()
+  const { getTokenValue } = useTokenValue({})
   const { updateCurrentPoolGroup } = useCurrentPoolGroup()
-  const { poolGroups, addNewResource, useCalculatePoolGroupsValue } = useResource()
-  const { poolGroupsValue } = useCalculatePoolGroupsValue()
+  const { poolGroups, addNewResource, useCalculatePoolValue } = useResource()
+  // const { poolGroupsValue } = useCalculatePoolGroupsValue()
+  const calculatePoolValue = useCalculatePoolValue()
   const [poolsFilterSearch, setPoolsFilterSearch] = useState<PoolSearch[]>([])
   const [isLoadingSearch, setIsLoadingSearch] = useState<boolean>(false)
   useMemo(async () => {
@@ -53,8 +59,14 @@ const Component = ({
         const baseToken = await getTokenInfo(baseTokenIndex)
         const quoteToken = await getTokenInfo(quoteTokenIndex)
 
-        const pools = Object.keys(poolGroups[key].pools).map(poolKey => poolGroups[key]?.pools?.[poolKey])
-
+        const pools = Object.keys(poolGroups[key].pools)
+          .map(poolKey => poolGroups[key]?.pools?.[poolKey])
+          .map((pool:any, _) => {
+            return {
+              ...pool,
+              ...calculatePoolValue(pool)
+            }
+          }).sort((a:PoolType, b: PoolType) => a?.poolPositionsValue - b?.poolPositionsValue || a?.poolValueR - b?.poolValueR)
         return {
           baseToken,
           quoteToken,
@@ -62,7 +74,7 @@ const Component = ({
         }
       }))).filter(getTokenFilter(searchQuery))
     )
-  }, [poolGroups, searchQuery])
+  }, [poolGroups, searchQuery, tokens])
 
   const inputRef = useRef<HTMLInputElement>()
 
@@ -104,7 +116,12 @@ const Component = ({
       poolAddresses = [...poolAddresses, ...poolSearch.pools.map((pool:any[]) => pool?.[10])]
       const baseToken = await getTokenInfo(baseTokenIndex)
       const quoteToken = await getTokenInfo(quoteTokenIndex)
-      const pools = poolSearch.pools
+      const pools = poolSearch.pools.map((pool:any) => {
+        return {
+          ...pool,
+          ...calculatePoolValue(pool)
+        }
+      }).sort((a:PoolType, b: PoolType) => a?.poolPositionsValue - b?.poolPositionsValue || a?.poolValueR - b?.poolValueR)
       return {
         baseToken,
         quoteToken,
@@ -163,7 +180,7 @@ const Component = ({
         placeholder='Search name or paste address'/>
 
       {/* <CommonCurrencies/> */}
-      <ListCurrencies handlePoolSelect={handlePoolSelect} poolGroupsValue={poolGroupsValue} poolsFilterSearch={poolsFilterSearch} isLoading={isLoadingSearch} />
+      <ListCurrencies handlePoolSelect={handlePoolSelect} poolsFilterSearch={poolsFilterSearch} isLoading={isLoadingSearch} />
 
     </Modal>
   )
