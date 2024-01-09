@@ -29,9 +29,11 @@ export const BASE_LIST =
 
 export const UNSUPPORTED_LIST_URLS: string[] = [BA_LIST, UNI_UNSUPPORTED_LIST]
 
+export const DERIVABLE_POOLS_BNB_LIST = 'https://raw.githubusercontent.com/derivable-labs/configs/dev/56/pools-default.json'
 // default lists to be 'active' aka searched across
 export const DEFAULT_ACTIVE_LIST_URLS: string[] = [UNI_LIST]
 export const DEFAULT_INACTIVE_LIST_URLS: string[] = [
+  DERIVABLE_POOLS_BNB_LIST,
   UNI_EXTENDED_LIST,
   COMPOUND_LIST,
   AAVE_LIST,

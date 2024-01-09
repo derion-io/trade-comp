@@ -1,13 +1,14 @@
 import { ChainId, Token } from '@uniswap/sdk-core'
 import { useMemo } from 'react'
-import { useAllLists, useCombinedActiveList, useUnsupportedTokenList } from '../hooks'
+import { useAllLists, useCombinedActiveList, useCombinedTokenMapFromUrls, useUnsupportedTokenList } from '../hooks'
 import { getTokenFilter } from './useTokenList/filtering'
 import { TokenAddressMap } from './useTokenList/utils'
 
-import { DEFAULT_INACTIVE_LIST_URLS } from '../constants/lists'
+import { DEFAULT_INACTIVE_LIST_URLS, DEFAULT_LIST_OF_LISTS } from '../constants/lists'
 import { TokenFromList } from '../tokenFromList'
 import { useWeb3React } from '../../customWeb3React/hook'
 import { CHAIN_INFO, getChainInfo } from '../constants/chainInfo'
+import { tokenComparator } from './useTokenList/sorting'
 
 type Maybe<T> = T | null | undefined
 
@@ -34,6 +35,13 @@ export function useDefaultActiveTokens(chainId: Maybe<ChainId>): { [address: str
     return tokensFromMap
   }, [tokensFromMap])
 }
+export function useDefaultInActiveTokens(chainId: Maybe<ChainId>): { [address: string]: TokenFromList } {
+  const defaultListTokens = useCombinedTokenMapFromUrls(DEFAULT_LIST_OF_LISTS)
+  const tokensFromMap = useTokensFromMap(defaultListTokens, chainId)
+  return useMemo(() => {
+    return tokensFromMap
+  }, [tokensFromMap])
+}
 
 // type BridgeInfo = Record<
 //   ChainId,
@@ -43,36 +51,36 @@ export function useDefaultActiveTokens(chainId: Maybe<ChainId>): { [address: str
 //     destBridgeAddress: string
 //   }
 // >
-export function useSearchInactiveTokenLists(search: string | undefined, minResults = 10): TokenFromList[] {
-  const lists = useAllLists()
-  const inactiveUrls = DEFAULT_INACTIVE_LIST_URLS
-  const { chainId } = useWeb3React()
-  const activeTokens = useDefaultActiveTokens(chainId)
+export function useSearchInactiveTokenLists(search: string | undefined, chainId:Maybe<ChainId>, minResults = 10): TokenFromList[] {
+  const defaultTokens = useDefaultInActiveTokens(chainId)
   return useMemo(() => {
     if (!search || search.trim().length === 0) return []
-    const tokenFilter = getTokenFilter(search)
-    const result: TokenFromList[] = []
-    const addressSet: { [address: string]: true } = {}
-    for (const url of inactiveUrls) {
-      const list = lists[url]?.current
-      if (!list) continue
-      for (const tokenInfo of list.tokens) {
-        if (tokenInfo.chainId === chainId && tokenFilter(tokenInfo)) {
-          try {
-            const wrapped: TokenFromList = new TokenFromList(tokenInfo, list)
-            if (!(wrapped.address in activeTokens) && !addressSet[wrapped.address]) {
-              addressSet[wrapped.address] = true
-              result.push(wrapped)
-              if (result.length >= minResults) return result
-            }
-          } catch {
-            continue
-          }
-        }
-      }
-    }
-    return result
-  }, [activeTokens, chainId, inactiveUrls, lists, minResults, search])
+    const filteredTokens = Object.values(defaultTokens)
+      .filter(getTokenFilter(search)).slice(0, 10)
+      // .filter((token) => !(token.address?.toLowerCase() in balances))
+
+    // if (balancesAreLoading) {
+    //   return mergedTokens
+    // }
+    // console.log('#', mergedTokens)
+    return filteredTokens
+    // .filter((token) => {
+    // if (onlyShowCurrenciesWithBalance) {
+    //   return balances[token.address?.toLowerCase()]?.usdValue > 0
+    // }
+
+    // If there is no query, filter out unselected user-added tokens with no balance.
+    // if (!search && token instanceof UserAddedToken) {
+    //   if (selectedCurrency?.equals(token) || otherSelectedCurrency?.equals(token)) return true
+    //   return balances[token.address.toLowerCase()]?.usdValue > 0
+    // }
+      //   return true
+      // })
+      .sort(tokenComparator.bind(null, {}))
+  }, [
+    search
+  ])
+  // }, [activeTokens, chainId, inactiveUrls, lists, minResults, search])
 }
 
 // Check if currency is included in custom list from user storage

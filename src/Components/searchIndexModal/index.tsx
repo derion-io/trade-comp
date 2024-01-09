@@ -63,21 +63,19 @@ const Component = ({
     debouncedQuery
 
   ])
-  // const filteredInactiveTokens = useSearchInactiveTokenLists(
-  //   (filteredSortedTokens.length === 0 || (debouncedQuery.length > 2 && !isAddressSearch))
-  //     ? debouncedQuery
-  //     : undefined,
-  //   chainId
-  // )
-  // const filteredSortedTokens = useSortTokensByQuery(debouncedQuery, sortedTokens) as TokenFromList[]
-  // console.log('#filteredInactiveTokens', filteredInactiveTokens)
+  const filteredInactiveTokens = useSearchInactiveTokenLists(
+    (filteredSortedTokens.length === 0 || (debouncedQuery.length > 2 && !isAddressSearch))
+      ? debouncedQuery
+      : undefined,
+    chainId
+  )
+  console.log('#filteredInactiveTokens', filteredInactiveTokens)
   console.log('#filteredSortedTokens', filteredSortedTokens)
   const inputRef = useRef<HTMLInputElement>()
 
   const handleInput = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const input = event.target.value
     const checksummedInput = isAddress(input)
-    console.log(checksummedInput || input)
     setSearchQuery(checksummedInput || input)
   }, [])
 
@@ -127,7 +125,7 @@ const Component = ({
 
       <CommonCurrencies/>
       <div className='search-index__hr'/>
-      <ListCurrencies currencies={filteredSortedTokens}/>
+      <ListCurrencies currencies={filteredSortedTokens.length === 0 ? filteredInactiveTokens : filteredSortedTokens}/>
     </Modal>
   )
 }
