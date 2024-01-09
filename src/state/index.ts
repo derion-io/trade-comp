@@ -7,7 +7,6 @@ import walletReduce from './wallet/reducer'
 import tokenReduce from './token/reducer'
 import poolsReduce from './resources/reducer'
 import settingsReduce from './setting/reducer'
-import listsReduce from './lists/reducer'
 
 export const store = createStore(
   combineReducers({
@@ -15,7 +14,6 @@ export const store = createStore(
     web3React: customWeb3ReactReduce,
     configs: configReduce,
     currentPool: currentPoolReduce,
-    lists: listsReduce,
     wallet: walletReduce,
     tokens: tokenReduce,
     settings: settingsReduce
