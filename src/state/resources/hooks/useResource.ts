@@ -73,15 +73,15 @@ export const useResource = () => {
             const pool = poolGroup.pools[poolAddress]
             poolGroupValue += NUM(getTokenValue(
                   pool?.TOKEN_R,
-                  IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimals),
+                  IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimal),
                   true
             ))
-            poolGroupValueR += NUM(IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimals))
+            poolGroupValueR += NUM(IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimal))
           }
         } else {
           for (const poolAddress of Object.keys(poolGroup.pools)) {
             const pool = poolGroup.pools[poolAddress]
-            poolGroupValueR += NUM(IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimals))
+            poolGroupValueR += NUM(IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimal))
             if (balances[poolAddress + '-' + POOL_IDS.A]) {
               results.push(poolAddress + '-' + POOL_IDS.A)
             }
@@ -92,7 +92,7 @@ export const useResource = () => {
               results.unshift(poolAddress + '-' + POOL_IDS.C)
               poolGroupValue += NUM(getTokenValue(
                 pool?.TOKEN_R,
-                IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimals),
+                IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimal),
                 true
               ))
             }
@@ -141,10 +141,10 @@ export const useResource = () => {
       let poolPositionsValue = 0
       const poolValue = NUM(getTokenValue(
         pool?.TOKEN_R,
-        IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimals),
+        IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimal),
         true
       ))
-      const poolValueR = NUM(IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimals))
+      const poolValueR = NUM(IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimal))
       if (balances[poolAddress + '-' + POOL_IDS.A]) {
         results.push(poolAddress + '-' + POOL_IDS.A)
       }

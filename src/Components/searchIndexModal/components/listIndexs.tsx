@@ -41,7 +41,6 @@ export const ListIndexs = ({ poolsFilterSearch, isLoading, handlePoolSelect }: P
         {Object.keys(Indexs).map((key, _) => {
           const index = poolsFilterSearch[key]
           if (!index?.baseToken) return
-          console.log('#index', index)
           // return index?.pools.map((pool, __) => {
           return (
             <div key={_} className='position-token-list'>
@@ -102,7 +101,7 @@ export const ListIndexs = ({ poolsFilterSearch, isLoading, handlePoolSelect }: P
           )
         })}
       </div>
-      {isLoading && Array(8).fill(0).map((a, _) => <SkeletonLoader height='50px' key={_} loading style={{ width: '100%', marginTop: '1rem' }}/>)}
+      {isLoading && Array(1).fill(0).map((a, _) => <SkeletonLoader height='50px' key={_} loading style={{ width: '100%', marginTop: '1rem' }}/>)}
       <div className='search-model-footer'><TextGrey>Enter to search for more</TextGrey></div>
     </div>
   )

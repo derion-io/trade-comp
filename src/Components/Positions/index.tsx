@@ -137,7 +137,6 @@ export const Positions = ({
     side: number,
     pendingTxData?: { token: string }
   ): Position | null => {
-    console.log('#generatePositionData', poolAddress, side)
     const pendingTxPool = decodeErc1155Address(pendingTxData?.token || '')
     const token = encodeErc1155Address(
       pendingTxData ? pendingTxPool.address : poolAddress,
@@ -151,10 +150,8 @@ export const Positions = ({
     ) {
       const pool =
         pools[pendingTxData?.token ? pendingTxPool.address : poolAddress]
-      console.log('#positionsWithEntry', positionsWithEntry)
       const posWithEntry = positionsWithEntry[token]
       const { avgPrice, avgPriceR, amountR } = posWithEntry ?? {}
-      console.log('#avgPrice, avgPriceR, amountR', avgPrice, avgPriceR, amountR)
       const entryPrice = avgPrice || -1
       const entryValueR = IEW(amountR || 1)
       const entryValueU = mul(entryValueR || 1, avgPriceR || 1)
