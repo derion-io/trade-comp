@@ -57,8 +57,8 @@ export const [walletConnectV2, walletConnectV2Hooks] = initializeConnector<Walle
           termsOfServiceUrl: undefined,
           themeMode: 'light',
           themeVariables: {
-            '--wcm-font-family': '"Inter custom", sans-serif',
-            '--wcm-z-index': '999',
+            // '--wcm-font-family': '"Inter custom", sans-serif',
+            // '--wcm-z-index': '999',
           },
           walletImages: undefined,
         },

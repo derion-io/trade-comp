@@ -65,6 +65,9 @@ const Component = ({
   const timeRangeRef = useRef<any>()
   const [currentChart, setCurrentChart] = useState<string>('')
   const { poolGroups } = useResource()
+
+  const pairAddress = poolGroups[id] ? '0x' + (poolGroups[id]?.ORACLE as String).slice(poolGroups[id]?.ORACLE.length - 40, poolGroups[id]?.ORACLE.length) : ''
+  console.log('#pool', pairAddress)
   const baseToken = poolGroups ? poolGroups[id]?.baseToken : ''
   const quoteToken = poolGroups ? poolGroups[id]?.quoteToken : ''
   const cToken = id
@@ -137,7 +140,7 @@ const Component = ({
         return zerofy(value, {
           maxExtraDigits: 2,
           minimumSignificantDigits: 3,
-          maximumSignificantDigits: 3,
+          maximumSignificantDigits: 3
         })
       }
     }
@@ -183,7 +186,7 @@ const Component = ({
       container: chartContainerRef.current,
       custom_formatters: {
         priceFormatterFactory: () => { return zerofyFormatter },
-        studyFormatterFactory: () => { return zerofyFormatter },
+        studyFormatterFactory: () => { return zerofyFormatter }
       },
       loading_screen: {
         backgroundColor: 'transparent'
@@ -241,7 +244,7 @@ const Component = ({
 
   return (
     <Card className='candle-chart-wrap'>
-      {candleChartIsLoading && (
+      {/* {candleChartIsLoading && (
         <div className='loading'>
           <CandleChartLoader />
         </div>
@@ -259,7 +262,18 @@ const Component = ({
           }}
         />
       </div>
-      {chartIsOutDate && <div className='outdate-message'>OUTDATED</div>}
+      {chartIsOutDate && <div className='outdate-message'>OUTDATED</div>} */}
+      <div
+        className={`candle-chart-box ${candleChartIsLoading && 'transparent'}`}
+      >
+        <iframe id='dextools-widget'
+          title='DEXTools Trading Chart'
+          style={{
+            width: '100%',
+            height: '100%'
+          }}
+          src={`http://www.dextools.io/widget-chart/en/bnb/pe-light/${pairAddress.toLowerCase()}?theme=dark&chartType=1&chartResolution=30&drawingToolbars=false`} />
+      </div>
     </Card>
   )
 }
