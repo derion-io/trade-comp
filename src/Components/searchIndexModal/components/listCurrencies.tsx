@@ -88,7 +88,7 @@ export const ListCurrencies = ({ poolsFilterSearch, isLoading, handlePoolSelect 
                   {poolGroupsValue[key]?.poolGroupValueR > 0
                     ? <div style={{ margin: 0 }}>
                       <TextPink> {`${unwrap(tokens[index.pools[Object.keys(index.pools)[0]]?.TOKEN_R].symbol)}`}</TextPink>
-                      <Text>{`${zerofy(poolGroupsValue[key]?.poolGroupValueR)}`}</Text>
+                      <Text>{`${zerofy(poolGroupsValue[key]?.poolGroupValueR, { maxZeros: 4, maximumSignificantDigits: 2 })}`}</Text>
                     </div>
                     : <SkeletonLoader textLoading='   ' loading/>}
 
