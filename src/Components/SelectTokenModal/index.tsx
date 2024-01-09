@@ -14,7 +14,7 @@ import {
   isErc1155Address,
   IEW,
   NUM,
-  zerofy,
+  zerofy
 } from '../../utils/helpers'
 import { MIN_POSITON_VALUE_USD_TO_DISPLAY, ZERO_ADDRESS } from '../../utils/constant'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
@@ -96,7 +96,6 @@ const Option = ({
         setVisible(false)
       }}
     >
-      <TokenIcon size={24} tokenAddress={address} />
       <div className='option__name-and-lp'>
         <Text>{symbol}</Text>
         {price && Number(price) > 0 ? (

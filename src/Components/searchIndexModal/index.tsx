@@ -1,12 +1,16 @@
+import { Token } from '@uniswap/sdk-core'
 import 'rc-slider/assets/index.css'
-import React, { Fragment } from 'react'
+import React, { Fragment, useEffect, useMemo, useState } from 'react'
 import isEqual from 'react-fast-compare'
+import useDebounce from '../../hooks/useDebounce'
+import { getTokenFilter } from '../../state/lists/hook/useTokenList/filtering'
+import { tokenComparator, useSortTokensByQuery } from '../../state/lists/hook/useTokenList/sorting'
+import { useDefaultActiveTokens } from '../../state/lists/hook/useTokens'
+import { isAddress } from '../../state/lists/utils/isAddress'
 import { Modal } from '../ui/Modal'
-import './style.scss'
-import { SearchCurrencies } from './components/searchCurrencies'
-import { CommonCurrencies } from './components/commonCurrencies'
 import { ListCurrencies } from './components/listCurrencies'
-
+import { SearchCurrencies } from './components/searchCurrencies'
+import './style.scss'
 const Component = ({
   visible,
   setVisible
@@ -15,6 +19,54 @@ const Component = ({
   setVisible: any
 }) => {
   if (!visible) return <Fragment/>
+  const defaultTokens = useDefaultActiveTokens(56)
+  const [searchQuery, setSearchQuery] = useState<string>('')
+  const debouncedQuery = useDebounce(searchQuery, 200)
+  const isAddressSearch = isAddress(debouncedQuery)
+  const sortedTokens: Token[] = useMemo(() => {
+    const filteredTokens = Object.values(defaultTokens)
+      .filter(getTokenFilter(debouncedQuery))
+      // .filter((token) => !(token.address?.toLowerCase() in balances))
+    const mergedTokens = filteredTokens
+
+    // if (balancesAreLoading) {
+    //   return mergedTokens
+    // }
+
+    return mergedTokens
+    // .filter((token) => {
+    // if (onlyShowCurrenciesWithBalance) {
+    //   return balances[token.address?.toLowerCase()]?.usdValue > 0
+    // }
+
+    // If there is no query, filter out unselected user-added tokens with no balance.
+    // if (!debouncedQuery && token instanceof UserAddedToken) {
+    //   if (selectedCurrency?.equals(token) || otherSelectedCurrency?.equals(token)) return true
+    //   return balances[token.address.toLowerCase()]?.usdValue > 0
+    // }
+      //   return true
+      // })
+      .sort(tokenComparator.bind(null, {}))
+  }, [
+    // data,
+    defaultTokens,
+    debouncedQuery
+    // balancesAreLoading,
+    // balances,
+    // chainId,
+    // onlyShowCurrenciesWithBalance,
+    // selectedCurrency,
+    // otherSelectedCurrency
+  ])
+
+  // const isLoading = Boolean(balancesAreLoading && !tokenLoaderTimerElapsed)
+
+  const filteredSortedTokens = useSortTokensByQuery(debouncedQuery, sortedTokens)
+
+  useEffect(() => {
+    console.log('#', filteredSortedTokens)
+  }, [filteredSortedTokens])
+
   return (
     <Modal
       setVisible={setVisible}
@@ -25,7 +77,7 @@ const Component = ({
         value='123'
         placeholder='Search name or paste address'
       />
-      <CommonCurrencies/>
+      {/* <CommonCurrencies commonCurrenies={defaultTokens}/> */}
       <ListCurrencies/>
     </Modal>
   )
