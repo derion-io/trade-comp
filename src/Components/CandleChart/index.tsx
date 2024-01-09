@@ -60,13 +60,13 @@ const Component = ({
     basePrice,
     setChartTimeFocus
   } = useCurrentPoolGroup()
-  console.log('#candleChartIsLoading', candleChartIsLoading)
+  console.log('#candleChartIsLoading', candleChartIsLoading, chartResolutionIsUpdated)
   const { chainId } = useConfigs()
   const { formartedSwapLogs: swapTxs } = useSwapHistory()
   const timeRangeRef = useRef<any>()
   const [currentChart, setCurrentChart] = useState<string>('')
   const { poolGroups } = useResource()
-
+  const [chartResolution, setChartResolution] = useState<string>('1')
   const pairAddress = poolGroups[id] ? '0x' + (poolGroups[id]?.ORACLE as String).slice(poolGroups[id]?.ORACLE.length - 40, poolGroups[id]?.ORACLE.length) : ''
   const baseToken = poolGroups ? poolGroups[id]?.baseToken : ''
   const quoteToken = poolGroups ? poolGroups[id]?.quoteToken : ''
@@ -101,6 +101,7 @@ const Component = ({
       try {
         tradingviewWidget.onChartReady(() => {
           const resolution = tradingviewWidget.activeChart().resolution()
+          setChartResolution(resolution)
           tradingviewWidget
             .activeChart()
             .setVisibleRange(
@@ -118,6 +119,7 @@ const Component = ({
       try {
         tradingviewWidget.onChartReady(() => {
           const resolution = tradingviewWidget.activeChart().resolution()
+          setChartResolution(resolution)
           const data = timeRangeRef.current.value
           const [from, to] = data.split(',').map(Number)
           tradingviewWidget
@@ -241,32 +243,11 @@ const Component = ({
     from = Math.min(from, to - size * 40)
     return { from, to }
   }
-  const DerivableChart = () => {
+  const DexToolChart = (props: { pairAddress: string | undefined, chartResolution: string }) => {
     return <div>
-      {candleChartIsLoading && (
-        <div className='loading'>
-          <CandleChartLoader />
-        </div>
-      )}
-      <div
-        className={`candle-chart-box ${candleChartIsLoading && 'transparent'}`}
-      >
-        <div
-          ref={chartContainerRef}
-          className='TVChartContainer'
-          style={{
-            width: '100%',
-            height: '100%'
-          }}
-        />
-      </div>
-    </div>
-  }
-  const DexToolChart = () => {
-    return <div>
-      { pairAddress
+      { props.pairAddress
         ? <div
-          className={`candle-chart-box ${candleChartIsLoading && 'transparent'}`}
+          className='candle-chart-box'
         >
           <iframe id='dextools-widget'
             title='DEXTools Trading Chart'
@@ -277,15 +258,37 @@ const Component = ({
               top: '-40px',
               border: 'none'
             }}
-            src={`https://www.dextools.io/widget-chart/en/bnb/pe-light/${pairAddress.toLowerCase()}?theme=dark&tvPlatformColor=1b1d21&tvPaneColor=131722&chartType=1&chartResolution=30&drawingToolbars=false`} />
+            src={`https://www.dextools.io/widget-chart/en/bnb/pe-light/${pairAddress.toLowerCase()}?theme=dark&tvPlatformColor=1b1d21&tvPaneColor=131722&chartType=1&chartResolution=${props.chartResolution || '1'}&drawingToolbars=false`} />
         </div>
         : 'Dextools Loading'}
     </div>
   }
   return (
     <Card className='candle-chart-wrap' >
-      {chartIsOutDate ? <DexToolChart/> : <DerivableChart/> }
-      <input type='text' ref={timeRangeRef} className='hidden' />
+      <div style={chartIsOutDate ? {
+        display: 'none',
+        visibility: 'hidden'
+      } : {}}>
+        {candleChartIsLoading && (
+          <div className='loading'>
+            <CandleChartLoader />
+          </div>
+        )}
+        <input type='text' ref={timeRangeRef} className='hidden' />
+        <div
+          className={`candle-chart-box ${(candleChartIsLoading) && 'transparent'}`}
+        >
+          <div
+            ref={chartContainerRef}
+            className='TVChartContainer'
+            style={{
+              width: '100%',
+              height: '100%'
+            }}
+          />
+        </div>
+      </div>
+      {!chartIsOutDate ? <DexToolChart pairAddress={pairAddress} chartResolution={chartResolution } /> : ''}
     </Card>
   )
 }
