@@ -70,7 +70,7 @@ export const SelectPoolGroup = () => {
         const value = Number(
           getTokenValue(
             address,
-            IEW(balances[address], tokens[address]?.decimal || 18),
+            IEW(balances[address], tokens[address]?.decimals || 18),
             true
           )
         )

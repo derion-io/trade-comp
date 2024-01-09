@@ -157,12 +157,12 @@ export const Positions = ({
       const entryValueU = mul(entryValueR || 1, avgPriceR || 1)
       const valueR = getTokenValue(
         token,
-        IEW(balances[token], tokens[token]?.decimal || 18),
+        IEW(balances[token], tokens[token]?.decimals || 18),
         false
       )
       const valueU = getTokenValue(
         token,
-        IEW(balances[token], tokens[token]?.decimal || 18),
+        IEW(balances[token], tokens[token]?.decimals || 18),
         true
       )
 
@@ -347,7 +347,7 @@ export const Positions = ({
                       {formatWeiToDisplayNumber(
                         position.balance,
                         4,
-                        tokens[position.token].decimal
+                        tokens[position.token].decimals
                       )}
                     </Text>
                   </InfoRow>
@@ -589,7 +589,7 @@ export const Positions = ({
                           : formatWeiToDisplayNumber(
                             position.balance,
                             4,
-                            tokens[position.token].decimal
+                            tokens[position.token].decimals
                           )
                       }
                     />

@@ -25,7 +25,7 @@ import {
   formatFloat,
   getPoolPower,
   isErc1155Address,
-  zerofy,
+  zerofy
 } from '../../utils/helpers'
 import { ApproveUtrModal } from '../ApproveUtrModal'
 import { ButtonSwap } from '../ButtonSwap'
@@ -222,11 +222,11 @@ const Component = ({
       leverage,
       effectiveLeverage,
       dgA,
-      dgB,
+      dgB
     } = calcPoolSide(poolToShow, sideToShow, tokens)
 
     if (sideToShow != POOL_IDS.C && effectiveLeverage < leverage) {
-      const CompText = effectiveLeverage < leverage / 2 ? TextSell: TextWarning
+      const CompText = effectiveLeverage < leverage / 2 ? TextSell : TextWarning
       return [
         'Effective Leverage',
         <CompText>{zerofy(effectiveLeverage)}x</CompText>
@@ -242,7 +242,7 @@ const Component = ({
           leverage,
           effectiveLeverage,
           dgA,
-          dgB,
+          dgB
         }}
         isPhone
       />
@@ -306,7 +306,7 @@ const Component = ({
                 setAmountIn(
                   IEW(
                     balances[inputTokenAddress],
-                    tokens[inputTokenAddress]?.decimal || 18
+                    tokens[inputTokenAddress]?.decimals || 18
                   )
                 )
               }}
@@ -318,7 +318,7 @@ const Component = ({
                   formatFloat(
                     IEW(
                       balances[inputTokenAddress],
-                        tokens[inputTokenAddress]?.decimal ?? 18
+                        tokens[inputTokenAddress]?.decimals ?? 18
                     )
                   )
                 )}

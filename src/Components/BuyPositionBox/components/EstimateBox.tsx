@@ -50,7 +50,7 @@ export const EstimateBox = ({
   const { value: valueOutBefore } = useTokenValue({
     amount: IEW(
       balances[outputTokenAddress],
-      tokens[outputTokenAddress]?.decimal || 18
+      tokens[outputTokenAddress]?.decimals || 18
     ),
     tokenAddress: outputTokenAddress
   })
@@ -109,7 +109,7 @@ export const EstimateBox = ({
                       formatWeiToDisplayNumber(
                         balances[outputTokenAddress] ?? bn(0),
                         4,
-                        tokens[outputTokenAddress]?.decimal || 18
+                        tokens[outputTokenAddress]?.decimals || 18
                       )
                     )))}
                   </div>
@@ -143,7 +143,7 @@ export const EstimateBox = ({
                     {numDec(formatWeiToDisplayNumber(
                       balances[outputTokenAddress] ?? bn(0),
                       4,
-                      tokens[outputTokenAddress]?.decimal || 18
+                      tokens[outputTokenAddress]?.decimals || 18
                     ))}
                   </div>
                 )}
@@ -189,7 +189,7 @@ export const EstimateBox = ({
                         NUM(formatWeiToDisplayNumber(
                           balances[outputTokenAddress] ?? bn(0),
                           4,
-                          tokens[outputTokenAddress]?.decimal || 18
+                          tokens[outputTokenAddress]?.decimals || 18
                         ))
                       ))
                     }
@@ -228,7 +228,7 @@ export const EstimateBox = ({
                     {numDec(formatLocalisedCompactNumber(
                       formatFloat(Number(amountOut) + Number(IEW(
                         balances[outputTokenAddress],
-                            tokens[outputTokenAddress]?.decimal || 18
+                            tokens[outputTokenAddress]?.decimals || 18
                       )))
                     ))}
                   </div>

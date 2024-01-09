@@ -361,7 +361,7 @@ const detectMarkInfo = (
       `
       ${labelContent.text} ${getMarkPosition(token1, tokens) ?? tokens[token1]?.symbol ?? 'unknown'} \n
       ${labelContent.arrow}
-      ${formatWeiToDisplayNumber(amount2, 4, tokens[token2]?.decimal || 18)}\n
+      ${formatWeiToDisplayNumber(amount2, 4, tokens[token2]?.decimals || 18)}\n
       ${getMarkPosition(token2, tokens) ?? tokens[token2]?.symbol ?? 'unknown'} \n`
     ]
   } else {
@@ -370,7 +370,7 @@ const detectMarkInfo = (
     result.text = `
       ${labelContent.text} ${getMarkPosition(token1, tokens) ?? tokens[token1]?.symbol ?? 'unknown'} \n
       ${labelContent.arrow}
-      ${formatWeiToDisplayNumber(amount2, 4, tokens[token2]?.decimal || 18)}\n
+      ${formatWeiToDisplayNumber(amount2, 4, tokens[token2]?.decimals || 18)}\n
       ${getMarkPosition(token2, tokens) ?? tokens[token2]?.symbol ?? 'unknown'} \n`
   }
   result.label = label

@@ -79,7 +79,7 @@ export const useInitConfig = ({
             {
               name: engine.profile.configs.nativeSymbol,
               symbol: engine.profile.configs.nativeSymbol,
-              decimal: 18,
+              decimals: 18,
               address: NATIVE_ADDRESS
             }
           ],

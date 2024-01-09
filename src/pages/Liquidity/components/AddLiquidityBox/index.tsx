@@ -93,7 +93,7 @@ export const AddLiquidityBox = ({
         {
           tokenIn: tokenAdd,
           tokenOut: poolAddress + '-' + POOL_IDS.cp,
-          amountIn: bn(WEI(amountIn, tokens[tokenAdd]?.decimal || 18))
+          amountIn: bn(WEI(amountIn, tokens[tokenAdd]?.decimals || 18))
         }
       ],
       false
@@ -103,7 +103,7 @@ export const AddLiquidityBox = ({
         setAmountOut(
           IEW(
             aOuts[0]?.amountOut || 0,
-            tokens[poolAddress + '-' + POOL_IDS.cp].decimal || 18
+            tokens[poolAddress + '-' + POOL_IDS.cp].decimals || 18
           )
         )
         // @ts-ignore
@@ -155,7 +155,7 @@ export const AddLiquidityBox = ({
       )
     } else if (
       !balances[tokenAdd] ||
-      balances[tokenAdd].lt(WEI(amountIn || 0, tokens[tokenAdd]?.decimal || 18))
+      balances[tokenAdd].lt(WEI(amountIn || 0, tokens[tokenAdd]?.decimals || 18))
     ) {
       return (
         <ButtonExecute className='add-liquidity__action' disabled>
@@ -166,7 +166,7 @@ export const AddLiquidityBox = ({
     } else if (
       !routerAllowances[address] ||
       routerAllowances[address].lt(
-        WEI(amountIn || 0, tokens[tokenAdd]?.decimal || 18)
+        WEI(amountIn || 0, tokens[tokenAdd]?.decimals || 18)
       )
     ) {
       return (
@@ -199,10 +199,10 @@ export const AddLiquidityBox = ({
                 {
                   tokenIn: tokenAdd,
                   tokenOut: cpAddress,
-                  amountIn: bn(WEI(amountIn, tokens[tokenAdd]?.decimal || 18)),
+                  amountIn: bn(WEI(amountIn, tokens[tokenAdd]?.decimals || 18)),
                   amountOutMin: 0
                 }
-              ],
+              ]
             )
             setAmountIn('')
             setAmountIn('')
@@ -249,7 +249,7 @@ export const AddLiquidityBox = ({
               onClick={() => {
                 const balance = IEW(
                   balances[tokenAdd],
-                  tokens[tokenAdd]?.decimal || 18
+                  tokens[tokenAdd]?.decimals || 18
                 )
                 if (balance === amountIn) {
                   setAmountIn('')
@@ -263,7 +263,7 @@ export const AddLiquidityBox = ({
                 ? formatWeiToDisplayNumber(
                   balances[tokenAdd],
                   4,
-                    tokens[tokenAdd]?.decimal || 18
+                    tokens[tokenAdd]?.decimals || 18
                 )
                 : 0}
             </Text>
@@ -308,7 +308,7 @@ export const AddLiquidityBox = ({
                 formatFloat(
                   IEW(
                     balances?.[poolAddress + '-' + POOL_IDS.cp] ?? 0,
-                    tokens[poolAddress + '-' + POOL_IDS.cp]?.decimal ?? 18
+                    tokens[poolAddress + '-' + POOL_IDS.cp]?.decimals ?? 18
                   )
                 )
               )}

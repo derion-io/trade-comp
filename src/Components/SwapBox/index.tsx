@@ -198,7 +198,7 @@ const Component = ({
                   setAmountIn(
                     IEW(
                       balances[inputTokenAddress],
-                      tokens[inputTokenAddress]?.decimal || 18
+                      tokens[inputTokenAddress]?.decimals || 18
                     )
                   )
                 }}
@@ -208,7 +208,7 @@ const Component = ({
                   formatFloat(
                     IEW(
                       balances?.[inputTokenAddress] ?? 0,
-                      tokens[inputTokenAddress]?.decimal ?? 18
+                      tokens[inputTokenAddress]?.decimals ?? 18
                     )
                   )
                 )}
@@ -270,7 +270,7 @@ const Component = ({
                 formatFloat(
                   IEW(
                     balances?.[outputTokenAddress] ?? 0,
-                    tokens[outputTokenAddress]?.decimal ?? 18
+                    tokens[outputTokenAddress]?.decimals ?? 18
                   )
                 )
               )}

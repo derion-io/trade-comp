@@ -600,8 +600,8 @@ export const calcPoolSide = (
   const effectiveLeverage = Math.min(ek, k) / exp
 
   const decimalsOffset = Math.floor((
-    (tokens[baseToken]?.decimal ?? 18) -
-    (tokens[quoteToken]?.decimal ?? 18)
+    (tokens[baseToken]?.decimals ?? 18) -
+    (tokens[quoteToken]?.decimals ?? 18)
   ) / exp)
 
   const mark = !MARK ? 1 : NUM(DIV(

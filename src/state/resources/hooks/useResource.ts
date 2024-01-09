@@ -33,7 +33,7 @@ export const useResource = () => {
     if (ddlEngine && configs.name) {
       const { searchParams } = new URL(`https://1.com?${location.href.split('?')[1]}`)
       const playMode = searchParams.has('play')
-      ddlEngine.RESOURCE.getWhiteListResource().then((data) => {
+      ddlEngine.RESOURCE.getWhiteListResource([]).then((data) => {
         console.log('#getWhiteListResource', data)
         if (data?.tokens?.length === 0) return
         addNewResource(data, account)
@@ -73,15 +73,15 @@ export const useResource = () => {
             const pool = poolGroup.pools[poolAddress]
             poolGroupValue += NUM(getTokenValue(
                   pool?.TOKEN_R,
-                  IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimal),
+                  IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimals),
                   true
             ))
-            poolGroupValueR += NUM(IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimal))
+            poolGroupValueR += NUM(IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimals))
           }
         } else {
           for (const poolAddress of Object.keys(poolGroup.pools)) {
             const pool = poolGroup.pools[poolAddress]
-            poolGroupValueR += NUM(IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimal))
+            poolGroupValueR += NUM(IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimals))
             if (balances[poolAddress + '-' + POOL_IDS.A]) {
               results.push(poolAddress + '-' + POOL_IDS.A)
             }
@@ -92,7 +92,7 @@ export const useResource = () => {
               results.unshift(poolAddress + '-' + POOL_IDS.C)
               poolGroupValue += NUM(getTokenValue(
                 pool?.TOKEN_R,
-                IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimal),
+                IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimals),
                 true
               ))
             }
@@ -102,7 +102,7 @@ export const useResource = () => {
           const value = Number(
             getTokenValue(
               address,
-              IEW(balances[address], tokens[address]?.decimal || 18),
+              IEW(balances[address], tokens[address]?.decimals || 18),
               true
             )
           )
@@ -141,10 +141,10 @@ export const useResource = () => {
       let poolPositionsValue = 0
       const poolValue = NUM(getTokenValue(
         pool?.TOKEN_R,
-        IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimal),
+        IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimals),
         true
       ))
-      const poolValueR = NUM(IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimal))
+      const poolValueR = NUM(IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimals))
       if (balances[poolAddress + '-' + POOL_IDS.A]) {
         results.push(poolAddress + '-' + POOL_IDS.A)
       }
@@ -158,7 +158,7 @@ export const useResource = () => {
         const value = Number(
           getTokenValue(
             address,
-            IEW(balances[address], tokens[address]?.decimal || 18),
+            IEW(balances[address], tokens[address]?.decimals || 18),
             true
           )
         )

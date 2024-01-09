@@ -90,7 +90,7 @@ const Option = ({
   const { balances } = useWalletBalance()
   const { value } = useTokenValue({
     tokenAddress: address,
-    amount: IEW(balances[address], tokens[address]?.decimal || 18)
+    amount: IEW(balances[address], tokens[address]?.decimals || 18)
   })
 
   if (NUM(value) < MIN_POSITON_VALUE_USD_TO_DISPLAY) {
@@ -139,7 +139,7 @@ const Option = ({
         <div className='option__balance'>
           <Text>
             {zerofy(
-              NUM(IEW(balances[address], tokens[address]?.decimal ?? 18))
+              NUM(IEW(balances[address], tokens[address]?.decimals ?? 18))
             )}
           </Text>
           <TextGrey>${zerofy(NUM(value))}</TextGrey>

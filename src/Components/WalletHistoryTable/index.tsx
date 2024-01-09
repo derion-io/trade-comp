@@ -131,7 +131,7 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
                       {formatWeiToDisplayNumber(
                         swapTx.amountIn,
                         4,
-                        tokens[swapTx.tokenIn]?.decimal || 18
+                        tokens[swapTx.tokenIn]?.decimals || 18
                       )}
                     </Text>
                   </td>
@@ -147,7 +147,7 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
                       {formatWeiToDisplayNumber(
                         swapTx.amountOut,
                         4,
-                        tokens[swapTx.tokenOut]?.decimal || 18
+                        tokens[swapTx.tokenOut]?.decimals || 18
                       )}
                     </Text>
                   </td>

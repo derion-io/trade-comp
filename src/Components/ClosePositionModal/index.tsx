@@ -95,7 +95,7 @@ const Component = ({
   const balance: string = useMemo(() => {
     return IEW(
       balances[inputTokenAddress] ?? 0,
-      tokens[inputTokenAddress]?.decimal ?? 18
+      tokens[inputTokenAddress]?.decimals ?? 18
     )
   }, [tokens, balances, inputTokenAddress])
 
@@ -192,7 +192,7 @@ const Component = ({
                     setExternalTrigger(true)
                     const balance = IEW(
                       balances[inputTokenAddress],
-                      tokens[inputTokenAddress]?.decimal || 18
+                      tokens[inputTokenAddress]?.decimals || 18
                     )
                     setAmountIn(balance)
                   }}
@@ -202,7 +202,7 @@ const Component = ({
                     formatFloat(
                       IEW(
                         balances?.[inputTokenAddress] ?? 0,
-                        tokens[inputTokenAddress]?.decimal ?? 18
+                        tokens[inputTokenAddress]?.decimals ?? 18
                       )
                     )
                   )}
@@ -260,13 +260,13 @@ const Component = ({
                         if (percentage === 100) {
                           const balance = IEW(
                             balances[inputTokenAddress],
-                          tokens[inputTokenAddress]?.decimal || 18
+                          tokens[inputTokenAddress]?.decimals || 18
                           )
                           setAmountIn(balance)
                         } else {
                           const balance = Number(IEW(
                             balances[inputTokenAddress],
-                          tokens[inputTokenAddress]?.decimal || 18
+                          tokens[inputTokenAddress]?.decimals || 18
                           )) * percentage / 100
                           setAmountIn(String(balance))
                         }
@@ -367,7 +367,7 @@ const Component = ({
                   formatFloat(
                     IEW(
                       balances?.[outputTokenAddress] ?? 0,
-                      tokens[outputTokenAddress]?.decimal ?? 18
+                      tokens[outputTokenAddress]?.decimals ?? 18
                     )
                   )
                 )}
@@ -396,7 +396,7 @@ const Component = ({
           payoffRate={payoffRate}
           isMaxBalance={amountIn === IEW(
             balances[inputTokenAddress],
-            tokens[inputTokenAddress]?.decimal || 18
+            tokens[inputTokenAddress]?.decimals || 18
           )}
           loading={loading}
           amountIn={amountIn}

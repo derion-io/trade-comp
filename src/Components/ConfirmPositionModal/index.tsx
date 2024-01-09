@@ -166,8 +166,8 @@ const Component = ({
         }
 
         const decimalsOffset =
-          (tokens?.[baseToken]?.decimal ?? 18) -
-          (tokens?.[quoteToken]?.decimal ?? 18)
+          (tokens?.[baseToken]?.decimals ?? 18) -
+          (tokens?.[quoteToken]?.decimals ?? 18)
         const mark = MARK
           ? MARK.mul(MARK)
             .mul(bn(10).pow(decimalsOffset + 12))

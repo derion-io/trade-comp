@@ -155,7 +155,7 @@ export const ButtonSwap = ({
     } else if (
       !balances[inputTokenAddress] ||
       balances[inputTokenAddress].lt(
-        WEI(amountIn, tokens[inputTokenAddress]?.decimal || 18)
+        WEI(amountIn, tokens[inputTokenAddress]?.decimals || 18)
       )
     ) {
       return (
@@ -167,7 +167,7 @@ export const ButtonSwap = ({
     } else if (
       !isErc1155Address(inputTokenAddress) &&
       routerAllowances[inputTokenAddress].lt(
-        WEI(amountIn, tokens[inputTokenAddress]?.decimal || 18)
+        WEI(amountIn, tokens[inputTokenAddress]?.decimals || 18)
       )
     ) {
       return (
@@ -201,7 +201,7 @@ export const ButtonSwap = ({
               if (ddlEngine) {
                 const amountOutMin = WEI(
                   mul(amountOut, 1 - settings.slippageTolerance),
-                tokens[outputTokenAddress]?.decimal || 18
+                tokens[outputTokenAddress]?.decimals || 18
                 )
                 let pendingTxHash: string = ''
                 const tx: any = await ddlEngine.SWAP.multiSwap(
@@ -211,7 +211,7 @@ export const ButtonSwap = ({
                         tokenIn: inputTokenAddress,
                         tokenOut: outputTokenAddress,
                         amountIn: bn(
-                          WEI(amountIn, tokens[inputTokenAddress]?.decimal || 18)
+                          WEI(amountIn, tokens[inputTokenAddress]?.decimals || 18)
                         ),
                         amountOutMin,
                         payloadAmountIn,

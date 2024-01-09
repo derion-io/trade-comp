@@ -92,7 +92,7 @@ export const useCalculateSwap = ({
       Number(amountIn) &&
       (isErc1155Address(inputTokenAddress) ||
         routerAllowances[inputTokenAddress]?.gt(
-          WEI(amountIn, tokens[inputTokenAddress]?.decimal || 18)
+          WEI(amountIn, tokens[inputTokenAddress]?.decimals || 18)
         ))
     ) {
       if (!amountOut) {
@@ -123,7 +123,7 @@ export const useCalculateSwap = ({
       Number(amountIn) &&
       (isErc1155Address(inputTokenAddress) ||
         routerAllowances[inputTokenAddress]?.gt(
-          WEI(amountIn, tokens[inputTokenAddress]?.decimal || 18)
+          WEI(amountIn, tokens[inputTokenAddress]?.decimals || 18)
         ))
     ) {
       calcAmountOut()
@@ -137,7 +137,7 @@ export const useCalculateSwap = ({
     try {
       const inputAmount = WEI(
         amountIn,
-        tokens[inputTokenAddress]?.decimal ?? 18
+        tokens[inputTokenAddress]?.decimals ?? 18
       )
       let _payloadAmountIn = bn(inputAmount)
       if (i > 0) {
@@ -162,7 +162,7 @@ export const useCalculateSwap = ({
             tokenOut: outputTokenAddress,
             amountOutMin: 0,
             amountIn: BIG(
-              WEI(amountIn, tokens[inputTokenAddress]?.decimal || 18)
+              WEI(amountIn, tokens[inputTokenAddress]?.decimals || 18)
             ),
             payloadAmountIn: _payloadAmountIn,
             useSweep: !!(
@@ -182,7 +182,7 @@ export const useCalculateSwap = ({
       setAmountOutWei(aOuts[0]?.amountOut || bn(0))
       setPayloadAmountIn(_payloadAmountIn)
       setAmountOut(
-        IEW(aOuts[0]?.amountOut || 0, tokens[outputTokenAddress].decimal || 18)
+        IEW(aOuts[0]?.amountOut || 0, tokens[outputTokenAddress].decimals || 18)
       )
       // @ts-ignore
       setTxFee(detectTxFee(gasLeft))
