@@ -675,6 +675,18 @@ export function getTwitterIntentURL(text: string, url = '', hashtag = '') {
   return finalURL
 }
 
+export const detectTradeTab = (path: string) => {
+  if (path.includes('long')) {
+    return TRADE_TYPE.LONG
+  } else if (path.includes('short')) {
+    return TRADE_TYPE.SHORT
+  } else if (path.includes('liquidity')) {
+    return TRADE_TYPE.LIQUIDITY
+  } else if (path.includes('swap')) {
+    return TRADE_TYPE.SWAP
+  }
+  return TRADE_TYPE.LONG
+}
 export function poolToIndexID(pool: PoolType) {
   const pair = oracleToPoolGroupId(pool?.ORACLE)
   const quoteTokenIndex = bn(pool?.ORACLE.slice(0, 3)).gt(0) ? 1 : 0

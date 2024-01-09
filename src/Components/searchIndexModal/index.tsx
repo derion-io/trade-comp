@@ -1,31 +1,30 @@
 import { Currency } from '@uniswap/sdk-core'
 import 'rc-slider/assets/index.css'
-import React, { ChangeEvent, Fragment, KeyboardEvent, RefObject, useCallback, useMemo, useRef, useState } from 'react'
+import React, { ChangeEvent, Fragment, KeyboardEvent, RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import isEqual from 'react-fast-compare'
-import { getTokenFilter } from '../../utils/filtering'
-import { Modal } from '../ui/Modal'
-import { ListCurrencies } from './components/listCurrencies'
 import { useConfigs } from '../../state/config/useConfigs'
 import { useHelper } from '../../state/config/useHelper'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 import { useWeb3React } from '../../state/customWeb3React/hook'
 import { useResource } from '../../state/resources/hooks/useResource'
-import { bn, oracleToPoolGroupId, poolToIndexID } from '../../utils/helpers'
-import { TokenFromPoolGroup } from '../../utils/type'
+import { getTokenFilter } from '../../utils/filtering'
+import { poolToIndexID } from '../../utils/helpers'
+import { PoolSearch } from '../../utils/type'
 import { Input } from '../ui/Input'
+import { Modal } from '../ui/Modal'
+import { ListCurrencies } from './components/listCurrencies'
 import './style.scss'
-import { PoolType } from '../../state/resources/type'
 const Component = ({
   visible,
   setVisible,
   onDismiss,
-  onCurrencySelect
+  onPoolSelect
 }: {
   visible: boolean
   setVisible: any,
   onDismiss: () => void
   selectedCurrency?: Currency | null
-  onCurrencySelect: (currency: TokenFromPoolGroup, hasWarning?: boolean) => void
+  onPoolSelect: (pool: PoolSearch, hasWarning?: boolean) => void
 }) => {
   if (!visible) return <Fragment/>
   const [searchQuery, setSearchQuery] = useState<string>('')
@@ -33,11 +32,12 @@ const Component = ({
   const { account } = useWeb3React()
   const { getTokenIconUrl } = useHelper()
   const { updateCurrentPoolGroup } = useCurrentPoolGroup()
-  const { poolGroups, addNewResource } = useResource()
-  const [whiteListFilterPools, setWhiteListFilterPools] = useState<TokenFromPoolGroup[]>([])
+  const { poolGroups, addNewResource, useCalculatePoolGroupsValue } = useResource()
+  const { poolGroupsValue } = useCalculatePoolGroupsValue()
+  const [poolsFilterSearch, setPoolsFilterSearch] = useState<PoolSearch[]>([])
   const [isLoadingSearch, setIsLoadingSearch] = useState<boolean>(false)
   useMemo(async () => {
-    setWhiteListFilterPools(
+    setPoolsFilterSearch(
       (await Promise.all(Object.keys(poolGroups).map(async (key) => {
         const isOracleZero = poolGroups[key]?.ORACLE?.[2] === '0'
         const baseTokenIndex = isOracleZero ? 1 : 0
@@ -53,12 +53,12 @@ const Component = ({
         const baseToken = await getTokenInfo(baseTokenIndex)
         const quoteToken = await getTokenInfo(quoteTokenIndex)
 
-        const poolGroup = Object.keys(poolGroups[key].pools).map(poolKey => poolGroups[key]?.pools?.[poolKey])
+        const pools = Object.keys(poolGroups[key].pools).map(poolKey => poolGroups[key]?.pools?.[poolKey])
 
         return {
           baseToken,
           quoteToken,
-          poolGroup
+          pools
         }
       }))).filter(getTokenFilter(searchQuery))
     )
@@ -72,27 +72,26 @@ const Component = ({
   }, [])
 
   const handlePoolSelect = useCallback(
-    (searchPool: TokenFromPoolGroup, hasWarning?: boolean) => {
-      console.log('#searchPool', searchPool)
-      onCurrencySelect(searchPool, hasWarning)
-      const pool = searchPool.poolGroup?.[0]
-      const poolAddresses = searchPool.poolGroup.map(pool => pool?.[10])
+    (searchPool: PoolSearch, hasWarning?: boolean) => {
+      onPoolSelect(searchPool, hasWarning)
+      const pool = searchPool.pools?.[0]
+      const poolAddresses = searchPool.pools.map(pool => pool?.[10])
       const indexID = poolToIndexID(pool)
       if (!indexID) return
       updateCurrentPoolGroup(indexID, poolAddresses)
       setVisible(false)
       if (!hasWarning) onDismiss()
     },
-    [onDismiss, onCurrencySelect]
+    [onDismiss, onPoolSelect]
   )
 
   const handleEnter = async (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key !== 'Enter') return
     setIsLoadingSearch(true)
-    const poolsSearch = await ddlEngine?.RESOURCE.searchIndex(searchQuery.toUpperCase())
+    const searchResults = await ddlEngine?.RESOURCE.searchIndex(searchQuery.toUpperCase())
     let poolAddresses:string[] = []
-    const tokenFromPoolGroup = (await Promise.all(Object.keys(poolsSearch).map(async (key) => {
-      const poolSearch = poolsSearch[key]
+    const poolsSearch = (await Promise.all(Object.keys(searchResults).map(async (key) => {
+      const poolSearch = searchResults[key]
       const isOracleZero = poolSearch?.pools?.[0]?.ORACLE?.[2] === '0'
       const baseTokenIndex = isOracleZero ? 1 : 0
       const quoteTokenIndex = isOracleZero ? 0 : 1
@@ -105,20 +104,19 @@ const Component = ({
       poolAddresses = [...poolAddresses, ...poolSearch.pools.map((pool:any[]) => pool?.[10])]
       const baseToken = await getTokenInfo(baseTokenIndex)
       const quoteToken = await getTokenInfo(quoteTokenIndex)
-      const poolGroup = poolSearch.pools
+      const pools = poolSearch.pools
       return {
         baseToken,
         quoteToken,
-        poolGroup
+        pools
       }
     }))).filter(getTokenFilter(searchQuery))
-    setWhiteListFilterPools(tokenFromPoolGroup)
+    setPoolsFilterSearch(poolsSearch)
     // eslint-disable-next-line no-unused-expressions
     ddlEngine?.RESOURCE.generateData({ poolAddresses, transferLogs: [] }).then(data => {
       const poolAddressTimestampMap = {}
-
-      tokenFromPoolGroup.forEach(({ poolGroup }) => {
-        poolGroup.forEach((pool:any) => {
+      poolsSearch.forEach(({ pools }) => {
+        pools.forEach((pool:any) => {
           poolAddressTimestampMap[pool?.poolAddress] = pool?.timeStamp
         })
       })
@@ -158,7 +156,7 @@ const Component = ({
         placeholder='Search name or paste address'/>
 
       {/* <CommonCurrencies/> */}
-      <ListCurrencies handlePoolSelect={handlePoolSelect} whiteListFilterPools={whiteListFilterPools} isLoading={isLoadingSearch} />
+      <ListCurrencies handlePoolSelect={handlePoolSelect} poolGroupsValue={poolGroupsValue} poolsFilterSearch={poolsFilterSearch} isLoading={isLoadingSearch} />
 
     </Modal>
   )

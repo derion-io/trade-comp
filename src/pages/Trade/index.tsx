@@ -121,7 +121,10 @@ export const Trade = ({
       <div className='exposure-page__content'>
         {/* @ts-ignore */}
         <ErrorBoundary>
-          <Chart changedIn24h={changedIn24h} />
+          <Chart inputTokenAddress={inputTokenAddress}
+            setInputTokenAddress={setInputTokenAddress}
+            outputTokenAddress={outputTokenAddress}
+            setOutputTokenAddress={setOutputTokenAddress} changedIn24h={changedIn24h} />
         </ErrorBoundary>
         <Tabs
           className='exposure-page__content--position-and-history'

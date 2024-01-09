@@ -1,27 +1,36 @@
 import React, { useEffect, useState } from 'react'
-import { useConfigs } from '../../state/config/useConfigs'
-import { CandleChart } from '../CandleChart'
-import { LineChart } from '../LineChart'
-import { Tabs } from '../ui/Tabs'
-import { Text, TextBuy, TextSell } from '../ui/Text'
-import './style.scss'
 import isEqual from 'react-fast-compare'
 import { useNativePrice } from '../../hooks/useTokenPrice'
+import { useConfigs } from '../../state/config/useConfigs'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 import { CHART_TABS } from '../../state/currentPool/type'
-import { formatFloat, zerofy } from '../../utils/helpers'
+import { useResource } from '../../state/resources/hooks/useResource'
+import { useListTokens } from '../../state/token/hook'
+import { detectTradeTab, formatFloat, unwrap, zerofy } from '../../utils/helpers'
+import { CandleChart } from '../CandleChart'
 import { FunctionPlot } from '../FuncPlot'
-import { SelectPoolGroup } from '../SelectPoolGroup'
+import { LineChart } from '../LineChart'
 import { SearchIndexModal } from '../searchIndexModal'
 import { ButtonBorder } from '../ui/Button'
-import { useResource } from '../../state/resources/hooks/useResource'
 import { Card } from '../ui/Card'
-const Component = ({ changedIn24h }: { changedIn24h: number }) => {
-  const { chainId, configs } = useConfigs()
+import { Tabs } from '../ui/Tabs'
+import { Text, TextBuy, TextSell } from '../ui/Text'
+import './style.scss'
+import { PoolType } from '../../state/resources/type'
+import { POOL_IDS, TRADE_TYPE } from '../../utils/constant'
+import { PoolSearch } from '../../utils/type'
+const Component = ({ changedIn24h, inputTokenAddress, outputTokenAddress, setInputTokenAddress, setOutputTokenAddress }: {
+  changedIn24h: number,
+  inputTokenAddress: string
+  outputTokenAddress: string
+  setInputTokenAddress: (address:string) => void
+  setOutputTokenAddress: (address:string) => void }) => {
+  const { chainId, configs, location } = useConfigs()
   const { chartTab, setChartTab, basePrice, id, chartIsOutDate } = useCurrentPoolGroup()
   const { data: nativePrice } = useNativePrice()
   const { currentPool, priceByIndexR } = useCurrentPool()
+  const { tokens } = useListTokens()
   const [onSearchCurrenies, setOnSearchCurrenies] = useState<boolean>(false)
   const { poolGroups } = useResource()
   const [isUseDextool, setUseDexTool] = useState<boolean>(false)
@@ -40,10 +49,23 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
         <div className='chart__head--left'>
 
           <SearchIndexModal visible={onSearchCurrenies} setVisible={() => { setOnSearchCurrenies(!onSearchCurrenies) }} onDismiss={() => {
-          }} onCurrencySelect={(currency: any, hasWarning?: boolean | undefined) => {
+          }} onPoolSelect={(pool: PoolSearch, hasWarning?: boolean | undefined) => {
+            const { poolAddress } = pool.pools?.[0]
+            const tab = detectTradeTab(location.pathname)
+            if (pool && poolAddress) {
+              if (tab === TRADE_TYPE.LONG) {
+                setOutputTokenAddress(poolAddress + '-' + POOL_IDS.A)
+              } else if (tab === TRADE_TYPE.SHORT) {
+                setOutputTokenAddress(poolAddress + '-' + POOL_IDS.B)
+              } else if (tab === TRADE_TYPE.LIQUIDITY) {
+                setOutputTokenAddress(poolAddress + '-' + POOL_IDS.C)
+              }
+            }
           }}/>
           <ButtonBorder onClick={() => { setOnSearchCurrenies(true) }} >
-            <SelectPoolGroup />
+            {unwrap(tokens[poolGroups?.[id]?.baseToken]?.symbol)}/
+            {unwrap(tokens[poolGroups?.[id]?.quoteToken]?.symbol)}
+            {/* <SelectPoolGroup /> */}
           </ButtonBorder>
           {!!id && basePrice && (
             <span>

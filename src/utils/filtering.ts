@@ -1,10 +1,10 @@
 import { isAddress } from '../state/lists/utils/isAddress'
-import { TokenFromPoolGroup } from './type'
+import { PoolSearch } from './type'
 
 const alwaysTrue = () => true
 
 /** Creates a filter function that filters tokens that do not match the query. */
-export function getTokenFilter<T extends TokenFromPoolGroup >(query: string): (token: T) => boolean {
+export function getTokenFilter<T extends PoolSearch >(query: string): (token: T) => boolean {
   const searchingAddress = isAddress(query)
 
   if (searchingAddress) {

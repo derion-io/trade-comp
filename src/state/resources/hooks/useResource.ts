@@ -35,20 +35,17 @@ export const useResource = () => {
       const playMode = searchParams.has('play')
       ddlEngine.RESOURCE.getWhiteListResource().then((data: any) => {
         if (data?.tokens?.length === 0) return
-        console.log('#getWhiteListResource', data)
         addNewResource(data, account)
         updateSwapTxsHandle(account, data.swapLogs, data.transferLogs)
       })
 
       ddlEngine.RESOURCE.getResourceCached(account, playMode).then((data: any) => {
         if (data?.tokens?.length === 0) return
-        console.log('#getResourceCached', data)
         addNewResource(data, account)
         // updateSwapTxsHandle(account, data.swapLogs, data.transferLogs)
       })
       ddlEngine.RESOURCE.getNewResource(account, playMode).then((data: any) => {
         if (data?.tokens?.length === 0) return
-        console.log('#getNewResource', data)
         addNewResource(data, account)
         // updateSwapTxsHandle(account, data.swapLogs, data.transferLogs)
       })
@@ -112,7 +109,6 @@ export const useResource = () => {
           poolGroupPositions
         }
       })
-      console.log('#poolGroupsValue', poolGroupsValue)
       return { poolGroupsValue }
     }, [poolGroups, tokens, balances])
   }

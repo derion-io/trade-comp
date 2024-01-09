@@ -2,35 +2,39 @@ import moment from 'moment'
 import React from 'react'
 import { PoolGroupValueType, PoolType } from '../../../state/resources/type'
 import formatLocalisedCompactNumber from '../../../utils/formatBalance'
-import { IEW, NUM, formatFloat, unwrap, zerofy } from '../../../utils/helpers'
-import { TokenFromPoolGroup } from '../../../utils/type'
+import { IEW, NUM, bn, formatFloat, poolToIndexID, unwrap, zerofy } from '../../../utils/helpers'
+import { PoolSearch } from '../../../utils/type'
 import { CurrencyGroupLogo } from '../../ui/CurrencyGroupLogo'
 import { SkeletonLoader } from '../../ui/SkeletonLoader'
 import { Text, TextGrey } from '../../ui/Text'
 import './index.scss'
 import { useTokenValue } from '../../SwapBox/hooks/useTokenValue'
 import { useListTokens } from '../../../state/token/hook'
+import { MIN_POSITON_VALUE_USD_TO_DISPLAY } from '../../../utils/constant'
+import { useWalletBalance } from '../../../state/wallet/hooks/useBalances'
+import { TokenIcon } from '../../ui/TokenIcon'
 type Props = {
-  whiteListFilterPools: TokenFromPoolGroup[],
+  poolsFilterSearch: PoolSearch[],
   poolGroupsValue?: PoolGroupValueType
-  handlePoolSelect: (pool: TokenFromPoolGroup, hasWarning?: boolean) => void
+  handlePoolSelect: (pool: PoolSearch, hasWarning?: boolean) => void
   isLoading: boolean
 }
-export const ListCurrencies = ({ whiteListFilterPools, isLoading = false, handlePoolSelect }: Props) => {
+export const ListCurrencies = ({ poolsFilterSearch, poolGroupsValue, isLoading = false, handlePoolSelect }: Props) => {
   const { getTokenValue } = useTokenValue({})
   const { tokens } = useListTokens()
+  const { balances } = useWalletBalance()
   return (
     <div className='token-list'>
       <table className='token-list-table' style={{
       }}>
-        {whiteListFilterPools.length > 0 && (
+        {poolsFilterSearch.length > 0 && (
           <tr className='table-head'>
             <th />
             <th />
           </tr>
         )}
-        {whiteListFilterPools.map((index, _) => {
-          return index.poolGroup.map((pool, __) => {
+        {poolsFilterSearch.map((index, _) => {
+          return index.pools.map((pool, __) => {
             const poolValue = NUM(getTokenValue(
               pool?.TOKEN_R,
               IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimals),
@@ -44,7 +48,7 @@ export const ListCurrencies = ({ whiteListFilterPools, isLoading = false, handle
                 onClick={() => handlePoolSelect({
                   baseToken: index.baseToken,
                   quoteToken: index.baseToken,
-                  poolGroup: [pool]
+                  pools: [pool]
                 })}
               >
                 <td className='token-item'>
@@ -73,7 +77,15 @@ export const ListCurrencies = ({ whiteListFilterPools, isLoading = false, handle
                     ? <TextGrey>{`$${formatLocalisedCompactNumber(formatFloat(poolValue))}` }</TextGrey>
                     : <SkeletonLoader textLoading='   ' loading/>}
                 </td>
-
+                {/* {poolGroupsValue ? poolGroupsValue?.[poolToIndexID(pool)]?.poolGroupPositions.map((playingToken:any) => {
+                  const { address, value } = playingToken
+                  if (value < MIN_POSITON_VALUE_USD_TO_DISPLAY) return null
+                  if (balances[address] && bn(balances[address]).gt(0)) {
+                    return <TokenIcon key={address} size={20} tokenAddress={address} />
+                  } else {
+                    return null
+                  }
+                }) : ''} */}
               </tr>
             )
           })

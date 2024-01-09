@@ -15,6 +15,7 @@ import { TRADE_TYPE } from '../../utils/constant'
 import { ErrorBoundary } from '../ErrorBoundary'
 import { PageLoadingIndicator } from '../PageLoadingIndicator'
 import './style.scss'
+import { detectTradeTab } from '../../utils/helpers'
 
 export const App = () => {
   const { id } = useCurrentPoolGroup()
@@ -71,19 +72,6 @@ export const App = () => {
   //   }
   //   return LIQUIDITY_TAB.REMOVE
   // }
-
-  const detectTradeTab = (path: string) => {
-    if (path.includes('long')) {
-      return TRADE_TYPE.LONG
-    } else if (path.includes('short')) {
-      return TRADE_TYPE.SHORT
-    } else if (path.includes('liquidity')) {
-      return TRADE_TYPE.LIQUIDITY
-    } else if (path.includes('swap')) {
-      return TRADE_TYPE.SWAP
-    }
-    return TRADE_TYPE.LONG
-  }
 
   // const isMatchWithPath = (path: string) => {
   //   return !!matchPath(location.pathname, {
