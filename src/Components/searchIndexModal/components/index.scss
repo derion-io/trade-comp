@@ -9,7 +9,13 @@
     align-items: center;
   }
 .position-token-list{
+    border: none;
+    margin-left: 0;
+    margin-right: 0;
     margin-top: 1rem;
+}
+.index-value-item{
+    text-align: right;
 }
 .position-token-list:hover{
     cursor: pointer;

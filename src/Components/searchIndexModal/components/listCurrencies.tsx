@@ -6,24 +6,33 @@ import { TokenFromList } from '../../../state/lists/tokenFromList'
 import { Text, TextGrey } from '../../ui/Text'
 import { SkeletonLoader } from '../../ui/SkeletonLoader'
 import { TokenFromPoolGroup } from '../../../utils/type'
+import { useResource } from '../../../state/resources/hooks/useResource'
+import { formatFloat, oracleToPoolGroupId } from '../../../utils/helpers'
+import formatLocalisedCompactNumber from '../../../utils/formatBalance'
+import { PoolGroupValueType } from '../../../state/resources/type'
 type Props = {
-  currencies: TokenFromPoolGroup[],
+  whiteListFilterPools: TokenFromPoolGroup[],
+  poolGroupsValue: PoolGroupValueType
   handleCurrencySelect: (currency: TokenFromPoolGroup, hasWarning?: boolean) => void
   isLoading: boolean
 }
-export const ListCurrencies = ({ currencies, isLoading = false, handleCurrencySelect }: Props) => {
+export const ListCurrencies = ({ whiteListFilterPools, poolGroupsValue, isLoading = false, handleCurrencySelect }: Props) => {
   return (
     <div className='token-list'>
-      <table className='token-list-table'>
-        {currencies.length > 0 && (
+      <table className='token-list-table' style={{
+        borderSpacing: 0
+      }}>
+        {whiteListFilterPools.length > 0 && (
           <thead className='table-head'>
-            <tr />
+            <th />
+            <th />
           </thead>
         )}
-        <tbody className='token-list-tbody'>
-          {currencies.map((token, _) => {
+        <tbody className='token-list-tbody' >
+          {whiteListFilterPools.map((token, _) => {
+            const indexKey = oracleToPoolGroupId(token.poolGroup?.[0]?.ORACLE || '')
             return (
-              <div
+              <tr
                 key={_}
                 className='position-token-list'
                 onClick={() => handleCurrencySelect(token)}
@@ -41,9 +50,21 @@ export const ListCurrencies = ({ currencies, isLoading = false, handleCurrencySe
                   </span>
                   <span className='inline-items-center' />
                 </td>
-                {/* <td>$1123</td>
-                <td>$123</td> */}
-              </div>
+                {poolGroupsValue[indexKey]?.poolGroupValue > 0
+                  ? <td className='index-value-item'>
+
+                    <TextGrey>
+                      {`${
+                        poolGroupsValue[indexKey]?.poolGroupValue !== 0
+                          ? `($${formatLocalisedCompactNumber(
+                              formatFloat(poolGroupsValue[indexKey]?.poolGroupValue, 2)
+                            )})`
+                          : ''
+                      }`}
+                    </TextGrey>
+                  </td>
+                  : <td><SkeletonLoader textLoading='---' loading/></td>}
+              </tr>
             )
           })}
         </tbody>

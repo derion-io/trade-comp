@@ -7,7 +7,7 @@ import { useSwapHistory } from '../../wallet/hooks/useSwapHistory'
 import { useMemo } from 'react'
 import { useWalletBalance } from '../../wallet/hooks/useBalances'
 import { useTokenValue } from '../../../Components/SwapBox/hooks/useTokenValue'
-import { IEW } from '../../../utils/helpers'
+import { IEW, NUM } from '../../../utils/helpers'
 import { useListTokens } from '../../token/hook'
 import { POOL_IDS } from '../../../utils/constant'
 import { PoolGroupType, PoolGroupValueType } from '../type'
@@ -55,30 +55,25 @@ export const useResource = () => {
     const { tokens } = useListTokens()
     const { chainId } = useConfigs()
     return useMemo(() => {
-      const getPoolValue = (pool: any): number => {
-        return Number(
-          getTokenValue(
-          pool?.TOKEN_R,
-          IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimals),
-          true
-          )
-        )
-      }
       const poolGroupsValue: PoolGroupValueType = {}
       Object.keys(poolGroups[chainId]).map((indexKey:string) => {
         const poolGroup = poolGroups[chainId][indexKey]
         let poolGroupValue = 0
         let poolGroupPositionValue = 0
-        console.log('#poolGroup', poolGroup)
-        console.log('#poolGroups', poolGroups[chainId])
         if (!poolGroup?.pools) return
         const results = []
         if (Object.keys(balances).length === 0) {
           for (const poolAddress of Object.keys(poolGroup.pools)) {
-            poolGroupValue += getPoolValue(poolGroup.pools[poolAddress])
+            const pool = poolGroup.pools[poolAddress]
+            poolGroupValue += NUM(getTokenValue(
+                  pool?.TOKEN_R,
+                  IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimals),
+                  true
+            ))
           }
         } else {
           for (const poolAddress of Object.keys(poolGroup.pools)) {
+            const pool = poolGroup.pools[poolAddress]
             if (balances[poolAddress + '-' + POOL_IDS.A]) {
               results.push(poolAddress + '-' + POOL_IDS.A)
             }
@@ -87,7 +82,11 @@ export const useResource = () => {
             }
             if (balances[poolAddress + '-' + POOL_IDS.C]) {
               results.unshift(poolAddress + '-' + POOL_IDS.C)
-              poolGroupValue += getPoolValue(poolGroup.pools[poolAddress])
+              poolGroupValue += NUM(getTokenValue(
+                pool?.TOKEN_R,
+                IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimals),
+                true
+              ))
             }
           }
         }
@@ -109,7 +108,7 @@ export const useResource = () => {
         }
       })
       return { poolGroupsValue }
-    }, [poolGroups, chainId])
+    }, [poolGroups, tokens, balances])
   }
   return {
     initResource: initListPool,

@@ -34,9 +34,11 @@ const Component = ({
   // const defaultTokens = useDefaultActiveTokens(chainId)
   const [searchQuery, setSearchQuery] = useState<string>('')
   const { ddlEngine } = useConfigs()
+  const { account } = useWeb3React()
   const { getTokenIconUrl } = useHelper()
-  const { updateCurrentPoolGroup, id } = useCurrentPoolGroup()
-  const { poolGroups } = useResource()
+  const { updateCurrentPoolGroup } = useCurrentPoolGroup()
+  const { poolGroups, addNewResource, useCalculatePoolGroupsValue } = useResource()
+  const { poolGroupsValue } = useCalculatePoolGroupsValue()
   const [whiteListFilterPools, setWhiteListFilterPools] = useState<TokenFromPoolGroup[]>([])
   // const [inWhiteListFilterPools, setInWhiteListFilterPools] = useState<TokenFromPoolGroup[]>([])
   const [isLoadingSearch, setIsLoadingSearch] = useState<boolean>(false)
@@ -79,10 +81,12 @@ const Component = ({
     if (e.key !== 'Enter') return
     setIsLoadingSearch(true)
     const poolsSearch = await ddlEngine?.RESOURCE.searchIndex(searchQuery.toUpperCase())
+    let poolAddresses:string[] = []
     setWhiteListFilterPools((await Promise.all(Object.keys(poolsSearch).map(async (key) => {
       const poolSearch = poolsSearch[key]
       const bti = poolSearch?.pools?.[0]?.ORACLE === '0' ? 1 : 0
       const address = poolSearch?.pairInfo?.[`token${bti}`]?.address
+      poolAddresses = [...poolAddresses, ...poolSearch.pools.map((pool:any[]) => pool?.[10])]
       return {
         address,
         name: poolSearch?.pairInfo?.[`token${bti}`]?.name,
@@ -91,6 +95,10 @@ const Component = ({
         poolGroup: poolSearch.pools
       }
     }))).filter(getTokenFilter(searchQuery)))
+    // eslint-disable-next-line no-unused-expressions
+    ddlEngine?.RESOURCE.generateData({ poolAddresses, transferLogs: [] }).then(data => {
+      addNewResource(data, account)
+    })
     setIsLoadingSearch(false)
   }
 
@@ -114,9 +122,9 @@ const Component = ({
         onKeyDown={handleEnter}
         placeholder='Search name or paste address'/>
 
-      <CommonCurrencies/>
-      <div className='search-index__hr'/>
-      <ListCurrencies handleCurrencySelect={handleCurrencySelect} currencies={whiteListFilterPools} isLoading={isLoadingSearch} />
+      {/* <CommonCurrencies/> */}
+      {/* <div className='search-index__hr'/> */}
+      <ListCurrencies handleCurrencySelect={handleCurrencySelect} poolGroupsValue={poolGroupsValue} whiteListFilterPools={whiteListFilterPools} isLoading={isLoadingSearch} />
 
     </Modal>
   )
