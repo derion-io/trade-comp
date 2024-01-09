@@ -353,7 +353,7 @@ export const Positions = ({
                   </InfoRow>
                 )}
 
-                {!position.entryPrice && Number?.(position.entryPrice) > 0 ? (
+                {Number?.(position?.entryPrice) > 0 ? (
                   <InfoRow>
                     <TextGrey>Entry Price</TextGrey>
                     <EntryPrice
@@ -569,8 +569,8 @@ export const Positions = ({
                         tradeType === TRADE_TYPE.LONG
                           ? POOL_IDS.A
                           : tradeType === TRADE_TYPE.SHORT
-                            ? POOL_IDS.B
-                            : POOL_IDS.C
+                          ? POOL_IDS.B
+                          : POOL_IDS.C
                       setCurrentPoolAddress(address)
                       setOutputTokenAddressToBuy(
                         encodeErc1155Address(address, side)
@@ -587,10 +587,10 @@ export const Positions = ({
                         !settings.showBalance
                           ? undefined
                           : formatWeiToDisplayNumber(
-                            position.balance,
-                            4,
-                            tokens[position.token].decimals
-                          )
+                              position.balance,
+                              4,
+                              tokens[position.token].decimals
+                            )
                       }
                     />
                   </td>
@@ -598,15 +598,14 @@ export const Positions = ({
                     <SkeletonLoader
                       loading={position.status === POSITION_STATUS.OPENING}
                     >
-                      {!position.entryPrice &&
-                      Number?.(position.entryPrice) > 0 ? (
-                          <EntryPrice
-                            position={position}
-                            loading={position.status === POSITION_STATUS.OPENING}
-                          />
-                        ) : (
-                          ''
-                        )}
+                      {Number?.(position?.entryPrice) > 0 ? (
+                        <EntryPrice
+                          position={position}
+                          loading={position.status === POSITION_STATUS.OPENING}
+                        />
+                      ) : (
+                        ''
+                      )}
                     </SkeletonLoader>
                   </td>
                   <td>
