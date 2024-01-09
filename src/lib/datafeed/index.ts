@@ -172,8 +172,10 @@ export const Datafeed = {
 
     const state = store.getState()
     const ticker = symbolInfo.ticker
-    const [baseAddress, cAddress, quoteAddress, , chainId] = ticker.split('-')
+    // 0x539bdE0d7Dbd336b79148AA742883198BBF60342-0x59D72DDB29Da32847A4665d08ffc8464A7185FAE-1-0x82aF49447D8a07e3bd95BD0d56f35241523fBab1-0x82aF49447D8a07e3bd95BD0d56f35241523fBab1-MAGIC/ETH-42161-7
+    const [baseAddress, cAddress,,, quoteAddress, , chainId] = ticker.split('-')
     const tokens = state.tokens.tokens[chainId]
+    console.log('#tokens', tokens, '#chainId', chainId, '#ticker',ticker)
     const { route, quoteAddressSelect, isPriceByIndexR } = handleChartRouteOption(symbolInfo?.currency_id, baseAddress, cAddress, quoteAddress)
     const limit = calcLimitCandle(periodParams.from, periodParams.to, resolution)
     store.dispatch(setPriceByIndexR({ status: isPriceByIndexR}))
@@ -221,7 +223,8 @@ export const Datafeed = {
     this.subscribeBarsInterval[subscriberUID] = setInterval(() => {
       const state = store.getState()
       const ticker = symbolInfo.ticker
-      const [baseAddress, cAddress, quoteAddress, , chainId] = ticker.split('-')
+      // 0x539bdE0d7Dbd336b79148AA742883198BBF60342-0x59D72DDB29Da32847A4665d08ffc8464A7185FAE-1-0x82aF49447D8a07e3bd95BD0d56f35241523fBab1-0x82aF49447D8a07e3bd95BD0d56f35241523fBab1-MAGIC/ETH-42161-7
+      const [baseAddress, cAddress,,, quoteAddress, , chainId] = ticker.split('-')
       const tokens = state.tokens.tokens[chainId]
       const { route, quoteAddressSelect } = handleChartRouteOption(symbolInfo?.currency_id, baseAddress, cAddress, quoteAddress)
       historyProvider

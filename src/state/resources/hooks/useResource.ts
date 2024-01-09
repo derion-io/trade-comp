@@ -1,16 +1,16 @@
-import { useConfigs } from '../../config/useConfigs'
-import { addPoolGroupsWithChain, addPoolsWithChain } from '../reducer'
-import { useDispatch, useSelector } from 'react-redux'
-import { State } from '../../types'
-import { addTokensReduce } from '../../token/reducer'
-import { useSwapHistory } from '../../wallet/hooks/useSwapHistory'
 import { useMemo } from 'react'
-import { useWalletBalance } from '../../wallet/hooks/useBalances'
+import { useDispatch, useSelector } from 'react-redux'
 import { useTokenValue } from '../../../Components/SwapBox/hooks/useTokenValue'
-import { IEW, NUM } from '../../../utils/helpers'
-import { useListTokens } from '../../token/hook'
 import { POOL_IDS } from '../../../utils/constant'
-import { PoolGroupType, PoolGroupValueType } from '../type'
+import { IEW, NUM } from '../../../utils/helpers'
+import { useConfigs } from '../../config/useConfigs'
+import { useListTokens } from '../../token/hook'
+import { addTokensReduce } from '../../token/reducer'
+import { State } from '../../types'
+import { useWalletBalance } from '../../wallet/hooks/useBalances'
+import { useSwapHistory } from '../../wallet/hooks/useSwapHistory'
+import { addPoolGroupsWithChain, addPoolsWithChain } from '../reducer'
+import { PoolGroupValueType } from '../type'
 
 export const useResource = () => {
   const { poolGroups, pools } = useSelector((state: State) => {
@@ -33,19 +33,24 @@ export const useResource = () => {
     if (ddlEngine && configs.name) {
       const { searchParams } = new URL(`https://1.com?${location.href.split('?')[1]}`)
       const playMode = searchParams.has('play')
-      // TODO: add getResourceCache here
-      // ddlEngine.RESOURCE.getResourceCached(account, playMode).then((data: any) => {
-      //   dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
-      //   dispatch(
-      //     addPoolGroupsWithChain({ poolGroups: data.poolGroups, chainId })
-      //   )
-      //   dispatch(addPoolsWithChain({ pools: data.pools, chainId }))
-      //   updateSwapTxsHandle(account, data.swapLogs, data.transferLogs)
-      // })
-      // TODO: use getNewResource here
       ddlEngine.RESOURCE.getWhiteListResource().then((data: any) => {
+        if (data?.tokens?.length === 0) return
+        console.log('#getWhiteListResource', data)
         addNewResource(data, account)
         updateSwapTxsHandle(account, data.swapLogs, data.transferLogs)
+      })
+
+      ddlEngine.RESOURCE.getResourceCached(account, playMode).then((data: any) => {
+        if (data?.tokens?.length === 0) return
+        console.log('#getResourceCached', data)
+        addNewResource(data, account)
+        // updateSwapTxsHandle(account, data.swapLogs, data.transferLogs)
+      })
+      ddlEngine.RESOURCE.getNewResource(account, playMode).then((data: any) => {
+        if (data?.tokens?.length === 0) return
+        console.log('#getNewResource', data)
+        addNewResource(data, account)
+        // updateSwapTxsHandle(account, data.swapLogs, data.transferLogs)
       })
     }
   }
@@ -107,6 +112,7 @@ export const useResource = () => {
           poolGroupPositions
         }
       })
+      console.log('#poolGroupsValue', poolGroupsValue)
       return { poolGroupsValue }
     }, [poolGroups, tokens, balances])
   }

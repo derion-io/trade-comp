@@ -1,22 +1,20 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react'
-import './style.scss'
+import React, { useEffect, useRef } from 'react'
+import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import { Trade } from '../../pages/Trade'
+import { useConfigs } from '../../state/config/useConfigs'
+import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
+import { useWeb3React } from '../../state/customWeb3React/hook'
+import { useFetchFeeData } from '../../state/resources/hooks/useFeeData'
+import { useResource } from '../../state/resources/hooks/useResource'
+import { useFetchTokenPrice } from '../../state/resources/hooks/useTokenPrice'
 import { useListTokens } from '../../state/token/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
-import { useWeb3React } from '../../state/customWeb3React/hook'
-import { ToastContainer } from 'react-toastify'
-import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
-import { useConfigs } from '../../state/config/useConfigs'
-import { useResource } from '../../state/resources/hooks/useResource'
-import { TIME_TO_REFRESH_STATE, TRADE_TYPE } from '../../utils/constant'
 import { useSwapHistoryFormated } from '../../state/wallet/hooks/useSwapHistory'
-import { Trade } from '../../pages/Trade'
-import { useFetchTokenPrice } from '../../state/resources/hooks/useTokenPrice'
-import { useFetchFeeData } from '../../state/resources/hooks/useFeeData'
-import { PageLoadingIndicator } from '../PageLoadingIndicator'
+import { TRADE_TYPE } from '../../utils/constant'
 import { ErrorBoundary } from '../ErrorBoundary'
-import { useFetchListCallback } from '../../state/lists/hook/useFetchListCallback'
-import { DEFAULT_LIST_OF_LISTS, UNSUPPORTED_LIST_URLS } from '../../state/lists/constants/lists'
+import { PageLoadingIndicator } from '../PageLoadingIndicator'
+import './style.scss'
 
 export const App = () => {
   const { id } = useCurrentPoolGroup()
@@ -32,17 +30,6 @@ export const App = () => {
   useFetchFeeData()
   useFetchTokenPrice()
   useSwapHistoryFormated()
-  // const fetchList = useFetchListCallback()
-  // const fetchAllListsCallback = useCallback(() => {
-  //   DEFAULT_LIST_OF_LISTS.forEach((url) => {
-  //     const isUnsupportedList = UNSUPPORTED_LIST_URLS.includes(url)
-  //     fetchList(url, isUnsupportedList).catch((error) => console.debug('interval list fetching error', error))
-  //   })
-  // }, [fetchList])
-
-  // useEffect(() => {
-  //   fetchAllListsCallback()
-  // }, [ddlEngine, configs.name])
 
   useEffect(() => {
     try {

@@ -1,22 +1,20 @@
 import { Currency } from '@uniswap/sdk-core'
 import 'rc-slider/assets/index.css'
-import React, { ChangeEvent, Fragment, KeyboardEvent, RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { ChangeEvent, Fragment, KeyboardEvent, RefObject, useCallback, useMemo, useRef, useState } from 'react'
 import isEqual from 'react-fast-compare'
 import { getTokenFilter } from '../../utils/filtering'
 import { Modal } from '../ui/Modal'
 import { ListCurrencies } from './components/listCurrencies'
-// import { SearchCurrencies } from './components/searchCurrencies'
-import { useDispatch } from 'react-redux'
 import { useConfigs } from '../../state/config/useConfigs'
 import { useHelper } from '../../state/config/useHelper'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 import { useWeb3React } from '../../state/customWeb3React/hook'
 import { useResource } from '../../state/resources/hooks/useResource'
-import { oracleToPoolGroupId } from '../../utils/helpers'
+import { bn, oracleToPoolGroupId, poolToIndexID } from '../../utils/helpers'
 import { TokenFromPoolGroup } from '../../utils/type'
 import { Input } from '../ui/Input'
-import { CommonCurrencies } from './components/commonCurrencies'
 import './style.scss'
+import { PoolType } from '../../state/resources/type'
 const Component = ({
   visible,
   setVisible,
@@ -30,17 +28,13 @@ const Component = ({
   onCurrencySelect: (currency: TokenFromPoolGroup, hasWarning?: boolean) => void
 }) => {
   if (!visible) return <Fragment/>
-  const chainId = 56
-  // const defaultTokens = useDefaultActiveTokens(chainId)
   const [searchQuery, setSearchQuery] = useState<string>('')
   const { ddlEngine } = useConfigs()
   const { account } = useWeb3React()
   const { getTokenIconUrl } = useHelper()
   const { updateCurrentPoolGroup } = useCurrentPoolGroup()
-  const { poolGroups, addNewResource, useCalculatePoolGroupsValue } = useResource()
-  const { poolGroupsValue } = useCalculatePoolGroupsValue()
+  const { poolGroups, addNewResource } = useResource()
   const [whiteListFilterPools, setWhiteListFilterPools] = useState<TokenFromPoolGroup[]>([])
-  // const [inWhiteListFilterPools, setInWhiteListFilterPools] = useState<TokenFromPoolGroup[]>([])
   const [isLoadingSearch, setIsLoadingSearch] = useState<boolean>(false)
   useMemo(async () => {
     setWhiteListFilterPools(
@@ -77,12 +71,15 @@ const Component = ({
     setSearchQuery(input)
   }, [])
 
-  const handleCurrencySelect = useCallback(
+  const handlePoolSelect = useCallback(
     (searchPool: TokenFromPoolGroup, hasWarning?: boolean) => {
+      console.log('#searchPool', searchPool)
       onCurrencySelect(searchPool, hasWarning)
-      const oracle = searchPool.poolGroup?.[0]?.ORACLE
+      const pool = searchPool.poolGroup?.[0]
       const poolAddresses = searchPool.poolGroup.map(pool => pool?.[10])
-      updateCurrentPoolGroup(oracleToPoolGroupId(oracle || ''), poolAddresses)
+      const indexID = poolToIndexID(pool)
+      if (!indexID) return
+      updateCurrentPoolGroup(indexID, poolAddresses)
       setVisible(false)
       if (!hasWarning) onDismiss()
     },
@@ -122,7 +119,7 @@ const Component = ({
 
       tokenFromPoolGroup.forEach(({ poolGroup }) => {
         poolGroup.forEach((pool:any) => {
-          poolAddressTimestampMap[pool?.poolAddress] = pool?.createAtTimestamp
+          poolAddressTimestampMap[pool?.poolAddress] = pool?.timeStamp
         })
       })
 
@@ -131,7 +128,7 @@ const Component = ({
         Object.keys(poolAddressTimestampMap).forEach((_key) => {
           poolGroup.pools[_key] = {
             ...poolGroup.pools[_key],
-            createAtTimestamp: poolAddressTimestampMap[_key]
+            timeStamp: poolAddressTimestampMap[_key]
           }
         })
       })
@@ -161,7 +158,7 @@ const Component = ({
         placeholder='Search name or paste address'/>
 
       {/* <CommonCurrencies/> */}
-      <ListCurrencies handleCurrencySelect={handleCurrencySelect} poolGroupsValue={poolGroupsValue} whiteListFilterPools={whiteListFilterPools} isLoading={isLoadingSearch} />
+      <ListCurrencies handlePoolSelect={handlePoolSelect} whiteListFilterPools={whiteListFilterPools} isLoading={isLoadingSearch} />
 
     </Modal>
   )

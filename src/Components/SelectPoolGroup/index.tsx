@@ -1,25 +1,21 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useResource } from '../../state/resources/hooks/useResource'
-import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
-import { useListTokens } from '../../state/token/hook'
-import './style.scss'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useOutsideAlerter } from '../../hooks/useHandleClickOutside'
+import { useWindowSize } from '../../hooks/useWindowSize'
+import { useConfigs } from '../../state/config/useConfigs'
+import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
+import { useResource } from '../../state/resources/hooks/useResource'
+import { useListTokens } from '../../state/token/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import {
   MIN_POSITON_VALUE_USD_TO_DISPLAY,
   POOL_IDS
 } from '../../utils/constant'
-import { TokenIcon } from '../ui/TokenIcon'
+import formatLocalisedCompactNumber from '../../utils/formatBalance'
 import { IEW, bn, formatFloat, unwrap } from '../../utils/helpers'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
-import { useConfigs } from '../../state/config/useConfigs'
 import { TextGrey } from '../ui/Text'
-import formatLocalisedCompactNumber from '../../utils/formatBalance'
-import { useWindowSize } from '../../hooks/useWindowSize'
-import { useAllLists } from '../../state/lists/hooks'
-import { useFetchListCallback } from '../../state/lists/hook/useFetchListCallback'
-import { DEFAULT_LIST_OF_LISTS, UNSUPPORTED_LIST_URLS } from '../../state/lists/constants/lists'
-import { SearchIndexModal } from '../searchIndexModal'
+import { TokenIcon } from '../ui/TokenIcon'
+import './style.scss'
 
 export const SelectPoolGroup = () => {
   const [active, setActive] = useState<boolean>(false)
@@ -32,21 +28,6 @@ export const SelectPoolGroup = () => {
   const { getTokenValue } = useTokenValue({})
   const [poolGroupsValue, setPoolGroupsValue] = useState<any>()
   const { width } = useWindowSize()
-
-  // * list will have data here
-
-  // const fetchList = useFetchListCallback()
-  // const lists = useAllLists()
-  // const fetchAllListsCallback = useCallback(() => {
-  //   DEFAULT_LIST_OF_LISTS.forEach((url) => {
-  //     const isUnsupportedList = UNSUPPORTED_LIST_URLS.includes(url)
-  //     fetchList(url, isUnsupportedList).catch((error) => console.debug('interval list fetching error', error))
-  //   })
-  // }, [fetchList])
-  // useMemo(() => {
-  //   fetchAllListsCallback()
-  //   console.log('#', lists)
-  // }, [lists])
 
   const isPhone = width && width < 768
   const getPoolValue = (pool: any): number => {

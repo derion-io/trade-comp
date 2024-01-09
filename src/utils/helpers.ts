@@ -3,6 +3,7 @@ import { POOL_IDS, TRADE_TYPE, UNWRAP } from './constant'
 import _ from 'lodash'
 import { ListTokensType } from '../state/token/type'
 import { Q128 } from './type'
+import { PoolType } from 'derivable-tools/dist/types'
 
 const mdp = require('move-decimal-point')
 
@@ -36,7 +37,7 @@ export const STR = (num: number | string | BigNumber, minimumSignificantDigits?:
       }
       return num.toLocaleString(['en-US', 'fullwide'], {
         useGrouping: false,
-        minimumSignificantDigits,
+        minimumSignificantDigits
       })
     default:
       return String(num)
@@ -169,9 +170,9 @@ export const DIV = (a: BigNumber, b: BigNumber, precision = 4): string => {
   const bl = b.toString().length
   const d = al - bl
   if (d > 0) {
-      b = b.mul(WEI(1, d))
+    b = b.mul(WEI(1, d))
   } else if (d < 0) {
-      a = a.mul(WEI(1, -d))
+    a = a.mul(WEI(1, -d))
   }
   a = a.mul(WEI(1, precision))
   const c = truncate(a.div(b).toString(), 0, true)
@@ -183,7 +184,7 @@ export const MUL = (a: any, b: any): string => {
   b = STR(b, 4)
   const [aa, da] = remDec(a)
   const [bb, db] = remDec(b)
-  return mdp(STR(BIG(aa).mul(BIG(bb))), -da-db)
+  return mdp(STR(BIG(aa).mul(BIG(bb))), -da - db)
 }
 
 export const pow = (x: any, k: number): string => {
@@ -429,7 +430,7 @@ export const decimalsBySignificantDigits = (
   const decimals =
     num >= 1
       ? significantDigits - countDigits(STR(num))[0]
-      : significantDigits + countDigits(STR(1/num))[0] - 1
+      : significantDigits + countDigits(STR(1 / num))[0] - 1
 
   return Math.max(0, decimals)
 }
@@ -477,13 +478,13 @@ export const precisionize = (value: number, opts?: {
   const maxExtraDigits = opts?.maxExtraDigits ?? 0
   const extraDigits = Math.min(
     maxExtraDigits,
-    value >= 1 ? 2 : value >= 0.1 ? 1 : 0,
+    value >= 1 ? 2 : value >= 0.1 ? 1 : 0
   )
   const minimumSignificantDigits = extraDigits + (opts?.minimumSignificantDigits ?? 1)
   const maximumSignificantDigits = extraDigits + (opts?.maximumSignificantDigits ?? 4)
   const stringOpts = {
     minimumSignificantDigits,
-    maximumSignificantDigits,
+    maximumSignificantDigits
   }
   return value.toLocaleString(['en-US', 'fullwide'], stringOpts)
 }
@@ -507,11 +508,11 @@ export const zerofy = (value: number | string, opts?: {
   } else {
     value = STR(value)
     if (IS_NEG(value)) {
-      return '-' + zerofy(NEG(value), opts) 
+      return '-' + zerofy(NEG(value), opts)
     }
     let [int, dec] = value.split('.')
     if (dec?.length > 0) {
-      const fake = int.substring(Math.max(0, int.length-2)) + '.' + dec
+      const fake = int.substring(Math.max(0, int.length - 2)) + '.' + dec
       dec = precisionize(NUM(fake), opts)
       dec = dec.split('.')[1]
       if (dec?.length > 0) {
@@ -581,7 +582,7 @@ export const calcPoolSide = (
   pool: any,
   side: number,
   tokens: ListTokensType = {},
-  currentPrice?: string | number,
+  currentPrice?: string | number
 ): any => {
   const {
     states: { a, b, R },
@@ -603,14 +604,13 @@ export const calcPoolSide = (
 
   const mark = !MARK ? 1 : NUM(DIV(
     MARK.mul(decimalsOffset > 0 ? bn(10).pow(decimalsOffset) : 1),
-    Q128.mul(decimalsOffset < 0 ? bn(10).pow(-decimalsOffset) : 1),
-  ))**exp
+    Q128.mul(decimalsOffset < 0 ? bn(10).pow(-decimalsOffset) : 1)
+  )) ** exp
 
   const xA = xr(k, R.shr(1), a)
   const xB = xr(-k, R.shr(1), b)
-  const dgA = xA**exp * mark
-  const dgB = xB**exp * mark
-
+  const dgA = xA ** exp * mark
+  const dgB = xB ** exp * mark
 
   const interest = sides[side].interest
   const premium = sides[side].premium
@@ -625,7 +625,7 @@ export const calcPoolSide = (
     dgB,
     interest,
     premium,
-    funding,
+    funding
   }
 }
 
@@ -673,4 +673,11 @@ export function getTwitterIntentURL(text: string, url = '', hashtag = '') {
     }
   }
   return finalURL
+}
+
+export function poolToIndexID(pool: PoolType) {
+  const pair = oracleToPoolGroupId(pool?.ORACLE)
+  const quoteTokenIndex = bn(pool?.ORACLE.slice(0, 3)).gt(0) ? 1 : 0
+  const tokenR = pool?.TOKEN_R
+  return [pair, quoteTokenIndex, tokenR].join('-')
 }

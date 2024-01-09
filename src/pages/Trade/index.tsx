@@ -78,7 +78,7 @@ export const Trade = ({
   useEffect(() => {
     if (id && configs) {
       fetch24hChange({
-        pairAddress: configs?.chartReplacements?.[id] ?? id,
+        pairAddress: configs?.chartReplacements?.[id] ?? id.split('-')?.[0],
         gtID: configs.gtID
       }).then((res) => {
         setChangedIn24h(Number(res?.h24 || 0))
