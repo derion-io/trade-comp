@@ -32,11 +32,10 @@ export const tokens = createSlice({
       if (!action.payload.account) return
       const _swapsLogs = state.swapLogs[action.payload.account]
         ? [
-          ...action.payload.swapLogs,
-          ...state.swapLogs[action.payload.account]
-        ]
+            ...action.payload.swapLogs,
+            ...state.swapLogs[action.payload.account]
+          ]
         : action.payload.swapLogs
-
       const _transferLogs = state.transferLogs[action.payload.account]
         ? [
           ...action.payload.transferLogs,
@@ -44,8 +43,14 @@ export const tokens = createSlice({
         ]
         : action.payload.transferLogs
 
-      state.swapLogs[action.payload.account] = _.uniqBy(_swapsLogs, (l) => l?.logIndex)
-      state.transferLogs[action.payload.account] = _.uniqBy(_transferLogs, (l) => l?.logIndex)
+      state.swapLogs[action.payload.account] = _.uniqBy(
+        _swapsLogs,
+        (l) => l?.transactionHash + l?.logIndex
+      )
+      state.transferLogs[action.payload.account] = _.uniqBy(
+        _transferLogs,
+        (l) => l?.transactionHash + l?.logIndex
+      )
     },
     updateFormatedSwapTxs: (
       state,
@@ -55,7 +60,7 @@ export const tokens = createSlice({
     ) => {
       state.formartedSwapLogs = _.uniqBy(
         action.payload.swapTxs,
-        (l: any) => l.transactionHash
+        (l: any) => l.transactionHash + l?.logIndex
       )
     },
     updateBalanceAndAllowancesReduce: (

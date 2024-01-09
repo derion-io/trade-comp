@@ -57,7 +57,7 @@ export const EstimateBox = ({
 
   const { basePrice } = useCurrentPoolGroup()
   const positionsWithEntry = useMemo(() => {
-    if (ddlEngine?.HISTORY && Object.values(pools).length > 0) {
+    if (ddlEngine?.HISTORY && Object.values(pools).length > 0 && sls) {
       return (
         ddlEngine.HISTORY.generatePositions?.({
           tokens: Object.values(tokens),
