@@ -111,9 +111,16 @@ const Component = ({
         pools
       }
     }))).filter(getTokenFilter(searchQuery))
+    const poolsRaw = JSON.stringify(poolsFilterSearch)
+    // Check is search results is already have in pools list
+    const poolAddressesFilter = poolAddresses.filter(poolAddress => !poolsRaw.includes(poolAddress))
+    if (poolAddressesFilter.length === 0) {
+      setIsLoadingSearch(false)
+      return
+    }
     setPoolsFilterSearch(poolsSearch)
     // eslint-disable-next-line no-unused-expressions
-    ddlEngine?.RESOURCE.generateData({ poolAddresses, transferLogs: [] }).then(data => {
+    ddlEngine?.RESOURCE.generateData({ poolAddresses: poolAddressesFilter, transferLogs: [] }).then(data => {
       const poolAddressTimestampMap = {}
       poolsSearch.forEach(({ pools }) => {
         pools.forEach((pool:any) => {
