@@ -30,7 +30,8 @@ export const useHelper = () => {
     if (!wAddress || isErc1155Address(wAddress)) return ''
     if (localWAddress !== null) return localWAddress
     if (localWAddress === 'notfound') return ''
-    const res = await getCoingeckoToken(configs.geckoTerminalSymbol, wAddress?.toLowerCase())
+    const res = await getCoingeckoToken(configs.gtID, wAddress?.toLowerCase())
+
     if (res?.status === 'success') {
       localStorage.setItem(`token-logo-${wAddress}`, res?.attributes?.image_url)
       return res?.attributes?.image_url || ''

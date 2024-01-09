@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Tabs } from '../ui/Tabs'
 import './style.scss'
 import { CandleChart } from '../CandleChart'
@@ -13,12 +13,28 @@ import { CHART_TABS } from '../../state/currentPool/type'
 import { formatFloat, zerofy } from '../../utils/helpers'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { useNativePrice } from '../../hooks/useTokenPrice'
+import { useResource } from '../../state/resources/hooks/useResource'
+import { Card } from '../ui/Card'
 
 const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const { chainId, configs } = useConfigs()
-  const { chartTab, setChartTab, basePrice, id } = useCurrentPoolGroup()
+  const { chartTab, setChartTab, basePrice, id, chartIsOutDate } = useCurrentPoolGroup()
   const { data: nativePrice } = useNativePrice()
   const { currentPool, priceByIndexR } = useCurrentPool()
+  const { poolGroups } = useResource()
+  const [isUseDextool, setUseDexTool] = useState<boolean>(false)
+  const pairAddress = poolGroups[id] ? '0x' + (poolGroups[id]?.ORACLE as String).slice(poolGroups[id]?.ORACLE.length - 40, poolGroups[id]?.ORACLE.length) : ''
+  useEffect(() => {
+    console.log('#chartIsOutDate', chartIsOutDate)
+    if (chartIsOutDate) {
+      setUseDexTool(true)
+      console.log('#isUseDextool', isUseDextool)
+    }
+  }, [chartIsOutDate])
+  useEffect(() => {
+    setUseDexTool(false)
+    console.log('#isUseDextool when chain')
+  }, [chainId])
   return (
     <div className='chart-box'>
       <div className='chart__head'>
@@ -71,13 +87,34 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
           ) : chartTab === CHART_TABS.FUNC_PLOT ? (
             currentPool?.states && <FunctionPlot />
           ) : (
-            <CandleChart />
+            isUseDextool ? <DexToolChart pairAddress={pairAddress} chartResolution='1'/> : <CandleChart/>
           ))}
       </div>
     </div>
   )
 }
-
+export const DexToolChart = (props: { pairAddress: string | undefined, chartResolution: string }) => {
+  return (
+    <Card className='candle-chart-wrap' >
+      { props.pairAddress
+        ? <div
+          className='candle-chart-box'
+        >
+          <iframe id='dextools-widget'
+            title='DEXTools Trading Chart'
+            style={{
+              width: '100%',
+              height: 'calc(100% + 40px)',
+              position: 'absolute',
+              top: '-40px',
+              border: 'none'
+            }}
+            src={`https://www.dextools.io/widget-chart/en/bnb/pe-light/${props?.pairAddress.toLowerCase()}?theme=dark&tvPlatformColor=1b1d21&tvPaneColor=131722&chartType=1&chartResolution=${props.chartResolution || '1'}&drawingToolbars=false`} />
+        </div>
+        : 'Dextools Loading'}
+    </Card>
+  )
+}
 export const Chart = React.memo(Component, (prevProps, nextProps) =>
   isEqual(prevProps, nextProps)
 )

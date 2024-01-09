@@ -65,6 +65,8 @@ const Component = ({
   const timeRangeRef = useRef<any>()
   const [currentChart, setCurrentChart] = useState<string>('')
   const { poolGroups } = useResource()
+  const [chartResolution, setChartResolution] = useState<string>('1')
+  const pairAddress = poolGroups[id] ? '0x' + (poolGroups[id]?.ORACLE as String).slice(poolGroups[id]?.ORACLE.length - 40, poolGroups[id]?.ORACLE.length) : ''
   const baseToken = poolGroups ? poolGroups[id]?.baseToken : ''
   const quoteToken = poolGroups ? poolGroups[id]?.quoteToken : ''
   const cToken = id
@@ -98,6 +100,7 @@ const Component = ({
       try {
         tradingviewWidget.onChartReady(() => {
           const resolution = tradingviewWidget.activeChart().resolution()
+          setChartResolution(resolution)
           tradingviewWidget
             .activeChart()
             .setVisibleRange(
@@ -115,6 +118,7 @@ const Component = ({
       try {
         tradingviewWidget.onChartReady(() => {
           const resolution = tradingviewWidget.activeChart().resolution()
+          setChartResolution(resolution)
           const data = timeRangeRef.current.value
           const [from, to] = data.split(',').map(Number)
           tradingviewWidget
@@ -137,7 +141,7 @@ const Component = ({
         return zerofy(value, {
           maxExtraDigits: 2,
           minimumSignificantDigits: 3,
-          maximumSignificantDigits: 3,
+          maximumSignificantDigits: 3
         })
       }
     }
@@ -183,7 +187,7 @@ const Component = ({
       container: chartContainerRef.current,
       custom_formatters: {
         priceFormatterFactory: () => { return zerofyFormatter },
-        studyFormatterFactory: () => { return zerofyFormatter },
+        studyFormatterFactory: () => { return zerofyFormatter }
       },
       loading_screen: {
         backgroundColor: 'transparent'
@@ -240,7 +244,7 @@ const Component = ({
   }
 
   return (
-    <Card className='candle-chart-wrap'>
+    <Card className='candle-chart-wrap' >
       {candleChartIsLoading && (
         <div className='loading'>
           <CandleChartLoader />

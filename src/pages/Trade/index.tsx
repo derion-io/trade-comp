@@ -1,24 +1,24 @@
 import React, { useEffect, useState } from 'react'
-import './style.scss'
-import { useConfigs } from '../../state/config/useConfigs'
-import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
-import { Chart } from '../../Components/Chart'
-import { POOL_IDS, TRADE_TYPE } from '../../utils/constant'
-import { SwapBox } from '../../Components/SwapBox'
 import { Tab, TabList, TabPanel, Tabs } from 'react-tabs'
 import 'react-tabs/style/react-tabs.css'
-import { Card } from '../../Components/ui/Card'
-import { useResource } from '../../state/resources/hooks/useResource'
 import { BuyPositionBox } from '../../Components/BuyPositionBox'
-import { Positions } from '../../Components/Positions'
-import { WalletHistoryTable } from '../../Components/WalletHistoryTable'
-import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
-import { SettingIcon } from '../../Components/ui/Icon'
-import { SettingModal } from '../../Components/SettingModal'
-import { useListTokens } from '../../state/token/hook'
-import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
-import { bn, decodeErc1155Address, isErc1155Address } from '../../utils/helpers'
+import { Chart } from '../../Components/Chart'
 import { ErrorBoundary } from '../../Components/ErrorBoundary'
+import { Positions } from '../../Components/Positions'
+import { SettingModal } from '../../Components/SettingModal'
+import { SwapBox } from '../../Components/SwapBox'
+import { WalletHistoryTable } from '../../Components/WalletHistoryTable'
+import { Card } from '../../Components/ui/Card'
+import { SettingIcon } from '../../Components/ui/Icon'
+import { useConfigs } from '../../state/config/useConfigs'
+import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
+import { useResource } from '../../state/resources/hooks/useResource'
+import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
+import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
+import { POOL_IDS, TRADE_TYPE } from '../../utils/constant'
+import { fetch24hChange } from '../../utils/fetch24hChange'
+import { bn, decodeErc1155Address, isErc1155Address } from '../../utils/helpers'
+import './style.scss'
 
 const TAB_2 = {
   POSITION: Symbol('position'),
@@ -41,18 +41,16 @@ export const Trade = ({
   tab: TRADE_TYPE
   loadingData: boolean
 }) => {
-  const { chainId, useHistory, ddlEngine, configs: { chartReplacements } } = useConfigs()
+  const { chainId, useHistory, configs } = useConfigs()
   const history = useHistory()
   const [changedIn24h, setChangedIn24h] = useState<number>(0)
   const { poolGroups } = useResource()
-  const { updateCurrentPoolGroup, id, baseToken, quoteToken, basePrice } =
-    useCurrentPoolGroup()
+  const { updateCurrentPoolGroup, id } = useCurrentPoolGroup()
   const [tab2, setTab2] = useState<Symbol>(TAB_2.POSITION)
   const { formartedSwapLogs: swapTxs } = useSwapHistory()
   const [inputTokenAddress, setInputTokenAddress] = useState<string>('')
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
   const [visibleSettingModal, setVisibleSettingModal] = useState<boolean>(false)
-  const { tokens } = useListTokens()
   const { maturities } = useWalletBalance()
   const tokenOutMaturity = maturities[outputTokenAddress] || bn(0)
 
@@ -78,24 +76,15 @@ export const Trade = ({
   }, [outputTokenAddress, id])
 
   useEffect(() => {
-    if (
-      tokens[baseToken] &&
-      tokens[quoteToken] &&
-      id &&
-      ddlEngine &&
-      basePrice
-    ) {
-      ddlEngine.PRICE.get24hChange({
-        baseToken: tokens[baseToken],
-        cToken: chartReplacements?.[id] ?? id,
-        chainId: chainId.toString(),
-        quoteToken: tokens[quoteToken],
-        currentPrice: basePrice.toString()
-      }).then((value1) => {
-        setChangedIn24h(Number(value1))
+    if (id && configs) {
+      fetch24hChange({
+        pairAddress: configs?.chartReplacements?.[id] ?? id,
+        gtID: configs.gtID
+      }).then((res) => {
+        setChangedIn24h(Number(res?.h24 || 0))
       })
     }
-  }, [chainId, tokens, ddlEngine, id, quoteToken, baseToken, basePrice])
+  }, [id, configs])
 
   useEffect(() => {
     if (poolGroups && Object.keys(poolGroups).length > 0) {
@@ -142,10 +131,13 @@ export const Trade = ({
           }}
         >
           <TabList>
-            <Tab>{
-              tab === TRADE_TYPE.SWAP ? 'Positions and LPs' :
-              tab === TRADE_TYPE.LIQUIDITY ? 'LPs' : 'Positions'
-            }</Tab>
+            <Tab>
+              {tab === TRADE_TYPE.SWAP
+                ? 'Positions and LPs'
+                : tab === TRADE_TYPE.LIQUIDITY
+                  ? 'LPs'
+                  : 'Positions'}
+            </Tab>
             <Tab>History</Tab>
           </TabList>
           <TabPanel>
