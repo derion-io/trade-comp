@@ -7,18 +7,17 @@
     display: inline-flex;
     align-items: center;
   }
-.position-token-list{
+.position-token-list {
     padding: 1px 5px 1px 5px;
     border-radius: 10px;
     width: 100%;
     vertical-align: middle;
     &__table {
-    display: flex;
-    justify-content: space-between;
-    border: none;
-    margin-left: 0;
-    margin-right: 0 !important;
-    margin-top: 1rem;
+        display: flex;
+        justify-content: space-between;
+        border: none;
+        margin-left: 0;
+        margin-right: 0 !important;
     }
 }
 .pool-positions-list{
