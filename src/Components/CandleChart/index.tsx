@@ -60,6 +60,7 @@ const Component = ({
     basePrice,
     setChartTimeFocus
   } = useCurrentPoolGroup()
+  console.log('#candleChartIsLoading', candleChartIsLoading)
   const { chainId } = useConfigs()
   const { formartedSwapLogs: swapTxs } = useSwapHistory()
   const timeRangeRef = useRef<any>()
@@ -67,7 +68,6 @@ const Component = ({
   const { poolGroups } = useResource()
 
   const pairAddress = poolGroups[id] ? '0x' + (poolGroups[id]?.ORACLE as String).slice(poolGroups[id]?.ORACLE.length - 40, poolGroups[id]?.ORACLE.length) : ''
-  console.log('#pool', pairAddress)
   const baseToken = poolGroups ? poolGroups[id]?.baseToken : ''
   const quoteToken = poolGroups ? poolGroups[id]?.quoteToken : ''
   const cToken = id
@@ -241,15 +241,13 @@ const Component = ({
     from = Math.min(from, to - size * 40)
     return { from, to }
   }
-
-  return (
-    <Card className='candle-chart-wrap'>
-      {/* {candleChartIsLoading && (
+  const DerivableChart = () => {
+    return <div>
+      {candleChartIsLoading && (
         <div className='loading'>
           <CandleChartLoader />
         </div>
       )}
-      <input type='text' ref={timeRangeRef} className='hidden' />
       <div
         className={`candle-chart-box ${candleChartIsLoading && 'transparent'}`}
       >
@@ -262,16 +260,11 @@ const Component = ({
           }}
         />
       </div>
-      {chartIsOutDate && <div className='outdate-message'>OUTDATED</div>} */}
-      <div
-        ref={chartContainerRef}
-        className='TVChartContainer'
-        style={{
-          display: 'none',
-          visibility: 'hidden'
-        }}
-      />
-      {pairAddress
+    </div>
+  }
+  const DexToolChart = () => {
+    return <div>
+      { pairAddress
         ? <div
           className={`candle-chart-box ${candleChartIsLoading && 'transparent'}`}
         >
@@ -286,11 +279,12 @@ const Component = ({
             }}
             src={`https://www.dextools.io/widget-chart/en/bnb/pe-light/${pairAddress.toLowerCase()}?theme=dark&tvPlatformColor=1b1d21&tvPaneColor=131722&chartType=1&chartResolution=30&drawingToolbars=false`} />
         </div>
-        : candleChartIsLoading && (
-          <div className='loading'>
-            <CandleChartLoader />
-          </div>
-        ) }
+        : 'Dextools Loading'}
+    </div>
+  }
+  return (
+    <Card className='candle-chart-wrap' >
+      {chartIsOutDate ? <DexToolChart/> : <DerivableChart/> }
       <input type='text' ref={timeRangeRef} className='hidden' />
     </Card>
   )
