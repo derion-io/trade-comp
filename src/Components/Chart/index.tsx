@@ -27,15 +27,12 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const [isUseDextool, setUseDexTool] = useState<boolean>(false)
   const pairAddress = poolGroups[id] ? '0x' + (poolGroups[id]?.ORACLE as String).slice(poolGroups[id]?.ORACLE.length - 40, poolGroups[id]?.ORACLE.length) : ''
   useEffect(() => {
-    console.log('#chartIsOutDate', chartIsOutDate)
     if (chartIsOutDate) {
       setUseDexTool(true)
-      console.log('#isUseDextool', isUseDextool)
     }
   }, [chartIsOutDate])
   useEffect(() => {
     setUseDexTool(false)
-    console.log('#isUseDextool when chain')
   }, [chainId])
   return (
     <div className='chart-box'>
@@ -44,7 +41,6 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
 
           <SearchIndexModal visible={onSearchCurrenies} setVisible={() => { setOnSearchCurrenies(!onSearchCurrenies) }} onDismiss={() => {
           }} onCurrencySelect={(currency: any, hasWarning?: boolean | undefined) => {
-            console.log('#', currency)
           }}/>
           <ButtonBorder onClick={() => { setOnSearchCurrenies(true) }} >
             <SelectPoolGroup />

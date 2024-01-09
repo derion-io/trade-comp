@@ -40,9 +40,6 @@ const Component = ({
   const [whiteListFilterPools, setWhiteListFilterPools] = useState<TokenFromPoolGroup[]>([])
   // const [inWhiteListFilterPools, setInWhiteListFilterPools] = useState<TokenFromPoolGroup[]>([])
   const [isLoadingSearch, setIsLoadingSearch] = useState<boolean>(false)
-  useEffect(() => {
-    console.log('#id', id)
-  }, [id])
   useMemo(async () => {
     setWhiteListFilterPools(
       (await Promise.all(Object.keys(poolGroups).map(async (key) => {
@@ -64,7 +61,6 @@ const Component = ({
   const handleInput = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const input = event.target.value
     setSearchQuery(input)
-    console.log('#', input)
   }, [])
 
   const handleCurrencySelect = useCallback(
@@ -83,7 +79,6 @@ const Component = ({
     if (e.key !== 'Enter') return
     setIsLoadingSearch(true)
     const poolsSearch = await ddlEngine?.RESOURCE.searchIndex(searchQuery.toUpperCase())
-    console.log('#poolsSearch', poolsSearch)
     setWhiteListFilterPools((await Promise.all(Object.keys(poolsSearch).map(async (key) => {
       const poolSearch = poolsSearch[key]
       const bti = poolSearch?.pools?.[0]?.ORACLE === '0' ? 1 : 0
