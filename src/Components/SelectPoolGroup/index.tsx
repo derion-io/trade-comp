@@ -16,6 +16,7 @@ import { useConfigs } from '../../state/config/useConfigs'
 import { TextGrey } from '../ui/Text'
 import formatLocalisedCompactNumber from '../../utils/formatBalance'
 import { useWindowSize } from '../../hooks/useWindowSize'
+import { useAllLists } from '../../state/lists/hooks'
 
 export const SelectPoolGroup = () => {
   const [active, setActive] = useState<boolean>(false)
@@ -25,6 +26,7 @@ export const SelectPoolGroup = () => {
   useOutsideAlerter(wrapperRef, () => setActive(false))
   const { balances } = useWalletBalance()
   const { tokens } = useListTokens()
+  const lists = useAllLists()
   const { getTokenValue } = useTokenValue({})
   const [poolGroupsValue, setPoolGroupsValue] = useState<any>()
   const { width } = useWindowSize()
@@ -38,6 +40,9 @@ export const SelectPoolGroup = () => {
       )
     )
   }
+  useMemo(() => {
+    console.log('#', lists)
+  }, [lists])
   useMemo(() => {
     const poolGroupsUSDs = {}
     Object.keys(poolGroups).map((poolGroupKey: string) => {
