@@ -19,7 +19,7 @@ import { useListTokens } from '../../state/token/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { bn, decodeErc1155Address, isErc1155Address } from '../../utils/helpers'
 import { ErrorBoundary } from '../../Components/ErrorBoundary'
-import { fetch24hChange } from '../../utils/24hChange'
+import { fetch24hChange } from '../../utils/fetch24hChange'
 
 const TAB_2 = {
   POSITION: Symbol('position'),
