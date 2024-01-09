@@ -136,16 +136,19 @@ export const Positions = ({
     side: number,
     pendingTxData?: {token: string}
   ): Position | null => {
+    console.log('#generatePositionData', poolAddress, side)
     const pendingTxPool = decodeErc1155Address(pendingTxData?.token || '')
     const token = encodeErc1155Address(pendingTxData ? pendingTxPool.address : poolAddress, pendingTxData ? Number(pendingTxPool.id) : side)
 
-    if (balances[token]?.gt(0) || pendingTxData?.token) {
+    if (balances[token]?.gt(0) || pendingTxData?.token || positionsWithEntry[token]?.avgPrice) {
       const pool = pools[pendingTxData?.token ? pendingTxPool.address : poolAddress]
+      console.log('#positionsWithEntry', positionsWithEntry)
       const posWithEntry = positionsWithEntry[token]
       const { avgPrice, avgPriceR, amountR } = posWithEntry ?? {}
-      const entryPrice = avgPrice
-      const entryValueR = IEW(amountR)
-      const entryValueU = mul(entryValueR, avgPriceR)
+      console.log('#avgPrice, avgPriceR, amountR', avgPrice, avgPriceR, amountR)
+      const entryPrice = avgPrice || -1
+      const entryValueR = IEW(amountR || 1)
+      const entryValueU = mul(entryValueR || 1, avgPriceR || 1)
       const valueR = getTokenValue(
         token,
         IEW(balances[token], tokens[token]?.decimal || 18),
@@ -193,7 +196,7 @@ export const Positions = ({
       let valueRLinear
       let valueRCompound
       if (L != 0) {
-        const priceRate = div(currentPrice, entryPrice)
+        const priceRate = div(currentPrice, NUM(entryPrice) === 0 ? 1 : entryPrice)
         const leveragedPriceRate = add(1, div(
           mul(L, sub(currentPrice, entryPrice)),
           entryPrice
@@ -243,9 +246,9 @@ export const Positions = ({
   const positions: Position[] = useMemo(() => {
     const result: any = []
     Object.keys(pools).forEach((poolAddress) => {
-      // result.push(generatePositionData(poolAddress, POOL_IDS.A))
-      // result.push(generatePositionData(poolAddress, POOL_IDS.B))
-      // result.push(generatePositionData(poolAddress, POOL_IDS.C))
+      result.push(generatePositionData(poolAddress, POOL_IDS.A))
+      result.push(generatePositionData(poolAddress, POOL_IDS.B))
+      result.push(generatePositionData(poolAddress, POOL_IDS.C))
     })
 
     return result.filter((r: any) => r !== null)
@@ -330,7 +333,7 @@ export const Positions = ({
                   </InfoRow>
                 )}
 
-                {!position.entryPrice || (
+                {(!position.entryPrice && Number?.(position.entryPrice) < 0) || (
                   <InfoRow>
                     <TextGrey>Entry Price</TextGrey>
                     <EntryPrice
@@ -362,12 +365,13 @@ export const Positions = ({
                         : ' ⇄ USD'}
                     </Text>
                   </TextGrey>
+                  {Number?.(position.entryPrice) < 0 ||
                   <NetValue
                     position={position}
                     valueInUsdStatus={valueInUsdStatus}
                     loading={position.status === POSITION_STATUS.OPENING}
                     isPhone
-                  />
+                  />}
                 </InfoRow>
 
                 {position.valueRCompound ? <React.Fragment>
@@ -557,20 +561,23 @@ export const Positions = ({
                   </td>
                   <td>
                     <SkeletonLoader loading={position.status === POSITION_STATUS.OPENING}>
-                      {!position.entryPrice || <EntryPrice
+                      {(!position.entryPrice && Number?.(position.entryPrice) > 0) ? <EntryPrice
                         position={position}
                         loading={position.status === POSITION_STATUS.OPENING}
-                      />}
+                      /> : ''}
                     </SkeletonLoader>
                   </td>
                   <td>
                     <div className='net-value-and-pnl'>
-                      <NetValue
-                        position={position}
-                        valueInUsdStatus={valueInUsdStatus}
-                        loading={position.status === POSITION_STATUS.OPENING}
-                      />
-                      {position.valueRCompound
+                      {
+                        Number?.(position.entryPrice) > 0
+                          ? <NetValue
+                            position={position}
+                            valueInUsdStatus={valueInUsdStatus}
+                            loading={position.status === POSITION_STATUS.OPENING}
+                          /> : ''
+                      }
+                      { Number?.(position.entryPrice) > 0 ? position.valueRCompound
                         ? <CompoundPnL
                           loading={position.status === POSITION_STATUS.OPENING}
                           valueInUsdStatus={valueInUsdStatus}
@@ -581,7 +588,7 @@ export const Positions = ({
                           valueInUsdStatus={valueInUsdStatus}
                           position={position}
                         />
-                      }
+                        : ''}
                     </div>
                   </td>
                   <td>
@@ -654,7 +661,7 @@ export const Positions = ({
           </tbody>
         </table>
       )}
-      {sharedPosition != null ? <SharedPosition
+      {(sharedPosition != null && Number?.(sharedPosition.entryPrice) > 0) ? <SharedPosition
         visible={sharedPosition != null}
         setVisible={() => { setSharedPosition(undefined) }}
         position={sharedPosition}

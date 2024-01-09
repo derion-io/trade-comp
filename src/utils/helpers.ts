@@ -318,6 +318,7 @@ export const sub = (a: any, b: any) => {
 }
 
 export const div = (a: any, b: any, precision: number = 4) => {
+  if (Number?.(b) === 0) return 0
   a = STR(a, 4)
   b = STR(b, 4)
   const [bb, db] = remDec(b)
