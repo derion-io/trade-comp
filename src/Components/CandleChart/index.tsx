@@ -263,6 +263,14 @@ const Component = ({
         />
       </div>
       {chartIsOutDate && <div className='outdate-message'>OUTDATED</div>} */}
+      <div
+        ref={chartContainerRef}
+        className='TVChartContainer'
+        style={{
+          display: 'none',
+          visibility: 'hidden'
+        }}
+      />
       {pairAddress
         ? <div
           className={`candle-chart-box ${candleChartIsLoading && 'transparent'}`}
