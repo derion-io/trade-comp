@@ -15,7 +15,11 @@
     &:hover {
       background: $color-select-token-hover !important;
     }
-
+    &__logo-symbol {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
     &__name-and-lp {
       flex: 1;
     }

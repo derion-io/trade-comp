@@ -9,20 +9,20 @@ export const CurrencyGroupLogo = (props: {
 }) => {
   return (<div className='currency-group'>
     {props.currencyURIs?.map((uri, _) => {
-      return <img
-        key={_}
-        loading='lazy'
-        className='currency-group__item'
-        style={{
-          width: props.size || 50,
-          height: props.size || 50,
-          borderRadius: '50%',
-          transition: 'opacity 250ms ease-in 0s'
-          // ...(_ === 0 ? { marginLeft: 0 } : {})
-        }}
-        {...props}
-        src={uri}
-      />
+      return (
+        <img
+          key={_}
+          loading='lazy'
+          className='currency-group__item'
+          style={{
+            width: props.size || 50,
+            height: props.size || 50
+            // ...(_ === 0 ? { marginLeft: 0 } : {})
+          }}
+          {...props}
+          src={uri}
+        />
+      )
     })}
   </div>
   )

@@ -26,6 +26,13 @@ export const useHelper = () => {
 
   const getTokenIconUrl = async (address: string) => {
     const wAddress = convertNativeAddressToWrapAddress(address)
+
+    if (
+      wAddress?.toLowerCase() === '0x82af49447d8a07e3bd95bd0d56f35241523fbab1'
+    ) {
+      return 'https://cdn.arken.finance/token/arbitrum/0x82aF49447D8a07e3bd95BD0d56f35241523fBab1'
+    }
+
     const localWAddress = localStorage.getItem(`token-logo-${wAddress}`)
     if (!wAddress || isErc1155Address(wAddress)) return ''
     if (localWAddress !== null) return localWAddress
@@ -43,7 +50,9 @@ export const useHelper = () => {
   }
   const getCoingeckoToken = async (chainSymbol: string, address: string) => {
     try {
-      const res = await fetch(`https://api.geckoterminal.com/api/v2/networks/${chainSymbol}/tokens/${address.toLowerCase()}/info`)
+      const res = await fetch(
+        `https://api.geckoterminal.com/api/v2/networks/${chainSymbol}/tokens/${address.toLowerCase()}/info`
+      )
       if (res.status === 404) return { status: 'notfound' }
       return { ...(await res.json()).data, status: 'success' }
     } catch (e) {

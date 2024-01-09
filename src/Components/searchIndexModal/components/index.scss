@@ -1,8 +1,7 @@
 @import "../../../styles/abstracts/variables";
 
 .token-list{
-    height: 500px;
-    overflow: scroll;
+    min-height: 500px;
 }
 .inline-items-center {
     display: inline-flex;
