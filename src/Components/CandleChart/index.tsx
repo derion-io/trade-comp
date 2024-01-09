@@ -263,17 +263,24 @@ const Component = ({
         />
       </div>
       {chartIsOutDate && <div className='outdate-message'>OUTDATED</div>} */}
-      <div
-        className={`candle-chart-box ${candleChartIsLoading && 'transparent'}`}
-      >
-        <iframe id='dextools-widget'
-          title='DEXTools Trading Chart'
-          style={{
-            width: '100%',
-            height: '100%'
-          }}
-          src={`http://www.dextools.io/widget-chart/en/bnb/pe-light/${pairAddress.toLowerCase()}?theme=dark&chartType=1&chartResolution=30&drawingToolbars=false`} />
-      </div>
+      {pairAddress
+        ? <div
+          className={`candle-chart-box ${candleChartIsLoading && 'transparent'}`}
+        >
+          <iframe id='dextools-widget'
+            title='DEXTools Trading Chart'
+            style={{
+              width: '100%',
+              height: '100%'
+            }}
+            src={`http://www.dextools.io/widget-chart/en/bnb/pe-light/${pairAddress.toLowerCase()}?theme=dark&chartType=1&chartResolution=30&drawingToolbars=false`} />
+        </div>
+        : candleChartIsLoading && (
+          <div className='loading'>
+            <CandleChartLoader />
+          </div>
+        ) }
+      <input type='text' ref={timeRangeRef} className='hidden' />
     </Card>
   )
 }
