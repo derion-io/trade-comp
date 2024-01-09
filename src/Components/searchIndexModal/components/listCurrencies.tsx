@@ -23,16 +23,15 @@ export const ListCurrencies = ({ poolsFilterSearch, poolGroupsValue, isLoading =
   const { getTokenValue } = useTokenValue({})
   const { tokens } = useListTokens()
   const { balances } = useWalletBalance()
+  console.log('#poolGroupsValue', poolGroupsValue)
   return (
     <div className='token-list'>
-      <table className='token-list-table' style={{
-      }}>
-        {poolsFilterSearch.length > 0 && (
+      <div>
+        {/* {poolsFilterSearch.length > 0 && (
           <tr className='table-head'>
             <th />
-            <th />
           </tr>
-        )}
+        )} */}
         {poolsFilterSearch.map((index, _) => {
           return index.pools.map((pool, __) => {
             const poolValue = NUM(getTokenValue(
@@ -42,55 +41,61 @@ export const ListCurrencies = ({ poolsFilterSearch, poolGroupsValue, isLoading =
             ))
             const poolValueR = NUM(IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimals))
             return (
-              <tr
-                key={_ + __}
-                className='position-token-list'
-                onClick={() => handlePoolSelect({
-                  baseToken: index.baseToken,
-                  quoteToken: index.baseToken,
-                  pools: [pool]
-                })}
-              >
-                <td className='token-item'>
-                  <span className='chart-token-selector--current inline-items-center'>
-                    <CurrencyGroupLogo currencyURIs={[index.baseToken.logoURI, index.quoteToken.logoURI]} size={36}/>
-                    <div className='chart-token-symbol'>
-                      <Text>
-                        {index.baseToken.symbol} / {index.quoteToken.symbol}
-                      </Text><br/>
-                      <TextGrey>  {pool?.timeStamp ? moment
-                        .unix(pool?.timeStamp)
-                        .fromNow()
-                        .toLocaleLowerCase() : ''} </TextGrey>
-                    </div>
+              <div key={_ + __} className='position-token-list'>
+                <div
+                  className='position-token-list__table'
+                  onClick={() => handlePoolSelect({
+                    baseToken: index.baseToken,
+                    quoteToken: index.baseToken,
+                    pools: [pool]
+                  })}
+                >
+                  <div className='token-item'>
+                    <span className='chart-token-selector--current inline-items-center'>
+                      <CurrencyGroupLogo currencyURIs={[index.baseToken.logoURI, index.quoteToken.logoURI]} size={36}/>
+                      <div className='chart-token-symbol'>
+                        <Text>
+                          {unwrap(index.baseToken.symbol)}/{unwrap(index.quoteToken.symbol)}
+                        </Text><br/>
+                        <TextGrey>  {pool?.timeStamp ? moment
+                          .unix(pool?.timeStamp)
+                          .fromNow()
+                          .toLocaleLowerCase() : ''} </TextGrey>
+                      </div>
 
-                  </span>
-                  <span className='inline-items-center' />
-                </td>
+                    </span>
+                    <span className='inline-items-center' />
+                  </div>
 
-                <td className='index-value-item'>
-                  {poolValueR > 0
-                    ? <TextGrey>{`${zerofy(poolValueR)} ${unwrap(tokens[pool?.TOKEN_R].symbol)}`}<br/></TextGrey>
-                    : <SkeletonLoader textLoading='   ' loading/>}
+                  <div className='index-value-item'>
+                    {poolValueR > 0
+                      ? <TextGrey>{`${zerofy(poolValueR)} ${unwrap(tokens[pool?.TOKEN_R].symbol)}`}<br/></TextGrey>
+                      : <SkeletonLoader textLoading='   ' loading/>}
 
-                  {poolValue > 0
-                    ? <TextGrey>{`$${formatLocalisedCompactNumber(formatFloat(poolValue))}` }</TextGrey>
-                    : <SkeletonLoader textLoading='   ' loading/>}
-                </td>
-                {/* {poolGroupsValue ? poolGroupsValue?.[poolToIndexID(pool)]?.poolGroupPositions.map((playingToken:any) => {
-                  const { address, value } = playingToken
-                  if (value < MIN_POSITON_VALUE_USD_TO_DISPLAY) return null
-                  if (balances[address] && bn(balances[address]).gt(0)) {
-                    return <TokenIcon key={address} size={20} tokenAddress={address} />
-                  } else {
-                    return null
-                  }
-                }) : ''} */}
-              </tr>
+                    {poolValue > 0
+                      ? <TextGrey>{`$${formatLocalisedCompactNumber(formatFloat(poolValue))}` }</TextGrey>
+                      : <SkeletonLoader textLoading='   ' loading/>}
+                  </div>
+                </div>
+                <div className='pool-positions-list__wrap'>
+                  <TextGrey>Positions</TextGrey>
+                  <div className='pool-positions-list'>
+                    {poolGroupsValue ? poolGroupsValue?.[poolToIndexID(pool)]?.poolGroupPositions.map((playingToken:any) => {
+                      const { address, value } = playingToken
+                      if (value < MIN_POSITON_VALUE_USD_TO_DISPLAY) return null
+                      if (balances[address] && bn(balances[address]).gt(0)) {
+                        return <TokenIcon key={address} size={20} tokenAddress={address} />
+                      } else {
+                        return null
+                      }
+                    }) : ''}
+                  </div>
+                </div>
+              </div>
             )
           })
         })}
-      </table>
+      </div>
       {isLoading && Array(8).fill(0).map((a, _) => <SkeletonLoader height='50px' key={_} loading style={{ width: '100%', marginTop: '1rem' }}/>)}
       <div className='search-model-footer'><TextGrey>Enter to search more</TextGrey></div>
     </div>

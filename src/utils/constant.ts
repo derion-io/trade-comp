@@ -9,7 +9,7 @@ export const TIME_TO_REFRESH_STATE = 30000
 export const CHAINS = {
   ARBITRUM: 42161,
   // BASE: 8453,
-  BSC: 56,
+  BSC: 56
 }
 export const PERCENTAGE_SUGGESTIONS = [10, 25, 50, 75, 100]
 
@@ -70,6 +70,6 @@ export const COLORS = {
 }
 
 export const UNWRAP = {
-  'WETH': 'ETH',
-  'WBNB': 'BNB',
+  WETH: 'ETH',
+  WBNB: 'BNB'
 }
