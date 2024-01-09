@@ -19,6 +19,7 @@ import { useListTokens } from '../../state/token/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { bn, decodeErc1155Address, isErc1155Address } from '../../utils/helpers'
 import { ErrorBoundary } from '../../Components/ErrorBoundary'
+import { fetch24hChange } from '../../utils/24hChange'
 
 const TAB_2 = {
   POSITION: Symbol('position'),
@@ -81,9 +82,9 @@ export const Trade = ({
     if (
       id &&
       ddlEngine) {
-      ddlEngine.PRICE.get24hChange({
+      fetch24hChange({
         pairAddress: chartReplacements?.[id] ?? id,
-        geckoTermnialChainId: ddlEngine.profile.configs.geckoTerminalSymbol
+        gtID: ddlEngine.profile.configs.gtID
       }).then((res) => {
         setChangedIn24h(Number(res.h24))
       })
