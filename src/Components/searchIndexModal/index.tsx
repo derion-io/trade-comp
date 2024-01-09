@@ -197,7 +197,7 @@ const Component = ({
   }
 
   return (
-    <Modal setVisible={setVisible} visible={visible} title='Select a index'>
+    <Modal setVisible={setVisible} visible={visible} title='Select an index'>
       <Input
         inputWrapProps={{
           style: {
@@ -220,7 +220,7 @@ const Component = ({
             <TextGrey>Enter</TextGrey>
           </div>
         }
-        placeholder='Search name or paste address'
+        placeholder='Search symbol or address'
       />
 
       {/* <CommonCurrencies/> */}
