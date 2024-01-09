@@ -71,10 +71,18 @@ export class ClosingFeeCalculator {
   }
 }
 export type TokenFromPoolGroup = {
-  name: string
-  symbol: string
-  address: string,
-  logoURI: string
+  baseToken: {
+    name: string
+    symbol: string
+    address: string,
+    logoURI: string
+  },
+  quoteToken: {
+    name: string
+    symbol: string
+    address: string,
+    logoURI: string
+  }
   poolGroup: PoolGroupType[]
 }
 

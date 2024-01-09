@@ -45,14 +45,26 @@ const Component = ({
   useMemo(async () => {
     setWhiteListFilterPools(
       (await Promise.all(Object.keys(poolGroups).map(async (key) => {
-        const bti = poolGroups[key]?.ORACLE === '0' ? 1 : 0
-        const address = poolGroups[key]?.pair?.[`token${bti}`]?.address
+        const isOracleZero = poolGroups[key]?.ORACLE?.[2] === '0'
+        const baseTokenIndex = isOracleZero ? 1 : 0
+        const quoteTokenIndex = isOracleZero ? 0 : 1
+
+        const getTokenInfo = async (index:number) => ({
+          address: poolGroups[key]?.pair?.[`token${index}`]?.address,
+          name: poolGroups[key]?.pair?.[`token${index}`]?.name,
+          symbol: poolGroups[key]?.pair?.[`token${index}`]?.symbol,
+          logoURI: await getTokenIconUrl(poolGroups[key]?.pair?.[`token${index}`]?.address)
+        })
+
+        const baseToken = await getTokenInfo(baseTokenIndex)
+        const quoteToken = await getTokenInfo(quoteTokenIndex)
+
+        const poolGroup = Object.keys(poolGroups[key].pools).map(poolKey => poolGroups[key]?.pools?.[poolKey])
+
         return {
-          address,
-          name: poolGroups[key]?.pair?.[`token${bti}`]?.name,
-          symbol: poolGroups[key]?.pair?.[`token${bti}`]?.symbol,
-          logoURI: await getTokenIconUrl(address),
-          poolGroup: Object.keys(poolGroups[key].pools).map(poolKey => poolGroups[key]?.pools?.[poolKey])
+          baseToken,
+          quoteToken,
+          poolGroup
         }
       }))).filter(getTokenFilter(searchQuery))
     )
@@ -84,15 +96,24 @@ const Component = ({
     let poolAddresses:string[] = []
     setWhiteListFilterPools((await Promise.all(Object.keys(poolsSearch).map(async (key) => {
       const poolSearch = poolsSearch[key]
-      const bti = poolSearch?.pools?.[0]?.ORACLE === '0' ? 1 : 0
-      const address = poolSearch?.pairInfo?.[`token${bti}`]?.address
+      const isOracleZero = poolSearch?.pools?.[0]?.ORACLE?.[2] === '0'
+      const baseTokenIndex = isOracleZero ? 1 : 0
+      const quoteTokenIndex = isOracleZero ? 0 : 1
+      const getTokenInfo = async (index:number) => ({
+        address: poolSearch?.pairInfo?.[`token${index}`]?.address,
+        name: poolSearch?.pairInfo?.[`token${index}`]?.name,
+        symbol: poolSearch?.pairInfo?.[`token${index}`]?.symbol,
+        logoURI: await getTokenIconUrl(poolSearch?.pairInfo?.[`token${index}`]?.address)
+      })
       poolAddresses = [...poolAddresses, ...poolSearch.pools.map((pool:any[]) => pool?.[10])]
+      const baseToken = await getTokenInfo(baseTokenIndex)
+      const quoteToken = await getTokenInfo(quoteTokenIndex)
+      const poolGroup = poolSearch.pools
+      console.log('#search', baseToken, quoteToken, poolGroup)
       return {
-        address,
-        name: poolSearch?.pairInfo?.[`token${bti}`]?.name,
-        symbol: poolSearch?.pairInfo?.[`token${bti}`]?.symbol,
-        logoURI: await getTokenIconUrl(address),
-        poolGroup: poolSearch.pools
+        baseToken,
+        quoteToken,
+        poolGroup
       }
     }))).filter(getTokenFilter(searchQuery)))
     // eslint-disable-next-line no-unused-expressions
@@ -106,7 +127,7 @@ const Component = ({
     <Modal
       setVisible={setVisible}
       visible={visible}
-      title='Select a token'
+      title='Select a pool'
     >
       <Input
         inputWrapProps={{
@@ -123,7 +144,6 @@ const Component = ({
         placeholder='Search name or paste address'/>
 
       {/* <CommonCurrencies/> */}
-      {/* <div className='search-index__hr'/> */}
       <ListCurrencies handleCurrencySelect={handleCurrencySelect} poolGroupsValue={poolGroupsValue} whiteListFilterPools={whiteListFilterPools} isLoading={isLoadingSearch} />
 
     </Modal>

@@ -27,3 +27,6 @@
 .override-char{
  color: $color-pink
 }
+.currency-logo-item *:not(:last-child) {
+  margin-right: 0.5rem;
+}

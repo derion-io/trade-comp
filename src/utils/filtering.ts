@@ -9,7 +9,7 @@ export function getTokenFilter<T extends TokenFromPoolGroup >(query: string): (t
 
   if (searchingAddress) {
     const address = searchingAddress.toLowerCase()
-    return (t: T) => 'address' in t && address === t.address.toLowerCase()
+    return (t: T) => 'address' in t && address === t.baseToken.address.toLowerCase()
   }
 
   const queryParts = query
@@ -28,5 +28,5 @@ export function getTokenFilter<T extends TokenFromPoolGroup >(query: string): (t
     return queryParts.every((p) => p.length === 0 || parts.some((sp) => sp.startsWith(p) || sp.endsWith(p)))
   }
 
-  return ({ name, symbol }: T): boolean => Boolean((symbol && match(symbol)) || (name && match(name)))
+  return ({ baseToken: { name, symbol } }: T): boolean => Boolean((symbol && match(symbol)) || (name && match(name)))
 }

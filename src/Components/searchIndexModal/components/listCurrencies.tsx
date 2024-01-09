@@ -10,6 +10,7 @@ import { useResource } from '../../../state/resources/hooks/useResource'
 import { formatFloat, oracleToPoolGroupId } from '../../../utils/helpers'
 import formatLocalisedCompactNumber from '../../../utils/formatBalance'
 import { PoolGroupValueType } from '../../../state/resources/type'
+import { CurrencyGroupLogo } from '../../ui/CurrencyGroupLogo'
 type Props = {
   whiteListFilterPools: TokenFromPoolGroup[],
   poolGroupsValue: PoolGroupValueType
@@ -20,56 +21,53 @@ export const ListCurrencies = ({ whiteListFilterPools, poolGroupsValue, isLoadin
   return (
     <div className='token-list'>
       <table className='token-list-table' style={{
-        borderSpacing: 0
       }}>
         {whiteListFilterPools.length > 0 && (
-          <thead className='table-head'>
+          <tr className='table-head'>
             <th />
             <th />
-          </thead>
+          </tr>
         )}
-        <tbody className='token-list-tbody' >
-          {whiteListFilterPools.map((token, _) => {
-            const indexKey = oracleToPoolGroupId(token.poolGroup?.[0]?.ORACLE || '')
-            return (
-              <tr
-                key={_}
-                className='position-token-list'
-                onClick={() => handleCurrencySelect(token)}
-              >
-                <td className='token-item'>
-                  <span className='chart-token-selector--current inline-items-center'>
-                    <CurrencyLogo className='chart-token-current-icon' currencyURI={token.logoURI} size={36} />
-                    <div className='chart-token-symbol'>
-                      <Text> {token.name} </Text> <br/>
-                      <TextGrey>
-                        {token.symbol}
-                      </TextGrey>
-                    </div>
-
-                  </span>
-                  <span className='inline-items-center' />
-                </td>
-                {poolGroupsValue[indexKey]?.poolGroupValue > 0
-                  ? <td className='index-value-item'>
-
+        {whiteListFilterPools.map((index, _) => {
+          const indexKey = oracleToPoolGroupId(index.poolGroup?.[0]?.ORACLE || '')
+          return (
+            <tr
+              key={_}
+              className='position-token-list'
+              onClick={() => handleCurrencySelect(index)}
+            >
+              <td className='token-item'>
+                <span className='chart-token-selector--current inline-items-center'>
+                  <CurrencyGroupLogo currencyURIs={[index.baseToken.logoURI, index.quoteToken.logoURI]} size={36}/>
+                  <div className='chart-token-symbol'>
+                    {/* <Text> {token.baseToken.name} </Text> <br/> */}
                     <TextGrey>
-                      {`${
+                      {index.baseToken.symbol} / {index.quoteToken.symbol}
+                    </TextGrey>
+                  </div>
+
+                </span>
+                <span className='inline-items-center' />
+              </td>
+
+              <td className='index-value-item'>
+
+                {poolGroupsValue[indexKey]?.poolGroupValue > 0 ? <TextGrey>
+                  {`${
                         poolGroupsValue[indexKey]?.poolGroupValue !== 0
                           ? `($${formatLocalisedCompactNumber(
                               formatFloat(poolGroupsValue[indexKey]?.poolGroupValue, 2)
                             )})`
                           : ''
                       }`}
-                    </TextGrey>
-                  </td>
-                  : <td><SkeletonLoader textLoading='---' loading/></td>}
-              </tr>
-            )
-          })}
-        </tbody>
+                </TextGrey> : <SkeletonLoader textLoading='   ' loading/> }
+              </td>
 
-        {isLoading && Array(8).fill(0).map((a, _) => <SkeletonLoader key={_} loading style={{ width: '100%', height: '50px', marginTop: '1rem' }}/>)}
+            </tr>
+          )
+        })}
+
+        {isLoading && Array(8).fill(0).map((a, _) => <SkeletonLoader height='50px' key={_} loading style={{ width: '100%', marginTop: '1rem' }}/>)}
       </table>
       <TextGrey>Enter to search more</TextGrey>
     </div>
