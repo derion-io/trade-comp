@@ -130,7 +130,7 @@ export const Positions = ({
       )
     }
     return {}
-  }, [sls, pools, tokens])
+  }, [sls, pools, tokens, ddlEngine?.HISTORY])
 
   const generatePositionData = (
     poolAddress: string,
