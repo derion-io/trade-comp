@@ -73,7 +73,7 @@ export const ListIndexs = ({ poolsFilterSearch, isLoading, handlePoolSelect }: P
                           }) : <TextGrey>  {index.pools[Object.keys(index.pools)[0]]?.timeStamp ? moment
                             .unix(index.pools[Object.keys(index.pools)[0]]?.timeStamp)
                             .fromNow()
-                            .toLocaleLowerCase() : 'invalid'} </TextGrey> }
+                            .toLocaleLowerCase() : ''} </TextGrey> }
                         </div>
                       </div>
 
