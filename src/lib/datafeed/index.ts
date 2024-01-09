@@ -139,7 +139,7 @@ export const Datafeed = {
     // const quoteTokenSymbol = token0?.address === state.currentPool.quoteToken ? token0.symbol : token1?.symbol
     const isQuoteStableCoin = state.configs.configs.stablecoins?.some(stable => stable === state.currentPool.quoteToken)
     console.log('======resolveSymbol running====')
-    const [, , , name, , priceScale] = symbolInfo.split('-')
+    const [, , , name, , priceScale] = symbolInfo.split('_')
     const symbolStub = {
       name: name,
       full_name: name,
@@ -173,7 +173,8 @@ export const Datafeed = {
     const state = store.getState()
     const ticker = symbolInfo.ticker
     // 0x539bdE0d7Dbd336b79148AA742883198BBF60342-0x59D72DDB29Da32847A4665d08ffc8464A7185FAE-1-0x82aF49447D8a07e3bd95BD0d56f35241523fBab1-0x82aF49447D8a07e3bd95BD0d56f35241523fBab1-MAGIC/ETH-42161-7
-    const [baseAddress, cAddress,,, quoteAddress, , chainId] = ticker.split('-')
+    const [baseAddress, cAddress, quoteAddress, , chainId] = ticker.split('_')
+
     const tokens = state.tokens.tokens[chainId]
     const { route, quoteAddressSelect, isPriceByIndexR } = handleChartRouteOption(symbolInfo?.currency_id, baseAddress, cAddress, quoteAddress)
     const limit = calcLimitCandle(periodParams.from, periodParams.to, resolution)
@@ -223,7 +224,7 @@ export const Datafeed = {
       const state = store.getState()
       const ticker = symbolInfo.ticker
       // 0x539bdE0d7Dbd336b79148AA742883198BBF60342-0x59D72DDB29Da32847A4665d08ffc8464A7185FAE-1-0x82aF49447D8a07e3bd95BD0d56f35241523fBab1-0x82aF49447D8a07e3bd95BD0d56f35241523fBab1-MAGIC/ETH-42161-7
-      const [baseAddress, cAddress,,, quoteAddress, , chainId] = ticker.split('-')
+      const [baseAddress, cAddress, quoteAddress, , chainId] = ticker.split('_')
       const tokens = state.tokens.tokens[chainId]
       const { route, quoteAddressSelect } = handleChartRouteOption(symbolInfo?.currency_id, baseAddress, cAddress, quoteAddress)
       historyProvider

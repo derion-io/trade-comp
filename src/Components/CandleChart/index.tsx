@@ -68,7 +68,7 @@ const Component = ({
   const [chartResolution, setChartResolution] = useState<string>('1')
   const baseToken = poolGroups ? poolGroups[id]?.baseToken : ''
   const quoteToken = poolGroups ? poolGroups[id]?.quoteToken : ''
-  const cToken = id
+  const cToken = id.split('-')?.[0]
 
   useEffect(() => {
     if (
@@ -150,10 +150,12 @@ const Component = ({
         baseToken,
         cToken,
         quoteToken,
-        unwrap(tokens[baseToken]?.symbol) + '/' + unwrap(tokens[quoteToken]?.symbol),
+        unwrap(tokens[baseToken]?.symbol) +
+          '/' +
+          unwrap(tokens[quoteToken]?.symbol),
         chainId,
         decimalsBySignificantDigits(basePrice)
-      ].join('-'),
+      ].join('_'),
       datafeed: Datafeed,
       interval: interval as ChartingLibraryWidgetOptions['interval'],
       library_path: libraryPath as string,
@@ -185,8 +187,12 @@ const Component = ({
       timezone: timezone === 'Asia/Saigon' ? 'Asia/Ho_Chi_Minh' : timezone,
       container: chartContainerRef.current,
       custom_formatters: {
-        priceFormatterFactory: () => { return zerofyFormatter },
-        studyFormatterFactory: () => { return zerofyFormatter }
+        priceFormatterFactory: () => {
+          return zerofyFormatter
+        },
+        studyFormatterFactory: () => {
+          return zerofyFormatter
+        }
       },
       loading_screen: {
         backgroundColor: 'transparent'
@@ -206,12 +212,18 @@ const Component = ({
             timeRangeRef.current.value = from + ',' + to
           }
         })
-      tvWidget.activeChart().onSymbolChanged().subscribe(null,
-        // @ts-ignore
-        (symbolEx) => {
-          store.dispatch(setPriceByIndexR({ status: symbolEx.currency_code !== 'USD' }))
-        }
-      )
+      tvWidget
+        .activeChart()
+        .onSymbolChanged()
+        .subscribe(
+          null,
+          // @ts-ignore
+          (symbolEx) => {
+            store.dispatch(
+              setPriceByIndexR({ status: symbolEx.currency_code !== 'USD' })
+            )
+          }
+        )
       tvWidget
         .activeChart()
         .onIntervalChanged()
