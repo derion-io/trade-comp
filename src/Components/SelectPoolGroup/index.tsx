@@ -19,6 +19,7 @@ import { useWindowSize } from '../../hooks/useWindowSize'
 import { useAllLists } from '../../state/lists/hooks'
 import { useFetchListCallback } from '../../state/lists/hook/useFetchListCallback'
 import { DEFAULT_LIST_OF_LISTS, UNSUPPORTED_LIST_URLS } from '../../state/lists/constants/lists'
+import { SearchIndexModal } from '../searchIndexModal'
 
 export const SelectPoolGroup = () => {
   const [active, setActive] = useState<boolean>(false)
@@ -137,6 +138,7 @@ export const SelectPoolGroup = () => {
       className='select-pool-group__wrap'
       ref={wrapperRef}
     >
+      <SearchIndexModal visible setVisible={() => {}}/>
       <div className='select-pool-group'>
         <PoolGroupOption
           active={active}

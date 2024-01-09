@@ -1,0 +1,41 @@
+@import "../../styles/abstracts/variables";
+
+.search-input {
+  background: no-repeat scroll 7px 7px;
+  background-size: 20px 20px;
+  background-position: 12px center;
+  position: relative;
+  display: flex;
+  padding: 16px;
+  padding-left: 40px;
+  height: 40px;
+  align-items: center;
+  width: 100%;
+  white-space: nowrap;
+  border: none;
+  outline: none;
+  border-radius: 12px;
+  -webkit-appearance: none;
+  font-weight: 485;
+  font-size: 16px;
+  transition: border 100ms;
+}
+
+.search-input input {
+  background-color: your-theme-surface2-color;
+  color: your-theme-neutral1-color;
+  border: 1px solid your-theme-surface3-color;
+}
+
+.search-input input::placeholder {
+  color: your-theme-neutral3-color;
+  font-size: 16px;
+}
+
+.search-input input:focus {
+  border: 1px solid your-theme-surface3-color;
+  background-color: your-theme-surface2-color;
+  outline: none;
+}
+
+

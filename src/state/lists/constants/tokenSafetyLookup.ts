@@ -13,7 +13,6 @@ export enum TOKEN_LIST_TYPES {
   BLOCKED,
   BROKEN,
 }
-
 class TokenSafetyLookupTable {
   initialized = false
   dict: { [key: string]: TOKEN_LIST_TYPES } = {}
