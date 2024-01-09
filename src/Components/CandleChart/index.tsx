@@ -60,7 +60,6 @@ const Component = ({
     basePrice,
     setChartTimeFocus
   } = useCurrentPoolGroup()
-  console.log('#candleChartIsLoading', candleChartIsLoading, chartResolutionIsUpdated)
   const { chainId } = useConfigs()
   const { formartedSwapLogs: swapTxs } = useSwapHistory()
   const timeRangeRef = useRef<any>()
@@ -243,52 +242,28 @@ const Component = ({
     from = Math.min(from, to - size * 40)
     return { from, to }
   }
-  const DexToolChart = (props: { pairAddress: string | undefined, chartResolution: string }) => {
-    return <div>
-      { props.pairAddress
-        ? <div
-          className='candle-chart-box'
-        >
-          <iframe id='dextools-widget'
-            title='DEXTools Trading Chart'
-            style={{
-              width: '100%',
-              height: 'calc(100% + 40px)',
-              position: 'absolute',
-              top: '-40px',
-              border: 'none'
-            }}
-            src={`https://www.dextools.io/widget-chart/en/bnb/pe-light/${pairAddress.toLowerCase()}?theme=dark&tvPlatformColor=1b1d21&tvPaneColor=131722&chartType=1&chartResolution=${props.chartResolution || '1'}&drawingToolbars=false`} />
-        </div>
-        : 'Dextools Loading'}
-    </div>
-  }
+
   return (
     <Card className='candle-chart-wrap' >
-      <div style={chartIsOutDate ? {
-        display: 'none',
-        visibility: 'hidden'
-      } : {}}>
-        {candleChartIsLoading && (
-          <div className='loading'>
-            <CandleChartLoader />
-          </div>
-        )}
-        <input type='text' ref={timeRangeRef} className='hidden' />
-        <div
-          className={`candle-chart-box ${(candleChartIsLoading) && 'transparent'}`}
-        >
-          <div
-            ref={chartContainerRef}
-            className='TVChartContainer'
-            style={{
-              width: '100%',
-              height: '100%'
-            }}
-          />
+      {candleChartIsLoading && (
+        <div className='loading'>
+          <CandleChartLoader />
         </div>
+      )}
+      <input type='text' ref={timeRangeRef} className='hidden' />
+      <div
+        className={`candle-chart-box ${candleChartIsLoading && 'transparent'}`}
+      >
+        <div
+          ref={chartContainerRef}
+          className='TVChartContainer'
+          style={{
+            width: '100%',
+            height: '100%'
+          }}
+        />
       </div>
-      {!chartIsOutDate ? <DexToolChart pairAddress={pairAddress} chartResolution={chartResolution } /> : ''}
+      {chartIsOutDate && <div className='outdate-message'>OUTDATED</div>}
     </Card>
   )
 }
