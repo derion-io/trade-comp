@@ -32,17 +32,17 @@ export const App = () => {
   useFetchFeeData()
   useFetchTokenPrice()
   useSwapHistoryFormated()
-  const fetchList = useFetchListCallback()
-  const fetchAllListsCallback = useCallback(() => {
-    DEFAULT_LIST_OF_LISTS.forEach((url) => {
-      const isUnsupportedList = UNSUPPORTED_LIST_URLS.includes(url)
-      fetchList(url, isUnsupportedList).catch((error) => console.debug('interval list fetching error', error))
-    })
-  }, [fetchList])
+  // const fetchList = useFetchListCallback()
+  // const fetchAllListsCallback = useCallback(() => {
+  //   DEFAULT_LIST_OF_LISTS.forEach((url) => {
+  //     const isUnsupportedList = UNSUPPORTED_LIST_URLS.includes(url)
+  //     fetchList(url, isUnsupportedList).catch((error) => console.debug('interval list fetching error', error))
+  //   })
+  // }, [fetchList])
 
-  useEffect(() => {
-    fetchAllListsCallback()
-  }, [ddlEngine, configs.name])
+  // useEffect(() => {
+  //   fetchAllListsCallback()
+  // }, [ddlEngine, configs.name])
 
   useEffect(() => {
     try {

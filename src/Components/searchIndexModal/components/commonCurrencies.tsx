@@ -19,7 +19,7 @@ export const CommonCurrencies = () => {
             className='common-currencies__item'
           >
             <span className='chart-token-selector--current inline-items-center' >
-              <CurrencyLogoFromList currency={currency} chainId={chainId}/>
+              <CurrencyLogo currencyURI='' size={24}/>
               <Text fontWeight={535} fontSize={16}>
                 {currency.symbol}
               </Text>

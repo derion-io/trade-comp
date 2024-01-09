@@ -1,7 +1,7 @@
 import { ChainId, Token } from '@uniswap/sdk-core'
 import { useMemo } from 'react'
 import { useAllLists, useCombinedActiveList, useCombinedTokenMapFromUrls, useUnsupportedTokenList } from '../hooks'
-import { getTokenFilter } from './useTokenList/filtering'
+import { getTokenFilter } from '../../../utils/filtering'
 import { TokenAddressMap } from './useTokenList/utils'
 
 import { DEFAULT_INACTIVE_LIST_URLS, DEFAULT_LIST_OF_LISTS } from '../constants/lists'

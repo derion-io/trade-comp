@@ -15,11 +15,14 @@ import { FunctionPlot } from '../FuncPlot'
 import { SelectPoolGroup } from '../SelectPoolGroup'
 import { SearchIndexModal } from '../searchIndexModal'
 import { ButtonBorder } from '../ui/Button'
+import { useResource } from '../../state/resources/hooks/useResource'
+import { Card } from '../ui/Card'
 const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const { chainId, configs } = useConfigs()
   const { chartTab, setChartTab, basePrice, id, chartIsOutDate } = useCurrentPoolGroup()
   const { data: nativePrice } = useNativePrice()
   const { currentPool, priceByIndexR } = useCurrentPool()
+  const [onSearchCurrenies, setOnSearchCurrenies] = useState<boolean>(false)
   const { poolGroups } = useResource()
   const [isUseDextool, setUseDexTool] = useState<boolean>(false)
   const pairAddress = poolGroups[id] ? '0x' + (poolGroups[id]?.ORACLE as String).slice(poolGroups[id]?.ORACLE.length - 40, poolGroups[id]?.ORACLE.length) : ''
@@ -39,12 +42,13 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
       <div className='chart__head'>
         <div className='chart__head--left'>
 
-          {/* <SearchIndexModal visible={onSearchCurrenies} setVisible={() => { setOnSearchCurrenies(!onSearchCurrenies) }} onDismiss={() => {
-          }} onCurrencySelect={(currency: Currency, hasWarning?: boolean | undefined) => {
+          <SearchIndexModal visible={onSearchCurrenies} setVisible={() => { setOnSearchCurrenies(!onSearchCurrenies) }} onDismiss={() => {
+          }} onCurrencySelect={(currency: any, hasWarning?: boolean | undefined) => {
             console.log('#', currency)
-          }}/> */}
-          <SelectPoolGroup />
-          {/* <ButtonBorder onClick={() => { setOnSearchCurrenies(true) }} >Search Index (Test)</ButtonBorder> */}
+          }}/>
+          <ButtonBorder onClick={() => { setOnSearchCurrenies(true) }} >
+            <SelectPoolGroup />
+          </ButtonBorder>
           {!!id && basePrice && (
             <span>
               <Text>

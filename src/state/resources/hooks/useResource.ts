@@ -20,15 +20,17 @@ export const useResource = () => {
     if (ddlEngine && configs.name) {
       const { searchParams } = new URL(`https://1.com?${location.href.split('?')[1]}`)
       const playMode = searchParams.has('play')
-      ddlEngine.RESOURCE.getResourceCached(account, playMode).then((data: any) => {
-        dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
-        dispatch(
-          addPoolGroupsWithChain({ poolGroups: data.poolGroups, chainId })
-        )
-        dispatch(addPoolsWithChain({ pools: data.pools, chainId }))
-        updateSwapTxsHandle(account, data.swapLogs, data.transferLogs)
-      })
-      ddlEngine.RESOURCE.getNewResource(account, playMode).then((data: any) => {
+      // TODO: add getResourceCache here
+      // ddlEngine.RESOURCE.getResourceCached(account, playMode).then((data: any) => {
+      //   dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
+      //   dispatch(
+      //     addPoolGroupsWithChain({ poolGroups: data.poolGroups, chainId })
+      //   )
+      //   dispatch(addPoolsWithChain({ pools: data.pools, chainId }))
+      //   updateSwapTxsHandle(account, data.swapLogs, data.transferLogs)
+      // })
+      // TODO: use getNewResource here
+      ddlEngine.RESOURCE.getWhiteListResource().then((data: any) => {
         dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
         dispatch(
           addPoolGroupsWithChain({ poolGroups: data.poolGroups, chainId })

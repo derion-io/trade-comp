@@ -66,7 +66,6 @@ const Component = ({
   const [currentChart, setCurrentChart] = useState<string>('')
   const { poolGroups } = useResource()
   const [chartResolution, setChartResolution] = useState<string>('1')
-  const pairAddress = poolGroups[id] ? '0x' + (poolGroups[id]?.ORACLE as String).slice(poolGroups[id]?.ORACLE.length - 40, poolGroups[id]?.ORACLE.length) : ''
   const baseToken = poolGroups ? poolGroups[id]?.baseToken : ''
   const quoteToken = poolGroups ? poolGroups[id]?.quoteToken : ''
   const cToken = id

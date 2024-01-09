@@ -3,7 +3,7 @@ import 'rc-slider/assets/index.css'
 import React, { ChangeEvent, Fragment, KeyboardEvent, RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import isEqual from 'react-fast-compare'
 import useDebounce from '../../hooks/useDebounce'
-import { getTokenFilter } from '../../state/lists/hook/useTokenList/filtering'
+import { getTokenFilter } from '../../utils/filtering'
 import { tokenComparator, useSortTokensByQuery } from '../../state/lists/hook/useTokenList/sorting'
 import { useDefaultActiveTokens, useSearchInactiveTokenLists } from '../../state/lists/hook/useTokens'
 import { isAddress } from '../../state/lists/utils/isAddress'
@@ -15,6 +15,11 @@ import { TokenFromList } from '../../state/lists/tokenFromList'
 import { CommonCurrencies } from './components/commonCurrencies'
 import { Divider } from '../ui/Divider'
 import { Input } from '../ui/Input'
+import { useConfigs } from '../../state/config/useConfigs'
+import { useResource } from '../../state/resources/hooks/useResource'
+import { useHelper } from '../../state/config/useHelper'
+import { TokenFromPoolGroup } from '../../utils/type'
+import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 const Component = ({
   visible,
   setVisible,
@@ -25,83 +30,76 @@ const Component = ({
   setVisible: any,
   onDismiss: () => void
   selectedCurrency?: Currency | null
-  onCurrencySelect: (currency: Currency, hasWarning?: boolean) => void
+  onCurrencySelect: (currency: TokenFromPoolGroup, hasWarning?: boolean) => void
 }) => {
   if (!visible) return <Fragment/>
   const chainId = 56
-  const defaultTokens = useDefaultActiveTokens(chainId)
+  // const defaultTokens = useDefaultActiveTokens(chainId)
   const [searchQuery, setSearchQuery] = useState<string>('')
-  const debouncedQuery = useDebounce(searchQuery, 200)
-  const isAddressSearch = isAddress(debouncedQuery)
-  const filteredSortedTokens: TokenFromList[] = useMemo(() => {
-    const filteredTokens = Object.values(defaultTokens)
-      .filter(getTokenFilter(debouncedQuery))
-      // .filter((token) => !(token.address?.toLowerCase() in balances))
-    const mergedTokens = filteredTokens
+  const { ddlEngine } = useConfigs()
+  const { getTokenIconUrl } = useHelper()
+  const { updateCurrentPoolGroup, id } = useCurrentPoolGroup()
+  const { poolGroups } = useResource()
+  const [whiteListFilterPools, setWhiteListFilterPools] = useState<TokenFromPoolGroup[]>([])
+  // const [inWhiteListFilterPools, setInWhiteListFilterPools] = useState<TokenFromPoolGroup[]>([])
+  const [isLoadingSearch, setIsLoadingSearch] = useState<boolean>(false)
+  useEffect(() => {
+    console.log('#id', id)
+  }, [id])
+  useMemo(async () => {
+    setWhiteListFilterPools(
+      (await Promise.all(Object.keys(poolGroups).map(async (key) => {
+        const bti = poolGroups[key]?.ORACLE === '0' ? 1 : 0
+        const address = poolGroups[key]?.pair?.[`token${bti}`]?.address
+        return {
+          address,
+          name: poolGroups[key]?.pair?.[`token${bti}`]?.name,
+          symbol: poolGroups[key]?.pair?.[`token${bti}`]?.symbol,
+          logoURI: await getTokenIconUrl(address),
+          poolGroup: Object.keys(poolGroups[key].pools).map(poolKey => poolGroups[key]?.pools?.[poolKey])
+        }
+      }))).filter(getTokenFilter(searchQuery))
+    )
+  }, [poolGroups, searchQuery])
 
-    // if (balancesAreLoading) {
-    //   return mergedTokens
-    // }
-    // console.log('#', mergedTokens)
-    return mergedTokens
-    // .filter((token) => {
-    // if (onlyShowCurrenciesWithBalance) {
-    //   return balances[token.address?.toLowerCase()]?.usdValue > 0
-    // }
-
-    // If there is no query, filter out unselected user-added tokens with no balance.
-    // if (!debouncedQuery && token instanceof UserAddedToken) {
-    //   if (selectedCurrency?.equals(token) || otherSelectedCurrency?.equals(token)) return true
-    //   return balances[token.address.toLowerCase()]?.usdValue > 0
-    // }
-      //   return true
-      // })
-      .sort(tokenComparator.bind(null, {}))
-  }, [
-    // data,
-    defaultTokens,
-    debouncedQuery
-
-  ])
-  const filteredInactiveTokens = useSearchInactiveTokenLists(
-    (filteredSortedTokens.length === 0 || (debouncedQuery.length > 2 && !isAddressSearch))
-      ? debouncedQuery
-      : undefined,
-    chainId
-  )
-  console.log('#filteredInactiveTokens', filteredInactiveTokens)
-  console.log('#filteredSortedTokens', filteredSortedTokens)
   const inputRef = useRef<HTMLInputElement>()
 
   const handleInput = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const input = event.target.value
-    const checksummedInput = isAddress(input)
-    setSearchQuery(checksummedInput || input)
+    setSearchQuery(input)
+    console.log('#', input)
   }, [])
 
   const handleCurrencySelect = useCallback(
-    (currency: Currency, hasWarning?: boolean) => {
+    (currency: TokenFromPoolGroup, hasWarning?: boolean) => {
       onCurrencySelect(currency, hasWarning)
+      const oracle = currency.poolGroup?.[0]?.ORACLE
+      const newID = oracle ? '0x' + (oracle as String).slice(oracle.length - 40, oracle.length) : ''
+      updateCurrentPoolGroup(newID)
+      setVisible(false)
       if (!hasWarning) onDismiss()
     },
     [onDismiss, onCurrencySelect]
   )
 
-  const handleEnter = useCallback(
-    (e: KeyboardEvent<HTMLInputElement>) => {
-      // if (e.key === 'Enter') {
-      //   if (searchCurrencies.length > 0) {
-      //     if (
-      //       searchCurrencies[0].symbol?.toLowerCase() === debouncedQuery.trim().toLowerCase() ||
-      //       searchCurrencies.length === 1
-      //     ) {
-      //       handleCurrencySelect(searchCurrencies[0])
-      //     }
-      //   }
-      // }
-    },
-    [debouncedQuery, handleCurrencySelect]
-  )
+  const handleEnter = async (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== 'Enter') return
+    setIsLoadingSearch(true)
+    const poolsSearch = await ddlEngine?.RESOURCE.searchIndex(searchQuery.toUpperCase())
+    setWhiteListFilterPools((await Promise.all(Object.keys(poolsSearch).map(async (key) => {
+      const poolSearch = poolsSearch[key]
+      const bti = poolSearch?.pools?.[0]?.ORACLE === '0' ? 1 : 0
+      const address = poolSearch?.pairInfo?.[`token${bti}`]?.address
+      return {
+        address,
+        name: poolSearch?.pairInfo?.[`token${bti}`]?.name,
+        symbol: poolSearch?.pairInfo?.[`token${bti}`]?.symbol,
+        logoURI: await getTokenIconUrl(address),
+        poolGroup: poolSearch.pools
+      }
+    }))).filter(getTokenFilter(searchQuery)))
+    setIsLoadingSearch(false)
+  }
 
   return (
     <Modal
@@ -125,7 +123,8 @@ const Component = ({
 
       <CommonCurrencies/>
       <div className='search-index__hr'/>
-      <ListCurrencies currencies={filteredSortedTokens.length === 0 ? filteredInactiveTokens : filteredSortedTokens}/>
+      <ListCurrencies handleCurrencySelect={handleCurrencySelect} currencies={whiteListFilterPools} isLoading={isLoadingSearch} />
+
     </Modal>
   )
 }
