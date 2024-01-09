@@ -40,40 +40,50 @@ const Component = ({
   const { poolGroups, addNewResource, useCalculatePoolValue } = useResource()
   // const { poolGroupsValue } = useCalculatePoolGroupsValue()
   const calculatePoolValue = useCalculatePoolValue()
-  const [poolsFilterSearch, setPoolsFilterSearch] = useState<PoolSearch[]>([])
+  const [poolsFilterSearch, setPoolsFilterSearch] = useState<{[key:string]: PoolSearch}>({})
   const [isLoadingSearch, setIsLoadingSearch] = useState<boolean>(false)
+  useEffect(() => {
+    console.log('#poolGroups', poolGroups)
+  }, [poolGroups])
   useMemo(async () => {
-    setPoolsFilterSearch(
-      (await Promise.all(Object.keys(poolGroups).map(async (key) => {
-        const isOracleZero = poolGroups[key]?.ORACLE?.[2] === '0'
-        const baseTokenIndex = isOracleZero ? 1 : 0
-        const quoteTokenIndex = isOracleZero ? 0 : 1
+    const poolGroupsFilter = {}
+    await Promise.all(Object.keys(poolGroups).map(async (key) => {
+      const isOracleZero = poolGroups[key]?.ORACLE?.[2] === '0'
+      const baseTokenIndex = isOracleZero ? 1 : 0
+      const quoteTokenIndex = isOracleZero ? 0 : 1
 
-        const getTokenInfo = async (index:number) => ({
-          address: poolGroups[key]?.pair?.[`token${index}`]?.address,
-          name: poolGroups[key]?.pair?.[`token${index}`]?.name,
-          symbol: poolGroups[key]?.pair?.[`token${index}`]?.symbol,
-          logoURI: await getTokenIconUrl(poolGroups[key]?.pair?.[`token${index}`]?.address)
-        })
+      const getTokenInfo = async (index:number) => ({
+        address: poolGroups[key]?.pair?.[`token${index}`]?.address,
+        name: poolGroups[key]?.pair?.[`token${index}`]?.name,
+        symbol: poolGroups[key]?.pair?.[`token${index}`]?.symbol,
+        logoURI: await getTokenIconUrl(poolGroups[key]?.pair?.[`token${index}`]?.address)
+      })
 
-        const baseToken = await getTokenInfo(baseTokenIndex)
-        const quoteToken = await getTokenInfo(quoteTokenIndex)
+      const baseToken = await getTokenInfo(baseTokenIndex)
+      const quoteToken = await getTokenInfo(quoteTokenIndex)
 
-        const pools = Object.keys(poolGroups[key].pools)
-          .map(poolKey => poolGroups[key]?.pools?.[poolKey])
-          .map((pool:any, _) => {
-            return {
-              ...pool,
-              ...calculatePoolValue(pool)
-            }
-          }).sort((a:PoolType, b: PoolType) => a?.poolPositionsValue - b?.poolPositionsValue || a?.poolValueR - b?.poolValueR)
-        return {
-          baseToken,
-          quoteToken,
-          pools
-        }
-      }))).filter(getTokenFilter(searchQuery))
-    )
+      const pools = Object.keys(poolGroups[key].pools)
+        .map(poolKey => poolGroups[key]?.pools?.[poolKey])
+        .map((pool:any, _) => {
+          return {
+            ...pool,
+            ...calculatePoolValue(pool)
+          }
+        }).sort((a:PoolType, b: PoolType) => a?.poolPositionsValue - b?.poolPositionsValue || a?.poolValueR - b?.poolValueR)
+      const tokenFilter = getTokenFilter(searchQuery)
+      const poolGroup = {
+        ...poolGroupsFilter[key],
+        baseToken,
+        quoteToken,
+        pools
+      }
+
+      if (!tokenFilter(poolGroup)) return
+      poolGroupsFilter[key] = poolGroup
+      return {}
+    }))
+    setPoolsFilterSearch(poolGroupsFilter)
+    // .filter(getTokenFilter(searchQuery))
   }, [poolGroups, searchQuery, tokens])
 
   const inputRef = useRef<HTMLInputElement>()
@@ -98,11 +108,14 @@ const Component = ({
   )
 
   const handleEnter = async (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key !== 'Enter') return
+    if (e.keyCode !== 13 && e.key !== 'Enter') return
     setIsLoadingSearch(true)
     const searchResults = await ddlEngine?.RESOURCE.searchIndex(searchQuery.toUpperCase())
+    console.log('#searchResults', searchResults, e)
+    console.log('#poolsFilterSearch', poolsFilterSearch)
+    const poolGroupsFilter = {}
     let poolAddresses:string[] = []
-    const poolsSearch = (await Promise.all(Object.keys(searchResults).map(async (key) => {
+    await Promise.all(Object.keys(searchResults).map(async (key) => {
       const poolSearch = searchResults[key]
       const isOracleZero = poolSearch?.pools?.[0]?.ORACLE?.[2] === '0'
       const baseTokenIndex = isOracleZero ? 1 : 0
@@ -113,49 +126,47 @@ const Component = ({
         symbol: poolSearch?.pairInfo?.[`token${index}`]?.symbol,
         logoURI: await getTokenIconUrl(poolSearch?.pairInfo?.[`token${index}`]?.address)
       })
-      poolAddresses = [...poolAddresses, ...poolSearch.pools.map((pool:any[]) => pool?.[10])]
+      if (poolGroups[key]?.pools) return
+      poolAddresses = [...poolAddresses, ...poolSearch.pools.map((pool:any) => pool?.poolAddress)]
       const baseToken = await getTokenInfo(baseTokenIndex)
       const quoteToken = await getTokenInfo(quoteTokenIndex)
       const pools = poolSearch.pools.map((pool:any) => {
-        return {
-          ...pool,
-          ...calculatePoolValue(pool)
-        }
-      }).sort((a:PoolType, b: PoolType) => a?.poolPositionsValue - b?.poolPositionsValue || a?.poolValueR - b?.poolValueR)
-      return {
+        return pool
+      })
+      poolGroupsFilter[key] = {
         baseToken,
         quoteToken,
         pools
       }
-    }))).filter(getTokenFilter(searchQuery))
-    const poolsRaw = JSON.stringify(poolsFilterSearch)
-    // Check is search results is already have in pools list
-    const poolAddressesFilter = poolAddresses.filter(poolAddress => !poolsRaw.includes(poolAddress))
-    if (poolAddressesFilter.length === 0) {
+    }))
+    if (poolAddresses.length === 0) {
       setIsLoadingSearch(false)
       return
     }
-    setPoolsFilterSearch(poolsSearch)
+    setPoolsFilterSearch(poolGroupsFilter)
     // eslint-disable-next-line no-unused-expressions
-    ddlEngine?.RESOURCE.generateData({ poolAddresses: poolAddressesFilter, transferLogs: [] }).then(data => {
+    ddlEngine?.RESOURCE.generateData({ poolAddresses, transferLogs: [] }).then(data => {
+      console.log('#poolAddresses', poolAddresses)
+      console.log('#generateData', data)
       const poolAddressTimestampMap = {}
-      poolsSearch.forEach(({ pools }) => {
+      Object.keys(poolGroupsFilter).map((key) => {
+        const pools = poolGroupsFilter[key].pools
         pools.forEach((pool:any) => {
           poolAddressTimestampMap[pool?.poolAddress] = pool?.timeStamp
         })
       })
-
+      console.log('#poolAddressTimestampMap', poolAddressTimestampMap)
       Object.keys(data.poolGroups).forEach((key) => {
         const poolGroup = data.poolGroups[key]
-        Object.keys(poolAddressTimestampMap).forEach((_key) => {
-          poolGroup.pools[_key] = {
+        Object.keys(data.poolGroups[key].pools).forEach((_key) => {
+          data.poolGroups[key].pools[_key] = {
             ...poolGroup.pools[_key],
             timeStamp: poolAddressTimestampMap[_key]
           }
         })
       })
       addNewResource(data, account)
-    })
+    }).catch(e => { console.log(e) })
     setIsLoadingSearch(false)
   }
 
@@ -163,7 +174,7 @@ const Component = ({
     <Modal
       setVisible={setVisible}
       visible={visible}
-      title='Select a pool'
+      title='Select a index'
     >
       <Input
         inputWrapProps={{

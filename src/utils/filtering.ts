@@ -25,7 +25,7 @@ export function getTokenFilter<T extends PoolSearch >(query: string): (token: T)
       .split(/\s+/)
       .filter((s) => s.length > 0)
 
-    return queryParts.every((p) => p.length === 0 || parts.some((sp) => sp.startsWith(p) || sp.endsWith(p)))
+    return queryParts.every((p) => p.length === 0 || parts.some((sp) => sp.startsWith(p) || sp.endsWith(p))) || s.toLowerCase().includes(query.toLowerCase())
   }
 
   return ({ baseToken: { name, symbol } }: T): boolean => Boolean((symbol && match(symbol)) || (name && match(name)))

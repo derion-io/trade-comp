@@ -437,7 +437,8 @@ export const decimalsBySignificantDigits = (
 
 export const getPoolPower = (pool: any): number => {
   const { k, exp } = pool
-  return k.toNumber() / exp
+  if (!k || !exp) return 0
+  return k?.toNumber?.() / exp
 }
 
 export const getTitleBuyTradeType = (type: TRADE_TYPE): string => {

@@ -33,21 +33,24 @@ export const useResource = () => {
     if (ddlEngine && configs.name) {
       const { searchParams } = new URL(`https://1.com?${location.href.split('?')[1]}`)
       const playMode = searchParams.has('play')
-      ddlEngine.RESOURCE.getWhiteListResource().then((data: any) => {
+      ddlEngine.RESOURCE.getWhiteListResource().then((data) => {
+        console.log('#getWhiteListResource', data)
+        if (data?.tokens?.length === 0) return
+        addNewResource(data, account)
+        // updateSwapTxsHandle(account, data.swapLogs, data.transferLogs)
+      })
+
+      ddlEngine.RESOURCE.getResourceCached(account, playMode).then((data) => {
+        console.log('#getResourceCached', data)
         if (data?.tokens?.length === 0) return
         addNewResource(data, account)
         updateSwapTxsHandle(account, data.swapLogs, data.transferLogs)
       })
-
-      ddlEngine.RESOURCE.getResourceCached(account, playMode).then((data: any) => {
+      ddlEngine.RESOURCE.getNewResource(account, playMode).then((data) => {
+        console.log('#getNewResource', data)
         if (data?.tokens?.length === 0) return
         addNewResource(data, account)
-        // updateSwapTxsHandle(account, data.swapLogs, data.transferLogs)
-      })
-      ddlEngine.RESOURCE.getNewResource(account, playMode).then((data: any) => {
-        if (data?.tokens?.length === 0) return
-        addNewResource(data, account)
-        // updateSwapTxsHandle(account, data.swapLogs, data.transferLogs)
+        updateSwapTxsHandle(account, data.swapLogs, data.transferLogs)
       })
     }
   }
@@ -61,6 +64,7 @@ export const useResource = () => {
       Object.keys(poolGroups[chainId]).map((indexKey:string) => {
         const poolGroup = poolGroups[chainId][indexKey]
         let poolGroupValue = 0
+        let poolGroupValueR = 0
         let poolGroupPositionValue = 0
         if (!poolGroup?.pools) return
         const results = []
@@ -72,10 +76,12 @@ export const useResource = () => {
                   IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimals),
                   true
             ))
+            poolGroupValueR += NUM(IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimals))
           }
         } else {
           for (const poolAddress of Object.keys(poolGroup.pools)) {
             const pool = poolGroup.pools[poolAddress]
+            poolGroupValueR += NUM(IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimals))
             if (balances[poolAddress + '-' + POOL_IDS.A]) {
               results.push(poolAddress + '-' + POOL_IDS.A)
             }
@@ -105,11 +111,24 @@ export const useResource = () => {
         }).filter(token => token.address !== null && token.value > 0)
         poolGroupsValue[indexKey] = {
           poolGroupValue,
+          poolGroupValueR,
           poolGroupPositionValue,
           poolGroupPositions
         }
       })
-      return { poolGroupsValue }
+      const poolGroupsValueEntries = Object.entries(poolGroupsValue)
+
+      poolGroupsValueEntries.sort(
+        ([, a], [, b]) =>
+          ((b as any).poolGroupPositionValue ?? 0) - ((a as any).poolGroupPositionValue ?? 0) ||
+          ((b as any).poolGroupValueR ?? 0) - ((a as any).poolGroupValueR ?? 0)
+      )
+
+      const poolGroupsSortValue = {}
+      for (const [key, value] of poolGroupsValueEntries) {
+        poolGroupsSortValue[key] = value
+      }
+      return { poolGroupsValue: poolGroupsSortValue }
     }, [poolGroups, tokens, balances])
   }
   const useCalculatePoolValue = () => {

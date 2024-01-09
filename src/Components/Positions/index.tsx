@@ -41,7 +41,7 @@ import {
   STR,
   add,
   IS_NEG,
-  ABS,
+  ABS
 } from '../../utils/helpers'
 import { ClosingFeeCalculator, Position } from '../../utils/type'
 import { ClosePosition } from '../ClosePositionModal'
@@ -161,11 +161,11 @@ export const Positions = ({
         return null
       }
 
-      const poolIndex = Object.keys(poolGroups).find(index => 
+      const poolIndex = Object.keys(poolGroups).find(index =>
         !!poolGroups?.[index]?.pools?.[poolAddress]
       )
       const currentPrice = poolGroups[poolIndex ?? '']?.basePrice ?? 0
-      
+
       const {
         leverage,
         effectiveLeverage,
@@ -188,7 +188,7 @@ export const Positions = ({
         MATURITY_RATE: pool.MATURITY_RATE,
         maturity: maturities?.[token]?.toNumber() ?? 0
       })
-      
+
       const L = side == POOL_IDS.A ? NUM(leverage) : side == POOL_IDS.B ? -NUM(leverage) : 0
       let valueRLinear
       let valueRCompound
@@ -196,7 +196,7 @@ export const Positions = ({
         const priceRate = div(currentPrice, entryPrice)
         const leveragedPriceRate = add(1, div(
           mul(L, sub(currentPrice, entryPrice)),
-          entryPrice,
+          entryPrice
         ))
         if (leveragedPriceRate.startsWith('-')) {
           valueRLinear = '0'
@@ -243,9 +243,9 @@ export const Positions = ({
   const positions: Position[] = useMemo(() => {
     const result: any = []
     Object.keys(pools).forEach((poolAddress) => {
-      result.push(generatePositionData(poolAddress, POOL_IDS.A))
-      result.push(generatePositionData(poolAddress, POOL_IDS.B))
-      result.push(generatePositionData(poolAddress, POOL_IDS.C))
+      // result.push(generatePositionData(poolAddress, POOL_IDS.A))
+      // result.push(generatePositionData(poolAddress, POOL_IDS.B))
+      // result.push(generatePositionData(poolAddress, POOL_IDS.C))
     })
 
     return result.filter((r: any) => r !== null)
@@ -345,21 +345,21 @@ export const Positions = ({
                   <TextGrey>
                     Net Value
                     <Text
-                        className='text-link'
-                        onClick={() => {
-                          setValueInUsdStatus(
-                            valueInUsdStatus === VALUE_IN_USD_STATUS.USD
-                              ? VALUE_IN_USD_STATUS.TOKEN_R
-                              : VALUE_IN_USD_STATUS.USD
-                          )
-                        }}
-                      >
-                        {valueInUsdStatus === VALUE_IN_USD_STATUS.USD
-                          ? ` ⇄ ${
+                      className='text-link'
+                      onClick={() => {
+                        setValueInUsdStatus(
+                          valueInUsdStatus === VALUE_IN_USD_STATUS.USD
+                            ? VALUE_IN_USD_STATUS.TOKEN_R
+                            : VALUE_IN_USD_STATUS.USD
+                        )
+                      }}
+                    >
+                      {valueInUsdStatus === VALUE_IN_USD_STATUS.USD
+                        ? ` ⇄ ${
                               tokens[wrapToNativeAddress(position.pool.TOKEN_R)]
                                 ?.symbol
                             }`
-                          : ' ⇄ USD'}
+                        : ' ⇄ USD'}
                     </Text>
                   </TextGrey>
                   <NetValue
@@ -370,7 +370,7 @@ export const Positions = ({
                   />
                 </InfoRow>
 
-                {!!position.valueRCompound ? <React.Fragment>
+                {position.valueRCompound ? <React.Fragment>
                   <InfoRow>
                     <TextGrey>PnL</TextGrey>
                     <LinearPnL
@@ -571,12 +571,12 @@ export const Positions = ({
                         loading={position.status === POSITION_STATUS.OPENING}
                       />
                       {position.valueRCompound
-                      ? <CompoundPnL
+                        ? <CompoundPnL
                           loading={position.status === POSITION_STATUS.OPENING}
                           valueInUsdStatus={valueInUsdStatus}
                           position={position}
                         />
-                      : <PnL
+                        : <PnL
                           loading={position.status === POSITION_STATUS.OPENING}
                           valueInUsdStatus={valueInUsdStatus}
                           position={position}
@@ -656,7 +656,7 @@ export const Positions = ({
       )}
       {sharedPosition != null ? <SharedPosition
         visible={sharedPosition != null}
-        setVisible={() => {setSharedPosition(undefined)}}
+        setVisible={() => { setSharedPosition(undefined) }}
         position={sharedPosition}
       /> : ''}
       {visible && closingPosition != null ? (
@@ -744,7 +744,7 @@ export const NetValue = ({
   const [from, to] = isShowValueInUsd(valueInUsdStatus, pool)
     ? [entryValueU, valueU]
     : [entryValueR, valueR]
-  
+
   const fromCurrency = isShowValueInUsd(valueInUsdStatus, pool)
     ? <TextGrey>$</TextGrey>
     : <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex'/>
@@ -1001,7 +1001,7 @@ export const Funding = ({
 
 export const DeleveragePrice = ({
   position,
-  isPhone,
+  isPhone
 }: {
   position: {
     dgA: number
@@ -1024,7 +1024,7 @@ export const DeleveragePrice = ({
       return `(×${formatFloat(rate, undefined, 2, true)})`
     }
     if (rate <= 0.5) {
-      return `(1/${formatFloat(1/rate, undefined, 2, true)})`
+      return `(1/${formatFloat(1 / rate, undefined, 2, true)})`
     }
     const delta = formatFloat(mdp(div(sub(dg, currentPrice), currentPrice), 2), undefined, 3, true)
     return `(${delta >= 0 ? '+' : ''}${delta}%)`
@@ -1032,14 +1032,14 @@ export const DeleveragePrice = ({
 
   const TextComp =
     effectiveLeverage < leverage / 2 ? TextSell
-    : effectiveLeverage < leverage ? TextWarning
-    : TextGrey
+      : effectiveLeverage < leverage ? TextWarning
+        : TextGrey
 
   if (isPhone) {
     return side === POOL_IDS.A
       ? <TextComp>{deltas[0]} {zerofy(dgA)}</TextComp>
       : side === POOL_IDS.B ? <TextComp>{deltas[1]} {zerofy(dgB)}</TextComp>
-      : <TextComp>{zerofy(dgB)}-{zerofy(dgA)}</TextComp>
+        : <TextComp>{zerofy(dgB)}-{zerofy(dgA)}</TextComp>
   }
 
   return side === POOL_IDS.A
@@ -1051,14 +1051,14 @@ export const DeleveragePrice = ({
       <div><TextComp>{zerofy(dgB)}</TextComp></div>
       <TextComp>{deltas[1]}</TextComp>
     </React.Fragment>
-    : <React.Fragment>
-      <div><TextComp>{zerofy(dgA)}</TextComp></div>
-      <TextComp>{zerofy(dgB)}</TextComp>
-    </React.Fragment>
+      : <React.Fragment>
+        <div><TextComp>{zerofy(dgA)}</TextComp></div>
+        <TextComp>{zerofy(dgB)}</TextComp>
+      </React.Fragment>
 }
 
 export const FundingRate = ({
-  position,
+  position
 }: {
   position: Position
 }) => {
@@ -1066,7 +1066,7 @@ export const FundingRate = ({
   const TextComp = funding < 0 || side === POOL_IDS.C ? TextGreen : TextWarning
   const fundingFormat = zerofy(formatFloat(funding * 100, undefined, 3, true))
   if (fundingFormat == '0') {
-    return <React.Fragment></React.Fragment>
+    return <React.Fragment />
   }
   return <TextComp>
     {fundingFormat}%
@@ -1076,7 +1076,7 @@ export const FundingRate = ({
 
 export const Size = ({
   position,
-  isPhone,
+  isPhone
 }: {
   position: Position
   isPhone?: boolean
@@ -1087,18 +1087,17 @@ export const Size = ({
   }
   if (!isPhone) {
     return <SkeletonLoader loading={status === POSITION_STATUS.OPENING}>
-      {effectiveLeverage < leverage / 2 ?
-        <TextError>{sizeDisplay}
-        <div><TextGrey>({leverage}x)</TextGrey></div>
+      {effectiveLeverage < leverage / 2
+        ? <TextError>{sizeDisplay}
+          <div><TextGrey>({leverage}x)</TextGrey></div>
         </TextError>
-      : effectiveLeverage < leverage ?
-        <TextWarning>{sizeDisplay}
-        <div><TextGrey>({leverage}x)</TextGrey></div>
-        </TextWarning>
-      :
-        <TextGrey>{sizeDisplay}
-        <div><TextGrey>({leverage}x)</TextGrey></div>
-        </TextGrey>
+        : effectiveLeverage < leverage
+          ? <TextWarning>{sizeDisplay}
+            <div><TextGrey>({leverage}x)</TextGrey></div>
+          </TextWarning>
+          : <TextGrey>{sizeDisplay}
+            <div><TextGrey>({leverage}x)</TextGrey></div>
+          </TextGrey>
       }
     </SkeletonLoader>
   }
@@ -1199,7 +1198,7 @@ export const ExplorerLink = ({ poolAddress }: { poolAddress: string }) => {
 export const Token = ({
   token,
   balance,
-  doubleLines,
+  doubleLines
 }: {
   token: string
   balance?: string
