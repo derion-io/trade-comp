@@ -33,7 +33,9 @@ export const useResource = () => {
     if (ddlEngine && configs.name) {
       const { searchParams } = new URL(`https://1.com?${location.href.split('?')[1]}`)
       const playMode = searchParams.has('play')
-      ddlEngine.RESOURCE.getWhiteListResource([]).then((data) => {
+      const pool = searchParams.get('pool')
+      console.log('#poolURLQuery', pool)
+      ddlEngine.RESOURCE.getWhiteListResource([pool || '']).then((data) => {
         console.log('#getWhiteListResource', data)
         if (data?.tokens?.length === 0) return
         addNewResource(data, account)
