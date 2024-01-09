@@ -79,23 +79,16 @@ export const Trade = ({
 
   useEffect(() => {
     if (
-      tokens[baseToken] &&
-      tokens[quoteToken] &&
       id &&
-      ddlEngine &&
-      basePrice
-    ) {
+      ddlEngine) {
       ddlEngine.PRICE.get24hChange({
-        baseToken: tokens[baseToken],
-        cToken: chartReplacements?.[id] ?? id,
-        chainId: chainId.toString(),
-        quoteToken: tokens[quoteToken],
-        currentPrice: basePrice.toString()
-      }).then((value1) => {
-        setChangedIn24h(Number(value1))
+        pairAddress: chartReplacements?.[id] ?? id,
+        geckoTermnialChainId: ddlEngine.profile.configs.geckoTerminalSymbol
+      }).then((res) => {
+        setChangedIn24h(Number(res.h24))
       })
     }
-  }, [chainId, tokens, ddlEngine, id, quoteToken, baseToken, basePrice])
+  }, [chainId, ddlEngine, id])
 
   useEffect(() => {
     if (poolGroups && Object.keys(poolGroups).length > 0) {
@@ -143,8 +136,8 @@ export const Trade = ({
         >
           <TabList>
             <Tab>{
-              tab === TRADE_TYPE.SWAP ? 'Positions and LPs' :
-              tab === TRADE_TYPE.LIQUIDITY ? 'LPs' : 'Positions'
+              tab === TRADE_TYPE.SWAP ? 'Positions and LPs'
+                : tab === TRADE_TYPE.LIQUIDITY ? 'LPs' : 'Positions'
             }</Tab>
             <Tab>History</Tab>
           </TabList>
