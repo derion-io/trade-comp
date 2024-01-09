@@ -1,16 +1,13 @@
+import moment from 'moment'
 import React from 'react'
-import { Token } from '@uniswap/sdk-core'
-import { CurrencyLogo } from '../../ui/CurrencyLogo'
-import './index.scss'
-import { TokenFromList } from '../../../state/lists/tokenFromList'
-import { Text, TextGrey } from '../../ui/Text'
-import { SkeletonLoader } from '../../ui/SkeletonLoader'
-import { TokenFromPoolGroup } from '../../../utils/type'
-import { useResource } from '../../../state/resources/hooks/useResource'
-import { formatFloat, oracleToPoolGroupId } from '../../../utils/helpers'
-import formatLocalisedCompactNumber from '../../../utils/formatBalance'
 import { PoolGroupValueType } from '../../../state/resources/type'
+import formatLocalisedCompactNumber from '../../../utils/formatBalance'
+import { formatFloat, oracleToPoolGroupId } from '../../../utils/helpers'
+import { TokenFromPoolGroup } from '../../../utils/type'
 import { CurrencyGroupLogo } from '../../ui/CurrencyGroupLogo'
+import { SkeletonLoader } from '../../ui/SkeletonLoader'
+import { Text, TextGrey } from '../../ui/Text'
+import './index.scss'
 type Props = {
   whiteListFilterPools: TokenFromPoolGroup[],
   poolGroupsValue: PoolGroupValueType
@@ -29,42 +26,48 @@ export const ListCurrencies = ({ whiteListFilterPools, poolGroupsValue, isLoadin
           </tr>
         )}
         {whiteListFilterPools.map((index, _) => {
-          const indexKey = oracleToPoolGroupId(index.poolGroup?.[0]?.ORACLE || '')
-          return (
-            <tr
-              key={_}
-              className='position-token-list'
-              onClick={() => handleCurrencySelect(index)}
-            >
-              <td className='token-item'>
-                <span className='chart-token-selector--current inline-items-center'>
-                  <CurrencyGroupLogo currencyURIs={[index.baseToken.logoURI, index.quoteToken.logoURI]} size={36}/>
-                  <div className='chart-token-symbol'>
-                    {/* <Text> {token.baseToken.name} </Text> <br/> */}
-                    <TextGrey>
-                      {index.baseToken.symbol} / {index.quoteToken.symbol}
-                    </TextGrey>
-                  </div>
+          return index.poolGroup.map((pool, __) => {
+            const indexKey = oracleToPoolGroupId(pool?.ORACLE || '')
+            return (
+              <tr
+                key={_ + __}
+                className='position-token-list'
+                onClick={() => handleCurrencySelect(index)}
+              >
+                <td className='token-item'>
+                  <span className='chart-token-selector--current inline-items-center'>
+                    <CurrencyGroupLogo currencyURIs={[index.baseToken.logoURI, index.quoteToken.logoURI]} size={36}/>
+                    <div className='chart-token-symbol'>
+                      <Text>
+                        {index.baseToken.symbol} / {index.quoteToken.symbol}
+                      </Text><br/>
+                      <TextGrey>  {pool?.createAtTimestamp ? moment
+                        .unix(pool?.createAtTimestamp)
+                        .fromNow()
+                        .toLocaleLowerCase() : ''} </TextGrey>
+                    </div>
 
-                </span>
-                <span className='inline-items-center' />
-              </td>
+                  </span>
+                  <span className='inline-items-center' />
+                </td>
 
-              <td className='index-value-item'>
+                <td className='index-value-item'>
 
-                {poolGroupsValue[indexKey]?.poolGroupValue > 0 ? <TextGrey>
-                  {`${
-                        poolGroupsValue[indexKey]?.poolGroupValue !== 0
-                          ? `($${formatLocalisedCompactNumber(
-                              formatFloat(poolGroupsValue[indexKey]?.poolGroupValue, 2)
-                            )})`
-                          : ''
-                      }`}
-                </TextGrey> : <SkeletonLoader textLoading='   ' loading/> }
-              </td>
+                  {poolGroupsValue[indexKey]?.poolGroupValue > 0 ? <TextGrey>
+                    {`${
+                          poolGroupsValue[indexKey]?.poolGroupValue !== 0
+                            ? `($${formatLocalisedCompactNumber(
+                                formatFloat(poolGroupsValue[indexKey]?.poolGroupValue, 2)
+                              )})`
+                            : ''
+                        }`}
+                  </TextGrey> : <SkeletonLoader textLoading='   ' loading/> } <br/>
+                  <TextGrey>{JSON.stringify(pool.state)}</TextGrey>
+                </td>
 
-            </tr>
-          )
+              </tr>
+            )
+          })
         })}
 
         {isLoading && Array(8).fill(0).map((a, _) => <SkeletonLoader height='50px' key={_} loading style={{ width: '100%', marginTop: '1rem' }}/>)}

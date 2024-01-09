@@ -94,7 +94,7 @@ const Component = ({
     setIsLoadingSearch(true)
     const poolsSearch = await ddlEngine?.RESOURCE.searchIndex(searchQuery.toUpperCase())
     let poolAddresses:string[] = []
-    setWhiteListFilterPools((await Promise.all(Object.keys(poolsSearch).map(async (key) => {
+    const tokenFromPoolGroup = (await Promise.all(Object.keys(poolsSearch).map(async (key) => {
       const poolSearch = poolsSearch[key]
       const isOracleZero = poolSearch?.pools?.[0]?.ORACLE?.[2] === '0'
       const baseTokenIndex = isOracleZero ? 1 : 0
@@ -109,15 +109,32 @@ const Component = ({
       const baseToken = await getTokenInfo(baseTokenIndex)
       const quoteToken = await getTokenInfo(quoteTokenIndex)
       const poolGroup = poolSearch.pools
-      console.log('#search', baseToken, quoteToken, poolGroup)
       return {
         baseToken,
         quoteToken,
         poolGroup
       }
-    }))).filter(getTokenFilter(searchQuery)))
+    }))).filter(getTokenFilter(searchQuery))
+    setWhiteListFilterPools(tokenFromPoolGroup)
     // eslint-disable-next-line no-unused-expressions
     ddlEngine?.RESOURCE.generateData({ poolAddresses, transferLogs: [] }).then(data => {
+      const poolAddressTimestampMap = {}
+
+      tokenFromPoolGroup.forEach(({ poolGroup }) => {
+        poolGroup.forEach((pool:any) => {
+          poolAddressTimestampMap[pool?.poolAddress] = pool?.createAtTimestamp
+        })
+      })
+
+      Object.keys(data.poolGroups).forEach((key) => {
+        const poolGroup = data.poolGroups[key]
+        Object.keys(poolAddressTimestampMap).forEach((_key) => {
+          poolGroup.pools[_key] = {
+            ...poolGroup.pools[_key],
+            createAtTimestamp: poolAddressTimestampMap[_key]
+          }
+        })
+      })
       addNewResource(data, account)
     })
     setIsLoadingSearch(false)
