@@ -52,7 +52,7 @@ export const App = () => {
     //   initResource(account)
     // }, TIME_TO_REFRESH_STATE)
     // return () => clearInterval(intervalId)
-  }, [ddlEngine, configs.name])
+  }, [ddlEngine, configs.name, account])
 
   useEffect(() => {
     if (!account) {
