@@ -1,21 +1,20 @@
-import React, { useEffect, useMemo, useState } from 'react'
-import { Tabs } from '../ui/Tabs'
-import './style.scss'
+import React, { useEffect, useState } from 'react'
+import { useConfigs } from '../../state/config/useConfigs'
 import { CandleChart } from '../CandleChart'
 import { LineChart } from '../LineChart'
+import { Tabs } from '../ui/Tabs'
 import { Text, TextBuy, TextSell } from '../ui/Text'
-import { useConfigs } from '../../state/config/useConfigs'
+import './style.scss'
 import isEqual from 'react-fast-compare'
-import { SelectPoolGroup } from '../SelectPoolGroup'
+import { useNativePrice } from '../../hooks/useTokenPrice'
+import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
-import { FunctionPlot } from '../FuncPlot'
 import { CHART_TABS } from '../../state/currentPool/type'
 import { formatFloat, zerofy } from '../../utils/helpers'
-import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
-import { useNativePrice } from '../../hooks/useTokenPrice'
-import { useResource } from '../../state/resources/hooks/useResource'
-import { Card } from '../ui/Card'
-
+import { FunctionPlot } from '../FuncPlot'
+import { SelectPoolGroup } from '../SelectPoolGroup'
+import { SearchIndexModal } from '../searchIndexModal'
+import { ButtonBorder } from '../ui/Button'
 const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const { chainId, configs } = useConfigs()
   const { chartTab, setChartTab, basePrice, id, chartIsOutDate } = useCurrentPoolGroup()
@@ -39,7 +38,13 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
     <div className='chart-box'>
       <div className='chart__head'>
         <div className='chart__head--left'>
+
+          {/* <SearchIndexModal visible={onSearchCurrenies} setVisible={() => { setOnSearchCurrenies(!onSearchCurrenies) }} onDismiss={() => {
+          }} onCurrencySelect={(currency: Currency, hasWarning?: boolean | undefined) => {
+            console.log('#', currency)
+          }}/> */}
           <SelectPoolGroup />
+          {/* <ButtonBorder onClick={() => { setOnSearchCurrenies(true) }} >Search Index (Test)</ButtonBorder> */}
           {!!id && basePrice && (
             <span>
               <Text>

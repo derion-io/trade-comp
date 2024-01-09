@@ -138,7 +138,6 @@ export const SelectPoolGroup = () => {
       className='select-pool-group__wrap'
       ref={wrapperRef}
     >
-      <SearchIndexModal visible setVisible={() => {}}/>
       <div className='select-pool-group'>
         <PoolGroupOption
           active={active}
