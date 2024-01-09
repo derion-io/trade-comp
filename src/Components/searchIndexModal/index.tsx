@@ -21,7 +21,10 @@ const Component = ({
       visible={visible}
       title='Select a token'
     >
-      <SearchCurrencies/>
+      <SearchCurrencies
+        value='123'
+        placeholder='Search name or paste address'
+      />
       <CommonCurrencies/>
       <ListCurrencies/>
     </Modal>

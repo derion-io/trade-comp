@@ -1,15 +1,31 @@
-import React from 'react'
+import { InputProps } from 'antd'
+import React, { ChangeEvent, KeyboardEvent, useCallback, useEffect } from 'react'
+import { Input } from '../../ui/Input'
+import { useAllLists } from '../../../state/lists/hooks'
 
-// type Props = {
-//   amountIn: string
-//   valueIn: string
-//   tokenAddress: string
-//   textBefore?: string
-// }
-export const SearchCurrencies = () => {
+export const SearchCurrencies = (
+  props: {
+    value: string,
+    placeholder: string,
+  }) => {
+  const lists = useAllLists()
+  useEffect(() => {
+    console.log('#', lists)
+  }, [lists])
+  const handleInput = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+
+  }, [])
+
+  const handleEnter = useCallback(
+    (e: KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') {
+
+      }
+    },
+    []
+  )
+
   return (
-    <div className='search-input' style={{ margin: 0 }} >
-      Select a token
-    </div>
+    <Input placeholder={props.placeholder}/>
   )
 }

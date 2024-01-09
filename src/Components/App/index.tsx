@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import './style.scss'
 import 'react-toastify/dist/ReactToastify.css'
 import { useListTokens } from '../../state/token/hook'
@@ -15,6 +15,8 @@ import { useFetchTokenPrice } from '../../state/resources/hooks/useTokenPrice'
 import { useFetchFeeData } from '../../state/resources/hooks/useFeeData'
 import { PageLoadingIndicator } from '../PageLoadingIndicator'
 import { ErrorBoundary } from '../ErrorBoundary'
+import { useFetchListCallback } from '../../state/lists/hook/useFetchListCallback'
+import { DEFAULT_LIST_OF_LISTS, UNSUPPORTED_LIST_URLS } from '../../state/lists/constants/lists'
 
 export const App = () => {
   const { id } = useCurrentPoolGroup()
@@ -30,6 +32,17 @@ export const App = () => {
   useFetchFeeData()
   useFetchTokenPrice()
   useSwapHistoryFormated()
+  const fetchList = useFetchListCallback()
+  const fetchAllListsCallback = useCallback(() => {
+    DEFAULT_LIST_OF_LISTS.forEach((url) => {
+      const isUnsupportedList = UNSUPPORTED_LIST_URLS.includes(url)
+      fetchList(url, isUnsupportedList).catch((error) => console.debug('interval list fetching error', error))
+    })
+  }, [fetchList])
+
+  useEffect(() => {
+    fetchAllListsCallback()
+  }, [ddlEngine, configs.name])
 
   useEffect(() => {
     try {
@@ -44,7 +57,6 @@ export const App = () => {
       console.error(e)
     }
   }, [ddlEngine, poolGroups, id])
-
   useEffect(() => {
     initResource(account)
     const intervalId = setInterval(() => {
