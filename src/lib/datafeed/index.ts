@@ -80,6 +80,25 @@ const handleChartRouteOption = (currencyId: string, baseAddress: string, cAddres
     isPriceByIndexR: quoteAddressSelect !== defaultStableCoin
   }
 }
+
+function removeChartAnomaly(bars: any): any {
+  const maxAntenaRatio = 8
+  for (const bar of bars) {
+    const { open, close, low, high } = bar
+    const [ top, bottom ] = close > open ? [close, open] : [open, close]
+    const limit = (top - bottom) * maxAntenaRatio
+    if (limit > 0) {
+      if (high > bottom + limit) {
+        bar.high = bottom + limit
+      }
+      if (low < top - limit) {
+        bar.low = top - limit
+      }
+    }
+  }
+  return bars
+}
+
 export const Datafeed = {
   subscribeBarsInterval: {},
   inputAddress: '',
@@ -179,7 +198,7 @@ export const Datafeed = {
             store.dispatch(setChartIntervalIsUpdated({ status: true }))
             detectChartIsOutdate(bars, resolution)
           }
-
+          bars = removeChartAnomaly(bars)
           onHistoryCallback(bars, { noData: false })
         } else {
           onHistoryCallback(bars, { noData: true })
