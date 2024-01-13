@@ -3438,6 +3438,11 @@
     dotenv "^14.2.0"
     hardhat-watcher "^2.1.1"
 
+"@uniswap/token-lists@^1.0.0-beta.33":
+  version "1.0.0-beta.33"
+  resolved "https://registry.yarnpkg.com/@uniswap/token-lists/-/token-lists-1.0.0-beta.33.tgz#966ba96c9ccc8f0e9e09809890b438203f2b1911"
+  integrity sha512-JQkXcpRI3jFG8y3/CGC4TS8NkDgcxXaOQuYW8Qdvd6DcDiIyg2vVYCG9igFEzF0G6UvxgHkBKC7cWCgzZNYvQg==
+
 "@uniswap/v2-core@^1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@uniswap/v2-core/-/v2-core-1.0.1.tgz#af8f508bf183204779938969e2e54043e147d425"
@@ -5828,9 +5833,9 @@ dequal@^2.0.3:
   resolved "https://registry.yarnpkg.com/dequal/-/dequal-2.0.3.tgz#2644214f1997d39ed0ee0ece72335490a7ac67be"
   integrity sha512-0je+qPKHEMohvfRTCEo3CrPG6cAzAYgmzKyxRiYSSDkS6eGJdyVJm7WaYA5ECaAD9wLB2T4EEeymA5aFVcYXCA==
 
-"derivable-tools@git+ssh://git@github.com:derivable-labs/derivable-tools.git#dev-build":
+"derivable-tools@git+ssh://git@github.com:derivable-labs/derivable-tools.git#search-index":
   version "1.0.0"
-  resolved "git+ssh://git@github.com:derivable-labs/derivable-tools.git#a2f36498f4e065b7b070d432041d1530b7d67c9c"
+  resolved "git+ssh://git@github.com:derivable-labs/derivable-tools.git#93cabbce53cce980f6913837fbdf8cab4fd94ffd"
   dependencies:
     "@ethersproject/providers" "https://gitpkg.now.sh/derivable-labs/ethers.js/packages/providers?master"
     "@zoltu/ethereum-crypto" "^2.3.0"
@@ -5845,7 +5850,6 @@ dequal@^2.0.3:
     lodash "^4.17.21"
     move-decimal-point "^0.0.4"
     node-fetch "^2.6.7"
-    powerLib "git+ssh://git@github.com:derivable-labs/power-lib.git#build"
 
 des.js@^1.0.0:
   version "1.1.0"
@@ -10459,13 +10463,6 @@ postcss@^8.3.5, postcss@^8.4.21, postcss@^8.4.23, postcss@^8.4.4:
     nanoid "^3.3.6"
     picocolors "^1.0.0"
     source-map-js "^1.0.2"
-
-"powerLib@git+ssh://git@github.com:derivable-labs/power-lib.git#build":
-  version "1.0.0"
-  resolved "git+ssh://git@github.com:derivable-labs/power-lib.git#502f7724fe3f25676f48e4107a0c7da705e25d7f"
-  dependencies:
-    ethers "^5.4.6"
-    lodash "^4.17.21"
 
 preact@^10.5.9:
   version "10.19.2"

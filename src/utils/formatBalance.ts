@@ -51,7 +51,7 @@ export const formatFixedNumber = (
   displayDecimals = 18,
   decimals = 18
 ) => {
-  // Remove decimal
+  // Remove decimals
   const [leftSide] = number.toString().split('.')
   return formatBigNumber(
     ethers.BigNumber.from(leftSide),
@@ -72,7 +72,7 @@ export const formatLocalisedCompactNumber = (number: number): string => {
 export const formatWeiToDisplayNumber = (
   wei: string | number | BigNumber,
   displayDecimals = 4,
-  decimal = 18
+  decimals = 18
 ) => {
   if (bn(wei).isZero()) {
     return '0'
@@ -80,7 +80,7 @@ export const formatWeiToDisplayNumber = (
   const fixedNumber = formatBigNumberToFixed(
     ethers.BigNumber.from(wei),
     displayDecimals,
-    decimal
+    decimals
   )
   return formatLocalisedCompactNumber(Number(fixedNumber))
 }

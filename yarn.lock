@@ -5510,7 +5510,7 @@ depd@~1.1.2:
 
 "derivable-tools@git+ssh://git@github.com:derivable-labs/derivable-tools.git#search-index":
   version "1.0.0"
-  resolved "git+ssh://git@github.com:derivable-labs/derivable-tools.git#45c5a18f91732f452faca91964a5390bc8f8d853"
+  resolved "git+ssh://git@github.com:derivable-labs/derivable-tools.git#93cabbce53cce980f6913837fbdf8cab4fd94ffd"
   dependencies:
     "@ethersproject/providers" "https://gitpkg.now.sh/derivable-labs/ethers.js/packages/providers?master"
     "@zoltu/ethereum-crypto" "^2.3.0"
@@ -5525,7 +5525,6 @@ depd@~1.1.2:
     lodash "^4.17.21"
     move-decimal-point "^0.0.4"
     node-fetch "^2.6.7"
-    powerLib "git+ssh://git@github.com:derivable-labs/power-lib.git#build"
 
 des.js@^1.0.0:
   version "1.1.0"
@@ -11258,13 +11257,6 @@ postcss@^7, postcss@^7.0.0, postcss@^7.0.1, postcss@^7.0.14, postcss@^7.0.17, po
   dependencies:
     picocolors "^0.2.1"
     source-map "^0.6.1"
-
-"powerLib@git+ssh://git@github.com:derivable-labs/power-lib.git#build":
-  version "1.0.0"
-  resolved "git+ssh://git@github.com:derivable-labs/power-lib.git#502f7724fe3f25676f48e4107a0c7da705e25d7f"
-  dependencies:
-    ethers "^5.4.6"
-    lodash "^4.17.21"
 
 prelude-ls@~1.1.2:
   version "1.1.2"

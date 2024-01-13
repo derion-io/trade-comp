@@ -331,10 +331,10 @@ export const div = (a: any, b: any, precision: number = 4) => {
 
 export const formatPercent = (
   floatNumber: any,
-  decimal: number = 2,
+  decimals: number = 2,
   rounding: boolean = false
 ): number => {
-  return NUM(truncate(mdp(STR(floatNumber), 2), decimal, rounding))
+  return NUM(truncate(mdp(STR(floatNumber), 2), decimals, rounding))
 }
 
 export const getNormalAddress = (addresses: string[]) => {

@@ -36,7 +36,7 @@ export interface ChartContainerProps {
   logo?: any
 }
 
-// TODO: need to fix chart decimal
+// TODO: need to fix chart decimals
 
 const Component = ({
   interval,
