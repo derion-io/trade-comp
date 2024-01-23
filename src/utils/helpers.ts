@@ -472,6 +472,14 @@ export const isUSD = (symbol: string): boolean => {
   )
 }
 
+export const thousandsInt = (int: string): string => {
+  const rgx = /(\d+)(\d{3})/;
+	while (rgx.test(int)) {
+		int = int.replace(rgx, '$1' + ',' + '$2');
+  }
+  return int
+}
+
 export const precisionize = (value: number, opts?: {
   maximumSignificantDigits?: number,
   minimumSignificantDigits?: number,
@@ -517,10 +525,15 @@ export const zerofy = (value: number | string, opts?: {
       const fake = int.substring(Math.max(0, int.length - 2)) + '.' + dec
       dec = precisionize(NUM(fake), opts)
       dec = dec.split('.')[1]
+      int = thousandsInt(int)
       if (dec?.length > 0) {
         value = int + '.' + dec
         zeros = dec.match(/^0+/)?.[0]?.length ?? 0
+      } else {
+        value = int
       }
+    } else {
+      value = thousandsInt(value)
     }
   }
   const maxZeros = opts?.maxZeros ?? 3
