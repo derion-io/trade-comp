@@ -61,8 +61,8 @@ export const App = () => {
         routerAllowances: {},
         maturities: {}
       })
-    } else if (tokens && Object.keys(tokens).length > 0) {
-      fetchBalanceAndAllowance(Object.keys(tokens))
+    } else {
+      fetchBalanceAndAllowance()
     }
   }, [tokens, account])
 

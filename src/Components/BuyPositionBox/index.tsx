@@ -191,6 +191,7 @@ const Component = ({
 
     if (poolToShow.TOKEN_R === configs.wrappedTokenAddress || erc20TokenSupported.includes(configs.wrappedTokenAddress)) {
       tokenRs.push(NATIVE_ADDRESS)
+      tokenRs.push(configs.wrappedTokenAddress)
     }
 
     return _.uniq(

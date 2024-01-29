@@ -100,6 +100,7 @@ const Component = ({
     if (!id) return []
     const tokenRs = Object.values(pools).map((p: any) => p.TOKEN_R)
     if (tokenRs.includes(configs.wrappedTokenAddress)) {
+      tokenRs.push(NATIVE_ADDRESS)
       tokenRs.push(configs.wrappedTokenAddress)
     }
     const aTokens = allTokens.filter(
