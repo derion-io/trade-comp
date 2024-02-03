@@ -186,14 +186,17 @@ const InputApiKey = ({
   const [value, setValue] = useState(defaultValue)
   const [error, setError] = useState('')
 
+  const { configs } = useConfigs()
+  const { scanApi } = configs
+
   useEffect(() => {
     validateApiKey()
   }, [value])
 
   const validateApiKey = async () => {
+    const now = Math.floor(Date.now() / 1000)
     const res = await fetch(
-      'https://api.arbiscan.io/api?module=block&action=getblocknobytime&timestamp=1689517013&closest=before&apikey=' +
-        value
+      `${scanApi}?module=block&action=getblocknobytime&timestamp=${now}&closest=before&apikey=${value}`
     ).then((r) => r.json())
     if (res.status === '0' && res.message === 'NOTOK' && res.result) {
       setError(res.result)
