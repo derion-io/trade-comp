@@ -45,7 +45,7 @@
     "antd": "^5.8.4",
     "assisted-json-rpc-provider": "git+ssh://git@github.com:derivable-labs/AssistedJsonRpcProvider.git#dev",
     "caniuse-lite": "^1.0.30001434",
-    "derivable-tools": "git+ssh://git@github.com:derivable-labs/derivable-tools.git#search-index",
+    "derivable-tools": "git+ssh://git@github.com:derivable-labs/engine.git#search-index",
     "desmos-react": "^1.2.0",
     "ethereum-multicall": "^2.15.0",
     "ethers": "^5.4.6",

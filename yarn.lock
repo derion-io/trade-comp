@@ -1664,9 +1664,9 @@
     bech32 "1.1.4"
     ws "7.4.6"
 
-"@ethersproject/providers@https://gitpkg.now.sh/derivable-labs/ethers.js/packages/providers?master":
+"@ethersproject/providers@https://gitpkg.now.sh/derivable-labs/ethers.js/packages/providers?v5.3.5.0":
   version "5.5.2"
-  resolved "https://gitpkg.now.sh/derivable-labs/ethers.js/packages/providers?master#b08c9914f8e5464b759cab60589883692242cd71"
+  resolved "https://gitpkg.now.sh/derivable-labs/ethers.js/packages/providers?v5.3.5.0#9c83e26a9160d0308c105ceda3c4e4d48b372555"
   dependencies:
     "@ethersproject/abstract-provider" "^5.5.0"
     "@ethersproject/abstract-signer" "^5.5.0"
@@ -5508,11 +5508,11 @@ depd@~1.1.2:
   resolved "https://registry.yarnpkg.com/depd/-/depd-1.1.2.tgz#9bcd52e14c097763e749b274c4346ed2e560b5a9"
   integrity sha512-7emPTl6Dpo6JRXOXjLRxck+FlLRX5847cLKEn00PLAgc3g2hTZZgr+e4c2v6QpSmLeFP3n5yUo7ft6avBK/5jQ==
 
-"derivable-tools@git+ssh://git@github.com:derivable-labs/derivable-tools.git#search-index":
+"derivable-tools@git+ssh://git@github.com:derivable-labs/engine.git#search-index":
   version "1.0.0"
-  resolved "git+ssh://git@github.com:derivable-labs/derivable-tools.git#900dca7d94132dfdf6f109e04e596c06c794e5e1"
+  resolved "git+ssh://git@github.com:derivable-labs/engine.git#337b95ad1f41623f4322b4346b4484d5d60af1d7"
   dependencies:
-    "@ethersproject/providers" "https://gitpkg.now.sh/derivable-labs/ethers.js/packages/providers?master"
+    "@ethersproject/providers" "https://gitpkg.now.sh/derivable-labs/ethers.js/packages/providers?v5.3.5.0"
     "@zoltu/ethereum-crypto" "^2.3.0"
     "@zoltu/ethereum-fetch-json-rpc" "^13.1.4"
     "@zoltu/ethereum-types" "^9.0.4"
