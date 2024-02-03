@@ -82,7 +82,7 @@ const handleChartRouteOption = (currencyId: string, baseAddress: string, cAddres
 }
 
 function removeChartAnomaly(bars: any): any {
-  const maxAntenaRatio = 8
+  const maxAntenaRatio = 2
   for (const bar of bars) {
     const { open, close, low, high } = bar
     const [ top, bottom ] = close > open ? [close, open] : [open, close]
