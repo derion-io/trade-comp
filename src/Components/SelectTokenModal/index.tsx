@@ -16,13 +16,11 @@ import {
   NUM,
   zerofy
 } from '../../utils/helpers'
-import {
-  MIN_POSITON_VALUE_USD_TO_DISPLAY,
-  ZERO_ADDRESS
-} from '../../utils/constant'
+import { ZERO_ADDRESS } from '../../utils/constant'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
 import { CurrencyLogo } from '../ui/CurrencyLogo'
 import { useHelper } from '../../state/config/useHelper'
+import { useSettings } from '../../state/setting/hooks/useSettings'
 
 const Component = ({
   visible,
@@ -88,12 +86,13 @@ const Option = ({
   const { tokens } = useListTokens()
   const { pools } = useResource()
   const { balances } = useWalletBalance()
+  const { settings } = useSettings()
   const { value } = useTokenValue({
     tokenAddress: address,
     amount: IEW(balances[address], tokens[address]?.decimals || 18)
   })
 
-  if (NUM(value) < MIN_POSITON_VALUE_USD_TO_DISPLAY) {
+  if (NUM(value) < settings.minPositionValueUSD) {
     return <React.Fragment />
   }
 

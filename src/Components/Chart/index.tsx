@@ -7,8 +7,14 @@ import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoo
 import { CHART_TABS } from '../../state/currentPool/type'
 import { useResource } from '../../state/resources/hooks/useResource'
 import { useListTokens } from '../../state/token/hook'
-import { MIN_POSITON_VALUE_USD_TO_DISPLAY, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
-import { bn, detectTradeTab, formatFloat, unwrap, zerofy } from '../../utils/helpers'
+import { POOL_IDS, TRADE_TYPE } from '../../utils/constant'
+import {
+  bn,
+  detectTradeTab,
+  formatFloat,
+  unwrap,
+  zerofy
+} from '../../utils/helpers'
 import { PoolSearch } from '../../utils/type'
 import { CandleChart } from '../CandleChart'
 import { FunctionPlot } from '../FuncPlot'
@@ -21,17 +27,30 @@ import './style.scss'
 import { TokenIcon } from '../ui/TokenIcon'
 import { useWindowSize } from '../../hooks/useWindowSize'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
-const Component = ({ changedIn24h, inputTokenAddress, outputTokenAddress, setInputTokenAddress, setOutputTokenAddress }: {
-  changedIn24h: number,
+import { useSettings } from '../../state/setting/hooks/useSettings'
+const Component = ({
+  changedIn24h,
+  inputTokenAddress,
+  outputTokenAddress,
+  setInputTokenAddress,
+  setOutputTokenAddress
+}: {
+  changedIn24h: number
   inputTokenAddress: string
   outputTokenAddress: string
-  setInputTokenAddress: (address:string) => void
-  setOutputTokenAddress: (address:string) => void }) => {
+  setInputTokenAddress: (address: string) => void
+  setOutputTokenAddress: (address: string) => void
+}) => {
   const { chainId, configs, location } = useConfigs()
-  const { chartTab, setChartTab, basePrice, id, chartIsOutDate } = useCurrentPoolGroup()
+  const { chartTab, setChartTab, basePrice, id, chartIsOutDate } =
+    useCurrentPoolGroup()
   const { data: nativePrice } = useNativePrice()
   const { width } = useWindowSize()
   const isPhone = width && width < 768
+  const {
+    settings: { minPositionValueUSD }
+  } = useSettings()
+
   const { currentPool, priceByIndexR } = useCurrentPool()
   const { tokens } = useListTokens()
   const { balances } = useWalletBalance()
@@ -39,7 +58,13 @@ const Component = ({ changedIn24h, inputTokenAddress, outputTokenAddress, setInp
   const { poolGroups, useCalculatePoolGroupsValue } = useResource()
   const { poolGroupsValue } = useCalculatePoolGroupsValue()
   const [isUseDextool, setUseDexTool] = useState<boolean>(false)
-  const pairAddress = poolGroups[id] ? '0x' + (poolGroups[id]?.ORACLE as String).slice(poolGroups[id]?.ORACLE.length - 40, poolGroups[id]?.ORACLE.length) : ''
+  const pairAddress = poolGroups[id]
+    ? '0x' +
+      (poolGroups[id]?.ORACLE as String).slice(
+        poolGroups[id]?.ORACLE.length - 40,
+        poolGroups[id]?.ORACLE.length
+      )
+    : ''
   useEffect(() => {
     if (chartIsOutDate) {
       setUseDexTool(true)
@@ -52,37 +77,52 @@ const Component = ({ changedIn24h, inputTokenAddress, outputTokenAddress, setInp
     <div className='chart-box'>
       <div className='chart__head'>
         <div className='chart__head--left'>
-
-          <SearchIndexModal visible={onSearchCurrenies} setVisible={() => { setOnSearchCurrenies(!onSearchCurrenies) }} onDismiss={() => {
-          }} onPoolSelect={(pool: PoolSearch, hasWarning?: boolean | undefined) => {
-            const { poolAddress } = pool.pools?.[0]
-            const tab = detectTradeTab(location.pathname)
-            if (pool && poolAddress) {
-              if (tab === TRADE_TYPE.LONG) {
-                setOutputTokenAddress(poolAddress + '-' + POOL_IDS.A)
-              } else if (tab === TRADE_TYPE.SHORT) {
-                setOutputTokenAddress(poolAddress + '-' + POOL_IDS.B)
-              } else if (tab === TRADE_TYPE.LIQUIDITY) {
-                setOutputTokenAddress(poolAddress + '-' + POOL_IDS.C)
+          <SearchIndexModal
+            visible={onSearchCurrenies}
+            setVisible={() => {
+              setOnSearchCurrenies(!onSearchCurrenies)
+            }}
+            onDismiss={() => {}}
+            onPoolSelect={(
+              pool: PoolSearch,
+              hasWarning?: boolean | undefined
+            ) => {
+              const { poolAddress } = pool.pools?.[0]
+              const tab = detectTradeTab(location.pathname)
+              if (pool && poolAddress) {
+                if (tab === TRADE_TYPE.LONG) {
+                  setOutputTokenAddress(poolAddress + '-' + POOL_IDS.A)
+                } else if (tab === TRADE_TYPE.SHORT) {
+                  setOutputTokenAddress(poolAddress + '-' + POOL_IDS.B)
+                } else if (tab === TRADE_TYPE.LIQUIDITY) {
+                  setOutputTokenAddress(poolAddress + '-' + POOL_IDS.C)
+                }
               }
-            }
-          }} />
+            }}
+          />
           <div className='select-pool-group'>
             <div
               className='select-pool-group__option noselect active'
-              onClick={() => { setOnSearchCurrenies(true) }}
-            >  <span>
+              onClick={() => {
+                setOnSearchCurrenies(true)
+              }}
+            >
+              {' '}
+              <span>
                 {unwrap(tokens[poolGroups?.[id]?.baseToken]?.symbol)}/
                 {unwrap(tokens[poolGroups?.[id]?.quoteToken]?.symbol)}
               </span>
-              {((isPhone
-                ? poolGroupsValue?.[id]?.poolGroupPositions?.slice(0, 3)
-                : poolGroupsValue?.[id]?.poolGroupPositions
-              ) || []).map((playingToken: any) => {
+              {(
+                (isPhone
+                  ? poolGroupsValue?.[id]?.poolGroupPositions?.slice(0, 3)
+                  : poolGroupsValue?.[id]?.poolGroupPositions) || []
+              ).map((playingToken: any) => {
                 const { address, value } = playingToken
-                if (value < MIN_POSITON_VALUE_USD_TO_DISPLAY) return null
+                if (value < minPositionValueUSD) return null
                 if (balances[address] && bn(balances[address]).gt(0)) {
-                  return <TokenIcon key={address} size={20} tokenAddress={address} />
+                  return (
+                    <TokenIcon key={address} size={20} tokenAddress={address} />
+                  )
                 } else {
                   return null
                 }
@@ -93,15 +133,18 @@ const Component = ({ changedIn24h, inputTokenAddress, outputTokenAddress, setInp
             <span>
               <Text>
                 {priceByIndexR &&
-                 [configs.wrappedTokenAddress, ...Object.keys(configs.tokens || {})]
-                   .includes(currentPool?.quoteToken)
+                [
+                  configs.wrappedTokenAddress,
+                  ...Object.keys(configs.tokens || {})
+                ].includes(currentPool?.quoteToken)
                   ? zerofy(formatFloat(basePrice))
-                  : '$' + zerofy(formatFloat(basePrice) * (
-                    currentPool?.quoteToken === configs.wrappedTokenAddress
-                      ? nativePrice
-                      : 1))
-                }
-
+                  : '$' +
+                    zerofy(
+                      formatFloat(basePrice) *
+                        (currentPool?.quoteToken === configs.wrappedTokenAddress
+                          ? nativePrice
+                          : 1)
+                    )}
               </Text>
               {changedIn24h > 0 ? (
                 <TextBuy>(+{changedIn24h}%)</TextBuy>
@@ -135,8 +178,10 @@ const Component = ({ changedIn24h, inputTokenAddress, outputTokenAddress, setInp
             <LineChart changedIn24h={changedIn24h} />
           ) : chartTab === CHART_TABS.FUNC_PLOT ? (
             currentPool?.states && <FunctionPlot />
+          ) : isUseDextool ? (
+            <DexToolChart pairAddress={pairAddress} chartResolution='1' />
           ) : (
-            isUseDextool ? <DexToolChart pairAddress={pairAddress} chartResolution='1'/> : <CandleChart/>
+            <CandleChart />
           ))}
       </div>
     </div>

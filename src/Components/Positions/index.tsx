@@ -1,7 +1,7 @@
 import { BigNumber } from 'ethers'
 import _ from 'lodash'
 import moment from 'moment'
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useWindowSize } from '../../hooks/useWindowSize'
 import { useConfigs } from '../../state/config/useConfigs'
 import { useHelper } from '../../state/config/useHelper'
@@ -13,12 +13,7 @@ import { useSettings } from '../../state/setting/hooks/useSettings'
 import { useListTokens } from '../../state/token/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
-import {
-  MIN_POSITON_VALUE_USD_TO_DISPLAY,
-  POOL_IDS,
-  POSITION_STATUS,
-  TRADE_TYPE
-} from '../../utils/constant'
+import { POOL_IDS, POSITION_STATUS, TRADE_TYPE } from '../../utils/constant'
 import formatLocalisedCompactNumber, {
   formatWeiToDisplayNumber
 } from '../../utils/formatBalance'
@@ -166,7 +161,7 @@ export const Positions = ({
         true
       )
 
-      if (Number(valueU) < MIN_POSITON_VALUE_USD_TO_DISPLAY && !pendingTxData) {
+      if (Number(valueU) < settings.minPositionValueUSD && !pendingTxData) {
         return null
       }
 
@@ -201,8 +196,8 @@ export const Positions = ({
         side == POOL_IDS.A
           ? NUM(leverage)
           : side == POOL_IDS.B
-            ? -NUM(leverage)
-            : 0
+          ? -NUM(leverage)
+          : 0
       let valueRLinear
       let valueRCompound
       if (L != 0) {
@@ -268,7 +263,13 @@ export const Positions = ({
     })
 
     return result.filter((r: any) => r !== null)
-  }, [positionsWithEntry, balances, maturities, pools])
+  }, [
+    positionsWithEntry,
+    balances,
+    maturities,
+    pools,
+    settings.minPositionValueUSD
+  ])
 
   const [displayPositions, hasClosingFee] = useMemo(() => {
     let displayPositions: Position[] = []
@@ -745,16 +746,16 @@ export const Positions = ({
           title={
             Number(decodeErc1155Address(closingPosition.token).id) ===
             POOL_IDS.C ? (
-                <Text>
+              <Text>
                 Remove{' '}
-                  <TokenSymbol token={closingPosition.token} textWrap={Text} />{' '}
-                </Text>
-              ) : (
-                <Text>
+                <TokenSymbol token={closingPosition.token} textWrap={Text} />{' '}
+              </Text>
+            ) : (
+              <Text>
                 Close{' '}
-                  <TokenSymbol token={closingPosition.token} textWrap={Text} />{' '}
-                </Text>
-              )
+                <TokenSymbol token={closingPosition.token} textWrap={Text} />{' '}
+              </Text>
+            )
           }
         />
       ) : (

@@ -11,7 +11,7 @@ import { useSettings } from '../../state/setting/hooks/useSettings'
 import { useListTokens } from '../../state/token/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import {
-  MIN_POSITON_VALUE_USD_TO_DISPLAY, NATIVE_ADDRESS,
+  NATIVE_ADDRESS,
   PERCENTAGE_SUGGESTIONS,
   POOL_IDS
 } from '../../utils/constant'
@@ -119,10 +119,10 @@ const Component = ({
   }, [valueInput, balance, valueBalance])
 
   useEffect(() => {
-    if (Number(valueBalance) < MIN_POSITON_VALUE_USD_TO_DISPLAY) {
+    if (Number(valueBalance) < settings.minPositionValueUSD) {
       setVisible(false)
     }
-  }, [valueBalance])
+  }, [valueBalance, settings.minPositionValueUSD])
 
   const { submitFetcherV2, callError, gasUsed, amountOut, loading, payloadAmountIn } =
     useCalculateSwap({

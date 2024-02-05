@@ -10,6 +10,11 @@ import { useConfigs } from '../../state/config/useConfigs'
 import { SORT_POOL_BY } from '../../state/setting/type'
 import { ToggleSwitch } from '../ui/ToggleSwitch'
 import { formatPercent } from '../../utils/helpers'
+import {
+  setMinLiquidityReduce,
+  setMinPositionValueUSDReduce
+} from '../../state/setting/reducer'
+import { MIN_POSITON_VALUE_USD_TO_DISPLAY } from '../../utils/constant'
 
 const Component = ({
   visible,
@@ -25,12 +30,15 @@ const Component = ({
     setMaxInterestRate,
     setMinLiquidityShare,
     setScanApi,
-    setShowBalance
+    setShowBalance,
+    setMinPositionValueUSD
   } = useSettings()
   const { chainId } = useConfigs()
   const [visibleAdvance, setVisibleAdvance] = useState<Boolean>(false)
   useEffect(() => {
-    if (localStorage.getItem('isShowBalance')) setShowBalance(localStorage.getItem('isShowBalance') === 'true')
+    if (localStorage.getItem('isShowBalance')) {
+      setShowBalance(localStorage.getItem('isShowBalance') === 'true')
+    }
   }, [])
   return (
     <Modal
@@ -134,6 +142,23 @@ const Component = ({
         <div className='swap-setting-modal'>
           {visible && (
             <div className='mb-1'>
+              <div className='mb-05'>
+                <ToggleSwitch
+                  label='Show All Position'
+                  defaultChecked={settings.minPositionValueUSD === 0}
+                  setter={() => {
+                    console.log(
+                      '#settings.minPositionValueUSD',
+                      settings.minPositionValueUSD
+                    )
+                    if (settings.minPositionValueUSD === 0) {
+                      setMinPositionValueUSD(MIN_POSITON_VALUE_USD_TO_DISPLAY)
+                    } else {
+                      setMinPositionValueUSD(0)
+                    }
+                  }}
+                />
+              </div>
               <div className='mb-05'>
                 <ToggleSwitch
                   label='Show Balance'
