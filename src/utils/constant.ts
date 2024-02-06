@@ -16,7 +16,7 @@ export const PERCENTAGE_SUGGESTIONS = [10, 25, 50, 75, 100]
 export const SUPPORTED_CHAINS = Object.values(CHAINS)
 export const DEFAULT_CHAIN = SUPPORTED_CHAINS[0]
 
-export const MIN_POSITON_VALUE_USD_TO_DISPLAY = 0.1
+export const MIN_POSITON_VALUE_USD_TO_DISPLAY = 0
 
 export enum TRADE_TYPE {
   LONG,

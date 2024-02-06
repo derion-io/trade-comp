@@ -62,6 +62,8 @@ import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { SharedPosition } from '../PositionSharedModal'
 import { SharedIcon } from '../ui/Icon'
 import { useTokenPrice } from '../../state/resources/hooks/useTokenPrice'
+import { BatchTransferModal } from '../BatchTransfer'
+import { Checkbox } from 'antd'
 
 const mdp = require('move-decimal-point')
 
@@ -196,8 +198,8 @@ export const Positions = ({
         side == POOL_IDS.A
           ? NUM(leverage)
           : side == POOL_IDS.B
-          ? -NUM(leverage)
-          : 0
+            ? -NUM(leverage)
+            : 0
       let valueRLinear
       let valueRCompound
       if (L != 0) {
@@ -317,11 +319,12 @@ export const Positions = ({
     )
     return [displayPositions, hasClosingFee]
   }, [positions, tradeType, swapPendingTxs])
-
+  const isShowAllPosition = useMemo(() => settings.minPositionValueUSD === 0, [settings.minPositionValueUSD])
+  const [isOpenBatchTransfer, setIsOpenBatchTransfer] = useState<boolean>(false)
   const showSize = tradeType !== TRADE_TYPE.LIQUIDITY
-
   return (
     <div className='positions-box'>
+      <BatchTransferModal visible={isOpenBatchTransfer} setVisible={setIsOpenBatchTransfer}/>
       {isPhone ? (
         <div className='positions-list'>
           {displayPositions.map((position, key: number) => {
@@ -547,6 +550,17 @@ export const Positions = ({
               {showSize && <th>Size</th>}
               <th>Delev. Price</th>
               {!hasClosingFee || <th>Closing Fee</th>}
+              {isShowAllPosition ? <th style={{ textAlign: 'right' }}>
+
+                <ButtonSell
+                  size='small'
+                  onClick={(e) => {
+                    setIsOpenBatchTransfer(!isOpenBatchTransfer)
+                  }}
+                >
+                  Transfers
+                </ButtonSell>
+              </th> : ''}
               {/* <th>Reserve</th> */}
               {/* <th>Pool</th> */}
               <th />
@@ -570,8 +584,8 @@ export const Positions = ({
                         tradeType === TRADE_TYPE.LONG
                           ? POOL_IDS.A
                           : tradeType === TRADE_TYPE.SHORT
-                          ? POOL_IDS.B
-                          : POOL_IDS.C
+                            ? POOL_IDS.B
+                            : POOL_IDS.C
                       setCurrentPoolAddress(address)
                       setOutputTokenAddressToBuy(
                         encodeErc1155Address(address, side)
@@ -588,10 +602,10 @@ export const Positions = ({
                         !settings.showBalance
                           ? undefined
                           : formatWeiToDisplayNumber(
-                              position.balance,
-                              4,
-                              tokens[position.token].decimals
-                            )
+                            position.balance,
+                            4,
+                            tokens[position.token].decimals
+                          )
                       }
                     />
                   </td>
@@ -677,44 +691,52 @@ export const Positions = ({
                     >
                       <SharedIcon />
                     </ButtonSell>
-                    {position.status === POSITION_STATUS.OPENING ? (
-                      <ButtonSell
-                        disabled
-                        size='small'
-                        style={{ opacity: 0.5 }}
-                      >
+                    {isShowAllPosition ? <ButtonSell
+                      className='share-position'
+                      size='small'
+                      style={{ border: 'none' }}>
+                      <Checkbox onChange={() => {
+
+                      }}/>
+                    </ButtonSell>
+                      : (position.status === POSITION_STATUS.OPENING ? (
+                        <ButtonSell
+                          disabled
+                          size='small'
+                          style={{ opacity: 0.5 }}
+                        >
                         Pending
-                      </ButtonSell>
-                    ) : position.status === POSITION_STATUS.CLOSING ? (
-                      <ButtonSell
-                        size='small'
-                        disabled
-                        style={{ opacity: 0.5 }}
-                      >
-                        <SkeletonLoader
-                          textLoading={
-                            position.side === POOL_IDS.C
-                              ? 'Removing'
-                              : 'Closing'
-                          }
-                          loading={position.status === POSITION_STATUS.CLOSING}
-                        />
-                      </ButtonSell>
-                    ) : (
-                      <ButtonSell
-                        size='small'
-                        onClick={(e) => {
-                          setClosingPosition(position)
-                          setOutputTokenAddress(
-                            wrapToNativeAddress(position.pool.TOKEN_R)
-                          )
-                          setVisible(true)
-                          e.stopPropagation() // stop the index from being changed
-                        }}
-                      >
-                        {position.side === POOL_IDS.C ? 'Remove' : 'Close'}
-                      </ButtonSell>
-                    )}
+                        </ButtonSell>
+                      ) : position.status === POSITION_STATUS.CLOSING ? (
+                        <ButtonSell
+                          size='small'
+                          disabled
+                          style={{ opacity: 0.5 }}
+                        >
+                          <SkeletonLoader
+                            textLoading={
+                              position.side === POOL_IDS.C
+                                ? 'Removing'
+                                : 'Closing'
+                            }
+                            loading={position.status === POSITION_STATUS.CLOSING}
+                          />
+                        </ButtonSell>
+                      ) : (
+                        <ButtonSell
+                          size='small'
+                          onClick={(e) => {
+                            setClosingPosition(position)
+                            setOutputTokenAddress(
+                              wrapToNativeAddress(position.pool.TOKEN_R)
+                            )
+                            setVisible(true)
+                            e.stopPropagation() // stop the index from being changed
+                          }}
+                        >
+                          {position.side === POOL_IDS.C ? 'Remove' : 'Close'}
+                        </ButtonSell>
+                      )) }
                   </td>
                 </tr>
               )
@@ -746,16 +768,16 @@ export const Positions = ({
           title={
             Number(decodeErc1155Address(closingPosition.token).id) ===
             POOL_IDS.C ? (
-              <Text>
+                <Text>
                 Remove{' '}
-                <TokenSymbol token={closingPosition.token} textWrap={Text} />{' '}
-              </Text>
-            ) : (
-              <Text>
+                  <TokenSymbol token={closingPosition.token} textWrap={Text} />{' '}
+                </Text>
+              ) : (
+                <Text>
                 Close{' '}
-                <TokenSymbol token={closingPosition.token} textWrap={Text} />{' '}
-              </Text>
-            )
+                  <TokenSymbol token={closingPosition.token} textWrap={Text} />{' '}
+                </Text>
+              )
           }
         />
       ) : (

@@ -6,14 +6,24 @@ import { useWeb3React } from '../../state/customWeb3React/hook'
 import { encodeErc1155Address, packId } from '../../utils/helpers'
 import { POOL_IDS } from '../../utils/constant'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
-import { Button } from '../ui/Button'
+import { Button, ButtonBuy } from '../ui/Button'
 import React, { useState } from 'react'
 import { Input } from '../ui/Input'
 import { toast } from 'react-toastify'
 
 import { isAddress } from '../../utils/filtering'
 import { Text } from '../ui/Text'
-export const BatchTransfer = () => {
+import { Modal } from '../ui/Modal'
+interface IProps {
+  visible: boolean,
+  setVisible: (a: boolean) => void,
+  title?: string
+}
+export const BatchTransferModal = ({
+  visible,
+  setVisible,
+  title
+}: IProps) => {
   const { configs } = useConfigs()
   const { pools } = useResource()
   const { provider, account } = useWeb3React()
@@ -66,7 +76,11 @@ export const BatchTransfer = () => {
   }
 
   return (
-    <div className='mb-1'>
+    <Modal
+      setVisible={setVisible}
+      visible={visible}
+      title={title || 'Batch transfers'}
+    >
       <div className='mb-05'>
         <Text>Batch Transfer</Text>
       </div>
@@ -76,11 +90,10 @@ export const BatchTransfer = () => {
         }} />
       </div>
       <div className='mb-05'>
-        <Button disabled={!isAddress(newWallet)} onClick={onBatchTransfer}>Batch Transfer</Button>
+        <ButtonBuy style={{ width: '100%' }} disabled={!isAddress(newWallet)} onClick={onBatchTransfer}>Batch Transfer</ButtonBuy>
 
       </div>
-
-    </div>
+    </Modal>
 
   )
 }

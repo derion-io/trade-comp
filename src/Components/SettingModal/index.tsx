@@ -15,7 +15,6 @@ import {
   setMinPositionValueUSDReduce
 } from '../../state/setting/reducer'
 import { MIN_POSITON_VALUE_USD_TO_DISPLAY } from '../../utils/constant'
-import { BatchTransfer } from '../BatchTransfer'
 
 const Component = ({
   visible,
@@ -104,7 +103,6 @@ const Component = ({
                 errorMessage='Invalid Min Liquidity Share'
               />
             </div>
-            <BatchTransfer/>
             <div>
               <div className='mb-05'>
                 <Text>Sort</Text>
