@@ -37,12 +37,18 @@ export const BatchTransferModal = ({
   const { provider, account } = useWeb3React()
   const { balances } = useWalletBalance()
   const [newWallet, setNewWallet] = useState<string>('0xdEc91a05108713067ee6BaB1A999381623E5c0AE')
+  const [errorMessage, setErrorMessage] = useState<string | undefined>()
   const [loading, setLoading] = useState<boolean>(false)
   const [gasUsed, setGasEstimate] = useState<BigNumber>(bn(0))
   const { feeData } = useFeeData()
   const gasPrice: BigNumber = useMemo(() => bn(feeData?.gasPrice ?? 1), [feeData])
 
   const paramBatchTransfer = useMemo(() => {
+    if (!configs?.derivable?.token || Object.keys(pools).length === 0) return []
+    if (!isAddress(newWallet)) {
+      setErrorMessage('Invalid address')
+      return []
+    }
     const positionIds: {
       id: BigNumber,
       amount: BigNumber
@@ -63,25 +69,39 @@ export const BatchTransferModal = ({
       positionIds.map(positionIds => positionIds.id),
       positionIds.map(positionIds => positionIds.amount),
       0]
+    const erc1155 = new Contract(configs.derivable.token, DerivablePosition, provider?.getSigner() || provider)
+    setLoading(true)
+    console.log('#positionIds', paramBatchTransfer)
+
+    erc1155.estimateGas.safeBatchTransferFrom(...paramBatchTransfer).then(res => {
+      setGasEstimate(res)
+    })
+    erc1155.callStatic.safeBatchTransferFrom(...paramBatchTransfer).then(res => {
+      setErrorMessage(undefined)
+      setLoading(false)
+    }).catch(err => {
+      console.log(err)
+      setErrorMessage(err?.reason ?? err?.error ?? err?.data?.message ?? 'Transaction Failed')
+      setLoading(false)
+    })
     return paramBatchTransfer
-  }, [pools, balances])
+  }, [pools, balances, account, newWallet, configs, provider])
 
   const onBatchTransfer = async () => {
-    if (!newWallet && !isAddress(newWallet)) return
+    if (!newWallet && !isAddress(newWallet) && !errorMessage && paramBatchTransfer?.length === 0 && !paramBatchTransfer) return
     const erc1155 = new Contract(configs.derivable.token, DerivablePosition, provider?.getSigner() || provider)
 
     try {
-      await erc1155.callStatic.safeBatchTransferFrom(...paramBatchTransfer)
       setLoading(true)
       const tx = await erc1155.safeBatchTransferFrom(...paramBatchTransfer)
       toast.success('Transaction Submitted')
       await tx.wait()
       toast.success('Transaction Confirmed')
       setLoading(false)
-    } catch (e) {
+    } catch (err) {
       setLoading(false)
-      toast.error(e?.reason ?? e?.message ?? 'Transaction Failed')
-      console.error(e)
+      toast.error(err?.reason ?? err?.error ?? err?.data?.message ?? 'Transaction Failed')
+      console.log(err)
     }
     console.log('#positionIds', paramBatchTransfer, account)
   }
@@ -98,12 +118,7 @@ export const BatchTransferModal = ({
       <div className='mb-05'>
         <Input value={newWallet} onChange={(e) => {
           setNewWallet(e.target.value || '')
-        }} onBlur={() => {
-          const erc1155 = new Contract(configs.derivable.token, DerivablePosition, provider?.getSigner() || provider)
-          erc1155.estimateGas.safeBatchTransferFrom(...paramBatchTransfer).then(res => {
-            setGasEstimate(res)
-          })
-        }}/>
+        }} />
       </div>
       <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
         <InfoRow>
@@ -160,8 +175,9 @@ export const BatchTransferModal = ({
         </InfoRow>
       </Box>
       <div className='mb-05'>
-        <ButtonBuy style={{ width: '100%' }} disabled={loading || !isAddress(newWallet)} onClick={onBatchTransfer}>
-          {loading ? 'Pending...' : 'Batch Transfer'}</ButtonBuy>
+        <ButtonBuy style={{ width: '100%' }} disabled={errorMessage !== undefined || loading || !isAddress(newWallet)} onClick={onBatchTransfer}>
+          {loading ? 'Calculating...'
+            : errorMessage || 'Batch Transfer'}</ButtonBuy>
       </div>
     </Modal>
 
