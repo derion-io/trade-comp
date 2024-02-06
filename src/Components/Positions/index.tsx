@@ -558,7 +558,7 @@ export const Positions = ({
                     setIsOpenBatchTransfer(!isOpenBatchTransfer)
                   }}
                 >
-                  Transfers
+                  Transfer
                 </ButtonSell>
               </th> : ''}
               {/* <th>Reserve</th> */}

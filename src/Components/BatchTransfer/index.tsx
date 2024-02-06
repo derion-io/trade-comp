@@ -6,7 +6,7 @@ import { useWeb3React } from '../../state/customWeb3React/hook'
 import { IEW, WEI, bn, encodeErc1155Address, formatFloat, packId } from '../../utils/helpers'
 import { POOL_IDS } from '../../utils/constant'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
-import { Button, ButtonBuy } from '../ui/Button'
+import { Button, ButtonClose } from '../ui/Button'
 import React, { useEffect, useMemo, useState } from 'react'
 import { Input } from '../ui/Input'
 import { toast } from 'react-toastify'
@@ -36,7 +36,7 @@ export const BatchTransferModal = ({
   const { data: nativePrice } = useNativePrice()
   const { provider, account } = useWeb3React()
   const { balances } = useWalletBalance()
-  const [newWallet, setNewWallet] = useState<string>('0xdEc91a05108713067ee6BaB1A999381623E5c0AE')
+  const [recipient, setRecipient] = useState<string>('')
   const [errorMessage, setErrorMessage] = useState<string | undefined>()
   const [loading, setLoading] = useState<boolean>(false)
   const [gasUsed, setGasEstimate] = useState<BigNumber>(bn(0))
@@ -45,30 +45,32 @@ export const BatchTransferModal = ({
 
   const paramBatchTransfer = useMemo(() => {
     if (!configs?.derivable?.token || Object.keys(pools).length === 0) return []
-    if (!isAddress(newWallet)) {
+    if (!isAddress(recipient)) {
       setErrorMessage('Invalid address')
       return []
     }
-    const positionIds: {
+    const positions: {
       id: BigNumber,
       amount: BigNumber
     }[] = []
-    Object.keys(pools).forEach((poolAddress) => {
-      [POOL_IDS.A, POOL_IDS.B, POOL_IDS.C].map((pool_id, _) => {
-        if (balances[encodeErc1155Address(poolAddress, pool_id)]?.gt(0)) {
-          positionIds.push(
+    Object.keys(pools).forEach((pool) => {
+      [POOL_IDS.A, POOL_IDS.B, POOL_IDS.C].map((side, _) => {
+        if (balances[encodeErc1155Address(pool, side)]?.gt(0)) {
+          positions.push(
             {
-              id: packId(String(pool_id), poolAddress),
-              amount: balances[encodeErc1155Address(poolAddress, pool_id)]
+              id: packId(String(side), pool),
+              amount: balances[encodeErc1155Address(pool, side)]
             })
         }
       })
     })
-    const paramBatchTransfer = [account,
-      newWallet,
-      positionIds.map(positionIds => positionIds.id),
-      positionIds.map(positionIds => positionIds.amount),
-      0]
+    const paramBatchTransfer = [
+      account,
+      recipient,
+      positions.map(pos => pos.id),
+      positions.map(pos => pos.amount),
+      [],
+    ]
     const erc1155 = new Contract(configs.derivable.token, DerivablePosition, provider?.getSigner() || provider)
     setLoading(true)
     console.log('#positionIds', paramBatchTransfer)
@@ -85,10 +87,10 @@ export const BatchTransferModal = ({
       setLoading(false)
     })
     return paramBatchTransfer
-  }, [pools, balances, account, newWallet, configs, provider])
+  }, [pools, balances, account, recipient, configs, provider])
 
   const onBatchTransfer = async () => {
-    if (!newWallet && !isAddress(newWallet) && !errorMessage && paramBatchTransfer?.length === 0 && !paramBatchTransfer) return
+    if (!recipient && !isAddress(recipient) && !errorMessage && paramBatchTransfer?.length === 0 && !paramBatchTransfer) return
     const erc1155 = new Contract(configs.derivable.token, DerivablePosition, provider?.getSigner() || provider)
 
     try {
@@ -110,15 +112,19 @@ export const BatchTransferModal = ({
     <Modal
       setVisible={setVisible}
       visible={visible}
-      title={title || 'Batch transfers'}
+      title={title || 'Transfer all positions'}
     >
       <div className='mb-05'>
-        <Text>Batch Transfer</Text>
+        <Text>Recipient</Text>
       </div>
       <div className='mb-05'>
-        <Input value={newWallet} onChange={(e) => {
-          setNewWallet(e.target.value || '')
-        }} />
+        <Input
+          value={recipient}
+          placeholder='0x'
+          onChange={(e) => {
+            setRecipient(e.target.value || '')
+          }}
+        />
       </div>
       <Box borderColor='default' className='swap-info-box mt-1 mb-1'>
         <InfoRow>
@@ -175,9 +181,9 @@ export const BatchTransferModal = ({
         </InfoRow>
       </Box>
       <div className='mb-05'>
-        <ButtonBuy style={{ width: '100%' }} disabled={errorMessage !== undefined || loading || !isAddress(newWallet)} onClick={onBatchTransfer}>
+        <ButtonClose style={{ width: '100%' }} disabled={errorMessage !== undefined || loading || !isAddress(recipient)} onClick={onBatchTransfer}>
           {loading ? 'Calculating...'
-            : errorMessage || 'Batch Transfer'}</ButtonBuy>
+            : errorMessage || 'Transfer'}</ButtonClose>
       </div>
     </Modal>
 
