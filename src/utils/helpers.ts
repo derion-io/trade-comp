@@ -473,9 +473,9 @@ export const isUSD = (symbol: string): boolean => {
 }
 
 export const thousandsInt = (int: string): string => {
-  const rgx = /(\d+)(\d{3})/;
-	while (rgx.test(int)) {
-		int = int.replace(rgx, '$1' + ',' + '$2');
+  const rgx = /(\d+)(\d{3})/
+  while (rgx.test(int)) {
+    int = int.replace(rgx, '$1' + ',' + '$2')
   }
   return int
 }
@@ -707,4 +707,9 @@ export function poolToIndexID(pool: PoolType) {
   const quoteTokenIndex = bn(pool?.ORACLE.slice(0, 3)).gt(0) ? 1 : 0
   const tokenR = pool?.TOKEN_R
   return [pair, quoteTokenIndex, tokenR].join('-')
+}
+
+export const packId = (kind: string | BigNumber, address: string) => {
+  const k = bn(kind)
+  return k.shl(160).add(address)
 }
