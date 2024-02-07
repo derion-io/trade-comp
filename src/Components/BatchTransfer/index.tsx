@@ -3,10 +3,9 @@ import { useConfigs } from '../../state/config/useConfigs'
 import { useResource } from '../../state/resources/hooks/useResource'
 import DerivablePosition from './DerivablePosition.json'
 import { useWeb3React } from '../../state/customWeb3React/hook'
-import { IEW, WEI, bn, encodeErc1155Address, formatFloat, packId } from '../../utils/helpers'
-import { POOL_IDS } from '../../utils/constant'
+import { IEW, WEI, bn, encodeErc1155Address, formatFloat, packId, parseCallStaticError } from '../../utils/helpers'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
-import { Button, ButtonClose } from '../ui/Button'
+import { ButtonClose } from '../ui/Button'
 import React, { useEffect, useMemo, useState } from 'react'
 import { Input } from '../ui/Input'
 import { toast } from 'react-toastify'
@@ -21,14 +20,17 @@ import { useFeeData } from '../../state/resources/hooks/useFeeData'
 import { formatWeiToDisplayNumber } from '../../utils/formatBalance'
 import Tooltip from '../Tooltip/Tooltip'
 import { Box } from '../ui/Box'
+import { Position } from '../../utils/type'
 interface IProps {
-  visible: boolean,
-  setVisible: (a: boolean) => void,
+  visible: boolean
+  setVisible: (a: boolean) => void
+  selections: { [key: string]: Position }
   title?: string
 }
 export const BatchTransferModal = ({
   visible,
   setVisible,
+  selections,
   title
 }: IProps) => {
   const { configs } = useConfigs()
@@ -43,59 +45,62 @@ export const BatchTransferModal = ({
   const { feeData } = useFeeData()
   const gasPrice: BigNumber = useMemo(() => bn(feeData?.gasPrice ?? 1), [feeData])
 
-  const paramBatchTransfer = useMemo(() => {
-    if (!configs?.derivable?.token || Object.keys(pools).length === 0) return []
+  const positions = useMemo(() => {
+    return Object.values(selections).map(({poolAddress, side}) => {
+      const id = packId(bn(side), poolAddress)
+      const amount = balances[encodeErc1155Address(poolAddress, side)]
+      return { id, amount }
+    }).filter(({ amount }) => amount?.gt(0))
+  }, [selections, balances])
+
+  const params = useMemo(() => {
+    if (!configs?.derivable?.token || Object.keys(positions).length === 0) return []
     if (!isAddress(recipient)) {
-      setErrorMessage('Invalid address')
+      setErrorMessage('Invalid Address')
       return []
     }
-    const positions: {
-      id: BigNumber,
-      amount: BigNumber
-    }[] = []
-    Object.keys(pools).forEach((pool) => {
-      [POOL_IDS.A, POOL_IDS.B, POOL_IDS.C].map((side, _) => {
-        if (balances[encodeErc1155Address(pool, side)]?.gt(0)) {
-          positions.push(
-            {
-              id: packId(String(side), pool),
-              amount: balances[encodeErc1155Address(pool, side)]
-            })
-        }
-      })
-    })
-    const paramBatchTransfer = [
+    if (recipient == account) {
+      setErrorMessage('Recipient is Sender')
+      return []
+    }
+    return [
       account,
       recipient,
       positions.map(pos => pos.id),
       positions.map(pos => pos.amount),
       [],
     ]
+  }, [configs, positions, recipient, account])
+
+  useEffect(() => {
+    if (!(params?.length > 0)) {
+      return
+    }
     const erc1155 = new Contract(configs.derivable.token, DerivablePosition, provider?.getSigner() || provider)
     setLoading(true)
-    console.log('#positionIds', paramBatchTransfer)
+    console.log('#positionIds', params)
 
-    erc1155.estimateGas.safeBatchTransferFrom(...paramBatchTransfer).then(res => {
-      setGasEstimate(res)
-    })
-    erc1155.callStatic.safeBatchTransferFrom(...paramBatchTransfer).then(res => {
-      setErrorMessage(undefined)
-      setLoading(false)
-    }).catch(err => {
-      console.log(err)
-      setErrorMessage(err?.reason ?? err?.error ?? err?.data?.message ?? 'Transaction Failed')
-      setLoading(false)
-    })
-    return paramBatchTransfer
-  }, [pools, balances, account, recipient, configs, provider])
+    erc1155.estimateGas.safeBatchTransferFrom(...params)
+      .then(gas => {
+        setErrorMessage(undefined)
+        setGasEstimate(gas)
+      })
+      .catch(err => {
+        console.error(err)
+        setErrorMessage(String(parseCallStaticError(err)))
+      })
+      .finally(() => {
+        setLoading(false)
+      })
+  }, [configs, provider, params])
 
   const onBatchTransfer = async () => {
-    if (!recipient && !isAddress(recipient) && !errorMessage && paramBatchTransfer?.length === 0 && !paramBatchTransfer) return
+    if (!recipient && !isAddress(recipient) && !errorMessage && params?.length === 0 && !params) return
     const erc1155 = new Contract(configs.derivable.token, DerivablePosition, provider?.getSigner() || provider)
 
     try {
       setLoading(true)
-      const tx = await erc1155.safeBatchTransferFrom(...paramBatchTransfer)
+      const tx = await erc1155.safeBatchTransferFrom(...params)
       toast.success('Transaction Submitted')
       await tx.wait()
       toast.success('Transaction Confirmed')
@@ -105,7 +110,7 @@ export const BatchTransferModal = ({
       toast.error(err?.reason ?? err?.error ?? err?.data?.message ?? 'Transaction Failed')
       console.log(err)
     }
-    console.log('#positionIds', paramBatchTransfer, account)
+    console.log('#positionIds', params, account)
   }
 
   return (

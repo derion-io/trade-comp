@@ -98,6 +98,7 @@ export const Positions = ({
   const [sharedPosition, setSharedPosition] = useState<Position | undefined>(
     undefined
   )
+  const [selections, setSelections] = useState<{ [pos: string]: Position }>({})
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
   const { ddlEngine } = useConfigs()
   const { swapLogs: sls } = useSwapHistory()
@@ -320,11 +321,17 @@ export const Positions = ({
     return [displayPositions, hasClosingFee]
   }, [positions, tradeType, swapPendingTxs])
   const isShowAllPosition = useMemo(() => settings.minPositionValueUSD === 0, [settings.minPositionValueUSD])
-  const [isOpenBatchTransfer, setIsOpenBatchTransfer] = useState<boolean>(false)
+  const [isBatchTransferModalVisible, setBatchTransferModalVisible] = useState<boolean>(false)
   const showSize = tradeType !== TRADE_TYPE.LIQUIDITY
   return (
     <div className='positions-box'>
-      <BatchTransferModal visible={isOpenBatchTransfer} setVisible={setIsOpenBatchTransfer}/>
+      {isBatchTransferModalVisible &&
+        <BatchTransferModal
+          visible={isBatchTransferModalVisible}
+          setVisible={setBatchTransferModalVisible}
+          selections={selections}
+        />
+      }
       {isPhone ? (
         <div className='positions-list'>
           {displayPositions.map((position, key: number) => {
@@ -550,17 +557,17 @@ export const Positions = ({
               {showSize && <th>Size</th>}
               <th>Delev. Price</th>
               {!hasClosingFee || <th>Closing Fee</th>}
-              {isShowAllPosition ? <th style={{ textAlign: 'right' }}>
-
+              {isShowAllPosition && <th style={{ textAlign: 'right' }}>
                 <ButtonSell
                   size='small'
+                  disabled={Object.keys(selections).length == 0}
                   onClick={(e) => {
-                    setIsOpenBatchTransfer(!isOpenBatchTransfer)
+                    setBatchTransferModalVisible(!isBatchTransferModalVisible)
                   }}
                 >
                   Transfer
                 </ButtonSell>
-              </th> : ''}
+              </th>}
               {/* <th>Reserve</th> */}
               {/* <th>Pool</th> */}
               <th />
@@ -680,24 +687,34 @@ export const Positions = ({
                   {/* <td><Reserve pool={position.pool}/></td> */}
                   {/* <td><ExplorerLink poolAddress={position.poolAddress}/></td> */}
                   <td className='text-right'>
-                    <ButtonSell
-                      size='small'
-                      className='share-position'
-                      style={{ border: 'none' }}
-                      onClick={(e) => {
-                        setSharedPosition(position)
-                        e.stopPropagation()
-                      }}
-                    >
-                      <SharedIcon />
-                    </ButtonSell>
+                    {isShowAllPosition ||
+                      <ButtonSell
+                        size='small'
+                        className='share-position'
+                        style={{ border: 'none' }}
+                        onClick={(e) => {
+                          setSharedPosition(position)
+                          e.stopPropagation()
+                        }}
+                      >
+                        <SharedIcon />
+                      </ButtonSell>
+                    }
                     {isShowAllPosition ? <ButtonSell
                       className='share-position'
                       size='small'
                       style={{ border: 'none' }}>
                       <Checkbox onChange={() => {
-
-                      }}/>
+                        const id = `${position.poolAddress}-${position.side}`
+                        const s = {...selections}
+                        if (!selections[id]) {
+                          s[id] = position
+                        } else {
+                          delete s[id]
+                        }
+                        setSelections(s)
+                      }}
+                    />
                     </ButtonSell>
                       : (position.status === POSITION_STATUS.OPENING ? (
                         <ButtonSell
