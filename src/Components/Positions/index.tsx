@@ -694,13 +694,13 @@ export const Positions = ({
                         style={{ border: 'none' }}>
                         <Checkbox onChange={() => {
                           const id = `${position.poolAddress}-${position.side}`
-                          const s = {...selections}
-                          if (!selections[id]) {
-                            s[id] = position
+                          const ss = {...selections}
+                          if (!ss[id]) {
+                            ss[id] = position
                           } else {
-                            delete s[id]
+                            delete ss[id]
                           }
-                          setSelections(s)
+                          setSelections(ss)
                         }}
                       /></ButtonSell>
                     : <ButtonSell
