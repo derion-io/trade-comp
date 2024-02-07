@@ -687,8 +687,23 @@ export const Positions = ({
                   {/* <td><Reserve pool={position.pool}/></td> */}
                   {/* <td><ExplorerLink poolAddress={position.poolAddress}/></td> */}
                   <td className='text-right'>
-                    {isShowAllPosition ||
+                    {isShowAllPosition ?
                       <ButtonSell
+                        className='share-position'
+                        size='small'
+                        style={{ border: 'none' }}>
+                        <Checkbox onChange={() => {
+                          const id = `${position.poolAddress}-${position.side}`
+                          const s = {...selections}
+                          if (!selections[id]) {
+                            s[id] = position
+                          } else {
+                            delete s[id]
+                          }
+                          setSelections(s)
+                        }}
+                      /></ButtonSell>
+                    : <ButtonSell
                         size='small'
                         className='share-position'
                         style={{ border: 'none' }}
@@ -696,27 +711,9 @@ export const Positions = ({
                           setSharedPosition(position)
                           e.stopPropagation()
                         }}
-                      >
-                        <SharedIcon />
-                      </ButtonSell>
+                      ><SharedIcon /></ButtonSell>
                     }
-                    {isShowAllPosition ? <ButtonSell
-                      className='share-position'
-                      size='small'
-                      style={{ border: 'none' }}>
-                      <Checkbox onChange={() => {
-                        const id = `${position.poolAddress}-${position.side}`
-                        const s = {...selections}
-                        if (!selections[id]) {
-                          s[id] = position
-                        } else {
-                          delete s[id]
-                        }
-                        setSelections(s)
-                      }}
-                    />
-                    </ButtonSell>
-                      : (position.status === POSITION_STATUS.OPENING ? (
+                    {(position.status === POSITION_STATUS.OPENING ? (
                         <ButtonSell
                           disabled
                           size='small'
@@ -753,7 +750,8 @@ export const Positions = ({
                         >
                           {position.side === POOL_IDS.C ? 'Remove' : 'Close'}
                         </ButtonSell>
-                      )) }
+                      ))
+                    }
                   </td>
                 </tr>
               )
