@@ -51,7 +51,11 @@ const Component = ({
           contract once.
         </p>
         <div className='text-center mb-2'>
-          <p>The contract code is verified here:</p>
+          <p>The contract code is audited by{' '}
+            <a href='https://hacken.io/audits/derivable/'>
+              Hacken
+            </a>
+            {' '}and verified here:</p>
           <a
             href={`${configs.explorer}/address/${configs.helperContract?.utr}#code`}
             target='_blank'
