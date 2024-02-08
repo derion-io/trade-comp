@@ -154,7 +154,7 @@ export const ButtonSwap = ({
       )
     } else if (
       !balances[inputTokenAddress] ||
-      balances[inputTokenAddress].lt(
+      !balances[inputTokenAddress]?.gte(
         WEI(amountIn, tokens[inputTokenAddress]?.decimals || 18)
       )
     ) {
@@ -166,7 +166,7 @@ export const ButtonSwap = ({
       )
     } else if (
       !isErc1155Address(inputTokenAddress) &&
-      routerAllowances[inputTokenAddress].lt(
+      !routerAllowances[inputTokenAddress]?.gte(
         WEI(amountIn, tokens[inputTokenAddress]?.decimals || 18)
       )
     ) {
