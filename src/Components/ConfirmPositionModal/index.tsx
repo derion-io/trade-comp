@@ -12,6 +12,7 @@ import {
   NUM,
   bn,
   decodeErc1155Address,
+  div,
   formatFloat,
   isErc1155Address,
   kx,
@@ -22,16 +23,14 @@ import { ButtonSwap } from '../ButtonSwap'
 import { EstimateBox } from '../BuyPositionBox/components/EstimateBox'
 import { TxFee } from '../SwapBox/components/TxFee'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
-import { Box } from '../ui/Box'
 import { IconArrowDown } from '../ui/Icon'
-import { InfoRow } from '../ui/InfoRow'
 import { Modal } from '../ui/Modal'
-import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { Text, TextError, TextGrey, TextWarning } from '../ui/Text'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { SwapModalHeaderAmount } from './components/SwapModalHeaderAmount'
 import './style.scss'
 import { SwapInfoBox } from '../BuyPositionBox/components/SwapInfoBox'
+import { Q256 } from '../../utils/type'
 
 const Component = ({
   submitFetcherV2,
@@ -169,10 +168,7 @@ const Component = ({
           (tokens?.[baseToken]?.decimals ?? 18) -
           (tokens?.[quoteToken]?.decimals ?? 18)
         const mark = MARK
-          ? MARK.mul(MARK)
-            .mul(bn(10).pow(decimalsOffset + 12))
-            .shr(256)
-            .toNumber() / 1000000000000
+          ? NUM(div(MARK.mul(MARK).mul(bn(10).pow(decimalsOffset)), Q256))
           : 1
 
         const xA = xr(k, R.shr(1), a)

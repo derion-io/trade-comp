@@ -24,6 +24,7 @@ export type PoolErc1155StepType = {
 }
 
 export const Q128 = BigNumber.from(1).shl(128)
+export const Q256 = BigNumber.from(1).shl(256)
 
 export class ClosingFeeCalculator {
   MATURITY: number
