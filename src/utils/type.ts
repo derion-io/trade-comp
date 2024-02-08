@@ -44,6 +44,13 @@ export class ClosingFeeCalculator {
     if (now == null) {
       now = Math.floor(new Date().getTime() / 1000)
     }
+    if (this.maturity < now) {
+      return {
+        fee: 0,
+        remain: 0,
+        isVesting: false,
+      }
+    }
     const matured = max(this.maturity, now)
     const vested = max(matured - this.MATURITY + this.MATURITY_VEST, now)
 
