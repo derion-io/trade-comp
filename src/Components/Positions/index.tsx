@@ -101,7 +101,7 @@ export const Positions = ({
   const [selections, setSelections] = useState<{ [pos: string]: Position }>({})
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
   const { ddlEngine } = useConfigs()
-  const { swapLogs: sls } = useSwapHistory()
+  const { swapLogs } = useSwapHistory()
   const { swapPendingTxs } = useSwapPendingHistory()
   const { width } = useWindowSize()
   const isPhone = width && width < 992
@@ -119,16 +119,16 @@ export const Positions = ({
   }, [])
 
   const positionsWithEntry = useMemo(() => {
-    if (ddlEngine?.HISTORY && Object.values(pools).length > 0 && sls) {
+    if (ddlEngine?.HISTORY && Object.values(pools).length > 0 && swapLogs) {
       return (
         ddlEngine.HISTORY.generatePositions?.({
           tokens: Object.values(tokens),
-          logs: _.cloneDeep(sls)
+          logs: _.cloneDeep(swapLogs)
         }) ?? {}
       )
     }
     return {}
-  }, [sls, pools, tokens, ddlEngine?.HISTORY])
+  }, [swapLogs, pools, tokens, ddlEngine?.HISTORY])
 
   const generatePositionData = (
     poolAddress: string,

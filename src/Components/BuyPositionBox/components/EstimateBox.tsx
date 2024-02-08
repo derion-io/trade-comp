@@ -44,7 +44,7 @@ export const EstimateBox = ({
   const { settings } = useSettings()
   const { ddlEngine } = useConfigs()
   const { pools } = useResource()
-  const { swapLogs: sls } = useSwapHistory()
+  const { swapLogs } = useSwapHistory()
   const showSize =
   tradeType === TRADE_TYPE.LONG || tradeType === TRADE_TYPE.SHORT
   const { value: valueOutBefore } = useTokenValue({
@@ -57,16 +57,16 @@ export const EstimateBox = ({
 
   const { basePrice } = useCurrentPoolGroup()
   const positionsWithEntry = useMemo(() => {
-    if (ddlEngine?.HISTORY && Object.values(pools).length > 0 && sls) {
+    if (ddlEngine?.HISTORY && Object.values(pools).length > 0 && swapLogs) {
       return (
         ddlEngine.HISTORY.generatePositions?.({
           tokens: Object.values(tokens),
-          logs: cloneDeep(sls)
+          logs: cloneDeep(swapLogs)
         }) ?? {}
       )
     }
     return {}
-  }, [sls, pools, tokens])
+  }, [swapLogs, pools, tokens])
   const afterEntryPrice = useMemo(() => {
     if (!positionsWithEntry[outputTokenAddress]?.entryPrice) return null
     return calculateWeightedAverage(
