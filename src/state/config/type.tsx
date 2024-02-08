@@ -1,5 +1,5 @@
-import { Engine } from 'derivable-tools/dist/engine'
-import { INetworkConfig } from 'derivable-tools/dist/utils/configs'
+import { Engine } from 'derivable-engine/dist/engine'
+import { INetworkConfig } from 'derivable-engine/dist/utils/configs'
 import { DEFAULT_CHAIN } from '../../utils/constant'
 
 export type Routes = {[key: string]: {type: string, address: string}[]}

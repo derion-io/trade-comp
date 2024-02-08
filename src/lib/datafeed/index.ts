@@ -1,4 +1,4 @@
-import historyProvider, { CandleType } from 'derivable-tools/dist/historyProvider'
+import historyProvider, { CandleType } from 'derivable-engine/dist/historyProvider'
 import { LASTEST_BLOCK_NUMBER, NATIVE_ADDRESS, POOL_IDS } from '../../utils/constant'
 import { store } from '../../state'
 import {

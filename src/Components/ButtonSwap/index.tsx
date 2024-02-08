@@ -21,7 +21,7 @@ import { ApproveUtrModal } from '../ApproveUtrModal'
 import { useResource } from '../../state/resources/hooks/useResource'
 import { ConfirmPosition } from '../ConfirmPositionModal'
 import { useSwapPendingHistory } from '../../state/wallet/hooks/useSwapPendingHistory'
-import { PendingSwapTransactionType } from 'derivable-tools/dist/types'
+import { PendingSwapTransactionType } from 'derivable-engine/dist/types'
 import { useDetectPool } from '../../hooks/useDetectPool'
 
 const TIME_TO_REFRESH_FETCHER_DATA = 10000

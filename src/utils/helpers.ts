@@ -3,7 +3,7 @@ import { POOL_IDS, TRADE_TYPE, UNWRAP } from './constant'
 import _ from 'lodash'
 import { ListTokensType } from '../state/token/type'
 import { Q128 } from './type'
-import { PoolType } from 'derivable-tools/dist/types'
+import { PoolType } from 'derivable-engine/dist/types'
 
 const mdp = require('move-decimal-point')
 

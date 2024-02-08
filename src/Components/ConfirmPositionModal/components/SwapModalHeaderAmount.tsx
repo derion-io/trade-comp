@@ -4,7 +4,7 @@ import formatLocalisedCompactNumber from '../../../utils/formatBalance'
 import { Text, TextGrey } from '../../ui/Text'
 import { TokenSymbol } from '../../ui/TokenSymbol'
 import { TokenIcon } from '../../ui/TokenIcon'
-import { isErc1155Address } from 'derivable-tools/dist/utils/helper'
+import { isErc1155Address } from 'derivable-engine/dist/utils/helper'
 
 type Props = {
   amountIn: string
