@@ -240,7 +240,7 @@ export const Positions = ({
         dgA,
         dgB,
         funding,
-        closingFee: (now?: number): any => {
+        calulateClosingFee: (now?: number): any => {
           return feeCalculator.calculateFee(now)
         },
         status: POSITION_STATUS.OPENED
@@ -316,7 +316,7 @@ export const Positions = ({
     }
 
     const hasClosingFee = displayPositions.some(
-      (p) => p?.closingFee?.(now)?.fee > 0
+      (p) => p?.calulateClosingFee?.(now)?.fee > 0
     )
     return [displayPositions, hasClosingFee]
   }, [positions, tradeType, swapPendingTxs])
@@ -475,7 +475,7 @@ export const Positions = ({
                   <DeleveragePrice position={position} isPhone />
                 </InfoRow>
 
-                {!position?.closingFee?.(now)?.fee || (
+                {!position?.calulateClosingFee?.(now)?.fee || (
                   <InfoRow>
                     <TextGrey>Closing Fee</TextGrey>
                     <ClosingFee
@@ -1238,8 +1238,8 @@ export const ClosingFee = ({
   position: Position
   isPhone?: boolean
 }) => {
-  if (!position?.closingFee?.()) return <React.Fragment />
-  const res: any = position.closingFee(now)
+  if (!position?.calulateClosingFee?.()) return <React.Fragment />
+  const res: any = position.calulateClosingFee(now)
 
   if (!res?.fee) {
     return <React.Fragment />

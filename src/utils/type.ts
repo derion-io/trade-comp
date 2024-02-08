@@ -115,5 +115,5 @@ export type Position = {
   leverage: number
   effectiveLeverage: number
   funding: number
-  closingFee: (now?: number) => any
+  calulateClosingFee: (now?: number) => any
 }
