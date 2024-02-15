@@ -147,12 +147,12 @@ export const ListIndexs = ({
                     <SkeletonLoader textLoading='   ' loading />
                   )}
 
-                  {poolGroupsValue[key]?.poolGroupValue > 0 ? (
+                  {poolGroupsValue[key]?.poolGroupValue ? (
                     <TextGrey>{`$${formatLocalisedCompactNumber(
                       formatFloat(poolGroupsValue[key]?.poolGroupValue)
                     )}`}</TextGrey>
                   ) : (
-                    <SkeletonLoader textLoading='   ' loading />
+                    ''
                   )}
                 </div>
               </div>

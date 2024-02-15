@@ -2,7 +2,7 @@ import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useTokenValue } from '../../../Components/SwapBox/hooks/useTokenValue'
 import { POOL_IDS } from '../../../utils/constant'
-import { IEW, NUM } from '../../../utils/helpers'
+import { IEW, NUM, STR } from '../../../utils/helpers'
 import { useConfigs } from '../../config/useConfigs'
 import { useListTokens } from '../../token/hook'
 import { addTokensReduce } from '../../token/reducer'
@@ -85,6 +85,11 @@ export const useResource = () => {
           for (const poolAddress of Object.keys(poolGroup.pools)) {
             const pool = poolGroup.pools[poolAddress]
             poolGroupValueR += NUM(IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimals))
+            poolGroupValue += NUM(getTokenValue(
+              pool?.TOKEN_R,
+              STR(poolGroupValueR),
+              true
+            ))
             if (balances[poolAddress + '-' + POOL_IDS.A]) {
               results.push(poolAddress + '-' + POOL_IDS.A)
             }
@@ -93,11 +98,6 @@ export const useResource = () => {
             }
             if (balances[poolAddress + '-' + POOL_IDS.C]) {
               results.unshift(poolAddress + '-' + POOL_IDS.C)
-              poolGroupValue += NUM(getTokenValue(
-                pool?.TOKEN_R,
-                IEW(pool?.states?.R, tokens[pool?.TOKEN_R]?.decimals),
-                true
-              ))
             }
           }
         }
