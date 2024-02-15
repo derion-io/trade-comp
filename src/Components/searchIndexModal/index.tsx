@@ -144,7 +144,7 @@ const Component = ({
             poolSearch?.pairInfo?.[`token${index}`]?.address
           )
         })
-        if (poolGroups[key]?.pools) return
+        // if (poolGroups[key]?.pools) return
         poolAddresses = [
           ...poolAddresses,
           ...poolSearch.pools.map((pool: any) => pool?.poolAddress)
