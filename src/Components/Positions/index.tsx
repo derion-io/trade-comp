@@ -1032,7 +1032,7 @@ export const PnL = ({
   if (maxValue == 0) {
     return <React.Fragment/>
   }
-  const rate = formatPercent(div(valueChange, maxValue), undefined, true)
+  const rate = formatPercent(div(valueChange, NUM(entryValue ?? 0) || NUM(value ?? 0)), undefined, true)
   const rateDisplay = (rate >= 0 ? '+' : '') + STR(rate)
   const TextComp = rate >= 0 ? TextBuy : TextSell
   if (isPhone) {
