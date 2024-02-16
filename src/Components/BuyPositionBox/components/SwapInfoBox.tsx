@@ -9,7 +9,7 @@ import Tooltip from '../../Tooltip/Tooltip'
 import { Box } from '../../ui/Box'
 import { InfoRow } from '../../ui/InfoRow'
 import { SkeletonLoader } from '../../ui/SkeletonLoader'
-import { Text, TextGrey, TextWarning } from '../../ui/Text'
+import { Text, TextGrey, TextSell, TextWarning } from '../../ui/Text'
 import { BigNumber } from 'ethers'
 const Q128 = BigNumber.from(1).shl(128)
 type Props = {
@@ -194,9 +194,12 @@ export const SwapInfoBox = ({
               )
             }%</TextWarning>
             {' for '}
-            {moment
-              .duration(poolToShow?.MATURITY.toNumber(), 'seconds')
-              .humanize()}
+            {poolToShow?.MATURITY.toNumber() < poolToShow?.MATURITY_VEST.toNumber()
+              ? <TextSell>{
+                moment.duration(poolToShow?.MATURITY.toNumber(), 'seconds').humanize()
+              }</TextSell>
+              : moment.duration(poolToShow?.MATURITY.toNumber(), 'seconds').humanize()
+            }
           </SkeletonLoader>
         </InfoRow>
       )}
