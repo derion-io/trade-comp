@@ -42,6 +42,10 @@ import { EstimateBox } from './components/EstimateBox'
 import { SwapInfoBox } from './components/SwapInfoBox'
 import { DeleveragePrice } from '../Positions'
 import './style.scss'
+import { PoolSearch } from '../../utils/type'
+import { CurrentPool } from 'derivable-engine/dist/services/currentPool'
+import { Spinner } from 'reactstrap'
+import { Spin } from 'antd'
 
 const Component = ({
   tradeType = TRADE_TYPE.LONG,
@@ -59,8 +63,8 @@ const Component = ({
   tokenOutMaturity: BigNumber
 }) => {
   const [barData, setBarData] = useState<any>({})
-  const { configs, routes } = useConfigs()
-  const { id, chartTab, setChartTab, setTradeType } =
+  const { configs, routes, ddlEngine } = useConfigs()
+  const { id, currentPoolAddress, chartTab, setChartTab, setTradeType } =
     useCurrentPoolGroup()
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] =
     useState<boolean>(false)
@@ -72,7 +76,7 @@ const Component = ({
   const { setCurrentPoolAddress, setDr } = useCurrentPool()
   const { convertTokenValue } = useTokenValue({})
   const leverageData = useGenerateLeverageData(tradeType)
-  const { pools } = useResource()
+  const { pools, poolGroups, addNewResource } = useResource()
   useEffect(() => {
     if (
       tradeType === TRADE_TYPE.LIQUIDITY &&
@@ -107,6 +111,7 @@ const Component = ({
     })
 
   useEffect(() => {
+    console.log('#leverageData', leverageData)
     if (Object.values(pools).length > 0) {
       if (outputTokenAddress && !inputTokenAddress) {
         const { address } = decodeErc1155Address(outputTokenAddress)
@@ -135,7 +140,7 @@ const Component = ({
         )
       }
     }
-  }, [outputTokenAddress, inputTokenAddress, pools, id])
+  }, [outputTokenAddress, inputTokenAddress, leverageData, pools, id])
 
   const { value: valueIn } = useTokenValue({
     amount: amountIn,
@@ -275,13 +280,46 @@ const Component = ({
     const fundingRate = interest + premium
     return [interest, premium, fundingRate, interestRate, maxPremiumRate]
   }, [inputTokenAddress, outputTokenAddress, pools, poolToShow])
-
   useEffect(() => {
     if (tokensToSelect.length > 0 && !tokensToSelect.includes(inputTokenAddress)) {
       setInputTokenAddress(tokensToSelect.includes(NATIVE_ADDRESS) ? NATIVE_ADDRESS : tokensToSelect[0])
     }
   }, [tokensToSelect, inputTokenAddress])
 
+  // Hook: Load and Cache all pool of Index
+  const [searchIndexCache, setSearchIndexCache] = useState<{[key:string] : any}>({})
+  const [isLoadingIndex, setIsLoadingIndex] = useState<boolean>(false)
+  useMemo(() => {
+    console.log('#currentIndex', poolGroups[id])
+    if (id && ddlEngine && ddlEngine?.RESOURCE && poolGroups[id]?.baseToken && !isLoadingIndex) {
+      if (!searchIndexCache[poolGroups[id]?.baseToken]) {
+        setIsLoadingIndex(true)
+        ddlEngine.RESOURCE.searchIndex(poolGroups[id]?.baseToken).then((res) => {
+          console.log('#index-fullfill1', res)
+          const poolAddresses = (res[id] as PoolSearch)?.pools?.map((pool) => pool?.poolAddress) || []
+          if (poolAddresses.length === 0) {
+            setIsLoadingIndex(false)
+            return
+          }
+          ddlEngine.RESOURCE.generateData({ poolAddresses, transferLogs: [] })
+            .then((data) => {
+              setSearchIndexCache({
+                ...searchIndexCache,
+                ...{ [poolGroups[id]?.baseToken]: data?.poolGroups[id] }
+              })
+              console.log('#index-fullfill2', data)
+              addNewResource(data)
+              setIsLoadingIndex(false)
+            })
+            .catch((e) => setIsLoadingIndex(false))
+        }).catch(e => setIsLoadingIndex(false))
+      }
+    }
+  }, [id])
+
+  useEffect(() => {
+    console.log('#searchIndex', searchIndexCache)
+  }, [searchIndexCache])
   return (
     <div className='long-short-box'>
 
@@ -361,6 +399,7 @@ const Component = ({
       )}
 
       <EstimateBox
+        isLoadingIndex={isLoadingIndex}
         outputTokenAddress={outputTokenAddress}
         tradeType={tradeType}
         amountIn={amountIn}
@@ -369,7 +408,7 @@ const Component = ({
         power={power}/>
 
       {leverageData.length > 0 && (
-        <div className={leverageData.length === 1 ? 'hidden' : ''}>
+        <div >
           <LeverageSlider
             barData={barData}
             setBarData={(e: any) => {

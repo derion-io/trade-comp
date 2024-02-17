@@ -47,6 +47,24 @@
         border-color: $color-blue;
       }
     }
+    &__loading {
+      position: absolute;
+      border: 1px solid;
+      right: 3rem;
+      transform: translateY(calc(-70% - 1.5rem));
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      background: $color-card-bg;
+      &.long {
+        border-color: $color-buy;
+      }
+      &.short {
+        border-color: $color-sell;
+      }
+      &.liquidity {
+        border-color: $color-blue;
+      }
+    }
   }
 
   .position-delta--box {

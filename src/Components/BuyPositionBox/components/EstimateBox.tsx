@@ -15,6 +15,7 @@ import { useConfigs } from '../../../state/config/useConfigs'
 import { useSwapHistory } from '../../../state/wallet/hooks/useSwapHistory'
 import { useResource } from '../../../state/resources/hooks/useResource'
 import { cloneDeep } from 'lodash'
+import { Spin } from 'antd'
 
 function numSplit(v: string) {
   return <div>
@@ -26,12 +27,14 @@ function numSplit(v: string) {
 type Props = {
     outputTokenAddress: string,
     tradeType: TRADE_TYPE,
+    isLoadingIndex?: boolean,
     amountIn: string,
     amountOut: string,
     valueOut: string,
     power: number,
 }
 export const EstimateBox = ({
+  isLoadingIndex,
   outputTokenAddress,
   tradeType,
   amountIn,
@@ -91,7 +94,16 @@ export const EstimateBox = ({
         ).toLowerCase()}`}
       >
         <TokenSymbol token={outputTokenAddress} />
+
       </span>
+      {isLoadingIndex ? <span
+        className={`estimate-box__loading ${getTitleBuyTradeType(
+          tradeType
+        ).toLowerCase()}`}
+      >
+        <Spin/>
+      </span> : ''}
+
       <div className='position-delta--box'>
         <div className='position-delta--left'>
           {settings.showBalance && <div>Balance</div>}

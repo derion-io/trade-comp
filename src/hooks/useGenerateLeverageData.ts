@@ -4,10 +4,13 @@ import { useCurrentPoolGroup } from '../state/currentPool/hooks/useCurrentPoolGr
 import { bn, getPoolPower, tradeTypeToId } from '../utils/helpers'
 import { useSettings } from '../state/setting/hooks/useSettings'
 import { SORT_POOL_BY } from '../state/setting/type'
+import { useResource } from '../state/resources/hooks/useResource'
+import { PoolType } from '../state/resources/type'
 
 export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
   // useCurrentPoolGroup since we only show leverage bars for pool of the current index
-  const { pools } = useCurrentPoolGroup()
+  const { id } = useCurrentPoolGroup()
+  const { poolGroups } = useResource()
   const {
     settings: {
       minLiquidityShare,
@@ -26,6 +29,9 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
 
   return useMemo(() => {
     const result = {}
+    if (!poolGroups[id]) return []
+    const pools = poolGroups[id]?.pools as {[key:string]:any} || {}
+    console.log('#pools', pools)
     if (Object.values(pools || {})?.length > 0) {
       const sumR = Object.values(pools).reduce((sumR, pool) => {
         return (sumR = sumR.add(pool.states.R))
@@ -33,7 +39,6 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
       const minR = sumR
         .mul(Math.round(minLiquidityShare * 1000))
         .div(100 * 1000)
-
       Object.values(pools).forEach((pool) => {
         let deleverageRisk =
           tradeType === TRADE_TYPE.LONG
@@ -55,7 +60,6 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
         const opacity = 1 - 0.95 * deleverageRisk
         const power = getPoolPower(pool)
         const size = pool.states.R
-
         if (!result[power]) {
           result[power] = {
             x: power,
@@ -127,7 +131,8 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
 
     return data
   }, [
-    pools,
+    id,
+    poolGroups,
     tradeType,
     minLiquidityShare,
     maxDeleverageRisk,

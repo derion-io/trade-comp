@@ -22,7 +22,7 @@ export const useResource = () => {
   const { chainId, ddlEngine, configs } = useConfigs()
   const dispatch = useDispatch()
   const { updateSwapTxsHandle } = useSwapHistory()
-  const addNewResource = (data:any, account:string) => {
+  const addNewResource = (data:any, account?:string) => {
     dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
     dispatch(
       addPoolGroupsWithChain({ poolGroups: data.poolGroups, chainId })
