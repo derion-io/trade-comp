@@ -24,7 +24,10 @@
       }
     }
   }
-
+  .icon-arrow-down-wrap{
+    display: flex;
+    justify-content: space-between;
+  }
   .estimate-box {
     position: relative;
     padding-top: 1.5rem !important;

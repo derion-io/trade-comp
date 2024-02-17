@@ -393,13 +393,22 @@ const Component = ({
       />
 
       {outputTokenAddress && (
-        <div className='pl-5 mt-1 mb-2'>
-          <IconArrowDown fill='#01A7FA' />
+        <div className='icon-arrow-down-wrap pl-5 mt-1 mb-2'>
+          <span >
+            <IconArrowDown fill='#01A7FA' />
+          </span>
+          <span>
+            {/* Show 3 hidden pools */}
+            {isLoadingIndex && <Spin style={{
+              paddingRight: '5rem',
+              marginBottom: '-1.5rem',
+            }}/>}
+          </span>
         </div>
+
       )}
 
       <EstimateBox
-        isLoadingIndex={isLoadingIndex}
         outputTokenAddress={outputTokenAddress}
         tradeType={tradeType}
         amountIn={amountIn}
@@ -408,7 +417,7 @@ const Component = ({
         power={power}/>
 
       {leverageData.length > 0 && (
-        <div >
+        <div className={leverageData.length === 1 ? 'hidden' : ''}>
           <LeverageSlider
             barData={barData}
             setBarData={(e: any) => {
