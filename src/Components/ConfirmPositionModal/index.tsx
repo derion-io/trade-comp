@@ -164,12 +164,20 @@ const Component = ({
           ]
         }
 
-        const decimalsOffset =
-          (tokens?.[baseToken]?.decimals ?? 18) -
-          (tokens?.[quoteToken]?.decimals ?? 18)
-        const mark = MARK
-          ? NUM(div(MARK.mul(MARK).mul(bn(10).pow(decimalsOffset)), Q256))
-          : 1
+        let mark = 1
+        if (MARK) {
+          let M = MARK.mul(MARK)
+          const decimalsOffset =
+            (tokens?.[baseToken]?.decimals ?? 18) -
+            (tokens?.[quoteToken]?.decimals ?? 18)
+          const unit = bn(10).pow(Math.abs(decimalsOffset))
+          if (decimalsOffset > 0) {
+            M = M.mul(unit)
+          } else if (decimalsOffset < 0) {
+            M = M.div(unit)
+          }
+          mark = NUM(div(M, Q256))
+        }
 
         const xA = xr(k, R.shr(1), a)
         const xB = xr(-k, R.shr(1), b)
