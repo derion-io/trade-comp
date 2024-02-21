@@ -406,7 +406,7 @@ const Component = ({
 
             {isLoadingIndex ? <Spin style={{ marginBottom: '1rem' }}/> : <TextGrey onClick={() => {
               setShowAllPool(!showAllPool)
-            }}>Show All Pool</TextGrey>}
+            }}>Show All Pools</TextGrey>}
           </span>
         </div>
 
