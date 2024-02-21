@@ -28,6 +28,7 @@
     display: flex;
     justify-content: space-between;
   }
+
   .estimate-box {
     position: relative;
     padding-top: 1.5rem !important;
@@ -173,4 +174,8 @@
   .deleverage-checkbox {
     margin-left: 125px;
   }
+}
+
+.show-all-pool-text {
+  border-bottom: 1px dashed ;
 }

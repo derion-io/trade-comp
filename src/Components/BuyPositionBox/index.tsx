@@ -35,7 +35,7 @@ import { useCalculateSwap } from '../SwapBox/hooks/useCalculateSwap'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
 import { IconArrowDown } from '../ui/Icon'
 import NumberInput from '../ui/Input/InputNumber'
-import { Text, TextGrey, TextSell, TextWarning } from '../ui/Text'
+import { Text, TextGrey, TextLink, TextSell, TextWarning } from '../ui/Text'
 import { TokenIcon } from '../ui/TokenIcon'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { EstimateBox } from './components/EstimateBox'
@@ -76,7 +76,7 @@ const Component = ({
   const { setCurrentPoolAddress, setDr } = useCurrentPool()
   const { convertTokenValue } = useTokenValue({})
   const [showAllPool, setShowAllPool] = useState<boolean>(false)
-  const leverageData = useGenerateLeverageData(tradeType, showAllPool)
+  const { leverageData, totalHiddenPools } = useGenerateLeverageData(tradeType, showAllPool)
   const { pools, poolGroups, addNewResource } = useResource()
   useEffect(() => {
     if (
@@ -404,9 +404,11 @@ const Component = ({
           }}>
             {/* Show 3 hidden pools */}
 
-            {isLoadingIndex ? <Spin style={{ marginBottom: '1rem' }}/> : <TextGrey onClick={() => {
+            {isLoadingIndex ? <Spin /> : <TextLink className='show-all-pool-text' onClick={() => {
               setShowAllPool(!showAllPool)
-            }}>Show All Pools</TextGrey>}
+            }}>{
+                totalHiddenPools !== 0
+                  ? (showAllPool ? `Hide ${totalHiddenPools} low liquidity pools` : `Show ${totalHiddenPools} hidden pools`) : ''}</TextLink>}
           </span>
         </div>
 

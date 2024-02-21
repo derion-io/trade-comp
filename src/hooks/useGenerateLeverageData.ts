@@ -29,9 +29,15 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE, showAllPool?:bool
 
   return useMemo(() => {
     const result = {}
-    if (!poolGroups[id]) return []
+    if (!poolGroups[id]) {
+      return {
+        leverageData: [],
+        totalHiddenPools: 0
+      }
+    }
     const pools = poolGroups[id]?.pools as {[key:string]:any} || {}
     console.log('#pools', pools)
+    let totalHiddenPools = 0
     if (Object.values(pools || {})?.length > 0) {
       const sumR = Object.values(pools).reduce((sumR, pool) => {
         return (sumR = sumR.add(pool.states.R))
@@ -39,6 +45,7 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE, showAllPool?:bool
       const minR = showAllPool ? 0 : sumR
         .mul(Math.round(minLiquidityShare * 1000))
         .div(100 * 1000)
+
       Object.values(pools).forEach((pool) => {
         let deleverageRisk =
           tradeType === TRADE_TYPE.LONG
@@ -47,7 +54,9 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE, showAllPool?:bool
               ? pool!.deleverageRiskB
               : Math.max(pool!.deleverageRiskA, pool!.deleverageRiskB)
         deleverageRisk = Math.min(1, deleverageRisk)
-
+        if (pool.states.R.lt(sumR
+          .mul(Math.round(minLiquidityShare * 1000))
+          .div(100 * 1000))) totalHiddenPools++
         if (
           pool.states.R.lt(minR) ||
           Number(pool.interestRate) * 99 >
@@ -129,7 +138,10 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE, showAllPool?:bool
       }
     })
 
-    return data
+    return {
+      leverageData: data,
+      totalHiddenPools
+    }
   }, [
     id,
     showAllPool,
