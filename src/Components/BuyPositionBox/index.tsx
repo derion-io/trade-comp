@@ -404,7 +404,7 @@ const Component = ({
           }}>
             {/* Show 3 hidden pools */}
 
-            {isLoadingIndex ? <Spin /> : <TextLink className='show-all-pool-text' onClick={() => {
+            {isLoadingIndex ? <Spin style={{ marginRight: '5rem', marginTop: '1.5rem' }} /> : <TextLink className='show-all-pool-text' onClick={() => {
               setShowAllPool(!showAllPool)
             }}>{
                 totalHiddenPools !== 0
