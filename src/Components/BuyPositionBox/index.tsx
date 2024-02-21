@@ -75,7 +75,8 @@ const Component = ({
   const { wrapToNativeAddress } = useHelper()
   const { setCurrentPoolAddress, setDr } = useCurrentPool()
   const { convertTokenValue } = useTokenValue({})
-  const leverageData = useGenerateLeverageData(tradeType)
+  const [showAllPool, setShowAllPool] = useState<boolean>(false)
+  const leverageData = useGenerateLeverageData(tradeType, showAllPool)
   const { pools, poolGroups, addNewResource } = useResource()
   useEffect(() => {
     if (
@@ -292,6 +293,7 @@ const Component = ({
   useMemo(() => {
     console.log('#currentIndex', poolGroups[id])
     if (id && ddlEngine && ddlEngine?.RESOURCE && poolGroups[id]?.baseToken && !isLoadingIndex) {
+      setShowAllPool(false)
       if (!searchIndexCache[poolGroups[id]?.baseToken]) {
         setIsLoadingIndex(true)
         ddlEngine.RESOURCE.searchIndex(poolGroups[id]?.baseToken).then((res) => {
@@ -397,12 +399,14 @@ const Component = ({
           <span >
             <IconArrowDown fill='#01A7FA' />
           </span>
-          <span>
+          <span style={{
+            cursor: 'pointer'
+          }}>
             {/* Show 3 hidden pools */}
-            {isLoadingIndex && <Spin style={{
-              paddingRight: '5rem',
-              marginBottom: '-1.5rem',
-            }}/>}
+
+            {isLoadingIndex ? <Spin style={{ marginBottom: '1rem' }}/> : <TextGrey onClick={() => {
+              setShowAllPool(!showAllPool)
+            }}>Show All Pool</TextGrey>}
           </span>
         </div>
 

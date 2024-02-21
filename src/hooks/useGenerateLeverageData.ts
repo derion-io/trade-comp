@@ -7,7 +7,7 @@ import { SORT_POOL_BY } from '../state/setting/type'
 import { useResource } from '../state/resources/hooks/useResource'
 import { PoolType } from '../state/resources/type'
 
-export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
+export const useGenerateLeverageData = (tradeType: TRADE_TYPE, showAllPool?:boolean) => {
   // useCurrentPoolGroup since we only show leverage bars for pool of the current index
   const { id } = useCurrentPoolGroup()
   const { poolGroups } = useResource()
@@ -36,7 +36,7 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
       const sumR = Object.values(pools).reduce((sumR, pool) => {
         return (sumR = sumR.add(pool.states.R))
       }, bn(0))
-      const minR = sumR
+      const minR = showAllPool ? 0 : sumR
         .mul(Math.round(minLiquidityShare * 1000))
         .div(100 * 1000)
       Object.values(pools).forEach((pool) => {
@@ -132,6 +132,7 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
     return data
   }, [
     id,
+    showAllPool,
     poolGroups,
     tradeType,
     minLiquidityShare,
