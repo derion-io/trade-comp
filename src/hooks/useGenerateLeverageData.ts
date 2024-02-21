@@ -6,6 +6,7 @@ import { useSettings } from '../state/setting/hooks/useSettings'
 import { SORT_POOL_BY } from '../state/setting/type'
 import { useResource } from '../state/resources/hooks/useResource'
 import { PoolType } from '../state/resources/type'
+import { BigNumber } from 'ethers'
 
 export const useGenerateLeverageData = (tradeType: TRADE_TYPE, showAllPool?:boolean) => {
   // useCurrentPoolGroup since we only show leverage bars for pool of the current index
@@ -54,15 +55,14 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE, showAllPool?:bool
               ? pool!.deleverageRiskB
               : Math.max(pool!.deleverageRiskA, pool!.deleverageRiskB)
         deleverageRisk = Math.min(1, deleverageRisk)
-        if (pool.states.R.lt(sumR
+        const poolConditions = (_minR: number | BigNumber) => pool.states.R.lt(_minR) || Number(pool.interestRate) * 99 >
+        maxInterestRate * pool.k.toNumber() ||
+      deleverageRisk * 99 > (maxDeleverageRisk ?? 100)
+
+        if (poolConditions(sumR
           .mul(Math.round(minLiquidityShare * 1000))
           .div(100 * 1000))) totalHiddenPools++
-        if (
-          pool.states.R.lt(minR) ||
-          Number(pool.interestRate) * 99 >
-            maxInterestRate * pool.k.toNumber() ||
-          deleverageRisk * 99 > (maxDeleverageRisk ?? 100)
-        ) {
+        if (poolConditions(minR)) {
           return
         }
 

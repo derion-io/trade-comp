@@ -399,17 +399,7 @@ const Component = ({
           <span >
             <IconArrowDown fill='#01A7FA' />
           </span>
-          <span style={{
-            cursor: 'pointer'
-          }}>
-            {/* Show 3 hidden pools */}
 
-            {isLoadingIndex ? <Spin style={{ marginRight: '5rem', marginTop: '1.5rem' }} /> : <TextLink className='show-all-pool-text' onClick={() => {
-              setShowAllPool(!showAllPool)
-            }}>{
-                totalHiddenPools !== 0
-                  ? (showAllPool ? `Hide ${totalHiddenPools} low liquidity pools` : `Show ${totalHiddenPools} hidden pools`) : ''}</TextLink>}
-          </span>
         </div>
 
       )}
@@ -421,7 +411,17 @@ const Component = ({
         amountOut={amountOut}
         valueOut={valueOut}
         power={power}/>
+      <div style={{ width: '100%', textAlign: 'center' }}>
+        <span >
+          {/* Show 3 hidden pools */}
 
+          {isLoadingIndex ? <Spin /> : <TextLink className='show-all-pool-text' onClick={() => {
+            setShowAllPool(!showAllPool)
+          }}>{
+              totalHiddenPools !== 0
+                ? (showAllPool ? `Hide ${totalHiddenPools} low liquidity pools` : `Show ${totalHiddenPools} hidden pools`) : ''}</TextLink>}
+        </span>
+      </div>
       {leverageData.length > 0 && (
         <div className={leverageData.length === 1 ? 'hidden' : ''}>
           <LeverageSlider
