@@ -423,7 +423,7 @@ const Component = ({
         </span>
       </div>
       {leverageData.length > 0 && (
-        <div className={leverageData.length === 1 ? 'hidden' : ''}>
+        <div className={leverageData.filter((l:any) => l?.bars?.length > 1).length === 0 ? 'hidden' : ''}>
           <LeverageSlider
             barData={barData}
             setBarData={(e: any) => {

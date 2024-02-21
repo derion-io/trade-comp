@@ -137,7 +137,7 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE, showAllPool?:bool
         })
       }
     })
-
+    console.log('#leverageData', data)
     return {
       leverageData: data,
       totalHiddenPools
