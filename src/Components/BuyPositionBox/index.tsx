@@ -48,6 +48,10 @@ import { Spinner } from 'reactstrap'
 import { Spin } from 'antd'
 
 const Component = ({
+  searchIndexCache,
+  showAllPool,
+  isLoadingIndex,
+  setShowAllPool,
   tradeType = TRADE_TYPE.LONG,
   inputTokenAddress,
   outputTokenAddress,
@@ -55,6 +59,10 @@ const Component = ({
   setOutputTokenAddress,
   tokenOutMaturity
 }: {
+  searchIndexCache?:{[key:string] : any},
+  showAllPool?:boolean,
+  isLoadingIndex?:boolean,
+  setShowAllPool?: (s: boolean) => void,
   tradeType?: TRADE_TYPE
   inputTokenAddress: string
   outputTokenAddress: string
@@ -75,7 +83,6 @@ const Component = ({
   const { wrapToNativeAddress } = useHelper()
   const { setCurrentPoolAddress, setDr } = useCurrentPool()
   const { convertTokenValue } = useTokenValue({})
-  const [showAllPool, setShowAllPool] = useState<boolean>(false)
   const { leverageData, totalHiddenPools } = useGenerateLeverageData(tradeType, showAllPool)
   const { pools, poolGroups, addNewResource } = useResource()
   useEffect(() => {
@@ -288,36 +295,6 @@ const Component = ({
   }, [tokensToSelect, inputTokenAddress])
 
   // Hook: Load and Cache all pool of Index
-  const [searchIndexCache, setSearchIndexCache] = useState<{[key:string] : any}>({})
-  const [isLoadingIndex, setIsLoadingIndex] = useState<boolean>(false)
-  useMemo(() => {
-    console.log('#currentIndex', poolGroups[id])
-    if (id && ddlEngine && ddlEngine?.RESOURCE && poolGroups[id]?.baseToken && !isLoadingIndex) {
-      setShowAllPool(false)
-      if (!searchIndexCache[poolGroups[id]?.baseToken]) {
-        setIsLoadingIndex(true)
-        ddlEngine.RESOURCE.searchIndex(poolGroups[id]?.baseToken).then((res) => {
-          console.log('#index-fullfill1', res)
-          const poolAddresses = (res[id] as PoolSearch)?.pools?.map((pool) => pool?.poolAddress) || []
-          if (poolAddresses.length === 0) {
-            setIsLoadingIndex(false)
-            return
-          }
-          ddlEngine.RESOURCE.generateData({ poolAddresses, transferLogs: [] })
-            .then((data) => {
-              setSearchIndexCache({
-                ...searchIndexCache,
-                ...{ [poolGroups[id]?.baseToken]: data?.poolGroups[id] }
-              })
-              console.log('#index-fullfill2', data)
-              addNewResource(data)
-              setIsLoadingIndex(false)
-            })
-            .catch((e) => setIsLoadingIndex(false))
-        }).catch(e => setIsLoadingIndex(false))
-      }
-    }
-  }, [id])
 
   useEffect(() => {
     console.log('#searchIndex', searchIndexCache)
@@ -416,7 +393,7 @@ const Component = ({
           {/* Show 3 hidden pools */}
 
           {isLoadingIndex ? <Spin /> : <TextLink className='show-all-pool-text' onClick={() => {
-            setShowAllPool(!showAllPool)
+            if (setShowAllPool)setShowAllPool(!showAllPool)
           }}>{
               totalHiddenPools !== 0
                 ? (showAllPool ? `Hide ${totalHiddenPools} low liquidity pools` : `Show ${totalHiddenPools} hidden pools`) : ''}</TextLink>}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Tab, TabList, TabPanel, Tabs } from 'react-tabs'
 import 'react-tabs/style/react-tabs.css'
 import { BuyPositionBox } from '../../Components/BuyPositionBox'
@@ -19,6 +19,7 @@ import { POOL_IDS, TRADE_TYPE } from '../../utils/constant'
 import { fetch24hChange } from '../../utils/fetch24hChange'
 import { bn, decodeErc1155Address, isErc1155Address } from '../../utils/helpers'
 import './style.scss'
+import { PoolSearch } from '../../utils/type'
 
 const TAB_2 = {
   POSITION: Symbol('position'),
@@ -41,10 +42,10 @@ export const Trade = ({
   tab: TRADE_TYPE
   loadingData: boolean
 }) => {
-  const { chainId, useHistory, configs } = useConfigs()
+  const { chainId, useHistory, configs, ddlEngine } = useConfigs()
   const history = useHistory()
   const [changedIn24h, setChangedIn24h] = useState<number>(0)
-  const { poolGroups } = useResource()
+  const { poolGroups, addNewResource } = useResource()
   const { updateCurrentPoolGroup, id } = useCurrentPoolGroup()
   const [tab2, setTab2] = useState<Symbol>(TAB_2.POSITION)
   const { formartedSwapLogs: swapTxs } = useSwapHistory()
@@ -115,6 +116,36 @@ export const Trade = ({
       }
     }
   }, [chainId, JSON.stringify(Object.keys(poolGroups || {}))])
+
+  const [searchIndexCache, setSearchIndexCache] = useState<{[key:string] : any}>({})
+  const [isLoadingIndex, setIsLoadingIndex] = useState<boolean>(false)
+  const [showAllPool, setShowAllPool] = useState<boolean>(false)
+  useMemo(() => {
+    if (id && ddlEngine && ddlEngine?.RESOURCE && poolGroups[id]?.baseToken && !isLoadingIndex && !searchIndexCache[poolGroups[id]?.baseToken]) {
+      setShowAllPool(false)
+      console.log('#currentIndex', poolGroups[id], searchIndexCache)
+      setIsLoadingIndex(true)
+      ddlEngine.RESOURCE.searchIndex(poolGroups[id]?.baseToken).then((res) => {
+        console.log('#index-fullfill1', res)
+        const poolAddresses = (res[id] as PoolSearch)?.pools?.map((pool) => pool?.poolAddress) || []
+        if (poolAddresses.length === 0) {
+          setIsLoadingIndex(false)
+          return
+        }
+        ddlEngine.RESOURCE.generateData({ poolAddresses, transferLogs: [] })
+          .then((data) => {
+            setSearchIndexCache({
+              ...searchIndexCache,
+              ...{ [poolGroups[id]?.baseToken]: data?.poolGroups[id] }
+            })
+            console.log('#index-fullfill2', data)
+            addNewResource(data)
+            setIsLoadingIndex(false)
+          })
+          .catch((e) => setIsLoadingIndex(false))
+      }).catch(e => setIsLoadingIndex(false))
+    }
+  }, [id])
 
   return (
     <div className={`exposure-page ${loadingData && 'blur-3'}`}>
@@ -209,6 +240,10 @@ export const Trade = ({
             <TabPanel>
               <Card className='trade-box card-in-tab'>
                 <BuyPositionBox
+                  searchIndexCache={searchIndexCache}
+                  showAllPool={showAllPool}
+                  isLoadingIndex={isLoadingIndex}
+                  setShowAllPool={setShowAllPool}
                   inputTokenAddress={inputTokenAddress}
                   setInputTokenAddress={setInputTokenAddress}
                   outputTokenAddress={outputTokenAddress}
@@ -223,6 +258,10 @@ export const Trade = ({
                 {/* @ts-ignore */}
                 <ErrorBoundary>
                   <BuyPositionBox
+                    searchIndexCache={searchIndexCache}
+                    showAllPool={showAllPool}
+                    isLoadingIndex={isLoadingIndex}
+                    setShowAllPool={setShowAllPool}
                     inputTokenAddress={inputTokenAddress}
                     setInputTokenAddress={setInputTokenAddress}
                     outputTokenAddress={outputTokenAddress}
@@ -252,6 +291,10 @@ export const Trade = ({
                 {/* @ts-ignore */}
                 <ErrorBoundary>
                   <BuyPositionBox
+                    searchIndexCache={searchIndexCache}
+                    showAllPool={showAllPool}
+                    isLoadingIndex={isLoadingIndex}
+                    setShowAllPool={setShowAllPool}
                     inputTokenAddress={inputTokenAddress}
                     setInputTokenAddress={setInputTokenAddress}
                     outputTokenAddress={outputTokenAddress}
