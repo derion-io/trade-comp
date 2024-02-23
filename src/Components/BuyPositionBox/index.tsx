@@ -388,7 +388,7 @@ const Component = ({
         amountOut={amountOut}
         valueOut={valueOut}
         power={power}/>
-      <div style={{ width: '100%', textAlign: 'center' }}>
+      <div style={{ width: '100%', textAlign: 'center', height: '22px', overflow: 'hidden' }}>
         <span >
           {/* Show 3 hidden pools */}
 
