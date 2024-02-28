@@ -119,7 +119,6 @@ const Component = ({
     })
 
   useEffect(() => {
-    console.log('#leverageData', leverageData)
     if (Object.values(pools).length > 0) {
       if (outputTokenAddress && !inputTokenAddress) {
         const { address } = decodeErc1155Address(outputTokenAddress)
@@ -296,9 +295,11 @@ const Component = ({
 
   // Hook: Load and Cache all pool of Index
 
-  useEffect(() => {
-    console.log('#searchIndex', searchIndexCache)
-  }, [searchIndexCache])
+  const shouldShowLevelMap = useMemo(() => {
+    const nBars = leverageData.reduce((acc: number, l:any) => acc + l.bars.length as number, 0) as number || 0
+    return nBars > 1
+  }, [leverageData])
+
   return (
     <div className='long-short-box'>
 
@@ -400,7 +401,7 @@ const Component = ({
         </span>
       </div>
       {leverageData.length > 0 && (
-        <div className={leverageData.filter((l:any) => l?.bars?.length > 1).length === 0 ? 'hidden' : ''}>
+        <div className={!shouldShowLevelMap ? 'hidden' : ''}>
           <LeverageSlider
             barData={barData}
             setBarData={(e: any) => {
