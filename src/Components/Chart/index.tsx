@@ -7,7 +7,7 @@ import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoo
 import { CHART_TABS } from '../../state/currentPool/type'
 import { useResource } from '../../state/resources/hooks/useResource'
 import { useListTokens } from '../../state/token/hook'
-import { POOL_IDS, TRADE_TYPE } from '../../utils/constant'
+import { POOL_IDS, TRADE_TYPE, ZERO_ADDRESS } from '../../utils/constant'
 import {
   bn,
   detectTradeTab,
@@ -191,6 +191,9 @@ const Component = ({
 }
 export const DexToolChart = (props: { pairAddress: string | undefined, chartResolution: string }) => {
   const { configs } = useConfigs()
+  const dextoolsID = configs?.dextoolsID ?? configs?.gtID ?? 'ethereum'
+  const pair = props?.pairAddress?.toLowerCase() ?? ZERO_ADDRESS
+  const chartResolution = props.chartResolution || '1'
   return (
     <Card className='candle-chart-wrap' >
       { props.pairAddress
@@ -206,7 +209,7 @@ export const DexToolChart = (props: { pairAddress: string | undefined, chartReso
               top: '-40px',
               border: 'none'
             }}
-            src={`https://www.dextools.io/widget-chart/en/${configs?.dextoolsID || configs?.gtID || 'bnb'}/pe-light/${props?.pairAddress.toLowerCase()}?theme=dark&tvPlatformColor=1b1d21&tvPaneColor=131722&chartType=1&chartResolution=${props.chartResolution || '1'}&drawingToolbars=false`} />
+            src={`https://www.dextools.io/widget-chart/en/${dextoolsID}/pe-light/${pair}?theme=dark&tvPlatformColor=1b1d21&tvPaneColor=131722&chartType=1&chartResolution=${chartResolution}&drawingToolbars=false`} />
         </div>
         : 'Dextools Loading'}
     </Card>
