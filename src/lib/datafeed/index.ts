@@ -203,6 +203,7 @@ export const Datafeed = {
           bars = removeChartAnomaly(bars)
           onHistoryCallback(bars, { noData: false })
         } else {
+          store.dispatch(setChartIsOutDate({ status: true }))
           onHistoryCallback(bars, { noData: true })
         }
       })
@@ -256,9 +257,10 @@ export const Datafeed = {
 
               this.lastCandle[baseAddress + '-' + quoteAddress + '-' + resolution] = { ...candle }
             }
-
             detectChartIsOutdate(data, resolution)
             onRealtimeCallback(candle)
+          } else {
+            // store.dispatch(setChartIsOutDate({ status: true }))
           }
         })
         .catch((e) => {

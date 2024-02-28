@@ -28,6 +28,7 @@ import { TokenIcon } from '../ui/TokenIcon'
 import { useWindowSize } from '../../hooks/useWindowSize'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useSettings } from '../../state/setting/hooks/useSettings'
+import { config } from 'process'
 const Component = ({
   changedIn24h,
   inputTokenAddress,
@@ -66,9 +67,10 @@ const Component = ({
       )
     : ''
   useEffect(() => {
-    if (chartIsOutDate) {
-      setUseDexTool(true)
-    }
+    console.log('#chartIsOutDate', chartIsOutDate)
+    // if (currentPool?.chartIsOutDate) {
+    //   setUseDexTool(true)
+    // }
   }, [chartIsOutDate])
   useEffect(() => {
     setUseDexTool(false)
@@ -178,16 +180,17 @@ const Component = ({
             <LineChart changedIn24h={changedIn24h} />
           ) : chartTab === CHART_TABS.FUNC_PLOT ? (
             currentPool?.states && <FunctionPlot />
-          ) : isUseDextool ? (
+          ) : (chartIsOutDate ? (
             <DexToolChart pairAddress={pairAddress} chartResolution='1' />
           ) : (
             <CandleChart />
-          ))}
+          )))}
       </div>
     </div>
   )
 }
 export const DexToolChart = (props: { pairAddress: string | undefined, chartResolution: string }) => {
+  const { configs } = useConfigs()
   return (
     <Card className='candle-chart-wrap' >
       { props.pairAddress
@@ -203,7 +206,7 @@ export const DexToolChart = (props: { pairAddress: string | undefined, chartReso
               top: '-40px',
               border: 'none'
             }}
-            src={`https://www.dextools.io/widget-chart/en/bnb/pe-light/${props?.pairAddress.toLowerCase()}?theme=dark&tvPlatformColor=1b1d21&tvPaneColor=131722&chartType=1&chartResolution=${props.chartResolution || '1'}&drawingToolbars=false`} />
+            src={`https://www.dextools.io/widget-chart/en/${configs?.dextoolsID || configs?.gtID || 'bnb'}/pe-light/${props?.pairAddress.toLowerCase()}?theme=dark&tvPlatformColor=1b1d21&tvPaneColor=131722&chartType=1&chartResolution=${props.chartResolution || '1'}&drawingToolbars=false`} />
         </div>
         : 'Dextools Loading'}
     </Card>
