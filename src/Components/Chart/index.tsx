@@ -28,7 +28,6 @@ import { TokenIcon } from '../ui/TokenIcon'
 import { useWindowSize } from '../../hooks/useWindowSize'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useSettings } from '../../state/setting/hooks/useSettings'
-import { config } from 'process'
 const Component = ({
   changedIn24h,
   inputTokenAddress,
@@ -71,6 +70,9 @@ const Component = ({
     // if (currentPool?.chartIsOutDate) {
     //   setUseDexTool(true)
     // }
+    if (chartIsOutDate) {
+      setUseDexTool(true)
+    }
   }, [chartIsOutDate])
   useEffect(() => {
     setUseDexTool(false)
@@ -180,11 +182,11 @@ const Component = ({
             <LineChart changedIn24h={changedIn24h} />
           ) : chartTab === CHART_TABS.FUNC_PLOT ? (
             currentPool?.states && <FunctionPlot />
-          ) : (chartIsOutDate ? (
+          ) : isUseDextool ? (
             <DexToolChart pairAddress={pairAddress} chartResolution='1' />
           ) : (
             <CandleChart />
-          )))}
+          ))}
       </div>
     </div>
   )
