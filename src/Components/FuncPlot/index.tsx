@@ -9,8 +9,8 @@ import { useListTokens } from '../../state/token/hook'
 import { useHelper } from '../../state/config/useHelper'
 import { POOL_IDS } from '../../utils/constant'
 
-const FX = 'f(P,x,v,R)=\\{vx^P<R/2:vx^P,R-R^2/(4vx^P)\\}'
-const GX = 'g(P,x,v,R)=\\{vx^{-P}<R/2:R-vx^{-P},R^2/(4vx^{-P})\\}'
+const FX = 'f(P,x,v,R)=\\{2vx^P<R:vx^P,R-R^2/(4vx^P)\\}'
+const GX = 'g(P,x,v,R)=\\{2vx^{-P}<R:R-vx^{-P},R^2/(4vx^{-P})\\}'
 
 function _r(xk: number, v: number, R: number): number {
   const r = v * xk
