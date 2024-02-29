@@ -7,9 +7,10 @@ export const MINI_SECOND_PER_DAY = 86400000
 export const LP_PRICE_UNIT = 10000
 export const TIME_TO_REFRESH_STATE = 30000
 export const CHAINS = {
-  // ARBITRUM: 42161,
+  ARBITRUM: 42161,
   // BASE: 8453,
   BSC: 56,
+  OPBNB: 204,
 }
 export const PERCENTAGE_SUGGESTIONS = [10, 25, 50, 75, 100]
 
@@ -70,6 +71,6 @@ export const COLORS = {
 }
 
 export const UNWRAP = {
-  'WETH': 'ETH',
-  'WBNB': 'BNB',
+  WETH: 'ETH',
+  WBNB: 'BNB'
 }

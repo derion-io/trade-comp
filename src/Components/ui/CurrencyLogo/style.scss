@@ -1,0 +1,32 @@
+@import "../../../styles/abstracts/variables";
+
+.pool-token-logo {
+  background: #2c2c2c;
+  border-radius: 50%;
+  border: 2px solid;
+  color: white !important;
+  font-size: 1rem !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &__long {
+    border-color: $color-buy;
+  }
+
+  &__short {
+    border-color: $color-sell;
+  }
+  &__cp {
+    border-color: $color-execute;
+  }
+  &__lp {
+    border-color: $color-green;
+  }
+}
+.override-char{
+ color: $color-pink
+}
+.currency-logo-item *:not(:last-child) {
+  margin-right: 0.5rem;
+}

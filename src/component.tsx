@@ -33,6 +33,7 @@ export default ({
   useHistory?: any
 }) => {
   if (!SUPPORTED_CHAINS.includes(chainId)) {
+    console.error('Unsupported Network', chainId, SUPPORTED_CHAINS)
     return <div style={{
         textAlign: 'center',
         margin: '10rem',

@@ -1,0 +1,46 @@
+@import "../../../styles/abstracts/variables";
+
+.currency-group {
+    display: flex;
+    list-style-type: none;
+    margin: auto;
+    padding:0px;
+    flex-direction: row;
+      &__item{
+        border-radius: 50%;
+        transition: 'opacity 250ms ease-in 0s';
+        background-color: $color-grey-3;
+        border: 3px $color-grey-2 solid;
+        display: block;
+        line-height: 45px;
+        text-align: center;
+        transition: margin 0.1s ease-in-out;
+        overflow: hidden;
+        margin-left: -2rem;
+      &:first-child {
+        z-index: 5;
+        margin-left: 0;
+      }
+      &:nth-child(2) {
+        z-index: 4;
+        opacity: 0.5;
+        margin-top: 18px;
+      }
+      &:nth-child(3) {
+        z-index: 3;
+      }
+      &:nth-child(4) {
+        z-index: 2;
+      }
+          &:nth-child(5) {
+        z-index: 1;
+      }
+    //   &:last-child {z-index: 0}
+      img{width:100%}
+      }
+      &:hover {
+      .avatars__item {
+        margin-right:10px;
+      }
+      }
+  }

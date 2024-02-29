@@ -131,7 +131,7 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
                       {formatWeiToDisplayNumber(
                         swapTx.amountIn,
                         4,
-                        tokens[swapTx.tokenIn]?.decimal || 18
+                        tokens[swapTx.tokenIn]?.decimals || 18
                       )}
                     </Text>
                   </td>
@@ -147,7 +147,7 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
                       {formatWeiToDisplayNumber(
                         swapTx.amountOut,
                         4,
-                        tokens[swapTx.tokenOut]?.decimal || 18
+                        tokens[swapTx.tokenOut]?.decimals || 18
                       )}
                     </Text>
                   </td>
@@ -163,8 +163,16 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
 
 export const ActionTag = React.memo(
   ({ swapTx }: { swapTx: SwapTxType }) => {
+    const POOL_IDS_POS = [POOL_IDS.A, POOL_IDS.B, POOL_IDS.C]
     return useMemo(() => {
-      if ([POOL_IDS.R, POOL_IDS.native].includes(swapTx.sideIn.toNumber())) {
+      const isRP = [POOL_IDS.R, POOL_IDS.native].includes(
+        swapTx.sideIn.toNumber()
+      )
+      const isP =
+        POOL_IDS_POS.includes(swapTx.sideIn.toNumber()) &&
+        POOL_IDS_POS.includes(swapTx.sideOut.toNumber())
+
+      if (isRP || isP) {
         return POOL_IDS.C === swapTx.sideOut.toNumber() ? (
           <TextBlue>Add</TextBlue>
         ) : POOL_IDS.A === swapTx.sideOut.toNumber() ? (

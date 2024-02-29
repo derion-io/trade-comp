@@ -119,7 +119,7 @@ const Component = ({ visible, pool }: { visible: boolean; pool: PoolType }) => {
                     {formatFloat(
                       IEW(
                         BigNumber.from(value),
-                        18 + tokens[dTokens[index]].decimal
+                        18 + tokens[dTokens[index]].decimals
                       ),
                       2
                     )}
@@ -171,7 +171,7 @@ const Component = ({ visible, pool }: { visible: boolean; pool: PoolType }) => {
                         {' '}
                         $
                         {formatFloat(
-                          IEW(rDcLongValue, tokens[quoteToken]?.decimal),
+                          IEW(rDcLongValue, tokens[quoteToken]?.decimals),
                           2
                         )}{' '}
                       </TextComp>
@@ -180,7 +180,7 @@ const Component = ({ visible, pool }: { visible: boolean; pool: PoolType }) => {
                         {' '}
                         $
                         {formatFloat(
-                          IEW(rDcShortValue, tokens[quoteToken]?.decimal),
+                          IEW(rDcShortValue, tokens[quoteToken]?.decimals),
                           2
                         )}{' '}
                       </TextComp>

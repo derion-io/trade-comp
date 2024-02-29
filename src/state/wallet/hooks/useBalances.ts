@@ -109,15 +109,13 @@ export const useWalletBalance = () => {
     }
   }
 
-  const fetchBalanceAndAllowance = async (tokensArr: string[]) => {
-    if (!ddlEngine || tokensArr.length <= 1) return
+  const fetchBalanceAndAllowance = async (withNative: boolean = true) => {
+    if (!ddlEngine) return
     const {
       balances,
       allowances,
       maturity: maturities
-    } = await ddlEngine.BNA.getBalanceAndAllowance({
-      tokens: tokensArr
-    })
+    } = await ddlEngine.BNA.getBalanceAndAllowance(withNative ? [NATIVE_ADDRESS] : [])
     updateBalanceAndAllowances({
       balances,
       maturities,

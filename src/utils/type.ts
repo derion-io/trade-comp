@@ -24,6 +24,7 @@ export type PoolErc1155StepType = {
 }
 
 export const Q128 = BigNumber.from(1).shl(128)
+export const Q256 = BigNumber.from(1).shl(256)
 
 export class ClosingFeeCalculator {
   MATURITY: number
@@ -42,6 +43,13 @@ export class ClosingFeeCalculator {
   } {
     if (now == null) {
       now = Math.floor(new Date().getTime() / 1000)
+    }
+    if (this.maturity < now) {
+      return {
+        fee: 0,
+        remain: 0,
+        isVesting: false,
+      }
     }
     const matured = max(this.maturity, now)
     const vested = max(matured - this.MATURITY + this.MATURITY_VEST, now)
@@ -70,6 +78,21 @@ export class ClosingFeeCalculator {
     }
   }
 }
+export type PoolSearch = {
+  baseToken: {
+    name: string
+    symbol: string
+    address: string,
+    logoURI: string
+  },
+  quoteToken: {
+    name: string
+    symbol: string
+    address: string,
+    logoURI: string
+  }
+  pools: PoolType[]
+}
 
 export type Position = {
   status: POSITION_STATUS
@@ -92,5 +115,5 @@ export type Position = {
   leverage: number
   effectiveLeverage: number
   funding: number
-  closingFee: (now?: number) => any
+  calulateClosingFee: (now?: number) => any
 }

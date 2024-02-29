@@ -43,7 +43,7 @@ export const TxFee = ({
     setGasPrice(feeData?.gasPrice ?? 1)
   }, [feeData])
 
-  const closingFee = position?.closingFee() ?? { fee: 0 }
+  const closingFee = position?.calulateClosingFee() ?? { fee: 0 }
 
   let slippage = 0
   if (payoffRate != null) {

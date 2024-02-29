@@ -15,7 +15,7 @@ export const tokens = createSlice({
     ) => {
       if (Object.keys(action.payload.poolGroups ?? {}).length === 0) return
       state.poolGroups[action.payload.chainId] = {
-        ...state[action.payload.chainId],
+        ...state.poolGroups[action.payload.chainId],
         ...action.payload.poolGroups
       }
     },
@@ -28,7 +28,7 @@ export const tokens = createSlice({
     ) => {
       if (Object.keys(action.payload.pools ?? {}).length === 0) return
       state.pools[action.payload.chainId] = {
-        ...state[action.payload.chainId],
+        ...state.pools[action.payload.chainId],
         ...action.payload.pools
       }
     },

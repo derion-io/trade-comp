@@ -1,20 +1,21 @@
 import React, { useEffect, useRef } from 'react'
-import './style.scss'
+import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import { Trade } from '../../pages/Trade'
+import { useConfigs } from '../../state/config/useConfigs'
+import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
+import { useWeb3React } from '../../state/customWeb3React/hook'
+import { useFetchFeeData } from '../../state/resources/hooks/useFeeData'
+import { useResource } from '../../state/resources/hooks/useResource'
+import { useFetchTokenPrice } from '../../state/resources/hooks/useTokenPrice'
 import { useListTokens } from '../../state/token/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
-import { useWeb3React } from '../../state/customWeb3React/hook'
-import { ToastContainer } from 'react-toastify'
-import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
-import { useConfigs } from '../../state/config/useConfigs'
-import { useResource } from '../../state/resources/hooks/useResource'
-import { TIME_TO_REFRESH_STATE, TRADE_TYPE } from '../../utils/constant'
 import { useSwapHistoryFormated } from '../../state/wallet/hooks/useSwapHistory'
-import { Trade } from '../../pages/Trade'
-import { useFetchTokenPrice } from '../../state/resources/hooks/useTokenPrice'
-import { useFetchFeeData } from '../../state/resources/hooks/useFeeData'
-import { PageLoadingIndicator } from '../PageLoadingIndicator'
+import { TRADE_TYPE } from '../../utils/constant'
 import { ErrorBoundary } from '../ErrorBoundary'
+import { PageLoadingIndicator } from '../PageLoadingIndicator'
+import './style.scss'
+import { detectTradeTab } from '../../utils/helpers'
 
 export const App = () => {
   const { id } = useCurrentPoolGroup()
@@ -44,14 +45,14 @@ export const App = () => {
       console.error(e)
     }
   }, [ddlEngine, poolGroups, id])
-
   useEffect(() => {
     initResource(account)
-    const intervalId = setInterval(() => {
-      initResource(account)
-    }, TIME_TO_REFRESH_STATE)
-    return () => clearInterval(intervalId)
-  }, [ddlEngine, configs.name])
+    // initResource(account)
+    // const intervalId = setInterval(() => {
+    //   initResource(account)
+    // }, TIME_TO_REFRESH_STATE)
+    // return () => clearInterval(intervalId)
+  }, [ddlEngine, configs.name, account])
 
   useEffect(() => {
     if (!account) {
@@ -60,8 +61,8 @@ export const App = () => {
         routerAllowances: {},
         maturities: {}
       })
-    } else if (tokens && Object.keys(tokens).length > 0) {
-      fetchBalanceAndAllowance(Object.keys(tokens))
+    } else {
+      fetchBalanceAndAllowance()
     }
   }, [tokens, account])
 
@@ -71,19 +72,6 @@ export const App = () => {
   //   }
   //   return LIQUIDITY_TAB.REMOVE
   // }
-
-  const detectTradeTab = (path: string) => {
-    if (path.includes('long')) {
-      return TRADE_TYPE.LONG
-    } else if (path.includes('short')) {
-      return TRADE_TYPE.SHORT
-    } else if (path.includes('liquidity')) {
-      return TRADE_TYPE.LIQUIDITY
-    } else if (path.includes('swap')) {
-      return TRADE_TYPE.SWAP
-    }
-    return TRADE_TYPE.LONG
-  }
 
   // const isMatchWithPath = (path: string) => {
   //   return !!matchPath(location.pathname, {

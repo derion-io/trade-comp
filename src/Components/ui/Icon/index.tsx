@@ -44,6 +44,28 @@ export const IconArrowRight = (props: IconType) => {
   )
 }
 
+export const IconEnter = (props: any) => {
+  return (
+    <svg
+      width={props.size ? props.size : '20'}
+      height={props.size ? props.size : '20'}
+      viewBox='0 0 24 24'
+      fill='none'
+      xmlns='http://www.w3.org/2000/svg'
+    >
+      <path
+        d='M6 8V5C6 4.44772 6.44772 4 7 4H17C17.5523 4 18 4.44772 18 5V19C18 19.5523 17.5523 20 17 20H7C6.44772 20 6 19.5523 6 19V16M6 12H13M13 12L10.5 9.77778M13 12L10.5 14.2222'
+        stroke='#9CA3AF'
+        strokeLinecap='round'
+        strokeLinejoin='round'
+        fillRule='evenodd'
+        clipRule='evenodd'
+        // fill={props.fill ? props.fill : 'white'}
+      />
+    </svg>
+  )
+}
+
 export const IconArrowLeft = (props: IconType) => {
   return (
     <svg

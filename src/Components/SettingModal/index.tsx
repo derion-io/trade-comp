@@ -10,6 +10,7 @@ import { useConfigs } from '../../state/config/useConfigs'
 import { SORT_POOL_BY } from '../../state/setting/type'
 import { ToggleSwitch } from '../ui/ToggleSwitch'
 import { formatPercent } from '../../utils/helpers'
+import { MIN_POSITON_VALUE_USD_TO_DISPLAY } from '../../utils/constant'
 
 const Component = ({
   visible,
@@ -25,12 +26,15 @@ const Component = ({
     setMaxInterestRate,
     setMinLiquidityShare,
     setScanApi,
-    setShowBalance
+    setShowBalance,
+    setMinPositionValueUSD,
   } = useSettings()
   const { chainId } = useConfigs()
   const [visibleAdvance, setVisibleAdvance] = useState<Boolean>(false)
   useEffect(() => {
-    if (localStorage.getItem('isShowBalance')) setShowBalance(localStorage.getItem('isShowBalance') === 'true')
+    if (localStorage.getItem('isShowBalance')) {
+      setShowBalance(localStorage.getItem('isShowBalance') === 'true')
+    }
   }, [])
   return (
     <Modal
@@ -136,6 +140,23 @@ const Component = ({
             <div className='mb-1'>
               <div className='mb-05'>
                 <ToggleSwitch
+                  label='Show All Position'
+                  defaultChecked={settings.minPositionValueUSD === 0}
+                  setter={() => {
+                    console.log(
+                      '#settings.minPositionValueUSD',
+                      settings.minPositionValueUSD
+                    )
+                    if (settings.minPositionValueUSD === 0) {
+                      setMinPositionValueUSD(MIN_POSITON_VALUE_USD_TO_DISPLAY)
+                    } else {
+                      setMinPositionValueUSD(0)
+                    }
+                  }}
+                />
+              </div>
+              <div className='mb-05'>
+                <ToggleSwitch
                   label='Show Balance'
                   defaultChecked={settings.showBalance}
                   setter={setShowBalance}
@@ -186,14 +207,17 @@ const InputApiKey = ({
   const [value, setValue] = useState(defaultValue)
   const [error, setError] = useState('')
 
+  const { configs } = useConfigs()
+  const { scanApi } = configs
+
   useEffect(() => {
     validateApiKey()
   }, [value])
 
   const validateApiKey = async () => {
+    const now = Math.floor(Date.now() / 1000)
     const res = await fetch(
-      'https://api.arbiscan.io/api?module=block&action=getblocknobytime&timestamp=1689517013&closest=before&apikey=' +
-        value
+      `${scanApi}?module=block&action=getblocknobytime&timestamp=${now}&closest=before&apikey=${value}`
     ).then((r) => r.json())
     if (res.status === '0' && res.message === 'NOTOK' && res.result) {
       setError(res.result)

@@ -12,12 +12,13 @@ import {
 import { useResource } from '../../resources/hooks/useResource'
 import { CHART_TABS } from '../type'
 import { TRADE_TYPE } from '../../../utils/constant'
+import { useWeb3React } from '../../customWeb3React/hook'
 
 export const useCurrentPoolGroup = () => {
-  const { poolGroups } = useResource()
+  const { poolGroups, addNewResource } = useResource()
   const { ddlEngine } = useConfigs()
+  const { account } = useWeb3React()
   const dispatch = useDispatch()
-
   const currentPool = useSelector((state: State) => {
     return {
       ...state.currentPool
@@ -36,18 +37,31 @@ export const useCurrentPoolGroup = () => {
   const setTradeType = (tab: TRADE_TYPE) => {
     dispatch(setSwapTabReduce({ tab }))
   }
-
-  const updateCurrentPoolGroup = async (uniPoolAddress: string) => {
-    const poolGroup = poolGroups[uniPoolAddress]
+  const updateCurrentPoolGroup = async (uniPoolAddress: string, poolAddresses?: string[]) => {
+    let poolGroup = poolGroups[uniPoolAddress]
+    if (!poolGroup && poolAddresses) {
+      // eslint-disable-next-line no-unused-expressions
+      ddlEngine?.RESOURCE.generateData({ poolAddresses, transferLogs: [] }).then(data => {
+        poolGroup = data?.poolGroups[uniPoolAddress]
+        addNewResource(data, account)
+        dispatch(
+          setCurrentPoolInfo({
+            ...poolGroup,
+            id: uniPoolAddress
+          })
+        )
+      })
+      return
+    }
     // const { cPrice } = pool
 
-    if (ddlEngine) {
-      ddlEngine.setCurrentPool({
-        ...poolGroups[uniPoolAddress]
-        // logic: pools[poolAddress].logic,
-        // cTokenPrice: pools[poolAddress].cTokenPrice
-      })
-    }
+    // if (ddlEngine) {
+    //   ddlEngine.setCurrentPool({
+    //     ...poolGroup
+    //     // logic: pools[poolAddress].logic,
+    //     // cTokenPrice: pools[poolAddress].cTokenPrice
+    //   })
+    // }
 
     dispatch(
       setCurrentPoolInfo({

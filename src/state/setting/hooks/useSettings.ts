@@ -7,7 +7,8 @@ import {
   setSlippageReduce,
   setSortPoolBuyReduce,
   setShowBalanceReduce,
-  setShowValueInUsdReduce
+  setShowValueInUsdReduce,
+  setMinPositionValueUSDReduce,
 } from '../reducer'
 import { State } from '../../types'
 import { useConfigs } from '../../config/useConfigs'
@@ -24,6 +25,9 @@ export const useSettings = () => {
   const dispatch = useDispatch()
   const setSlippage = (slippage: number) => {
     dispatch(setSlippageReduce({ slippageTolerance: slippage }))
+  }
+  const setMinPositionValueUSD = (minPositionValueUSD: number) => {
+    dispatch(setMinPositionValueUSDReduce({ minPositionValueUSD }))
   }
   const setMaxDeleverageRisk = (maxDeleverageRisk: number) => {
     dispatch(setDeleverageChanceReduce({ maxDeleverageRisk }))
@@ -53,6 +57,7 @@ export const useSettings = () => {
     setSortPoolBuy,
     setSlippage,
     setScanApi,
+    setMinPositionValueUSD,
     setMaxDeleverageRisk,
     setMaxInterestRate,
     setMinLiquidityShare,

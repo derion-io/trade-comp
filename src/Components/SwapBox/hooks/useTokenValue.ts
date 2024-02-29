@@ -1,17 +1,15 @@
 import { useMemo } from 'react'
 import {
   BIG,
-  bn,
   cutDecimal,
   decodeErc1155Address,
   isErc1155Address,
   WEI,
   IEW,
   NUM,
-  STR
+  div,
 } from '../../../utils/helpers'
 import { useTokenPrice } from '../../../state/resources/hooks/useTokenPrice'
-import { parseSqrtX96 } from 'derivable-tools/dist/utils/helper'
 import { useConfigs } from '../../../state/config/useConfigs'
 import { useListTokens } from '../../../state/token/hook'
 import { useHelper } from '../../../state/config/useHelper'
@@ -86,9 +84,9 @@ export const useTokenValue = ({
   const convertTokenValue = (tokenIn: string, tokenOut: string = NATIVE_ADDRESS, amount: string):string => {
     if (tokenIn === tokenOut) return amount
     if (!tokenIn || !amount) return '0'
-    const tokenInValue = NUM(getTokenValue(tokenIn, amount))
-    const tokenOutValue = NUM(getTokenValue(tokenOut, '1'))
-    return STR(tokenInValue / tokenOutValue)
+    const tokenInValue = getTokenValue(tokenIn, amount)
+    const tokenOutValue = getTokenValue(tokenOut, '1')
+    return div(tokenInValue, tokenOutValue)
   }
   const value = useMemo(() => {
     if (!amount || !tokenAddress) return '0'

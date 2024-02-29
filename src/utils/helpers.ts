@@ -3,6 +3,7 @@ import { POOL_IDS, TRADE_TYPE, UNWRAP } from './constant'
 import _ from 'lodash'
 import { ListTokensType } from '../state/token/type'
 import { Q128 } from './type'
+import { PoolType } from 'derivable-engine/dist/types'
 
 const mdp = require('move-decimal-point')
 
@@ -169,9 +170,9 @@ export const DIV = (a: BigNumber, b: BigNumber, precision = 4): string => {
   const bl = b.toString().length
   const d = al - bl
   if (d > 0) {
-      b = b.mul(WEI(1, d))
+    b = b.mul(WEI(1, d))
   } else if (d < 0) {
-      a = a.mul(WEI(1, -d))
+    a = a.mul(WEI(1, -d))
   }
   a = a.mul(WEI(1, precision))
   const c = truncate(a.div(b).toString(), 0, true)
@@ -248,10 +249,13 @@ export function overrideContract(provider: any, deployedBytecode: string) {
 const CALL_REVERT_REGEX = /reason string "(.*?)"/gm
 
 export const parseCallStaticError = (err: any) => {
-  const reason = err?.message ?? err?.reason ?? _extractErrorReason(err)?.reason ?? 'ERROR'
+  const reason = err?.reason ?? err?.message ?? _extractErrorReason(err)?.reason ?? 'ERROR'
   if (reason.includes('missing revert data in call exception')) {
     console.error(reason)
     return 'Execution Reverted'
+  }
+  if (reason.startsWith('execution reverted: ')) {
+    return reason.substr(20)
   }
   const matches = Array.from(
     reason.matchAll(CALL_REVERT_REGEX),
@@ -317,6 +321,7 @@ export const sub = (a: any, b: any) => {
 }
 
 export const div = (a: any, b: any, precision: number = 4) => {
+  if (Number?.(b) === 0) return 0
   a = STR(a, 4)
   b = STR(b, 4)
   const [bb, db] = remDec(b)
@@ -329,10 +334,10 @@ export const div = (a: any, b: any, precision: number = 4) => {
 
 export const formatPercent = (
   floatNumber: any,
-  decimal: number = 2,
+  decimals: number = 2,
   rounding: boolean = false
 ): number => {
-  return NUM(truncate(mdp(STR(floatNumber), 2), decimal, rounding))
+  return NUM(truncate(mdp(STR(floatNumber), 2), decimals, rounding))
 }
 
 export const getNormalAddress = (addresses: string[]) => {
@@ -436,7 +441,8 @@ export const decimalsBySignificantDigits = (
 
 export const getPoolPower = (pool: any): number => {
   const { k, exp } = pool
-  return k.toNumber() / exp
+  if (!k || !exp) return 0
+  return k?.toNumber?.() / exp
 }
 
 export const getTitleBuyTradeType = (type: TRADE_TYPE): string => {
@@ -467,6 +473,14 @@ export const isUSD = (symbol: string): boolean => {
     symbol?.includes('DAI') ||
     symbol?.includes('SAI')
   )
+}
+
+export const thousandsInt = (int: string): string => {
+  const rgx = /(\d+)(\d{3})/
+  while (rgx.test(int)) {
+    int = int.replace(rgx, '$1' + ',' + '$2')
+  }
+  return int
 }
 
 export const precisionize = (value: number, opts?: {
@@ -507,17 +521,22 @@ export const zerofy = (value: number | string, opts?: {
   } else {
     value = STR(value)
     if (IS_NEG(value)) {
-      return '-' + zerofy(NEG(value), opts) 
+      return '-' + zerofy(NEG(value), opts)
     }
     let [int, dec] = value.split('.')
     if (dec?.length > 0) {
-      const fake = int.substring(Math.max(0, int.length-2)) + '.' + dec
+      const fake = int.substring(Math.max(0, int.length - 2)) + '.' + dec
       dec = precisionize(NUM(fake), opts)
       dec = dec.split('.')[1]
+      int = thousandsInt(int)
       if (dec?.length > 0) {
         value = int + '.' + dec
         zeros = dec.match(/^0+/)?.[0]?.length ?? 0
+      } else {
+        value = int
       }
+    } else {
+      value = thousandsInt(value)
     }
   }
   const maxZeros = opts?.maxZeros ?? 3
@@ -597,8 +616,8 @@ export const calcPoolSide = (
   const effectiveLeverage = Math.min(ek, k) / exp
 
   const decimalsOffset = Math.floor((
-    (tokens[baseToken]?.decimal ?? 18) -
-    (tokens[quoteToken]?.decimal ?? 18)
+    (tokens[baseToken]?.decimals ?? 18) -
+    (tokens[quoteToken]?.decimals ?? 18)
   ) / exp)
 
   const mark = !MARK ? 1 : NUM(DIV(
@@ -673,4 +692,28 @@ export function getTwitterIntentURL(text: string, url = '', hashtag = '') {
     }
   }
   return finalURL
+}
+
+export const detectTradeTab = (path: string) => {
+  if (path.includes('long')) {
+    return TRADE_TYPE.LONG
+  } else if (path.includes('short')) {
+    return TRADE_TYPE.SHORT
+  } else if (path.includes('liquidity')) {
+    return TRADE_TYPE.LIQUIDITY
+  } else if (path.includes('swap')) {
+    return TRADE_TYPE.SWAP
+  }
+  return TRADE_TYPE.LONG
+}
+export function poolToIndexID(pool: PoolType) {
+  const pair = oracleToPoolGroupId(pool?.ORACLE)
+  const quoteTokenIndex = bn(pool?.ORACLE.slice(0, 3)).gt(0) ? 1 : 0
+  const tokenR = pool?.TOKEN_R
+  return [pair, quoteTokenIndex, tokenR].join('-')
+}
+
+export const packId = (kind: string | BigNumber, address: string) => {
+  const k = bn(kind)
+  return k.shl(160).add(address)
 }

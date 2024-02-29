@@ -146,7 +146,7 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
                         {formatWeiToDisplayNumber(
                           cpChange,
                           4,
-                          tokens[poolAddress + '-' + POOL_IDS.cp]?.decimal || 18
+                          tokens[poolAddress + '-' + POOL_IDS.cp]?.decimals || 18
                         )}
                       </span>
                     )}
@@ -186,7 +186,7 @@ const AmountChange = ({
         {formatWeiToDisplayNumber(
           amountChange.abs(),
           4,
-          tokens[address]?.decimal || 18
+          tokens[address]?.decimals || 18
         )}
       </Text>
     </span>

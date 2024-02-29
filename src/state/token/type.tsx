@@ -3,8 +3,7 @@
 import { SUPPORTED_CHAINS } from '../../utils/constant'
 
 export interface TokenType {
-  decimal: number
-  decimals?: number
+  decimals: number
   name: string
   symbol: string
   icon?: string

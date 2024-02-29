@@ -106,7 +106,7 @@ export const TokenIcon = (props: {
   if (poolToken) {
     return <Fragment>{poolToken}</Fragment>
   }
-  if (isError || tokenIcon === 'notfound' || !tokenIcon) {
+  if (isError || tokenIcon === 'notfound' || !tokenIcon || tokenIcon === 'missing.png') {
     return <CustomTokenIcon size={props.size || 50} {...props} />
   } else {
     return isLink(tokenIcon)

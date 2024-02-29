@@ -1,21 +1,19 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { useResource } from '../../state/resources/hooks/useResource'
-import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
-import { useListTokens } from '../../state/token/hook'
-import './style.scss'
 import { useOutsideAlerter } from '../../hooks/useHandleClickOutside'
+import { useWindowSize } from '../../hooks/useWindowSize'
+import { useConfigs } from '../../state/config/useConfigs'
+import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
+import { useResource } from '../../state/resources/hooks/useResource'
+import { useListTokens } from '../../state/token/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
-import {
-  MIN_POSITON_VALUE_USD_TO_DISPLAY,
-  POOL_IDS
-} from '../../utils/constant'
-import { TokenIcon } from '../ui/TokenIcon'
+import { POOL_IDS } from '../../utils/constant'
+import formatLocalisedCompactNumber from '../../utils/formatBalance'
 import { IEW, bn, formatFloat, unwrap } from '../../utils/helpers'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
-import { useConfigs } from '../../state/config/useConfigs'
 import { TextGrey } from '../ui/Text'
-import formatLocalisedCompactNumber from '../../utils/formatBalance'
-import { useWindowSize } from '../../hooks/useWindowSize'
+import { TokenIcon } from '../ui/TokenIcon'
+import './style.scss'
+import { useSettings } from '../../state/setting/hooks/useSettings'
 
 export const SelectPoolGroup = () => {
   const [active, setActive] = useState<boolean>(false)
@@ -65,17 +63,19 @@ export const SelectPoolGroup = () => {
           }
         }
       }
-      const playingTokensValue = results.map((address) => {
-        const value = Number(
-          getTokenValue(
-            address,
-            IEW(balances[address], tokens[address]?.decimal || 18),
-            true
+      const playingTokensValue = results
+        .map((address) => {
+          const value = Number(
+            getTokenValue(
+              address,
+              IEW(balances[address], tokens[address]?.decimals || 18),
+              true
+            )
           )
-        )
-        totalPosValue += value
-        return { address, value }
-      }).filter(token => token.address !== null && token.value > 0)
+          totalPosValue += value
+          return { address, value }
+        })
+        .filter((token) => token.address !== null && token.value > 0)
       poolGroupsUSDs[poolGroupKey] = {
         poolGroup,
         playingTokensValue,
@@ -173,6 +173,8 @@ const PoolGroupOption = ({
   const { tokens } = useListTokens()
   const { updateCurrentPoolGroup } = useCurrentPoolGroup()
   const { width } = useWindowSize()
+  const { settings } = useSettings()
+
   const isPhone = width && width < 768
   if (!poolGroup) return <React.Fragment />
 
@@ -208,7 +210,7 @@ const PoolGroupOption = ({
         : poolGroupsValue?.playingTokensValue
       ).map((playingToken: any) => {
         const { address, value } = playingToken
-        if (value < MIN_POSITON_VALUE_USD_TO_DISPLAY) return null
+        if (value < settings.minPositionValueUSD) return null
         if (balances[address] && bn(balances[address]).gt(0)) {
           return <TokenIcon key={address} size={20} tokenAddress={address} />
         } else {

@@ -21,7 +21,7 @@ import { ApproveUtrModal } from '../ApproveUtrModal'
 import { useResource } from '../../state/resources/hooks/useResource'
 import { ConfirmPosition } from '../ConfirmPositionModal'
 import { useSwapPendingHistory } from '../../state/wallet/hooks/useSwapPendingHistory'
-import { PendingSwapTransactionType } from 'derivable-tools/dist/types'
+import { PendingSwapTransactionType } from 'derivable-engine/dist/types'
 import { useDetectPool } from '../../hooks/useDetectPool'
 
 const TIME_TO_REFRESH_FETCHER_DATA = 10000
@@ -154,8 +154,8 @@ export const ButtonSwap = ({
       )
     } else if (
       !balances[inputTokenAddress] ||
-      balances[inputTokenAddress].lt(
-        WEI(amountIn, tokens[inputTokenAddress]?.decimal || 18)
+      !balances[inputTokenAddress]?.gte(
+        WEI(amountIn, tokens[inputTokenAddress]?.decimals || 18)
       )
     ) {
       return (
@@ -166,8 +166,8 @@ export const ButtonSwap = ({
       )
     } else if (
       !isErc1155Address(inputTokenAddress) &&
-      routerAllowances[inputTokenAddress].lt(
-        WEI(amountIn, tokens[inputTokenAddress]?.decimal || 18)
+      !routerAllowances[inputTokenAddress]?.gte(
+        WEI(amountIn, tokens[inputTokenAddress]?.decimals || 18)
       )
     ) {
       return (
@@ -201,7 +201,7 @@ export const ButtonSwap = ({
               if (ddlEngine) {
                 const amountOutMin = WEI(
                   mul(amountOut, 1 - settings.slippageTolerance),
-                tokens[outputTokenAddress]?.decimal || 18
+                tokens[outputTokenAddress]?.decimals || 18
                 )
                 let pendingTxHash: string = ''
                 const tx: any = await ddlEngine.SWAP.multiSwap(
@@ -211,7 +211,7 @@ export const ButtonSwap = ({
                         tokenIn: inputTokenAddress,
                         tokenOut: outputTokenAddress,
                         amountIn: bn(
-                          WEI(amountIn, tokens[inputTokenAddress]?.decimal || 18)
+                          WEI(amountIn, tokens[inputTokenAddress]?.decimals || 18)
                         ),
                         amountOutMin,
                         payloadAmountIn,
@@ -248,7 +248,7 @@ export const ButtonSwap = ({
                     (l: any) => l.transactionHash && l.args?.name === 'Transfer'
                   ))
                 toast.success('Transaction Confirmed')
-                await fetchBalanceAndAllowance(Object.keys(tokens))
+                await fetchBalanceAndAllowance()
                 await initResource(account)
               }
               setLoading(false)

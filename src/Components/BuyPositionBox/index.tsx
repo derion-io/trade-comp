@@ -35,15 +35,20 @@ import { useCalculateSwap } from '../SwapBox/hooks/useCalculateSwap'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
 import { IconArrowDown } from '../ui/Icon'
 import NumberInput from '../ui/Input/InputNumber'
-import { Text, TextGrey, TextSell, TextWarning } from '../ui/Text'
+import { Text, TextGrey, TextLink, TextSell, TextWarning } from '../ui/Text'
 import { TokenIcon } from '../ui/TokenIcon'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import { EstimateBox } from './components/EstimateBox'
 import { SwapInfoBox } from './components/SwapInfoBox'
 import { DeleveragePrice } from '../Positions'
 import './style.scss'
+import { Spin } from 'antd'
 
 const Component = ({
+  searchIndexCache,
+  showAllPool,
+  isLoadingIndex,
+  setShowAllPool,
   tradeType = TRADE_TYPE.LONG,
   inputTokenAddress,
   outputTokenAddress,
@@ -51,6 +56,10 @@ const Component = ({
   setOutputTokenAddress,
   tokenOutMaturity
 }: {
+  searchIndexCache?:{[key:string] : any},
+  showAllPool?:boolean,
+  isLoadingIndex?:boolean,
+  setShowAllPool?: (s: boolean) => void,
   tradeType?: TRADE_TYPE
   inputTokenAddress: string
   outputTokenAddress: string
@@ -71,7 +80,7 @@ const Component = ({
   const { wrapToNativeAddress } = useHelper()
   const { setCurrentPoolAddress, setDr } = useCurrentPool()
   const { convertTokenValue } = useTokenValue({})
-  const leverageData = useGenerateLeverageData(tradeType)
+  const { leverageData, totalHiddenPools } = useGenerateLeverageData(tradeType, showAllPool)
   const { pools } = useResource()
   useEffect(() => {
     if (
@@ -135,7 +144,7 @@ const Component = ({
         )
       }
     }
-  }, [outputTokenAddress, inputTokenAddress, pools, id])
+  }, [outputTokenAddress, inputTokenAddress, leverageData, pools, id])
 
   const { value: valueIn } = useTokenValue({
     amount: amountIn,
@@ -191,6 +200,7 @@ const Component = ({
 
     if (poolToShow.TOKEN_R === configs.wrappedTokenAddress || erc20TokenSupported.includes(configs.wrappedTokenAddress)) {
       tokenRs.push(NATIVE_ADDRESS)
+      tokenRs.push(configs.wrappedTokenAddress)
     }
 
     return _.uniq(
@@ -226,7 +236,7 @@ const Component = ({
     } = calcPoolSide(poolToShow, sideToShow, tokens)
 
     if (sideToShow != POOL_IDS.C && effectiveLeverage < leverage) {
-      const CompText = effectiveLeverage < leverage / 2 ? TextSell: TextWarning
+      const CompText = effectiveLeverage < leverage / 2 ? TextSell : TextWarning
       return [
         'Effective Leverage',
         <CompText>{zerofy(effectiveLeverage)}x</CompText>
@@ -274,12 +284,18 @@ const Component = ({
     const fundingRate = interest + premium
     return [interest, premium, fundingRate, interestRate, maxPremiumRate]
   }, [inputTokenAddress, outputTokenAddress, pools, poolToShow])
-
   useEffect(() => {
     if (tokensToSelect.length > 0 && !tokensToSelect.includes(inputTokenAddress)) {
       setInputTokenAddress(tokensToSelect.includes(NATIVE_ADDRESS) ? NATIVE_ADDRESS : tokensToSelect[0])
     }
   }, [tokensToSelect, inputTokenAddress])
+
+  // Hook: Load and Cache all pool of Index
+
+  const shouldShowLevelMap = useMemo(() => {
+    const nBars = leverageData.reduce((acc: number, l:any) => acc + l.bars.length as number, 0) as number || 0
+    return nBars > 1
+  }, [leverageData])
 
   return (
     <div className='long-short-box'>
@@ -306,7 +322,7 @@ const Component = ({
                 setAmountIn(
                   IEW(
                     balances[inputTokenAddress],
-                    tokens[inputTokenAddress]?.decimal || 18
+                    tokens[inputTokenAddress]?.decimals || 18
                   )
                 )
               }}
@@ -318,7 +334,7 @@ const Component = ({
                   formatFloat(
                     IEW(
                       balances[inputTokenAddress],
-                        tokens[inputTokenAddress]?.decimal ?? 18
+                        tokens[inputTokenAddress]?.decimals ?? 18
                     )
                   )
                 )}
@@ -354,8 +370,10 @@ const Component = ({
       />
 
       {outputTokenAddress && (
-        <div className='pl-5 mt-1 mb-2'>
-          <IconArrowDown fill='#01A7FA' />
+        <div className='icon-arrow-down-wrap pl-5 mt-1 mb-2'>
+          <span >
+            <IconArrowDown fill='#01A7FA' />
+          </span>
         </div>
       )}
 
@@ -366,9 +384,19 @@ const Component = ({
         amountOut={amountOut}
         valueOut={valueOut}
         power={power}/>
+      <div style={{ width: '100%', textAlign: 'center', height: '22px', overflow: 'hidden' }}>
+        <span >
+          {/* Show 3 hidden pools */}
 
+          {isLoadingIndex ? <Spin /> : <TextLink className='show-all-pool-text' onClick={() => {
+            if (setShowAllPool)setShowAllPool(!showAllPool)
+          }}>{
+              totalHiddenPools !== 0
+                ? (showAllPool ? `Hide ${totalHiddenPools} low liquidity pools` : `Show ${totalHiddenPools} hidden pools`) : ''}</TextLink>}
+        </span>
+      </div>
       {leverageData.length > 0 && (
-        <div className={leverageData.length === 1 ? 'hidden' : ''}>
+        <div className={!shouldShowLevelMap ? 'hidden' : ''}>
           <LeverageSlider
             barData={barData}
             setBarData={(e: any) => {

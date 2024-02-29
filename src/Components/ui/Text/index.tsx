@@ -94,7 +94,9 @@ export const TextLink = (props: TextType & { href?: string }) => {
       {...props}
       className={'text-link ' + props.className}
       onClick={(e) => {
-        window.open(props.href)
+        if (props.href) {
+          window.open(props.href)
+        }
         if (props.onClick) {
           props.onClick(e)
         }

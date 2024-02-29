@@ -1,0 +1,69 @@
+@import "../../../styles/abstracts/variables";
+
+.token-list{
+    min-height: 500px;
+}
+.inline-items-center {
+    display: inline-flex;
+    align-items: center;
+  }
+.position-token-list {
+    padding: 1px 5px 1px 5px;
+    border-radius: 10px;
+    width: 100%;
+    vertical-align: middle;
+    &__table {
+        display: flex;
+        justify-content: space-between;
+        border: none;
+        margin-left: 0;
+        margin-right: 0 !important;
+    }
+}
+.pool-positions-list{
+   
+    display: flex;
+    &__wrap {
+        margin: 0.5rem 0rem 1rem 0rem;
+        display: flex;
+        justify-content: space-between;
+    }
+}
+.index-value-item{
+    text-align: right;
+}
+.position-token-list:hover{
+    cursor: pointer;
+    width: 100%;
+    background-color: $color-grey;
+}
+.chart-token-current-icon{
+    border: 1px $color-grey solid;
+    margin-right: 1rem;
+}
+.chart-token-symbol {
+    margin-left: 1rem;
+}
+.common-currencies{
+    margin-top: 2rem;
+    flex-wrap: wrap;
+    display: flex;
+    gap: 4px;
+    align-items:center;
+    justify-content: flex-start;
+    &__item {
+        border: 1px solid $color-grey-2;
+        border-radius: 18px;
+        display: flex;
+        padding: 5px 12px 5px 6px;
+        line-height: 0px;
+        -webkit-box-align: center;
+        align-items: center;
+        color: white;
+        background-color: none;
+    }
+}
+.search-model-footer{
+    width: 100%;
+    text-align: center;
+}

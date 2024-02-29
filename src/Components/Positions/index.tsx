@@ -13,12 +13,7 @@ import { useSettings } from '../../state/setting/hooks/useSettings'
 import { useListTokens } from '../../state/token/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
-import {
-  MIN_POSITON_VALUE_USD_TO_DISPLAY,
-  POOL_IDS,
-  POSITION_STATUS,
-  TRADE_TYPE
-} from '../../utils/constant'
+import { POOL_IDS, POSITION_STATUS, TRADE_TYPE } from '../../utils/constant'
 import formatLocalisedCompactNumber, {
   formatWeiToDisplayNumber
 } from '../../utils/formatBalance'
@@ -34,7 +29,6 @@ import {
   formatFloat,
   formatPercent,
   isErc1155Address,
-  oracleToPoolGroupId,
   shortenAddressString,
   sub,
   zerofy,
@@ -42,11 +36,12 @@ import {
   add,
   IS_NEG,
   ABS,
+  poolToIndexID,
 } from '../../utils/helpers'
 import { ClosingFeeCalculator, Position } from '../../utils/type'
 import { ClosePosition } from '../ClosePositionModal'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
-import { Button, ButtonSell } from '../ui/Button'
+import { ButtonSell } from '../ui/Button'
 import { InfoRow } from '../ui/InfoRow'
 import {
   Text,
@@ -66,6 +61,8 @@ import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { SharedPosition } from '../PositionSharedModal'
 import { SharedIcon } from '../ui/Icon'
 import { useTokenPrice } from '../../state/resources/hooks/useTokenPrice'
+import { BatchTransferModal } from '../BatchTransfer'
+import { Checkbox } from 'antd'
 
 const mdp = require('move-decimal-point')
 
@@ -100,9 +97,10 @@ export const Positions = ({
   const [sharedPosition, setSharedPosition] = useState<Position | undefined>(
     undefined
   )
+  const [selections, setSelections] = useState<{ [pos: string]: Position }>({})
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
   const { ddlEngine } = useConfigs()
-  const { swapLogs: sls } = useSwapHistory()
+  const { swapLogs } = useSwapHistory()
   const { swapPendingTxs } = useSwapPendingHistory()
   const { width } = useWindowSize()
   const isPhone = width && width < 992
@@ -120,59 +118,66 @@ export const Positions = ({
   }, [])
 
   const positionsWithEntry = useMemo(() => {
-    if (ddlEngine?.HISTORY && Object.values(pools).length > 0) {
+    if (ddlEngine?.HISTORY && Object.values(pools).length > 0 && swapLogs) {
       return (
         ddlEngine.HISTORY.generatePositions?.({
           tokens: Object.values(tokens),
-          logs: _.cloneDeep(sls)
+          logs: _.cloneDeep(swapLogs)
         }) ?? {}
       )
     }
     return {}
-  }, [sls, pools, tokens])
+  }, [swapLogs, pools, tokens, ddlEngine?.HISTORY])
 
   const generatePositionData = (
     poolAddress: string,
     side: number,
-    pendingTxData?: {token: string}
+    pendingTxData?: { token: string }
   ): Position | null => {
     const pendingTxPool = decodeErc1155Address(pendingTxData?.token || '')
-    const token = encodeErc1155Address(pendingTxData ? pendingTxPool.address : poolAddress, pendingTxData ? Number(pendingTxPool.id) : side)
+    const token = encodeErc1155Address(
+      pendingTxData ? pendingTxPool.address : poolAddress,
+      pendingTxData ? Number(pendingTxPool.id) : side
+    )
 
-    if (balances[token]?.gt(0) || pendingTxData?.token) {
-      const pool = pools[pendingTxData?.token ? pendingTxPool.address : poolAddress]
+    if (
+      balances[token]?.gt(0) ||
+      pendingTxData?.token ||
+      positionsWithEntry[token]?.avgPrice
+    ) {
+      const pool =
+        pools[pendingTxData?.token ? pendingTxPool.address : poolAddress]
       const posWithEntry = positionsWithEntry[token]
       const { avgPrice, avgPriceR, amountR } = posWithEntry ?? {}
-      const entryPrice = avgPrice
-      const entryValueR = IEW(amountR)
-      const entryValueU = mul(entryValueR, avgPriceR)
+      const entryPrice = avgPrice || -1
+      const entryValueR = IEW(amountR || 1)
+      const entryValueU = mul(entryValueR || 1, avgPriceR || 1)
       const valueR = getTokenValue(
         token,
-        IEW(balances[token], tokens[token]?.decimal || 18),
+        IEW(balances[token], tokens[token]?.decimals || 18),
         false
       )
       const valueU = getTokenValue(
         token,
-        IEW(balances[token], tokens[token]?.decimal || 18),
+        IEW(balances[token], tokens[token]?.decimals || 18),
         true
       )
 
-      if (Number(valueU) < MIN_POSITON_VALUE_USD_TO_DISPLAY && !pendingTxData) {
+      if (Number(valueU) < settings.minPositionValueUSD && !pendingTxData) {
         return null
       }
 
-      const poolIndex = Object.keys(poolGroups).find(index => 
-        !!poolGroups?.[index]?.pools?.[poolAddress]
+      const poolIndex = Object.keys(poolGroups).find(
+        (index) => !!poolGroups?.[index]?.pools?.[poolAddress]
       )
       const currentPrice = poolGroups[poolIndex ?? '']?.basePrice ?? 0
-      
-      const {
-        leverage,
-        effectiveLeverage,
-        dgA,
-        dgB,
-        funding
-      } = calcPoolSide(pool, side, tokens, currentPrice)
+
+      const { leverage, effectiveLeverage, dgA, dgB, funding } = calcPoolSide(
+        pool,
+        side,
+        tokens,
+        currentPrice
+      )
 
       const sizeDisplay =
         side === POOL_IDS.A || side === POOL_IDS.B
@@ -188,16 +193,24 @@ export const Positions = ({
         MATURITY_RATE: pool.MATURITY_RATE,
         maturity: maturities?.[token]?.toNumber() ?? 0
       })
-      
-      const L = side == POOL_IDS.A ? NUM(leverage) : side == POOL_IDS.B ? -NUM(leverage) : 0
+
+      const L =
+        side == POOL_IDS.A
+          ? NUM(leverage)
+          : side == POOL_IDS.B
+            ? -NUM(leverage)
+            : 0
       let valueRLinear
       let valueRCompound
       if (L != 0) {
-        const priceRate = div(currentPrice, entryPrice)
-        const leveragedPriceRate = add(1, div(
-          mul(L, sub(currentPrice, entryPrice)),
-          entryPrice,
-        ))
+        const priceRate = div(
+          currentPrice,
+          NUM(entryPrice) === 0 ? 1 : entryPrice
+        )
+        const leveragedPriceRate = add(
+          1,
+          div(mul(L, sub(currentPrice, entryPrice)), entryPrice)
+        )
         if (leveragedPriceRate.startsWith('-')) {
           valueRLinear = '0'
         } else {
@@ -226,7 +239,7 @@ export const Positions = ({
         dgA,
         dgB,
         funding,
-        closingFee: (now?: number): any => {
+        calulateClosingFee: (now?: number): any => {
           return feeCalculator.calculateFee(now)
         },
         status: POSITION_STATUS.OPENED
@@ -237,7 +250,10 @@ export const Positions = ({
   const generatePositionFromInput = (token: string): any => {
     if (!isErc1155Address(token)) return null
     const { address, id } = decodeErc1155Address(token)
-    const s1 = { ...generatePositionData(address, Number(id), { token: token }), status: POSITION_STATUS.OPENING }
+    const s1 = {
+      ...generatePositionData(address, Number(id), { token: token }),
+      status: POSITION_STATUS.OPENING
+    }
     return s1
   }
   const positions: Position[] = useMemo(() => {
@@ -249,7 +265,13 @@ export const Positions = ({
     })
 
     return result.filter((r: any) => r !== null)
-  }, [positionsWithEntry, balances, maturities, pools])
+  }, [
+    positionsWithEntry,
+    balances,
+    maturities,
+    pools,
+    settings.minPositionValueUSD
+  ])
 
   const [displayPositions, hasClosingFee] = useMemo(() => {
     let displayPositions: Position[] = []
@@ -263,41 +285,52 @@ export const Positions = ({
         }
         return true
       })
-      const pendingPosition = swapPendingTxs.map(swapPendingTx => {
-        let isHaveTokenIn = false
-        let isHaveTokenOut = false
-        const { tokenIn, tokenOut } = swapPendingTx.steps?.[0]
-        displayPositions.map((disPos, _) => {
-          if (disPos.token === tokenIn) {
-            disPos.status = POSITION_STATUS.CLOSING
-            isHaveTokenIn = true
+      const pendingPosition = swapPendingTxs
+        .map((swapPendingTx) => {
+          let isHaveTokenIn = false
+          let isHaveTokenOut = false
+          const { tokenIn, tokenOut } = swapPendingTx.steps?.[0]
+          displayPositions.map((disPos, _) => {
+            if (disPos.token === tokenIn) {
+              disPos.status = POSITION_STATUS.CLOSING
+              isHaveTokenIn = true
+            }
+            if (disPos.token === tokenOut) {
+              disPos.status = POSITION_STATUS.UPDATING
+              isHaveTokenOut = true
+            }
+          })
+          if (!isHaveTokenIn && isErc1155Address(tokenIn)) {
+            return generatePositionFromInput(tokenIn)
           }
-          if (disPos.token === tokenOut) {
-            disPos.status = POSITION_STATUS.UPDATING
-            isHaveTokenOut = true
+          if (!isHaveTokenOut && isErc1155Address(tokenOut)) {
+            return generatePositionFromInput(tokenOut)
           }
+          return null
         })
-        if (!isHaveTokenIn && isErc1155Address(tokenIn)) {
-          return generatePositionFromInput(tokenIn)
-        }
-        if (!isHaveTokenOut && isErc1155Address(tokenOut)) {
-          return generatePositionFromInput(tokenOut)
-        }
-        return null
-      }).filter(p => p !== null)
-      if (pendingPosition) displayPositions = [...pendingPosition, ...displayPositions]
+        .filter((p) => p !== null)
+      if (pendingPosition) {
+        displayPositions = [...pendingPosition, ...displayPositions]
+      }
     }
 
     const hasClosingFee = displayPositions.some(
-      (p) => p?.closingFee?.(now)?.fee > 0
+      (p) => p?.calulateClosingFee?.(now)?.fee > 0
     )
     return [displayPositions, hasClosingFee]
   }, [positions, tradeType, swapPendingTxs])
-
+  const isShowAllPosition = useMemo(() => settings.minPositionValueUSD === 0, [settings.minPositionValueUSD])
+  const [isBatchTransferModalVisible, setBatchTransferModalVisible] = useState<boolean>(false)
   const showSize = tradeType !== TRADE_TYPE.LIQUIDITY
-
   return (
     <div className='positions-box'>
+      {isBatchTransferModalVisible &&
+        <BatchTransferModal
+          visible={isBatchTransferModalVisible}
+          setVisible={setBatchTransferModalVisible}
+          selections={selections}
+        />
+      }
       {isPhone ? (
         <div className='positions-list'>
           {displayPositions.map((position, key: number) => {
@@ -312,9 +345,9 @@ export const Positions = ({
                     onClick={(e) => {
                       setSharedPosition(position)
                       e.stopPropagation()
-                    }
-                    }>
-                    <SharedIcon/>
+                    }}
+                  >
+                    <SharedIcon />
                   </ButtonSell>
                 </InfoRow>
                 {!settings.showBalance || (
@@ -324,13 +357,13 @@ export const Positions = ({
                       {formatWeiToDisplayNumber(
                         position.balance,
                         4,
-                        tokens[position.token].decimal
+                        tokens[position.token].decimals
                       )}
                     </Text>
                   </InfoRow>
                 )}
 
-                {!position.entryPrice || (
+                {Number?.(position?.entryPrice) > 0 ? (
                   <InfoRow>
                     <TextGrey>Entry Price</TextGrey>
                     <EntryPrice
@@ -339,27 +372,29 @@ export const Positions = ({
                       isPhone
                     />
                   </InfoRow>
+                ) : (
+                  ''
                 )}
 
                 <InfoRow>
                   <TextGrey>
                     Net Value
                     <Text
-                        className='text-link'
-                        onClick={() => {
-                          setValueInUsdStatus(
-                            valueInUsdStatus === VALUE_IN_USD_STATUS.USD
-                              ? VALUE_IN_USD_STATUS.TOKEN_R
-                              : VALUE_IN_USD_STATUS.USD
-                          )
-                        }}
-                      >
-                        {valueInUsdStatus === VALUE_IN_USD_STATUS.USD
-                          ? ` ⇄ ${
-                              tokens[wrapToNativeAddress(position.pool.TOKEN_R)]
-                                ?.symbol
-                            }`
-                          : ' ⇄ USD'}
+                      className='text-link'
+                      onClick={() => {
+                        setValueInUsdStatus(
+                          valueInUsdStatus === VALUE_IN_USD_STATUS.USD
+                            ? VALUE_IN_USD_STATUS.TOKEN_R
+                            : VALUE_IN_USD_STATUS.USD
+                        )
+                      }}
+                    >
+                      {valueInUsdStatus === VALUE_IN_USD_STATUS.USD
+                        ? ` ⇄ ${
+                            tokens[wrapToNativeAddress(position.pool.TOKEN_R)]
+                              ?.symbol
+                          }`
+                        : ' ⇄ USD'}
                     </Text>
                   </TextGrey>
                   <NetValue
@@ -369,58 +404,64 @@ export const Positions = ({
                     isPhone
                   />
                 </InfoRow>
+                {Number(position.entryPrice) > 0 ? (
+                  position.valueRCompound ? (
+                    <React.Fragment>
+                      <InfoRow>
+                        <TextGrey>PnL</TextGrey>
+                        <LinearPnL
+                          valueInUsdStatus={valueInUsdStatus}
+                          position={position}
+                          loading={position.status === POSITION_STATUS.OPENING}
+                          isPhone
+                        />
+                      </InfoRow>
+                      <InfoRow>
+                        <TextGrey>Compound</TextGrey>
+                        <CompoundPnL
+                          valueInUsdStatus={valueInUsdStatus}
+                          position={position}
+                          loading={position.status === POSITION_STATUS.OPENING}
+                          isPhone
+                        />
+                      </InfoRow>
+                      <InfoRow>
+                        <TextGrey>Funding</TextGrey>
+                        <Funding
+                          valueInUsdStatus={valueInUsdStatus}
+                          position={position}
+                          loading={position.status === POSITION_STATUS.OPENING}
+                          isPhone
+                        />
+                      </InfoRow>
+                    </React.Fragment>
+                  ) : (
+                    <React.Fragment>
+                      <InfoRow>
+                        <TextGrey>PnL</TextGrey>
+                        <PnL
+                          valueInUsdStatus={valueInUsdStatus}
+                          position={position}
+                          loading={position.status === POSITION_STATUS.OPENING}
+                          isPhone
+                        />
+                      </InfoRow>
+                    </React.Fragment>
+                  )
+                ) : (
+                  ''
+                )}
 
-                {!!position.valueRCompound ? <React.Fragment>
+                {!position.funding || (
                   <InfoRow>
-                    <TextGrey>PnL</TextGrey>
-                    <LinearPnL
-                      valueInUsdStatus={valueInUsdStatus}
-                      position={position}
-                      loading={position.status === POSITION_STATUS.OPENING}
-                      isPhone
-                    />
+                    <TextGrey>
+                      {position.side === POOL_IDS.C
+                        ? 'Funding Yield'
+                        : 'Funding Rate'}
+                    </TextGrey>
+                    <FundingRate position={position} />
                   </InfoRow>
-                  <InfoRow>
-                    <TextGrey>Compound</TextGrey>
-                    <CompoundPnL
-                      valueInUsdStatus={valueInUsdStatus}
-                      position={position}
-                      loading={position.status === POSITION_STATUS.OPENING}
-                      isPhone
-                    />
-                  </InfoRow>
-                  <InfoRow>
-                    <TextGrey>Funding</TextGrey>
-                    <Funding
-                      valueInUsdStatus={valueInUsdStatus}
-                      position={position}
-                      loading={position.status === POSITION_STATUS.OPENING}
-                      isPhone
-                    />
-                  </InfoRow>
-                </React.Fragment> : <React.Fragment>
-                  <InfoRow>
-                    <TextGrey>PnL</TextGrey>
-                    <PnL
-                      valueInUsdStatus={valueInUsdStatus}
-                      position={position}
-                      loading={position.status === POSITION_STATUS.OPENING}
-                      isPhone
-                    />
-                  </InfoRow>
-                </React.Fragment>
-                }
-
-                {!position.funding ||
-                <InfoRow>
-                  <TextGrey>
-                    {position.side === POOL_IDS.C
-                      ? 'Funding Yield'
-                      : 'Funding Rate'}
-                  </TextGrey>
-                  <FundingRate position={position} />
-                </InfoRow>
-                }
+                )}
 
                 {!showSize || !position.sizeDisplay || (
                   <InfoRow>
@@ -433,7 +474,7 @@ export const Positions = ({
                   <DeleveragePrice position={position} isPhone />
                 </InfoRow>
 
-                {!position?.closingFee?.(now)?.fee || (
+                {!position?.calulateClosingFee?.(now)?.fee || (
                   <InfoRow>
                     <TextGrey>Closing Fee</TextGrey>
                     <ClosingFee
@@ -453,11 +494,17 @@ export const Positions = ({
                 </InfoRow> */}
 
                 <InfoRow>
-                  {position.status === POSITION_STATUS.OPENING
-                    ? <ButtonSell className='btn-close' size='small' style={{ opacity: 0.5 }} disabled>
+                  {position.status === POSITION_STATUS.OPENING ? (
+                    <ButtonSell
+                      className='btn-close'
+                      size='small'
+                      style={{ opacity: 0.5 }}
+                      disabled
+                    >
                       Pending...
                     </ButtonSell>
-                    : <ButtonSell
+                  ) : (
+                    <ButtonSell
                       className='btn-close'
                       size='small'
                       onClick={() => {
@@ -470,7 +517,7 @@ export const Positions = ({
                     >
                       {position.side === POOL_IDS.C ? 'Remove' : 'Close'}
                     </ButtonSell>
-                  }
+                  )}
                 </InfoRow>
               </div>
             )
@@ -509,6 +556,17 @@ export const Positions = ({
               {showSize && <th>Size</th>}
               <th>Delev. Price</th>
               {!hasClosingFee || <th>Closing Fee</th>}
+              {isShowAllPosition && <th style={{ textAlign: 'right' }}>
+                <ButtonSell
+                  size='small'
+                  disabled={Object.keys(selections).length == 0}
+                  onClick={(e) => {
+                    setBatchTransferModalVisible(!isBatchTransferModalVisible)
+                  }}
+                >
+                  Transfer
+                </ButtonSell>
+              </th>}
               {/* <th>Reserve</th> */}
               {/* <th>Pool</th> */}
               <th />
@@ -522,16 +580,18 @@ export const Positions = ({
                   onClick={() => {
                     const pool = pools[position.poolAddress]
                     if (pool?.ORACLE?.length) {
-                      updateCurrentPoolGroup(oracleToPoolGroupId(pool.ORACLE))
+                      updateCurrentPoolGroup(poolToIndexID(pool))
                     }
                     if (tradeType === TRADE_TYPE.SWAP) {
                       setOutputTokenAddressToBuy(position.token)
                     } else {
                       const { address } = decodeErc1155Address(position.token)
                       const side =
-                      tradeType === TRADE_TYPE.LONG ? POOL_IDS.A
-                        : tradeType === TRADE_TYPE.SHORT ? POOL_IDS.B
-                          : POOL_IDS.C
+                        tradeType === TRADE_TYPE.LONG
+                          ? POOL_IDS.A
+                          : tradeType === TRADE_TYPE.SHORT
+                            ? POOL_IDS.B
+                            : POOL_IDS.C
                       setCurrentPoolAddress(address)
                       setOutputTokenAddressToBuy(
                         encodeErc1155Address(address, side)
@@ -550,17 +610,23 @@ export const Positions = ({
                           : formatWeiToDisplayNumber(
                             position.balance,
                             4,
-                            tokens[position.token].decimal
+                            tokens[position.token].decimals
                           )
                       }
                     />
                   </td>
                   <td>
-                    <SkeletonLoader loading={position.status === POSITION_STATUS.OPENING}>
-                      {!position.entryPrice || <EntryPrice
-                        position={position}
-                        loading={position.status === POSITION_STATUS.OPENING}
-                      />}
+                    <SkeletonLoader
+                      loading={position.status === POSITION_STATUS.OPENING}
+                    >
+                      {Number?.(position?.entryPrice) > 0 ? (
+                        <EntryPrice
+                          position={position}
+                          loading={position.status === POSITION_STATUS.OPENING}
+                        />
+                      ) : (
+                        ''
+                      )}
                     </SkeletonLoader>
                   </td>
                   <td>
@@ -570,29 +636,38 @@ export const Positions = ({
                         valueInUsdStatus={valueInUsdStatus}
                         loading={position.status === POSITION_STATUS.OPENING}
                       />
-                      {position.valueRCompound
-                      ? <CompoundPnL
-                          loading={position.status === POSITION_STATUS.OPENING}
-                          valueInUsdStatus={valueInUsdStatus}
-                          position={position}
-                        />
-                      : <PnL
-                          loading={position.status === POSITION_STATUS.OPENING}
-                          valueInUsdStatus={valueInUsdStatus}
-                          position={position}
-                        />
-                      }
+                      {Number?.(position.entryPrice) > 0 ? (
+                        position.valueRCompound ? (
+                          <CompoundPnL
+                            loading={
+                              position.status === POSITION_STATUS.OPENING
+                            }
+                            valueInUsdStatus={valueInUsdStatus}
+                            position={position}
+                          />
+                        ) : (
+                          <PnL
+                            loading={
+                              position.status === POSITION_STATUS.OPENING
+                            }
+                            valueInUsdStatus={valueInUsdStatus}
+                            position={position}
+                          />
+                        )
+                      ) : (
+                        ''
+                      )}
                     </div>
                   </td>
                   <td>
                     <FundingRate position={position} />
-                    {!position.valueRCompound ||
+                    {!position.valueRCompound || (
                       <Funding
                         valueInUsdStatus={valueInUsdStatus}
                         position={position}
                         loading={position.status === POSITION_STATUS.OPENING}
                       />
-                    }
+                    )}
                   </td>
                   {!showSize || (
                     <td>
@@ -611,42 +686,71 @@ export const Positions = ({
                   {/* <td><Reserve pool={position.pool}/></td> */}
                   {/* <td><ExplorerLink poolAddress={position.poolAddress}/></td> */}
                   <td className='text-right'>
-                    <ButtonSell
-                      size='small'
-                      className='share-position'
-                      style={{ border: 'none' }}
-                      onClick={(e) => {
-                        setSharedPosition(position)
-                        e.stopPropagation()
-                      }
-                      }>
-                      <SharedIcon/>
-                    </ButtonSell>
-                    {position.status === POSITION_STATUS.OPENING ? (
-                      <ButtonSell disabled size='small' style={{ opacity: 0.5 }}>
-                        Pending
-                      </ButtonSell>
-                    ) : position.status === POSITION_STATUS.CLOSING ? (
+                    {isShowAllPosition ?
                       <ButtonSell
+                        className='share-position'
                         size='small'
-                        disabled
-                        style={{ opacity: 0.5 }}
-                      >
-                        <SkeletonLoader textLoading={position.side === POOL_IDS.C ? 'Removing' : 'Closing'} loading={position.status === POSITION_STATUS.CLOSING} />
-                      </ButtonSell>
-                    ) : (
-                      <ButtonSell
-                        size='small'
-                        onClick={(e) => {
-                          setClosingPosition(position)
-                          setOutputTokenAddress(wrapToNativeAddress(position.pool.TOKEN_R))
-                          setVisible(true)
-                          e.stopPropagation() // stop the index from being changed
+                        style={{ border: 'none' }}>
+                        <Checkbox onChange={() => {
+                          const id = `${position.poolAddress}-${position.side}`
+                          const ss = {...selections}
+                          if (!ss[id]) {
+                            ss[id] = position
+                          } else {
+                            delete ss[id]
+                          }
+                          setSelections(ss)
                         }}
-                      >
-                        {position.side === POOL_IDS.C ? 'Remove' : 'Close'}
-                      </ButtonSell>
-                    )}
+                      /></ButtonSell>
+                    : <ButtonSell
+                        size='small'
+                        className='share-position'
+                        style={{ border: 'none' }}
+                        onClick={(e) => {
+                          setSharedPosition(position)
+                          e.stopPropagation()
+                        }}
+                      ><SharedIcon /></ButtonSell>
+                    }
+                    {(position.status === POSITION_STATUS.OPENING ? (
+                        <ButtonSell
+                          disabled
+                          size='small'
+                          style={{ opacity: 0.5 }}
+                        >
+                        Pending
+                        </ButtonSell>
+                      ) : position.status === POSITION_STATUS.CLOSING ? (
+                        <ButtonSell
+                          size='small'
+                          disabled
+                          style={{ opacity: 0.5 }}
+                        >
+                          <SkeletonLoader
+                            textLoading={
+                              position.side === POOL_IDS.C
+                                ? 'Removing'
+                                : 'Closing'
+                            }
+                            loading={position.status === POSITION_STATUS.CLOSING}
+                          />
+                        </ButtonSell>
+                      ) : (
+                        <ButtonSell
+                          size='small'
+                          onClick={(e) => {
+                            setClosingPosition(position)
+                            setOutputTokenAddress(
+                              wrapToNativeAddress(position.pool.TOKEN_R)
+                            )
+                            setVisible(true)
+                            e.stopPropagation() // stop the index from being changed
+                          }}
+                        >
+                          {position.side === POOL_IDS.C ? 'Remove' : 'Close'}
+                        </ButtonSell>
+                      ))
+                    }
                   </td>
                 </tr>
               )
@@ -654,11 +758,17 @@ export const Positions = ({
           </tbody>
         </table>
       )}
-      {sharedPosition != null ? <SharedPosition
-        visible={sharedPosition != null}
-        setVisible={() => {setSharedPosition(undefined)}}
-        position={sharedPosition}
-      /> : ''}
+      {sharedPosition != null && Number?.(sharedPosition.entryPrice) > 0 ? (
+        <SharedPosition
+          visible={sharedPosition != null}
+          setVisible={() => {
+            setSharedPosition(undefined)
+          }}
+          position={sharedPosition}
+        />
+      ) : (
+        ''
+      )}
       {visible && closingPosition != null ? (
         <ClosePosition
           visible={visible}
@@ -744,7 +854,7 @@ export const NetValue = ({
   const [from, to] = isShowValueInUsd(valueInUsdStatus, pool)
     ? [entryValueU, valueU]
     : [entryValueR, valueR]
-  
+
   const fromCurrency = isShowValueInUsd(valueInUsdStatus, pool)
     ? <TextGrey>$</TextGrey>
     : <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex'/>
@@ -921,7 +1031,7 @@ export const PnL = ({
   if (maxValue == 0) {
     return <React.Fragment/>
   }
-  const rate = formatPercent(div(valueChange, maxValue), undefined, true)
+  const rate = formatPercent(div(valueChange, NUM(entryValue ?? 0) || NUM(value ?? 0)), undefined, true)
   const rateDisplay = (rate >= 0 ? '+' : '') + STR(rate)
   const TextComp = rate >= 0 ? TextBuy : TextSell
   if (isPhone) {
@@ -1001,7 +1111,7 @@ export const Funding = ({
 
 export const DeleveragePrice = ({
   position,
-  isPhone,
+  isPhone
 }: {
   position: {
     dgA: number
@@ -1024,7 +1134,7 @@ export const DeleveragePrice = ({
       return `(×${formatFloat(rate, undefined, 2, true)})`
     }
     if (rate <= 0.5) {
-      return `(1/${formatFloat(1/rate, undefined, 2, true)})`
+      return `(1/${formatFloat(1 / rate, undefined, 2, true)})`
     }
     const delta = formatFloat(mdp(div(sub(dg, currentPrice), currentPrice), 2), undefined, 3, true)
     return `(${delta >= 0 ? '+' : ''}${delta}%)`
@@ -1032,14 +1142,14 @@ export const DeleveragePrice = ({
 
   const TextComp =
     effectiveLeverage < leverage / 2 ? TextSell
-    : effectiveLeverage < leverage ? TextWarning
-    : TextGrey
+      : effectiveLeverage < leverage ? TextWarning
+        : TextGrey
 
   if (isPhone) {
     return side === POOL_IDS.A
       ? <TextComp>{deltas[0]} {zerofy(dgA)}</TextComp>
       : side === POOL_IDS.B ? <TextComp>{deltas[1]} {zerofy(dgB)}</TextComp>
-      : <TextComp>{zerofy(dgB)}-{zerofy(dgA)}</TextComp>
+        : <TextComp>{zerofy(dgB)}-{zerofy(dgA)}</TextComp>
   }
 
   return side === POOL_IDS.A
@@ -1051,14 +1161,14 @@ export const DeleveragePrice = ({
       <div><TextComp>{zerofy(dgB)}</TextComp></div>
       <TextComp>{deltas[1]}</TextComp>
     </React.Fragment>
-    : <React.Fragment>
-      <div><TextComp>{zerofy(dgA)}</TextComp></div>
-      <TextComp>{zerofy(dgB)}</TextComp>
-    </React.Fragment>
+      : <React.Fragment>
+        <div><TextComp>{zerofy(dgA)}</TextComp></div>
+        <TextComp>{zerofy(dgB)}</TextComp>
+      </React.Fragment>
 }
 
 export const FundingRate = ({
-  position,
+  position
 }: {
   position: Position
 }) => {
@@ -1066,7 +1176,7 @@ export const FundingRate = ({
   const TextComp = funding < 0 || side === POOL_IDS.C ? TextGreen : TextWarning
   const fundingFormat = zerofy(formatFloat(funding * 100, undefined, 3, true))
   if (fundingFormat == '0') {
-    return <React.Fragment></React.Fragment>
+    return <React.Fragment />
   }
   return <TextComp>
     {fundingFormat}%
@@ -1087,18 +1197,17 @@ export const Size = ({
   }
   if (!isPhone) {
     return <SkeletonLoader loading={status === POSITION_STATUS.OPENING}>
-      {effectiveLeverage < leverage / 2 ?
-        <TextError>{sizeDisplay}
-        <div><TextGrey>({leverage}x)</TextGrey></div>
+      {effectiveLeverage < leverage / 2
+        ? <TextError>{sizeDisplay}
+          <div><TextGrey>({leverage}x)</TextGrey></div>
         </TextError>
-      : effectiveLeverage < leverage ?
-        <TextWarning>{sizeDisplay}
-        <div><TextGrey>({leverage}x)</TextGrey></div>
-        </TextWarning>
-      :
-        <TextGrey>{sizeDisplay}
-        <div><TextGrey>({leverage}x)</TextGrey></div>
-        </TextGrey>
+        : effectiveLeverage < leverage
+          ? <TextWarning>{sizeDisplay}
+            <div><TextGrey>({leverage}x)</TextGrey></div>
+          </TextWarning>
+          : <TextGrey>{sizeDisplay}
+            <div><TextGrey>({leverage}x)</TextGrey></div>
+          </TextGrey>
       }
     </SkeletonLoader>
   }
@@ -1128,8 +1237,8 @@ export const ClosingFee = ({
   position: Position
   isPhone?: boolean
 }) => {
-  if (!position?.closingFee?.()) return <React.Fragment />
-  const res: any = position.closingFee(now)
+  if (!position?.calulateClosingFee?.()) return <React.Fragment />
+  const res: any = position.calulateClosingFee(now)
 
   if (!res?.fee) {
     return <React.Fragment />

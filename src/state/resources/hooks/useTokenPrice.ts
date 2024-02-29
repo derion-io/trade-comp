@@ -1,13 +1,12 @@
-import { useDispatch, useSelector } from 'react-redux'
-import { State } from '../../types'
-import { useListTokens } from '../../token/hook'
-import { useEffect } from 'react'
-import { addTokenPriceWithChain } from '../reducer'
-import { useConfigs } from '../../config/useConfigs'
 import { isAddress } from 'ethers/lib/utils'
-import { NATIVE_ADDRESS } from '../../../utils/constant'
 import _ from 'lodash'
-import { bn } from '../../../utils/helpers'
+import { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { NATIVE_ADDRESS } from '../../../utils/constant'
+import { useConfigs } from '../../config/useConfigs'
+import { useListTokens } from '../../token/hook'
+import { State } from '../../types'
+import { addTokenPriceWithChain } from '../reducer'
 
 export const useTokenPrice = () => {
   const { chainId } = useConfigs()

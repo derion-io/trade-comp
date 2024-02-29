@@ -2,7 +2,7 @@ import { useDispatch } from 'react-redux'
 import { useEffect, useMemo } from 'react'
 import { seNetworkConfigs, setConfigs } from './reducer'
 import { addTokensReduce } from '../token/reducer'
-import { Engine } from 'derivable-tools/dist/engine'
+import { Engine } from 'derivable-engine/dist/engine'
 import {
   DEFAULT_CHAIN,
   NATIVE_ADDRESS,
@@ -79,7 +79,7 @@ export const useInitConfig = ({
             {
               name: engine.profile.configs.nativeSymbol,
               symbol: engine.profile.configs.nativeSymbol,
-              decimal: 18,
+              decimals: 18,
               address: NATIVE_ADDRESS
             }
           ],

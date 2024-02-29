@@ -14,6 +14,18 @@ export const tokens = createSlice({
       localStorage.setItem('slippage', action.payload.slippageTolerance)
       state.slippageTolerance = action.payload.slippageTolerance
     },
+    setMinPositionValueUSDReduce: (
+      state,
+      action: PayloadAction<{
+        minPositionValueUSD: number
+      }>
+    ) => {
+      localStorage.setItem(
+        'minPositionValueUSD',
+        String(action.payload.minPositionValueUSD)
+      )
+      state.minPositionValueUSD = action.payload.minPositionValueUSD
+    },
     setMaxInterestRateReduce: (
       state,
       action: PayloadAction<{
@@ -94,6 +106,7 @@ export const {
   setSlippageReduce,
   setDeleverageChanceReduce,
   setMaxInterestRateReduce,
+  setMinPositionValueUSDReduce,
   setMinLiquidityReduce,
   setSortPoolBuyReduce,
   setShowBalanceReduce,

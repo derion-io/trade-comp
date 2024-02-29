@@ -15,9 +15,7 @@
         display: flex;
         align-items: center;
         cursor: pointer;
-        & > *:not(:last-child) {
-          margin-right: 0.75rem;
-        }
+        gap: 0.5rem;
       }
 
       &--balance {
@@ -25,6 +23,10 @@
         cursor: pointer;
       }
     }
+  }
+  .icon-arrow-down-wrap{
+    display: flex;
+    justify-content: space-between;
   }
 
   .estimate-box {
@@ -35,6 +37,24 @@
       position: absolute;
       border: 1px solid;
       left: 3rem;
+      transform: translateY(calc(-70% - 1.5rem));
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      background: $color-card-bg;
+      &.long {
+        border-color: $color-buy;
+      }
+      &.short {
+        border-color: $color-sell;
+      }
+      &.liquidity {
+        border-color: $color-blue;
+      }
+    }
+    &__loading {
+      position: absolute;
+      border: 1px solid;
+      right: 3rem;
       transform: translateY(calc(-70% - 1.5rem));
       padding: 0.5rem;
       border-radius: 0.5rem;
@@ -154,4 +174,9 @@
   .deleverage-checkbox {
     margin-left: 125px;
   }
+}
+
+.show-all-pool-text {
+  margin-top: 2.5rem;
+  border-bottom: 1px dashed ;
 }

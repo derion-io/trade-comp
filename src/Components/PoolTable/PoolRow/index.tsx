@@ -84,7 +84,7 @@ const Component = ({ pool, id }: { pool: PoolType; id: string }) => {
               return (
                 <div key={key}>
                   <Text>
-                    {IEW(balances[dToken], tokens[dToken]?.decimal || 18, 4)}{' '}
+                    {IEW(balances[dToken], tokens[dToken]?.decimals || 18, 4)}{' '}
                   </Text>
                   <SymBolText>
                     <TokenSymbol token={dToken} />
@@ -96,7 +96,7 @@ const Component = ({ pool, id }: { pool: PoolType; id: string }) => {
           })}
         </td>
         <td className='text-left'>
-          {/* TODO: display as decimal and symbol of quote Token */}
+          {/* TODO: display as decimals and symbol of quote Token */}
           <TdText>{IEW(value, 18, 4)} BUSD</TdText>
         </td>
         <td className='text-left'>

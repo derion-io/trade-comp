@@ -1,4 +1,4 @@
-import historyProvider, { CandleType } from 'derivable-tools/dist/historyProvider'
+import historyProvider, { CandleType } from 'derivable-engine/dist/historyProvider'
 import { LASTEST_BLOCK_NUMBER, NATIVE_ADDRESS, POOL_IDS } from '../../utils/constant'
 import { store } from '../../state'
 import {
@@ -82,7 +82,7 @@ const handleChartRouteOption = (currencyId: string, baseAddress: string, cAddres
 }
 
 function removeChartAnomaly(bars: any): any {
-  const maxAntenaRatio = 8
+  const maxAntenaRatio = 2
   for (const bar of bars) {
     const { open, close, low, high } = bar
     const [ top, bottom ] = close > open ? [close, open] : [open, close]
@@ -139,7 +139,7 @@ export const Datafeed = {
     // const quoteTokenSymbol = token0?.address === state.currentPool.quoteToken ? token0.symbol : token1?.symbol
     const isQuoteStableCoin = state.configs.configs.stablecoins?.some(stable => stable === state.currentPool.quoteToken)
     console.log('======resolveSymbol running====')
-    const [, , , name, , priceScale] = symbolInfo.split('-')
+    const [, , , name, , priceScale] = symbolInfo.split('_')
     const symbolStub = {
       name: name,
       full_name: name,
@@ -172,7 +172,9 @@ export const Datafeed = {
 
     const state = store.getState()
     const ticker = symbolInfo.ticker
-    const [baseAddress, cAddress, quoteAddress, , chainId] = ticker.split('-')
+    // 0x539bdE0d7Dbd336b79148AA742883198BBF60342-0x59D72DDB29Da32847A4665d08ffc8464A7185FAE-1-0x82aF49447D8a07e3bd95BD0d56f35241523fBab1-0x82aF49447D8a07e3bd95BD0d56f35241523fBab1-MAGIC/ETH-42161-7
+    const [baseAddress, cAddress, quoteAddress, , chainId] = ticker.split('_')
+
     const tokens = state.tokens.tokens[chainId]
     const { route, quoteAddressSelect, isPriceByIndexR } = handleChartRouteOption(symbolInfo?.currency_id, baseAddress, cAddress, quoteAddress)
     const limit = calcLimitCandle(periodParams.from, periodParams.to, resolution)
@@ -206,6 +208,7 @@ export const Datafeed = {
       })
       .catch((err: any) => {
         onErrorCallback(err)
+        store.dispatch(setChartIsOutDate({ status: true }))
       })
   },
 
@@ -221,7 +224,8 @@ export const Datafeed = {
     this.subscribeBarsInterval[subscriberUID] = setInterval(() => {
       const state = store.getState()
       const ticker = symbolInfo.ticker
-      const [baseAddress, cAddress, quoteAddress, , chainId] = ticker.split('-')
+      // 0x539bdE0d7Dbd336b79148AA742883198BBF60342-0x59D72DDB29Da32847A4665d08ffc8464A7185FAE-1-0x82aF49447D8a07e3bd95BD0d56f35241523fBab1-0x82aF49447D8a07e3bd95BD0d56f35241523fBab1-MAGIC/ETH-42161-7
+      const [baseAddress, cAddress, quoteAddress, , chainId] = ticker.split('_')
       const tokens = state.tokens.tokens[chainId]
       const { route, quoteAddressSelect } = handleChartRouteOption(symbolInfo?.currency_id, baseAddress, cAddress, quoteAddress)
       historyProvider
@@ -253,13 +257,13 @@ export const Datafeed = {
 
               this.lastCandle[baseAddress + '-' + quoteAddress + '-' + resolution] = { ...candle }
             }
-
             detectChartIsOutdate(data, resolution)
             onRealtimeCallback(candle)
           }
         })
         .catch((e) => {
           console.error(e)
+          store.dispatch(setChartIsOutDate({ status: true }))
         })
     }, TIME_TO_UPDATE_CHART)
   },
@@ -358,7 +362,7 @@ const detectMarkInfo = (
       `
       ${labelContent.text} ${getMarkPosition(token1, tokens) ?? tokens[token1]?.symbol ?? 'unknown'} \n
       ${labelContent.arrow}
-      ${formatWeiToDisplayNumber(amount2, 4, tokens[token2]?.decimal || 18)}\n
+      ${formatWeiToDisplayNumber(amount2, 4, tokens[token2]?.decimals || 18)}\n
       ${getMarkPosition(token2, tokens) ?? tokens[token2]?.symbol ?? 'unknown'} \n`
     ]
   } else {
@@ -367,7 +371,7 @@ const detectMarkInfo = (
     result.text = `
       ${labelContent.text} ${getMarkPosition(token1, tokens) ?? tokens[token1]?.symbol ?? 'unknown'} \n
       ${labelContent.arrow}
-      ${formatWeiToDisplayNumber(amount2, 4, tokens[token2]?.decimal || 18)}\n
+      ${formatWeiToDisplayNumber(amount2, 4, tokens[token2]?.decimals || 18)}\n
       ${getMarkPosition(token2, tokens) ?? tokens[token2]?.symbol ?? 'unknown'} \n`
   }
   result.label = label

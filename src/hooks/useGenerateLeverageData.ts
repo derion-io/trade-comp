@@ -4,10 +4,13 @@ import { useCurrentPoolGroup } from '../state/currentPool/hooks/useCurrentPoolGr
 import { bn, getPoolPower, tradeTypeToId } from '../utils/helpers'
 import { useSettings } from '../state/setting/hooks/useSettings'
 import { SORT_POOL_BY } from '../state/setting/type'
+import { useResource } from '../state/resources/hooks/useResource'
+import { BigNumber } from 'ethers'
 
-export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
+export const useGenerateLeverageData = (tradeType: TRADE_TYPE, showAllPool?:boolean) => {
   // useCurrentPoolGroup since we only show leverage bars for pool of the current index
-  const { pools } = useCurrentPoolGroup()
+  const { id } = useCurrentPoolGroup()
+  const { poolGroups } = useResource()
   const {
     settings: {
       minLiquidityShare,
@@ -26,11 +29,19 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
 
   return useMemo(() => {
     const result = {}
-    if (Object.values(pools).length > 0) {
+    if (!poolGroups[id]) {
+      return {
+        leverageData: [],
+        totalHiddenPools: 0
+      }
+    }
+    const pools = poolGroups[id]?.pools as {[key:string]:any} || {}
+    let totalHiddenPools = 0
+    if (Object.values(pools || {})?.length > 0) {
       const sumR = Object.values(pools).reduce((sumR, pool) => {
         return (sumR = sumR.add(pool.states.R))
       }, bn(0))
-      const minR = sumR
+      const minR = showAllPool ? 0 : sumR
         .mul(Math.round(minLiquidityShare * 1000))
         .div(100 * 1000)
 
@@ -42,20 +53,20 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
               ? pool!.deleverageRiskB
               : Math.max(pool!.deleverageRiskA, pool!.deleverageRiskB)
         deleverageRisk = Math.min(1, deleverageRisk)
+        const poolConditions = (_minR: number | BigNumber) => pool.states.R.lt(_minR) || Number(pool.interestRate) * 99 >
+        maxInterestRate * pool.k.toNumber() ||
+      deleverageRisk * 99 > (maxDeleverageRisk ?? 100)
 
-        if (
-          pool.states.R.lt(minR) ||
-          Number(pool.interestRate) * 99 >
-            maxInterestRate * pool.k.toNumber() ||
-          deleverageRisk * 99 > (maxDeleverageRisk ?? 100)
-        ) {
+        if (poolConditions(sumR
+          .mul(Math.round(minLiquidityShare * 1000))
+          .div(100 * 1000))) totalHiddenPools++
+        if (poolConditions(minR)) {
           return
         }
 
         const opacity = 1 - 0.95 * deleverageRisk
         const power = getPoolPower(pool)
         const size = pool.states.R
-
         if (!result[power]) {
           result[power] = {
             x: power,
@@ -124,10 +135,14 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE) => {
         })
       }
     })
-
-    return data
+    return {
+      leverageData: data,
+      totalHiddenPools,
+    }
   }, [
-    pools,
+    id,
+    showAllPool,
+    poolGroups,
     tradeType,
     minLiquidityShare,
     maxDeleverageRisk,

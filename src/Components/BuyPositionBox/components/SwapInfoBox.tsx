@@ -9,7 +9,7 @@ import Tooltip from '../../Tooltip/Tooltip'
 import { Box } from '../../ui/Box'
 import { InfoRow } from '../../ui/InfoRow'
 import { SkeletonLoader } from '../../ui/SkeletonLoader'
-import { Text, TextGrey } from '../../ui/Text'
+import { Text, TextGrey, TextSell, TextWarning } from '../../ui/Text'
 import { BigNumber } from 'ethers'
 const Q128 = BigNumber.from(1).shl(128)
 type Props = {
@@ -156,6 +156,18 @@ export const SwapInfoBox = ({
 
       <hr />
 
+      {poolToShow?.OPEN_RATE?.gt(0) && !poolToShow.OPEN_RATE.eq(Q128) && (
+        <InfoRow>
+          <TextGrey>Opening Fee</TextGrey>
+          <TextWarning>{
+            formatPercent(
+              Q128.sub(poolToShow.OPEN_RATE).mul(10000).div(Q128).toNumber() / 10000,
+              2,
+              true,
+            )
+          }%</TextWarning>
+        </InfoRow>
+      )}
       {!poolToShow?.MATURITY_VEST?.toNumber() || (
         <InfoRow>
           <TextGrey>Position Vesting</TextGrey>
@@ -171,18 +183,23 @@ export const SwapInfoBox = ({
         <InfoRow>
           <TextGrey>Closing Fee</TextGrey>
           <SkeletonLoader loading={!poolToShow}>
-            {formatPercent(
-              Q128.sub(poolToShow?.MATURITY_RATE)
-                .mul(10000)
-                .div(Q128)
-                .toNumber() / 10000,
-              2,
-              true
-            )}
-              % for{' '}
-            {moment
-              .duration(poolToShow?.MATURITY.toNumber(), 'seconds')
-              .humanize()}
+            <TextWarning>{
+              formatPercent(
+                Q128.sub(poolToShow?.MATURITY_RATE)
+                  .mul(10000)
+                  .div(Q128)
+                  .toNumber() / 10000,
+                2,
+                true
+              )
+            }%</TextWarning>
+            {' for '}
+            {poolToShow?.MATURITY.toNumber() < poolToShow?.MATURITY_VEST.toNumber()
+              ? <TextSell>{
+                moment.duration(poolToShow?.MATURITY.toNumber(), 'seconds').humanize()
+              }</TextSell>
+              : moment.duration(poolToShow?.MATURITY.toNumber(), 'seconds').humanize()
+            }
           </SkeletonLoader>
         </InfoRow>
       )}

@@ -1,3 +1,5 @@
+import { MIN_POSITON_VALUE_USD_TO_DISPLAY } from '../../utils/constant'
+
 function loadJSON(key: string, defaultValue: any): any {
   try {
     const json = localStorage.getItem(key)
@@ -27,6 +29,7 @@ export interface settingsState {
   maxInterestRate: number
   minLiquidityShare: number
   maxDeleverageRisk: number
+  minPositionValueUSD: number
   scanApiKey: { [key: number]: string }
   sortPoolBy: SORT_POOL_BY
   showBalance: boolean
@@ -41,6 +44,7 @@ export const initialState: settingsState = {
   slippageTolerance: Number(
     localStorage.getItem('slippageTolerance') ?? 1 / 100
   ),
+  minPositionValueUSD: MIN_POSITON_VALUE_USD_TO_DISPLAY,
   maxInterestRate: Number(localStorage.getItem('maxInterestRate') ?? 0.1),
   minLiquidityShare: Number(localStorage.getItem('minLiquidityShare') ?? 1),
   maxDeleverageRisk: Number(localStorage.getItem('maxDeleverageRisk') ?? 100),

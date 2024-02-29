@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Modal } from '../ui/Modal'
 import { Box } from '../ui/Box'
 import { useListTokens } from '../../state/token/hook'
@@ -16,8 +16,11 @@ import {
   NUM,
   zerofy,
 } from '../../utils/helpers'
-import { MIN_POSITON_VALUE_USD_TO_DISPLAY, ZERO_ADDRESS } from '../../utils/constant'
+import { ZERO_ADDRESS } from '../../utils/constant'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
+import { CurrencyLogo } from '../ui/CurrencyLogo'
+import { useHelper } from '../../state/config/useHelper'
+import { useSettings } from '../../state/setting/hooks/useSettings'
 
 const Component = ({
   visible,
@@ -32,6 +35,24 @@ const Component = ({
   onSelectToken: any
   displayFee?: boolean
 }) => {
+  const [tokensWithLogo, setTokensWithLogo] = useState<{
+    [address: string]: string
+  }>({})
+  const { getTokenIconUrl } = useHelper()
+
+  useMemo(async () => {
+    const tokensLogo: {
+      [address: string]: string
+    } = {}
+    await Promise.all(
+      tokensToSelect.map(async (address) => {
+        tokensLogo[address] = isErc1155Address(address)
+          ? ''
+          : await getTokenIconUrl(address)
+      })
+    )
+    setTokensWithLogo(tokensLogo)
+  }, [tokensToSelect])
   return (
     <Modal setVisible={setVisible} visible={visible} title='Select Token'>
       <div className='select-token-modal'>
@@ -39,6 +60,7 @@ const Component = ({
           return (
             <Option
               key={key}
+              currencyURI={tokensWithLogo[address] || ''}
               address={address}
               setVisible={setVisible}
               onSelectToken={onSelectToken}
@@ -53,23 +75,25 @@ const Component = ({
 const Option = ({
   onSelectToken,
   address,
-  setVisible
+  setVisible,
+  currencyURI,
 }: {
   setVisible: any
+  currencyURI: string
   address: string
   onSelectToken: any
 }) => {
   const { tokens } = useListTokens()
   const { pools } = useResource()
   const { balances } = useWalletBalance()
-
+  const { settings } = useSettings()
   const { value } = useTokenValue({
     tokenAddress: address,
-    amount: IEW(balances[address], tokens[address]?.decimal || 18)
+    amount: IEW(balances[address], tokens[address]?.decimals || 18)
   })
 
-  if (NUM(value) < MIN_POSITON_VALUE_USD_TO_DISPLAY) {
-    return <React.Fragment/>
+  if (NUM(value) < settings.minPositionValueUSD) {
+    return <React.Fragment />
   }
 
   const [reserve, tokenR] = useMemo(() => {
@@ -81,7 +105,6 @@ const Option = ({
     }
     return ['0', ZERO_ADDRESS]
   }, [])
-
   const { value: price } = useTokenValue({
     tokenAddress: tokenR,
     amount: reserve
@@ -96,14 +119,16 @@ const Option = ({
         setVisible(false)
       }}
     >
-      <TokenIcon size={24} tokenAddress={address} />
+      {!isErc1155Address(address) ? (
+        <CurrencyLogo currencyURI={currencyURI} size={24} />
+      ) : (
+        <TokenIcon tokenAddress={address} size={24} />
+      )}
       <div className='option__name-and-lp'>
         <Text>{symbol}</Text>
         {price && Number(price) > 0 ? (
           <div>
-            <TextGrey>
-              ${zerofy(NUM(price))}
-            </TextGrey>
+            <TextGrey>${zerofy(NUM(price))}</TextGrey>
           </div>
         ) : (
           ''
@@ -112,11 +137,11 @@ const Option = ({
       {balances[address] && balances[address].gt(0) && (
         <div className='option__balance'>
           <Text>
-            {zerofy(NUM(IEW(balances[address], tokens[address]?.decimal ?? 18)))}
+            {zerofy(
+              NUM(IEW(balances[address], tokens[address]?.decimals ?? 18))
+            )}
           </Text>
-          <TextGrey>
-            ${zerofy(NUM(value))}
-          </TextGrey>
+          <TextGrey>${zerofy(NUM(value))}</TextGrey>
         </div>
       )}
     </Box>
