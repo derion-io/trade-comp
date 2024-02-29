@@ -37,7 +37,7 @@ export const STR = (num: number | string | BigNumber, minimumSignificantDigits?:
       }
       return num.toLocaleString(['en-US', 'fullwide'], {
         useGrouping: false,
-        minimumSignificantDigits
+        minimumSignificantDigits,
       })
     default:
       return String(num)
@@ -184,7 +184,7 @@ export const MUL = (a: any, b: any): string => {
   b = STR(b, 4)
   const [aa, da] = remDec(a)
   const [bb, db] = remDec(b)
-  return mdp(STR(BIG(aa).mul(BIG(bb))), -da - db)
+  return mdp(STR(BIG(aa).mul(BIG(bb))), -da-db)
 }
 
 export const pow = (x: any, k: number): string => {
@@ -434,7 +434,7 @@ export const decimalsBySignificantDigits = (
   const decimals =
     num >= 1
       ? significantDigits - countDigits(STR(num))[0]
-      : significantDigits + countDigits(STR(1 / num))[0] - 1
+      : significantDigits + countDigits(STR(1/num))[0] - 1
 
   return Math.max(0, decimals)
 }
@@ -491,13 +491,13 @@ export const precisionize = (value: number, opts?: {
   const maxExtraDigits = opts?.maxExtraDigits ?? 0
   const extraDigits = Math.min(
     maxExtraDigits,
-    value >= 1 ? 2 : value >= 0.1 ? 1 : 0
+    value >= 1 ? 2 : value >= 0.1 ? 1 : 0,
   )
   const minimumSignificantDigits = extraDigits + (opts?.minimumSignificantDigits ?? 1)
   const maximumSignificantDigits = extraDigits + (opts?.maximumSignificantDigits ?? 4)
   const stringOpts = {
     minimumSignificantDigits,
-    maximumSignificantDigits
+    maximumSignificantDigits,
   }
   return value.toLocaleString(['en-US', 'fullwide'], stringOpts)
 }
@@ -600,7 +600,7 @@ export const calcPoolSide = (
   pool: any,
   side: number,
   tokens: ListTokensType = {},
-  currentPrice?: string | number
+  currentPrice?: string | number,
 ): any => {
   const {
     states: { a, b, R },
@@ -622,13 +622,14 @@ export const calcPoolSide = (
 
   const mark = !MARK ? 1 : NUM(DIV(
     MARK.mul(decimalsOffset > 0 ? bn(10).pow(decimalsOffset) : 1),
-    Q128.mul(decimalsOffset < 0 ? bn(10).pow(-decimalsOffset) : 1)
-  )) ** exp
+    Q128.mul(decimalsOffset < 0 ? bn(10).pow(-decimalsOffset) : 1),
+  ))**exp
 
   const xA = xr(k, R.shr(1), a)
   const xB = xr(-k, R.shr(1), b)
-  const dgA = xA ** exp * mark
-  const dgB = xB ** exp * mark
+  const dgA = xA**exp * mark
+  const dgB = xB**exp * mark
+
 
   const interest = sides[side].interest
   const premium = sides[side].premium
@@ -643,7 +644,7 @@ export const calcPoolSide = (
     dgB,
     interest,
     premium,
-    funding
+    funding,
   }
 }
 

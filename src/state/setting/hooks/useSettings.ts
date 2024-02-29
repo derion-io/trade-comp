@@ -8,7 +8,7 @@ import {
   setSortPoolBuyReduce,
   setShowBalanceReduce,
   setShowValueInUsdReduce,
-  setMinPositionValueUSDReduce
+  setMinPositionValueUSDReduce,
 } from '../reducer'
 import { State } from '../../types'
 import { useConfigs } from '../../config/useConfigs'

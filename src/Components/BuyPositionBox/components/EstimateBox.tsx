@@ -94,7 +94,6 @@ export const EstimateBox = ({
         ).toLowerCase()}`}
       >
         <TokenSymbol token={outputTokenAddress} />
-
       </span>
       {isLoadingIndex ? <span
         className={`estimate-box__loading ${getTitleBuyTradeType(

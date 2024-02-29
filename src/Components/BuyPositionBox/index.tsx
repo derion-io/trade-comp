@@ -25,7 +25,7 @@ import {
   formatFloat,
   getPoolPower,
   isErc1155Address,
-  zerofy
+  zerofy,
 } from '../../utils/helpers'
 import { ApproveUtrModal } from '../ApproveUtrModal'
 import { ButtonSwap } from '../ButtonSwap'
@@ -42,9 +42,6 @@ import { EstimateBox } from './components/EstimateBox'
 import { SwapInfoBox } from './components/SwapInfoBox'
 import { DeleveragePrice } from '../Positions'
 import './style.scss'
-import { PoolSearch } from '../../utils/type'
-import { CurrentPool } from 'derivable-engine/dist/services/currentPool'
-import { Spinner } from 'reactstrap'
 import { Spin } from 'antd'
 
 const Component = ({
@@ -71,8 +68,8 @@ const Component = ({
   tokenOutMaturity: BigNumber
 }) => {
   const [barData, setBarData] = useState<any>({})
-  const { configs, routes, ddlEngine } = useConfigs()
-  const { id, currentPoolAddress, chartTab, setChartTab, setTradeType } =
+  const { configs, routes } = useConfigs()
+  const { id, chartTab, setChartTab, setTradeType } =
     useCurrentPoolGroup()
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] =
     useState<boolean>(false)
@@ -84,7 +81,7 @@ const Component = ({
   const { setCurrentPoolAddress, setDr } = useCurrentPool()
   const { convertTokenValue } = useTokenValue({})
   const { leverageData, totalHiddenPools } = useGenerateLeverageData(tradeType, showAllPool)
-  const { pools, poolGroups, addNewResource } = useResource()
+  const { pools } = useResource()
   useEffect(() => {
     if (
       tradeType === TRADE_TYPE.LIQUIDITY &&
@@ -235,7 +232,7 @@ const Component = ({
       leverage,
       effectiveLeverage,
       dgA,
-      dgB
+      dgB,
     } = calcPoolSide(poolToShow, sideToShow, tokens)
 
     if (sideToShow != POOL_IDS.C && effectiveLeverage < leverage) {
@@ -255,7 +252,7 @@ const Component = ({
           leverage,
           effectiveLeverage,
           dgA,
-          dgB
+          dgB,
         }}
         isPhone
       />
@@ -377,9 +374,7 @@ const Component = ({
           <span >
             <IconArrowDown fill='#01A7FA' />
           </span>
-
         </div>
-
       )}
 
       <EstimateBox

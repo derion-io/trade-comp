@@ -13,7 +13,7 @@ import {
   detectTradeTab,
   formatFloat,
   unwrap,
-  zerofy
+  zerofy,
 } from '../../utils/helpers'
 import { PoolSearch } from '../../utils/type'
 import { CandleChart } from '../CandleChart'
@@ -33,7 +33,7 @@ const Component = ({
   inputTokenAddress,
   outputTokenAddress,
   setInputTokenAddress,
-  setOutputTokenAddress
+  setOutputTokenAddress,
 }: {
   changedIn24h: number
   inputTokenAddress: string

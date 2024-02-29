@@ -10,10 +10,6 @@ import { useConfigs } from '../../state/config/useConfigs'
 import { SORT_POOL_BY } from '../../state/setting/type'
 import { ToggleSwitch } from '../ui/ToggleSwitch'
 import { formatPercent } from '../../utils/helpers'
-import {
-  setMinLiquidityReduce,
-  setMinPositionValueUSDReduce
-} from '../../state/setting/reducer'
 import { MIN_POSITON_VALUE_USD_TO_DISPLAY } from '../../utils/constant'
 
 const Component = ({
@@ -31,7 +27,7 @@ const Component = ({
     setMinLiquidityShare,
     setScanApi,
     setShowBalance,
-    setMinPositionValueUSD
+    setMinPositionValueUSD,
   } = useSettings()
   const { chainId } = useConfigs()
   const [visibleAdvance, setVisibleAdvance] = useState<Boolean>(false)

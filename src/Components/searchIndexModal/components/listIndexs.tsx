@@ -1,6 +1,5 @@
 import moment from 'moment'
-import React, { useEffect, useMemo } from 'react'
-import { PoolGroupValueType } from '../../../state/resources/type'
+import React, { useMemo } from 'react'
 import { useListTokens } from '../../../state/token/hook'
 import { useWalletBalance } from '../../../state/wallet/hooks/useBalances'
 import formatLocalisedCompactNumber from '../../../utils/formatBalance'

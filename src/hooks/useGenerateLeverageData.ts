@@ -5,7 +5,6 @@ import { bn, getPoolPower, tradeTypeToId } from '../utils/helpers'
 import { useSettings } from '../state/setting/hooks/useSettings'
 import { SORT_POOL_BY } from '../state/setting/type'
 import { useResource } from '../state/resources/hooks/useResource'
-import { PoolType } from '../state/resources/type'
 import { BigNumber } from 'ethers'
 
 export const useGenerateLeverageData = (tradeType: TRADE_TYPE, showAllPool?:boolean) => {
@@ -139,7 +138,7 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE, showAllPool?:bool
     })
     return {
       leverageData: data,
-      totalHiddenPools
+      totalHiddenPools,
     }
   }, [
     id,

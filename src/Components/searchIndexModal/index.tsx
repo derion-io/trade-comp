@@ -8,7 +8,7 @@ import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoo
 import { useWeb3React } from '../../state/customWeb3React/hook'
 import { useResource } from '../../state/resources/hooks/useResource'
 import { getTokenFilter } from '../../utils/filtering'
-import { IEW, NUM, poolToIndexID } from '../../utils/helpers'
+import { poolToIndexID } from '../../utils/helpers'
 import { PoolSearch } from '../../utils/type'
 import { Input } from '../ui/Input'
 import { Modal } from '../ui/Modal'
@@ -23,7 +23,7 @@ const Component = ({
   visible,
   setVisible,
   onDismiss,
-  onPoolSelect
+  onPoolSelect,
 }: {
   visible: boolean
   setVisible: any
@@ -37,7 +37,6 @@ const Component = ({
   const { account } = useWeb3React()
   const { tokens } = useListTokens()
   const { getTokenIconUrl } = useHelper()
-  const { getTokenValue } = useTokenValue({})
   const { updateCurrentPoolGroup } = useCurrentPoolGroup()
   const { poolGroups, addNewResource, useCalculatePoolValue } = useResource()
   // const { poolGroupsValue } = useCalculatePoolGroupsValue()

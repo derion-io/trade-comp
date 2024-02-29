@@ -14,7 +14,7 @@ import {
   isErc1155Address,
   IEW,
   NUM,
-  zerofy
+  zerofy,
 } from '../../utils/helpers'
 import { ZERO_ADDRESS } from '../../utils/constant'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
@@ -76,7 +76,7 @@ const Option = ({
   onSelectToken,
   address,
   setVisible,
-  currencyURI
+  currencyURI,
 }: {
   setVisible: any
   currencyURI: string

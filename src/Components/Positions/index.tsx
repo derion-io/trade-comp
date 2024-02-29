@@ -1,7 +1,7 @@
 import { BigNumber } from 'ethers'
 import _ from 'lodash'
 import moment from 'moment'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useWindowSize } from '../../hooks/useWindowSize'
 import { useConfigs } from '../../state/config/useConfigs'
 import { useHelper } from '../../state/config/useHelper'
@@ -29,7 +29,6 @@ import {
   formatFloat,
   formatPercent,
   isErc1155Address,
-  oracleToPoolGroupId,
   shortenAddressString,
   sub,
   zerofy,
@@ -37,12 +36,12 @@ import {
   add,
   IS_NEG,
   ABS,
-  poolToIndexID
+  poolToIndexID,
 } from '../../utils/helpers'
 import { ClosingFeeCalculator, Position } from '../../utils/type'
 import { ClosePosition } from '../ClosePositionModal'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
-import { Button, ButtonSell } from '../ui/Button'
+import { ButtonSell } from '../ui/Button'
 import { InfoRow } from '../ui/InfoRow'
 import {
   Text,
@@ -1187,7 +1186,7 @@ export const FundingRate = ({
 
 export const Size = ({
   position,
-  isPhone
+  isPhone,
 }: {
   position: Position
   isPhone?: boolean
@@ -1309,7 +1308,7 @@ export const ExplorerLink = ({ poolAddress }: { poolAddress: string }) => {
 export const Token = ({
   token,
   balance,
-  doubleLines
+  doubleLines,
 }: {
   token: string
   balance?: string

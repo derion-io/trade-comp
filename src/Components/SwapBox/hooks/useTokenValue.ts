@@ -7,10 +7,9 @@ import {
   WEI,
   IEW,
   NUM,
-  div
+  div,
 } from '../../../utils/helpers'
 import { useTokenPrice } from '../../../state/resources/hooks/useTokenPrice'
-import { parseSqrtX96 } from 'derivable-engine/dist/utils/helper'
 import { useConfigs } from '../../../state/config/useConfigs'
 import { useListTokens } from '../../../state/token/hook'
 import { useHelper } from '../../../state/config/useHelper'

@@ -13,7 +13,7 @@ import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import {
   NATIVE_ADDRESS,
   PERCENTAGE_SUGGESTIONS,
-  POOL_IDS
+  POOL_IDS,
 } from '../../utils/constant'
 import { formatLocalisedCompactNumber } from '../../utils/formatBalance'
 import {
