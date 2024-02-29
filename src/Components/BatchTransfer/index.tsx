@@ -78,7 +78,6 @@ export const BatchTransferModal = ({
     }
     const erc1155 = new Contract(configs.derivable.token, DerivablePosition, provider?.getSigner() || provider)
     setLoading(true)
-    console.log('#positionIds', params)
 
     erc1155.estimateGas.safeBatchTransferFrom(...params)
       .then(gas => {
@@ -110,7 +109,6 @@ export const BatchTransferModal = ({
       toast.error(err?.reason ?? err?.error ?? err?.data?.message ?? 'Transaction Failed')
       console.log(err)
     }
-    console.log('#positionIds', params, account)
   }
 
   return (

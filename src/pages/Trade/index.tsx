@@ -123,10 +123,8 @@ export const Trade = ({
   useMemo(() => {
     if (id && ddlEngine && ddlEngine?.RESOURCE && poolGroups[id]?.baseToken && !isLoadingIndex && !searchIndexCache[poolGroups[id]?.baseToken]) {
       setShowAllPool(false)
-      console.log('#currentIndex', poolGroups[id], searchIndexCache)
       setIsLoadingIndex(true)
       ddlEngine.RESOURCE.searchIndex(poolGroups[id]?.baseToken).then((res) => {
-        console.log('#index-fullfill1', res)
         const poolAddresses = (res[id] as PoolSearch)?.pools?.map((pool) => pool?.poolAddress) || []
         if (poolAddresses.length === 0) {
           setIsLoadingIndex(false)
@@ -138,7 +136,6 @@ export const Trade = ({
               ...searchIndexCache,
               ...{ [poolGroups[id]?.baseToken]: data?.poolGroups[id] }
             })
-            console.log('#index-fullfill2', data)
             addNewResource(data)
             setIsLoadingIndex(false)
           })

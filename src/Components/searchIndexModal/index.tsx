@@ -45,9 +45,6 @@ const Component = ({
     [key: string]: PoolSearch
   }>({})
   const [isLoadingSearch, setIsLoadingSearch] = useState<boolean>(false)
-  useEffect(() => {
-    console.log('#poolGroups', poolGroups)
-  }, [poolGroups])
   useMemo(async () => {
     const poolGroupsFilter = {}
     await Promise.all(
@@ -125,8 +122,6 @@ const Component = ({
     const searchResults = await ddlEngine?.RESOURCE.searchIndex(
       searchQuery.toUpperCase()
     )
-    console.log('#searchResults', searchResults, e)
-    console.log('#poolsFilterSearch', poolsFilterSearch)
     const poolGroupsFilter = {}
     let poolAddresses: string[] = []
     await Promise.all(
@@ -168,8 +163,6 @@ const Component = ({
     // eslint-disable-next-line no-unused-expressions
     ddlEngine?.RESOURCE.generateData({ poolAddresses, transferLogs: [] })
       .then((data) => {
-        console.log('#poolAddresses', poolAddresses)
-        console.log('#generateData', data)
         const poolAddressTimestampMap = {}
         Object.keys(poolGroupsFilter).map((key) => {
           const pools = poolGroupsFilter[key].pools
@@ -177,7 +170,6 @@ const Component = ({
             poolAddressTimestampMap[pool?.poolAddress] = pool?.timeStamp
           })
         })
-        console.log('#poolAddressTimestampMap', poolAddressTimestampMap)
         Object.keys(data.poolGroups).forEach((key) => {
           const poolGroup = data.poolGroups[key]
           Object.keys(data.poolGroups[key].pools).forEach((_key) => {

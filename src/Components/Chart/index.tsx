@@ -66,7 +66,7 @@ const Component = ({
       )
     : ''
   useEffect(() => {
-    console.log('#chartIsOutDate', chartIsOutDate)
+    console.log('chartIsOutDate', chartIsOutDate)
     // if (currentPool?.chartIsOutDate) {
     //   setUseDexTool(true)
     // }

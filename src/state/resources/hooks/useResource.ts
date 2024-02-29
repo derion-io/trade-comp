@@ -36,7 +36,6 @@ export const useResource = () => {
       const pool = searchParams.get('pool')
       ddlEngine.RESOURCE.getWhiteListResource(pool ? [pool] : []).then(
         (data) => {
-          console.log('#getWhiteListResource', data)
           if (data?.tokens?.length === 0) return
           addNewResource(data, account)
           // updateSwapTxsHandle(account, data.swapLogs, data.transferLogs)
@@ -44,13 +43,11 @@ export const useResource = () => {
       )
 
       ddlEngine.RESOURCE.getResourceCached(account, playMode).then((data) => {
-        console.log('#getResourceCached', data)
         if (data?.tokens?.length === 0) return
         addNewResource(data, account)
         updateSwapTxsHandle(account, data.swapLogs, data.transferLogs)
       })
       ddlEngine.RESOURCE.getNewResource(account, playMode).then((data) => {
-        console.log('#getNewResource', data)
         if (data?.tokens?.length === 0) return
         addNewResource(data, account)
         updateSwapTxsHandle(account, data.swapLogs, data.transferLogs)

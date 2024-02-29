@@ -34,7 +34,6 @@ export const ListIndexs = ({
         canSort = false
       }
     })
-    console.log('#Cansort', canSort)
     if (canSort) return poolGroupsValue
     else return poolsFilterSearch
   }, [poolGroupsValue, poolsFilterSearch])

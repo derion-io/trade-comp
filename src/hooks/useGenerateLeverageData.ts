@@ -36,7 +36,6 @@ export const useGenerateLeverageData = (tradeType: TRADE_TYPE, showAllPool?:bool
       }
     }
     const pools = poolGroups[id]?.pools as {[key:string]:any} || {}
-    console.log('#pools', pools)
     let totalHiddenPools = 0
     if (Object.values(pools || {})?.length > 0) {
       const sumR = Object.values(pools).reduce((sumR, pool) => {
