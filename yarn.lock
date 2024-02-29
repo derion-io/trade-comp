@@ -5510,7 +5510,7 @@ depd@~1.1.2:
 
 "derivable-engine@git+ssh://git@github.com:derivable-labs/engine.git#dev-build":
   version "1.0.0"
-  resolved "git+ssh://git@github.com:derivable-labs/engine.git#837dd0596063ba230a300b29b3d234e12bb5b6da"
+  resolved "git+ssh://git@github.com:derivable-labs/engine.git#d1c4fbf867cb216f966b58c2fbc8b771c59f4546"
   dependencies:
     "@ethersproject/providers" "https://gitpkg.now.sh/derivable-labs/ethers.js/packages/providers?v5.3.5.0"
     "@zoltu/ethereum-crypto" "^2.3.0"
