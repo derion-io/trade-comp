@@ -32,9 +32,9 @@ export const tokens = createSlice({
       if (!action.payload.account) return
       const _swapsLogs = state.swapLogs[action.payload.account]
         ? [
-            ...action.payload.swapLogs,
-            ...state.swapLogs[action.payload.account]
-          ]
+          ...action.payload.swapLogs,
+          ...state.swapLogs[action.payload.account]
+        ]
         : action.payload.swapLogs
       const _transferLogs = state.transferLogs[action.payload.account]
         ? [
@@ -72,25 +72,26 @@ export const tokens = createSlice({
         account: string
       }>
     ) => {
-      if (action.payload.account !== state.account) {
-        state.balances = action.payload.balances
-        state.routerAllowances = action.payload.routerAllowances
-        state.maturities = action.payload.maturities
-        state.account = action.payload.account
-      } else {
-        state.balances = {
-          ...state.balances,
-          ...action.payload.balances
-        }
-        state.routerAllowances = {
-          ...state.routerAllowances,
-          ...action.payload.routerAllowances
-        }
-        state.maturities = {
-          ...state.maturities,
-          ...action.payload.maturities
-        }
-      }
+      // if (action.payload.account !== state.account) {
+      state.balances = action.payload.balances
+      state.routerAllowances = action.payload.routerAllowances
+      state.maturities = action.payload.maturities
+      state.account = action.payload.account
+      // }
+      //  else {
+      //   state.balances = {
+      //     ...state.balances,
+      //     ...action.payload.balances
+      //   }
+      //   state.routerAllowances = {
+      //     ...state.routerAllowances,
+      //     ...action.payload.routerAllowances
+      //   }
+      //   state.maturities = {
+      //     ...state.maturities,
+      //     ...action.payload.maturities
+      //   }
+      // }
     }
   }
 })

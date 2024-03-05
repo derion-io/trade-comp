@@ -1,7 +1,7 @@
 import { BigNumber } from 'ethers'
 import _ from 'lodash'
 import moment from 'moment'
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useWindowSize } from '../../hooks/useWindowSize'
 import { useConfigs } from '../../state/config/useConfigs'
 import { useHelper } from '../../state/config/useHelper'
@@ -36,7 +36,7 @@ import {
   add,
   IS_NEG,
   ABS,
-  poolToIndexID,
+  poolToIndexID
 } from '../../utils/helpers'
 import { ClosingFeeCalculator, Position } from '../../utils/type'
 import { ClosePosition } from '../ClosePositionModal'
@@ -63,6 +63,7 @@ import { SharedIcon } from '../ui/Icon'
 import { useTokenPrice } from '../../state/resources/hooks/useTokenPrice'
 import { BatchTransferModal } from '../BatchTransfer'
 import { Checkbox } from 'antd'
+import { useWeb3React } from '../../state/customWeb3React/hook'
 
 const mdp = require('move-decimal-point')
 
@@ -116,18 +117,9 @@ export const Positions = ({
       clearInterval(timer)
     }
   }, [])
-
-  const positionsWithEntry = useMemo(() => {
-    if (ddlEngine?.HISTORY && Object.values(pools).length > 0 && swapLogs) {
-      return (
-        ddlEngine.HISTORY.generatePositions?.({
-          tokens: Object.values(tokens),
-          logs: _.cloneDeep(swapLogs)
-        }) ?? {}
-      )
-    }
-    return {}
-  }, [swapLogs, pools, tokens, ddlEngine?.HISTORY])
+  const { account } = useWeb3React()
+  const [positionsWithEntry, setPositionsWithEntry] = useState<{[key:string]: any}>({})
+  const [positions, setPositions] = useState<Position[]>([])
 
   const generatePositionData = (
     poolAddress: string,
@@ -256,15 +248,26 @@ export const Positions = ({
     }
     return s1
   }
-  const positions: Position[] = useMemo(() => {
+
+  useEffect(() => {
+    if (ddlEngine?.HISTORY && Object.values(pools).length > 0 && swapLogs) {
+      setPositionsWithEntry(
+        ddlEngine.HISTORY.generatePositions?.({
+          tokens: Object.values(tokens),
+          logs: _.cloneDeep(swapLogs)
+        }) ?? {}
+      )
+    }
+  }, [swapLogs, pools, tokens, ddlEngine?.HISTORY])
+
+  useEffect(() => {
     const result: any = []
     Object.keys(pools).forEach((poolAddress) => {
       result.push(generatePositionData(poolAddress, POOL_IDS.A))
       result.push(generatePositionData(poolAddress, POOL_IDS.B))
       result.push(generatePositionData(poolAddress, POOL_IDS.C))
     })
-
-    return result.filter((r: any) => r !== null)
+    setPositions(result.filter((r: any) => r !== null))
   }, [
     positionsWithEntry,
     balances,
@@ -313,7 +316,7 @@ export const Positions = ({
         displayPositions = [...pendingPosition, ...displayPositions]
       }
     }
-
+    console.log('#position', displayPositions)
     const hasClosingFee = displayPositions.some(
       (p) => p?.calulateClosingFee?.(now)?.fee > 0
     )
@@ -686,14 +689,14 @@ export const Positions = ({
                   {/* <td><Reserve pool={position.pool}/></td> */}
                   {/* <td><ExplorerLink poolAddress={position.poolAddress}/></td> */}
                   <td className='text-right'>
-                    {isShowAllPosition ?
-                      <ButtonSell
+                    {isShowAllPosition
+                      ? <ButtonSell
                         className='share-position'
                         size='small'
                         style={{ border: 'none' }}>
                         <Checkbox onChange={() => {
                           const id = `${position.poolAddress}-${position.side}`
-                          const ss = {...selections}
+                          const ss = { ...selections }
                           if (!ss[id]) {
                             ss[id] = position
                           } else {
@@ -701,8 +704,8 @@ export const Positions = ({
                           }
                           setSelections(ss)
                         }}
-                      /></ButtonSell>
-                    : <ButtonSell
+                        /></ButtonSell>
+                      : <ButtonSell
                         size='small'
                         className='share-position'
                         style={{ border: 'none' }}
@@ -713,43 +716,43 @@ export const Positions = ({
                       ><SharedIcon /></ButtonSell>
                     }
                     {(position.status === POSITION_STATUS.OPENING ? (
-                        <ButtonSell
-                          disabled
-                          size='small'
-                          style={{ opacity: 0.5 }}
-                        >
+                      <ButtonSell
+                        disabled
+                        size='small'
+                        style={{ opacity: 0.5 }}
+                      >
                         Pending
-                        </ButtonSell>
-                      ) : position.status === POSITION_STATUS.CLOSING ? (
-                        <ButtonSell
-                          size='small'
-                          disabled
-                          style={{ opacity: 0.5 }}
-                        >
-                          <SkeletonLoader
-                            textLoading={
-                              position.side === POOL_IDS.C
-                                ? 'Removing'
-                                : 'Closing'
-                            }
-                            loading={position.status === POSITION_STATUS.CLOSING}
-                          />
-                        </ButtonSell>
-                      ) : (
-                        <ButtonSell
-                          size='small'
-                          onClick={(e) => {
-                            setClosingPosition(position)
-                            setOutputTokenAddress(
-                              wrapToNativeAddress(position.pool.TOKEN_R)
-                            )
-                            setVisible(true)
-                            e.stopPropagation() // stop the index from being changed
-                          }}
-                        >
-                          {position.side === POOL_IDS.C ? 'Remove' : 'Close'}
-                        </ButtonSell>
-                      ))
+                      </ButtonSell>
+                    ) : position.status === POSITION_STATUS.CLOSING ? (
+                      <ButtonSell
+                        size='small'
+                        disabled
+                        style={{ opacity: 0.5 }}
+                      >
+                        <SkeletonLoader
+                          textLoading={
+                            position.side === POOL_IDS.C
+                              ? 'Removing'
+                              : 'Closing'
+                          }
+                          loading={position.status === POSITION_STATUS.CLOSING}
+                        />
+                      </ButtonSell>
+                    ) : (
+                      <ButtonSell
+                        size='small'
+                        onClick={(e) => {
+                          setClosingPosition(position)
+                          setOutputTokenAddress(
+                            wrapToNativeAddress(position.pool.TOKEN_R)
+                          )
+                          setVisible(true)
+                          e.stopPropagation() // stop the index from being changed
+                        }}
+                      >
+                        {position.side === POOL_IDS.C ? 'Remove' : 'Close'}
+                      </ButtonSell>
+                    ))
                     }
                   </td>
                 </tr>
@@ -1186,7 +1189,7 @@ export const FundingRate = ({
 
 export const Size = ({
   position,
-  isPhone,
+  isPhone
 }: {
   position: Position
   isPhone?: boolean
@@ -1308,7 +1311,7 @@ export const ExplorerLink = ({ poolAddress }: { poolAddress: string }) => {
 export const Token = ({
   token,
   balance,
-  doubleLines,
+  doubleLines
 }: {
   token: string
   balance?: string
