@@ -316,7 +316,6 @@ export const Positions = ({
         displayPositions = [...pendingPosition, ...displayPositions]
       }
     }
-    console.log('#position', displayPositions)
     const hasClosingFee = displayPositions.some(
       (p) => p?.calulateClosingFee?.(now)?.fee > 0
     )
