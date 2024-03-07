@@ -27,22 +27,28 @@ export type SwapPendingTxType = {
 }
 
 export interface walletState {
-  account: string
-  balances: BalancesType
-  maturities: MaturitiesType
-  swapLogs: { [key: string]: any[] }
-  transferLogs: { [key: string]: any[] }
-  formartedSwapLogs: any[]
-  routerAllowances: AllowancesType
-  swapPendingTxs: SwapPendingTxType[]
+  mapAccounts: {[account: string]: {
+    balances: BalancesType,
+    maturities: MaturitiesType,
+    swapLogs: any[],
+    transferLogs: any[],
+    formartedSwapLogs: any[],
+    routerAllowances: AllowancesType,
+    swapPendingTxs: SwapPendingTxType[],
+    positionsWithEntry: {[key:string]: any}
+  }
+},
 }
-export const initialState: walletState = {
-  account: '',
+export const initialAccountState = {
   balances: {},
   maturities: {},
-  swapLogs: {},
-  swapPendingTxs: [],
-  transferLogs: {},
+  swapLogs: [],
+  transferLogs: [],
   formartedSwapLogs: [],
-  routerAllowances: {}
+  routerAllowances: {},
+  swapPendingTxs: [],
+  positionsWithEntry: {}
+}
+export const initialState = {
+  mapAccounts: {}
 }

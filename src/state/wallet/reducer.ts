@@ -5,7 +5,8 @@ import {
   BalancesType,
   initialState,
   SwapPendingTxType,
-  MaturitiesType
+  MaturitiesType,
+  initialAccountState
 } from './type'
 import _ from 'lodash'
 
@@ -13,13 +14,15 @@ export const tokens = createSlice({
   name: 'wallet',
   initialState,
   reducers: {
-    resetBnA: (state) => {
-      state.balances = {}
-      state.routerAllowances = {}
-      state.account = ''
-    },
-    updatePendingSwapTxs: (state, action: PayloadAction<SwapPendingTxType[]>) => {
-      state.swapPendingTxs = action.payload
+    // resetBnA: (state) => {
+    //   state.mapAccounts[state.account].balances = {}
+    //   state.mapAccounts[state.account].routerAllowances = {}
+    // },
+    updatePendingSwapTxs: (state, action: PayloadAction<{
+      swapPendingTx: SwapPendingTxType[],
+      account: string
+    }>) => {
+      state.mapAccounts[action.payload.account].swapPendingTxs = action.payload.swapPendingTx
     },
     updateSwapTxs: (
       state,
@@ -30,35 +33,39 @@ export const tokens = createSlice({
       }>
     ) => {
       if (!action.payload.account) return
-      const _swapsLogs = state.swapLogs[action.payload.account]
+      if (!state.mapAccounts[action.payload.account]) state.mapAccounts[action.payload.account] = initialAccountState
+      const _swapsLogs = state.mapAccounts[action.payload.account].swapLogs
         ? [
           ...action.payload.swapLogs,
-          ...state.swapLogs[action.payload.account]
+          ...state.mapAccounts[action.payload.account].swapLogs
         ]
         : action.payload.swapLogs
-      const _transferLogs = state.transferLogs[action.payload.account]
+
+      const _transferLogs = state.mapAccounts[action.payload.account].transferLogs
         ? [
           ...action.payload.transferLogs,
-          ...state.transferLogs[action.payload.account]
+          ...state.mapAccounts[action.payload.account].transferLogs
         ]
         : action.payload.transferLogs
 
-      state.swapLogs[action.payload.account] = _.uniqBy(
+      state.mapAccounts[action.payload.account].swapLogs = _.uniqBy(
         _swapsLogs,
-        (l) => l?.transactionHash + l?.logIndex
+        (l:any) => l?.transactionHash + l?.logIndex
       )
-      state.transferLogs[action.payload.account] = _.uniqBy(
+      state.mapAccounts[action.payload.account].transferLogs = _.uniqBy(
         _transferLogs,
-        (l) => l?.transactionHash + l?.logIndex
+        (l:any) => l?.transactionHash + l?.logIndex
       )
     },
     updateFormatedSwapTxs: (
       state,
       action: PayloadAction<{
+        account: string,
         swapTxs: any
       }>
     ) => {
-      state.formartedSwapLogs = _.uniqBy(
+      if (!state.mapAccounts[action.payload.account]) state.mapAccounts[action.payload.account] = initialAccountState
+      state.mapAccounts[action.payload.account].formartedSwapLogs = _.uniqBy(
         action.payload.swapTxs,
         (l: any) => l.transactionHash + l?.logIndex
       )
@@ -72,11 +79,12 @@ export const tokens = createSlice({
         account: string
       }>
     ) => {
-      // if (action.payload.account !== state.account) {
-      state.balances = action.payload.balances
-      state.routerAllowances = action.payload.routerAllowances
-      state.maturities = action.payload.maturities
-      state.account = action.payload.account
+      if (!state.mapAccounts[action.payload.account]) state.mapAccounts[action.payload.account] = initialAccountState
+      // if (action.payload.account !== state.mapAccounts[state.account].account) {
+      state.mapAccounts[action.payload.account].balances = action.payload.balances
+      state.mapAccounts[action.payload.account].routerAllowances = action.payload.routerAllowances
+      state.mapAccounts[action.payload.account].maturities = action.payload.maturities
+      // state.account = action.payload.account
       // }
       //  else {
       //   state.balances = {
@@ -98,7 +106,7 @@ export const tokens = createSlice({
 
 // Actions
 export const {
-  resetBnA,
+  // resetBnA,
   updateBalanceAndAllowancesReduce,
   updateSwapTxs,
   updatePendingSwapTxs,

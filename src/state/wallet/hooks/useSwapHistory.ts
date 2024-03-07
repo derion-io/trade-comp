@@ -8,16 +8,19 @@ import { useConfigs } from '../../config/useConfigs'
 import _ from 'lodash'
 import { useResource } from '../../resources/hooks/useResource'
 import { useListTokens } from '../../token/hook'
+import { useWalletBalance } from './useBalances'
 
 export const useSwapHistory = () => {
+  // const { swapLogs, transferLogs, formartedSwapLogs } = useWalletBalance()
+  const { account } = useWeb3React()
   const { swapLogs, transferLogs, formartedSwapLogs } = useSelector((state: State) => {
     return {
-      swapLogs: state.wallet.swapLogs,
-      transferLogs: state.wallet.transferLogs,
-      formartedSwapLogs: state.wallet.formartedSwapLogs
+      swapLogs: state.wallet.mapAccounts[account]?.swapLogs || [],
+      transferLogs: state.wallet.mapAccounts[account]?.transferLogs || [],
+      formartedSwapLogs: state.wallet.mapAccounts[account]?.formartedSwapLogs || []
     }
   })
-  const { account } = useWeb3React()
+
   const dispatch = useDispatch()
 
   const updateSwapTxsHandle = (account: string, _swapLogs: any, _transferLogs: any) => {
@@ -26,14 +29,14 @@ export const useSwapHistory = () => {
 
   return {
     updateSwapTxsHandle,
-    swapLogs: swapLogs[account],
-    transferLogs: transferLogs[account],
+    swapLogs,
+    transferLogs,
     formartedSwapLogs
   }
 }
 
 export const useSwapHistoryFormated = () => {
-  const { swapLogs, transferLogs } = useSwapHistory()
+  const { swapLogs, transferLogs } = useWalletBalance()
   const { id } = useCurrentPoolGroup()
   const { ddlEngine } = useConfigs()
   const dispatch = useDispatch()
@@ -54,10 +57,10 @@ export const useSwapHistoryFormated = () => {
         transferLogs: transferLogs,
         swapLogs
       })
-      dispatch(updateFormatedSwapTxs({ swapTxs }))
+      dispatch(updateFormatedSwapTxs({ account, swapTxs }))
     }
     if (!account) {
-      dispatch(updateFormatedSwapTxs({ swapTxs: [] }))
+      dispatch(updateFormatedSwapTxs({ account, swapTxs: [] }))
     }
   }, [swapLogs, transferLogs, pools, ddlEngine?.CURRENT_POOL, id, tokens, account])
 }
