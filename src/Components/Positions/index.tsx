@@ -83,7 +83,7 @@ export const Positions = ({
   const { tradeType, updateCurrentPoolGroup } = useCurrentPoolGroup()
   const { setCurrentPoolAddress } = useCurrentPool()
   const { pools, poolGroups } = useResource()
-  const { balances, maturities } = useWalletBalance()
+  const { balances, maturities, mapAccounts } = useWalletBalance()
   const { tokens } = useListTokens()
   const { getTokenValue } = useTokenValue({})
   const { wrapToNativeAddress } = useHelper()
@@ -91,6 +91,10 @@ export const Positions = ({
   const [valueInUsdStatus, setValueInUsdStatus] = useState<VALUE_IN_USD_STATUS>(
     VALUE_IN_USD_STATUS.USD
   )
+
+  useEffect(() => {
+    console.log('#mapAccounts', mapAccounts)
+  }, [mapAccounts])
   const [visible, setVisible] = useState<boolean>(false)
   const [closingPosition, setClosingPosition] = useState<Position | undefined>(
     undefined

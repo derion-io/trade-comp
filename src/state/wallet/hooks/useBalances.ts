@@ -132,6 +132,7 @@ export const useWalletBalance = () => {
   }
 
   return {
+    mapAccounts,
     ...wallet,
     fetchBalanceAndAllowance,
     approveRouter,

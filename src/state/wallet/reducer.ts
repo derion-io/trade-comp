@@ -84,7 +84,7 @@ export const tokens = createSlice({
       state.mapAccounts[action.payload.account].balances = action.payload.balances
       state.mapAccounts[action.payload.account].routerAllowances = action.payload.routerAllowances
       state.mapAccounts[action.payload.account].maturities = action.payload.maturities
-      // state.account = action.payload.account
+      state.account = action.payload.account
       // }
       //  else {
       //   state.balances = {
