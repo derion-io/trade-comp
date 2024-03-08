@@ -22,7 +22,15 @@ export const tokens = createSlice({
       swapPendingTx: SwapPendingTxType[],
       account: string
     }>) => {
+      if (!state.mapAccounts[action.payload.account]) state.mapAccounts[action.payload.account] = initialAccountState
       state.mapAccounts[action.payload.account].swapPendingTxs = action.payload.swapPendingTx
+    },
+    updatePositionsWithEntry: (state, action: PayloadAction<{
+      positionsWithEntry: any[],
+      account: string
+    }>) => {
+      if (!state.mapAccounts[action.payload.account]) state.mapAccounts[action.payload.account] = initialAccountState
+      state.mapAccounts[action.payload.account].positionsWithEntry = action.payload.positionsWithEntry
     },
     updateSwapTxs: (
       state,
@@ -34,6 +42,7 @@ export const tokens = createSlice({
     ) => {
       if (!action.payload.account) return
       if (!state.mapAccounts[action.payload.account]) state.mapAccounts[action.payload.account] = initialAccountState
+      if (action.payload.swapLogs[0]?.args?.[0] !== action.payload.account) return
       const _swapsLogs = state.mapAccounts[action.payload.account].swapLogs
         ? [
           ...action.payload.swapLogs,
@@ -49,7 +58,7 @@ export const tokens = createSlice({
         : action.payload.transferLogs
 
       state.mapAccounts[action.payload.account].swapLogs = _.uniqBy(
-        _swapsLogs,
+        _swapsLogs?.filter((s:any) => s?.args?.[0] === action.payload.account),
         (l:any) => l?.transactionHash + l?.logIndex
       )
       state.mapAccounts[action.payload.account].transferLogs = _.uniqBy(
@@ -57,6 +66,7 @@ export const tokens = createSlice({
         (l:any) => l?.transactionHash + l?.logIndex
       )
     },
+
     updateFormatedSwapTxs: (
       state,
       action: PayloadAction<{
@@ -65,8 +75,9 @@ export const tokens = createSlice({
       }>
     ) => {
       if (!state.mapAccounts[action.payload.account]) state.mapAccounts[action.payload.account] = initialAccountState
+      if (action.payload.swapTxs[0]?.payer !== action.payload.account) return
       state.mapAccounts[action.payload.account].formartedSwapLogs = _.uniqBy(
-        action.payload.swapTxs,
+        action.payload.swapTxs?.filter((s:any) => s?.payer === action.payload.account),
         (l: any) => l.transactionHash + l?.logIndex
       )
     },
@@ -107,6 +118,7 @@ export const tokens = createSlice({
 // Actions
 export const {
   // resetBnA,
+  updatePositionsWithEntry,
   updateBalanceAndAllowancesReduce,
   updateSwapTxs,
   updatePendingSwapTxs,

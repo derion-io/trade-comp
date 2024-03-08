@@ -83,7 +83,7 @@ export const Positions = ({
   const { tradeType, updateCurrentPoolGroup } = useCurrentPoolGroup()
   const { setCurrentPoolAddress } = useCurrentPool()
   const { pools, poolGroups } = useResource()
-  const { balances, maturities, mapAccounts } = useWalletBalance()
+  const { balances, maturities, mapAccounts, swapLogs, swapPendingTxs, positionsWithEntry } = useWalletBalance()
   const { tokens } = useListTokens()
   const { getTokenValue } = useTokenValue({})
   const { wrapToNativeAddress } = useHelper()
@@ -91,10 +91,12 @@ export const Positions = ({
   const [valueInUsdStatus, setValueInUsdStatus] = useState<VALUE_IN_USD_STATUS>(
     VALUE_IN_USD_STATUS.USD
   )
-
   useEffect(() => {
     console.log('#mapAccounts', mapAccounts)
   }, [mapAccounts])
+  useEffect(() => {
+    console.log('#positionsWithEntry', positionsWithEntry)
+  }, [positionsWithEntry])
   const [visible, setVisible] = useState<boolean>(false)
   const [closingPosition, setClosingPosition] = useState<Position | undefined>(
     undefined
@@ -105,8 +107,8 @@ export const Positions = ({
   const [selections, setSelections] = useState<{ [pos: string]: Position }>({})
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
   const { ddlEngine } = useConfigs()
-  const { swapLogs } = useSwapHistory()
-  const { swapPendingTxs } = useSwapPendingHistory()
+  const { updatePositionsWithEntry } = useSwapHistory()
+  // const { } = useSwapPendingHistory()
   const { width } = useWindowSize()
   const isPhone = width && width < 992
 
@@ -122,7 +124,7 @@ export const Positions = ({
     }
   }, [])
   const { account } = useWeb3React()
-  const [positionsWithEntry, setPositionsWithEntry] = useState<{[key:string]: any}>({})
+  // const [positionsWithEntry, setPositionsWithEntry] = useState<{[key:string]: any}>({})
   const [positions, setPositions] = useState<Position[]>([])
 
   const generatePositionData = (
@@ -137,9 +139,10 @@ export const Positions = ({
     )
 
     if (
-      balances[token]?.gt(0) ||
+      (balances[token]?.gt(0) ||
       pendingTxData?.token ||
-      positionsWithEntry[token]?.avgPrice
+      positionsWithEntry[token]?.avgPrice) &&
+      positionsWithEntry[token]?.entryPrice !== -1
     ) {
       const pool =
         pools[pendingTxData?.token ? pendingTxPool.address : poolAddress]
@@ -254,24 +257,28 @@ export const Positions = ({
   }
 
   useEffect(() => {
-    if (ddlEngine?.HISTORY && Object.values(pools).length > 0 && swapLogs) {
-      setPositionsWithEntry(
+    if (ddlEngine?.HISTORY && swapLogs && swapLogs?.[0]?.args[0] === account) {
+      updatePositionsWithEntry(
+        account,
         ddlEngine.HISTORY.generatePositions?.({
           tokens: Object.values(tokens),
           logs: _.cloneDeep(swapLogs)
         }) ?? {}
       )
     }
-  }, [swapLogs, pools, tokens, ddlEngine?.HISTORY])
+  }, [swapLogs, tokens, ddlEngine?.HISTORY, account])
 
   useEffect(() => {
-    const result: any = []
-    Object.keys(pools).forEach((poolAddress) => {
-      result.push(generatePositionData(poolAddress, POOL_IDS.A))
-      result.push(generatePositionData(poolAddress, POOL_IDS.B))
-      result.push(generatePositionData(poolAddress, POOL_IDS.C))
-    })
-    setPositions(result.filter((r: any) => r !== null))
+    if (Object.keys(positionsWithEntry)?.length !== 0) {
+      const result: any = []
+      Object.keys(pools).forEach((poolAddress) => {
+        result.push(generatePositionData(poolAddress, POOL_IDS.A))
+        result.push(generatePositionData(poolAddress, POOL_IDS.B))
+        result.push(generatePositionData(poolAddress, POOL_IDS.C))
+      })
+      console.log('#res', result, positionsWithEntry)
+      setPositions(result.filter((r: any) => r !== null))
+    }
   }, [
     positionsWithEntry,
     balances,
@@ -325,6 +332,7 @@ export const Positions = ({
     )
     return [displayPositions, hasClosingFee]
   }, [positions, tradeType, swapPendingTxs])
+
   const isShowAllPosition = useMemo(() => settings.minPositionValueUSD === 0, [settings.minPositionValueUSD])
   const [isBatchTransferModalVisible, setBatchTransferModalVisible] = useState<boolean>(false)
   const showSize = tradeType !== TRADE_TYPE.LIQUIDITY

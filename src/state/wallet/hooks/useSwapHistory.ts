@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from 'react-redux'
-import { updateFormatedSwapTxs, updateSwapTxs } from '../reducer'
+import { updateFormatedSwapTxs, updatePositionsWithEntry, updateSwapTxs } from '../reducer'
 import { State } from '../../types'
 import { useWeb3React } from '../../customWeb3React/hook'
 import { useEffect } from 'react'
@@ -22,12 +22,18 @@ export const useSwapHistory = () => {
   })
 
   const dispatch = useDispatch()
-
+  const updatePositionsWithEntryHandle = (account: string, positionsWithEntry: any[]) => {
+    dispatch(updatePositionsWithEntry({
+      account,
+      positionsWithEntry
+    }))
+  }
   const updateSwapTxsHandle = (account: string, _swapLogs: any, _transferLogs: any) => {
     dispatch(updateSwapTxs({ account, swapLogs: _.cloneDeep(_swapLogs), transferLogs: _.cloneDeep(_transferLogs) }))
   }
 
   return {
+    updatePositionsWithEntry: updatePositionsWithEntryHandle,
     updateSwapTxsHandle,
     swapLogs,
     transferLogs,

@@ -226,7 +226,7 @@ export const ButtonSwap = ({
                     gasLimit,
                     onSubmitted: (pendingTx: PendingSwapTransactionType) => {
                       pendingTxHash = pendingTx.hash
-                      updatePendingTxsHandle([...swapPendingTxs, pendingTx])
+                      updatePendingTxsHandle(account, [...swapPendingTxs, pendingTx])
                       if (closeConfirmWhenSwap) closeConfirmWhenSwap(false)
                       toast.success('Transaction Submitted')
                     },
@@ -238,7 +238,7 @@ export const ButtonSwap = ({
                 const swapLogs = ddlEngine.RESOURCE.parseDdlLogs(
                   tx && tx?.logs ? tx.logs : []
                 )
-                updatePendingTxsHandle(swapPendingTxs.filter(penTx => penTx.hash !== pendingTxHash))
+                updatePendingTxsHandle(account, swapPendingTxs.filter(penTx => penTx.hash !== pendingTxHash))
                 updateSwapTxsHandle(
                   account,
                   swapLogs.filter(
