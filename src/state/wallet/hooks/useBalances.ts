@@ -40,17 +40,19 @@ export const useWalletBalance = () => {
   const dispatch = useDispatch()
 
   const updateBalanceAndAllowances = ({
+    account: _account,
     balances,
     routerAllowances,
     maturities
   }: {
+    account?: string,
     balances: BalancesType
     routerAllowances: AllowancesType
     maturities: MaturitiesType
   }) => {
     dispatch(
       updateBalanceAndAllowancesReduce({
-        account,
+        account: _account || account,
         balances,
         maturities,
         routerAllowances
@@ -114,14 +116,15 @@ export const useWalletBalance = () => {
     }
   }
 
-  const fetchBalanceAndAllowance = async (withNative: boolean = true) => {
+  const fetchBalanceAndAllowance = async (withNative: boolean = true, account: string) => {
     if (!ddlEngine) return
     const {
       balances,
       allowances,
       maturity: maturities
-    } = await ddlEngine.BNA.getBalanceAndAllowance(withNative ? [NATIVE_ADDRESS] : [])
+    } = await ddlEngine.BNA.getBalanceAndAllowance(withNative ? [NATIVE_ADDRESS] : [], account)
     updateBalanceAndAllowances({
+      account,
       balances,
       maturities,
       routerAllowances: {

@@ -62,7 +62,7 @@ export const App = () => {
         maturities: {}
       })
     } else {
-      fetchBalanceAndAllowance()
+      fetchBalanceAndAllowance(true, account)
     }
   }, [tokens, account])
 

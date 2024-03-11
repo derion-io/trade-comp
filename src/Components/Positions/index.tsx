@@ -139,7 +139,9 @@ export const Positions = ({
     )
 
     if (
-      (balances[token]?.gt(0) ||
+      (
+        (Number(balances[token]) &&
+      Number(balances[token]) !== 0) ||
       pendingTxData?.token ||
       positionsWithEntry[token]?.avgPrice) &&
       positionsWithEntry[token]?.entryPrice !== -1
@@ -255,7 +257,9 @@ export const Positions = ({
     }
     return s1
   }
-
+  useEffect(() => {
+    setPositions([])
+  }, [account])
   useEffect(() => {
     if (ddlEngine?.HISTORY && swapLogs && swapLogs?.[0]?.args[0] === account) {
       updatePositionsWithEntry(
@@ -270,20 +274,18 @@ export const Positions = ({
 
   useEffect(() => {
     if (Object.keys(positionsWithEntry)?.length !== 0) {
-      const result: any = []
+      const result: any[] = []
       Object.keys(pools).forEach((poolAddress) => {
+        console.log('#res-pools', poolAddress)
         result.push(generatePositionData(poolAddress, POOL_IDS.A))
         result.push(generatePositionData(poolAddress, POOL_IDS.B))
-        result.push(generatePositionData(poolAddress, POOL_IDS.C))
+        result.unshift(generatePositionData(poolAddress, POOL_IDS.C))
       })
-      console.log('#res', result, positionsWithEntry)
+      console.log('#res', result, positionsWithEntry, balances)
       setPositions(result.filter((r: any) => r !== null))
     }
   }, [
     positionsWithEntry,
-    balances,
-    maturities,
-    pools,
     settings.minPositionValueUSD
   ])
 

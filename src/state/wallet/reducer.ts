@@ -40,6 +40,7 @@ export const tokens = createSlice({
         transferLogs: any
       }>
     ) => {
+      console.log('#updateSwapTxs', action.payload.account, action.payload.swapLogs)
       if (!action.payload.account) return
       if (!state.mapAccounts[action.payload.account]) state.mapAccounts[action.payload.account] = initialAccountState
       if (action.payload.swapLogs[0]?.args?.[0] !== action.payload.account) return
