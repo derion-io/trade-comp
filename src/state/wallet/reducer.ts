@@ -18,6 +18,9 @@ export const tokens = createSlice({
     //   state.mapAccounts[state.account].balances = {}
     //   state.mapAccounts[state.account].routerAllowances = {}
     // },
+    resetMapAccount: (state) => {
+      state.mapAccounts = {}
+    },
     updatePendingSwapTxs: (state, action: PayloadAction<{
       swapPendingTx: SwapPendingTxType[],
       account: string
@@ -32,6 +35,7 @@ export const tokens = createSlice({
       if (!state.mapAccounts[action.payload.account]) state.mapAccounts[action.payload.account] = initialAccountState
       state.mapAccounts[action.payload.account].positionsWithEntry = action.payload.positionsWithEntry
     },
+
     updateSwapTxs: (
       state,
       action: PayloadAction<{
@@ -119,6 +123,7 @@ export const tokens = createSlice({
 // Actions
 export const {
   // resetBnA,
+  resetMapAccount,
   updatePositionsWithEntry,
   updateBalanceAndAllowancesReduce,
   updateSwapTxs,

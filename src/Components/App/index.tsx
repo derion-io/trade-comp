@@ -16,6 +16,7 @@ import { ErrorBoundary } from '../ErrorBoundary'
 import { PageLoadingIndicator } from '../PageLoadingIndicator'
 import './style.scss'
 import { detectTradeTab } from '../../utils/helpers'
+import { resetMapAccount } from '../../state/wallet/reducer'
 
 export const App = () => {
   const { id } = useCurrentPoolGroup()
@@ -32,6 +33,9 @@ export const App = () => {
   useFetchTokenPrice()
   useSwapHistoryFormated()
 
+  useEffect(() => {
+    resetMapAccount()
+  }, [chainId])
   useEffect(() => {
     try {
       setTimeout(() => {
