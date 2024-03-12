@@ -15,6 +15,7 @@ import { formatLocalisedCompactNumber } from '../../utils/formatBalance'
 import {
   IEW,
   NUM,
+  STR,
   decodeErc1155Address,
   div,
   formatFloat,
@@ -113,7 +114,7 @@ const Component = ({
       (a) => Number(a.split('-')[1]) === POOL_IDS.C
     )
     const erc20Tokens = Object.keys(tokens).filter((address) => {
-      return isAddress(address) && balances[address] && !balances[address].isZero() && getTokenValue(address, balances[address]) !== '0'
+      return isAddress(address) && balances[address] && !balances[address].isZero() && getTokenValue(address, STR(balances[address])) !== '0'
     })
     return _.uniq(
       [...tokenRs, ...erc20Tokens, ...aTokens, ...bTokens, ...cTokens].filter((address) => {

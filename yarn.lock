@@ -1666,7 +1666,7 @@
 
 "@ethersproject/providers@https://gitpkg.now.sh/derivable-labs/ethers.js/packages/providers?v5.3.5.0":
   version "5.5.2"
-  resolved "https://gitpkg.now.sh/derivable-labs/ethers.js/packages/providers?v5.3.5.0#9c83e26a9160d0308c105ceda3c4e4d48b372555"
+  resolved "https://gitpkg.now.sh/derivable-labs/ethers.js/packages/providers?v5.3.5.0#6ac23afcc2ad3967690d4194157ed62f41a1127e"
   dependencies:
     "@ethersproject/abstract-provider" "^5.5.0"
     "@ethersproject/abstract-signer" "^5.5.0"
@@ -5510,7 +5510,7 @@ depd@~1.1.2:
 
 "derivable-engine@git+ssh://git@github.com:derivable-labs/engine.git#dev-build":
   version "1.0.0"
-  resolved "git+ssh://git@github.com:derivable-labs/engine.git#c1b42aac44375697f9a4e0890428014cd084ba34"
+  resolved "git+ssh://git@github.com:derivable-labs/engine.git#9ed07d29fa1c0160c26b69771977a0923250c591"
   dependencies:
     "@ethersproject/providers" "https://gitpkg.now.sh/derivable-labs/ethers.js/packages/providers?v5.3.5.0"
     "@zoltu/ethereum-crypto" "^2.3.0"
