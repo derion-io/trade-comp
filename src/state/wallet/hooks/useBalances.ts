@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux'
 import { updateBalanceAndAllowancesReduce } from '../reducer'
-import { AllowancesType, BalancesType, MaturitiesType } from '../type'
+import { AllowancesType, BalancesType, MaturitiesType, initialAccountState, walletState } from '../type'
 import { useWeb3React } from '../../customWeb3React/hook'
 import { useConfigs } from '../../config/useConfigs'
 import { ethers } from 'ethers'
@@ -16,36 +16,43 @@ import {
 import { messageAndViewOnBsc } from '../../../Components/MessageAndViewOnBsc'
 import { useContract } from '../../../hooks/useContract'
 import { useCurrentPoolGroup } from '../../currentPool/hooks/useCurrentPoolGroup'
+import { useMemo } from 'react'
 
 export const useWalletBalance = () => {
   const { getPoolContract } = useContract()
   const { powers } = useCurrentPoolGroup()
-  const { balances, maturities, accFetchBalance, routerAllowances } =
-    useSelector((state: any) => {
-      return {
-        maturities: state.wallet.maturities,
-        balances: state.wallet.balances,
-        routerAllowances: state.wallet.routerAllowances,
-        accFetchBalance: state.wallet.account
-      }
+  const { provider, account } = useWeb3React()
+  const mapAccounts =
+    useSelector((state: {wallet: walletState}) => {
+      return state.wallet.mapAccounts
     })
   const { configs, ddlEngine } = useConfigs()
-  const { provider, account } = useWeb3React()
+
+  const wallet = useMemo(() => {
+    let accountData = mapAccounts[account]
+    if (!accountData?.balances) { accountData = initialAccountState }
+    return {
+      ...accountData,
+      accFetchBalance: account
+    }
+  }, [account, mapAccounts])
 
   const dispatch = useDispatch()
 
   const updateBalanceAndAllowances = ({
+    account: _account,
     balances,
     routerAllowances,
     maturities
   }: {
+    account?: string,
     balances: BalancesType
     routerAllowances: AllowancesType
     maturities: MaturitiesType
   }) => {
     dispatch(
       updateBalanceAndAllowancesReduce({
-        account,
+        account: _account || account,
         balances,
         maturities,
         routerAllowances
@@ -109,14 +116,17 @@ export const useWalletBalance = () => {
     }
   }
 
-  const fetchBalanceAndAllowance = async (withNative: boolean = true) => {
+  const fetchBalanceAndAllowance = async (wallet: string, withNative: boolean = false) => {
     if (!ddlEngine) return
     const {
+      chainId,
+      account,
       balances,
       allowances,
-      maturity: maturities
-    } = await ddlEngine.BNA.getBalanceAndAllowance(withNative ? [NATIVE_ADDRESS] : [])
+      maturities,
+    } = await ddlEngine.BNA.getBalanceAndAllowance(wallet, withNative)
     updateBalanceAndAllowances({
+      account,
       balances,
       maturities,
       routerAllowances: {
@@ -127,10 +137,8 @@ export const useWalletBalance = () => {
   }
 
   return {
-    accFetchBalance,
-    routerAllowances,
-    maturities,
-    balances,
+    mapAccounts,
+    ...wallet,
     fetchBalanceAndAllowance,
     approveRouter,
     updateBalanceAndAllowances

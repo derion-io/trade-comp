@@ -282,13 +282,13 @@ export const Datafeed = {
     resolution: any
   ) {
     const state = store.getState()
-    const walletTxs = state.wallet.formartedSwapLogs
+    const walletTxs = state.wallet.mapAccounts[state.wallet.account].formartedSwapLogs
     const currentPool = state.currentPool
     const configs = state.configs
     const tokens = state.tokens.tokens[configs.chainId]
 
     const result = walletTxs
-    .filter(tx => currentPool.pools[tx.poolIn] || currentPool.pools[tx.poolOut])
+    ?.filter((tx:any) => currentPool.pools[tx.poolIn] || currentPool.pools[tx.poolOut])
     .map((t: any) => {
       return detectMarkInfo(
         t,
@@ -309,13 +309,13 @@ export const Datafeed = {
     resolution: any
   ) {
     const state = store.getState()
-    const walletTxs = state.wallet.formartedSwapLogs
+    const walletTxs = state.wallet.mapAccounts[state.wallet.account].formartedSwapLogs
     const currentPool = state.currentPool
     const configs = state.configs
     const tokens = state.tokens.tokens[configs.chainId]
 
     const result = walletTxs
-    .filter(tx => currentPool.pools[tx.poolIn] || currentPool.pools[tx.poolOut])
+    ?.filter((tx:any) => currentPool.pools[tx.poolIn] || currentPool.pools[tx.poolOut])
     .map((t: any) => {
       return detectMarkInfo(
         t,

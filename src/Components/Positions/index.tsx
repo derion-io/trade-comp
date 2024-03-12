@@ -1,7 +1,7 @@
 import { BigNumber } from 'ethers'
 import _ from 'lodash'
 import moment from 'moment'
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useWindowSize } from '../../hooks/useWindowSize'
 import { useConfigs } from '../../state/config/useConfigs'
 import { useHelper } from '../../state/config/useHelper'
@@ -56,13 +56,13 @@ import {
 import { TokenIcon } from '../ui/TokenIcon'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import './style.scss'
-import { useSwapPendingHistory } from '../../state/wallet/hooks/useSwapPendingHistory'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { SharedPosition } from '../PositionSharedModal'
 import { SharedIcon } from '../ui/Icon'
 import { useTokenPrice } from '../../state/resources/hooks/useTokenPrice'
 import { BatchTransferModal } from '../BatchTransfer'
 import { Checkbox } from 'antd'
+import { useWeb3React } from '../../state/customWeb3React/hook'
 
 const mdp = require('move-decimal-point')
 
@@ -82,7 +82,7 @@ export const Positions = ({
   const { tradeType, updateCurrentPoolGroup } = useCurrentPoolGroup()
   const { setCurrentPoolAddress } = useCurrentPool()
   const { pools, poolGroups } = useResource()
-  const { balances, maturities } = useWalletBalance()
+  const { balances, maturities, swapLogs, swapPendingTxs, positionsWithEntry } = useWalletBalance()
   const { tokens } = useListTokens()
   const { getTokenValue } = useTokenValue({})
   const { wrapToNativeAddress } = useHelper()
@@ -100,8 +100,8 @@ export const Positions = ({
   const [selections, setSelections] = useState<{ [pos: string]: Position }>({})
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
   const { ddlEngine } = useConfigs()
-  const { swapLogs } = useSwapHistory()
-  const { swapPendingTxs } = useSwapPendingHistory()
+  const { updatePositionsWithEntry } = useSwapHistory()
+  // const { } = useSwapPendingHistory()
   const { width } = useWindowSize()
   const isPhone = width && width < 992
 
@@ -116,18 +116,9 @@ export const Positions = ({
       clearInterval(timer)
     }
   }, [])
-
-  const positionsWithEntry = useMemo(() => {
-    if (ddlEngine?.HISTORY && Object.values(pools).length > 0 && swapLogs) {
-      return (
-        ddlEngine.HISTORY.generatePositions?.({
-          tokens: Object.values(tokens),
-          logs: _.cloneDeep(swapLogs)
-        }) ?? {}
-      )
-    }
-    return {}
-  }, [swapLogs, pools, tokens, ddlEngine?.HISTORY])
+  const { account } = useWeb3React()
+  // const [positionsWithEntry, setPositionsWithEntry] = useState<{[key:string]: any}>({})
+  const [positions, setPositions] = useState<Position[]>([])
 
   const generatePositionData = (
     poolAddress: string,
@@ -141,9 +132,12 @@ export const Positions = ({
     )
 
     if (
-      balances[token]?.gt(0) ||
+      (
+        (Number(balances[token]) &&
+      Number(balances[token]) !== 0) ||
       pendingTxData?.token ||
-      positionsWithEntry[token]?.avgPrice
+      positionsWithEntry[token]?.avgPrice) &&
+      positionsWithEntry[token]?.entryPrice !== -1
     ) {
       const pool =
         pools[pendingTxData?.token ? pendingTxPool.address : poolAddress]
@@ -256,20 +250,33 @@ export const Positions = ({
     }
     return s1
   }
-  const positions: Position[] = useMemo(() => {
-    const result: any = []
-    Object.keys(pools).forEach((poolAddress) => {
-      result.push(generatePositionData(poolAddress, POOL_IDS.A))
-      result.push(generatePositionData(poolAddress, POOL_IDS.B))
-      result.push(generatePositionData(poolAddress, POOL_IDS.C))
-    })
+  useEffect(() => {
+    setPositions([])
+  }, [account])
+  useEffect(() => {
+    if (ddlEngine?.HISTORY && swapLogs && swapLogs?.[0]?.args[0] === account) {
+      updatePositionsWithEntry(
+        account,
+        ddlEngine.HISTORY.generatePositions?.({
+          tokens: Object.values(tokens),
+          logs: _.cloneDeep(swapLogs)
+        }) ?? {}
+      )
+    }
+  }, [swapLogs, tokens, ddlEngine?.HISTORY, account])
 
-    return result.filter((r: any) => r !== null)
+  useEffect(() => {
+    if (Object.keys(positionsWithEntry)?.length !== 0) {
+      const result: any[] = []
+      Object.keys(pools).forEach((poolAddress) => {
+        result.push(generatePositionData(poolAddress, POOL_IDS.A))
+        result.push(generatePositionData(poolAddress, POOL_IDS.B))
+        result.unshift(generatePositionData(poolAddress, POOL_IDS.C))
+      })
+      setPositions(result.filter((r: any) => r !== null))
+    }
   }, [
     positionsWithEntry,
-    balances,
-    maturities,
-    pools,
     settings.minPositionValueUSD
   ])
 
@@ -687,7 +694,7 @@ export const Positions = ({
                   {/* <td><ExplorerLink poolAddress={position.poolAddress}/></td> */}
                   <td className='text-right'>
                     {isShowAllPosition ?
-                      <ButtonSell
+                        <ButtonSell
                         className='share-position'
                         size='small'
                         style={{ border: 'none' }}>
@@ -701,8 +708,8 @@ export const Positions = ({
                           }
                           setSelections(ss)
                         }}
-                      /></ButtonSell>
-                    : <ButtonSell
+                        /></ButtonSell>
+                      : <ButtonSell
                         size='small'
                         className='share-position'
                         style={{ border: 'none' }}
@@ -713,43 +720,43 @@ export const Positions = ({
                       ><SharedIcon /></ButtonSell>
                     }
                     {(position.status === POSITION_STATUS.OPENING ? (
-                        <ButtonSell
-                          disabled
-                          size='small'
-                          style={{ opacity: 0.5 }}
-                        >
+                      <ButtonSell
+                        disabled
+                        size='small'
+                        style={{ opacity: 0.5 }}
+                      >
                         Pending
-                        </ButtonSell>
-                      ) : position.status === POSITION_STATUS.CLOSING ? (
-                        <ButtonSell
-                          size='small'
-                          disabled
-                          style={{ opacity: 0.5 }}
-                        >
-                          <SkeletonLoader
-                            textLoading={
-                              position.side === POOL_IDS.C
-                                ? 'Removing'
-                                : 'Closing'
-                            }
-                            loading={position.status === POSITION_STATUS.CLOSING}
-                          />
-                        </ButtonSell>
-                      ) : (
-                        <ButtonSell
-                          size='small'
-                          onClick={(e) => {
-                            setClosingPosition(position)
-                            setOutputTokenAddress(
-                              wrapToNativeAddress(position.pool.TOKEN_R)
-                            )
-                            setVisible(true)
-                            e.stopPropagation() // stop the index from being changed
-                          }}
-                        >
-                          {position.side === POOL_IDS.C ? 'Remove' : 'Close'}
-                        </ButtonSell>
-                      ))
+                      </ButtonSell>
+                    ) : position.status === POSITION_STATUS.CLOSING ? (
+                      <ButtonSell
+                        size='small'
+                        disabled
+                        style={{ opacity: 0.5 }}
+                      >
+                        <SkeletonLoader
+                          textLoading={
+                            position.side === POOL_IDS.C
+                              ? 'Removing'
+                              : 'Closing'
+                          }
+                          loading={position.status === POSITION_STATUS.CLOSING}
+                        />
+                      </ButtonSell>
+                    ) : (
+                      <ButtonSell
+                        size='small'
+                        onClick={(e) => {
+                          setClosingPosition(position)
+                          setOutputTokenAddress(
+                            wrapToNativeAddress(position.pool.TOKEN_R)
+                          )
+                          setVisible(true)
+                          e.stopPropagation() // stop the index from being changed
+                        }}
+                      >
+                        {position.side === POOL_IDS.C ? 'Remove' : 'Close'}
+                      </ButtonSell>
+                    ))
                     }
                   </td>
                 </tr>

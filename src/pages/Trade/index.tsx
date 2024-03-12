@@ -53,7 +53,7 @@ export const Trade = ({
   const [outputTokenAddress, setOutputTokenAddress] = useState<string>('')
   const [visibleSettingModal, setVisibleSettingModal] = useState<boolean>(false)
   const { maturities } = useWalletBalance()
-  const tokenOutMaturity = maturities[outputTokenAddress] || bn(0)
+  const tokenOutMaturity = maturities?.[outputTokenAddress] || bn(0)
 
   useEffect(() => {
     const url =
