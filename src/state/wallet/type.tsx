@@ -27,7 +27,7 @@ export type SwapPendingTxType = {
 }
 
 export interface walletState {
-  account: string,
+  account: string, // only used for tradingview markers
   mapAccounts: {[account: string]: {
     balances: BalancesType,
     maturities: MaturitiesType,
@@ -51,6 +51,6 @@ export const initialAccountState = {
   positionsWithEntry: {}
 }
 export const initialState = {
-  account: '',
+  account: '', // only used for tradingview markers
   mapAccounts: {}
 }

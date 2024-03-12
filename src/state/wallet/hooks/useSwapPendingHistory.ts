@@ -15,7 +15,7 @@ export const useSwapPendingHistory = () => {
   const updatePendingTxsHandle = (account: string, swapPendingTx: SwapPendingTxType[]) => {
     dispatch(updatePendingSwapTxs({
       account,
-      swapPendingTx
+      swapPendingTx,
     }))
   }
   return {

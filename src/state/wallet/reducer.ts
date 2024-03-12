@@ -44,7 +44,6 @@ export const tokens = createSlice({
         transferLogs: any
       }>
     ) => {
-      console.log('#updateSwapTxs', action.payload.account, action.payload.swapLogs)
       if (!action.payload.account) return
       if (!state.mapAccounts[action.payload.account]) state.mapAccounts[action.payload.account] = initialAccountState
       if (action.payload.swapLogs[0]?.args?.[0] !== action.payload.account) return
@@ -96,26 +95,10 @@ export const tokens = createSlice({
       }>
     ) => {
       if (!state.mapAccounts[action.payload.account]) state.mapAccounts[action.payload.account] = initialAccountState
-      // if (action.payload.account !== state.mapAccounts[state.account].account) {
       state.mapAccounts[action.payload.account].balances = action.payload.balances
       state.mapAccounts[action.payload.account].routerAllowances = action.payload.routerAllowances
       state.mapAccounts[action.payload.account].maturities = action.payload.maturities
-      state.account = action.payload.account
-      // }
-      //  else {
-      //   state.balances = {
-      //     ...state.balances,
-      //     ...action.payload.balances
-      //   }
-      //   state.routerAllowances = {
-      //     ...state.routerAllowances,
-      //     ...action.payload.routerAllowances
-      //   }
-      //   state.maturities = {
-      //     ...state.maturities,
-      //     ...action.payload.maturities
-      //   }
-      // }
+      state.account = action.payload.account // only used for tradingview markers
     }
   }
 })

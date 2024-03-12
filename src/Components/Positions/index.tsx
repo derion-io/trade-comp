@@ -36,7 +36,7 @@ import {
   add,
   IS_NEG,
   ABS,
-  poolToIndexID
+  poolToIndexID,
 } from '../../utils/helpers'
 import { ClosingFeeCalculator, Position } from '../../utils/type'
 import { ClosePosition } from '../ClosePositionModal'
@@ -56,7 +56,6 @@ import {
 import { TokenIcon } from '../ui/TokenIcon'
 import { TokenSymbol } from '../ui/TokenSymbol'
 import './style.scss'
-import { useSwapPendingHistory } from '../../state/wallet/hooks/useSwapPendingHistory'
 import { SkeletonLoader } from '../ui/SkeletonLoader'
 import { SharedPosition } from '../PositionSharedModal'
 import { SharedIcon } from '../ui/Icon'
@@ -83,7 +82,7 @@ export const Positions = ({
   const { tradeType, updateCurrentPoolGroup } = useCurrentPoolGroup()
   const { setCurrentPoolAddress } = useCurrentPool()
   const { pools, poolGroups } = useResource()
-  const { balances, maturities, mapAccounts, swapLogs, swapPendingTxs, positionsWithEntry } = useWalletBalance()
+  const { balances, maturities, swapLogs, swapPendingTxs, positionsWithEntry } = useWalletBalance()
   const { tokens } = useListTokens()
   const { getTokenValue } = useTokenValue({})
   const { wrapToNativeAddress } = useHelper()
@@ -91,12 +90,6 @@ export const Positions = ({
   const [valueInUsdStatus, setValueInUsdStatus] = useState<VALUE_IN_USD_STATUS>(
     VALUE_IN_USD_STATUS.USD
   )
-  useEffect(() => {
-    console.log('#mapAccounts', mapAccounts)
-  }, [mapAccounts])
-  useEffect(() => {
-    console.log('#positionsWithEntry', positionsWithEntry)
-  }, [positionsWithEntry])
   const [visible, setVisible] = useState<boolean>(false)
   const [closingPosition, setClosingPosition] = useState<Position | undefined>(
     undefined
@@ -276,12 +269,10 @@ export const Positions = ({
     if (Object.keys(positionsWithEntry)?.length !== 0) {
       const result: any[] = []
       Object.keys(pools).forEach((poolAddress) => {
-        console.log('#res-pools', poolAddress)
         result.push(generatePositionData(poolAddress, POOL_IDS.A))
         result.push(generatePositionData(poolAddress, POOL_IDS.B))
         result.unshift(generatePositionData(poolAddress, POOL_IDS.C))
       })
-      console.log('#res', result, positionsWithEntry, balances)
       setPositions(result.filter((r: any) => r !== null))
     }
   }, [
@@ -329,12 +320,12 @@ export const Positions = ({
         displayPositions = [...pendingPosition, ...displayPositions]
       }
     }
+
     const hasClosingFee = displayPositions.some(
       (p) => p?.calulateClosingFee?.(now)?.fee > 0
     )
     return [displayPositions, hasClosingFee]
   }, [positions, tradeType, swapPendingTxs])
-
   const isShowAllPosition = useMemo(() => settings.minPositionValueUSD === 0, [settings.minPositionValueUSD])
   const [isBatchTransferModalVisible, setBatchTransferModalVisible] = useState<boolean>(false)
   const showSize = tradeType !== TRADE_TYPE.LIQUIDITY
@@ -702,14 +693,14 @@ export const Positions = ({
                   {/* <td><Reserve pool={position.pool}/></td> */}
                   {/* <td><ExplorerLink poolAddress={position.poolAddress}/></td> */}
                   <td className='text-right'>
-                    {isShowAllPosition
-                      ? <ButtonSell
+                    {isShowAllPosition ?
+                        <ButtonSell
                         className='share-position'
                         size='small'
                         style={{ border: 'none' }}>
                         <Checkbox onChange={() => {
                           const id = `${position.poolAddress}-${position.side}`
-                          const ss = { ...selections }
+                          const ss = {...selections}
                           if (!ss[id]) {
                             ss[id] = position
                           } else {
@@ -1202,7 +1193,7 @@ export const FundingRate = ({
 
 export const Size = ({
   position,
-  isPhone
+  isPhone,
 }: {
   position: Position
   isPhone?: boolean
@@ -1324,7 +1315,7 @@ export const ExplorerLink = ({ poolAddress }: { poolAddress: string }) => {
 export const Token = ({
   token,
   balance,
-  doubleLines
+  doubleLines,
 }: {
   token: string
   balance?: string
