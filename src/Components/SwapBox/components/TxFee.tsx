@@ -155,7 +155,7 @@ export const TxFee = ({
         ''
       ) : (
         <InfoRow>
-          <TextGrey>Closing Fee</TextGrey>
+          <TextGrey>Anti-bot Fee</TextGrey>
           <span>
             {closingFee.isVesting ? (
               <TextSell>{feeFormat}%</TextSell>

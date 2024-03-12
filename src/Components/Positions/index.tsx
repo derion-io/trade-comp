@@ -1,6 +1,5 @@
 import { BigNumber } from 'ethers'
 import _ from 'lodash'
-import moment from 'moment'
 import React, { useEffect, useMemo, useState } from 'react'
 import { useWindowSize } from '../../hooks/useWindowSize'
 import { useConfigs } from '../../state/config/useConfigs'
@@ -26,6 +25,7 @@ import {
   decodeErc1155Address,
   div,
   encodeErc1155Address,
+  formatMaturity,
   formatFloat,
   formatPercent,
   isErc1155Address,
@@ -483,7 +483,7 @@ export const Positions = ({
 
                 {!position?.calulateClosingFee?.(now)?.fee || (
                   <InfoRow>
-                    <TextGrey>Closing Fee</TextGrey>
+                    <TextGrey>Anti-Bot Fee</TextGrey>
                     <ClosingFee
                       now={now}
                       position={position}
@@ -562,7 +562,7 @@ export const Positions = ({
               <th>Funding</th>
               {showSize && <th>Size</th>}
               <th>Delev. Price</th>
-              {!hasClosingFee || <th>Closing Fee</th>}
+              {!hasClosingFee || <th>Anti-Bot Fee</th>}
               {isShowAllPosition && <th style={{ textAlign: 'right' }}>
                 <ButtonSell
                   size='small'
@@ -1253,7 +1253,7 @@ export const ClosingFee = ({
 
   const TextComp = res?.isVesting ? TextSell : TextWarning
   const feeFormat = formatPercent(Math.min(1, res.fee ?? 0), 2, true)
-  const timeFormat = moment.unix(res.remain ?? 0).from(0, true)
+  const timeFormat = formatMaturity(res.remain)
   const { status } = position
   if (isPhone) {
     return (

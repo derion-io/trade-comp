@@ -1,9 +1,8 @@
-import moment from 'moment'
-import React, { Fragment } from 'react'
+import React from 'react'
 import { useListTokens } from '../../../state/token/hook'
 import { TRADE_TYPE } from '../../../utils/constant'
 import formatLocalisedCompactNumber from '../../../utils/formatBalance'
-import { IEW, formatFloat, formatPercent, zerofy } from '../../../utils/helpers'
+import { IEW, formatFloat, formatMaturity, formatPercent, zerofy } from '../../../utils/helpers'
 import { useTokenValue } from '../../SwapBox/hooks/useTokenValue'
 import Tooltip from '../../Tooltip/Tooltip'
 import { Box } from '../../ui/Box'
@@ -170,18 +169,32 @@ export const SwapInfoBox = ({
       )}
       {!poolToShow?.MATURITY_VEST?.toNumber() || (
         <InfoRow>
-          <TextGrey>Position Vesting</TextGrey>
+          <TextGrey>Anti-Bot Vesting</TextGrey>
           <SkeletonLoader loading={!poolToShow}>
-            {moment
-              .duration(poolToShow?.MATURITY_VEST.toNumber(), 'seconds')
-              .humanize()}
+            <Tooltip
+              position='right-bottom'
+              handle={
+                <Text
+                  className={poolToShow?.MATURITY_VEST.toNumber() > 600 ? 'text-sell' : ''}
+                >
+                  {formatMaturity(poolToShow?.MATURITY_VEST)}
+                </Text>
+              }
+              renderContent={() => (
+                <div>
+                  To avoid heavy charges,<br/>
+                  positions should not be closed<br/>
+                  shortly after being opened.
+                </div>
+              )}
+            />
           </SkeletonLoader>
         </InfoRow>
       )}
       {!poolToShow?.MATURITY?.toNumber() ||
         !poolToShow?.MATURITY_RATE?.gt(0) || (
         <InfoRow>
-          <TextGrey>Closing Fee</TextGrey>
+          <TextGrey>Anti-Bot Fee</TextGrey>
           <SkeletonLoader loading={!poolToShow}>
             <TextWarning>{
               formatPercent(
@@ -194,12 +207,23 @@ export const SwapInfoBox = ({
               )
             }%</TextWarning>
             {' for '}
-            {poolToShow?.MATURITY.toNumber() < poolToShow?.MATURITY_VEST.toNumber()
-              ? <TextSell>{
-                moment.duration(poolToShow?.MATURITY.toNumber(), 'seconds').humanize()
-              }</TextSell>
-              : moment.duration(poolToShow?.MATURITY.toNumber(), 'seconds').humanize()
-            }
+            <Tooltip
+              position='right-bottom'
+              handle={
+                <Text
+                  className={poolToShow?.MATURITY.toNumber() < poolToShow?.MATURITY_VEST.toNumber() ? 'text-sell' : ''}
+                >
+                  {formatMaturity(poolToShow?.MATURITY)}
+                </Text>
+              }
+              renderContent={() => (
+                <div>
+                  After this duration,<br/>
+                  no fees are charged<br/>
+                  for closing positions.
+                </div>
+              )}
+            />          
           </SkeletonLoader>
         </InfoRow>
       )}
