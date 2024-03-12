@@ -248,7 +248,7 @@ export const ButtonSwap = ({
                     (l: any) => l.transactionHash && l.args?.name === 'Transfer'
                   ))
                 toast.success('Transaction Confirmed')
-                await fetchBalanceAndAllowance(true, account)
+                await fetchBalanceAndAllowance(account, true)
                 await initResource(account)
               }
               setLoading(false)
