@@ -171,7 +171,23 @@ export const SwapInfoBox = ({
         <InfoRow>
           <TextGrey>Anti-Bot Vesting</TextGrey>
           <SkeletonLoader loading={!poolToShow}>
-            {formatMaturity(poolToShow?.MATURITY_VEST)}
+            <Tooltip
+              position='right-bottom'
+              handle={
+                <Text
+                  className={poolToShow?.MATURITY_VEST.toNumber() > 600 ? 'text-sell' : ''}
+                >
+                  {formatMaturity(poolToShow?.MATURITY_VEST)}
+                </Text>
+              }
+              renderContent={() => (
+                <div>
+                  To avoid heavy charges,<br/>
+                  positions should not be closed<br/>
+                  shortly after being opened.
+                </div>
+              )}
+            />
           </SkeletonLoader>
         </InfoRow>
       )}
@@ -191,12 +207,23 @@ export const SwapInfoBox = ({
               )
             }%</TextWarning>
             {' for '}
-            {poolToShow?.MATURITY.toNumber() < poolToShow?.MATURITY_VEST.toNumber()
-              ? <TextSell>{
-                formatMaturity(poolToShow?.MATURITY)
-              }</TextSell>
-              : formatMaturity(poolToShow?.MATURITY)
-            }
+            <Tooltip
+              position='right-bottom'
+              handle={
+                <Text
+                  className={poolToShow?.MATURITY.toNumber() < poolToShow?.MATURITY_VEST.toNumber() ? 'text-sell' : ''}
+                >
+                  {formatMaturity(poolToShow?.MATURITY)}
+                </Text>
+              }
+              renderContent={() => (
+                <div>
+                  After this duration,<br/>
+                  no fees are charged<br/>
+                  for closing positions.
+                </div>
+              )}
+            />          
           </SkeletonLoader>
         </InfoRow>
       )}
