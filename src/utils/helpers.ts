@@ -4,6 +4,7 @@ import _ from 'lodash'
 import { ListTokensType } from '../state/token/type'
 import { Q128 } from './type'
 import { PoolType } from 'derivable-engine/dist/types'
+import moment from 'moment'
 
 const mdp = require('move-decimal-point')
 
@@ -716,4 +717,20 @@ export function poolToIndexID(pool: PoolType) {
 export const packId = (kind: string | BigNumber, address: string) => {
   const k = bn(kind)
   return k.shl(160).add(address)
+}
+
+export const formatMaturity = (duration: number | BigNumber, removeSingularPaticle: boolean = false): string => {
+  if (duration instanceof BigNumber) {
+    duration = duration?.toNumber() ?? 0
+  }
+  const s = moment.unix(duration ?? 0).from(0, true)
+  if (removeSingularPaticle) {
+    if (s.startsWith('a ')) {
+      return s.slice(2)
+    }
+    if (s.startsWith('an ')) {
+      return s.slice(3)
+    }
+  }
+  return s
 }

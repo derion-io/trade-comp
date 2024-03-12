@@ -1,9 +1,8 @@
-import moment from 'moment'
-import React, { Fragment } from 'react'
+import React from 'react'
 import { useListTokens } from '../../../state/token/hook'
 import { TRADE_TYPE } from '../../../utils/constant'
 import formatLocalisedCompactNumber from '../../../utils/formatBalance'
-import { IEW, formatFloat, formatPercent, zerofy } from '../../../utils/helpers'
+import { IEW, formatFloat, formatMaturity, formatPercent, zerofy } from '../../../utils/helpers'
 import { useTokenValue } from '../../SwapBox/hooks/useTokenValue'
 import Tooltip from '../../Tooltip/Tooltip'
 import { Box } from '../../ui/Box'
@@ -170,18 +169,16 @@ export const SwapInfoBox = ({
       )}
       {!poolToShow?.MATURITY_VEST?.toNumber() || (
         <InfoRow>
-          <TextGrey>Position Vesting</TextGrey>
+          <TextGrey>Anti-Bot Vesting</TextGrey>
           <SkeletonLoader loading={!poolToShow}>
-            {moment
-              .duration(poolToShow?.MATURITY_VEST.toNumber(), 'seconds')
-              .humanize()}
+            {formatMaturity(poolToShow?.MATURITY_VEST)}
           </SkeletonLoader>
         </InfoRow>
       )}
       {!poolToShow?.MATURITY?.toNumber() ||
         !poolToShow?.MATURITY_RATE?.gt(0) || (
         <InfoRow>
-          <TextGrey>Closing Fee</TextGrey>
+          <TextGrey>Anti-Bot Fee</TextGrey>
           <SkeletonLoader loading={!poolToShow}>
             <TextWarning>{
               formatPercent(
@@ -196,9 +193,9 @@ export const SwapInfoBox = ({
             {' for '}
             {poolToShow?.MATURITY.toNumber() < poolToShow?.MATURITY_VEST.toNumber()
               ? <TextSell>{
-                moment.duration(poolToShow?.MATURITY.toNumber(), 'seconds').humanize()
+                formatMaturity(poolToShow?.MATURITY)
               }</TextSell>
-              : moment.duration(poolToShow?.MATURITY.toNumber(), 'seconds').humanize()
+              : formatMaturity(poolToShow?.MATURITY)
             }
           </SkeletonLoader>
         </InfoRow>
