@@ -12,6 +12,7 @@ import { TokenIcon } from '../../ui/TokenIcon'
 import './index.scss'
 import { useResource } from '../../../state/resources/hooks/useResource'
 import { useSettings } from '../../../state/setting/hooks/useSettings'
+import { Marker } from './marker'
 type Props = {
   poolsFilterSearch: { [key: string]: PoolSearch }
   handlePoolSelect: (pool: PoolSearch, hasWarning?: boolean) => void
@@ -62,8 +63,10 @@ export const ListIndexs = ({
                     />
                     <div className='chart-token-symbol'>
                       <Text>
+                        <Marker index={index}/>
                         {unwrap(index.baseToken.symbol)}/
                         {unwrap(index.quoteToken.symbol)}
+
                         <TextGrey>
                           {' '}
                           (
@@ -73,6 +76,7 @@ export const ListIndexs = ({
                               : ''
                           })}
                           )
+
                         </TextGrey>
                       </Text>
                       <br />
@@ -126,32 +130,35 @@ export const ListIndexs = ({
                 </div>
 
                 <div className='index-value-item'>
-                  {poolGroupsValue[key]?.poolGroupValueR > 0 ? (
-                    <div style={{ margin: 0 }}>
-                      <TextPink>
-                        {' '}
-                        {`${unwrap(
+
+                  <div>
+                    {poolGroupsValue[key]?.poolGroupValueR > 0 ? (
+                      <div style={{ margin: 0 }}>
+                        <TextPink>
+                          {' '}
+                          {`${unwrap(
                           tokens[
                             index.pools[Object.keys(index.pools)[0]]?.TOKEN_R
                           ].symbol
                         )}`}
-                      </TextPink>
-                      <Text>{`${zerofy(poolGroupsValue[key]?.poolGroupValueR, {
+                        </TextPink>
+                        <Text>{`${zerofy(poolGroupsValue[key]?.poolGroupValueR, {
                         maxZeros: 4,
                         maximumSignificantDigits: 2
                       })}`}</Text>
-                    </div>
-                  ) : (
-                    <SkeletonLoader textLoading='   ' loading />
-                  )}
+                      </div>
+                    ) : (
+                      <SkeletonLoader textLoading='   ' loading />
+                    )}
 
-                  {poolGroupsValue[key]?.poolGroupValue ? (
-                    <TextGrey>{`$${formatLocalisedCompactNumber(
+                    {poolGroupsValue[key]?.poolGroupValue ? (
+                      <TextGrey>{`$${formatLocalisedCompactNumber(
                       formatFloat(poolGroupsValue[key]?.poolGroupValue)
                     )}`}</TextGrey>
-                  ) : (
-                    ''
-                  )}
+                    ) : (
+                      ''
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

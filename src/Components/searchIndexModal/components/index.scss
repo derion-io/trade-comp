@@ -31,6 +31,7 @@
 }
 .index-value-item{
     text-align: right;
+    display: flex
 }
 .position-token-list:hover{
     cursor: pointer;
@@ -66,4 +67,13 @@
 .search-model-footer{
     width: 100%;
     text-align: center;
+}
+.marker-text {
+    padding: 0.1rem;
+    border: 1px solid rgb(41, 41, 41);
+    font-size: 11px;
+    color: $color-text-grey;
+    border-radius: 1px;
+    margin-left: 0.2rem;
+    margin-right: 0.2rem;
 }
