@@ -13,7 +13,7 @@ import {
   detectTradeTab,
   formatFloat,
   unwrap,
-  zerofy,
+  zerofy
 } from '../../utils/helpers'
 import { PoolSearch } from '../../utils/type'
 import { CandleChart } from '../CandleChart'
@@ -33,7 +33,7 @@ const Component = ({
   inputTokenAddress,
   outputTokenAddress,
   setInputTokenAddress,
-  setOutputTokenAddress,
+  setOutputTokenAddress
 }: {
   changedIn24h: number
   inputTokenAddress: string
@@ -57,7 +57,7 @@ const Component = ({
   const [onSearchCurrenies, setOnSearchCurrenies] = useState<boolean>(false)
   const { poolGroups, useCalculatePoolGroupsValue } = useResource()
   const { poolGroupsValue } = useCalculatePoolGroupsValue()
-  const [isUseDextool, setUseDexTool] = useState<boolean>(false)
+  // const [isUseDextool, setUseDexTool] = useState<boolean>(false)
   const pairAddress = poolGroups[id]
     ? '0x' +
       (poolGroups[id]?.ORACLE as String).slice(
@@ -65,18 +65,18 @@ const Component = ({
         poolGroups[id]?.ORACLE.length
       )
     : ''
-  useEffect(() => {
-    console.log('chartIsOutDate', chartIsOutDate)
-    // if (currentPool?.chartIsOutDate) {
-    //   setUseDexTool(true)
-    // }
-    if (chartIsOutDate) {
-      setUseDexTool(true)
-    }
-  }, [chartIsOutDate])
-  useEffect(() => {
-    setUseDexTool(false)
-  }, [chainId])
+  // useEffect(() => {
+  //   console.log('chartIsOutDate', chartIsOutDate)
+  //   // if (currentPool?.chartIsOutDate) {
+  //   //   setUseDexTool(true)
+  //   // }
+  //   if (chartIsOutDate) {
+  //     setUseDexTool(true)
+  //   }
+  // }, [chartIsOutDate])
+  // useEffect(() => {
+  //   setUseDexTool(false)
+  // }, [chainId])
   return (
     <div className='chart-box'>
       <div className='chart__head'>
@@ -182,7 +182,7 @@ const Component = ({
             <LineChart changedIn24h={changedIn24h} />
           ) : chartTab === CHART_TABS.FUNC_PLOT ? (
             currentPool?.states && <FunctionPlot />
-          ) : isUseDextool ? (
+          ) : configs.useDexToolsChart ? (
             <DexToolChart pairAddress={pairAddress} chartResolution='1' />
           ) : (
             <CandleChart />
