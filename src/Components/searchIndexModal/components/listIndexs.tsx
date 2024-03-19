@@ -74,20 +74,26 @@ export const ListIndexs = ({
 
                         <TextGrey>
                           {' '}
-                          (
-                          {index?.pools.map((pool, __) => {
-                            return getPoolPower(pool) !== 0
-                              ? String(getPoolPower(pool)) + 'x'
-                              : ''
-                          })}
-                          )
-
+                          {
+                            index.pools
+                              .map(pool => getPoolPower(pool))
+                              .filter((value, index, self) => self.indexOf(value) === index)
+                              .slice(0, 3)
+                              .map((p, __) => {
+                                return p !== 0
+                                  ? String(p) + 'x'
+                                  : ''
+                              })
+                          }
                         </TextGrey>
                       </Text>
                       <br />
                       <div className='pool-positions-list__wrap'>
                         {/* <TextGrey>Positions</TextGrey> */}
+
                         <div className='pool-positions-list'>
+                          {indexWhiteList.includes(key) ? '' : <WarningIcon fill='gray'/>}
+
                           {poolGroupsValue?.[key]?.poolGroupPositions?.length >
                           0 ? (
                             poolGroupsValue[key]?.poolGroupPositions?.map(
@@ -135,24 +141,22 @@ export const ListIndexs = ({
                 </div>
 
                 <div className='index-value-item'>
-                  <div>
-                    {indexWhiteList.includes(key) ? '' : <WarningIcon fill='gray'/>}
-                  </div>
+
                   <div>
                     {poolGroupsValue[key]?.poolGroupValueR > 0 ? (
                       <div style={{ margin: 0 }}>
+                        {' '}
+                        <Text>{`${zerofy(poolGroupsValue[key]?.poolGroupValueR, {
+                        maxZeros: 4,
+                        maximumSignificantDigits: 2
+                      })}`}</Text>
                         <TextPink>
-                          {' '}
                           {`${unwrap(
                           tokens[
                             index.pools[Object.keys(index.pools)[0]]?.TOKEN_R
                           ].symbol
                         )}`}
                         </TextPink>
-                        <Text>{`${zerofy(poolGroupsValue[key]?.poolGroupValueR, {
-                        maxZeros: 4,
-                        maximumSignificantDigits: 2
-                      })}`}</Text>
                       </div>
                     ) : (
                       <SkeletonLoader textLoading='   ' loading />
