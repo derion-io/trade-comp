@@ -74,7 +74,7 @@ export const ListIndexs = ({
 
                         <TextGrey>
                           {' '}
-                          {
+                          ({
                             index.pools
                               .map(pool => getPoolPower(pool))
                               .filter((value, index, self) => self.indexOf(value) === index)
@@ -84,7 +84,7 @@ export const ListIndexs = ({
                                   ? String(p) + 'x'
                                   : ''
                               })
-                          }
+                          })
                         </TextGrey>
                       </Text>
                       <br />
