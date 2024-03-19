@@ -65,16 +65,20 @@ export interface resourcesState {
   }
   feeData: {
     [key: string]: { [key: string]: FeeDataType }
-  }
+  },
+  indexWhiteList: {
+    [key: string]: string[]
+  },
   swapLogs: { [key: string]: any[] }
 }
 
 const initDataEachChain = Object.fromEntries(
   SUPPORTED_CHAINS.map(chainId => [chainId, {}])
 )
-
+const initIndexWhiteList = {}
 export const initialState: resourcesState = {
   poolGroups: initDataEachChain,
+  indexWhiteList: initIndexWhiteList,
   pools: initDataEachChain,
   tokens: initDataEachChain,
   prices: initDataEachChain,

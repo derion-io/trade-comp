@@ -9,14 +9,15 @@ import { addTokensReduce } from '../../token/reducer'
 import { State } from '../../types'
 import { useWalletBalance } from '../../wallet/hooks/useBalances'
 import { useSwapHistory } from '../../wallet/hooks/useSwapHistory'
-import { addPoolGroupsWithChain, addPoolsWithChain } from '../reducer'
+import { addPoolGroupsWithChain, addPoolsWithChain, setIndexWhiteListReduce } from '../reducer'
 import { PoolGroupValueType, PoolType } from '../type'
 
 export const useResource = () => {
-  const { poolGroups, pools } = useSelector((state: State) => {
+  const { poolGroups, pools, indexWhiteList } = useSelector((state: State) => {
     return {
       poolGroups: state.resources.poolGroups,
-      pools: state.resources.pools
+      pools: state.resources.pools,
+      indexWhiteList: state.resources.indexWhiteList
     }
   })
   const { chainId, ddlEngine, configs } = useConfigs()
@@ -29,18 +30,14 @@ export const useResource = () => {
     )
     dispatch(addPoolsWithChain({ pools: data.pools, chainId }))
   }
+  const setIndexWhiteList = (pools:string[]) => {
+    dispatch(setIndexWhiteListReduce({ pools, chainId }))
+  }
   const initListPool = async (account: string) => {
     if (ddlEngine && configs.name) {
       const { searchParams } = new URL(`https://1.com?${location.href.split('?')[1]}`)
       const playMode = searchParams.has('play')
       const pool = searchParams.get('pool')
-      ddlEngine.RESOURCE.getWhiteListResource(pool ? [pool] : []).then(
-        (data) => {
-          if (data?.tokens?.length === 0) return
-          addNewResource(data, account)
-          // updateSwapTxsHandle(account, data.swapLogs, data.transferLogs)
-        }
-      )
 
       ddlEngine.RESOURCE.getResourceCached(account, playMode).then((data) => {
         if (data?.tokens?.length === 0) return
@@ -52,6 +49,14 @@ export const useResource = () => {
         addNewResource(data, account)
         updateSwapTxsHandle(account, data.swapLogs, data.transferLogs)
       })
+      ddlEngine.RESOURCE.getWhiteListResource(pool ? [pool] : []).then(
+        (data) => {
+          if (data?.tokens?.length === 0) return
+          setIndexWhiteList(Object.keys(data.poolGroups))
+          addNewResource(data, account)
+          // updateSwapTxsHandle(account, data.swapLogs, data.transferLogs)
+        }
+      )
     }
   }
   const useCalculatePoolGroupsValue = () => {
@@ -180,6 +185,7 @@ export const useResource = () => {
     useCalculatePoolGroupsValue,
     useCalculatePoolValue,
     addNewResource,
+    indexWhiteList: indexWhiteList[chainId],
     poolGroups: poolGroups[chainId],
     pools: pools[chainId]
   }

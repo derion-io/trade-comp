@@ -32,6 +32,16 @@ export const tokens = createSlice({
         ...action.payload.pools
       }
     },
+    setIndexWhiteListReduce: (
+      state,
+      action: PayloadAction<{
+        pools: string[],
+        chainId: number
+      }>
+    ) => {
+      if (action.payload.pools.length === 0) return
+      state.indexWhiteList[action.payload.chainId] = action.payload.pools
+    },
     addTokenPriceWithChain: (
       state,
       action: PayloadAction<{
@@ -64,6 +74,7 @@ export const tokens = createSlice({
 // Actions
 export const {
   addPoolsWithChain,
+  setIndexWhiteListReduce,
   addPoolGroupsWithChain,
   addTokenPriceWithChain,
   addFeeDataWithChain

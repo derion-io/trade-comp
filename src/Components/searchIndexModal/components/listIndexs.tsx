@@ -1,5 +1,5 @@
 import moment from 'moment'
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { useListTokens } from '../../../state/token/hook'
 import { useWalletBalance } from '../../../state/wallet/hooks/useBalances'
 import formatLocalisedCompactNumber from '../../../utils/formatBalance'
@@ -13,6 +13,7 @@ import './index.scss'
 import { useResource } from '../../../state/resources/hooks/useResource'
 import { useSettings } from '../../../state/setting/hooks/useSettings'
 import { Marker } from './marker'
+import { WarningIcon } from '../../ui/Icon'
 type Props = {
   poolsFilterSearch: { [key: string]: PoolSearch }
   handlePoolSelect: (pool: PoolSearch, hasWarning?: boolean) => void
@@ -25,9 +26,11 @@ export const ListIndexs = ({
 }: Props) => {
   const { tokens } = useListTokens()
   const { balances } = useWalletBalance()
-  const { useCalculatePoolGroupsValue } = useResource()
+  const { useCalculatePoolGroupsValue, indexWhiteList } = useResource()
   const { poolGroupsValue } = useCalculatePoolGroupsValue()
-
+  useEffect(() => {
+    console.log('#indexWhiteList', indexWhiteList)
+  }, [indexWhiteList])
   const Indexs = useMemo(() => {
     let canSort = true
     Object.keys(poolsFilterSearch).map((key) => {
@@ -50,7 +53,9 @@ export const ListIndexs = ({
             <div key={_} className='position-token-list'>
               <div
                 className='position-token-list__table'
-                onClick={() => handlePoolSelect(index)}
+                onClick={() => {
+                  handlePoolSelect(index, !indexWhiteList.includes(key))
+                }}
               >
                 <div className='token-item'>
                   <span className='chart-token-selector--current inline-items-center'>
@@ -130,7 +135,9 @@ export const ListIndexs = ({
                 </div>
 
                 <div className='index-value-item'>
-
+                  <div>
+                    {indexWhiteList.includes(key) ? '' : <WarningIcon fill='gray'/>}
+                  </div>
                   <div>
                     {poolGroupsValue[key]?.poolGroupValueR > 0 ? (
                       <div style={{ margin: 0 }}>
