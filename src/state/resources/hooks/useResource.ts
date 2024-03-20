@@ -9,15 +9,14 @@ import { addTokensReduce } from '../../token/reducer'
 import { State } from '../../types'
 import { useWalletBalance } from '../../wallet/hooks/useBalances'
 import { useSwapHistory } from '../../wallet/hooks/useSwapHistory'
-import { addPoolGroupsWithChain, addPoolsWithChain, setIndexWhiteListReduce } from '../reducer'
+import { addPoolGroupsWithChain, addPoolsWithChain } from '../reducer'
 import { PoolGroupValueType, PoolType } from '../type'
 
 export const useResource = () => {
-  const { poolGroups, pools, indexWhiteList } = useSelector((state: State) => {
+  const { poolGroups, pools } = useSelector((state: State) => {
     return {
       poolGroups: state.resources.poolGroups,
-      pools: state.resources.pools,
-      indexWhiteList: state.resources.indexWhiteList,
+      pools: state.resources.pools
     }
   })
   const { chainId, ddlEngine, configs } = useConfigs()
@@ -29,9 +28,6 @@ export const useResource = () => {
       addPoolGroupsWithChain({ poolGroups: data.poolGroups, chainId })
     )
     dispatch(addPoolsWithChain({ pools: data.pools, chainId }))
-  }
-  const setIndexWhiteList = (pools:string[]) => {
-    dispatch(setIndexWhiteListReduce({ pools, chainId }))
   }
   const initListPool = async (account: string) => {
     if (ddlEngine && configs.name) {
@@ -52,7 +48,6 @@ export const useResource = () => {
       ddlEngine.RESOURCE.getWhiteListResource(pool ? [pool] : []).then(
         (data) => {
           if (data?.tokens?.length === 0) return
-          setIndexWhiteList(Object.keys(data.poolGroups))
           addNewResource(data, account)
           // updateSwapTxsHandle(account, data.swapLogs, data.transferLogs)
         }
@@ -185,7 +180,6 @@ export const useResource = () => {
     useCalculatePoolGroupsValue,
     useCalculatePoolValue,
     addNewResource,
-    indexWhiteList: indexWhiteList[chainId],
     poolGroups: poolGroups[chainId],
     pools: pools[chainId]
   }

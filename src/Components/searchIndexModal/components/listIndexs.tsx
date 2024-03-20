@@ -14,6 +14,7 @@ import { useResource } from '../../../state/resources/hooks/useResource'
 import { useSettings } from '../../../state/setting/hooks/useSettings'
 import { Marker } from './marker'
 import { WarningIcon } from '../../ui/Icon'
+import { useConfigs } from '../../../state/config/useConfigs'
 type Props = {
   poolsFilterSearch: { [key: string]: PoolSearch }
   handlePoolSelect: (pool: PoolSearch, hasWarning?: boolean) => void
@@ -26,9 +27,12 @@ export const ListIndexs = ({
 }: Props) => {
   const { tokens } = useListTokens()
   const { balances } = useWalletBalance()
-  const { useCalculatePoolGroupsValue, indexWhiteList } = useResource()
+  const { useCalculatePoolGroupsValue } = useResource()
+  const { ddlEngine } = useConfigs()
   const { poolGroupsValue } = useCalculatePoolGroupsValue()
-
+  const indexWhiteList = useMemo(() => {
+    return ddlEngine?.profile.whitelistPools
+  }, [ddlEngine?.profile])
   const Indexs = useMemo(() => {
     let canSort = true
     Object.keys(poolsFilterSearch).map((key) => {
@@ -46,13 +50,15 @@ export const ListIndexs = ({
         {Object.keys(Indexs).map((key, _) => {
           const index = poolsFilterSearch[key]
           if (!index?.baseToken) return
+          const isIndexWhiteListed = index?.pools.map((p) => p?.poolAddress).filter((pAddress) => indexWhiteList?.includes(pAddress)).length > 0
           // return index?.pools.map((pool, __) => {
           return (
             <div key={_} className='position-token-list'>
               <div
                 className='position-token-list__table'
                 onClick={() => {
-                  handlePoolSelect(index, !indexWhiteList.includes(key))
+                  if (!indexWhiteList) return
+                  handlePoolSelect(index, !isIndexWhiteListed)
                 }}
               >
                 <div className='token-item'>
@@ -90,7 +96,7 @@ export const ListIndexs = ({
                         {/* <TextGrey>Positions</TextGrey> */}
 
                         <div className='pool-positions-list'>
-                          {indexWhiteList.includes(key) ? '' : <WarningIcon fill='gray'/>}
+                          {isIndexWhiteListed ? '' : <WarningIcon fill='gray'/>}
 
                           {poolGroupsValue?.[key]?.poolGroupPositions?.length >
                           0 ? (
