@@ -211,7 +211,7 @@ const Component = ({
   }
 
   return (
-    <Modal setVisible={setVisible} visible={visible} title={showWarningModal.status ? 'Index Warning' : 'Select an index'}>
+    <Modal setVisible={setVisible} visible={visible} title={showWarningModal.status ? 'Unverified Index' : 'Select an index'}>
       {showWarningModal.status ? <WarningContent onCancel={handleWarningCancel} onUnderStand={handleWarningUnderstand} indexWarning={showWarningModal.indexWarning}/>
         : <Fragment>
           <Input
@@ -266,8 +266,11 @@ const WarningContent = ({
         size={[48, 36]}
       />
     </Box>
-    <TextGrey className='index-warning__header'>
-      This token isn't traded on leading U.S. centralized exchanges or frequently swapped on Uniswap. Always conduct your own research before trading.
+    <TextGrey className='index-warning__body'>
+      This index and its pools are not verified by Derivable Labs.
+      As an open protocol, anyone can create pools for any price index and parameters.
+      <br/><br/>
+      Make sure you understand all parameters of the pools you participate in, and always conduct your own research before trading.
     </TextGrey>
     <Box className='index-warning__options'>
       <ButtonGrey className='index-warning__understand' onClick={() => { if (indexWarning) onUnderStand(indexWarning) }} >I Understand</ButtonGrey>
