@@ -17,7 +17,7 @@ export const useResource = () => {
     return {
       poolGroups: state.resources.poolGroups,
       pools: state.resources.pools,
-      indexWhiteList: state.resources.indexWhiteList
+      indexWhiteList: state.resources.indexWhiteList,
     }
   })
   const { chainId, ddlEngine, configs } = useConfigs()

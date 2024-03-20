@@ -14,19 +14,18 @@ import { Input } from '../ui/Input'
 import { Modal } from '../ui/Modal'
 import { ListIndexs } from './components/listIndexs'
 import './style.scss'
-import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
 import { useListTokens } from '../../state/token/hook'
 import { PoolType } from '../../state/resources/type'
 import { IconEnter } from '../ui/Icon'
 import { TextGrey } from '../ui/Text'
-import { Button, ButtonGrey, ButtonSell } from '../ui/Button'
+import { ButtonGrey } from '../ui/Button'
 import { Box } from '../ui/Box'
 import { CurrencyGroupLogo } from '../ui/CurrencyGroupLogo'
 const Component = ({
   visible,
   setVisible,
   onDismiss,
-  onPoolSelect
+  onPoolSelect,
 }: {
   visible: boolean
   setVisible: any

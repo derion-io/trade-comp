@@ -28,9 +28,7 @@ export const ListIndexs = ({
   const { balances } = useWalletBalance()
   const { useCalculatePoolGroupsValue, indexWhiteList } = useResource()
   const { poolGroupsValue } = useCalculatePoolGroupsValue()
-  useEffect(() => {
-    console.log('#indexWhiteList', indexWhiteList)
-  }, [indexWhiteList])
+
   const Indexs = useMemo(() => {
     let canSort = true
     Object.keys(poolsFilterSearch).map((key) => {
@@ -141,7 +139,6 @@ export const ListIndexs = ({
                 </div>
 
                 <div className='index-value-item'>
-
                   <div>
                     {poolGroupsValue[key]?.poolGroupValueR > 0 ? (
                       <div style={{ margin: 0 }}>
