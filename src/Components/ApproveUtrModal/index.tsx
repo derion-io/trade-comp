@@ -46,7 +46,7 @@ const Component = ({
     >
       <div className='approve-utr-modal'>
         <p className='mb-2'>
-          The Universal Token Router (EIP-6120) is used by Derivable for token
+          The Universal Token Router (EIP-6120) is used by Derion for token
           routing and allowance. You only need to approve your token to this
           contract once.
         </p>

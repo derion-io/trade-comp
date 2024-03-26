@@ -266,7 +266,7 @@ const WarningContent = ({
       />
     </Box>
     <TextGrey className='index-warning__body'>
-      This index and its pools are not verified by Derivable Labs.
+      This index and its pools are not verified by Derion Labs.
       As an open protocol, anyone can create pools for any price index and parameters.
       <br/><br/>
       Make sure you understand all parameters of the pools you participate in, and always conduct your own research before trading.
