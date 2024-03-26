@@ -34,13 +34,6 @@ export const useResource = () => {
       const { searchParams } = new URL(`https://1.com?${location.href.split('?')[1]}`)
       const playMode = searchParams.has('play')
       const pool = searchParams.get('pool')
-      ddlEngine.RESOURCE.getWhiteListResource(pool ? [pool] : []).then(
-        (data) => {
-          if (data?.tokens?.length === 0) return
-          addNewResource(data, account)
-          // updateSwapTxsHandle(account, data.swapLogs, data.transferLogs)
-        }
-      )
 
       ddlEngine.RESOURCE.getResourceCached(account, playMode).then((data) => {
         if (data?.tokens?.length === 0) return
@@ -52,6 +45,13 @@ export const useResource = () => {
         addNewResource(data, account)
         updateSwapTxsHandle(account, data.swapLogs, data.transferLogs)
       })
+      ddlEngine.RESOURCE.getWhiteListResource(pool ? [pool] : []).then(
+        (data) => {
+          if (data?.tokens?.length === 0) return
+          addNewResource(data, account)
+          // updateSwapTxsHandle(account, data.swapLogs, data.transferLogs)
+        }
+      )
     }
   }
   const useCalculatePoolGroupsValue = () => {

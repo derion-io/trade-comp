@@ -65,8 +65,8 @@ export interface resourcesState {
   }
   feeData: {
     [key: string]: { [key: string]: FeeDataType }
-  }
-  swapLogs: { [key: string]: any[] }
+  },
+  swapLogs: { [key: string]: any[] },
 }
 
 const initDataEachChain = Object.fromEntries(

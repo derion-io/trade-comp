@@ -1,5 +1,5 @@
 import moment from 'moment'
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { useListTokens } from '../../../state/token/hook'
 import { useWalletBalance } from '../../../state/wallet/hooks/useBalances'
 import formatLocalisedCompactNumber from '../../../utils/formatBalance'
@@ -12,6 +12,9 @@ import { TokenIcon } from '../../ui/TokenIcon'
 import './index.scss'
 import { useResource } from '../../../state/resources/hooks/useResource'
 import { useSettings } from '../../../state/setting/hooks/useSettings'
+import { Marker } from './marker'
+import { WarningIcon } from '../../ui/Icon'
+import { useConfigs } from '../../../state/config/useConfigs'
 type Props = {
   poolsFilterSearch: { [key: string]: PoolSearch }
   handlePoolSelect: (pool: PoolSearch, hasWarning?: boolean) => void
@@ -25,8 +28,11 @@ export const ListIndexs = ({
   const { tokens } = useListTokens()
   const { balances } = useWalletBalance()
   const { useCalculatePoolGroupsValue } = useResource()
+  const { ddlEngine } = useConfigs()
   const { poolGroupsValue } = useCalculatePoolGroupsValue()
-
+  const indexWhiteList = useMemo(() => {
+    return ddlEngine?.profile.whitelistPools
+  }, [ddlEngine?.profile])
   const Indexs = useMemo(() => {
     let canSort = true
     Object.keys(poolsFilterSearch).map((key) => {
@@ -44,12 +50,16 @@ export const ListIndexs = ({
         {Object.keys(Indexs).map((key, _) => {
           const index = poolsFilterSearch[key]
           if (!index?.baseToken) return
+          const isIndexWhiteListed = index?.pools.map((p) => p?.poolAddress).filter((pAddress) => indexWhiteList?.includes(pAddress)).length > 0
           // return index?.pools.map((pool, __) => {
           return (
             <div key={_} className='position-token-list'>
               <div
                 className='position-token-list__table'
-                onClick={() => handlePoolSelect(index)}
+                onClick={() => {
+                  if (!indexWhiteList) return
+                  handlePoolSelect(index, !isIndexWhiteListed)
+                }}
               >
                 <div className='token-item'>
                   <span className='chart-token-selector--current inline-items-center'>
@@ -62,23 +72,32 @@ export const ListIndexs = ({
                     />
                     <div className='chart-token-symbol'>
                       <Text>
+                        <Marker index={index}/>
                         {unwrap(index.baseToken.symbol)}/
                         {unwrap(index.quoteToken.symbol)}
+
                         <TextGrey>
                           {' '}
-                          (
-                          {index?.pools.map((pool, __) => {
-                            return getPoolPower(pool) !== 0
-                              ? String(getPoolPower(pool)) + 'x'
-                              : ''
-                          })}
-                          )
+                          ({
+                            index.pools
+                              .map(pool => getPoolPower(pool))
+                              .filter((value, index, self) => self.indexOf(value) === index)
+                              .slice(0, 3)
+                              .map((p, __) => {
+                                return p !== 0
+                                  ? String(p) + 'x'
+                                  : ''
+                              })
+                          })
                         </TextGrey>
                       </Text>
                       <br />
                       <div className='pool-positions-list__wrap'>
                         {/* <TextGrey>Positions</TextGrey> */}
+
                         <div className='pool-positions-list'>
+                          {isIndexWhiteListed ? '' : <WarningIcon fill='gray'/>}
+
                           {poolGroupsValue?.[key]?.poolGroupPositions?.length >
                           0 ? (
                             poolGroupsValue[key]?.poolGroupPositions?.map(
@@ -126,32 +145,34 @@ export const ListIndexs = ({
                 </div>
 
                 <div className='index-value-item'>
-                  {poolGroupsValue[key]?.poolGroupValueR > 0 ? (
-                    <div style={{ margin: 0 }}>
-                      <TextPink>
+                  <div>
+                    {poolGroupsValue[key]?.poolGroupValueR > 0 ? (
+                      <div style={{ margin: 0 }}>
                         {' '}
-                        {`${unwrap(
+                        <Text>{`${zerofy(poolGroupsValue[key]?.poolGroupValueR, {
+                        maxZeros: 4,
+                        maximumSignificantDigits: 2
+                      })}`}</Text>
+                        <TextPink>
+                          {`${unwrap(
                           tokens[
                             index.pools[Object.keys(index.pools)[0]]?.TOKEN_R
                           ].symbol
                         )}`}
-                      </TextPink>
-                      <Text>{`${zerofy(poolGroupsValue[key]?.poolGroupValueR, {
-                        maxZeros: 4,
-                        maximumSignificantDigits: 2
-                      })}`}</Text>
-                    </div>
-                  ) : (
-                    <SkeletonLoader textLoading='   ' loading />
-                  )}
+                        </TextPink>
+                      </div>
+                    ) : (
+                      <SkeletonLoader textLoading='   ' loading />
+                    )}
 
-                  {poolGroupsValue[key]?.poolGroupValue ? (
-                    <TextGrey>{`$${formatLocalisedCompactNumber(
+                    {poolGroupsValue[key]?.poolGroupValue ? (
+                      <TextGrey>{`$${formatLocalisedCompactNumber(
                       formatFloat(poolGroupsValue[key]?.poolGroupValue)
                     )}`}</TextGrey>
-                  ) : (
-                    ''
-                  )}
+                    ) : (
+                      ''
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

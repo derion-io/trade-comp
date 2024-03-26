@@ -56,3 +56,28 @@
 .token-list-tbody {
   width: 100%
 }
+.index-warning{
+  &__wrapped {
+    text-align: center;
+    align-items: center;
+    width: 100%;
+  }
+  &__wrapped-logo {
+    text-align: center;
+    display: grid;
+    margin-bottom: 1rem;
+    align-items: center;
+    width: 100%;
+  }
+  &__understand {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    width: 100%;
+  }
+  &__cancel {
+    cursor: pointer;
+  }
+  &__cancel:hover {
+    color: gray;
+  }
+}

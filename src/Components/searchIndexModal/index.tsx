@@ -14,11 +14,13 @@ import { Input } from '../ui/Input'
 import { Modal } from '../ui/Modal'
 import { ListIndexs } from './components/listIndexs'
 import './style.scss'
-import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
 import { useListTokens } from '../../state/token/hook'
 import { PoolType } from '../../state/resources/type'
 import { IconEnter } from '../ui/Icon'
 import { TextGrey } from '../ui/Text'
+import { ButtonGrey } from '../ui/Button'
+import { Box } from '../ui/Box'
+import { CurrencyGroupLogo } from '../ui/CurrencyGroupLogo'
 const Component = ({
   visible,
   setVisible,
@@ -45,6 +47,8 @@ const Component = ({
     [key: string]: PoolSearch
   }>({})
   const [isLoadingSearch, setIsLoadingSearch] = useState<boolean>(false)
+  const [showWarningModal, setShowWarningModal] = useState<
+  {status: boolean, indexWarning?: PoolSearch }>({ status: false })
   useMemo(async () => {
     const poolGroupsFilter = {}
     await Promise.all(
@@ -104,10 +108,14 @@ const Component = ({
 
   const handlePoolSelect = useCallback(
     (searchPool: PoolSearch, hasWarning?: boolean) => {
-      onPoolSelect(searchPool, hasWarning)
       const pool = searchPool.pools?.[0]
       const poolAddresses = searchPool.pools.map((pool) => pool?.[10])
       const indexID = poolToIndexID(pool)
+      if (hasWarning) {
+        setShowWarningModal({ status: true, indexWarning: searchPool })
+        return
+      }
+      onPoolSelect(searchPool, hasWarning)
       if (!indexID) return
       updateCurrentPoolGroup(indexID, poolAddresses)
       setVisible(false)
@@ -115,7 +123,21 @@ const Component = ({
     },
     [onDismiss, onPoolSelect]
   )
-
+  const handleWarningUnderstand = useCallback(
+    (searchPool: PoolSearch) => {
+      const pool = searchPool.pools?.[0]
+      const poolAddresses = searchPool.pools.map((pool) => pool?.[10])
+      const indexID = poolToIndexID(pool)
+      onPoolSelect(searchPool, false)
+      if (!indexID) return
+      updateCurrentPoolGroup(indexID, poolAddresses)
+      setVisible(false)
+    },
+    [onDismiss, onPoolSelect]
+  )
+  const handleWarningCancel = () => {
+    setShowWarningModal({ status: false, indexWarning: undefined })
+  }
   const handleEnter = async (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.keyCode !== 13 && e.key !== 'Enter') return
     setIsLoadingSearch(true)
@@ -188,42 +210,73 @@ const Component = ({
   }
 
   return (
-    <Modal setVisible={setVisible} visible={visible} title='Select an index'>
-      <Input
-        inputWrapProps={{
-          style: {
-            borderRadius: '12px',
-            border: '1px solid rgba(255, 255, 255, 0.07)',
-            marginBottom: '1rem'
-          }
-        }}
-        type='text'
-        id='token-search-input'
-        data-testid='token-search-input'
-        autoComplete='off'
-        value={searchQuery}
-        ref={inputRef as RefObject<HTMLInputElement>}
-        onChange={handleInput}
-        onKeyDown={handleEnter}
-        suffix={
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <IconEnter size={24} />
-            <TextGrey>Enter</TextGrey>
-          </div>
-        }
-        placeholder='Search symbol or address'
-      />
+    <Modal setVisible={setVisible} visible={visible} title={showWarningModal.status ? 'Unverified Index' : 'Select an index'}>
+      {showWarningModal.status ? <WarningContent onCancel={handleWarningCancel} onUnderStand={handleWarningUnderstand} indexWarning={showWarningModal.indexWarning}/>
+        : <Fragment>
+          <Input
+            inputWrapProps={{
+              style: {
+                borderRadius: '12px',
+                border: '1px solid rgba(255, 255, 255, 0.07)',
+                marginBottom: '1rem'
+              }
+            }}
+            type='text'
+            id='token-search-input'
+            data-testid='token-search-input'
+            autoComplete='off'
+            value={searchQuery}
+            ref={inputRef as RefObject<HTMLInputElement>}
+            onChange={handleInput}
+            onKeyDown={handleEnter}
+            suffix={
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <IconEnter size={24} />
+                <TextGrey>Enter</TextGrey>
+              </div>
+            }
+            placeholder='Search symbol or address'
+          />
 
-      {/* <CommonCurrencies/> */}
-      <ListIndexs
-        handlePoolSelect={handlePoolSelect}
-        poolsFilterSearch={poolsFilterSearch}
-        isLoading={isLoadingSearch}
-      />
+          {/* <CommonCurrencies/> */}
+          <ListIndexs
+            handlePoolSelect={handlePoolSelect}
+            poolsFilterSearch={poolsFilterSearch}
+            isLoading={isLoadingSearch}
+          />
+        </Fragment>}
     </Modal>
   )
 }
-
+const WarningContent = ({
+  indexWarning,
+  onUnderStand,
+  onCancel
+}: {
+  indexWarning?: PoolSearch
+  onUnderStand: (poolSearch: PoolSearch) => void
+  onCancel: () => void
+}) => {
+  if (!indexWarning?.baseToken && !indexWarning?.quoteToken) return <Fragment/>
+  return <Box className='index-warning__wrapped'>
+    <Box className='index-warning__wrapped-logo'>
+      <CurrencyGroupLogo
+        currencyURIs={[indexWarning?.baseToken.logoURI || '', indexWarning?.quoteToken.logoURI || '']}
+        size={[48, 36]}
+      />
+    </Box>
+    <TextGrey className='index-warning__body'>
+      This index and its pools are not verified by Derivable Labs.
+      As an open protocol, anyone can create pools for any price index and parameters.
+      <br/><br/>
+      Make sure you understand all parameters of the pools you participate in, and always conduct your own research before trading.
+    </TextGrey>
+    <Box className='index-warning__options'>
+      <ButtonGrey className='index-warning__understand' onClick={() => { if (indexWarning) onUnderStand(indexWarning) }} >I Understand</ButtonGrey>
+      <TextGrey className='index-warning__cancel' onClick={onCancel} fontSize={12}>Cancel</TextGrey>
+    </Box>
+  </Box>
+}
 export const SearchIndexModal = React.memo(Component, (prevProps, nextProps) =>
   isEqual(prevProps, nextProps)
 )
