@@ -22,7 +22,7 @@ import {
 } from '../../utils/helpers'
 import { Position } from '../../utils/type'
 import { ButtonBorder } from '../ui/Button'
-import { CopyIcon, DerivableIconSmall, DownloadIcon, TwitterIcon } from '../ui/Icon'
+import { CopyIcon, DerionIconSmall, DownloadIcon, TwitterIcon } from '../ui/Icon'
 import { Modal } from '../ui/Modal'
 import { Text, TextGrey } from '../ui/Text'
 import './style.scss'
@@ -112,7 +112,7 @@ const Component = ({
 
   const tweetLink = getTwitterIntentURL(
     `Long/Short $${base} on the first ever Perpetuals AMM Protocol @DerivableLabs`,
-    'https://app.derivable.org'
+    'https://app.derion.io/'
   )
   return (
     <Modal
@@ -122,7 +122,7 @@ const Component = ({
     >
       <div className='position-share-modal '>
         <div className='position-share long' ref={cardRef}>
-          <DerivableIconSmall width={300} className='logo'/>
+          <DerionIconSmall width={200} className='logo'/>
           <p className='info' >
             <span>{base}{indexPrefix}</span> {' '} <span className={`side ${side?.toLowerCase()}`}> {side}</span>
           </p>
@@ -145,7 +145,7 @@ const Component = ({
           <div className='referral-code'>
             <div />
             <div className='referral-code-info'>
-              <Text fontSize={isPhone ? 12 : 14}>Trade now at <b>app.derivable.org</b></Text>
+              <Text fontSize={isPhone ? 12 : 14}>Trade now at <b>app.derion.io</b></Text>
             </div>
           </div>
           <div className='date'>
