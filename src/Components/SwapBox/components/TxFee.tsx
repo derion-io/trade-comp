@@ -1,6 +1,6 @@
 import { Text, TextGrey, TextSell, TextWarning } from '../../ui/Text'
 import { formatWeiToDisplayNumber } from '../../../utils/formatBalance'
-import { WEI, IEW, formatPercent, formatFloat } from '../../../utils/helpers'
+import { WEI, IEW, formatPercent, formatFloat, NUM, div, zerofy } from '../../../utils/helpers'
 import { Box } from '../../ui/Box'
 import React, { useEffect, useState } from 'react'
 import { InfoRow } from '../../ui/InfoRow'
@@ -134,9 +134,8 @@ export const TxFee = ({
                     <TextGrey>Gas Price:&nbsp;</TextGrey>
                     <Text>
                       {(gasPrice).gte(1e6)
-                        ? formatWeiToDisplayNumber(gasPrice.div(1e9), 0, 0) +
-                          ' gwei'
-                        : formatWeiToDisplayNumber(gasPrice, 0, 0) + ' wei'}
+                        ? zerofy(div(gasPrice, 1e9)) + ' gwei'
+                        : NUM(gasPrice).toLocaleString() + ' wei'}
                     </Text>
                   </div>
                   <div>
