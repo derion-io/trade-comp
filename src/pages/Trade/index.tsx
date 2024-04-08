@@ -61,9 +61,9 @@ export const Trade = ({
         ? `${SIMULATE_URL}?${location.href.split('?')[1]}`
         : SIMULATE_URL
     const urlSearchParams = new URL(url).searchParams
-    if (id) {
-      urlSearchParams.set('index', id)
-    }
+    // if (id) {
+    // urlSearchParams.set('index', id)
+    // }
     if (outputTokenAddress && isErc1155Address(outputTokenAddress)) {
       urlSearchParams.set(
         'pool',
@@ -94,7 +94,7 @@ export const Trade = ({
         .searchParams
 
       let index =
-        urlSearchParams.get('index') ??
+        // urlSearchParams.get('index') ??
         localStorage.getItem('activeIndex-' + chainId)
 
       if (!index || !poolGroups[index]) {
