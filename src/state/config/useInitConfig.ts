@@ -4,11 +4,13 @@ import { seNetworkConfigs, setConfigs } from './reducer'
 import { addTokensReduce } from '../token/reducer'
 import { Engine } from 'derivable-engine/dist/engine'
 import {
+  CHAINS,
   DEFAULT_CHAIN,
   NATIVE_ADDRESS,
   ZERO_ADDRESS
 } from '../../utils/constant'
 import { useSettings } from '../setting/hooks/useSettings'
+import { SIMULATE_URL } from '../../pages/Trade'
 
 export const useInitConfig = ({
   provider,
@@ -53,6 +55,20 @@ export const useInitConfig = ({
   }, [location, useHistory, chainId, useSubPage, language, env])
 
   useEffect(() => {
+    const url = location.href
+    const urlSearchParams = new URL(`https://1.com?${url?.split('?')?.[1]}`)
+      .searchParams
+    const urlChain = urlSearchParams.get(
+      'chain'
+    )
+    if (!urlChain || !Object.keys(CHAINS).includes(urlChain)) {
+      console.log('#chain', urlChain)
+
+      urlSearchParams.set(
+        'chain',
+        Object.keys(CHAINS)[0].toLowerCase()
+      )
+    }
     const intConfig = async () => {
       if (!chainId) return
       if (!account) {
