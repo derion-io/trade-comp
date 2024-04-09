@@ -11,6 +11,7 @@ import {
 } from '../../utils/constant'
 import { useSettings } from '../setting/hooks/useSettings'
 import { SIMULATE_URL } from '../../pages/Trade'
+import { toast } from 'react-toastify'
 
 export const useInitConfig = ({
   provider,
@@ -55,20 +56,6 @@ export const useInitConfig = ({
   }, [location, useHistory, chainId, useSubPage, language, env])
 
   useEffect(() => {
-    const url = location.href
-    const urlSearchParams = new URL(`https://1.com?${url?.split('?')?.[1]}`)
-      .searchParams
-    const urlChain = urlSearchParams.get(
-      'chain'
-    )
-    if (!urlChain || !Object.keys(CHAINS).includes(urlChain)) {
-      console.log('#chain', urlChain)
-
-      urlSearchParams.set(
-        'chain',
-        Object.keys(CHAINS)[0].toLowerCase()
-      )
-    }
     const intConfig = async () => {
       if (!chainId) return
       if (!account) {

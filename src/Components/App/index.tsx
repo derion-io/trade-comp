@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from 'react'
-import { ToastContainer } from 'react-toastify'
+import React, { useEffect, useMemo, useRef } from 'react'
+import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { Trade } from '../../pages/Trade'
 import { useConfigs } from '../../state/config/useConfigs'
@@ -17,15 +17,16 @@ import { PageLoadingIndicator } from '../PageLoadingIndicator'
 import './style.scss'
 import { detectTradeTab } from '../../utils/helpers'
 import { resetMapAccount } from '../../state/wallet/reducer'
+import { PagePoolInvalidIndicator } from '../PagePoolInvalidIndicator'
 
 export const App = () => {
   const { id } = useCurrentPoolGroup()
   const { tokens } = useListTokens()
-  const { poolGroups } = useResource()
+  const { poolGroups, pools } = useResource()
   const { fetchBalanceAndAllowance, updateBalanceAndAllowances } =
     useWalletBalance()
   const { account } = useWeb3React()
-  const { ddlEngine, chainId, location, configs } = useConfigs()
+  const { ddlEngine, chainId, configs } = useConfigs()
   const chainIdRef = useRef(null)
   const { initResource } = useResource()
 
@@ -36,6 +37,7 @@ export const App = () => {
   useEffect(() => {
     resetMapAccount()
   }, [chainId])
+
   useEffect(() => {
     try {
       setTimeout(() => {
@@ -84,6 +86,11 @@ export const App = () => {
   //     strict: false
   //   })
   // }
+  const isIsValidPool = useMemo(() => {
+    const { searchParams } = new URL(`https://1.com?${window.location.href?.split('?')?.[1]}`)
+    const pool = searchParams.get('pool')
+    return pool && Object.keys(pools)?.length > 0 && !Object.keys(pools).includes(pool)
+  }, [pools])
 
   return (
     <div className='exposure-interface app'>
@@ -94,7 +101,9 @@ export const App = () => {
       Object.keys(poolGroups).length === 0 ? (
           <PageLoadingIndicator />
         ) : (
-          ''
+          isIsValidPool
+            ? <PagePoolInvalidIndicator/>
+            : ''
         )}
       {/* @ts-ignore */}
       <ErrorBoundary>
