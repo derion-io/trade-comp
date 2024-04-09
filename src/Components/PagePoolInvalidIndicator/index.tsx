@@ -18,7 +18,7 @@ export const PagePoolInvalidIndicator = () => {
         <Logo width={360} height={60} />
       </div>
       <span style={{ textAlign: 'center', fontSize: '18px' }}>
-        Oops! This pool address isn't on <TextPink fontSize={18}> {chainName}</TextPink>. Try another network or <TextLink fontSize={18} href='#'>Check default indexes</TextLink>
+        Oops! This pool address isn't on <TextPink fontSize={18}> {chainName}</TextPink>. Try another network or check <TextLink fontSize={18} href='#'>default indexes</TextLink>
       </span>
       <div className='page-loading-indicator'>
         {/* <div/> */}
