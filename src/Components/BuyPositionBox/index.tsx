@@ -101,8 +101,8 @@ const Component = ({
 
   useEffect(() => {
     if (barData.token) {
-      setOutputTokenAddress(barData.token)
-      setCurrentPoolAddress(decodeErc1155Address(barData.token).address)
+      // setOutputTokenAddress(barData.token)
+      // setCurrentPoolAddress(decodeErc1155Address(barData.token).address)
     }
   }, [barData])
 
