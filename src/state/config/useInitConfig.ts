@@ -4,14 +4,11 @@ import { seNetworkConfigs, setConfigs } from './reducer'
 import { addTokensReduce } from '../token/reducer'
 import { Engine } from 'derivable-engine/dist/engine'
 import {
-  CHAINS,
   DEFAULT_CHAIN,
   NATIVE_ADDRESS,
   ZERO_ADDRESS
 } from '../../utils/constant'
 import { useSettings } from '../setting/hooks/useSettings'
-import { SIMULATE_URL } from '../../pages/Trade'
-import { toast } from 'react-toastify'
 
 export const useInitConfig = ({
   provider,

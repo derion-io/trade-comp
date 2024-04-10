@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useTokenValue } from '../../../Components/SwapBox/hooks/useTokenValue'
 import { POOL_IDS } from '../../../utils/constant'
@@ -23,7 +23,6 @@ export const useResource = () => {
   const { chainId, ddlEngine, configs } = useConfigs()
   const dispatch = useDispatch()
   const { updateSwapTxsHandle } = useSwapHistory()
-
   const addNewResource = (data:any, account?:string) => {
     dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
     dispatch(

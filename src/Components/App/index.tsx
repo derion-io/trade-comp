@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { ToastContainer, toast } from 'react-toastify'
+import React, { useEffect, useRef } from 'react'
+import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { Trade } from '../../pages/Trade'
 import { useConfigs } from '../../state/config/useConfigs'
@@ -18,9 +18,6 @@ import './style.scss'
 import { detectTradeTab } from '../../utils/helpers'
 import { resetMapAccount } from '../../state/wallet/reducer'
 import { PagePoolInvalidIndicator } from '../PagePoolInvalidIndicator'
-import { chain } from 'lodash'
-import { setIsInitPool } from '../../state/resources/reducer'
-
 export const App = () => {
   const { id } = useCurrentPoolGroup()
   const { tokens } = useListTokens()
@@ -40,7 +37,6 @@ export const App = () => {
   useEffect(() => {
     resetMapAccount()
   }, [chainId])
-
   useEffect(() => {
     try {
       setTimeout(() => {
@@ -62,10 +58,6 @@ export const App = () => {
     // }, TIME_TO_REFRESH_STATE)
     // return () => clearInterval(intervalId)
   }, [ddlEngine, configs.name, account])
-
-  useEffect(() => {
-    console.log('#isInitPool', isInitPool)
-  }, [isInitPool])
 
   useEffect(() => {
     if (!account) {

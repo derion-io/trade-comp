@@ -25,7 +25,7 @@ import {
   formatFloat,
   getPoolPower,
   isErc1155Address,
-  zerofy
+  zerofy,
 } from '../../utils/helpers'
 import { ApproveUtrModal } from '../ApproveUtrModal'
 import { ButtonSwap } from '../ButtonSwap'
@@ -81,7 +81,7 @@ const Component = ({
   const { setCurrentPoolAddress, setDr } = useCurrentPool()
   const { convertTokenValue } = useTokenValue({})
   const { leverageData, totalHiddenPools } = useGenerateLeverageData(tradeType, showAllPool)
-  const { pools, isInitPool } = useResource()
+  const { pools } = useResource()
   useEffect(() => {
     if (
       tradeType === TRADE_TYPE.LIQUIDITY &&
@@ -232,7 +232,7 @@ const Component = ({
       leverage,
       effectiveLeverage,
       dgA,
-      dgB
+      dgB,
     } = calcPoolSide(poolToShow, sideToShow, tokens)
 
     if (sideToShow != POOL_IDS.C && effectiveLeverage < leverage) {
@@ -252,7 +252,7 @@ const Component = ({
           leverage,
           effectiveLeverage,
           dgA,
-          dgB
+          dgB,
         }}
         isPhone
       />
