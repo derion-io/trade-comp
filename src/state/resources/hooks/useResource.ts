@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useTokenValue } from '../../../Components/SwapBox/hooks/useTokenValue'
 import { POOL_IDS } from '../../../utils/constant'
@@ -22,6 +22,7 @@ export const useResource = () => {
   const { chainId, ddlEngine, configs } = useConfigs()
   const dispatch = useDispatch()
   const { updateSwapTxsHandle } = useSwapHistory()
+  // const [isInitPool, setIsInitPool] = useState<boolean | null>(null)
   const addNewResource = (data:any, account?:string) => {
     dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
     dispatch(
@@ -174,12 +175,22 @@ export const useResource = () => {
       }
     }, [poolGroups, tokens, balances])
   }
+
+  const isValidPool = useMemo(() => {
+    const { searchParams } = new URL(`https://1.com?${window.location.href?.split('?')?.[1]}`)
+    const pool = searchParams.get('pool')
+    const _pools = pools[chainId]
+    return pool && Object.keys(_pools)?.length > 0 && !Object.keys(_pools).includes(pool)
+  }, [pools])
+
   return {
     initResource: initListPool,
     updateSwapTxsHandle,
     useCalculatePoolGroupsValue,
     useCalculatePoolValue,
+    // useIsInitPool,
     addNewResource,
+    isShowPoolInValid: isValidPool,
     poolGroups: poolGroups[chainId],
     pools: pools[chainId]
   }

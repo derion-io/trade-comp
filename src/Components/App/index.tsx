@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { Trade } from '../../pages/Trade'
@@ -18,21 +18,34 @@ import './style.scss'
 import { detectTradeTab } from '../../utils/helpers'
 import { resetMapAccount } from '../../state/wallet/reducer'
 import { PagePoolInvalidIndicator } from '../PagePoolInvalidIndicator'
+import { chain } from 'lodash'
 
 export const App = () => {
   const { id } = useCurrentPoolGroup()
   const { tokens } = useListTokens()
-  const { poolGroups, pools } = useResource()
+  const { poolGroups, isShowPoolInValid } = useResource()
   const { fetchBalanceAndAllowance, updateBalanceAndAllowances } =
     useWalletBalance()
   const { account } = useWeb3React()
   const { ddlEngine, chainId, configs } = useConfigs()
   const chainIdRef = useRef(null)
   const { initResource } = useResource()
+  const [isInitPool, setIsInitPool] = useState<boolean | null>(null)
 
   useFetchFeeData()
   useFetchTokenPrice()
   useSwapHistoryFormated()
+
+  useEffect(() => {
+    if (Object.keys(configs).length > 0) {
+      console.log('#', configs)
+      if (isInitPool === null) {
+        setIsInitPool(true)
+      } else if (isInitPool === true) {
+        setIsInitPool(false)
+      }
+    }
+  }, [configs])
 
   useEffect(() => {
     resetMapAccount()
@@ -61,6 +74,10 @@ export const App = () => {
   }, [ddlEngine, configs.name, account])
 
   useEffect(() => {
+    console.log('#isInitPool', isInitPool)
+  }, [isInitPool])
+
+  useEffect(() => {
     if (!account) {
       updateBalanceAndAllowances({
         balances: {},
@@ -86,11 +103,6 @@ export const App = () => {
   //     strict: false
   //   })
   // }
-  const isIsValidPool = useMemo(() => {
-    const { searchParams } = new URL(`https://1.com?${window.location.href?.split('?')?.[1]}`)
-    const pool = searchParams.get('pool')
-    return pool && Object.keys(pools)?.length > 0 && !Object.keys(pools).includes(pool)
-  }, [pools])
 
   return (
     <div className='exposure-interface app'>
@@ -101,7 +113,7 @@ export const App = () => {
       Object.keys(poolGroups).length === 0 ? (
           <PageLoadingIndicator />
         ) : (
-          isIsValidPool
+          isInitPool && isShowPoolInValid
             ? <PagePoolInvalidIndicator/>
             : ''
         )}
