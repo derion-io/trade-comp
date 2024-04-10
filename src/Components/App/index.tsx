@@ -19,33 +19,23 @@ import { detectTradeTab } from '../../utils/helpers'
 import { resetMapAccount } from '../../state/wallet/reducer'
 import { PagePoolInvalidIndicator } from '../PagePoolInvalidIndicator'
 import { chain } from 'lodash'
+import { setIsInitPool } from '../../state/resources/reducer'
 
 export const App = () => {
   const { id } = useCurrentPoolGroup()
   const { tokens } = useListTokens()
-  const { poolGroups, isShowPoolInValid } = useResource()
+  const { poolGroups, isValidPool, isInitPool, useIsInitPool } = useResource()
   const { fetchBalanceAndAllowance, updateBalanceAndAllowances } =
     useWalletBalance()
   const { account } = useWeb3React()
-  const { ddlEngine, chainId, configs } = useConfigs()
+  const { ddlEngine, chainId, location, configs } = useConfigs()
   const chainIdRef = useRef(null)
   const { initResource } = useResource()
-  const [isInitPool, setIsInitPool] = useState<boolean | null>(null)
 
   useFetchFeeData()
   useFetchTokenPrice()
   useSwapHistoryFormated()
-
-  useEffect(() => {
-    if (Object.keys(configs).length > 0) {
-      console.log('#', configs)
-      if (isInitPool === null) {
-        setIsInitPool(true)
-      } else if (isInitPool === true) {
-        setIsInitPool(false)
-      }
-    }
-  }, [configs])
+  useIsInitPool()
 
   useEffect(() => {
     resetMapAccount()
@@ -113,16 +103,18 @@ export const App = () => {
       Object.keys(poolGroups).length === 0 ? (
           <PageLoadingIndicator />
         ) : (
-          isInitPool && isShowPoolInValid
+          isInitPool && isValidPool
             ? <PagePoolInvalidIndicator/>
             : ''
         )}
       {/* @ts-ignore */}
       <ErrorBoundary>
-        <Trade
-          tab={detectTradeTab(location.pathname)}
-          loadingData={!poolGroups || Object.keys(poolGroups).length === 0}
-        />
+        { isInitPool && isValidPool ? ''
+          : <Trade
+            tab={detectTradeTab(location.pathname)}
+            loadingData={!poolGroups || Object.keys(poolGroups).length === 0}
+          />
+        }
       </ErrorBoundary>
       <ToastContainer
         position='top-right'

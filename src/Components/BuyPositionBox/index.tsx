@@ -81,7 +81,7 @@ const Component = ({
   const { setCurrentPoolAddress, setDr } = useCurrentPool()
   const { convertTokenValue } = useTokenValue({})
   const { leverageData, totalHiddenPools } = useGenerateLeverageData(tradeType, showAllPool)
-  const { pools } = useResource()
+  const { pools, isInitPool } = useResource()
   useEffect(() => {
     if (
       tradeType === TRADE_TYPE.LIQUIDITY &&

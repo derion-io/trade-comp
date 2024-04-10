@@ -9,20 +9,21 @@ import { addTokensReduce } from '../../token/reducer'
 import { State } from '../../types'
 import { useWalletBalance } from '../../wallet/hooks/useBalances'
 import { useSwapHistory } from '../../wallet/hooks/useSwapHistory'
-import { addPoolGroupsWithChain, addPoolsWithChain } from '../reducer'
+import { addPoolGroupsWithChain, addPoolsWithChain, setIsInitPool } from '../reducer'
 import { PoolGroupValueType, PoolType } from '../type'
 
 export const useResource = () => {
-  const { poolGroups, pools } = useSelector((state: State) => {
+  const { poolGroups, pools, isInitPool } = useSelector((state: State) => {
     return {
       poolGroups: state.resources.poolGroups,
-      pools: state.resources.pools
+      pools: state.resources.pools,
+      isInitPool: state.resources.isInitPool
     }
   })
   const { chainId, ddlEngine, configs } = useConfigs()
   const dispatch = useDispatch()
   const { updateSwapTxsHandle } = useSwapHistory()
-  // const [isInitPool, setIsInitPool] = useState<boolean | null>(null)
+
   const addNewResource = (data:any, account?:string) => {
     dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
     dispatch(
@@ -175,7 +176,19 @@ export const useResource = () => {
       }
     }, [poolGroups, tokens, balances])
   }
-
+  const useIsInitPool = () => {
+    return useEffect(() => {
+      if (Object.keys(configs).length > 0) {
+        console.log('#', configs)
+        if (isInitPool === null) {
+          console.log('#2', configs)
+          dispatch(setIsInitPool(true))
+        } else if (isInitPool === true) {
+          dispatch(setIsInitPool(false))
+        }
+      }
+    }, [configs])
+  }
   const isValidPool = useMemo(() => {
     const { searchParams } = new URL(`https://1.com?${window.location.href?.split('?')?.[1]}`)
     const pool = searchParams.get('pool')
@@ -188,9 +201,10 @@ export const useResource = () => {
     updateSwapTxsHandle,
     useCalculatePoolGroupsValue,
     useCalculatePoolValue,
-    // useIsInitPool,
     addNewResource,
-    isShowPoolInValid: isValidPool,
+    useIsInitPool,
+    isValidPool,
+    isInitPool,
     poolGroups: poolGroups[chainId],
     pools: pools[chainId]
   }
