@@ -33,7 +33,7 @@ const TAB_INDEX_TO_PATH = {
   [TRADE_TYPE.LIQUIDITY]: '/liquidity'
 }
 
-export const SIMULATE_URL = 'https://1.com'
+const SIMULATE_URL = 'https://1.com'
 
 export const Trade = ({
   tab,

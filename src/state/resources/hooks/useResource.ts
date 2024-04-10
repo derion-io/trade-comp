@@ -178,9 +178,7 @@ export const useResource = () => {
   const useIsInitPool = () => {
     return useEffect(() => {
       if (Object.keys(configs).length > 0) {
-        console.log('#', configs)
         if (isInitPool === null) {
-          console.log('#2', configs)
           dispatch(setIsInitPool(true))
         } else if (isInitPool === true) {
           dispatch(setIsInitPool(false))
