@@ -2,7 +2,7 @@ import React, { useMemo } from 'react'
 import { useConfigs } from '../../state/config/useConfigs'
 import { CHAINS } from '../../utils/constant'
 import { Logo } from '../ui/Icon'
-import { TextLink, TextPink } from '../ui/Text'
+import { Text, TextLink, TextPink } from '../ui/Text'
 import './style.scss'
 export const PagePoolInvalidIndicator = () => {
   const { chainId } = useConfigs()
@@ -17,12 +17,14 @@ export const PagePoolInvalidIndicator = () => {
       <div className='page-loading-indicator__logo'>
         <Logo width={360} height={60} />
       </div>
-      <span style={{ textAlign: 'center', fontSize: '18px' }}>
-        Oops! This pool address isn't on <TextPink fontSize={18}> {chainName}</TextPink>. Try another network or check <TextLink onClick={() => {
+      <Text className='text-center fs-18'>
+        Oops! This pool address isn't on <TextPink className='fs-18'> {chainName}</TextPink>.
+      <br/>
+        Try another network or check <TextLink className='fs-18' onClick={() => {
           const baseUrl = window.location.origin + window.location.pathname
           window.location.href = baseUrl
-        }} style={{ fontSize: 18 }}>default indexes</TextLink>
-      </span>
+        }}>default indexes</TextLink>.
+      </Text>
       <div className='page-loading-indicator' />
     </div>
   )
