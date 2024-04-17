@@ -57,6 +57,12 @@ export const tokens = createSlice({
         ...state[action.payload.chainId],
         ...action.payload.feeData
       }
+    },
+    setPoolSwitched: (
+      state,
+      action: PayloadAction<boolean>
+    ) => {
+      state.poolSwitched = action.payload
     }
   }
 })
@@ -66,7 +72,8 @@ export const {
   addPoolsWithChain,
   addPoolGroupsWithChain,
   addTokenPriceWithChain,
-  addFeeDataWithChain
+  addFeeDataWithChain,
+  setPoolSwitched,
 } = tokens.actions
 
 export default tokens.reducer

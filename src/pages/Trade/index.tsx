@@ -45,7 +45,7 @@ export const Trade = ({
   const { chainId, useHistory, configs, ddlEngine } = useConfigs()
   const history = useHistory()
   const [changedIn24h, setChangedIn24h] = useState<number>(0)
-  const { poolGroups, addNewResource } = useResource()
+  const { poolGroups, addNewResource, onPoolSwitched } = useResource()
   const { updateCurrentPoolGroup, id } = useCurrentPoolGroup()
   const [tab2, setTab2] = useState<Symbol>(TAB_2.POSITION)
   const { formartedSwapLogs: swapTxs } = useSwapHistory()
@@ -61,14 +61,13 @@ export const Trade = ({
         ? `${SIMULATE_URL}?${location.href.split('?')[1]}`
         : SIMULATE_URL
     const urlSearchParams = new URL(url).searchParams
-    if (id) {
-      urlSearchParams.set('index', id)
-    }
+    // if (id) {
+    // urlSearchParams.set('index', id)
+    // }
     if (outputTokenAddress && isErc1155Address(outputTokenAddress)) {
-      urlSearchParams.set(
-        'pool',
-        decodeErc1155Address(outputTokenAddress).address
-      )
+      const pool = decodeErc1155Address(outputTokenAddress).address
+      urlSearchParams.set('pool', pool)
+      onPoolSwitched(pool)
     }
 
     history.push({
@@ -94,7 +93,7 @@ export const Trade = ({
         .searchParams
 
       let index =
-        urlSearchParams.get('index') ??
+        // urlSearchParams.get('index') ??
         localStorage.getItem('activeIndex-' + chainId)
 
       if (!index || !poolGroups[index]) {

@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useTokenValue } from '../../../Components/SwapBox/hooks/useTokenValue'
 import { POOL_IDS } from '../../../utils/constant'
@@ -9,19 +9,25 @@ import { addTokensReduce } from '../../token/reducer'
 import { State } from '../../types'
 import { useWalletBalance } from '../../wallet/hooks/useBalances'
 import { useSwapHistory } from '../../wallet/hooks/useSwapHistory'
-import { addPoolGroupsWithChain, addPoolsWithChain } from '../reducer'
+import { addPoolGroupsWithChain, addPoolsWithChain, setPoolSwitched } from '../reducer'
 import { PoolGroupValueType, PoolType } from '../type'
 
 export const useResource = () => {
-  const { poolGroups, pools } = useSelector((state: State) => {
+  const { poolGroups, pools, poolSwitched } = useSelector((state: State) => {
     return {
       poolGroups: state.resources.poolGroups,
-      pools: state.resources.pools
+      pools: state.resources.pools,
+      poolSwitched: state.resources.poolSwitched
     }
   })
   const { chainId, ddlEngine, configs } = useConfigs()
   const dispatch = useDispatch()
   const { updateSwapTxsHandle } = useSwapHistory()
+  const onPoolSwitched = (pool: string) => {
+    if (!poolSwitched) {
+      dispatch(setPoolSwitched(true))
+    }
+  }
   const addNewResource = (data:any, account?:string) => {
     dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
     dispatch(
@@ -174,12 +180,22 @@ export const useResource = () => {
       }
     }, [poolGroups, tokens, balances])
   }
+  const isValidPool = useMemo(() => {
+    const { searchParams } = new URL(`https://1.com?${window.location.href?.split('?')?.[1]}`)
+    const pool = searchParams.get('pool')
+    const _pools = pools[chainId]
+    return pool && Object.keys(_pools)?.length > 0 && !Object.keys(_pools).includes(pool)
+  }, [pools])
+
   return {
     initResource: initListPool,
     updateSwapTxsHandle,
     useCalculatePoolGroupsValue,
     useCalculatePoolValue,
     addNewResource,
+    isValidPool,
+    poolSwitched,
+    onPoolSwitched,
     poolGroups: poolGroups[chainId],
     pools: pools[chainId]
   }

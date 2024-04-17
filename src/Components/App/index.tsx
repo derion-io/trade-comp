@@ -17,11 +17,11 @@ import { PageLoadingIndicator } from '../PageLoadingIndicator'
 import './style.scss'
 import { detectTradeTab } from '../../utils/helpers'
 import { resetMapAccount } from '../../state/wallet/reducer'
-
+import { PagePoolInvalidIndicator } from '../PagePoolInvalidIndicator'
 export const App = () => {
   const { id } = useCurrentPoolGroup()
   const { tokens } = useListTokens()
-  const { poolGroups } = useResource()
+  const { poolGroups, isValidPool, poolSwitched } = useResource()
   const { fetchBalanceAndAllowance, updateBalanceAndAllowances } =
     useWalletBalance()
   const { account } = useWeb3React()
@@ -94,14 +94,18 @@ export const App = () => {
       Object.keys(poolGroups).length === 0 ? (
           <PageLoadingIndicator />
         ) : (
-          ''
+          isValidPool && !poolSwitched
+            ? <PagePoolInvalidIndicator/>
+            : ''
         )}
       {/* @ts-ignore */}
       <ErrorBoundary>
-        <Trade
-          tab={detectTradeTab(location.pathname)}
-          loadingData={!poolGroups || Object.keys(poolGroups).length === 0}
-        />
+        { isValidPool && !poolSwitched ? ''
+          : <Trade
+            tab={detectTradeTab(location.pathname)}
+            loadingData={!poolGroups || Object.keys(poolGroups).length === 0}
+          />
+        }
       </ErrorBoundary>
       <ToastContainer
         position='top-right'
