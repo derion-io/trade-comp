@@ -67,7 +67,7 @@ export interface resourcesState {
     [key: string]: { [key: string]: FeeDataType }
   },
   swapLogs: { [key: string]: any[] },
-  isInitPool: boolean | null
+  poolSwitched: boolean
 }
 
 const initDataEachChain = Object.fromEntries(
@@ -80,6 +80,6 @@ export const initialState: resourcesState = {
   tokens: initDataEachChain,
   prices: initDataEachChain,
   feeData: initDataEachChain,
-  isInitPool: null,
+  poolSwitched: false,
   swapLogs: {}
 }

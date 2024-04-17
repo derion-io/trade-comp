@@ -21,7 +21,7 @@ import { PagePoolInvalidIndicator } from '../PagePoolInvalidIndicator'
 export const App = () => {
   const { id } = useCurrentPoolGroup()
   const { tokens } = useListTokens()
-  const { poolGroups, isValidPool, isInitPool, useIsInitPool } = useResource()
+  const { poolGroups, isValidPool, poolSwitched } = useResource()
   const { fetchBalanceAndAllowance, updateBalanceAndAllowances } =
     useWalletBalance()
   const { account } = useWeb3React()
@@ -32,7 +32,6 @@ export const App = () => {
   useFetchFeeData()
   useFetchTokenPrice()
   useSwapHistoryFormated()
-  useIsInitPool()
 
   useEffect(() => {
     resetMapAccount()
@@ -95,13 +94,13 @@ export const App = () => {
       Object.keys(poolGroups).length === 0 ? (
           <PageLoadingIndicator />
         ) : (
-          isInitPool && isValidPool
+          isValidPool && !poolSwitched
             ? <PagePoolInvalidIndicator/>
             : ''
         )}
       {/* @ts-ignore */}
       <ErrorBoundary>
-        { isInitPool && isValidPool ? ''
+        { isValidPool && !poolSwitched ? ''
           : <Trade
             tab={detectTradeTab(location.pathname)}
             loadingData={!poolGroups || Object.keys(poolGroups).length === 0}

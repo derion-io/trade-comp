@@ -9,20 +9,25 @@ import { addTokensReduce } from '../../token/reducer'
 import { State } from '../../types'
 import { useWalletBalance } from '../../wallet/hooks/useBalances'
 import { useSwapHistory } from '../../wallet/hooks/useSwapHistory'
-import { addPoolGroupsWithChain, addPoolsWithChain, setIsInitPool } from '../reducer'
+import { addPoolGroupsWithChain, addPoolsWithChain, setPoolSwitched } from '../reducer'
 import { PoolGroupValueType, PoolType } from '../type'
 
 export const useResource = () => {
-  const { poolGroups, pools, isInitPool } = useSelector((state: State) => {
+  const { poolGroups, pools, poolSwitched } = useSelector((state: State) => {
     return {
       poolGroups: state.resources.poolGroups,
       pools: state.resources.pools,
-      isInitPool: state.resources.isInitPool
+      poolSwitched: state.resources.poolSwitched
     }
   })
   const { chainId, ddlEngine, configs } = useConfigs()
   const dispatch = useDispatch()
   const { updateSwapTxsHandle } = useSwapHistory()
+  const onPoolSwitched = (pool: string) => {
+    if (!poolSwitched) {
+      dispatch(setPoolSwitched(true))
+    }
+  }
   const addNewResource = (data:any, account?:string) => {
     dispatch(addTokensReduce({ tokens: data.tokens, chainId }))
     dispatch(
@@ -175,17 +180,6 @@ export const useResource = () => {
       }
     }, [poolGroups, tokens, balances])
   }
-  const useIsInitPool = () => {
-    return useEffect(() => {
-      if (Object.keys(configs).length > 0) {
-        if (isInitPool === null) {
-          dispatch(setIsInitPool(true))
-        } else if (isInitPool === true) {
-          dispatch(setIsInitPool(false))
-        }
-      }
-    }, [configs])
-  }
   const isValidPool = useMemo(() => {
     const { searchParams } = new URL(`https://1.com?${window.location.href?.split('?')?.[1]}`)
     const pool = searchParams.get('pool')
@@ -199,9 +193,9 @@ export const useResource = () => {
     useCalculatePoolGroupsValue,
     useCalculatePoolValue,
     addNewResource,
-    useIsInitPool,
     isValidPool,
-    isInitPool,
+    poolSwitched,
+    onPoolSwitched,
     poolGroups: poolGroups[chainId],
     pools: pools[chainId]
   }
