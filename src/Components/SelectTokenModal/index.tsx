@@ -14,7 +14,7 @@ import {
   isErc1155Address,
   IEW,
   NUM,
-  zerofy,
+  zerofy
 } from '../../utils/helpers'
 import { ZERO_ADDRESS } from '../../utils/constant'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
@@ -76,7 +76,7 @@ const Option = ({
   onSelectToken,
   address,
   setVisible,
-  currencyURI,
+  currencyURI
 }: {
   setVisible: any
   currencyURI: string
@@ -92,9 +92,9 @@ const Option = ({
     amount: IEW(balances[address], tokens[address]?.decimals || 18)
   })
 
-  if (NUM(value) < settings.minPositionValueUSD) {
-    return <React.Fragment />
-  }
+  // if (NUM(value) < settings.minPositionValueUSD) {
+  //   return <React.Fragment />
+  // }
 
   const [reserve, tokenR] = useMemo(() => {
     if (isErc1155Address(address)) {

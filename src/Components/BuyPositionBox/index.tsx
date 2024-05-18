@@ -157,6 +157,7 @@ const Component = ({
   })
 
   const payoffRate = useMemo(() => {
+    if (Number(valueOut) === 0 || Number(valueIn) === 0) { return 1 }
     if (valueOut && valueIn && Number(valueOut) && Number(valueIn)) {
       return NUM(div(valueOut, valueIn))
     }
