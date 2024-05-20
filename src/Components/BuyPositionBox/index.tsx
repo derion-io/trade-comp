@@ -25,7 +25,7 @@ import {
   formatFloat,
   getPoolPower,
   isErc1155Address,
-  zerofy,
+  zerofy
 } from '../../utils/helpers'
 import { ApproveUtrModal } from '../ApproveUtrModal'
 import { ButtonSwap } from '../ButtonSwap'
@@ -193,24 +193,25 @@ const Component = ({
     }
   }, [amountIn, tradeType, inputTokenAddress, poolToShow?.TOKEN_R])
 
-  const { erc20TokenSupported } = useListTokenHasUniPool(poolToShow)
+  // const { erc20TokenSupported } = useListTokenHasUniPool(poolToShow)
 
   const tokensToSelect = useMemo(() => {
     if (!id || !poolToShow?.TOKEN_R) return []
-    const tokenRs = [poolToShow.TOKEN_R]
+    const tokenRs = Object.keys(tokens).filter((address) => !isErc1155Address(address))
+    // [poolToShow.TOKEN_R]
 
-    if (poolToShow.TOKEN_R === configs.wrappedTokenAddress || erc20TokenSupported.includes(configs.wrappedTokenAddress)) {
-      tokenRs.push(NATIVE_ADDRESS)
-      tokenRs.push(configs.wrappedTokenAddress)
-    }
+    // if (poolToShow.TOKEN_R === configs.wrappedTokenAddress || erc20TokenSupported.includes(configs.wrappedTokenAddress)) {
+    //   tokenRs.push(NATIVE_ADDRESS)
+    //   tokenRs.push(configs.wrappedTokenAddress)
+    // }
 
     return _.uniq(
-      [...tokenRs, ...erc20TokenSupported].filter((address) => {
-        if (tokenRs.includes(address)) return true
+      tokenRs.filter((address) => {
+        // if (tokenRs.includes(address)) return true
         return balances[address]?.gt(0)
       })
     )
-  }, [erc20TokenSupported, routes, balances, id])
+  }, [routes, tokens, balances, id])
 
   const onSelectToken = useCallback(
     (address: string) => {
@@ -233,7 +234,7 @@ const Component = ({
       leverage,
       effectiveLeverage,
       dgA,
-      dgB,
+      dgB
     } = calcPoolSide(poolToShow, sideToShow, tokens)
 
     if (sideToShow != POOL_IDS.C && effectiveLeverage < leverage) {
@@ -253,7 +254,7 @@ const Component = ({
           leverage,
           effectiveLeverage,
           dgA,
-          dgB,
+          dgB
         }}
         isPhone
       />

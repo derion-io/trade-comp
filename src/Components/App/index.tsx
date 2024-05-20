@@ -7,7 +7,7 @@ import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoo
 import { useWeb3React } from '../../state/customWeb3React/hook'
 import { useFetchFeeData } from '../../state/resources/hooks/useFeeData'
 import { useResource } from '../../state/resources/hooks/useResource'
-import { useFetchTokenPrice } from '../../state/resources/hooks/useTokenPrice'
+import { useFetchTokenPrice, useTokenPrice } from '../../state/resources/hooks/useTokenPrice'
 import { useListTokens } from '../../state/token/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useSwapHistoryFormated } from '../../state/wallet/hooks/useSwapHistory'
@@ -21,6 +21,7 @@ import { PagePoolInvalidIndicator } from '../PagePoolInvalidIndicator'
 export const App = () => {
   const { id } = useCurrentPoolGroup()
   const { tokens } = useListTokens()
+  const { prices } = useTokenPrice()
   const { poolGroups, isValidPool, poolSwitched } = useResource()
   const { fetchBalanceAndAllowance, updateBalanceAndAllowances } =
     useWalletBalance()
@@ -69,7 +70,9 @@ export const App = () => {
       fetchBalanceAndAllowance(account, true)
     }
   }, [tokens, account])
-
+  useEffect(() => {
+    console.log('#list-token', tokens, prices)
+  }, [tokens, prices])
   // const detectLiquidityTab = (path: string) => {
   //   if (path.includes('add-liquidity')) {
   //     return LIQUIDITY_TAB.ADD
