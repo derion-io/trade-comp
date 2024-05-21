@@ -157,14 +157,6 @@ const Component = ({
     tokenAddress: outputTokenAddress
   })
 
-  const payoffRate = useMemo(() => {
-    if (Number(valueOut) === 0 || Number(valueIn) === 0) { return 1 }
-    if (valueOut && valueIn && Number(valueOut) && Number(valueIn)) {
-      return NUM(div(valueOut, valueIn))
-    }
-    return undefined
-  }, [valueIn, valueOut])
-
   const [poolToShow, sideToShow] = useMemo(() => {
     if (isErc1155Address(outputTokenAddress)) {
       const { address, id } = decodeErc1155Address(outputTokenAddress)
@@ -180,9 +172,14 @@ const Component = ({
     outputTokenAddress: poolToShow?.TOKEN_R,
     amountIn: amountIn
   })
-  useEffect(() => {
-    console.log('#rateData', rateDataLoading, rateData)
-  }, [rateData, rateDataLoading])
+
+  const payoffRate = useMemo(() => {
+    const _valueIn = Number(valueIn) === 0 ? rateData?.priceRoute?.srcUSD || 0 : valueIn
+    if (valueOut && _valueIn && Number(valueOut) && Number(_valueIn)) {
+      return NUM(div(valueOut, _valueIn))
+    }
+    return undefined
+  }, [valueIn, valueOut, rateData])
 
   useEffect(() => {
     if (!poolToShow?.TOKEN_R) return
@@ -465,10 +462,10 @@ const Component = ({
           amountIn={amountIn}
           payloadAmountIn={payloadAmountIn}
           amountOut={amountOut}
-          callError={callError}
+          callError={(!valueIn && loading) ? rateDataError : callError}
           gasUsed={gasUsed}
           tradeType={tradeType}
-          loadingAmountOut={loading}
+          loadingAmountOut={loading || rateDataLoading}
           tokenOutMaturity={tokenOutMaturity}
           confirmModal
           title={
