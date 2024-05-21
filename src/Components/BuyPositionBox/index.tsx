@@ -43,6 +43,7 @@ import { SwapInfoBox } from './components/SwapInfoBox'
 import { DeleveragePrice } from '../Positions'
 import './style.scss'
 import { Spin } from 'antd'
+import { useCalculatePara } from '../SwapBox/hooks/useCalculatePara'
 
 const Component = ({
   searchIndexCache,
@@ -174,6 +175,14 @@ const Component = ({
     }
     return [null, null]
   }, [pools, inputTokenAddress, outputTokenAddress])
+  const { rateData, loading: rateDataLoading, error: rateDataError } = useCalculatePara({
+    inputTokenAddress,
+    outputTokenAddress: poolToShow?.TOKEN_R,
+    amountIn: amountIn
+  })
+  useEffect(() => {
+    console.log('#rateData', rateDataLoading, rateData)
+  }, [rateData, rateDataLoading])
 
   useEffect(() => {
     if (!poolToShow?.TOKEN_R) return
