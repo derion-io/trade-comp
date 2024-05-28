@@ -21,7 +21,9 @@ import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
 import { CurrencyLogo } from '../ui/CurrencyLogo'
 import { useHelper } from '../../state/config/useHelper'
 import { useSettings } from '../../state/setting/hooks/useSettings'
-
+function hasInvalidSymbol(symbol: string): boolean {
+  return /\s|[^a-zA-Z]/.test(symbol)
+}
 const Component = ({
   visible,
   setVisible,
@@ -36,8 +38,10 @@ const Component = ({
   displayFee?: boolean
 }) => {
   const [tokensWithLogo, setTokensWithLogo] = useState<{
-    [address: string]: string
-  }>({})
+    logo: string,
+    address: string,
+    symbol:string,
+  }[]>([])
   const { getTokenIconUrl } = useHelper()
   const [isShowMore, setIsShowMore] = useState(false)
   const { getTokenValue } = useTokenValue({})
@@ -45,23 +49,52 @@ const Component = ({
   const { balances } = useWalletBalance()
   const { settings } = useSettings()
   useMemo(async () => {
-    const tokensLogo: {
-      [address: string]: string
-    } = {}
+    const tokensLogo:{
+      logo: string,
+      address: string,
+      symbol:string,
+    }[] = []
     await Promise.all(
       tokensToSelect.map(async (address) => {
-        tokensLogo[address] = isErc1155Address(address)
-          ? ''
-          : await getTokenIconUrl(address)
+        const tokenLogo = {
+          logo: isErc1155Address(address)
+            ? ''
+            : await getTokenIconUrl(address),
+          address,
+          symbol: tokens[address].symbol
+        }
+        tokensLogo.push(tokenLogo)
       })
     )
-    setTokensWithLogo(tokensLogo)
-  }, [tokensToSelect])
+    console.log('#tokensLogo', tokensLogo)
+    setTokensWithLogo(tokensLogo.sort((a, b) => {
+      if (a.logo === 'notfound' && b.logo !== 'notfound') {
+        return 1
+      }
+      if (a.logo !== 'notfound' && b.logo === 'notfound') {
+        return -1
+      }
+      if (a.logo && !b.logo) {
+        return -1
+      }
+      if (!a.logo && b.logo) {
+        return 1
+      }
+      if (hasInvalidSymbol(a.symbol) && !hasInvalidSymbol(b.symbol)) {
+        return 1
+      }
+      if (!hasInvalidSymbol(a.symbol) && hasInvalidSymbol(b.symbol)) {
+        return -1
+      }
+      return 0
+    })
+    )
+  }, [tokensToSelect, tokens])
 
   return (
     <Modal setVisible={setVisible} visible={visible} title='Select Token'>
       <div className='select-token-modal'>
-        {tokensToSelect.map((address: any, key: number) => {
+        {tokensWithLogo.map(({ address, logo }, key: number) => {
           if (NUM(getTokenValue(
             address,
             IEW(balances[address], tokens[address]?.decimals || 18)
@@ -71,7 +104,7 @@ const Component = ({
           return (
             <Option
               key={key}
-              currencyURI={tokensWithLogo[address] || ''}
+              currencyURI={logo || ''}
               address={address}
               setVisible={setVisible}
               onSelectToken={onSelectToken}
