@@ -14,7 +14,7 @@ import {
   isErc1155Address,
   IEW,
   NUM,
-  zerofy
+  zerofy,
 } from '../../utils/helpers'
 import { ZERO_ADDRESS } from '../../utils/constant'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
@@ -82,7 +82,7 @@ const Component = ({
       <div className='search-model-footer'>
         <TextGrey className='select-token-showmore' onClick={() => {
           setIsShowMore(isShowMore !== true)
-        }}> {isShowMore ? 'Show less' : 'Show more'}</TextGrey>
+        }}> {isShowMore ? 'Hide Unknown Tokens' : 'Show Unknown Tokens'}</TextGrey>
       </div>
     </Modal>
   )
@@ -93,7 +93,7 @@ const Option = ({
   address,
   setVisible,
   currencyURI,
-  isCheckTokenValue
+  isCheckTokenValue,
 }: {
   setVisible: any
   currencyURI: string

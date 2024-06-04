@@ -25,7 +25,7 @@ import {
   formatFloat,
   getPoolPower,
   isErc1155Address,
-  zerofy
+  zerofy,
 } from '../../utils/helpers'
 import { ApproveUtrModal } from '../ApproveUtrModal'
 import { ButtonSwap } from '../ButtonSwap'
@@ -240,7 +240,7 @@ const Component = ({
       leverage,
       effectiveLeverage,
       dgA,
-      dgB
+      dgB,
     } = calcPoolSide(poolToShow, sideToShow, tokens)
 
     if (sideToShow != POOL_IDS.C && effectiveLeverage < leverage) {
@@ -260,7 +260,7 @@ const Component = ({
           leverage,
           effectiveLeverage,
           dgA,
-          dgB
+          dgB,
         }}
         isPhone
       />
