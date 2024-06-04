@@ -5,7 +5,7 @@ import { useListTokens } from '../../state/token/hook'
 import { TokenIcon } from '../ui/TokenIcon'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { TokenSymbol } from '../ui/TokenSymbol'
-import { Text, TextGrey } from '../ui/Text'
+import { Text, TextGrey, TextLink } from '../ui/Text'
 import './style.scss'
 import isEqual from 'react-fast-compare'
 import { useResource } from '../../state/resources/hooks/useResource'
@@ -21,7 +21,9 @@ import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
 import { CurrencyLogo } from '../ui/CurrencyLogo'
 import { useHelper } from '../../state/config/useHelper'
 import { useSettings } from '../../state/setting/hooks/useSettings'
-
+function hasInvalidSymbol(symbol: string): boolean {
+  return /\s|[^a-zA-Z]/.test(symbol)
+}
 const Component = ({
   visible,
   setVisible,
@@ -36,37 +38,84 @@ const Component = ({
   displayFee?: boolean
 }) => {
   const [tokensWithLogo, setTokensWithLogo] = useState<{
-    [address: string]: string
-  }>({})
+    logo: string,
+    address: string,
+    symbol:string,
+  }[]>([])
   const { getTokenIconUrl } = useHelper()
-
+  const [isShowMore, setIsShowMore] = useState(false)
+  const { getTokenValue } = useTokenValue({})
+  const { tokens } = useListTokens()
+  const { balances } = useWalletBalance()
+  const { settings } = useSettings()
   useMemo(async () => {
-    const tokensLogo: {
-      [address: string]: string
-    } = {}
+    const tokensLogo:{
+      logo: string,
+      address: string,
+      symbol:string,
+    }[] = []
     await Promise.all(
       tokensToSelect.map(async (address) => {
-        tokensLogo[address] = isErc1155Address(address)
-          ? ''
-          : await getTokenIconUrl(address)
+        const tokenLogo = {
+          logo: isErc1155Address(address)
+            ? ''
+            : await getTokenIconUrl(address),
+          address,
+          symbol: tokens[address].symbol
+        }
+        tokensLogo.push(tokenLogo)
       })
     )
-    setTokensWithLogo(tokensLogo)
-  }, [tokensToSelect])
+    // console.log('#tokensLogo', tokensLogo)
+    setTokensWithLogo(tokensLogo.sort((a, b) => {
+      if (a.logo === 'notfound' && b.logo !== 'notfound') {
+        return 1
+      }
+      if (a.logo !== 'notfound' && b.logo === 'notfound') {
+        return -1
+      }
+      if (a.logo && !b.logo) {
+        return -1
+      }
+      if (!a.logo && b.logo) {
+        return 1
+      }
+      if (hasInvalidSymbol(a.symbol) && !hasInvalidSymbol(b.symbol)) {
+        return 1
+      }
+      if (!hasInvalidSymbol(a.symbol) && hasInvalidSymbol(b.symbol)) {
+        return -1
+      }
+      return 0
+    })
+    )
+  }, [tokensToSelect, tokens])
+
   return (
     <Modal setVisible={setVisible} visible={visible} title='Select Token'>
       <div className='select-token-modal'>
-        {tokensToSelect.map((address: any, key: number) => {
+        {tokensWithLogo.map(({ address, logo }, key: number) => {
+          if (NUM(getTokenValue(
+            address,
+            IEW(balances[address], tokens[address]?.decimals || 18)
+          )) < settings.minPositionValueUSD && !isShowMore) {
+            return
+          }
           return (
             <Option
               key={key}
-              currencyURI={tokensWithLogo[address] || ''}
+              currencyURI={logo || ''}
               address={address}
               setVisible={setVisible}
               onSelectToken={onSelectToken}
             />
           )
         })}
+      </div>
+      <div className='search-model-footer'>
+        <TextLink className='select-token-showmore' onClick={() => {
+          setIsShowMore(isShowMore !== true)
+        }}> {isShowMore ? 'Show Less' : 'Show All'}</TextLink>
       </div>
     </Modal>
   )
@@ -77,11 +126,13 @@ const Option = ({
   address,
   setVisible,
   currencyURI,
+  isCheckTokenValue,
 }: {
   setVisible: any
   currencyURI: string
   address: string
   onSelectToken: any
+  isCheckTokenValue?: boolean
 }) => {
   const { tokens } = useListTokens()
   const { pools } = useResource()
@@ -91,11 +142,6 @@ const Option = ({
     tokenAddress: address,
     amount: IEW(balances[address], tokens[address]?.decimals || 18)
   })
-
-  if (NUM(value) < settings.minPositionValueUSD) {
-    return <React.Fragment />
-  }
-
   const [reserve, tokenR] = useMemo(() => {
     if (isErc1155Address(address)) {
       const { address: poolAddress } = decodeErc1155Address(address)
@@ -119,11 +165,11 @@ const Option = ({
         setVisible(false)
       }}
     >
-      {!isErc1155Address(address) ? (
-        <CurrencyLogo currencyURI={currencyURI} size={24} />
-      ) : (
-        <TokenIcon tokenAddress={address} size={24} />
-      )}
+      {/* {!isErc1155Address(address) ? (
+        <TokenIcon currencyURI={currencyURI} size={24} />
+      ) : ( */}
+      <TokenIcon tokenAddress={address} size={24} />
+      {/* )} */}
       <div className='option__name-and-lp'>
         <Text>{symbol}</Text>
         {price && Number(price) > 0 ? (
@@ -141,9 +187,10 @@ const Option = ({
               NUM(IEW(balances[address], tokens[address]?.decimals ?? 18))
             )}
           </Text>
-          <TextGrey>${zerofy(NUM(value))}</TextGrey>
+          {NUM(value) !== 0 ? <TextGrey>${zerofy(NUM(value))}</TextGrey> : ''}
         </div>
       )}
+
     </Box>
   )
 }

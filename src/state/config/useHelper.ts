@@ -34,6 +34,7 @@ export const useHelper = () => {
     }
 
     const localWAddress = localStorage.getItem(`token-logo-${wAddress}`)
+    if (configs.tokens?.[wAddress]?.logo) return configs.tokens?.[wAddress]?.logo
     if (!wAddress || isErc1155Address(wAddress)) return ''
     if (localWAddress !== null) return localWAddress
     if (localWAddress === 'notfound') return ''

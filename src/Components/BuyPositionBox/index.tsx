@@ -43,6 +43,7 @@ import { SwapInfoBox } from './components/SwapInfoBox'
 import { DeleveragePrice } from '../Positions'
 import './style.scss'
 import { Spin } from 'antd'
+import { useCalculatePara } from '../SwapBox/hooks/useCalculatePara'
 
 const Component = ({
   searchIndexCache,
@@ -156,13 +157,6 @@ const Component = ({
     tokenAddress: outputTokenAddress
   })
 
-  const payoffRate = useMemo(() => {
-    if (valueOut && valueIn && Number(valueOut) && Number(valueIn)) {
-      return NUM(div(valueOut, valueIn))
-    }
-    return undefined
-  }, [valueIn, valueOut])
-
   const [poolToShow, sideToShow] = useMemo(() => {
     if (isErc1155Address(outputTokenAddress)) {
       const { address, id } = decodeErc1155Address(outputTokenAddress)
@@ -173,6 +167,19 @@ const Component = ({
     }
     return [null, null]
   }, [pools, inputTokenAddress, outputTokenAddress])
+  const { rateData, loading: rateDataLoading, error: rateDataError } = useCalculatePara({
+    inputTokenAddress,
+    outputTokenAddress: poolToShow?.TOKEN_R,
+    amountIn: amountIn
+  })
+
+  const payoffRate = useMemo(() => {
+    const _valueIn = Number(valueIn) === 0 ? rateData?.priceRoute?.srcUSD || 0 : valueIn
+    if (valueOut && _valueIn && Number(valueOut) && Number(_valueIn)) {
+      return NUM(div(valueOut, _valueIn))
+    }
+    return undefined
+  }, [valueIn, valueOut, rateData])
 
   useEffect(() => {
     if (!poolToShow?.TOKEN_R) return
@@ -192,24 +199,25 @@ const Component = ({
     }
   }, [amountIn, tradeType, inputTokenAddress, poolToShow?.TOKEN_R])
 
-  const { erc20TokenSupported } = useListTokenHasUniPool(poolToShow)
+  // const { erc20TokenSupported } = useListTokenHasUniPool(poolToShow)
 
   const tokensToSelect = useMemo(() => {
     if (!id || !poolToShow?.TOKEN_R) return []
-    const tokenRs = [poolToShow.TOKEN_R]
+    const tokenRs = Object.keys(tokens).filter((address) => !isErc1155Address(address))
+    // [poolToShow.TOKEN_R]
 
-    if (poolToShow.TOKEN_R === configs.wrappedTokenAddress || erc20TokenSupported.includes(configs.wrappedTokenAddress)) {
-      tokenRs.push(NATIVE_ADDRESS)
-      tokenRs.push(configs.wrappedTokenAddress)
-    }
+    // if (poolToShow.TOKEN_R === configs.wrappedTokenAddress || erc20TokenSupported.includes(configs.wrappedTokenAddress)) {
+    //   tokenRs.push(NATIVE_ADDRESS)
+    //   tokenRs.push(configs.wrappedTokenAddress)
+    // }
 
     return _.uniq(
-      [...tokenRs, ...erc20TokenSupported].filter((address) => {
-        if (tokenRs.includes(address)) return true
+      tokenRs.filter((address) => {
+        // if (tokenRs.includes(address)) return true
         return balances[address]?.gt(0)
       })
     )
-  }, [erc20TokenSupported, routes, balances, id])
+  }, [routes, tokens, balances, id])
 
   const onSelectToken = useCallback(
     (address: string) => {
@@ -454,10 +462,10 @@ const Component = ({
           amountIn={amountIn}
           payloadAmountIn={payloadAmountIn}
           amountOut={amountOut}
-          callError={callError}
+          callError={(!valueIn && loading) ? rateDataError : callError}
           gasUsed={gasUsed}
           tradeType={tradeType}
-          loadingAmountOut={loading}
+          loadingAmountOut={loading || rateDataLoading}
           tokenOutMaturity={tokenOutMaturity}
           confirmModal
           title={
