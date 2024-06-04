@@ -5,7 +5,7 @@ import { useListTokens } from '../../state/token/hook'
 import { TokenIcon } from '../ui/TokenIcon'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { TokenSymbol } from '../ui/TokenSymbol'
-import { Text, TextGrey } from '../ui/Text'
+import { Text, TextGrey, TextLink } from '../ui/Text'
 import './style.scss'
 import isEqual from 'react-fast-compare'
 import { useResource } from '../../state/resources/hooks/useResource'
@@ -66,7 +66,7 @@ const Component = ({
         tokensLogo.push(tokenLogo)
       })
     )
-    console.log('#tokensLogo', tokensLogo)
+    // console.log('#tokensLogo', tokensLogo)
     setTokensWithLogo(tokensLogo.sort((a, b) => {
       if (a.logo === 'notfound' && b.logo !== 'notfound') {
         return 1
@@ -113,9 +113,9 @@ const Component = ({
         })}
       </div>
       <div className='search-model-footer'>
-        <TextGrey className='select-token-showmore' onClick={() => {
+        <TextLink className='select-token-showmore' onClick={() => {
           setIsShowMore(isShowMore !== true)
-        }}> {isShowMore ? 'Hide Unknown Tokens' : 'Show Unknown Tokens'}</TextGrey>
+        }}> {isShowMore ? 'Show Less' : 'Show All'}</TextLink>
       </div>
     </Modal>
   )
