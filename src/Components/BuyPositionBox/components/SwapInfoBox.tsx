@@ -77,6 +77,7 @@ export const SwapInfoBox = ({
                       {zerofy(formatFloat(interest * 100, undefined, 3, true))}%
                     </Text>
                   </div>
+{/* 
                   <div>
                     <TextGrey>LP Premium:&nbsp;</TextGrey>
                     <Text
@@ -85,6 +86,7 @@ export const SwapInfoBox = ({
                       {zerofy(formatFloat(premium * 100, undefined, 2, true))}%
                     </Text>
                   </div>
+ */}
                   <div>
                     <TextGrey>Trader Interest:&nbsp;</TextGrey>
                     <Text>
@@ -152,8 +154,6 @@ export const SwapInfoBox = ({
           </SkeletonLoader>
         </InfoRow>
       )}
-
-      <hr />
 
       {poolToShow?.OPEN_RATE?.gt(0) && !poolToShow.OPEN_RATE.eq(Q128) && (
         <InfoRow>
