@@ -8,6 +8,7 @@ import { CandleChartLoader } from '../ChartLoaders'
 import { useListTokens } from '../../state/token/hook'
 import { useHelper } from '../../state/config/useHelper'
 import { POOL_IDS } from '../../utils/constant'
+import { BigNumber } from 'ethers'
 
 const FX = 'f(P,x,v,R)=\\{2vx^P<R:vx^P,R-R^2/(4vx^P)\\}'
 const GX = 'g(P,x,v,R)=\\{2vx^{-P}<R:R-vx^{-P},R^2/(4vx^{-P})\\}'
@@ -71,9 +72,16 @@ export const FunctionPlot = (props: any) => {
       mark,
       leverage: P
     } = calcPoolSide(currentPool, POOL_IDS.C, tokens)
-    const R = formatFloat(IEW(states?.R))
-    const a = formatFloat(IEW(states?.a))
-    const b = formatFloat(IEW(states?.b))
+
+    const normalize = (as: BigNumber[]): number[] => {
+      const ls = as.map(b => b.toString().length)
+      const maxL = Math.max(...ls)
+      const minL = Math.min(...ls)
+      const avgL = (maxL + minL) >> 1
+      return as.map(a => formatFloat(IEW(a, avgL)))
+    }
+
+    const [R, a, b] = normalize([states.R, states.a, states.b])
 
     const x = !states?.spot || !MARK ? 1 : NUM(div(states?.spot, MARK))
     const X = x**exp
