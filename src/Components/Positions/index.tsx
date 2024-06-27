@@ -63,6 +63,7 @@ import { useTokenPrice } from '../../state/resources/hooks/useTokenPrice'
 import { BatchTransferModal } from '../BatchTransfer'
 import { Checkbox } from 'antd'
 import { useWeb3React } from '../../state/customWeb3React/hook'
+import { Q128 } from 'derivable-engine/dist/services/resource'
 
 const mdp = require('move-decimal-point')
 
@@ -142,7 +143,11 @@ export const Positions = ({
       const pool =
         pools[pendingTxData?.token ? pendingTxPool.address : poolAddress]
       const posWithEntry = positionsWithEntry[token]
-      const { avgPrice, avgPriceR, amountR } = posWithEntry ?? {}
+      let { avgPrice, avgPriceR, amountR } = posWithEntry ?? {}
+      if (!pool.OPEN_RATE.eq(Q128)) {
+        // reduce the input value by the open rate
+        amountR = amountR.mul(pool.OPEN_RATE).div(Q128)
+      }
       const entryPrice = avgPrice || -1
       const entryValueR = IEW(amountR || 1)
       const entryValueU = mul(entryValueR || 1, avgPriceR || 1)
