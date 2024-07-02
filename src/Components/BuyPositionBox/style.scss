@@ -88,6 +88,11 @@
         display: flex;
         align-items: center;
         justify-content: end;
+
+        max-width: 20rem;
+        overflow-x: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
     }
 

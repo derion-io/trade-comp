@@ -4,6 +4,11 @@
   font-size: 14px;
   color: white;
 
+  max-width: 20rem;
+  text-overflow: ellipsis;
+  overflow-x: hidden;
+  white-space: nowrap;
+
   &.text-buy {
     color: $color-buy;
     &>* {

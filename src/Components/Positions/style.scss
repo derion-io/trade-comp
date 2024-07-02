@@ -35,6 +35,13 @@
     &:hover td {
       background: #58585840;
     }
+
+    td {
+      max-width: 20rem;
+      overflow-x: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
 
   .net-value-and-pnl {
