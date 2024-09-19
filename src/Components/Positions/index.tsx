@@ -146,7 +146,7 @@ export const Positions = ({
       let { avgPrice, avgPriceR, amountR } = posWithEntry ?? {}
       if (!pool.OPEN_RATE.eq(Q128)) {
         // reduce the input value by the open rate
-        amountR = amountR.mul(pool.OPEN_RATE).div(Q128)
+        amountR = amountR?.mul(pool.OPEN_RATE).div(Q128)
       }
       const entryPrice = avgPrice || -1
       const entryValueR = IEW(amountR || 1)
