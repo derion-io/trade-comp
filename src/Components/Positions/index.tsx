@@ -36,7 +36,7 @@ import {
   add,
   IS_NEG,
   ABS,
-  poolToIndexID,
+  poolToIndexID
 } from '../../utils/helpers'
 import { ClosingFeeCalculator, Position } from '../../utils/type'
 import { ClosePosition } from '../ClosePositionModal'
@@ -282,6 +282,11 @@ export const Positions = ({
     }
   }, [
     positionsWithEntry,
+    tokens,
+    balances,
+    settings,
+    pools,
+    poolGroups,
     settings.minPositionValueUSD
   ])
 
@@ -698,14 +703,14 @@ export const Positions = ({
                   {/* <td><Reserve pool={position.pool}/></td> */}
                   {/* <td><ExplorerLink poolAddress={position.poolAddress}/></td> */}
                   <td className='text-right'>
-                    {isShowAllPosition ?
-                        <ButtonSell
+                    {isShowAllPosition
+                      ? <ButtonSell
                         className='share-position'
                         size='small'
                         style={{ border: 'none' }}>
                         <Checkbox onChange={() => {
                           const id = `${position.poolAddress}-${position.side}`
-                          const ss = {...selections}
+                          const ss = { ...selections }
                           if (!ss[id]) {
                             ss[id] = position
                           } else {
@@ -1198,7 +1203,7 @@ export const FundingRate = ({
 
 export const Size = ({
   position,
-  isPhone,
+  isPhone
 }: {
   position: Position
   isPhone?: boolean
@@ -1320,7 +1325,7 @@ export const ExplorerLink = ({ poolAddress }: { poolAddress: string }) => {
 export const Token = ({
   token,
   balance,
-  doubleLines,
+  doubleLines
 }: {
   token: string
   balance?: string
