@@ -216,6 +216,7 @@ export const Positions = ({
           valueRLinear = mul(entryValueR, leveragedPriceRate)
         }
         valueRCompound = mul(entryValueR, pow(priceRate, L))
+        valueRCompound = sub(valueRCompound, valueRLinear)
       }
 
       return {
