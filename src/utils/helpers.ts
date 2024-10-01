@@ -659,7 +659,7 @@ export const numInt = (v: any): string => {
 
 // extract the decimals part including the decimal point
 export const numDec = (v: any): string => {
-  return v.match(/\.[\d₀₁₂₃₄₅₆₇₈₉]+$/g) || '\u00A0'
+  return v.match(/\.[\d₀₁₂₃₄₅₆₇₈₉]+$/g) || ''
 }
 
 export async function downloadImage(dataURI: string, filename: string) {
