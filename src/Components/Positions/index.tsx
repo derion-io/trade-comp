@@ -210,11 +210,11 @@ export const Positions = ({
           1,
           div(mul(L, sub(currentPrice, entryPrice)), entryPrice)
         )
-        if (leveragedPriceRate.startsWith('-')) {
-          valueRLinear = '0'
-        } else {
+        // if (leveragedPriceRate.startsWith('-')) {
+        //   valueRLinear = '0'
+        // } else {
           valueRLinear = mul(entryValueR, leveragedPriceRate)
-        }
+        // }
         valueRCompound = mul(entryValueR, pow(priceRate, L))
       }
 
@@ -282,6 +282,11 @@ export const Positions = ({
     }
   }, [
     positionsWithEntry,
+    tokens,
+    balances,
+    settings,
+    pools,
+    poolGroups,
     settings.minPositionValueUSD
   ])
 
@@ -430,7 +435,7 @@ export const Positions = ({
                       </InfoRow>
                       <InfoRow>
                         <TextGrey>Compound</TextGrey>
-                        <CompoundPnL
+                        <CompoundToLinearPnL
                           valueInUsdStatus={valueInUsdStatus}
                           position={position}
                           loading={position.status === POSITION_STATUS.OPENING}
@@ -933,49 +938,49 @@ export const LinearPnL = ({
   </TextComp>
 }
 
-// export const CompoundToLinearPnL = ({
-//   position,
-//   isPhone,
-//   valueInUsdStatus,
-//   loading
-// }: {
-//   position: Position
-//   isPhone?: boolean
-//   loading?:boolean
-//   valueInUsdStatus: VALUE_IN_USD_STATUS
-// }) => {
-//   if (loading) return <SkeletonLoader loading/>
-//   const { pool, valueRCompound, valueRLinear } = position
-//   const { prices } = useTokenPrice()
-//   const priceR = prices[pool.TOKEN_R] ?? 1
-//   const valueUCompound = mul(valueRCompound, priceR)
-//   const valueULinear = mul(valueRLinear, priceR)
-//   const [value, entryValue] = isShowValueInUsd(valueInUsdStatus, pool)
-//     ? [valueUCompound, valueULinear]
-//     : [valueRCompound, valueRLinear]
-//   const valueChange = sub(value, entryValue)
-//   const valueChangeDisplay =
-//     <Text className='d-flex align-item-center'>
-//       {IS_NEG(valueChange) ? '-' : '+'}
-//       {isShowValueInUsd(valueInUsdStatus, pool) ? '$' : <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex' />}
-//       {zerofy(ABS(valueChange))}
-//     </Text>
-//   const maxValue = Math.max(NUM(value ?? 0), NUM(entryValue ?? 0))
-//   if (maxValue == 0) {
-//     return <React.Fragment/>
-//   }
-//   const rate = formatPercent(div(valueChange, maxValue), undefined, true)
-//   const rateDisplay = (rate >= 0 ? '+' : '') + STR(rate)
-//   const TextComp = rate >= 0 ? TextBuy : TextSell
-//   if (isPhone) {
-//     return <TextComp className='pnl'>
-//       ({rateDisplay}%)&nbsp;{valueChangeDisplay}
-//     </TextComp>
-//   }
-//   return <TextComp className='pnl'>
-//     {valueChangeDisplay}&nbsp;({rateDisplay}%)
-//   </TextComp>
-// }
+export const CompoundToLinearPnL = ({
+  position,
+  isPhone,
+  valueInUsdStatus,
+  loading
+}: {
+  position: Position
+  isPhone?: boolean
+  loading?:boolean
+  valueInUsdStatus: VALUE_IN_USD_STATUS
+}) => {
+  if (loading) return <SkeletonLoader loading/>
+  const { pool, valueRCompound, valueRLinear } = position
+  const { prices } = useTokenPrice()
+  const priceR = prices[pool.TOKEN_R] ?? 1
+  const valueUCompound = mul(valueRCompound, priceR)
+  const valueULinear = mul(valueRLinear, priceR)
+  const [value, entryValue] = isShowValueInUsd(valueInUsdStatus, pool)
+    ? [valueUCompound, valueULinear]
+    : [valueRCompound, valueRLinear]
+  const valueChange = sub(value, entryValue)
+  const valueChangeDisplay =
+    <Text className='d-flex align-item-center'>
+      {IS_NEG(valueChange) ? '-' : '+'}
+      {isShowValueInUsd(valueInUsdStatus, pool) ? '$' : <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex' />}
+      {zerofy(ABS(valueChange))}
+    </Text>
+  const maxValue = Math.max(NUM(value ?? 0), NUM(entryValue ?? 0))
+  if (maxValue == 0) {
+    return <React.Fragment/>
+  }
+  const rate = formatPercent(div(valueChange, maxValue), undefined, true)
+  const rateDisplay = (rate >= 0 ? '+' : '') + STR(rate)
+  const TextComp = rate >= 0 ? TextBuy : TextSell
+  if (isPhone) {
+    return <TextComp className='pnl'>
+      ({rateDisplay}%)&nbsp;{valueChangeDisplay}
+    </TextComp>
+  }
+  return <TextComp className='pnl'>
+    {valueChangeDisplay}&nbsp;({rateDisplay}%)
+  </TextComp>
+}
 
 export const CompoundPnL = ({
   position,
@@ -1068,7 +1073,7 @@ export const Funding = ({
   valueInUsdStatus: VALUE_IN_USD_STATUS
 }) => {
   if (loading) return <SkeletonLoader loading/>
-  const { pool, valueR, valueRCompound, valueU } = position
+  const { pool, valueR, valueRCompound, valueU, entryValueU, entryValueR } = position
   const { prices } = useTokenPrice()
   const priceR = prices[pool.TOKEN_R] ?? 1
   const paidR = NUM(sub(valueR, valueRCompound))
@@ -1083,14 +1088,14 @@ export const Funding = ({
       {paidU >= 0 ? '+$' : '-$'}
       {zerofy(Math.abs(paidU))}
     </Text>
-    rate = div(paidU, compoundValueU)
+    rate = div(paidU, div(add(entryValueU, compoundValueU), 2))
   } else {
     valueChangeDisplay = <Text className='d-flex align-item-center'>
       {paidR > 0 ? '+' : '-'}
       <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex' />
       {zerofy(Math.abs(paidR))}
     </Text>
-    rate = div(paidR, valueRCompound)
+    rate = div(paidR, div(add(entryValueR, valueRCompound), 2))
   }
 
   if (paidR == 0) {

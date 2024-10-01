@@ -216,10 +216,6 @@ export const countDigits = (s: string): number[] => {
   return s.split('.').map(p => p.length)
 }
 
-export const max = (a: number, b: number) => {
-  return a > b ? a : b
-}
-
 export const maxBN = (a: BigNumber, b: BigNumber) => {
   if (a.gt(b)) {
     return a
@@ -333,6 +329,13 @@ export const div = (a: any, b: any, precision: number = 4) => {
   )
 }
 
+export const max = (a: any, b: any) => {
+  if (typeof a === 'number' && typeof b === 'number') {
+    return a > b ? a : b
+  }
+  return sub(a, b).startsWith('-') ? b : a
+}
+
 export const formatPercent = (
   floatNumber: any,
   decimals: number = 2,
@@ -352,7 +355,7 @@ export const getNormalAddress = (addresses: string[]) => {
  */
 export const getErc1155Token = (addresses: string[]) => {
   const erc1155Addresses = addresses.filter(isErc1155Address)
-  const result = {}
+  const result: {[address: string]: BigNumber[]} = {}
   for (let i = 0; i < erc1155Addresses.length; i++) {
     const address = erc1155Addresses[i].split('-')[0]
     const id = erc1155Addresses[i].split('-')[1]
