@@ -352,7 +352,7 @@ export const getNormalAddress = (addresses: string[]) => {
  */
 export const getErc1155Token = (addresses: string[]) => {
   const erc1155Addresses = addresses.filter(isErc1155Address)
-  const result = {}
+  const result: {[address: string]: BigNumber[]} = {}
   for (let i = 0; i < erc1155Addresses.length; i++) {
     const address = erc1155Addresses[i].split('-')[0]
     const id = erc1155Addresses[i].split('-')[1]
