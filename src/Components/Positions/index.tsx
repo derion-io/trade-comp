@@ -1074,7 +1074,7 @@ export const Funding = ({
   valueInUsdStatus: VALUE_IN_USD_STATUS
 }) => {
   if (loading) return <SkeletonLoader loading/>
-  const { pool, valueR, valueRCompound, valueU } = position
+  const { pool, valueR, valueRCompound, valueU, entryValueU, entryValueR } = position
   const { prices } = useTokenPrice()
   const priceR = prices[pool.TOKEN_R] ?? 1
   const paidR = NUM(sub(valueR, valueRCompound))
@@ -1089,14 +1089,14 @@ export const Funding = ({
       {paidU >= 0 ? '+$' : '-$'}
       {zerofy(Math.abs(paidU))}
     </Text>
-    rate = div(paidU, compoundValueU)
+    rate = div(paidU, div(add(entryValueU, compoundValueU), 2))
   } else {
     valueChangeDisplay = <Text className='d-flex align-item-center'>
       {paidR > 0 ? '+' : '-'}
       <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex' />
       {zerofy(Math.abs(paidR))}
     </Text>
-    rate = div(paidR, valueRCompound)
+    rate = div(paidR, div(add(entryValueR, valueRCompound), 2))
   }
 
   if (paidR == 0) {
