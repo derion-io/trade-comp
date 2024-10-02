@@ -226,6 +226,7 @@ export const ButtonSwap = ({
                     gasLimit,
                     onSubmitted: (pendingTx: PendingSwapTransactionType) => {
                       pendingTxHash = pendingTx.hash
+                      console.log('#pending (submitted tx)', pendingTx)
                       updatePendingTxsHandle(account, [...swapPendingTxs, pendingTx])
                       if (closeConfirmWhenSwap) closeConfirmWhenSwap(false)
                       toast.success('Transaction Submitted')
@@ -235,20 +236,29 @@ export const ButtonSwap = ({
                   }
                 )
 
+                console.log('#pending (tx)', tx)
+
                 const swapLogs = ddlEngine.RESOURCE.parseDdlLogs(
                   tx && tx?.logs ? tx.logs : []
                 )
-                updatePendingTxsHandle(account, swapPendingTxs.filter(penTx => penTx.hash !== pendingTxHash))
-                updateSwapTxsHandle(
-                  account,
-                  swapLogs.filter(
-                    (l: any) => l.transactionHash && l.args?.name === 'Swap'
-                  ),
-                  swapLogs.filter(
-                    (l: any) => l.transactionHash && l.args?.name === 'Transfer'
-                  ))
-                toast.success('Transaction Confirmed')
-                await fetchBalanceAndAllowance(account, true)
+                console.log('#pending', pendingTxHash)
+                console.log('#pending (decode logs)', swapLogs)
+
+                // updateSwapTxsHandle(
+                //   account,
+                //   swapLogs.filter(
+                //     (l: any) => l.transactionHash && l.args?.name === 'Swap'
+                //   ),
+                //   swapLogs.filter(
+                //     (l: any) => l.transactionHash && l.args?.name === 'Transfer'
+                //   ))
+                setTimeout(() => {
+                  fetchBalanceAndAllowance(account, true).then(res => {
+                    updatePendingTxsHandle(account, swapPendingTxs.filter(penTx => penTx.hash !== pendingTxHash))
+                    console.log('#pending (confirmed)', swapPendingTxs)
+                    toast.success('Transaction Confirmed')
+                  })
+                }, 60_000)
                 await initResource(account)
               }
               setLoading(false)

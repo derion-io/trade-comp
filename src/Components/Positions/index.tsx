@@ -13,6 +13,7 @@ import { useListTokens } from '../../state/token/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 import { POOL_IDS, POSITION_STATUS, TRADE_TYPE } from '../../utils/constant'
+import logtest from "./log.json"
 import formatLocalisedCompactNumber, {
   formatWeiToDisplayNumber
 } from '../../utils/formatBalance'
@@ -283,11 +284,13 @@ export const Positions = ({
     }
   }, [
     positionsWithEntry,
+    balances, // Balance has update when open/close new positions
+    tokens,
     pools,
     settings.minPositionValueUSD
   ])
 
-  const [displayPositions, hasClosingFee] = useMemo(() => {
+  const getDisplayPositions = ():[Position[], boolean] => {
     let displayPositions: Position[] = []
     if (positions && positions.length > 0) {
       displayPositions = positions.filter((p) => {
@@ -299,6 +302,7 @@ export const Positions = ({
         }
         return true
       })
+      console.log('#pending (before display)', swapPendingTxs)
       const pendingPosition = swapPendingTxs
         .map((swapPendingTx) => {
           let isHaveTokenIn = false
@@ -324,6 +328,7 @@ export const Positions = ({
         })
         .filter((p) => p !== null)
       if (pendingPosition) {
+        console.log('#pending (add to display)', pendingPosition)
         displayPositions = [...pendingPosition, ...displayPositions]
       }
     }
@@ -332,10 +337,15 @@ export const Positions = ({
       (p) => p?.calulateClosingFee?.(now)?.fee > 0
     )
     return [displayPositions, hasClosingFee]
-  }, [positions, tradeType, swapPendingTxs])
+  }
+  const [displayPositions, hasClosingFee] = getDisplayPositions()
   const isShowAllPosition = useMemo(() => settings.minPositionValueUSD === 0, [settings.minPositionValueUSD])
   const [isBatchTransferModalVisible, setBatchTransferModalVisible] = useState<boolean>(false)
   const showSize = tradeType !== TRADE_TYPE.LIQUIDITY
+
+  useEffect(() => {
+    console.log('#balance', balances)
+  },[balances])
   return (
     <div className='positions-box'>
       {isBatchTransferModalVisible &&
