@@ -37,6 +37,7 @@ import {
   IS_NEG,
   ABS,
   poolToIndexID,
+  bn,
 } from '../../utils/helpers'
 import { ClosingFeeCalculator, Position } from '../../utils/type'
 import { ClosePosition } from '../ClosePositionModal'
@@ -282,11 +283,7 @@ export const Positions = ({
     }
   }, [
     positionsWithEntry,
-    tokens,
-    balances,
-    settings,
     pools,
-    poolGroups,
     settings.minPositionValueUSD
   ])
 
@@ -625,7 +622,7 @@ export const Positions = ({
                         !settings.showBalance
                           ? undefined
                           : formatWeiToDisplayNumber(
-                            position.balance,
+                            position.balance ?? bn(0),
                             4,
                             tokens[position.token].decimals
                           )
