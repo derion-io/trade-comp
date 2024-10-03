@@ -622,7 +622,7 @@ export const Positions = ({
                         !settings.showBalance
                           ? undefined
                           : formatWeiToDisplayNumber(
-                            position.balance ? position.balance : bn(0),
+                            position.balance ?? bn(0),
                             4,
                             tokens[position.token].decimals
                           )
