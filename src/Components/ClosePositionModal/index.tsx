@@ -92,15 +92,18 @@ const Component = ({
     return [pool, power]
   }, [inputTokenAddress, pools])
 
-  const balance: string = useMemo(() => {
-    return IEW(
+  const [balance, balanceWithLeverage]: [string, string] = useMemo(() => {
+    return [IEW(
+      (balances[inputTokenAddress] ?? 0),
+      tokens[inputTokenAddress]?.decimals ?? 18
+    ), IEW(
       (balances[inputTokenAddress] ?? 0).mul(power),
       tokens[inputTokenAddress]?.decimals ?? 18
-    )
+    )]
   }, [tokens, balances, inputTokenAddress])
 
   const { value: valueBalance } = useTokenValue({
-    amount: balance,
+    amount: balanceWithLeverage,
     tokenAddress: inputTokenAddress
   })
 
