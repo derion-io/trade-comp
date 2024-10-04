@@ -234,11 +234,9 @@ export const ButtonSwap = ({
                     submitFetcherV2
                   }
                 )
-
                 const swapLogs = ddlEngine.RESOURCE.parseDdlLogs(
                   tx && tx?.logs ? tx.logs : []
                 )
-                updatePendingTxsHandle(account, swapPendingTxs.filter(penTx => penTx.hash !== pendingTxHash))
                 updateSwapTxsHandle(
                   account,
                   swapLogs.filter(
@@ -247,9 +245,13 @@ export const ButtonSwap = ({
                   swapLogs.filter(
                     (l: any) => l.transactionHash && l.args?.name === 'Transfer'
                   ))
-                toast.success('Transaction Confirmed')
-                await fetchBalanceAndAllowance(account, true)
-                await initResource(account)
+                console.log('#swapLogs',swapLogs)
+                setTimeout(async () => {
+                  await fetchBalanceAndAllowance(account, true)
+                  await initResource(account)
+                  updatePendingTxsHandle(account, swapPendingTxs.filter(penTx => penTx.hash !== pendingTxHash))
+                  toast.success('Transaction Confirmed')
+                },2000)
               }
               setLoading(false)
               if (callback) {

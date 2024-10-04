@@ -132,7 +132,9 @@ export const Positions = ({
       pendingTxData ? pendingTxPool.address : poolAddress,
       pendingTxData ? Number(pendingTxPool.id) : side
     )
-
+    if(pendingTxData) {
+      console.log('#pen-balance', token, balances[token]?.toString(), IEW(balances[token], tokens[token]?.decimals || 18))
+    }
     if (
       (
         (Number(balances[token]) &&
@@ -254,6 +256,7 @@ export const Positions = ({
       ...generatePositionData(address, Number(id), { token: token }),
       status: POSITION_STATUS.OPENING
     }
+    console.log('#pen-position', s1)
     return s1
   }
   useEffect(() => {
@@ -284,6 +287,7 @@ export const Positions = ({
   }, [
     positionsWithEntry,
     pools,
+    balances, 
     settings.minPositionValueUSD
   ])
 
@@ -325,6 +329,7 @@ export const Positions = ({
         .filter((p) => p !== null)
       if (pendingPosition) {
         displayPositions = [...pendingPosition, ...displayPositions]
+        console.log('#pen-dis', displayPositions)
       }
     }
 
