@@ -369,7 +369,7 @@ export const Positions = ({
                     <Text>Balance</Text>
                     <Text>
                       {formatWeiToDisplayNumber(
-                        position.balance,
+                        position.balance ?? bn(0),
                         4,
                         tokens[position.token].decimals
                       )}
