@@ -94,13 +94,13 @@ const Component = ({
 
   const [balance, balanceWithLeverage]: [string, string] = useMemo(() => {
     return [IEW(
-      (balances[inputTokenAddress] ?? 0),
+      balances[inputTokenAddress] ?? 0,
       tokens[inputTokenAddress]?.decimals ?? 18
     ), IEW(
-      (balances[inputTokenAddress] ?? 0).mul(power),
+      balances[inputTokenAddress]?.mul(power) ?? 0,
       tokens[inputTokenAddress]?.decimals ?? 18
     )]
-  }, [tokens, balances, inputTokenAddress])
+  }, [power, tokens[inputTokenAddress], balances[inputTokenAddress]])
 
   const { value: valueBalance } = useTokenValue({
     amount: balanceWithLeverage,
