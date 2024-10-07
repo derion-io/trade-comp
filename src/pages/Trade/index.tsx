@@ -236,6 +236,7 @@ export const Trade = ({
             <TabPanel>
               <Card className='trade-box card-in-tab'>
                 <BuyPositionBox
+                  setVisibleSettingModal={setVisibleSettingModal}
                   searchIndexCache={searchIndexCache}
                   showAllPool={showAllPool}
                   isLoadingIndex={isLoadingIndex}
@@ -254,6 +255,7 @@ export const Trade = ({
                 {/* @ts-ignore */}
                 <ErrorBoundary>
                   <BuyPositionBox
+                    setVisibleSettingModal={setVisibleSettingModal}
                     searchIndexCache={searchIndexCache}
                     showAllPool={showAllPool}
                     isLoadingIndex={isLoadingIndex}
