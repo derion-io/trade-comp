@@ -33,7 +33,7 @@ import { SelectTokenModal } from '../SelectTokenModal'
 import { TxFee } from '../SwapBox/components/TxFee'
 import { useCalculateSwap } from '../SwapBox/hooks/useCalculateSwap'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
-import { IconArrowDown } from '../ui/Icon'
+import { IconArrowDown, SvgSpinners12DotsScaleRotate } from '../ui/Icon'
 import NumberInput from '../ui/Input/InputNumber'
 import { Text, TextGrey, TextLink, TextSell, TextWarning } from '../ui/Text'
 import { TokenIcon } from '../ui/TokenIcon'
@@ -398,7 +398,7 @@ const Component = ({
         <span >
           {/* Show 3 hidden pools */}
 
-          {isLoadingIndex ? <Spin /> : <TextLink className='show-all-pool-text' onClick={() => {
+          {isLoadingIndex ? <SvgSpinners12DotsScaleRotate className='text-blue'/> : <TextLink className='show-all-pool-text' onClick={() => {
             if (setShowAllPool)setShowAllPool(!showAllPool)
           }}>{
               totalHiddenPools !== 0
