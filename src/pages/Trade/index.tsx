@@ -287,6 +287,7 @@ export const Trade = ({
                 {/* @ts-ignore */}
                 <ErrorBoundary>
                   <BuyPositionBox
+                    setVisibleSettingModal={setVisibleSettingModal}
                     searchIndexCache={searchIndexCache}
                     showAllPool={showAllPool}
                     isLoadingIndex={isLoadingIndex}

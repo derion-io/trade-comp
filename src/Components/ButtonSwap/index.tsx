@@ -43,8 +43,10 @@ export const ButtonSwap = ({
   tokenOutMaturity,
   confirmModal,
   closeConfirmWhenSwap,
-  isClosePosition
+  isClosePosition,
+  setVisibleSettingModal,
 }: {
+  setVisibleSettingModal?: React.Dispatch<React.SetStateAction<boolean>>,
   isClosePosition?: boolean,
   submitFetcherV2: boolean,
   inputTokenAddress: string
@@ -299,7 +301,7 @@ export const ButtonSwap = ({
       slippage > settings.slippageTolerance &&
       !loadingAmountOut ? (
           <div className='text-center mb-1'>
-            <TextSell>High Market Spread and Slippage</TextSell>
+            <TextSell className="slipage-border-dash-bottom" onClick={() => {if(setVisibleSettingModal) setVisibleSettingModal(true)}}>High Market Spread and Slippage</TextSell>
           </div>
         ) : (
           ''

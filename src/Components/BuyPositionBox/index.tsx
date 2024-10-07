@@ -55,12 +55,14 @@ const Component = ({
   outputTokenAddress,
   setInputTokenAddress,
   setOutputTokenAddress,
-  tokenOutMaturity
+  tokenOutMaturity,
+  setVisibleSettingModal
 }: {
   searchIndexCache?:{[key:string] : any},
   showAllPool?:boolean,
   isLoadingIndex?:boolean,
   setShowAllPool?: (s: boolean) => void,
+  setVisibleSettingModal?: React.Dispatch<React.SetStateAction<boolean>>
   tradeType?: TRADE_TYPE
   inputTokenAddress: string
   outputTokenAddress: string
@@ -455,6 +457,7 @@ const Component = ({
 
       <div className='actions'>
         <ButtonSwap
+          setVisibleSettingModal={setVisibleSettingModal}
           submitFetcherV2={submitFetcherV2}
           payoffRate={payoffRate}
           inputTokenAddress={inputTokenAddress}
