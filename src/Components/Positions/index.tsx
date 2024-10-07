@@ -284,6 +284,8 @@ export const Positions = ({
   }, [
     positionsWithEntry,
     pools,
+    balances,
+    tokens,
     settings.minPositionValueUSD
   ])
 
