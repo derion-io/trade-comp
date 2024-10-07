@@ -62,9 +62,10 @@ import { SharedPosition } from '../PositionSharedModal'
 import { SharedIcon } from '../ui/Icon'
 import { useTokenPrice } from '../../state/resources/hooks/useTokenPrice'
 import { BatchTransferModal } from '../BatchTransfer'
-import { Checkbox } from 'antd'
+import { Checkbox, Skeleton } from 'antd'
 import { useWeb3React } from '../../state/customWeb3React/hook'
 import { Q128 } from 'derivable-engine/dist/services/resource'
+import {PositionLoadingComponents} from '../BuyPositionBox/components/PositionLoading'
 
 const mdp = require('move-decimal-point')
 
@@ -76,8 +77,10 @@ export enum VALUE_IN_USD_STATUS {
 
 export const Positions = ({
   setOutputTokenAddressToBuy,
-  tokenOutMaturity
+  tokenOutMaturity,
+  isLoadingIndex
 }: {
+  isLoadingIndex: boolean,
   setOutputTokenAddressToBuy: any
   tokenOutMaturity: BigNumber
 }) => {
@@ -348,7 +351,7 @@ export const Positions = ({
         />
       }
       {isPhone ? (
-        <div className='positions-list'>
+        isLoadingIndex ? <PositionLoadingComponents/> : <div className='positions-list'>
           {displayPositions.map((position, key: number) => {
             return (
               <div className='positions-list__item' key={key}>
@@ -589,7 +592,8 @@ export const Positions = ({
             </tr>
           </thead>
           <tbody>
-            {displayPositions.map((position, key: number) => {
+            {isLoadingIndex ? <PositionLoadingComponents/> : 
+            displayPositions.map((position, key: number) => {
               return (
                 <tr
                   className='position-row'

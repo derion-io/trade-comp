@@ -175,6 +175,7 @@ export const Trade = ({
               {/* @ts-ignore */}
               <ErrorBoundary>
                 <Positions
+                isLoadingIndex={isLoadingIndex}
                   setOutputTokenAddressToBuy={
                     tab === TRADE_TYPE.SWAP
                       ? setInputTokenAddress
