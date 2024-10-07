@@ -311,6 +311,7 @@ export const ButtonSwap = ({
         )}
       {button}
       {confirmModal ? <ConfirmPosition
+        setVisibleSettingModal={setVisibleSettingModal}
         submitFetcherV2={submitFetcherV2}
         visible={visibleConfirmPosition}
         setVisible={setVisibleConfirmPosition}

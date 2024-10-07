@@ -49,8 +49,10 @@ const Component = ({
   payoffRate,
   tokenOutMaturity,
   confirmModal,
+  setVisibleSettingModal,
   title
 }: {
+  setVisibleSettingModal?: React.Dispatch<React.SetStateAction<boolean>>,
   submitFetcherV2: boolean
   visible: boolean
   setVisible: any
@@ -250,6 +252,7 @@ const Component = ({
         />
         <div className='actions'>
           <ButtonSwap
+            setVisibleSettingModal={setVisibleSettingModal}
             submitFetcherV2={submitFetcherV2}
             loadingAmountOut={loadingAmountOut}
             payoffRate={payoffRate}
