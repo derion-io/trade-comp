@@ -22,8 +22,10 @@
   .advanced-settings-row {
     cursor: pointer;
     margin-top: 10px;
-    display: flex;
-    justify-content: end;
+    text-wrap: nowrap;
+    text-align: right;
+    // display: flex;
+    // justify-content: end;
   }
 
   .sort-by {
