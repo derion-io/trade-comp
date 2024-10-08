@@ -3,7 +3,7 @@ import React, { useEffect, useMemo } from 'react'
 import { useListTokens } from '../../../state/token/hook'
 import { useWalletBalance } from '../../../state/wallet/hooks/useBalances'
 import formatLocalisedCompactNumber from '../../../utils/formatBalance'
-import { bn, formatFloat, getPoolPower, unwrap, zerofy } from '../../../utils/helpers'
+import { bn, formatFloat, getPoolPower, NUM, unwrap, zerofy } from '../../../utils/helpers'
 import { PoolSearch } from '../../../utils/type'
 import { CurrencyGroupLogo } from '../../ui/CurrencyGroupLogo'
 import { SkeletonLoader } from '../../ui/SkeletonLoader'
@@ -103,7 +103,7 @@ export const ListIndexs = ({
                             poolGroupsValue[key]?.poolGroupPositions?.map(
                               (playingToken: any) => {
                                 const { address, value } = playingToken
-                                if (value < settings.minPositionValueUSD) {
+                                if ((value < settings.minPositionValueUSD) || String(value) === '0') {
                                   return null
                                 }
                                 if (

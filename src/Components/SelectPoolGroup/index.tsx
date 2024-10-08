@@ -8,7 +8,7 @@ import { useListTokens } from '../../state/token/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { POOL_IDS } from '../../utils/constant'
 import formatLocalisedCompactNumber from '../../utils/formatBalance'
-import { IEW, bn, formatFloat, unwrap } from '../../utils/helpers'
+import { IEW, NUM, bn, formatFloat, unwrap } from '../../utils/helpers'
 import { useTokenValue } from '../SwapBox/hooks/useTokenValue'
 import { TextGrey } from '../ui/Text'
 import { TokenIcon } from '../ui/TokenIcon'
@@ -210,7 +210,7 @@ const PoolGroupOption = ({
         : poolGroupsValue?.playingTokensValue
       ).map((playingToken: any) => {
         const { address, value } = playingToken
-        if (value < settings.minPositionValueUSD) return null
+        if ((value < settings.minPositionValueUSD) || String(value) === '0') return null
         if (balances[address] && bn(balances[address]).gt(0)) {
           return <TokenIcon key={address} size={20} tokenAddress={address} />
         } else {

@@ -135,11 +135,11 @@ export const Positions = ({
       pendingTxData ? pendingTxPool.address : poolAddress,
       pendingTxData ? Number(pendingTxPool.id) : side
     )
-
+    // Check for balances
+    if((!balances[token] || balances[token]?.toString() === '0')) return null
+    // Check for position with entry
     if (
       (
-        (Number(balances[token]) &&
-      Number(balances[token]) !== 0) ||
       pendingTxData?.token ||
       positionsWithEntry[token]?.avgPrice) &&
       positionsWithEntry[token]?.entryPrice !== -1
