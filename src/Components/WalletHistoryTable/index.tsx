@@ -56,7 +56,7 @@ const Component = ({ swapTxs }: { swapTxs: SwapTxType[] }) => {
           )
         }
         return true
-      })
+      }).sort((a,b) => b.timeStamp - a.timeStamp)
     }
     return []
   }, [swapTxs, tradeType])
