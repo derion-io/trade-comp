@@ -1,6 +1,6 @@
 import React from 'react'
 import {SvgSpinners12DotsScaleRotate} from '../../ui/Icon'
-export const PositionLoadingComponents = () => {
+export const PositionLoadingComponent = () => {
   return (
     <div style={{ 
       display: 'flex', 

@@ -65,7 +65,7 @@ import { BatchTransferModal } from '../BatchTransfer'
 import { Checkbox, Skeleton } from 'antd'
 import { useWeb3React } from '../../state/customWeb3React/hook'
 import { Q128 } from 'derivable-engine/dist/services/resource'
-import {PositionLoadingComponents} from '../BuyPositionBox/components/PositionLoading'
+import {PositionLoadingComponent} from '../BuyPositionBox/components/PositionLoading'
 
 const mdp = require('move-decimal-point')
 
@@ -351,7 +351,7 @@ export const Positions = ({
         />
       }
       {isPhone ? (
-        isLoadingIndex ? <PositionLoadingComponents/> : <div className='positions-list'>
+        isLoadingIndex ? <PositionLoadingComponent/> : <div className='positions-list'>
           {displayPositions.map((position, key: number) => {
             return (
               <div className='positions-list__item' key={key}>
@@ -539,7 +539,7 @@ export const Positions = ({
           })}
         </div>
       ) : (
-        isLoadingIndex ? <PositionLoadingComponents/> :<table className='positions-table'>
+        isLoadingIndex ? <PositionLoadingComponent/> :<table className='positions-table'>
           <thead>
             <tr>
               <th>Position</th>
