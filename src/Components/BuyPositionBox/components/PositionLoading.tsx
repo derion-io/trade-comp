@@ -20,7 +20,7 @@ export const PositionLoadingComponents = () => {
         width: '100%', 
         minHeight: '160px'  // min Height of Position & History tabs
       }}>
-        <SvgSpinners12DotsScaleRotate width={'36px'} height={'36px'}/>
+        <SvgSpinners12DotsScaleRotate width={'50px'} height={'50px'}/>
       </div>
     )
   // }
