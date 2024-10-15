@@ -43,9 +43,9 @@ export const ButtonSwap = ({
   tokenOutMaturity,
   confirmModal,
   closeConfirmWhenSwap,
-  isClosePosition
+  isClosePosition,
+  setVisibleSettingModal,
 }: {
-  isClosePosition?: boolean,
   submitFetcherV2: boolean,
   inputTokenAddress: string
   outputTokenAddress: string
@@ -62,6 +62,8 @@ export const ButtonSwap = ({
   tokenOutMaturity: BigNumber
   confirmModal?: Boolean
   closeConfirmWhenSwap?: (visible: boolean) => void
+  isClosePosition?: boolean,
+  setVisibleSettingModal?: React.Dispatch<React.SetStateAction<boolean>>,
 }) => {
   const { tokens } = useListTokens()
   const [loading, setLoading] = useState<boolean>(false)
@@ -238,7 +240,6 @@ export const ButtonSwap = ({
                 const swapLogs = ddlEngine.RESOURCE.parseDdlLogs(
                   tx && tx?.logs ? tx.logs : []
                 )
-                updatePendingTxsHandle(account, swapPendingTxs.filter(penTx => penTx.hash !== pendingTxHash))
                 updateSwapTxsHandle(
                   account,
                   swapLogs.filter(
@@ -247,11 +248,15 @@ export const ButtonSwap = ({
                   swapLogs.filter(
                     (l: any) => l.transactionHash && l.args?.name === 'Transfer'
                   ))
+
                 toast.success('Transaction Confirmed')
-                await fetchBalanceAndAllowance(account, true)
-                await initResource(account)
+                setTimeout(async () => {
+                    await fetchBalanceAndAllowance(account, true)
+                    await initResource(account)
+                    setLoading(false)
+                    updatePendingTxsHandle(account, swapPendingTxs.filter(penTx => penTx.hash !== pendingTxHash))
+                }, 2000)
               }
-              setLoading(false)
               if (callback) {
                 callback()
               }
@@ -299,13 +304,14 @@ export const ButtonSwap = ({
       slippage > settings.slippageTolerance &&
       !loadingAmountOut ? (
           <div className='text-center mb-1'>
-            <TextSell>High Market Spread and Slippage</TextSell>
+            <TextSell className="slipage-border-dash-bottom" onClick={() => {if(setVisibleSettingModal) setVisibleSettingModal(true)}}>High Market Spread and Slippage</TextSell>
           </div>
         ) : (
           ''
         )}
       {button}
       {confirmModal ? <ConfirmPosition
+        setVisibleSettingModal={setVisibleSettingModal}
         submitFetcherV2={submitFetcherV2}
         visible={visibleConfirmPosition}
         setVisible={setVisibleConfirmPosition}

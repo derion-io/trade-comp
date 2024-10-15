@@ -260,11 +260,7 @@ export const AddLiquidityBox = ({
             >
               Balance:{' '}
               {balances && balances[tokenAdd]
-                ? formatWeiToDisplayNumber(
-                  balances[tokenAdd],
-                  4,
-                    tokens[tokenAdd]?.decimals || 18
-                )
+                ? zerofy(formatFloat(IEW(balances[tokenAdd], tokens[tokenAdd]?.decimals || 18)))
                 : 0}
             </Text>
           </SkeletonLoader>

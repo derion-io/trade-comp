@@ -26,7 +26,7 @@ const TAB_2 = {
   HISTORY: Symbol('history')
 }
 
-const TAB_INDEX_TO_PATH = {
+const TAB_INDEX_TO_PATH: { [key: number]: string } = {
   [TRADE_TYPE.LONG]: '/long',
   [TRADE_TYPE.SHORT]: '/short',
   [TRADE_TYPE.SWAP]: '/swap',
@@ -181,6 +181,7 @@ export const Trade = ({
                       : setOutputTokenAddress
                   }
                   tokenOutMaturity={tokenOutMaturity}
+                  isLoadingIndex={isLoadingIndex}
                 />
               </ErrorBoundary>
             </Card>
@@ -246,6 +247,7 @@ export const Trade = ({
                   setOutputTokenAddress={setOutputTokenAddress}
                   tradeType={TRADE_TYPE.LONG}
                   tokenOutMaturity={tokenOutMaturity}
+                  setVisibleSettingModal={setVisibleSettingModal}
                 />
               </Card>
             </TabPanel>
@@ -264,6 +266,7 @@ export const Trade = ({
                     setOutputTokenAddress={setOutputTokenAddress}
                     tradeType={TRADE_TYPE.SHORT}
                     tokenOutMaturity={tokenOutMaturity}
+                    setVisibleSettingModal={setVisibleSettingModal}
                   />
                 </ErrorBoundary>
               </Card>
@@ -297,6 +300,7 @@ export const Trade = ({
                     setOutputTokenAddress={setOutputTokenAddress}
                     tradeType={TRADE_TYPE.LIQUIDITY}
                     tokenOutMaturity={tokenOutMaturity}
+                    setVisibleSettingModal={setVisibleSettingModal}
                   />
                 </ErrorBoundary>
               </Card>

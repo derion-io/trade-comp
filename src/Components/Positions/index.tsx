@@ -13,8 +13,8 @@ import { useListTokens } from '../../state/token/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 import { POOL_IDS, POSITION_STATUS, TRADE_TYPE } from '../../utils/constant'
-import formatLocalisedCompactNumber, {
-  formatWeiToDisplayNumber
+import {
+  formatLocalisedCompactNumber
 } from '../../utils/formatBalance'
 import {
   IEW,
@@ -65,6 +65,7 @@ import { BatchTransferModal } from '../BatchTransfer'
 import { Checkbox } from 'antd'
 import { useWeb3React } from '../../state/customWeb3React/hook'
 import { Q128 } from 'derivable-engine/dist/services/resource'
+import { PositionLoadingComponent } from '../BuyPositionBox/components/PositionLoading'
 
 const mdp = require('move-decimal-point')
 
@@ -76,10 +77,12 @@ export enum VALUE_IN_USD_STATUS {
 
 export const Positions = ({
   setOutputTokenAddressToBuy,
-  tokenOutMaturity
+  tokenOutMaturity,
+  isLoadingIndex,
 }: {
   setOutputTokenAddressToBuy: any
   tokenOutMaturity: BigNumber
+  isLoadingIndex: boolean
 }) => {
   const { tradeType, updateCurrentPoolGroup } = useCurrentPoolGroup()
   const { setCurrentPoolAddress } = useCurrentPool()
@@ -132,14 +135,15 @@ export const Positions = ({
       pendingTxData ? pendingTxPool.address : poolAddress,
       pendingTxData ? Number(pendingTxPool.id) : side
     )
+    // no balance
+    if (!balances[token]?.gt(0)) return null
 
-    if (
-      (
-        (Number(balances[token]) &&
-      Number(balances[token]) !== 0) ||
-      pendingTxData?.token ||
-      positionsWithEntry[token]?.avgPrice) &&
-      positionsWithEntry[token]?.entryPrice !== -1
+    // check for position with entry
+    if ((
+        pendingTxData?.token ||
+        positionsWithEntry[token]?.avgPrice
+      )
+      && positionsWithEntry[token]?.entryPrice !== -1
     ) {
       const pool =
         pools[pendingTxData?.token ? pendingTxPool.address : poolAddress]
@@ -284,6 +288,8 @@ export const Positions = ({
   }, [
     positionsWithEntry,
     pools,
+    balances,
+    tokens,
     settings.minPositionValueUSD
   ])
 
@@ -346,6 +352,7 @@ export const Positions = ({
         />
       }
       {isPhone ? (
+        isLoadingIndex ? <PositionLoadingComponent/> :
         <div className='positions-list'>
           {displayPositions.map((position, key: number) => {
             return (
@@ -368,11 +375,7 @@ export const Positions = ({
                   <InfoRow>
                     <Text>Balance</Text>
                     <Text>
-                      {formatWeiToDisplayNumber(
-                        position.balance,
-                        4,
-                        tokens[position.token].decimals
-                      )}
+                      {zerofy(formatFloat(IEW(position.balance ?? bn(0), tokens[position.token].decimals)))}
                     </Text>
                   </InfoRow>
                 )}
@@ -538,6 +541,7 @@ export const Positions = ({
           })}
         </div>
       ) : (
+        isLoadingIndex ? <PositionLoadingComponent/> :
         <table className='positions-table'>
           <thead>
             <tr>
@@ -621,11 +625,7 @@ export const Positions = ({
                       balance={
                         !settings.showBalance
                           ? undefined
-                          : formatWeiToDisplayNumber(
-                            position.balance ?? bn(0),
-                            4,
-                            tokens[position.token].decimals
-                          )
+                          : zerofy(formatFloat(IEW(position.balance ?? bn(0), tokens[position.token].decimals)))
                       }
                     />
                   </td>

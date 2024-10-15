@@ -116,10 +116,9 @@ export const EstimateBox = ({
               <div className='position-delta--right'>
                 {settings.showBalance && (
                   <div>
-                    {numSplit(zerofy(NUM(
-                      formatWeiToDisplayNumber(
+                    {numSplit(zerofy(formatFloat(
+                      IEW(
                         balances[outputTokenAddress] ?? bn(0),
-                        4,
                         tokens[outputTokenAddress]?.decimals || 18
                       )
                     )))}
