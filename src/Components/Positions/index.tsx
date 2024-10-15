@@ -539,7 +539,7 @@ export const Positions = ({
           })}
         </div>
       ) : (
-        <table className='positions-table'>
+        isLoadingIndex ? <PositionLoadingComponents/> :<table className='positions-table'>
           <thead>
             <tr>
               <th>Position</th>
@@ -588,8 +588,7 @@ export const Positions = ({
             </tr>
           </thead>
           <tbody>
-            {isLoadingIndex ? <PositionLoadingComponents/> : 
-            displayPositions.map((position, key: number) => {
+            {displayPositions.map((position, key: number) => {
               return (
                 <tr
                   className='position-row'
