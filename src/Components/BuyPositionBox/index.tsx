@@ -5,7 +5,6 @@ import 'rc-slider/assets/index.css'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import isEqual from 'react-fast-compare'
 import { useGenerateLeverageData } from '../../hooks/useGenerateLeverageData'
-import { useListTokenHasUniPool } from '../../hooks/useListTokenHasUniPool'
 import { useConfigs } from '../../state/config/useConfigs'
 import { useHelper } from '../../state/config/useHelper'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
@@ -56,19 +55,19 @@ const Component = ({
   setInputTokenAddress,
   setOutputTokenAddress,
   tokenOutMaturity,
-  setVisibleSettingModal
+  setVisibleSettingModal,
 }: {
   searchIndexCache?:{[key:string] : any},
   showAllPool?:boolean,
   isLoadingIndex?:boolean,
   setShowAllPool?: (s: boolean) => void,
-  setVisibleSettingModal?: React.Dispatch<React.SetStateAction<boolean>>
   tradeType?: TRADE_TYPE
   inputTokenAddress: string
   outputTokenAddress: string
   setInputTokenAddress: any
   setOutputTokenAddress: any
   tokenOutMaturity: BigNumber
+  setVisibleSettingModal?: React.Dispatch<React.SetStateAction<boolean>>
 }) => {
   const [barData, setBarData] = useState<any>({})
   const { configs, routes } = useConfigs()
@@ -457,7 +456,6 @@ const Component = ({
 
       <div className='actions'>
         <ButtonSwap
-          setVisibleSettingModal={setVisibleSettingModal}
           submitFetcherV2={submitFetcherV2}
           payoffRate={payoffRate}
           inputTokenAddress={inputTokenAddress}
@@ -470,6 +468,7 @@ const Component = ({
           tradeType={tradeType}
           loadingAmountOut={loading || rateDataLoading}
           tokenOutMaturity={tokenOutMaturity}
+          setVisibleSettingModal={setVisibleSettingModal}
           confirmModal
           title={
             Number(decodeErc1155Address(outputTokenAddress).id) ===

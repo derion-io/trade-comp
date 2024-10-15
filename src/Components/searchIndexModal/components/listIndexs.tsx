@@ -103,7 +103,7 @@ export const ListIndexs = ({
                             poolGroupsValue[key]?.poolGroupPositions?.map(
                               (playingToken: any) => {
                                 const { address, value } = playingToken
-                                if ((value < settings.minPositionValueUSD) || String(value) === '0') {
+                                if (NUM(value) < settings.minPositionValueUSD) {
                                   return null
                                 }
                                 if (

@@ -46,8 +46,6 @@ export const ButtonSwap = ({
   isClosePosition,
   setVisibleSettingModal,
 }: {
-  setVisibleSettingModal?: React.Dispatch<React.SetStateAction<boolean>>,
-  isClosePosition?: boolean,
   submitFetcherV2: boolean,
   inputTokenAddress: string
   outputTokenAddress: string
@@ -64,6 +62,8 @@ export const ButtonSwap = ({
   tokenOutMaturity: BigNumber
   confirmModal?: Boolean
   closeConfirmWhenSwap?: (visible: boolean) => void
+  isClosePosition?: boolean,
+  setVisibleSettingModal?: React.Dispatch<React.SetStateAction<boolean>>,
 }) => {
   const { tokens } = useListTokens()
   const [loading, setLoading] = useState<boolean>(false)
@@ -248,7 +248,7 @@ export const ButtonSwap = ({
                   swapLogs.filter(
                     (l: any) => l.transactionHash && l.args?.name === 'Transfer'
                   ))
-                
+
                 toast.success('Transaction Confirmed')
                 setTimeout(async () => {
                     await fetchBalanceAndAllowance(account, true)

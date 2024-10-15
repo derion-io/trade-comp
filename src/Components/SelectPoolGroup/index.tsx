@@ -37,7 +37,7 @@ export const SelectPoolGroup = () => {
     )
   }
   useMemo(() => {
-    const poolGroupsUSDs = {}
+    const poolGroupsUSDs: { [key: string]: any } = {}
     Object.keys(poolGroups).map((poolGroupKey: string) => {
       const poolGroup = poolGroups[poolGroupKey]
       let totalPosValue = 0
@@ -92,7 +92,7 @@ export const SelectPoolGroup = () => {
         ((b as any).totalLiquidValue ?? 0) - ((a as any).totalLiquidValue ?? 0)
     )
 
-    const sortedPoolGroupsUSDs = {}
+    const sortedPoolGroupsUSDs: { [key: string]: any } = {}
     for (const [key, value] of poolGroupsUSDsEntries) {
       sortedPoolGroupsUSDs[key] = value
     }
@@ -210,7 +210,7 @@ const PoolGroupOption = ({
         : poolGroupsValue?.playingTokensValue
       ).map((playingToken: any) => {
         const { address, value } = playingToken
-        if ((value < settings.minPositionValueUSD) || String(value) === '0') return null
+        if (NUM(value) < settings.minPositionValueUSD) return null
         if (balances[address] && bn(balances[address]).gt(0)) {
           return <TokenIcon key={address} size={20} tokenAddress={address} />
         } else {

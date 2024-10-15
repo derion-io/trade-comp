@@ -52,7 +52,6 @@ const Component = ({
   setVisibleSettingModal,
   title
 }: {
-  setVisibleSettingModal?: React.Dispatch<React.SetStateAction<boolean>>,
   submitFetcherV2: boolean
   visible: boolean
   setVisible: any
@@ -69,6 +68,7 @@ const Component = ({
   payoffRate?: number
   tokenOutMaturity: BigNumber
   confirmModal?: Boolean
+  setVisibleSettingModal?: React.Dispatch<React.SetStateAction<boolean>>,
   title?: string
 }) => {
   const { tokens } = useListTokens()
@@ -252,7 +252,6 @@ const Component = ({
         />
         <div className='actions'>
           <ButtonSwap
-            setVisibleSettingModal={setVisibleSettingModal}
             submitFetcherV2={submitFetcherV2}
             loadingAmountOut={loadingAmountOut}
             payoffRate={payoffRate}
@@ -266,6 +265,7 @@ const Component = ({
             callError={callError}
             gasUsed={gasUsed}
             tokenOutMaturity={tokenOutMaturity}
+            setVisibleSettingModal={setVisibleSettingModal}
             title={
               tradeType === TRADE_TYPE.SWAP ? 'Swap' : (Number(decodeErc1155Address(outputTokenAddress).id) ===
               POOL_IDS.A ? (

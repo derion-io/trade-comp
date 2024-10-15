@@ -130,7 +130,7 @@ export const useResource = () => {
           ((b as any).poolGroupValueR ?? 0) - ((a as any).poolGroupValueR ?? 0)
       )
 
-      const poolGroupsSortValue = {}
+      const poolGroupsSortValue: { [key: string]: any } = {}
       for (const [key, value] of poolGroupsValueEntries) {
         poolGroupsSortValue[key] = value
       }
