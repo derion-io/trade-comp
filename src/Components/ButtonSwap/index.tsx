@@ -243,10 +243,10 @@ export const ButtonSwap = ({
                 updateSwapTxsHandle(
                   account,
                   swapLogs.filter(
-                    (l: any) => l.transactionHash && l.args?.name === 'Swap'
+                    (l: any) => l.transactionHash && l?.name === 'Swap'
                   ),
                   swapLogs.filter(
-                    (l: any) => l.transactionHash && l.args?.name === 'Transfer'
+                    (l: any) => l.transactionHash && l?.name === 'Transfer'
                   ))
 
                 toast.success('Transaction Confirmed')
