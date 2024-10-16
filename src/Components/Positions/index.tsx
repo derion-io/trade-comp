@@ -375,7 +375,7 @@ export const Positions = ({
                   <InfoRow>
                     <Text>Balance</Text>
                     <Text>
-                      {zerofy(formatFloat(IEW(position.balance ?? bn(0), tokens[position.token].decimals)))}
+                      {zerofy(formatFloat(IEW(position.balance ?? bn(0), tokens[position.token]?.decimals)))}
                     </Text>
                   </InfoRow>
                 )}
@@ -625,7 +625,7 @@ export const Positions = ({
                       balance={
                         !settings.showBalance
                           ? undefined
-                          : zerofy(formatFloat(IEW(position.balance ?? bn(0), tokens[position.token].decimals)))
+                          : zerofy(formatFloat(IEW(position.balance ?? bn(0), tokens[position.token]?.decimals)))
                       }
                     />
                   </td>
