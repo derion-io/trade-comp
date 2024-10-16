@@ -35,24 +35,46 @@ export const useResource = () => {
     )
     dispatch(addPoolsWithChain({ pools: data.pools, chainId }))
   }
-  const initListPool = async (account: string) => {
+  const initListPool = async (account: string, callback?: () => void) => {
     if (ddlEngine && configs.name) {
       const { searchParams } = new URL(`https://1.com?${location.href.split('?')[1]}`)
       const playMode = searchParams.has('play')
       const pool = searchParams.get('pool')
-
+      const resourceLoadingStatus = {
+        getResourceCached: true,
+        getNewResource: true,
+        getWhiteListResource: true,
+      }
+      const checkIfAllLoaded = () => {
+        if (
+          !resourceLoadingStatus.getResourceCached &&
+          !resourceLoadingStatus.getNewResource &&
+          !resourceLoadingStatus.getWhiteListResource
+        ) {
+          if (callback) {
+            // This function update non-await, add callback to handle data when it fetching done
+            callback(); 
+          }
+        }
+      };
       ddlEngine.RESOURCE.getResourceCached(account, playMode).then((data) => {
+        resourceLoadingStatus.getResourceCached = false
+        checkIfAllLoaded();
         if (data?.tokens?.length === 0) return
         addNewResource(data, account)
         updateSwapTxsHandle(account, data.swapLogs, data.transferLogs)
       })
       ddlEngine.RESOURCE.getNewResource(account, playMode).then((data) => {
+        resourceLoadingStatus.getNewResource = false
+        checkIfAllLoaded();
         if (data?.tokens?.length === 0) return
         addNewResource(data, account)
         updateSwapTxsHandle(account, data.swapLogs, data.transferLogs)
       })
       ddlEngine.RESOURCE.getWhiteListResource(pool ? [pool] : []).then(
         (data) => {
+          resourceLoadingStatus.getWhiteListResource = false
+          checkIfAllLoaded();
           if (data?.tokens?.length === 0) return
           addNewResource(data, account)
           // updateSwapTxsHandle(account, data.swapLogs, data.transferLogs)
