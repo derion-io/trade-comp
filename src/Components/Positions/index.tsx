@@ -408,7 +408,7 @@ export const Positions = ({
                     >
                       {valueInUsdStatus === VALUE_IN_USD_STATUS.USD
                         ? ` ⇄ ${
-                            tokens[wrapToNativeAddress(position.pool.TOKEN_R)]
+                            tokens[wrapToNativeAddress(position?.pool?.TOKEN_R)]
                               ?.symbol
                           }`
                         : ' ⇄ USD'}
@@ -527,7 +527,7 @@ export const Positions = ({
                       onClick={() => {
                         setClosingPosition(position)
                         setOutputTokenAddress(
-                          wrapToNativeAddress(position.pool.TOKEN_R)
+                          wrapToNativeAddress(position?.pool?.TOKEN_R)
                         )
                         setVisible(true)
                       }}
@@ -755,7 +755,7 @@ export const Positions = ({
                         onClick={(e) => {
                           setClosingPosition(position)
                           setOutputTokenAddress(
-                            wrapToNativeAddress(position.pool.TOKEN_R)
+                            wrapToNativeAddress(position?.pool?.TOKEN_R)
                           )
                           setVisible(true)
                           e.stopPropagation() // stop the index from being changed
