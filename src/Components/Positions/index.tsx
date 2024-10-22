@@ -137,7 +137,7 @@ export const Positions = ({
     )
     // check for position with entry
     if (
-      (!balances[token].gt(0) || pendingTxData?.token || positionsWithEntry[token]?.avgPrice) &&
+      ((balances?.[token] && !balances?.[token]?.gt(0)) || pendingTxData?.token || positionsWithEntry[token]?.avgPrice) &&
       positionsWithEntry[token]?.entryPrice !== -1
     ) {
       const pool =
