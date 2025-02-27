@@ -1,43 +1,16 @@
-import React, { useEffect, useMemo, useState } from 'react'
-import { Expression, GraphingCalculator } from 'desmos-react'
-import './style.scss'
-import { Card } from '../ui/Card'
-import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
-import { formatFloat, zerofy, isUSD, WEI, IEW, calcPoolSide, div, NUM, calculatePx } from '../../utils/helpers'
-import { CandleChartLoader } from '../ChartLoaders'
-import { useListTokens } from '../../state/token/hook'
-import { useHelper } from '../../state/config/useHelper'
-import { POOL_IDS } from '../../utils/constant'
-import { BigNumber } from 'ethers'
-import {useConfigs} from '../../state/config/useConfigs'
-import { Slider } from 'antd';
-import {useUni3Position} from '../../state/uni3Positions/hooks/useUni3Positions'
+import {Expression,GraphingCalculator} from 'desmos-react'
+import {BigNumber} from 'ethers'
+import React,{useEffect,useMemo,useState} from 'react'
+import {useHelper} from '../../state/config/useHelper'
+import {useCurrentPool} from '../../state/currentPool/hooks/useCurrentPool'
 import {useResource} from '../../state/resources/hooks/useResource'
-
-const FX = 'f(P,x,v,R)=\\{2vx^P<R:vx^P,R-R^2/(4vx^P)\\}'
-const GX = 'g(P,x,v,R)=\\{2vx^{-P}<R:R-vx^{-P},R^2/(4vx^{-P})\\}'
-
-function _r(xk: number, v: number, R: number): number {
-  const r = v * xk
-  if (r <= R / 2) {
-    return r
-  }
-  const denominator = v * xk * 4
-  const minuend = (R * R) / denominator
-  return R - minuend
-}
-
-function _v(xk: number, r: number, R: number): number {
-  if (r <= R / 2) {
-    return r / xk
-  }
-  const denominator = (R - r) * xk * 4
-  return (R * R) / denominator
-}
-
-function _x(k: number, r: number, v: number): number {
-  return Math.pow(r / v, 1 / k)
-}
+import {useListTokens} from '../../state/token/hook'
+import {useUni3Position} from '../../state/uni3Positions/hooks/useUni3Positions'
+import {POOL_IDS} from '../../utils/constant'
+import {calcPoolSide,div,formatFloat,IEW,isUSD,NUM,WEI} from '../../utils/helpers'
+import {CandleChartLoader} from '../ChartLoaders'
+import {Card} from '../ui/Card'
+import './style.scss'
 
 function xTop(X: number, xb: number, xa: number): number {
   const term1 = 1 / Math.sqrt(X);
@@ -47,13 +20,6 @@ function xTop(X: number, xb: number, xa: number): number {
   const result = Math.pow(term1 + term2 - term3, -2);
 
   return result;
-}
-// function _k(k: number, x: number, v: number, R: number): number {
-//   return (k * R) / Math.abs(4 * v * x ** k - R)
-// }
-
-function pX(x: number, mark: number): string {
-  return zerofy(x * mark)
 }
 
 export const HedgeUniV3Plot = (props: any) => {
@@ -65,24 +31,11 @@ export const HedgeUniV3Plot = (props: any) => {
   const calc = React.useRef() as React.MutableRefObject<Desmos.Calculator>
 
   const {
-    PX,
     a,
     b,
-    priceIndex,
     R,
-    P,
     K,
-    X,
     mark,
-    MARK,
-    exp,
-    R1,
-    a1,
-    b1,
-    drAChange,
-    drBChange,
-    AD,
-    BD
   } = useMemo(() => {
     const { baseToken, quoteToken, states, MARK, TOKEN_R, k } = currentPool ?? {}
     const {
@@ -109,64 +62,17 @@ export const HedgeUniV3Plot = (props: any) => {
     ])
 
     const x = !states?.spot || !MARK ? 1 : NUM(div(states?.spot, MARK))
-    const X = x**exp
 
     let priceIndex = tokens[wrapToNativeAddress(baseToken)]?.symbol
     if (!isUSD(tokens[quoteToken]?.symbol)) {
       priceIndex += '/' + tokens[wrapToNativeAddress(quoteToken)]?.symbol
     }
-    const PX = X * 0.01
-    const R1 = R + drA + drB + drC
-
-    const xk = X ** P
-    const rA = _r(xk, a, R)
-    const rB = _r(1 / xk, b, R)
-    const rA1 = rA + drA
-    const rB1 = rB + drB
-    const a1 = _v(xk, rA1, R1)
-    const b1 = _v(1 / xk, rB1, R1)
-
-    const drAChange =
-      rA1 !== rA
-        ? `x=${X}\\{${Math.min(rA, rA1)}<y<${Math.max(rA, rA1)}\\}`
-        : null
-    const drBChange =
-      R1 - rB1 !== R - rB
-        ? `x=${X}\\{${Math.min(R - rB, R1 - rB1)}<y<${Math.max(
-            R - rB,
-            R1 - rB1
-          )}\\}`
-        : null
-
-    const AD = _x(P, R1 / 2, a1)
-    const BD = _x(-P, R1 / 2, b1)
-
     return {
-      PX,
       a,
-      //  0.776,
       b,
-      // 0.36,
-      priceIndex,
       R,
-      // : 3,
-      P,
-      X,
-      // : 0.94,
       mark,
-      MARK,
-      exp,
-      R1,
-      // : 3,
-      a1,
-      // : 0.776,
-      b1,
-      // : 0.36,
       K: currentPool.K,
-      drAChange,
-      drBChange,
-      AD,
-      BD
     }
   }, [cp])
 
@@ -179,54 +85,6 @@ export const HedgeUniV3Plot = (props: any) => {
     )
   }
 
-  const { configs } = useConfigs()
-  const dollar = useMemo(() => {
-    if (!currentPool) {
-      return ''
-    }
-    const { quoteToken } = currentPool
-    if(configs.stablecoins.includes(quoteToken)) {
-      return '$'
-    }
-    return ''
-  }, [currentPool])
-  // const uniV3Data = useHedgeUniV3()
-  // const [p, setP] = useState('5');
-  // const [L, setL] = useState('1.105');
-  // const [D, setD] = useState('0.726');
-
-  // const hedgeData = useMemo(() => {
-    // console.log(price)
-    // const {
-    //   tick,
-    //   uni3PosData,
-    //   token0Data,
-    //   token1Data,
-    // } = currentUni3Position
-    // if (!uni3PosData || !tick || !token0Data || !token1Data) return;
-    // if(!currentDisplayUni3Position) return;
-    // const { tickLower, tickUpper, liquidity, fee, feeGrowthInside1LastX128, feeGrowthInside0LastX128 } = currentDisplayUni3Position
-    // const diffDecimals = Math.abs(token0Data.decimals - token1Data.decimals)
-    // const px = calculatePx(tick)
-    // const pxa = calculatePx(tickLower)
-    // const pxb = calculatePx(tickUpper)
-    // console.log(currentDisplayUni3Position)
-    // return {
-    //   pxa,
-    //   pxb
-    // }
-    // let a = pxa / px
-    // let b = pxb / px
-    // console.log('#lower, current, upper', pxa * (10 ** diffDecimals), px * (10 ** diffDecimals), pxb * (10 ** diffDecimals))
-    // console.log('#a,b', a,b)
-    // return {
-    //   a,
-    //   b,
-    //   pxa: pxa * 10 ** diffDecimals,
-    //   pxb: pxb * 10 ** diffDecimals,
-    //   px: px * 10 ** diffDecimals
-    // }
-  // }, [currentDisplayUni3Position])
   const [yA, setyA] = useState<number>(0);
   const [yB, setyB] = useState<number>(0);
   const [yTop, setYTop] = useState<number>(0);
@@ -321,36 +179,6 @@ export const HedgeUniV3Plot = (props: any) => {
   return (
     <React.Fragment>
       <Card className='p-1 plot-chart-box flex flex-col justify-center items-center pb-[80px] pt-[80px] gap-6'>
-        {/* {JSON.stringify(hedgeData || {})} */}
-      {/* <div className="controls"> */}
-          {/* <label>
-            p: {' '}
-            <input value={p} onChange={(e) => setP(e.target.value)} />
-          </label> */}
-           {/* {' '} <label>
-            L:  <input value={L} onChange={(e) => setL(String(e.target.value))} /> {' '}
-              <Slider
-                min={0}
-                max={0.0001}
-                step={0.000001}
-                value={Number(L)}
-                onChange={(value: number) => setL(String(value))}
-                style={{ width: 300, margin: '10px 0' }}
-              />
-              
-                </label>
-                {' '} <label>
-                  D: <input value={D} onChange={(e) => setD(String(e.target.value))} /> {' '} {' '}
-                  <Slider
-                min={0}
-                max={0.0001}
-                step={0.000001}
-                value={Number(D)}
-                onChange={(value: number) => setD(String(value))}
-                style={{ width: 300, margin: '10px 0' }}
-              />
-          </label> */}
-        {/* </div> */}
         {isLoadingCurrentPoolState ? '' : 
         isHasDerionIndex ? 
         <GraphingCalculator
@@ -374,27 +202,6 @@ export const HedgeUniV3Plot = (props: any) => {
           xAxisLabel={`${currentDisplayUni3Position?.token0Data.symbol} / ${currentDisplayUni3Position?.token1Data.symbol}`}
           yAxisLabel='Value'
         >
-           {/* DERION */}
-          {/* <Expression id='f' latex={FX} hidden />
-          <Expression id='g' latex={GX} hidden />
-          <Expression id='lR' latex={`(${X * 0.01},${R * 0.97})`} color='RED' hidden showLabel label='Pool Reserve' labelOrientation={Desmos.LabelOrientations.RIGHT} />
-          <Expression id='R' latex={`y=${R}\\{${PX}<x\\}`} color='RED' lineWidth={1.5} />
-          <Expression id='R1' latex={`y=${R1}\\{${PX}<x\\}`} color='RED' hidden={R === R1} lineWidth={1.5} lineStyle='DASHED' />
-          <Expression id='short' latex={`g(${P},x,${b},${R})\\{${PX}<x\\}`} color='GREEN' />
-          <Expression id='long' latex={`f(${P},x,${a},${R})\\{${PX}<x\\}`} color='PURPLE' />
-          <Expression id='short1' latex={`g(${P},x,${b1},${R1})\\{${PX}<x\\}`} color='GREEN' lineStyle='DASHED' hidden={!drBChange && R1 === R} />
-          <Expression id='long1' latex={`f(${P},x,${a1},${R1})\\{${PX}<x\\}`} color='PURPLE' lineStyle='DASHED' hidden={!drAChange && R1 === R} />
-          <Expression id='Price' latex={`(${X},0)`} color='BLACK' hidden showLabel label={`${dollar}${pX(X, mark)}`} labelOrientation={Desmos.LabelOrientations.BELOW} />
-          <Expression id='AD' latex={`(${AD},${R1 / 2})`} color='PURPLE' pointSize={20} pointOpacity={0.5} showLabel label={`${dollar}${pX(AD, mark)}`} labelOrientation={Desmos.LabelOrientations.RIGHT} />
-          <Expression id='BD' latex={`(${BD},${R1 / 2})`} color='GREEN' pointSize={20} pointOpacity={0.5} showLabel label={`${dollar}${pX(BD, mark)}`} labelOrientation={Desmos.LabelOrientations.LEFT} />
-          <Expression id='S' latex={`(${X},g(${P},${X},${b},${R}))`} color='GREEN' />
-          <Expression id='L' latex={`(${X},f(${P},${X},${a},${R}))`} color='PURPLE' />
-          <Expression id='S1' latex={`(${X},g(${P},${X},${b1},${R1}))`} color='GREEN' hidden={drBChange == null} />
-          <Expression id='L1' latex={`(${X},f(${P},${X},${a1},${R1}))`} color='PURPLE' hidden={drAChange == null} />
-          <Expression id='lC' latex={`(${AD+BD}/2,${Math.min(R, R1)}/2)`} color='BLACK' hidden showLabel label='LP' labelOrientation={Desmos.LabelOrientations.DEFAULT} />
-          <Expression id='lB' latex={`(${BD}/2,${Math.max(R, R1)}*3/4)`} color='GREEN' hidden showLabel label='SHORT' labelOrientation={Desmos.LabelOrientations.DEFAULT} />
-          <Expression id='lA' latex={`(${AD}*1.1,${Math.min(R, R1)}/4)`} color='PURPLE' hidden showLabel label='LONG' labelOrientation={Desmos.LabelOrientations.DEFAULT} /> */}
-
           <Expression id='derion-a0' latex={`a_{0}=${a}`} />
           <Expression id='derion-b0' latex={`b_{0}=${b}`} />
           <Expression id='derion-r0' latex={`R_{0}=${R}`} />
@@ -403,14 +210,9 @@ export const HedgeUniV3Plot = (props: any) => {
           <Expression id='common-r' latex={'r(k, x, v, R) = \\left\\{ v x^{k} \\le \\frac{R}{2} : v x^{k}, R - \\frac{R^{2}}{4 v x^{k}} \\right\\} \\{ 0 \\le x \\}'} />
           <Expression id='common-vr' latex={'v_{r}(k, x, r_{v}, R) = \\left\\{ \\frac{r_{v}}{x^{k}}, \\frac{R^{2}}{4(R - r_{v})x^{k}} \\right\\} \\quad \\text{for} \\quad r_{v} \\leq \\frac{R}{2}'} hidden />
           <Expression id='common-f(x)' latex={'f(x) = \\left\\{ a_{0}x^{K} \\leq \\frac{R_{0}}{2} : a_{0}x^{K}, R_{0} - \\frac{R_{0}^{2}}{4a_{0}x^{K}} \\right\\} \\quad \\left\\{ 0 < x \\right\\}'} hidden />
-
-          {/* <Expression id='hedge-ix' latex={'i(x) = \\frac{2\\sqrt{x}}{1+x} - 1'} color={'GREEN'} lineStyle={'DASHED'} hidden={true} /> */}
           <Expression id='Hedge-xa' latex={`x_{a}=${hedgeData?.pxa}`} />
           <Expression id='Hedge-xb' latex={`x_{b}=${hedgeData?.pxb}`} />
-          {/* <Expression id='IL-Vi' latex='V_{i}=-0.753' /> */}
-          {/* <Expression id='IL-V' latex='V=-V_{i}R_{0}' /> */}
           <Expression id='IL-V' latex={`V=${currentDisplayUni3Position?.totalPositionByUSD}`} />
-
           <Expression id='Hedge-l-function' latex={'l(x) = \\frac{r(K,x,a_{0},R_{0})}{r(K,X,a_{0},R_{0})} - 1'} color="RED"  hidden/>
           <Expression id='Hedge-s-function' latex={'s(x) = \\frac{r(-K,x,b_{0},R_{0})}{r(-K,X,b_{0},R_{0})} - 1'} hidden color="BLUE" />
           <Expression id='Hedge-Ls-function' sliderBounds={{
@@ -425,8 +227,6 @@ export const HedgeUniV3Plot = (props: any) => {
           <Expression id='Hedge-544' latex={'(L_{s}, D_{s})'} showLabel color="#c74440" label='H' pointOpacity={2} pointSize={20} />
           <Expression id='Hedge-H-function' latex={'H(x) = \\frac{D}{V} \\left( l(x) L + s(x) (1 - L) \\right)'} color="#c74440" lineStyle='DASHED' hidden lineWidth={1} />
           <Expression id='Hedge-iH-function' latex={'i_{H}(x) = i(x) + H(x)'} color="#c74440" />
-
-          {/* <Expression id='IL-V-function' latex={'\\left(\\sqrt{x_{a}x_{b}},V_{i}\\right)'} color={'RED'} showLabel={true} label='V' /> */}
           <Expression id='IL-A-function' latex={'\\left(x_{a},i\\left(x_{a}\\right)\\right)'} dragMode={'NONE'} color={'#2d70b3'} showLabel={true} label='A' />
           <Expression id='IL-B-function' latex={'\\left(x_{b},i\\left(x_{b}\\right)\\right)'} dragMode={'NONE'} color={'#2d70b3'} showLabel={true} label='B' />
           <Expression id='IL-X-function' latex={'\\left(X,i\\left(X\\right)\\right)'} color={'#2d70b3'} dragMode={'NONE'} showLabel={true} label='X' />
