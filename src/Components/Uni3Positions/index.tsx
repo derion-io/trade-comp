@@ -403,8 +403,25 @@ export const Uni3Positions = ({
                       {position.token1Data.symbol}
                     </TextGrey>
                   </InfoRow>
+                <InfoRow>
+                  <TextGrey>Reserves</TextGrey>
+                  <TextGrey className='d-flex align-item-center'>
+                        <TokenIcon
+                          tokenAddress={position?.token0}
+                          size={16}
+                          iconSize='1.4ex'
+                        />
+                        {zerofy(position.posLiquidityToken0)}
+                        {' '} + {' '}<TokenIcon
+                          tokenAddress={position?.token1}
+                          size={16}
+                          iconSize='1.4ex'
+                        />
+                        {zerofy(position.posLiquidityToken1)}
+                      </TextGrey>
+                </InfoRow>
                   <InfoRow>
-                    <TextGrey>Liquidity</TextGrey>
+                    <TextGrey>Size</TextGrey>
                     <div>
                       {/* <Text className='d-flex align-item-center'>
                         {zerofy(position.posLiquidityByBaseToken ?? bn(0))}{' '}
@@ -417,11 +434,6 @@ export const Uni3Positions = ({
 
                       <Text className='d-flex align-item-center'>
                         ${zerofy(position.totalPositionByUSD ?? bn(0))}{' '}
-                        <TokenIcon
-                          tokenAddress={position?.token1}
-                          size={16}
-                          iconSize='1.4ex'
-                        />
                       </Text>
                     </div>
                   </InfoRow>
@@ -439,12 +451,12 @@ export const Uni3Positions = ({
                         {zerofy(1/position.pxUpper)}
                         {'<-->'}
                         {zerofy(1 / position.pxLower)} (<TokenIcon
-                          tokenAddress={position?.token1}
+                          tokenAddress={position?.token0}
                           size={16}
                           iconSize='1.4ex'
                         />{' '}
                         /  <TokenIcon
-                          tokenAddress={position?.token0}
+                          tokenAddress={position?.token1}
                           size={16}
                           iconSize='1.4ex'
                         />)
@@ -452,12 +464,12 @@ export const Uni3Positions = ({
                         {zerofy(position.pxUpper)}
                         {'<-->'}
                         {zerofy(position.pxLower)} (<TokenIcon
-                          tokenAddress={position?.token0}
+                          tokenAddress={position?.token1}
                           size={16}
                           iconSize='1.4ex'
                         />{' '}
                         /  <TokenIcon
-                          tokenAddress={position?.token1}
+                          tokenAddress={position?.token0}
                           size={16}
                           iconSize='1.4ex'
                         />)
@@ -587,13 +599,14 @@ export const Uni3Positions = ({
                 </InfoRow> */}
 
                   <InfoRow>
+                  <React.Fragment></React.Fragment>
                   <ButtonSell
                         size='small'
                         onClick={(e) => {
-                          window.open(`https://app.uniswap.org/pool/${posKey}`, '_blank');
+                          window.open(`https://app.uniswap.org/pool/${posKey.split('-')[1]}`, '_blank');
                         }}
                       >
-                        Open
+                        Explore
                       </ButtonSell>
                 </InfoRow>
                 </div>
@@ -608,7 +621,7 @@ export const Uni3Positions = ({
             <tr>
               <th>Pool</th>
               <th>Reserves</th>
-              <th>Position Size</th>
+              <th>Size</th>
               <th className='no-wrap'>
                 Price Range {' '}
                 {positions?.length > 0 && (
@@ -707,7 +720,7 @@ export const Uni3Positions = ({
                       {/* {Number?.(position?.entryPrice) > 0 ? (
                         <EntryPrice
                           position={position}
-                          loading={position.status === POSITION_STATUS.OPENING}
+                          loading={position.status === POSITION_STATUS.ExploreING}
                         /> */}
 
                       <Text className='d-flex align-item-center'>
@@ -722,12 +735,12 @@ export const Uni3Positions = ({
                         {zerofy(1/position.pxUpper)}
                         {'<-->'}
                         {zerofy(1 / position.pxLower)} (<TokenIcon
-                          tokenAddress={position?.token1}
+                          tokenAddress={position?.token0}
                           size={16}
                           iconSize='1.4ex'
                         />{' '}
                         /  <TokenIcon
-                          tokenAddress={position?.token0}
+                          tokenAddress={position?.token1}
                           size={16}
                           iconSize='1.4ex'
                         />)
@@ -735,12 +748,12 @@ export const Uni3Positions = ({
                         {zerofy(position.pxUpper)}
                         {'<-->'}
                         {zerofy(position.pxLower)} (<TokenIcon
-                          tokenAddress={position?.token0}
+                          tokenAddress={position?.token1}
                           size={16}
                           iconSize='1.4ex'
                         />{' '}
                         /  <TokenIcon
-                          tokenAddress={position?.token1}
+                          tokenAddress={position?.token0}
                           size={16}
                           iconSize='1.4ex'
                         />)
@@ -808,10 +821,10 @@ export const Uni3Positions = ({
                   <ButtonSell
                         size='small'
                         onClick={(e) => {
-                          window.open(`https://app.uniswap.org/pool/${posKey}`, '_blank');
+                          window.open(`https://app.uniswap.org/pool/${posKey.split('-')[1]}`, '_blank');
                         }}
                       >
-                        Open
+                        Explore
                       </ButtonSell>
                   </td>
                 </tr>

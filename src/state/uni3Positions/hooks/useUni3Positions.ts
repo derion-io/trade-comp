@@ -87,12 +87,8 @@ export const useUni3Position = () => {
       const posLiquidityToken0 =
         (Number(liquidity) * (sqrtPxUpper - sqrtPx) / (sqrtPx * sqrtPxUpper)) / 10 ** diffDecimals;
       const posLiquidityToken1 = Number(liquidity) * (sqrtPx - sqrtPxLower) / 10 ** diffDecimals;
-      // const totalPositionSize = ((sqrtPxUpper - sqrtPxLower) / (sqrtPx));
-      // const posLiquidityByBaseToken = Number(liquidity) * sqrtPx * ((1 / sqrtPxLower) - (1/sqrtPxUpper)) / (10 ** diffDecimals)
-      // const posLiquidityByQuoteToken = Number(liquidity) * sqrtPx * ((1 / pxLower) - (1/pxUpper)) / (10 ** diffDecimals);
       const totalPositionByToken1 = posLiquidityToken1 + posLiquidityToken0 * px
       const totalPositionByUSD = Number(getTokenValue(token1, String(totalPositionByToken1), true))
-      // posLiquidityByQuoteToken + posLiquidityByBaseToken * px
 
       displayUni3Poss[uni3PosKey] = {
         pxLower,
