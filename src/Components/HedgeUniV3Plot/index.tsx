@@ -49,7 +49,7 @@ function pX(x: number, mark: number): string {
 export const HedgeUniV3Plot = (props: any) => {
   const { tokens } = useListTokens()
   const cp = useCurrentPool()
-  const {currentUni3Position, uni3Positions} = useUni3Position()
+  const {currentDisplayUni3Position, uni3Positions} = useUni3Position()
   const { currentPool } = cp
   const { wrapToNativeAddress } = useHelper()
   const calc = React.useRef() as React.MutableRefObject<Desmos.Calculator>
@@ -193,7 +193,7 @@ export const HedgeUniV3Plot = (props: any) => {
   // const [L, setL] = useState('1.105');
   // const [D, setD] = useState('0.726');
 
-  const hedgeData = useMemo(() => {
+  // const hedgeData = useMemo(() => {
     // console.log(price)
     // const {
     //   tick,
@@ -202,17 +202,17 @@ export const HedgeUniV3Plot = (props: any) => {
     //   token1Data,
     // } = currentUni3Position
     // if (!uni3PosData || !tick || !token0Data || !token1Data) return;
-    if(!currentUni3Position) return;
-    const { tickLower, tickUpper, liquidity, fee, feeGrowthInside1LastX128, feeGrowthInside0LastX128 } = currentUni3Position
+    // if(!currentDisplayUni3Position) return;
+    // const { tickLower, tickUpper, liquidity, fee, feeGrowthInside1LastX128, feeGrowthInside0LastX128 } = currentDisplayUni3Position
     // const diffDecimals = Math.abs(token0Data.decimals - token1Data.decimals)
     // const px = calculatePx(tick)
-    const pxa = calculatePx(tickLower)
-    const pxb = calculatePx(tickUpper)
-    console.log(currentUni3Position)
-    return {
-      pxa,
-      pxb
-    }
+    // const pxa = calculatePx(tickLower)
+    // const pxb = calculatePx(tickUpper)
+    // console.log(currentDisplayUni3Position)
+    // return {
+    //   pxa,
+    //   pxb
+    // }
     // let a = pxa / px
     // let b = pxb / px
     // console.log('#lower, current, upper', pxa * (10 ** diffDecimals), px * (10 ** diffDecimals), pxb * (10 ** diffDecimals))
@@ -224,12 +224,12 @@ export const HedgeUniV3Plot = (props: any) => {
     //   pxb: pxb * 10 ** diffDecimals,
     //   px: px * 10 ** diffDecimals
     // }
-  }, [currentUni3Position])
+  // }, [currentDisplayUni3Position])
   
   return (
     <React.Fragment>
       <Card className='p-1 plot-chart-box flex flex-col justify-center items-center pb-[80px] pt-[80px] gap-6'>
-        {JSON.stringify(hedgeData || {})}
+        {/* {JSON.stringify(hedgeData || {})} */}
       {/* <div className="controls"> */}
           {/* <label>
             p: {' '}
@@ -301,20 +301,22 @@ export const HedgeUniV3Plot = (props: any) => {
           <Expression id='lB' latex={`(${BD}/2,${Math.max(R, R1)}*3/4)`} color='GREEN' hidden showLabel label='SHORT' labelOrientation={Desmos.LabelOrientations.DEFAULT} />
           <Expression id='lA' latex={`(${AD}*1.1,${Math.min(R, R1)}/4)`} color='PURPLE' hidden showLabel label='LONG' labelOrientation={Desmos.LabelOrientations.DEFAULT} />
 
-          <Expression id='derion-a0' latex={`a_{0}=0.15`} />
-          <Expression id='derion-b0' latex={`b_{0}=0.13`} />
-          <Expression id='derion-r0' latex={`R_{0}=3`} />
-          <Expression id='derion-r' latex={`X=0.75`} />
-          <Expression id='derion-K' latex={`K=4`} />
+          <Expression id='derion-a0' latex={`a_{0}=${a}`} />
+          <Expression id='derion-b0' latex={`b_{0}=${b}`} />
+          <Expression id='derion-r0' latex={`R_{0}=${R}`} />
+          <Expression id='derion-r' latex={`X=${X}`} />
+          <Expression id='derion-K' latex={`K=${K}`} />
           <Expression id='common-r' latex={'r(k, x, v, R) = \\left\\{ v x^{k} \\le \\frac{R}{2} : v x^{k}, R - \\frac{R^{2}}{4 v x^{k}} \\right\\} \\{ 0 \\le x \\}'} />
           <Expression id='common-vr' latex={'v_{r}(k, x, r_{v}, R) = \\left\\{ \\frac{r_{v}}{x^{k}}, \\frac{R^{2}}{4(R - r_{v})x^{k}} \\right\\} \\quad \\text{for} \\quad r_{v} \\leq \\frac{R}{2}'} hidden />
           <Expression id='common-f(x)' latex={'f(x) = \\left\\{ a_{0}x^{K} \\leq \\frac{R_{0}}{2} : a_{0}x^{K}, R_{0} - \\frac{R_{0}^{2}}{4a_{0}x^{K}} \\right\\} \\quad \\left\\{ 0 < x \\right\\}'} hidden />
 
           {/* <Expression id='hedge-ix' latex={'i(x) = \\frac{2\\sqrt{x}}{1+x} - 1'} color={'GREEN'} lineStyle={'DASHED'} hidden={true} /> */}
-          <Expression id='Hedge-xa' latex={'x_{a}=0.8'} />
-          <Expression id='Hedge-xb' latex={'x_{b}=1.2'} />
-          <Expression id='IL-Vi' latex='V_{i}=-0.753' />
-          <Expression id='IL-V' latex='V=-V_{i}R_{0}' />
+          <Expression id='Hedge-xa' latex={`x_{a}=${currentDisplayUni3Position?.pxLowerPerc}`} />
+          <Expression id='Hedge-xb' latex={`x_{b}=${currentDisplayUni3Position?.pxUpperPerc}`} />
+          {/* <Expression id='IL-Vi' latex='V_{i}=-0.753' /> */}
+          {/* <Expression id='IL-V' latex='V=-V_{i}R_{0}' /> */}
+          <Expression id='IL-V' latex={`V=${currentDisplayUni3Position?.totalPositionByUSD}`} />
+
           <Expression id='Hedge-l-function' latex={'l(x) = \\frac{r(K,x,a_{0},R_{0})}{r(K,X,a_{0},R_{0})} - 1'} color="RED"  hidden/>
           <Expression id='Hedge-s-function' latex={'s(x) = \\frac{r(-K,x,b_{0},R_{0})}{r(-K,X,b_{0},R_{0})} - 1'} hidden color="BLUE" />
           <Expression id='Hedge-Ls-function' latex={'L_{s} = 1.105'} />
@@ -322,15 +324,15 @@ export const HedgeUniV3Plot = (props: any) => {
           <Expression id='Hedge-L-slider-function' latex={'L = 1 - \\frac{L_{s} - x_{a}}{x_{b} - x_{a}}'} />
           <Expression id='Hedge-544' latex={'(L_{s}, D)'} showLabel label='H' pointOpacity={2} pointSize={20} />
           <Expression id='Hedge-H-function' latex={'H(x) = \\frac{D}{V} \\left( l(x) L + s(x) (1 - L) \\right)'} color="ORANGE" lineStyle='DASHED' hidden lineWidth={1} />
-          <Expression id='Hedge-iH-function' latex={'i_{H}(x) = i(x) + H(x)'} color="ORANGE"/>
+          <Expression id='Hedge-iH-function' latex={'i_{H}(x) = i(x) + H(x)'} color="ORANGE" />
 
-          <Expression id='IL-V-function' latex={'\\left(\\sqrt{x_{a}x_{b}},V_{i}\\right)'} color={'RED'} showLabel={true} label='V' />
+          {/* <Expression id='IL-V-function' latex={'\\left(\\sqrt{x_{a}x_{b}},V_{i}\\right)'} color={'RED'} showLabel={true} label='V' /> */}
           <Expression id='IL-A-function' latex={'\\left(x_{a},i\\left(x_{a}\\right)\\right)'} color={'BLUE'} showLabel={true} label='A' />
           <Expression id='IL-B-function' latex={'\\left(x_{b},i\\left(x_{b}\\right)\\right)'} color={'ORANGE'} showLabel={true} label='B' />
           <Expression id='IL-X-function' latex={'\\left(X,i\\left(X\\right)\\right)'} color={'GREEN'} showLabel={true} label='X' />
           <Expression id='IL-iHxa-function' latex={'\\left(x_{a},i_{H}\\left(x_{a}\\right)\\right)'} />
           <Expression id='IL-iHxb-function' latex={'\\left(x_{b},i_{H}\\left(x_{b}\\right)\\right)'} />
-          <Expression id='IL-iH-line-function' latex={'i_{H}\\left(x_{a}\\right)-s_{iH}x_{a}+s_{iH}x \\{x_{a}<x<x_{b}\\}'}/>
+          <Expression id='IL-iH-line-function' latex={'i_{H}\\left(x_{a}\\right)-s_{iH}x_{a}+s_{iH}x \\{x_{a}<x<x_{b}\\}'} color={'GREEN'} lineStyle='DASHED'/>
           <Expression id='IL-siH-function' latex={'s_{iH}=\\frac{\\left(i_{H}\\left(x_{b}\\right)-i_{H}\\left(x_{a}\\right)\\right)}{x_{b}-x_{a}}'} />
           <Expression id='IL-ka-function' latex={'k_{a}=\\frac{V}{2\\sqrt{X}}'}/>
           <Expression id='IL-mQ-function' latex={'m_{Q}=k_{a}\\left(\\sqrt{x_{b}}-\\sqrt{x_{a}}\\right)'} />
@@ -338,7 +340,7 @@ export const HedgeUniV3Plot = (props: any) => {
           <Expression id='IL-ucx-function' latex={'u_{c}\\left(x\\right)=k_{a}\\left(2\\sqrt{x}-\\frac{x}{\\sqrt{x_{b}}}-\\sqrt{x_{a}}\\right)'} color={'RED'} hidden />
           <Expression id='IL-mx-function' latex={'m\\left(x\\right)=\\frac{V}{\\left\\{x<x_{a}:xm_{B},x_{b}<x:m_{Q},u_{c}\\left(x\\right)\\right\\}}'} color={'ORANGE'} hidden />
           <Expression id='IL-ux-function' latex={'u\\left(x\\right)=m\\left(X\\right)\\left\\{x<x_{a}:xm_{B},x_{b}<x:m_{Q},u_{c}\\left(x\\right)\\right\\}\\left\\{x>0\\right\\}'} color={'BLUE'} hidden/>
-          <Expression id='IL-vx-function' latex={'v_{0}\\left(x\\right)=u\\left(X\\right)+\\frac{x-X}{2}m\\left(X\\right)m_{B} \\{x>0 \\}'} color={'RED'} lineStyle='DASHED' lineWidth='1' hidden />
+          <Expression id='IL-vx-function' latex={'v_{0}(x)=\\frac{V}{2}(\\frac{x}{X}+1) \\{x>0\\}'} color={'RED'} lineStyle='DASHED' lineWidth='1' hidden />
           <Expression id='IL-ix-function' latex={'i\\left(x\\right)=u\\left(x\\right)-v_{0}\\left(x\\right)'} color={'GREEN'} lineStyle='DASHED' />
 
         </GraphingCalculator>

@@ -74,7 +74,7 @@ export const useUni3Position = () => {
       const tokenB = token1Data || tokens[token1]
       if(!tokenA || !tokenB|| !slot0) return;
 
-      const diffDecimals = Math.abs(tokenA?.decimals - tokenB?.decimals)
+      const diffDecimals = tokenA?.decimals === tokenB?.decimals ? tokenA?.decimals : Math.abs(tokenA?.decimals - tokenB?.decimals)
       const pxLower = calculatePx(tickLower) * 10 ** diffDecimals
       const pxUpper = calculatePx(tickUpper) * 10 ** diffDecimals
       const px = calculatePx(slot0.tick) * 10 ** diffDecimals
