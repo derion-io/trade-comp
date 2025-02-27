@@ -3,6 +3,7 @@ import React,{useEffect,useMemo, useState} from 'react'
 import {Card} from '../ui/Card'
 import {useHedgeUniV3} from './hook/useUniV3'
 import './style.scss'
+import {zerofy} from '../../utils/helpers'
 
 const calculatePx = (tick: number) => {
   return Math.pow(1.0001, tick);
@@ -32,7 +33,13 @@ export const HedgeUniV3Plot = () => {
     let b = pxb / px
     console.log('#lower, current, upper', pxa * (10 ** diffDecimals), px * (10 ** diffDecimals), pxb * (10 ** diffDecimals))
     console.log('#a,b', a,b)
-    return {px, a,b}
+    return {
+      a,
+      b,
+      pxa: pxa * 10 ** diffDecimals,
+      pxb: pxb * 10 ** diffDecimals,
+      px: px * 10 ** diffDecimals
+    }
   }, [uniV3Data])
   useEffect(() => {
     if(calc.current)
@@ -62,6 +69,15 @@ export const HedgeUniV3Plot = () => {
 
   return (
     <React.Fragment>
+      {uniV3Data?.uni3PosLoading ? "loading..." : 
+      <div className="pool--pos-info">
+        <p><strong>Pool:</strong> {uniV3Data.poolAddress} ({uniV3Data.token0Data?.symbol}/{uniV3Data.token1Data?.symbol})</p>
+        <p><strong>Fee:</strong> {uniV3Data.uni3PosData?.fee ? `${Number(uniV3Data.uni3PosData?.fee) / 1e4}%` : 'N/A'}</p>
+        <p><strong>Position ID:</strong> {uniV3Data.uni3PosId}</p>
+        <p><strong>Lower Price:</strong> {zerofy(hedgeData?.pxa || 'N/A')}</p>
+        <p><strong>Current Price:</strong> {zerofy(hedgeData?.px || 'N/A')}</p>
+        <p><strong>Upper Price:</strong> {zerofy(hedgeData?.pxb || 'N/A')}</p>
+      </div> }
       <Card className='p-1 plot-chart-box flex flex-col justify-center items-center pb-[80px] pt-[80px] gap-6'>
       <div className="controls" style={{padding: '0.5rem'}}>
           <label>

@@ -34,6 +34,7 @@ export const useHedgeUniV3 = () => {
     token0Data?: Token,
     token1Data?: Token,
     poolLiquidity?: string,
+    poolAddress?: string,
     slot0?: any,
     tick?: number,
     sqrtPriceX96?: string,
@@ -89,6 +90,7 @@ export const useHedgeUniV3 = () => {
     return {
         token0Data: tokenA,
         token1Data: tokenB,
+        poolAddress,
         poolLiquidity: liquidity,
         tick: Number(slot0?.tick),
         sqrtPriceX96: String(slot0?.sqrtPriceX96),
@@ -119,24 +121,25 @@ export const useHedgeUniV3 = () => {
             uni3PosData: res
           })
           setError('')
-          setLoading(false)
         })
         .catch((err) => {
           setLoading(false)
           setError(err?.msg || err.message || err?.reason || err.code)
         })
     } else {
-      setError('Uni3 positions path invalid')
       setLoading(false)
+      setError('Uni3 positions path invalid')
     }
   }, [provider])
   useEffect(() => {
     if(uni3PosState?.uni3PosData){
         const {token0, token1, fee} = uni3PosState?.uni3PosData
         fetchUni3Pool(token0, token1, fee).then(res => {
+            setLoading(false)
             setUni3PoolState(res)
         }).catch((err) => {
             console.log(err)
+            setLoading(false)
             setError(err?.msg || err.message || err?.reason || err.code)
         })
     }
