@@ -87,7 +87,7 @@ const Component = ({
         .searchParams
       if(urlSearchParams.get('hedge')) {
         setShowHedgeBeta(true)
-        // setChartTab(CHART_TABS.HEDGE_CHART)
+        setChartTab(CHART_TABS.HEDGE_CHART)
       }
     }
   },[location])
@@ -180,7 +180,7 @@ const Component = ({
               { name: 'Candles', value: CHART_TABS.CANDLE_CHART },
               { name: 'Lines', value: CHART_TABS.LINE_CHART },
               { name: 'Curves', value: CHART_TABS.FUNC_PLOT },
-              {name: 'Hedges', value: CHART_TABS.HEDGE_CHART }
+              ...(showHedgeBeta ? [{name: 'Hedges', value: CHART_TABS.HEDGE_CHART }] : [])
             ]}
           />
         )}

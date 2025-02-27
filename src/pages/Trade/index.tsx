@@ -143,7 +143,15 @@ export const Trade = ({
       }).catch(e => setIsLoadingIndex(false))
     }
   }, [id])
-
+  const [showBetaUni, setShowBetaUni] = useState(false)
+  useEffect(() => {
+    const url = location.href
+    const urlSearchParams = new URL(`https://1.com?${url.split('?')[1]}`)
+      .searchParams
+      if(urlSearchParams.get('hedge')){
+        setShowBetaUni(true)
+      }
+  })
   return (
     <div className={`exposure-page ${loadingData && 'blur-3'}`}>
       <div className='exposure-page__content'>
@@ -169,7 +177,8 @@ export const Trade = ({
                   ? 'LPs'
                   : 'Positions'}
             </Tab>
-            <Tab>Uni3 Positions</Tab>
+
+            {showBetaUni ? <Tab>Uni3 Positions</Tab> : ''}
             <Tab>History</Tab>
           </TabList>
           <TabPanel>
@@ -188,7 +197,7 @@ export const Trade = ({
               </ErrorBoundary>
             </Card>
           </TabPanel>
-          <TabPanel>
+          {showBetaUni ? <TabPanel>
             <Card className='card-in-tab'>
               {/* @ts-ignore */}
               <ErrorBoundary>
@@ -200,10 +209,10 @@ export const Trade = ({
                   }
                   tokenOutMaturity={tokenOutMaturity}
                   isLoadingIndex={isLoadingIndex}
-                />
+                /> 
               </ErrorBoundary>
             </Card>
-          </TabPanel>
+          </TabPanel> : ''}
           <TabPanel>
             <Card className='card-in-tab'>
               {/* @ts-ignore */}
