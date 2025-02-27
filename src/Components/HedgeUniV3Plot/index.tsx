@@ -161,12 +161,12 @@ export const HedgeUniV3Plot = (props: any) => {
     if (calc && calc.current) {
       const TM = Math.max(R, R1)
       const RM = Math.max(AD, X)
-      calc.current.setMathBounds({
-        bottom: -0.05 * TM,
-        top: 1.05 * TM,
-        left: -0.03 * RM,
-        right: 1.2 * RM,
-      })
+      // calc.current.setMathBounds({
+      //   bottom: -0.05 * TM,
+      //   top: 1.05 * TM,
+      //   left: -0.03 * RM,
+      //   right: 1.2 * RM,
+      // })
     }
   }, [calc, R, R1, X, AD])
 
@@ -191,8 +191,8 @@ export const HedgeUniV3Plot = (props: any) => {
   }, [currentPool])
   const uniV3Data = useHedgeUniV3()
   // const [p, setP] = useState('5');
-  const [L, setL] = useState('0.00005');
-  const [D, setD] = useState('0.00005');
+  const [L, setL] = useState('1.105');
+  const [D, setD] = useState('0.726');
 
   const hedgeData = useMemo(() => {
     const {
@@ -223,12 +223,12 @@ export const HedgeUniV3Plot = (props: any) => {
   return (
     <React.Fragment>
       <Card className='p-1 plot-chart-box flex flex-col justify-center items-center pb-[80px] pt-[80px] gap-6'>
-      <div className="controls">
+      {/* <div className="controls"> */}
           {/* <label>
             p: {' '}
             <input value={p} onChange={(e) => setP(e.target.value)} />
           </label> */}
-           {' '} <label>
+           {/* {' '} <label>
             L:  <input value={L} onChange={(e) => setL(String(e.target.value))} /> {' '}
               <Slider
                 min={0}
@@ -250,8 +250,8 @@ export const HedgeUniV3Plot = (props: any) => {
                 onChange={(value: number) => setD(String(value))}
                 style={{ width: 300, margin: '10px 0' }}
               />
-          </label>
-        </div>
+          </label> */}
+        {/* </div> */}
         <GraphingCalculator
           attributes={{ className: 'calculator' }}
           fontSize={14}
@@ -294,29 +294,45 @@ export const HedgeUniV3Plot = (props: any) => {
           <Expression id='lB' latex={`(${BD}/2,${Math.max(R, R1)}*3/4)`} color='GREEN' hidden showLabel label='SHORT' labelOrientation={Desmos.LabelOrientations.DEFAULT} />
           <Expression id='lA' latex={`(${AD}*1.1,${Math.min(R, R1)}/4)`} color='PURPLE' hidden showLabel label='LONG' labelOrientation={Desmos.LabelOrientations.DEFAULT} />
 
-          <Expression id='derion-a0' latex={`a_{0}=${a}`} />
-          <Expression id='derion-b0' latex={`b_{0}=${b}`} />
-          <Expression id='derion-r0' latex={`R_{0}=${R}`} />
-          <Expression id='derion-r' latex={`X=${X}`} />
-          <Expression id='derion-K' latex={`K=${K}`} />
-
+          <Expression id='derion-a0' latex={`a_{0}=0.15`} />
+          <Expression id='derion-b0' latex={`b_{0}=0.13`} />
+          <Expression id='derion-r0' latex={`R_{0}=3`} />
+          <Expression id='derion-r' latex={`X=0.75`} />
+          <Expression id='derion-K' latex={`K=4`} />
           <Expression id='common-r' latex={'r(k, x, v, R) = \\left\\{ v x^{k} \\le \\frac{R}{2} : v x^{k}, R - \\frac{R^{2}}{4 v x^{k}} \\right\\} \\{ 0 \\le x \\}'} />
+          <Expression id='common-vr' latex={'v_{r}(k, x, r_{v}, R) = \\left\\{ \\frac{r_{v}}{x^{k}}, \\frac{R^{2}}{4(R - r_{v})x^{k}} \\right\\} \\quad \\text{for} \\quad r_{v} \\leq \\frac{R}{2}'} hidden />
+          <Expression id='common-f(x)' latex={'f(x) = \\left\\{ a_{0}x^{K} \\leq \\frac{R_{0}}{2} : a_{0}x^{K}, R_{0} - \\frac{R_{0}^{2}}{4a_{0}x^{K}} \\right\\} \\quad \\left\\{ 0 < x \\right\\}'} hidden />
 
-          <Expression id='hedge-ix' latex={'i(x) = \\frac{2\\sqrt{x}}{1+x} - 1'} color={'GREEN'} lineStyle={'DASHED'} hidden={true} />
-          <Expression id='hedge-xa' latex={'x_{a}=0.8'} />
-          <Expression id='hedge-xb' latex={'x_{b}=1.2'} />
-          <Expression id='hedge-c(x)' latex={'c(x) = \\frac{1}{1 - \\frac{( \\sqrt{x_a} + x \\sqrt{\\frac{1}{x_b}})}{1 + x}}'} hidden={true} />
-          <Expression id='hedge-i_c(x)' latex={'i_{c}(x)=i(x)c(x)'} hidden={true} color={'ORANGE'} lineStyle={'DASHED'} />
-          <Expression id='hedge-i_a(x)' latex={'i_{a}(x)=i_{c}(x_{a})+1-\\frac{x_{a}}{x}'} hidden={true} color={'BLACK'} lineStyle={'DASHED'} />
-          <Expression id='hedge-i_b(x)' latex={'i_{b}(x)=i_{c}(x_{b})'} hidden={true} />
-          <Expression id='hedge-i_3(x)' latex={'i_{3}(x) = \\left\\{x < x_{a}: i_{a}(x), x > x_{b}: i_{b}(x), i_{c}(x)\\right\\}'} hidden={true} color={'ORANGE'} />
+          {/* <Expression id='hedge-ix' latex={'i(x) = \\frac{2\\sqrt{x}}{1+x} - 1'} color={'GREEN'} lineStyle={'DASHED'} hidden={true} /> */}
+          <Expression id='Hedge-xa' latex={'x_{a}=0.8'} />
+          <Expression id='Hedge-xb' latex={'x_{b}=1.2'} />
+          <Expression id='IL-Vi' latex='V_{i}=-0.753' />
+          <Expression id='IL-V' latex='V=-V_{i}R_{0}' />
+          <Expression id='Hedge-l-function' latex={'l(x) = \\frac{r(K,x,a_{0},R_{0})}{r(K,X,a_{0},R_{0})} - 1'} color="RED"  hidden/>
+          <Expression id='Hedge-s-function' latex={'s(x) = \\frac{r(-K,x,b_{0},R_{0})}{r(-K,X,b_{0},R_{0})} - 1'} hidden color="BLUE" />
+          <Expression id='Hedge-Ls-function' latex={'L_{s} = 1.105'} />
+          <Expression id='Hedge-D-function' latex={'D = 0.726'} />
+          <Expression id='Hedge-L-slider-function' latex={'L = 1 - \\frac{L_{s} - x_{a}}{x_{b} - x_{a}}'} />
+          <Expression id='Hedge-544' latex={'(L_{s}, D)'} showLabel label='H' pointOpacity={2} pointSize={20} />
+          <Expression id='Hedge-H-function' latex={'H(x) = \\frac{D}{V} \\left( l(x) L + s(x) (1 - L) \\right)'} color="ORANGE" lineStyle='DASHED' hidden lineWidth={1} />
+          <Expression id='Hedge-iH-function' latex={'i_{H}(x) = i(x) + H(x)'} color="ORANGE"/>
 
-          <Expression id='hedge-l(x)' latex={'l(x) = \\frac{r(K, x, a_{0}, R_{0})}{r(K, X, a_{0}, R_{0})} - 1'} color={'ORANGE'} hidden={true} />
-          <Expression id='hedge-s(x)' latex={'s(x) = \\frac{r(-K, x, b_{0}, R_{0})}{r(-K, X, b_{0}, R_{0})} - 1'} color={'BLUE'} hidden={true} />
-
-          <Expression id='hedge-L-slider' latex={`L=${L}`} />
-          <Expression id='hedge-D-slider' latex={`D=${D}`} />
-          <Expression id='hedge-H(x)' latex={'H(x) = \\frac{l(x) L + s(x) (1 - L)}{D}'} color={'RED'} lineStyle='DASHED' />
+          <Expression id='IL-V-function' latex={'\\left(\\sqrt{x_{a}x_{b}},V_{i}\\right)'} color={'RED'} showLabel={true} label='V' />
+          <Expression id='IL-A-function' latex={'\\left(x_{a},i\\left(x_{a}\\right)\\right)'} color={'BLUE'} showLabel={true} label='A' />
+          <Expression id='IL-B-function' latex={'\\left(x_{b},i\\left(x_{b}\\right)\\right)'} color={'ORANGE'} showLabel={true} label='B' />
+          <Expression id='IL-X-function' latex={'\\left(X,i\\left(X\\right)\\right)'} color={'GREEN'} showLabel={true} label='X' />
+          <Expression id='IL-iHxa-function' latex={'\\left(x_{a},i_{H}\\left(x_{a}\\right)\\right)'} />
+          <Expression id='IL-iHxb-function' latex={'\\left(x_{b},i_{H}\\left(x_{b}\\right)\\right)'} />
+          <Expression id='IL-iH-line-function' latex={'i_{H}\\left(x_{a}\\right)-s_{iH}x_{a}+s_{iH}x \\{x_{a}<x<x_{b}\\}'}/>
+          <Expression id='IL-siH-function' latex={'s_{iH}=\\frac{\\left(i_{H}\\left(x_{b}\\right)-i_{H}\\left(x_{a}\\right)\\right)}{x_{b}-x_{a}}'} />
+          <Expression id='IL-ka-function' latex={'k_{a}=\\frac{V}{2\\sqrt{X}}'}/>
+          <Expression id='IL-mQ-function' latex={'m_{Q}=k_{a}\\left(\\sqrt{x_{b}}-\\sqrt{x_{a}}\\right)'} />
+          <Expression id='IL-mB-function' latex={'m_{B}=\\frac{m_{Q}}{\\sqrt{x_{a}x_{b}}}'} />
+          <Expression id='IL-ucx-function' latex={'u_{c}\\left(x\\right)=k_{a}\\left(2\\sqrt{x}-\\frac{x}{\\sqrt{x_{b}}}-\\sqrt{x_{a}}\\right)'} color={'RED'} hidden />
+          <Expression id='IL-mx-function' latex={'m\\left(x\\right)=\\frac{V}{\\left\\{x<x_{a}:xm_{B},x_{b}<x:m_{Q},u_{c}\\left(x\\right)\\right\\}}'} color={'ORANGE'} hidden />
+          <Expression id='IL-ux-function' latex={'u\\left(x\\right)=m\\left(X\\right)\\left\\{x<x_{a}:xm_{B},x_{b}<x:m_{Q},u_{c}\\left(x\\right)\\right\\}\\left\\{x>0\\right\\}'} color={'BLUE'} hidden/>
+          <Expression id='IL-vx-function' latex={'v_{0}\\left(x\\right)=u\\left(X\\right)+\\frac{x-X}{2}m\\left(X\\right)m_{B} \\{x>0 \\}'} color={'RED'} lineStyle='DASHED' lineWidth='1' hidden />
+          <Expression id='IL-ix-function' latex={'i\\left(x\\right)=u\\left(x\\right)-v_{0}\\left(x\\right)'} color={'GREEN'} lineStyle='DASHED' />
 
         </GraphingCalculator>
       </Card>
