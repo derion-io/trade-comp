@@ -130,8 +130,8 @@ export const useFetchUni3Position = () => {
   const {setCurrentUni3Position, setAllUni3Positions, uni3Positions, setUni3Status, uni3Loading} = useUni3Position()
   const fetchUni3Pos = async (): Promise<{[key: string]: IUniPosV3}>  => {
     let accountUni3Pos:{[key: string]: IUniPosV3} = {}
-    if(ddlEngine && account && ddlEngine.RESOURCE.allLogs.length > 0 && Object.keys(uni3Positions).length === 0){
-      const accountAssets = ddlEngine.RESOURCE.updateAssets({account, logs: ddlEngine.RESOURCE.allLogs})
+    if(ddlEngine && account && ddlEngine?.RESOURCE?.allLogs?.length > 0 && Object.keys(uni3Positions).length === 0){
+      const accountAssets = ddlEngine.RESOURCE.updateAssets({account, logs: ddlEngine?.RESOURCE?.allLogs})
       try {
         setUni3Status(true)
         if(Object.keys(accountAssets[721].balance).length === 0) throw "Account has no positions"
