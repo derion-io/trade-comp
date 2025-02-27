@@ -272,7 +272,7 @@ export const HedgeUniV3Plot = (props: any) => {
       }
 
       
-      // calc.current.setMathBounds(bounds)
+      calc.current.setMathBounds(bounds)
     }
   }, [hedgeData, yA, yB, yTop])
 
