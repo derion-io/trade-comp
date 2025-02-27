@@ -260,18 +260,20 @@ export const HedgeUniV3Plot = (props: any) => {
       )
     }
   }, [hedgeData, calc])
-  useEffect(() => {
-    if (calc?.current && hedgeData && yA !== 0 && yB !== 0 && yTop !== 0) {
-      const { px, pxa, pxb } = hedgeData
-      console.log('#yy', yA, yB, yTop)
-      const bounds = {
-        left: Math.min(px, pxa, pxb) * 0.9,
-        right: Math.max(px, pxa, pxb) * 1.1,
-        bottom: Math.min(0, yA, yB) * 1.1,
-        top: Math.max(0, yTop, yA, yB) * 1.5
-      }
 
-      
+  useEffect(() => {
+    if (calc?.current && hedgeData) {
+      const { px, pxa, pxb } = hedgeData
+      const xMax = Math.max(px, pxa, pxb)
+      const xMin = Math.min(px, pxa, pxb)
+      const yMax = Math.max(0, yTop, yA, yB, -yA, -yB)
+      const yMin = Math.min(0, yTop, yA, yB)
+      const bounds = {
+        left: xMin - (xMax - xMin) * 0.1,
+        right: xMax + (xMax - xMin) * 0.1,
+        bottom: yMin - (yMax - yMin) * 0.1,
+        top: yMax + (yMax - yMin) * 0.1,
+      }
       calc.current.setMathBounds(bounds)
     }
   }, [hedgeData, yA, yB, yTop])
