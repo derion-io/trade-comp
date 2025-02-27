@@ -12,6 +12,7 @@ import {CandleChartLoader} from '../ChartLoaders'
 import {Card} from '../ui/Card'
 import './style.scss'
 import {useCurrentPoolGroup} from '../../state/currentPool/hooks/useCurrentPoolGroup'
+import {TextLink} from '../ui/Text'
 
 function xTop(X: number, xb: number, xa: number): number {
   const term1 = 1 / Math.sqrt(X);
@@ -139,24 +140,30 @@ export const HedgeUniV3Plot = (props: any) => {
   const {poolGroups,} = useResource()
   const {findMatchingPoolIndex} = useFindMatchingPoolIndex()
   const { updateCurrentPoolGroup, id} = useCurrentPoolGroup()
-
+  const [ignoreMatchIndex, setIgnoreMatchIndex] = useState<boolean>(false)
+  useEffect(() => {
+    if(ignoreMatchIndex) updateCurrentPoolGroup(Object.keys(poolGroups)[0])
+  },[ignoreMatchIndex, poolGroups])
+  useEffect(() => {
+    setIgnoreMatchIndex(false) // reset ignore when change uni3 positions
+  },[currentDisplayUni3Position])
   useEffect(() => {
     const matchingIndexKey = findMatchingPoolIndex();
     if(matchingIndexKey) {
-      console.log('#matchingIndexKey', matchingIndexKey)
       updateCurrentPoolGroup(matchingIndexKey);
     }
   }, [findMatchingPoolIndex])
 
   const { isHasDerionIndex, isUpdatingCurrentIndex } = useMemo(() => {
+
     const isHasDerionIndex = findMatchingPoolIndex() === null ? false : true;
     const isCurrentIndexMatch = findMatchingPoolIndex(id) === null ? false : true
-    // let _isUpdatingCurrentIndex = false
-    // if(isHasDerionIndex && !isCurrentIndexMatch) {
-    //   _isUpdatingCurrentIndex = true
-    // }
+    if(ignoreMatchIndex && !isHasDerionIndex) return {
+      isHasDerionIndex: true,
+      isUpdatingCurrentIndex: false
+    }
     return { isHasDerionIndex: isHasDerionIndex, isUpdatingCurrentIndex: isHasDerionIndex && !isCurrentIndexMatch ? true : false};
-  }, [findMatchingPoolIndex, id]);
+  }, [findMatchingPoolIndex, id, ignoreMatchIndex]);
 
   const isUni3Loading = useMemo(() => {
     if( Object.keys(displayUni3Positions).length > 0) return false
@@ -166,8 +173,8 @@ export const HedgeUniV3Plot = (props: any) => {
   return (
     <React.Fragment>
       <Card className='p-1 plot-chart-box flex flex-col justify-center items-center pb-[80px] pt-[80px] gap-6'>
-      {isUni3Loading || isUpdatingCurrentIndex ? 'loading...' : 
-        isHasDerionIndex ? <GraphingCalculator
+      {isUni3Loading || isUpdatingCurrentIndex ? '' : 
+         isHasDerionIndex ? <GraphingCalculator
           attributes={{ className: 'calculator' }}
           fontSize={14}
           keypad
@@ -229,7 +236,9 @@ export const HedgeUniV3Plot = (props: any) => {
           <Expression id='IL-vx-function' latex={'v_{0}(x)=\\frac{V}{2}(\\frac{x}{X}+1) \\{x>0\\}'} lineStyle='DASHED' color="#6042a6" lineWidth='1' hidden />
           <Expression id='IL-ix-function' latex={'i\\left(x\\right)=u\\left(x\\right)-v_{0}\\left(x\\right)'} color={'BLUE'} lineStyle='DASHED' />
 
-        </GraphingCalculator> : `No Derion Pool for ${currentDisplayUni3Position?.token0Data.symbol}/${currentDisplayUni3Position?.token1Data.symbol}`}
+        </GraphingCalculator> : 
+          <p>{`No Derion Pool for ${currentDisplayUni3Position?.token0Data.symbol}/${currentDisplayUni3Position?.token1Data.symbol}`} <TextLink onClick={() => {setIgnoreMatchIndex(true)}}>Show plot anyway</TextLink></p>
+        }
       </Card>
     </React.Fragment>
   )

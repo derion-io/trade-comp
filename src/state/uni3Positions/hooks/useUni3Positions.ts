@@ -132,9 +132,9 @@ export const useFetchUni3Position = () => {
     let accountUni3Pos:{[key: string]: IUniPosV3} = {}
     if(ddlEngine && account && ddlEngine.RESOURCE.allLogs.length > 0){
       const accountAssets = ddlEngine.RESOURCE.updateAssets({account, logs: ddlEngine.RESOURCE.allLogs})
-      console.log('#logs', ddlEngine.RESOURCE.allLogs.length)
       try {
         setUni3Status(true)
+        if(Object.keys(accountAssets[721].balance).length === 0) throw "Account has no positions"
         const _accountUni3Pos = await ddlEngine.BNA.loadUniswapV3Position({assetsOverride: accountAssets})
         Object.keys(_accountUni3Pos).map(key => {
           if(_accountUni3Pos[key].liquidity === '0') return;
@@ -146,7 +146,6 @@ export const useFetchUni3Position = () => {
         console.log(error)
       }
       setAllUni3Positions( accountUni3Pos)
-      console.log('#accountUni3Pos', accountUni3Pos, accountAssets)
       if(Object.keys(accountUni3Pos)[0]) {
         setCurrentUni3Position(Object.keys(accountUni3Pos)[0])
       }
