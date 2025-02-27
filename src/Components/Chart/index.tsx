@@ -28,6 +28,7 @@ import { TokenIcon } from '../ui/TokenIcon'
 import { useWindowSize } from '../../hooks/useWindowSize'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useSettings } from '../../state/setting/hooks/useSettings'
+import {HedgeUniV3Plot} from '../HedgeUniV3Plot'
 const Component = ({
   changedIn24h,
   inputTokenAddress,
@@ -165,7 +166,8 @@ const Component = ({
             tabs={[
               { name: 'Candles', value: CHART_TABS.CANDLE_CHART },
               { name: 'Lines', value: CHART_TABS.LINE_CHART },
-              { name: 'Curves', value: CHART_TABS.FUNC_PLOT }
+              { name: 'Curves', value: CHART_TABS.FUNC_PLOT },
+              { name: 'Hedges', value: CHART_TABS.HEDGE_CHART }
             ]}
           />
         )}
@@ -182,6 +184,8 @@ const Component = ({
             <LineChart changedIn24h={changedIn24h} />
           ) : chartTab === CHART_TABS.FUNC_PLOT ? (
             currentPool?.states && <FunctionPlot />
+          ) : chartTab === CHART_TABS.HEDGE_CHART ? (
+            currentPool?.states && <HedgeUniV3Plot />
           ) : configs.useDexToolsChart ? (
             <DexToolChart pairAddress={pairAddress} chartResolution='1' />
           ) : (
