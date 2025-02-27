@@ -8,7 +8,18 @@ import { useWeb3React } from '../../../state/customWeb3React/hook'
 import { load } from 'redux-localstorage-simple'
 import { computePoolAddress, FeeAmount, Pool } from '@uniswap/v3-sdk'
 import { Token } from '@uniswap/sdk-core'
-
+interface IUniPosV3 {
+    tickLower: number,
+    tickUpper: number,
+    liquidity: string,
+    feeGrowthInside0LastX128: string,
+    feeGrowthInside1LastX128: string,
+    fee: string,
+    tokensOwed0: string,
+    tokensOwed1: string,
+    token0: string,
+    token1: string
+}
 export const useHedgeUniV3 = () => {
   const { ddlEngine, configs } = useConfigs()
   const { provider, chainId } = useWeb3React()
@@ -17,17 +28,19 @@ export const useHedgeUniV3 = () => {
   const [uni3PosState, setUni3PosState] = useState<{
     uni3PosAddress: string
     uni3PosId: string
-    uni3PosData: any
-  }>({ uni3PosAddress: '', uni3PosId: '', uni3PosData: null })
+    uni3PosData?: IUniPosV3
+  }>({ uni3PosAddress: '', uni3PosId: '' })
   const [uni3PoolState, setUni3PoolState] = useState<{
     token0Data?: Token,
     token1Data?: Token,
     poolLiquidity?: string,
-    slot0?: any
+    slot0?: any,
+    tick?: number,
+    sqrtPriceX96?: string,
   }>({})
-  const fetchUni3Pos = async (nfpmContract: Contract, posId: any) => {
+  const fetchUni3Pos = async (nfpmContract: Contract, posId: any): Promise<IUniPosV3 | undefined> => {
     const positionData = await nfpmContract.positions(posId)
-    if (!positionData) return null
+    if (!positionData) return;
     return {
       tickLower: positionData.tickLower,
       tickUpper: positionData.tickUpper,
@@ -77,7 +90,7 @@ export const useHedgeUniV3 = () => {
         token0Data: tokenA,
         token1Data: tokenB,
         poolLiquidity: liquidity,
-        tick: String(slot0?.tick),
+        tick: Number(slot0?.tick),
         sqrtPriceX96: String(slot0?.sqrtPriceX96),
         slot0,
     }

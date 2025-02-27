@@ -3,48 +3,61 @@ import { Expression, GraphingCalculator } from 'desmos-react'
 import './style.scss'
 import { Card } from '../ui/Card'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
-import { formatFloat, zerofy, isUSD, WEI, IEW, calcPoolSide, div, NUM } from '../../utils/helpers'
+import {
+  formatFloat,
+  zerofy,
+  isUSD,
+  WEI,
+  IEW,
+  calcPoolSide,
+  div,
+  NUM,
+  bn
+} from '../../utils/helpers'
 import { CandleChartLoader } from '../ChartLoaders'
 import { useListTokens } from '../../state/token/hook'
 import { useHelper } from '../../state/config/useHelper'
 import { POOL_IDS } from '../../utils/constant'
 import { BigNumber } from 'ethers'
-import {useConfigs} from '../../state/config/useConfigs'
-import {useHedgeUniV3} from './hook/useUniV3'
-import {error} from 'console'
+import { useConfigs } from '../../state/config/useConfigs'
+import { useHedgeUniV3 } from './hook/useUniV3'
+import { error } from 'console'
 
-// const FX = 'f(P,x,v,R)=\\{2vx^P<R:vx^P,R-R^2/(4vx^P)\\}'
-// const GX = 'g(P,x,v,R)=\\{2vx^{-P}<R:R-vx^{-P},R^2/(4vx^{-P})\\}'
+const FX = 'f(P,x,v,R)=\\{2vx^P<R:vx^P,R-R^2/(4vx^P)\\}'
+const GX = 'g(P,x,v,R)=\\{2vx^{-P}<R:R-vx^{-P},R^2/(4vx^{-P})\\}'
 
-// function _r(xk: number, v: number, R: number): number {
-//   const r = v * xk
-//   if (r <= R / 2) {
-//     return r
-//   }
-//   const denominator = v * xk * 4
-//   const minuend = (R * R) / denominator
-//   return R - minuend
+function _r(xk: number, v: number, R: number): number {
+  const r = v * xk
+  if (r <= R / 2) {
+    return r
+  }
+  const denominator = v * xk * 4
+  const minuend = (R * R) / denominator
+  return R - minuend
+}
+
+function _v(xk: number, r: number, R: number): number {
+  if (r <= R / 2) {
+    return r / xk
+  }
+  const denominator = (R - r) * xk * 4
+  return (R * R) / denominator
+}
+
+function _x(k: number, r: number, v: number): number {
+  return Math.pow(r / v, 1 / k)
+}
+
+// function _k(k: number, x: number, v: number, R: number): number {
+//   return (k * R) / Math.abs(4 * v * x ** k - R)
 // }
 
-// function _v(xk: number, r: number, R: number): number {
-//   if (r <= R / 2) {
-//     return r / xk
-//   }
-//   const denominator = (R - r) * xk * 4
-//   return (R * R) / denominator
-// }
-
-// function _x(k: number, r: number, v: number): number {
-//   return Math.pow(r / v, 1 / k)
-// }
-
-// // function _k(k: number, x: number, v: number, R: number): number {
-// //   return (k * R) / Math.abs(4 * v * x ** k - R)
-// // }
-
-// function pX(x: number, mark: number): string {
-//   return zerofy(x * mark)
-// }
+function pX(x: number, mark: number): string {
+  return zerofy(x * mark)
+}
+const calculatePx = (tick: number) => {
+  return Math.pow(1.0001, tick);
+}
 
 export const HedgeUniV3Plot = (props: any) => {
   const { tokens } = useListTokens()
@@ -56,15 +69,32 @@ export const HedgeUniV3Plot = (props: any) => {
   useEffect(() => {
     console.log('#uniV3Data', uniV3Data)
   }, [uniV3Data])
-  return <div>
-    {JSON.stringify(uniV3Data)}
-    {/* {uni3PosLoading ? 'loading...' : <div>
-    Pool Address: {uni3PosAddress} <br/>
-    Position Id: {uni3PosId} <br/>
-    Positions Data: {JSON.stringify(uni3PosData, null , 2)} <br/>
-    Error: {uni3PosError} */}
-    </div>
-  // }
+  const hedgeData = useMemo(() => {
+    const {
+      tick,
+      uni3PosData,
+      token0Data,
+      token1Data,
+      poolLiquidity,
+      sqrtPriceX96
+    } = uniV3Data
+    if (!uni3PosData || !tick || !token0Data || !token1Data) return;
+    const { tickLower, tickUpper } = uni3PosData
+    const normalize = (as: BigNumber[]): number[] => {
+      const ls = as.map((b) => b.toString().length)
+      const maxL = Math.max(...ls)
+      const minL = Math.min(...ls)
+      const avgL = (maxL + minL) >> 1
+      return as.map((a) => formatFloat(IEW(String(a), avgL)))
+    }
+    const diffDecimals = Math.abs(token0Data.decimals - token1Data.decimals)
+    const px = calculatePx(tick)
+    const a = calculatePx(tickLower) / px
+    const b = calculatePx(tickUpper) / px
+    console.log('#px', a,b, px * (10 ** diffDecimals))
+    return {px, a,b}
+  }, [uniV3Data])
+  return (<div>{hedgeData ? JSON.stringify(hedgeData) : 'a'}</div>)
   // const {
   //   PX,
   //   a,
@@ -185,7 +215,7 @@ export const HedgeUniV3Plot = (props: any) => {
   //     return ''
   //   }
   //   const { quoteToken } = currentPool
-  //   if(configs.stablecoins.includes(quoteToken)) {
+  //   if (configs.stablecoins.includes(quoteToken)) {
   //     return '$'
   //   }
   //   return ''
@@ -356,7 +386,7 @@ export const HedgeUniV3Plot = (props: any) => {
   //           */}
   //         <Expression
   //           id='lC'
-  //           latex={`(${AD+BD}/2,${Math.min(R, R1)}/2)`}
+  //           latex={`(${AD + BD}/2,${Math.min(R, R1)}/2)`}
   //           color='BLACK'
   //           hidden
   //           showLabel
