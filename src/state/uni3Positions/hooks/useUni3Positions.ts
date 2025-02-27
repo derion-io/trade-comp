@@ -11,6 +11,7 @@ import {useTokenPrice} from '../../resources/hooks/useTokenPrice'
 import {calculatePx} from '../../../utils/helpers'
 import {TokenType} from 'derivable-engine/dist/types'
 import {useTokenValue} from '../../../Components/SwapBox/hooks/useTokenValue'
+import {useCurrentPoolGroup} from '../../currentPool/hooks/useCurrentPoolGroup'
 export interface IDisplayUniPosV3 {
   tickLower: number,
   pxLower: number,
@@ -44,7 +45,8 @@ export const useUni3Position = () => {
   const { provider, chainId,account } = useWeb3React()
   const { tokens } = useListTokens()
   const { getTokenValue } = useTokenValue({})
-
+  const {updateCurrentPoolGroup} = useCurrentPoolGroup()
+  const {poolGroups} = useResource()
   const { currentUni3Position, uni3Positions } = useSelector((state: State) => {
     return {
       currentUni3Position: state.uni3Positions.currentUni3Position,
@@ -53,8 +55,15 @@ export const useUni3Position = () => {
   })
   const dispatch = useDispatch()
 
-  const setCurrentUni3Position = (address: string) => {
-    dispatch(setCurrentUni3Pos({ uni3Pos: address }))
+  const setCurrentUni3Position = (posKey: string) => {
+    if(uni3Positions[posKey]){
+      const {token0, token1} = uni3Positions[posKey] 
+      Object.keys(poolGroups).map((indexKey) => {
+        const index = poolGroups[indexKey]
+        console.log('#index', index)
+      })
+    }
+    dispatch(setCurrentUni3Pos({ uni3Pos: posKey }))
   }
 
   const setAllUni3Positions = (uni3Positions: {[key: string]: IUniPosV3}) => {
@@ -74,7 +83,7 @@ export const useUni3Position = () => {
       const tokenB = token1Data || tokens[token1]
       if(!tokenA || !tokenB|| !slot0) return;
 
-      const diffDecimals = tokenA?.decimals === tokenB?.decimals ? tokenA?.decimals : 10 ** Math.abs(tokenA?.decimals - tokenB?.decimals)
+      const diffDecimals = tokenA?.decimals === tokenB?.decimals ? 1 : 10 ** Math.abs(tokenA?.decimals - tokenB?.decimals)
       const pxLower = calculatePx(tickLower)
       const pxUpper = calculatePx(tickUpper)
       const px = calculatePx(slot0.tick)
@@ -91,7 +100,6 @@ export const useUni3Position = () => {
       const totalPositionByQuoteToken = isToken0Quote ? posLiquidityToken0 + posLiquidityToken1 * 1/px  : posLiquidityToken1 + posLiquidityToken0 * px  
 
       const totalPositionByUSD = Number(getTokenValue(token1, String(totalPositionByQuoteToken), true))
-
       displayUni3Poss[uni3PosKey] = {
         pxLower: pxLower * diffDecimals,
         pxUpper: pxUpper * diffDecimals,
@@ -131,6 +139,7 @@ export const useFetchUni3Position = () => {
       currentUni3Position: state.uni3Positions.currentUni3Position,
     }
   })
+  const {setCurrentUni3Position, setAllUni3Positions} = useUni3Position()
   const fetchUni3Pos = async (): Promise<{[key: string]: IUniPosV3}>  => {
     let accountUni3Pos:{[key: string]: IUniPosV3} = {}
     if(ddlEngine && account){
@@ -141,9 +150,9 @@ export const useFetchUni3Position = () => {
       } catch (error) {
         console.log(error)
       }
-      dispatch(setAllUni3Pos({ uni3Positions: accountUni3Pos}))
+      setAllUni3Positions( accountUni3Pos)
       if(!currentUni3Position) {
-        dispatch(setCurrentUni3Pos({ uni3Pos: Object.keys(accountUni3Pos)[0]}))
+        setCurrentUni3Position(Object.keys(accountUni3Pos)[0])
       }
     }
     return accountUni3Pos

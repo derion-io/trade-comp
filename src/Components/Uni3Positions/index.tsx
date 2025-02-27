@@ -76,7 +76,6 @@ export const Uni3Positions = ({
   // const { account } = useWeb3React()
   // const [positionsWithEntry, setPositionsWithEntry] = useState<{[key:string]: any}>({})
   const [positions, setPositions] = useState<Position[]>([])
-
   // const generatePositionData = (
   //   poolAddress: string,
   //   side: number,
@@ -679,9 +678,9 @@ export const Uni3Positions = ({
                     <React.Fragment>
                       {revertRange ? 
                       <TextGrey className='d-flex align-item-center'>
-                        {zerofy(1/position.pxLower)}
+                        {zerofy(1/position.pxUpper)}
                         {'<-->'}
-                        {zerofy(1 / position.pxUpper)} (<TokenIcon
+                        {zerofy(1 / position.pxLower)} (<TokenIcon
                           tokenAddress={position?.token0}
                           size={16}
                           iconSize='1.4ex'
