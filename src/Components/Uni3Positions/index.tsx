@@ -16,6 +16,8 @@ import {
 } from '../ui/Text'
 import {TokenIcon} from '../ui/TokenIcon'
 import './style.scss'
+import {useCurrentPool} from '../../state/currentPool/hooks/useCurrentPool'
+import {useCurrentPoolGroup} from '../../state/currentPool/hooks/useCurrentPoolGroup'
 
 const mdp = require('move-decimal-point')
 
@@ -75,7 +77,7 @@ export const Uni3Positions = ({
   }, [])
   // const { account } = useWeb3React()
   // const [positionsWithEntry, setPositionsWithEntry] = useState<{[key:string]: any}>({})
-  const [positions, setPositions] = useState<Position[]>([])
+  // const [positions, setPositions] = useState<Position[]>([])
   // const generatePositionData = (
   //   poolAddress: string,
   //   side: number,
@@ -312,10 +314,12 @@ export const Uni3Positions = ({
 
   const {displayUni3Positions, setCurrentUni3Position} =
     useUni3Position()
+ 
+  const [revertRange, setRevertRange] = useState<boolean>(false)
+  const { tradeType, updateCurrentPoolGroup, } = useCurrentPoolGroup()
   useEffect(() => {
     console.log('#uni3', displayUni3Positions)
   }, [displayUni3Positions])
-  const [revertRange, setRevertRange] = useState<boolean>(false)
   return (
     <div className='positions-box'>
       {/* {isBatchTransferModalVisible && (
