@@ -407,9 +407,10 @@ export const HedgeUniV3Plot = (props: any) => {
           <Expression id='Hedge-l-function' latex={'l(x) = \\frac{r(K,x,a_{0},R_{0})}{r(K,X,a_{0},R_{0})} - 1'} color="RED"  hidden/>
           <Expression id='Hedge-s-function' latex={'s(x) = \\frac{r(-K,x,b_{0},R_{0})}{r(-K,X,b_{0},R_{0})} - 1'} hidden color="BLUE" />
           <Expression id='Hedge-Ls-function' latex={'L_{s} = 1.105'} />
-          <Expression id='Hedge-D-function' latex={'D = 0.726'} />
+          <Expression id='Hedge-Ds-function' latex={'D_{s} = 0.726'} />
+          <Expression id='Hedge-D-slider-function' latex={'D = \\frac{D_{s}}{\\left|u_{c}\\left(x_{b}\\right)\\right| - D_{s}}'} />
           <Expression id='Hedge-L-slider-function' latex={'L = 1 - \\frac{L_{s} - x_{a}}{x_{b} - x_{a}}'} />
-          <Expression id='Hedge-544' latex={'(L_{s}, D)'} showLabel label='H' pointOpacity={2} pointSize={20} />
+          <Expression id='Hedge-544' latex={'(L_{s}, D_{s})'} showLabel label='H' pointOpacity={2} pointSize={20} />
           <Expression id='Hedge-H-function' latex={'H(x) = \\frac{D}{V} \\left( l(x) L + s(x) (1 - L) \\right)'} color="#E74C3C" lineStyle='DASHED' hidden lineWidth={1} />
           <Expression id='Hedge-iH-function' latex={'i_{H}(x) = i(x) + H(x)'} color="#E74C3C" />
 
