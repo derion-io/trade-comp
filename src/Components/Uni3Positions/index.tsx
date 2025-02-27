@@ -1,7 +1,7 @@
 import {BigNumber} from 'ethers'
 import React,{useState} from 'react'
 import {useWindowSize} from '../../hooks/useWindowSize'
-import {useUni3Position} from '../../state/uni3Positions/hooks/useUni3Positions'
+import {useFetchUni3Position, useUni3Position} from '../../state/uni3Positions/hooks/useUni3Positions'
 import {bn,zerofy} from '../../utils/helpers'
 import {PositionLoadingComponent} from '../BuyPositionBox/components/PositionLoading'
 import {ButtonSell} from '../ui/Button'
@@ -45,11 +45,11 @@ export const Uni3Positions = ({
   const { displayUni3Positions, setCurrentUni3Position } = useUni3Position()
   // const {poolGroups} = useResource()
   const [revertRange, setRevertRange] = useState<boolean>(false)
-
+  const {uni3Loading} = useFetchUni3Position()
   return (
     <div className='positions-box'>
       {isPhone ? (
-        false ? (
+        uni3Loading ? (
           <PositionLoadingComponent />
         ) : (
           <div className='positions-list'>
@@ -191,7 +191,7 @@ export const Uni3Positions = ({
             })}
           </div>
         )
-      ) : false ? (
+      ) : uni3Loading ? (
         <PositionLoadingComponent />
       ) : (
         <table className='positions-table'>
