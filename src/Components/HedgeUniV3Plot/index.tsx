@@ -71,12 +71,9 @@ export const HedgeUniV3Plot = () => {
     <React.Fragment>
       {uniV3Data?.uni3PosLoading ? "loading..." : 
       <div className="pool--pos-info">
-        <p><strong>Pool:</strong> {uniV3Data.poolAddress} ({uniV3Data.token0Data?.symbol}/{uniV3Data.token1Data?.symbol})</p>
-        <p><strong>Fee:</strong> {uniV3Data.uni3PosData?.fee ? `${Number(uniV3Data.uni3PosData?.fee) / 1e4}%` : 'N/A'}</p>
-        <p><strong>Position ID:</strong> {uniV3Data.uni3PosId}</p>
-        <p><strong>Lower Price:</strong> {zerofy(hedgeData?.pxa || 'N/A')}</p>
-        <p><strong>Current Price:</strong> {zerofy(hedgeData?.px || 'N/A')}</p>
-        <p><strong>Upper Price:</strong> {zerofy(hedgeData?.pxb || 'N/A')}</p>
+        <p><strong>Pool:</strong> {uniV3Data.poolAddress} ({uniV3Data.uni3PosData?.fee ? `${Number(uniV3Data.uni3PosData?.fee) / 1e4}%` : 'N/A'}) ({uniV3Data.token0Data?.symbol}/{uniV3Data.token1Data?.symbol})</p>
+        <p><strong>Position ID:</strong> {uniV3Data.uni3PosAddress}-{uniV3Data.uni3PosId}</p>
+        <p><strong>Lower/Current/Upper Price:</strong> {zerofy(hedgeData?.pxa || 'N/A')} / {zerofy(hedgeData?.px || 'N/A')} / {zerofy(hedgeData?.pxb || 'N/A')}</p>
       </div> }
       <Card className='p-1 plot-chart-box flex flex-col justify-center items-center pb-[80px] pt-[80px] gap-6'>
       <div className="controls">
