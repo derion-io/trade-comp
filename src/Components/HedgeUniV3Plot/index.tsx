@@ -227,48 +227,53 @@ export const HedgeUniV3Plot = (props: any) => {
     //   px: px * 10 ** diffDecimals
     // }
   // }, [currentDisplayUni3Position])
-  const [observeA, setObserveA] = useState<number>(0);
-  const [observeB, setObserveB] = useState<number>(0);
-  const [observeTop, setObserveTop] = useState<number>(0);
+  const [yA, setyA] = useState<number>(0);
+  const [yB, setyB] = useState<number>(0);
+  const [yTop, setYTop] = useState<number>(0);
   
   const hedgeData = useMemo(() => {
-    if(!currentDisplayUni3Position || !mark || !calc.current) return;
+    if(!currentDisplayUni3Position || !mark) return;
     const pxa = NUM(currentDisplayUni3Position?.pxLower / mark)
     const px = NUM(currentDisplayUni3Position?.px / mark)
     const pxb = NUM(currentDisplayUni3Position?.pxUpper / mark)
-
-    const xT = xTop(px, pxb, pxa);
-    const helpers = {
-      top: calc.current.HelperExpression({ latex: `i(${xT})` }),
-      a: calc.current.HelperExpression({ latex: `i(${pxa})` }),
-      b: calc.current.HelperExpression({ latex: `i(${pxb})` }),
-    };
-
-    helpers.a?.observe('numericValue', () => setObserveA(helpers.a.numericValue));
-    helpers.b?.observe('numericValue', () => setObserveB(helpers.b.numericValue));
-    helpers.top?.observe('numericValue', () => setObserveTop(helpers.top.numericValue));
-
     return {
       pxa,
       px,
       pxb,
     }
-  },[calc, currentDisplayUni3Position, mark])
-  
+  },[currentDisplayUni3Position, mark])
+
   useEffect(() => {
-    if (calc?.current && hedgeData && observeA !== 0 && observeB !== 0 && observeTop !== 0) {
-      const { px, pxa, pxb } = hedgeData;
-  
+    if (hedgeData && calc.current) {
+      const { px, pxa, pxb } = hedgeData
+      const xT = xTop(px, pxb, pxa)
+      const helpers = {
+        top: calc.current.HelperExpression({ latex: `i(${xT})` }),
+        a: calc.current.HelperExpression({ latex: `i(${pxa})` }),
+        b: calc.current.HelperExpression({ latex: `i(${pxb})` })
+      }
+
+      helpers.a?.observe('numericValue', () => setyA(helpers.a.numericValue))
+      helpers.b?.observe('numericValue', () => setyB(helpers.b.numericValue))
+      helpers.top?.observe('numericValue', () =>
+        setYTop(helpers.top.numericValue)
+      )
+    }
+  }, [hedgeData, calc])
+  useEffect(() => {
+    if (calc?.current && hedgeData && yA !== 0 && yB !== 0 && yTop !== 0) {
+      const { px, pxa, pxb } = hedgeData
+      console.log('#yy', yA, yB, yTop)
       const bounds = {
         left: Math.min(px, pxa, pxb) * 0.9,
         right: Math.max(px, pxa, pxb) * 1.1,
-        bottom: Math.min(0, observeA, observeB) * 1.1,
-        top: Math.max(0, observeTop, observeA, observeB) * 1.5,
-      };
-  
-      calc.current.setMathBounds(bounds);
+        bottom: Math.min(0, yA, yB) * 1.1,
+        top: Math.max(0, yTop, yA, yB) * 1.5
+      }
+
+      calc.current.setMathBounds(bounds)
     }
-  }, [hedgeData, observeA, observeB, observeTop]);
+  }, [hedgeData, yA, yB, yTop])
 
   const {poolGroups} = useResource()
 
@@ -344,7 +349,7 @@ export const HedgeUniV3Plot = (props: any) => {
           yAxisLabel='Value'
         >
            {/* DERION */}
-          <Expression id='f' latex={FX} hidden />
+          {/* <Expression id='f' latex={FX} hidden />
           <Expression id='g' latex={GX} hidden />
           <Expression id='lR' latex={`(${X * 0.01},${R * 0.97})`} color='RED' hidden showLabel label='Pool Reserve' labelOrientation={Desmos.LabelOrientations.RIGHT} />
           <Expression id='R' latex={`y=${R}\\{${PX}<x\\}`} color='RED' lineWidth={1.5} />
@@ -362,7 +367,7 @@ export const HedgeUniV3Plot = (props: any) => {
           <Expression id='L1' latex={`(${X},f(${P},${X},${a1},${R1}))`} color='PURPLE' hidden={drAChange == null} />
           <Expression id='lC' latex={`(${AD+BD}/2,${Math.min(R, R1)}/2)`} color='BLACK' hidden showLabel label='LP' labelOrientation={Desmos.LabelOrientations.DEFAULT} />
           <Expression id='lB' latex={`(${BD}/2,${Math.max(R, R1)}*3/4)`} color='GREEN' hidden showLabel label='SHORT' labelOrientation={Desmos.LabelOrientations.DEFAULT} />
-          <Expression id='lA' latex={`(${AD}*1.1,${Math.min(R, R1)}/4)`} color='PURPLE' hidden showLabel label='LONG' labelOrientation={Desmos.LabelOrientations.DEFAULT} />
+          <Expression id='lA' latex={`(${AD}*1.1,${Math.min(R, R1)}/4)`} color='PURPLE' hidden showLabel label='LONG' labelOrientation={Desmos.LabelOrientations.DEFAULT} /> */}
 
           <Expression id='derion-a0' latex={`a_{0}=${a}`} />
           <Expression id='derion-b0' latex={`b_{0}=${b}`} />
