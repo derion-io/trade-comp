@@ -681,12 +681,12 @@ export const Uni3Positions = ({
                         {zerofy(1/position.pxUpper)}
                         {'<-->'}
                         {zerofy(1 / position.pxLower)} (<TokenIcon
-                          tokenAddress={position?.token0}
+                          tokenAddress={position?.token1}
                           size={16}
                           iconSize='1.4ex'
                         />{' '}
                         /  <TokenIcon
-                          tokenAddress={position?.token1}
+                          tokenAddress={position?.token0}
                           size={16}
                           iconSize='1.4ex'
                         />)
@@ -694,12 +694,12 @@ export const Uni3Positions = ({
                         {zerofy(position.pxLower)}
                         {'<-->'}
                         {zerofy(position.pxUpper)} (<TokenIcon
-                          tokenAddress={position?.token1}
+                          tokenAddress={position?.token0}
                           size={16}
                           iconSize='1.4ex'
                         />{' '}
                         /  <TokenIcon
-                          tokenAddress={position?.token0}
+                          tokenAddress={position?.token1}
                           size={16}
                           iconSize='1.4ex'
                         />)
