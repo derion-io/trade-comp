@@ -1,7 +1,7 @@
 import {GraphingCalculator} from 'desmos-react'
 import React,{useEffect,useMemo, useState} from 'react'
 import {Card} from '../ui/Card'
-import {useHedgeUniV3} from './hook/useUniV3'
+import {useHedgeUniV3} from '../HedgeUniV3Plot/hook/useUniV3'
 import './style.scss'
 import {zerofy} from '../../utils/helpers'
 

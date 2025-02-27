@@ -10,7 +10,7 @@ import { useHelper } from '../../state/config/useHelper'
 import { POOL_IDS } from '../../utils/constant'
 import { BigNumber } from 'ethers'
 import {useConfigs} from '../../state/config/useConfigs'
-import {useHedgeUniV3} from '../HedgeUniV3Plot-old/hook/useUniV3'
+import {useHedgeUniV3} from './hook/useUniV3'
 import { Slider } from 'antd';
 
 const FX = 'f(P,x,v,R)=\\{2vx^P<R:vx^P,R-R^2/(4vx^P)\\}'
