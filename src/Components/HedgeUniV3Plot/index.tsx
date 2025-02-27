@@ -64,6 +64,8 @@ export const HedgeUniV3Plot = (props: any) => {
     K,
     X,
     mark,
+    MARK,
+    exp,
     R1,
     a1,
     b1,
@@ -142,6 +144,8 @@ export const HedgeUniV3Plot = (props: any) => {
       X,
       // : 0.94,
       mark,
+      MARK,
+      exp,
       R1,
       // : 3,
       a1,
@@ -225,7 +229,19 @@ export const HedgeUniV3Plot = (props: any) => {
     //   px: px * 10 ** diffDecimals
     // }
   // }, [currentDisplayUni3Position])
-  
+  const hedgeData = useMemo(() => {
+    if(!currentDisplayUni3Position || !mark) return;
+    const pxa = NUM(currentDisplayUni3Position?.pxLower / mark)
+    const px = NUM(currentDisplayUni3Position?.px / mark)
+    const pxb = NUM(currentDisplayUni3Position?.pxUpper / mark)
+    return {
+      pxa,
+      px,
+      pxb,
+    }
+    // console.log('#derion => X, a,b, R', X, a,b,R)
+    // console.log('#hedge => px_a, px, px_b', currentDisplayUni3Position?.pxLower, currentDisplayUni3Position?.px, currentDisplayUni3Position?.pxUpper)
+  },[currentDisplayUni3Position, mark])
   return (
     <React.Fragment>
       <Card className='p-1 plot-chart-box flex flex-col justify-center items-center pb-[80px] pt-[80px] gap-6'>
@@ -304,15 +320,15 @@ export const HedgeUniV3Plot = (props: any) => {
           <Expression id='derion-a0' latex={`a_{0}=${a}`} />
           <Expression id='derion-b0' latex={`b_{0}=${b}`} />
           <Expression id='derion-r0' latex={`R_{0}=${R}`} />
-          <Expression id='derion-r' latex={`X=${X}`} />
+          <Expression id='derion-r' latex={`X=${hedgeData?.px}`} />
           <Expression id='derion-K' latex={`K=${K}`} />
           <Expression id='common-r' latex={'r(k, x, v, R) = \\left\\{ v x^{k} \\le \\frac{R}{2} : v x^{k}, R - \\frac{R^{2}}{4 v x^{k}} \\right\\} \\{ 0 \\le x \\}'} />
           <Expression id='common-vr' latex={'v_{r}(k, x, r_{v}, R) = \\left\\{ \\frac{r_{v}}{x^{k}}, \\frac{R^{2}}{4(R - r_{v})x^{k}} \\right\\} \\quad \\text{for} \\quad r_{v} \\leq \\frac{R}{2}'} hidden />
           <Expression id='common-f(x)' latex={'f(x) = \\left\\{ a_{0}x^{K} \\leq \\frac{R_{0}}{2} : a_{0}x^{K}, R_{0} - \\frac{R_{0}^{2}}{4a_{0}x^{K}} \\right\\} \\quad \\left\\{ 0 < x \\right\\}'} hidden />
 
           {/* <Expression id='hedge-ix' latex={'i(x) = \\frac{2\\sqrt{x}}{1+x} - 1'} color={'GREEN'} lineStyle={'DASHED'} hidden={true} /> */}
-          <Expression id='Hedge-xa' latex={`x_{a}=${currentDisplayUni3Position?.pxLowerPerc}`} />
-          <Expression id='Hedge-xb' latex={`x_{b}=${currentDisplayUni3Position?.pxUpperPerc}`} />
+          <Expression id='Hedge-xa' latex={`x_{a}=${hedgeData?.pxa}`} />
+          <Expression id='Hedge-xb' latex={`x_{b}=${hedgeData?.pxb}`} />
           {/* <Expression id='IL-Vi' latex='V_{i}=-0.753' /> */}
           {/* <Expression id='IL-V' latex='V=-V_{i}R_{0}' /> */}
           <Expression id='IL-V' latex={`V=${currentDisplayUni3Position?.totalPositionByUSD}`} />
