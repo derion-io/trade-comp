@@ -229,10 +229,14 @@ export const HedgeUniV3Plot = (props: any) => {
           sliderBounds={{
             min:'2x_{a}-x_{b}',
             max:'2x_{b}-x_{a}',
-            step: 1e-6,
+            step: 1e-8,
           }} 
           latex={`L_{s}=${plotState?.xT}`} />
-          <Expression id='Hedge-Ds-function' latex={`D_{s} = ${plotState?.D0}`} />
+          <Expression id='Hedge-Ds-function' latex={`D_{s} = ${plotState?.D0}`}  sliderBounds={{
+            min:'0',
+            max:'',
+            step: 1e-8,
+          }}  />
           <Expression id='Hedge-544' latex={'(L_{s}, D_{s})'} showLabel color="RED" label='H' pointOpacity={2} pointSize={20} />
           <Expression id='Hedge-H-function' latex={'H\\left(x\\right)=D\\left(l\\left(x\\right)L+s\\left(x\\right)\\left(1-L\\right)\\right)'} color="RED" lineStyle='DASHED' hidden lineWidth={1} />
           <Expression id='Hedge-iH-function' latex={'i_{H}(x) = i(x) + H(x)'} color="RED" />
