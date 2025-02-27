@@ -161,16 +161,21 @@ export const HedgeUniV3Plot = (props: any) => {
     }
   }, [cp])
 
+  const uc = (x) => {
+    k = V/2/sqrt(X)
+    return k*(2*sqrt(x)-x/sqrt(xb)-sqrt(xa))
+  }
+
   React.useEffect(() => {
     if (calc && calc.current) {
-      const TM = Math.max(R, R1)
-      const RM = Math.max(AD, X)
-      // calc.current.setMathBounds({
-      //   bottom: -0.05 * TM,
-      //   top: 1.05 * TM,
-      //   left: -0.03 * RM,
-      //   right: 1.2 * RM,
-      // })
+      const V = Math.max([0, uc(A), uc(B)]) - Math.min([0, uc(A), uc(B)])
+      const H = Math.max([A, B, X]) - Math.min([A, B, X])
+      calc.current.setMathBounds({
+        bottom: -0.1 * TM,
+        top: 1.5 * TM,
+        left: -0.1 * H,
+        right: 1.1 * H,
+      })
     }
   }, [calc, R, R1, X, AD])
 
