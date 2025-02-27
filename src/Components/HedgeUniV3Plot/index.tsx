@@ -271,28 +271,44 @@ export const HedgeUniV3Plot = (props: any) => {
         top: Math.max(0, yTop, yA, yB) * 1.5
       }
 
-      calc.current.setMathBounds(bounds)
+      
+      // calc.current.setMathBounds(bounds)
     }
   }, [hedgeData, yA, yB, yTop])
 
   const {poolGroups} = useResource()
 
-  const isHasDerionIndex = useMemo(() => {
-    let _isHasDerionIndex = false
-    if(currentDisplayUni3Position) {
-      Object.keys(poolGroups).map(indexKey => {
-        const {baseToken, quoteToken} = poolGroups[indexKey]
-        const baseTokenSymbol = tokens[baseToken]?.symbol || tokens[baseToken]?.name
-        const quoteTokenSymbol = tokens[quoteToken]?.symbol || tokens[quoteToken]?.name
-        const {token0, token1, token0Data, token1Data} = currentDisplayUni3Position
-        const posTokens = [token0, token1, token0Data.symbol, token1Data.symbol]
-        if(posTokens.includes(baseToken) && posTokens.includes(quoteToken) || posTokens.includes(baseTokenSymbol) && posTokens.includes(quoteTokenSymbol)){
-          _isHasDerionIndex =  true
-        }
-      })
+  const { isHasDerionIndex, isLoadingCurrentPoolState } = useMemo(() => {
+    let _isHasDerionIndex = false;
+    let _isLoadingCurrentPoolState = false;
+  
+    if (currentDisplayUni3Position) {
+      const { token0, token1, token0Data, token1Data } = currentDisplayUni3Position;
+      const posTokens = [token0, token1, token0Data.symbol, token1Data.symbol];
+  
+      const { baseToken, quoteToken } = currentPool;
+      const baseTokenSymbol = tokens[baseToken]?.symbol || tokens[baseToken]?.name;
+      const quoteTokenSymbol = tokens[quoteToken]?.symbol || tokens[quoteToken]?.name;
+  
+      _isHasDerionIndex = Object.values(poolGroups).some(({ baseToken, quoteToken }) => {
+        const baseSymbol = tokens[baseToken]?.symbol || tokens[baseToken]?.name;
+        const quoteSymbol = tokens[quoteToken]?.symbol || tokens[quoteToken]?.name;
+        return (
+          (posTokens.includes(baseToken) && posTokens.includes(quoteToken)) ||
+          (posTokens.includes(baseSymbol) && posTokens.includes(quoteSymbol))
+        );
+      });
+  
+      if (_isHasDerionIndex) {
+        _isLoadingCurrentPoolState =
+          !(posTokens.includes(baseToken) && posTokens.includes(quoteToken)) &&
+          !(posTokens.includes(baseTokenSymbol) && posTokens.includes(quoteTokenSymbol));
+      }
     }
-    return _isHasDerionIndex
-  }, [currentDisplayUni3Position, poolGroups, tokens])
+  
+    return { isHasDerionIndex: _isHasDerionIndex, isLoadingCurrentPoolState: _isLoadingCurrentPoolState };
+  }, [currentDisplayUni3Position, poolGroups, currentPool, tokens]);
+  
   return (
     <React.Fragment>
       <Card className='p-1 plot-chart-box flex flex-col justify-center items-center pb-[80px] pt-[80px] gap-6'>
@@ -326,7 +342,8 @@ export const HedgeUniV3Plot = (props: any) => {
               />
           </label> */}
         {/* </div> */}
-        {isHasDerionIndex ? 
+        {isLoadingCurrentPoolState ? '' : 
+        isHasDerionIndex ? 
         <GraphingCalculator
           attributes={{ className: 'calculator' }}
           fontSize={14}
@@ -411,7 +428,8 @@ export const HedgeUniV3Plot = (props: any) => {
           <Expression id='IL-vx-function' latex={'v_{0}(x)=\\frac{V}{2}(\\frac{x}{X}+1) \\{x>0\\}'} lineStyle='DASHED' color="#6042a6" lineWidth='1' hidden />
           <Expression id='IL-ix-function' latex={'i\\left(x\\right)=u\\left(x\\right)-v_{0}\\left(x\\right)'} color={'#34495E'} lineStyle='DASHED' />
 
-        </GraphingCalculator> : ((!currentDisplayUni3Position?.token0Data.symbol || !currentDisplayUni3Position?.token1Data.symbol) ? '' : ` No Derion Pool for ${currentDisplayUni3Position?.token0Data.symbol}/${currentDisplayUni3Position?.token1Data.symbol}` )}
+        </GraphingCalculator> :
+         ((!currentDisplayUni3Position?.token0Data.symbol || !currentDisplayUni3Position?.token1Data.symbol) ? '' : ` No Derion Pool for ${currentDisplayUni3Position?.token0Data.symbol}/${currentDisplayUni3Position?.token1Data.symbol}` )}
       </Card>
     </React.Fragment>
   )
