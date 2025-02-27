@@ -18,6 +18,7 @@ import {TokenIcon} from '../ui/TokenIcon'
 import './style.scss'
 import {useCurrentPool} from '../../state/currentPool/hooks/useCurrentPool'
 import {useCurrentPoolGroup} from '../../state/currentPool/hooks/useCurrentPoolGroup'
+import {useResource} from '../../state/resources/hooks/useResource'
 
 const mdp = require('move-decimal-point')
 
@@ -312,14 +313,29 @@ export const Uni3Positions = ({
   //   return account && isLoadingIndex
   // }, [account, isLoadingIndex, displayPositions])
 
-  const {displayUni3Positions, setCurrentUni3Position} =
+  const {displayUni3Positions, currentDisplayUni3Position, setCurrentUni3Position} =
     useUni3Position()
- 
+  const {poolGroups} = useResource()
   const [revertRange, setRevertRange] = useState<boolean>(false)
   const { tradeType, updateCurrentPoolGroup, } = useCurrentPoolGroup()
   useEffect(() => {
-    console.log('#uni3', displayUni3Positions)
-  }, [displayUni3Positions])
+    if(currentDisplayUni3Position) {
+      Object.keys(poolGroups).map(indexKey => {
+        const {baseToken, quoteToken} = poolGroups[indexKey]
+        const {token0, token1} = currentDisplayUni3Position
+        const posTokens = [token0, token1]
+        const includeBaseToken = posTokens.includes(baseToken)
+        const includeQuoteToken = posTokens.includes(quoteToken)
+        if(includeBaseToken && includeQuoteToken){
+          updateCurrentPoolGroup(indexKey)
+        } else if (includeBaseToken && !includeQuoteToken) {
+          updateCurrentPoolGroup(indexKey)
+        } else if (!includeBaseToken && includeQuoteToken) {
+          updateCurrentPoolGroup(indexKey)
+        }
+      })
+    }
+  }, [currentDisplayUni3Position, poolGroups])
   return (
     <div className='positions-box'>
       {/* {isBatchTransferModalVisible && (
