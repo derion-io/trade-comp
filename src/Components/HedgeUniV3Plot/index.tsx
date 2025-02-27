@@ -315,7 +315,7 @@ export const HedgeUniV3Plot = (props: any) => {
           <Expression id='Hedge-xb' latex={`x_{b}=${currentDisplayUni3Position?.pxUpperPerc}`} />
           {/* <Expression id='IL-Vi' latex='V_{i}=-0.753' /> */}
           {/* <Expression id='IL-V' latex='V=-V_{i}R_{0}' /> */}
-          <Expression id='IL-V' latex={`V=${currentDisplayUni3Position?.totalPositionByQuoteToken}`} />
+          <Expression id='IL-V' latex={`V=${currentDisplayUni3Position?.totalPositionByUSD}`} />
 
           <Expression id='Hedge-l-function' latex={'l(x) = \\frac{r(K,x,a_{0},R_{0})}{r(K,X,a_{0},R_{0})} - 1'} color="RED"  hidden/>
           <Expression id='Hedge-s-function' latex={'s(x) = \\frac{r(-K,x,b_{0},R_{0})}{r(-K,X,b_{0},R_{0})} - 1'} hidden color="BLUE" />
