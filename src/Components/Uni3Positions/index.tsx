@@ -358,25 +358,6 @@ export const Uni3Positions = ({
 
   const {currentUni3Position, uni3Positions} = useUni3Position()
 
-  const displayUni3Positions = useMemo(() => {
-    if(!currentUni3Position) return;
-    const { tickLower, tickUpper,token0, token1, liquidity, fee, feeGrowthInside1LastX128, feeGrowthInside0LastX128 } = currentUni3Position
- 
-    const token0Data = tokens[token0]
-    const token1Data = tokens[token1]
-    const diffDecimals = Math.abs(token0Data.decimals - token1Data.decimals)
-    const pxa = calculatePx(tickLower) * 10 ** diffDecimals
-    const pxb = calculatePx(tickUpper) * 10 ** diffDecimals
-    // const r0 = 
-    // let xa = pxa / px
-    // let xb = pxb / px
-    return {
-      pxa,
-      pxb,
-      token0: tokens[token0],
-      token1: tokens[token1]
-    }
-  },[uni3Positions, tokens, prices])
   return (
     <div className='positions-box'>
       {isBatchTransferModalVisible &&
@@ -386,7 +367,7 @@ export const Uni3Positions = ({
           selections={selections}
         />
       }
-      {JSON.stringify(displayUni3Positions)}
+      {/* {JSON.stringify(displayUni3Positions)} */}
       {isPhone ? (
         isFetchingPosition ? <PositionLoadingComponent/> :
         <div className='positions-list'>

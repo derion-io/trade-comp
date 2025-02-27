@@ -18,6 +18,7 @@ import './style.scss'
 import { detectTradeTab } from '../../utils/helpers'
 import { resetMapAccount } from '../../state/wallet/reducer'
 import { PagePoolInvalidIndicator } from '../PagePoolInvalidIndicator'
+import {useFetchUni3Position} from '../../state/uni3Positions/hooks/useUni3Positions'
 export const App = () => {
   const { id } = useCurrentPoolGroup()
   const { tokens } = useListTokens()
@@ -28,7 +29,8 @@ export const App = () => {
   const { ddlEngine, chainId, location, configs } = useConfigs()
   const chainIdRef = useRef(null)
   const { initResource } = useResource()
-
+  
+  useFetchUni3Position()
   useFetchFeeData()
   useFetchTokenPrice()
   useSwapHistoryFormated()
