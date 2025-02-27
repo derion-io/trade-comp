@@ -20,7 +20,7 @@ import { fetch24hChange } from '../../utils/fetch24hChange'
 import { bn, decodeErc1155Address, isErc1155Address } from '../../utils/helpers'
 import './style.scss'
 import { PoolSearch } from '../../utils/type'
-import {Uni3Positions} from '../../Components/Uni3Positions'
+import { Uni3Positions } from '../../Components/Uni3Positions'
 
 const TAB_2 = {
   POSITION: Symbol('position'),
@@ -148,9 +148,9 @@ export const Trade = ({
     const url = location.href
     const urlSearchParams = new URL(`https://1.com?${url.split('?')[1]}`)
       .searchParams
-      if(urlSearchParams.get('hedge')){
-        setShowBetaUni(true)
-      }
+    if (urlSearchParams.get('hedge')) {
+      setShowBetaUni(true)
+    }
   })
   return (
     <div className={`exposure-page ${loadingData && 'blur-3'}`}>
@@ -192,7 +192,7 @@ export const Trade = ({
                   }
                   tokenOutMaturity={tokenOutMaturity}
                   isLoadingIndex={isLoadingIndex}
-                /> 
+                />
               </ErrorBoundary>
             </Card>
           </TabPanel> : ''}

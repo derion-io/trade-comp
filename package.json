@@ -45,7 +45,7 @@
     "antd": "^5.8.4",
     "assisted-json-rpc-provider": "git+ssh://git@github.com:derion-io/AssistedJsonRpcProvider.git#dev",
     "caniuse-lite": "^1.0.30001434",
-    "derivable-engine": "git+ssh://git@github.com:derion-io/engine.git#unipos-v3",
+    "derivable-engine": "git+ssh://git@github.com:derion-io/engine.git#hedge",
     "desmos-react": "^1.2.0",
     "ethereum-multicall": "^2.15.0",
     "ethers": "^5.4.6",
