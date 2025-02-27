@@ -136,9 +136,9 @@ export const HedgeUniV3Plot = (props: any) => {
 
   const {uni3Loading} = useFetchUni3Position()
 
-  const {poolGroups} = useResource()
+  const {poolGroups,} = useResource()
   const {findMatchingPoolIndex} = useFindMatchingPoolIndex()
-  const { updateCurrentPoolGroup } = useCurrentPoolGroup()
+  const { updateCurrentPoolGroup, id} = useCurrentPoolGroup()
 
   useEffect(() => {
     const matchingIndexKey = findMatchingPoolIndex();
@@ -146,7 +146,18 @@ export const HedgeUniV3Plot = (props: any) => {
       console.log('#matchingIndexKey', matchingIndexKey)
       updateCurrentPoolGroup(matchingIndexKey);
     }
-  }, [findMatchingPoolIndex]);
+  }, [findMatchingPoolIndex])
+
+  const { isHasDerionIndex, isUpdatingCurrentIndex } = useMemo(() => {
+    const isHasDerionIndex = findMatchingPoolIndex() === null ? false : true;
+    const isCurrentIndexMatch = findMatchingPoolIndex(id) === null ? false : true
+    // let _isUpdatingCurrentIndex = false
+    // if(isHasDerionIndex && !isCurrentIndexMatch) {
+    //   _isUpdatingCurrentIndex = true
+    // }
+    return { isHasDerionIndex: isHasDerionIndex, isUpdatingCurrentIndex: isHasDerionIndex && !isCurrentIndexMatch ? true : false};
+  }, [findMatchingPoolIndex, id]);
+
   const isUni3Loading = useMemo(() => {
     if( Object.keys(displayUni3Positions).length > 0) return false
     return uni3Loading
@@ -155,8 +166,8 @@ export const HedgeUniV3Plot = (props: any) => {
   return (
     <React.Fragment>
       <Card className='p-1 plot-chart-box flex flex-col justify-center items-center pb-[80px] pt-[80px] gap-6'>
-      {isUni3Loading ? 'loading...' : 
-        <GraphingCalculator
+      {isUni3Loading || isUpdatingCurrentIndex ? 'loading...' : 
+        isHasDerionIndex ? <GraphingCalculator
           attributes={{ className: 'calculator' }}
           fontSize={14}
           keypad
@@ -218,7 +229,7 @@ export const HedgeUniV3Plot = (props: any) => {
           <Expression id='IL-vx-function' latex={'v_{0}(x)=\\frac{V}{2}(\\frac{x}{X}+1) \\{x>0\\}'} lineStyle='DASHED' color="#6042a6" lineWidth='1' hidden />
           <Expression id='IL-ix-function' latex={'i\\left(x\\right)=u\\left(x\\right)-v_{0}\\left(x\\right)'} color={'BLUE'} lineStyle='DASHED' />
 
-        </GraphingCalculator>}
+        </GraphingCalculator> : `No Derion Pool for ${currentDisplayUni3Position?.token0Data.symbol}/${currentDisplayUni3Position?.token1Data.symbol}`}
       </Card>
     </React.Fragment>
   )

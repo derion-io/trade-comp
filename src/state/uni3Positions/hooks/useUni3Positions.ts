@@ -1,5 +1,5 @@
 import {IUniPoolV3,IUniPosV3} from 'derivable-engine/dist/services/balanceAndAllowance'
-import {TokenType} from 'derivable-engine/dist/types'
+import {PoolType, TokenType} from 'derivable-engine/dist/types'
 import {useCallback, useEffect,useMemo,useState} from 'react'
 import {useDispatch,useSelector} from 'react-redux'
 import {useTokenValue} from '../../../Components/SwapBox/hooks/useTokenValue'
@@ -169,7 +169,7 @@ export const useFindMatchingPoolIndex = () => {
   const {poolGroups} = useResource()
   const getTokenIdentifier = useCallback((token: string) => tokens[token]?.symbol || tokens[token]?.name, [tokens]);
 
-  const findMatchingPoolIndex = useCallback(() => {
+  const findMatchingPoolIndex = useCallback((indexKeyOverride?: any) => {
     if (!currentDisplayUni3Position) return null;
 
     const { token0, token1, token0Data, token1Data, px} = currentDisplayUni3Position;
@@ -189,8 +189,8 @@ export const useFindMatchingPoolIndex = () => {
       ...sameStableCoin.map((sbToken) => sbToken.address),
       ...sameStableCoin.map((sbToken) => sbToken.symbol),
     ]);
-    for (const indexKey of Object.keys(poolGroups)) {
-      const { baseToken, quoteToken, basePrice} = poolGroups[indexKey];
+    const checkMatchPool = ({indexKey, indexOverride}:{indexKey:string, indexOverride?: any}): string | null  => {
+      const { baseToken, quoteToken, basePrice} = indexOverride || poolGroups[indexKey];
       const baseTokenSymbol = getTokenIdentifier(baseToken);
       const quoteTokenSymbol = getTokenIdentifier(quoteToken);
 
@@ -209,8 +209,18 @@ export const useFindMatchingPoolIndex = () => {
       if(px * (1 - APPROXIMATELY_PX_PERCENT / 100) <= Number(basePrice) && Number(basePrice) <= px * (1 + APPROXIMATELY_PX_PERCENT / 100)) {
         return indexKey;
       }
+      return null
+    }
+    // Check manual single index
+    if(indexKeyOverride) {
+      return checkMatchPool({indexKey: indexKeyOverride, indexOverride: poolGroups[indexKeyOverride]})
     }
 
+    for (const indexKey of Object.keys(poolGroups)) {
+      const matchIndexKey = checkMatchPool({indexKey})
+      if(matchIndexKey) return matchIndexKey
+    }
+   
     return null;
   }, [currentDisplayUni3Position, poolGroups, configs.stablecoins, tokens]);
   return {
