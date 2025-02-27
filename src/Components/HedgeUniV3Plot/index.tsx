@@ -327,9 +327,9 @@ export const HedgeUniV3Plot = (props: any) => {
           <Expression id='Hedge-iH-function' latex={'i_{H}(x) = i(x) + H(x)'} color="#E74C3C" />
 
           {/* <Expression id='IL-V-function' latex={'\\left(\\sqrt{x_{a}x_{b}},V_{i}\\right)'} color={'RED'} showLabel={true} label='V' /> */}
-          <Expression id='IL-A-function' latex={'\\left(x_{a},i\\left(x_{a}\\right)\\right)'} color={'#34495E'} showLabel={true} label='A' />
-          <Expression id='IL-B-function' latex={'\\left(x_{b},i\\left(x_{b}\\right)\\right)'} color={'#34495E'} showLabel={true} label='B' />
-          <Expression id='IL-X-function' latex={'\\left(X,i\\left(X\\right)\\right)'} color={'#34495E'} showLabel={true} label='X' />
+          {/* <Expression id='IL-A-function' latex={'\\left(x_{a},i\\left(x_{a}\\right)\\right)'} color={'#34495E'} showLabel={true} label='A' />
+          <Expression id='IL-B-function' latex={'\\left(x_{b},i\\left(x_{b}\\right)\\right)'} color={'#34495E'} showLabel={true} label='B' /> */}
+          {/* <Expression id='IL-X-function' latex={'\\left(X,i\\left(X\\right)\\right)'} color={'#34495E'} showLabel={true} label='X' /> */}
           <Expression id='IL-iHxa-function' latex={'\\left(x_{a},i_{H}\\left(x_{a}\\right)\\right)'} />
           <Expression id='IL-iHxb-function' latex={'\\left(x_{b},i_{H}\\left(x_{b}\\right)\\right)'} />
           <Expression id='IL-iH-line-function' latex={'i_{H}\\left(x_{a}\\right)-s_{iH}x_{a}+s_{iH}x \\{x_{a}<x<x_{b}\\}'} color={'#34495E'} lineStyle='DASHED'/>
