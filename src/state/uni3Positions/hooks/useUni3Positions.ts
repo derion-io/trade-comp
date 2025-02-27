@@ -163,16 +163,18 @@ export const useFetchUni3Position = () => {
     if(currentDisplayUni3Position) {
       Object.keys(poolGroups).map(indexKey => {
         const {baseToken, quoteToken} = poolGroups[indexKey]
-        const {token0, token1} = currentDisplayUni3Position
-        const posTokens = [token0, token1]
-        const includeBaseToken = posTokens.includes(baseToken)
-        const includeQuoteToken = posTokens.includes(quoteToken)
-        if(includeBaseToken && includeQuoteToken){
+        const baseTokenSymbol = tokens[baseToken]?.symbol || tokens[baseToken]?.name
+        const quoteTokenSymbol = tokens[quoteToken]?.symbol || tokens[quoteToken]?.name
+        const {token0, token1, token0Data, token1Data} = currentDisplayUni3Position
+        const posTokens = [token0, token1, token0Data.symbol, token1Data.symbol]
+        if(posTokens.includes(baseToken) && posTokens.includes(quoteToken)){
+          updateCurrentPoolGroup(indexKey)
+        } else if (posTokens.includes(baseTokenSymbol) && posTokens.includes(quoteTokenSymbol)) {
           updateCurrentPoolGroup(indexKey)
         } 
       })
     }
-  }, [currentDisplayUni3Position, poolGroups])
+  }, [currentDisplayUni3Position, poolGroups, tokens])
   useEffect(() => {
     if(Object.keys(tokens).length > 0) fetchUni3Pos()
   }, [ddlEngine, chainId, tokens, configs.name])

@@ -250,17 +250,17 @@ export const HedgeUniV3Plot = (props: any) => {
     if(currentDisplayUni3Position) {
       Object.keys(poolGroups).map(indexKey => {
         const {baseToken, quoteToken} = poolGroups[indexKey]
-        const {token0, token1} = currentDisplayUni3Position
-        const posTokens = [token0, token1]
-        const includeBaseToken = posTokens.includes(baseToken)
-        const includeQuoteToken = posTokens.includes(quoteToken)
-        if(includeBaseToken && includeQuoteToken){
+        const baseTokenSymbol = tokens[baseToken]?.symbol || tokens[baseToken]?.name
+        const quoteTokenSymbol = tokens[quoteToken]?.symbol || tokens[quoteToken]?.name
+        const {token0, token1, token0Data, token1Data} = currentDisplayUni3Position
+        const posTokens = [token0, token1, token0Data.symbol, token1Data.symbol]
+        if(posTokens.includes(baseToken) && posTokens.includes(quoteToken) || posTokens.includes(baseTokenSymbol) && posTokens.includes(quoteTokenSymbol)){
           _isHasDerionIndex =  true
-        } 
+        }
       })
     }
     return _isHasDerionIndex
-  }, [currentDisplayUni3Position, poolGroups])
+  }, [currentDisplayUni3Position, poolGroups, tokens])
   return (
     <React.Fragment>
       <Card className='p-1 plot-chart-box flex flex-col justify-center items-center pb-[80px] pt-[80px] gap-6'>
