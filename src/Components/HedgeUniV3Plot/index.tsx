@@ -3,7 +3,7 @@ import { Expression, GraphingCalculator } from 'desmos-react'
 import './style.scss'
 import { Card } from '../ui/Card'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
-import { formatFloat, zerofy, isUSD, WEI, IEW, calcPoolSide, div, NUM } from '../../utils/helpers'
+import { formatFloat, zerofy, isUSD, WEI, IEW, calcPoolSide, div, NUM, calculatePx } from '../../utils/helpers'
 import { CandleChartLoader } from '../ChartLoaders'
 import { useListTokens } from '../../state/token/hook'
 import { useHelper } from '../../state/config/useHelper'
@@ -11,13 +11,11 @@ import { POOL_IDS } from '../../utils/constant'
 import { BigNumber } from 'ethers'
 import {useConfigs} from '../../state/config/useConfigs'
 import { Slider } from 'antd';
-import {useCurrentUni3Position} from '../../state/uni3Positions/hooks/useUni3Positions'
+import {useUni3Position} from '../../state/uni3Positions/hooks/useUni3Positions'
 
 const FX = 'f(P,x,v,R)=\\{2vx^P<R:vx^P,R-R^2/(4vx^P)\\}'
 const GX = 'g(P,x,v,R)=\\{2vx^{-P}<R:R-vx^{-P},R^2/(4vx^{-P})\\}'
-const calculatePx = (tick: number) => {
-  return Math.pow(1.0001, tick);
-}
+
 function _r(xk: number, v: number, R: number): number {
   const r = v * xk
   if (r <= R / 2) {
@@ -51,7 +49,7 @@ function pX(x: number, mark: number): string {
 export const HedgeUniV3Plot = (props: any) => {
   const { tokens } = useListTokens()
   const cp = useCurrentPool()
-  const {currentUni3Position, uni3Positions} = useCurrentUni3Position()
+  const {currentUni3Position, uni3Positions} = useUni3Position()
   const { currentPool } = cp
   const { wrapToNativeAddress } = useHelper()
   const calc = React.useRef() as React.MutableRefObject<Desmos.Calculator>

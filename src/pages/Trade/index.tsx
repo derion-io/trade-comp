@@ -20,6 +20,7 @@ import { fetch24hChange } from '../../utils/fetch24hChange'
 import { bn, decodeErc1155Address, isErc1155Address } from '../../utils/helpers'
 import './style.scss'
 import { PoolSearch } from '../../utils/type'
+import {Uni3Positions} from '../../Components/Uni3Positions'
 
 const TAB_2 = {
   POSITION: Symbol('position'),
@@ -168,6 +169,7 @@ export const Trade = ({
                   ? 'LPs'
                   : 'Positions'}
             </Tab>
+            <Tab>Uni3 Positions</Tab>
             <Tab>History</Tab>
           </TabList>
           <TabPanel>
@@ -175,6 +177,22 @@ export const Trade = ({
               {/* @ts-ignore */}
               <ErrorBoundary>
                 <Positions
+                  setOutputTokenAddressToBuy={
+                    tab === TRADE_TYPE.SWAP
+                      ? setInputTokenAddress
+                      : setOutputTokenAddress
+                  }
+                  tokenOutMaturity={tokenOutMaturity}
+                  isLoadingIndex={isLoadingIndex}
+                />
+              </ErrorBoundary>
+            </Card>
+          </TabPanel>
+          <TabPanel>
+            <Card className='card-in-tab'>
+              {/* @ts-ignore */}
+              <ErrorBoundary>
+                <Uni3Positions
                   setOutputTokenAddressToBuy={
                     tab === TRADE_TYPE.SWAP
                       ? setInputTokenAddress

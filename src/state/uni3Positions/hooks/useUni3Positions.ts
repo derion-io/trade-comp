@@ -7,7 +7,7 @@ import {useResource} from '../../resources/hooks/useResource'
 import {useListTokens} from '../../token/hook'
 import {State} from '../../types'
 import {setAllUni3Pos,setCurrentUni3Pos,setUni3Pos} from '../reducer'
-export const useCurrentUni3Position = () => {
+export const useUni3Position = () => {
   const { pools } = useResource()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string>('')

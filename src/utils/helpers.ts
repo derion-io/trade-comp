@@ -737,3 +737,7 @@ export const formatMaturity = (duration: number | BigNumber, removeSingularPatic
   }
   return s
 }
+
+export const calculatePx = (tick: number) => {
+  return Math.pow(1.0001, tick);
+}
