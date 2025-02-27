@@ -1,17 +1,16 @@
-import {IUniPoolV3, IUniPosV3} from 'derivable-engine/dist/services/balanceAndAllowance'
+import {IUniPoolV3,IUniPosV3} from 'derivable-engine/dist/services/balanceAndAllowance'
+import {TokenType} from 'derivable-engine/dist/types'
 import {useEffect,useMemo,useState} from 'react'
 import {useDispatch,useSelector} from 'react-redux'
+import {useTokenValue} from '../../../Components/SwapBox/hooks/useTokenValue'
+import {calculatePx} from '../../../utils/helpers'
 import {useConfigs} from '../../config/useConfigs'
+import {useCurrentPoolGroup} from '../../currentPool/hooks/useCurrentPoolGroup'
 import {useWeb3React} from '../../customWeb3React/hook'
 import {useResource} from '../../resources/hooks/useResource'
 import {useListTokens} from '../../token/hook'
 import {State} from '../../types'
 import {setAllUni3Pos,setCurrentUni3Pos,setUni3Pos} from '../reducer'
-import {useTokenPrice} from '../../resources/hooks/useTokenPrice'
-import {calculatePx} from '../../../utils/helpers'
-import {TokenType} from 'derivable-engine/dist/types'
-import {useTokenValue} from '../../../Components/SwapBox/hooks/useTokenValue'
-import {useCurrentPoolGroup} from '../../currentPool/hooks/useCurrentPoolGroup'
 export interface IDisplayUniPosV3 {
   tickLower: number,
   pxLower: number,
@@ -40,12 +39,8 @@ export interface IDisplayUniPosV3 {
 export const useUni3Position = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string>('')
-  const prices = useTokenPrice()
-  const { configs, ddlEngine } = useConfigs()
-  const { provider, chainId,account } = useWeb3React()
   const { tokens } = useListTokens()
   const { getTokenValue } = useTokenValue({})
-  const {updateCurrentPoolGroup} = useCurrentPoolGroup()
   const {poolGroups} = useResource()
   const { currentUni3Position, uni3Positions } = useSelector((state: State) => {
     return {
@@ -56,13 +51,6 @@ export const useUni3Position = () => {
   const dispatch = useDispatch()
 
   const setCurrentUni3Position = (posKey: string) => {
-    if(uni3Positions[posKey]){
-      const {token0, token1} = uni3Positions[posKey] 
-      Object.keys(poolGroups).map((indexKey) => {
-        const index = poolGroups[indexKey]
-        console.log('#index', index)
-      })
-    }
     dispatch(setCurrentUni3Pos({ uni3Pos: posKey }))
   }
 
@@ -76,9 +64,9 @@ export const useUni3Position = () => {
   const displayUni3Positions = useMemo(() => {
     const displayUni3Poss: {[key:string]: IDisplayUniPosV3} = {}
     Object.keys(uni3Positions).map(uni3PosKey => {
-      if(!uni3PosKey || !uni3Positions?.[uni3PosKey]) return;
+      if(!uni3PosKey || !uni3Positions?.[uni3PosKey] || Number(uni3Positions[uni3PosKey]?.liquidity) === 0) return;
       const { tickLower, tickUpper,token0, token1, token0Data, token1Data, poolState, liquidity, fee, feeGrowthInside1LastX128, feeGrowthInside0LastX128 } = uni3Positions?.[uni3PosKey]
-      const {slot0, poolLiquidity} = poolState as IUniPoolV3
+      const {slot0} = poolState as IUniPoolV3
       const tokenA = token0Data || tokens[token0]
       const tokenB = token1Data || tokens[token1]
       if(!tokenA || !tokenB|| !slot0) return;
