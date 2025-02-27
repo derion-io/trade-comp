@@ -3675,6 +3675,16 @@ assign-symbols@^1.0.0:
     lodash "^4.17.21"
     node-fetch "2"
 
+"assisted-json-rpc-provider@https://github.com/derion-io/AssistedJsonRpcProvider.git":
+  version "1.0.0"
+  uid d5fa3e9cda40f39e526d44c93f301f8b7273812d
+  resolved "https://github.com/derion-io/AssistedJsonRpcProvider.git#d5fa3e9cda40f39e526d44c93f301f8b7273812d"
+  dependencies:
+    async-task-throttle-on-response "^1.0.1"
+    ethers "^5.5.3"
+    lodash "^4.17.21"
+    node-fetch "2"
+
 ast-types-flow@0.0.7, ast-types-flow@^0.0.7:
   version "0.0.7"
   resolved "https://registry.yarnpkg.com/ast-types-flow/-/ast-types-flow-0.0.7.tgz#f70b735c6bca1a5c9c22d982c3e39e7feba3bdad"
@@ -5508,7 +5518,7 @@ depd@~1.1.2:
   resolved "https://registry.yarnpkg.com/depd/-/depd-1.1.2.tgz#9bcd52e14c097763e749b274c4346ed2e560b5a9"
   integrity sha512-7emPTl6Dpo6JRXOXjLRxck+FlLRX5847cLKEn00PLAgc3g2hTZZgr+e4c2v6QpSmLeFP3n5yUo7ft6avBK/5jQ==
 
-"derivable-engine@git+ssh://git@github.com:derion-io/engine.git#hedge":
+"derivable-engine@git+ssh://git@github.com:derion-io/engine.git#hedge-build":
   version "1.0.0"
   resolved "git+ssh://git@github.com:derion-io/engine.git#0119fba452dc089757fa8ac0f594ee74e43120e5"
   dependencies:
@@ -5517,7 +5527,7 @@ depd@~1.1.2:
     "@zoltu/ethereum-fetch-json-rpc" "^13.1.4"
     "@zoltu/ethereum-types" "^9.0.4"
     "@zoltu/rlp-encoder" "^2.0.6"
-    assisted-json-rpc-provider "git+ssh://git@github.com:derion-io/AssistedJsonRpcProvider.git#dev"
+    assisted-json-rpc-provider "https://github.com/derion-io/AssistedJsonRpcProvider.git"
     canonical-weth "^1.4.0"
     dotenv "^16.3.1"
     ethereum-multicall "^2.15.0"
