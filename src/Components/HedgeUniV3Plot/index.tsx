@@ -133,7 +133,7 @@ export const HedgeUniV3Plot = (props: any) => {
   }, [hedgeData, calc, plotState])
 
   useEffect(() => {
-    if (!calc?.current || !hedgeData) {
+    if (!calc?.current || !hedgeData || !yTop || !yA || !yB) {
       return
     }
     const { px, pxa, pxb } = hedgeData
@@ -153,6 +153,7 @@ export const HedgeUniV3Plot = (props: any) => {
       bottom: yMin - (yMax - yMin) * 1,
       top: yMax + (yMax - yMin) * 1.5
     }
+    console.log('#bound', bounds, yTop, yA, yB)
     calc.current.setMathBounds(bounds)
   }, [hedgeData, yA, yB, yTop])
 

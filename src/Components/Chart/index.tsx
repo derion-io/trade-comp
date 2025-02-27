@@ -180,7 +180,7 @@ const Component = ({
               { name: 'Candles', value: CHART_TABS.CANDLE_CHART },
               { name: 'Lines', value: CHART_TABS.LINE_CHART },
               { name: 'Curves', value: CHART_TABS.FUNC_PLOT },
-              ...(showHedgeBeta ? [{ name: 'Hedge', value: CHART_TABS.HEDGE_CHART }] : [])
+              // ...(showHedgeBeta ? [{ name: 'Hedge', value: CHART_TABS.HEDGE_CHART }] : [])
             ]}
           />
         )}
