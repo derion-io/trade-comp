@@ -7,7 +7,7 @@ import {useResource} from '../../state/resources/hooks/useResource'
 import {useListTokens} from '../../state/token/hook'
 import {useFetchUni3Position, useFindMatchingPoolIndex, useUni3Position} from '../../state/uni3Positions/hooks/useUni3Positions'
 import {POOL_IDS} from '../../utils/constant'
-import {calcPoolSide,div,formatFloat,IEW,isUSD,NUM,WEI} from '../../utils/helpers'
+import {calcPoolSide,div,formatFloat,IEW,isUSD,NUM,WEI, zerofy} from '../../utils/helpers'
 import {CandleChartLoader} from '../ChartLoaders'
 import {Card} from '../ui/Card'
 import './style.scss'
@@ -88,8 +88,21 @@ export const HedgeUniV3Plot = (props: any) => {
     const pxa = NUM(currentDisplayUni3Position?.pxLower / mark)
     const px = NUM(currentDisplayUni3Position?.px / mark)
     const pxb = NUM(currentDisplayUni3Position?.pxUpper / mark)
+    const disSymbol = isUSD(currentDisplayUni3Position.token1Data.symbol) ? '$' : currentDisplayUni3Position.token1Data.symbol;
+
+    const formatPrice = (price: number, symbol: string) => {
+        return symbol === '$' ? `$${zerofy(price ?? 0)}` : `${zerofy(price ?? 0)} ${symbol}`;
+    };
+    
+    const disPxA = formatPrice(currentDisplayUni3Position?.pxLower, disSymbol);
+    const disPx = formatPrice(currentDisplayUni3Position?.px, disSymbol);
+    const disPxB = formatPrice(currentDisplayUni3Position?.pxUpper, disSymbol);
     return {
       pxa,
+      disPxA,
+      disPxB,
+      disPx,
+      disSymbol,
       px,
       pxb,
     }
@@ -237,12 +250,12 @@ export const HedgeUniV3Plot = (props: any) => {
             max:'',
             step: 1e-8,
           }}  />
-          <Expression id='Hedge-544' latex={'(L_{s}, D_{s})'} showLabel color="RED" label='H' pointOpacity={2} pointSize={20} />
+          <Expression id='Hedge-544' latex={'(L_{s}, D_{s})'} showLabel color="RED" label='H' pointOpacity={2} pointSize={40} />
           <Expression id='Hedge-H-function' latex={'H\\left(x\\right)=D\\left(l\\left(x\\right)L+s\\left(x\\right)\\left(1-L\\right)\\right)'} color="RED" lineStyle='DASHED' hidden lineWidth={1} />
           <Expression id='Hedge-iH-function' latex={'i_{H}(x) = i(x) + H(x)'} color="RED" />
-          <Expression id='IL-A-function' latex={'\\left(x_{a},i\\left(x_{a}\\right)\\right)'} dragMode={'NONE'} color={'BLUE'} showLabel={true} label='A' />
-          <Expression id='IL-B-function' latex={'\\left(x_{b},i\\left(x_{b}\\right)\\right)'} dragMode={'NONE'} color={'BLUE'} showLabel={true} label='B' />
-          <Expression id='IL-X-function' latex={'\\left(X,i\\left(X\\right)\\right)'} color={'BLUE'} dragMode={'NONE'} showLabel={true} label='X' />
+          <Expression id='IL-A-function' latex={'\\left(x_{a},i\\left(x_{a}\\right)\\right)'} dragMode={'NONE'} color={'BLUE'} showLabel={true} label={`${hedgeData?.disPxA}`} />
+          <Expression id='IL-B-function' latex={'\\left(x_{b},i\\left(x_{b}\\right)\\right)'} dragMode={'NONE'} color={'BLUE'} showLabel={true} label={`${hedgeData?.disPxB}`} />
+          <Expression id='IL-X-function' latex={'\\left(X,i\\left(X\\right)\\right)'} color={'BLUE'} dragMode={'NONE'} showLabel={true} label={`${hedgeData?.disPx}`} />
           <Expression id='IL-iHxa-function' latex={'\\left(x_{a},i_{H}\\left(x_{a}\\right)\\right)'} dragMode={'NONE'} />
           <Expression id='IL-iHxb-function' latex={'\\left(x_{b},i_{H}\\left(x_{b}\\right)\\right)'} dragMode={'NONE'} />
           <Expression id='IL-iH-line-function' latex={'i_{H}\\left(x_{a}\\right)-s_{iH}x_{a}+s_{iH}x \\{x_{a}<x<x_{b}\\}'} color={'RED'} lineStyle='DASHED'/>
