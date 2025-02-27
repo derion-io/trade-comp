@@ -78,6 +78,19 @@ const Component = ({
   // useEffect(() => {
   //   setUseDexTool(false)
   // }, [chainId])
+  const [showHedgeBeta, setShowHedgeBeta] = useState(false)
+  useEffect(() => {
+    const url = window.location.href
+    console.log('#urls', window.location)
+    if(url) {
+      const urlSearchParams = new URL(`https://1.com?${url?.split('?')[1]}`)
+        .searchParams
+      if(urlSearchParams.get('hedge')) {
+        setShowHedgeBeta(true)
+        // setChartTab(CHART_TABS.HEDGE_CHART)
+      }
+    }
+  },[location])
   return (
     <div className='chart-box'>
       <div className='chart__head'>
@@ -167,7 +180,7 @@ const Component = ({
               { name: 'Candles', value: CHART_TABS.CANDLE_CHART },
               { name: 'Lines', value: CHART_TABS.LINE_CHART },
               { name: 'Curves', value: CHART_TABS.FUNC_PLOT },
-              { name: 'Hedges', value: CHART_TABS.HEDGE_CHART }
+              {name: 'Hedges', value: CHART_TABS.HEDGE_CHART }
             ]}
           />
         )}
