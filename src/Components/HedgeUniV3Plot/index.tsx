@@ -262,20 +262,27 @@ export const HedgeUniV3Plot = (props: any) => {
   }, [hedgeData, calc])
 
   useEffect(() => {
-    if (calc?.current && hedgeData) {
-      const { px, pxa, pxb } = hedgeData
-      const xMax = Math.max(px, pxa, pxb)
-      const xMin = Math.min(px, pxa, pxb)
-      const yMax = Math.max(0, yTop, yA, yB, -yA, -yB)
-      const yMin = Math.min(0, yTop, yA, yB)
-      const bounds = {
-        left: xMin - (xMax - xMin) * 0.1,
-        right: xMax + (xMax - xMin) * 0.1,
-        bottom: yMin - (yMax - yMin) * 0.1,
-        top: yMax + (yMax - yMin) * 0.1,
-      }
-      calc.current.setMathBounds(bounds)
+    if (!calc?.current || !hedgeData) {
+      return
     }
+    const { px, pxa, pxb } = hedgeData
+    const xMax = Math.max(px, pxa, pxb)
+    const xMin = Math.min(px, pxa, pxb)
+    if (xMin >= xMax) {
+      return
+    }
+    const yMax = Math.max(0, yTop, yA, yB, -yA, -yB)
+    const yMin = Math.min(0, yTop, yA, yB)
+    if (yMin >= yMax) {
+      return
+    }
+    const bounds = {
+      left: xMin - (xMax - xMin) * 1,
+      right: xMax + (xMax - xMin) * 1,
+      bottom: yMin - (yMax - yMin) * 1,
+      top: yMax + (yMax - yMin) * 2,
+    }
+    calc.current.setMathBounds(bounds)
   }, [hedgeData, yA, yB, yTop])
 
   const {poolGroups} = useResource()
@@ -310,7 +317,7 @@ export const HedgeUniV3Plot = (props: any) => {
   
     return { isHasDerionIndex: _isHasDerionIndex, isLoadingCurrentPoolState: _isLoadingCurrentPoolState };
   }, [currentDisplayUni3Position, poolGroups, currentPool, tokens]);
-  
+
   return (
     <React.Fragment>
       <Card className='p-1 plot-chart-box flex flex-col justify-center items-center pb-[80px] pt-[80px] gap-6'>
@@ -406,8 +413,8 @@ export const HedgeUniV3Plot = (props: any) => {
 
           <Expression id='Hedge-l-function' latex={'l(x) = \\frac{r(K,x,a_{0},R_{0})}{r(K,X,a_{0},R_{0})} - 1'} color="RED"  hidden/>
           <Expression id='Hedge-s-function' latex={'s(x) = \\frac{r(-K,x,b_{0},R_{0})}{r(-K,X,b_{0},R_{0})} - 1'} hidden color="BLUE" />
-          <Expression id='Hedge-Ls-function' latex={'L_{s} = 1.105'} />
-          <Expression id='Hedge-Ds-function' latex={'D_{s} = 0.726'} />
+          <Expression id='Hedge-Ls-function' latex={`L_{s} = ${((hedgeData?.pxa ?? 0) + (hedgeData?.pxb ?? 0)) / 2}`} />
+          <Expression id='Hedge-Ds-function' latex={`D_{s} = ${(yTop ?? 0) * 2}`} />
           <Expression id='Hedge-D-slider-function' latex={'D = \\frac{D_{s}}{\\left|u_{c}\\left(x_{b}\\right)\\right| - D_{s}}'} />
           <Expression id='Hedge-L-slider-function' latex={'L = 1 - \\frac{L_{s} - x_{a}}{x_{b} - x_{a}}'} />
           <Expression id='Hedge-544' latex={'(L_{s}, D_{s})'} showLabel label='H' pointOpacity={2} pointSize={20} />
