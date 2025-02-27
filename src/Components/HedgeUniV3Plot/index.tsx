@@ -12,6 +12,7 @@ import { BigNumber } from 'ethers'
 import {useConfigs} from '../../state/config/useConfigs'
 import { Slider } from 'antd';
 import {useUni3Position} from '../../state/uni3Positions/hooks/useUni3Positions'
+import {useResource} from '../../state/resources/hooks/useResource'
 
 const FX = 'f(P,x,v,R)=\\{2vx^P<R:vx^P,R-R^2/(4vx^P)\\}'
 const GX = 'g(P,x,v,R)=\\{2vx^{-P}<R:R-vx^{-P},R^2/(4vx^{-P})\\}'
@@ -242,6 +243,24 @@ export const HedgeUniV3Plot = (props: any) => {
     // console.log('#derion => X, a,b, R', X, a,b,R)
     // console.log('#hedge => px_a, px, px_b', currentDisplayUni3Position?.pxLower, currentDisplayUni3Position?.px, currentDisplayUni3Position?.pxUpper)
   },[currentDisplayUni3Position, mark])
+  const {poolGroups} = useResource()
+
+  const isHasDerionIndex = useMemo(() => {
+    let _isHasDerionIndex = false
+    if(currentDisplayUni3Position) {
+      Object.keys(poolGroups).map(indexKey => {
+        const {baseToken, quoteToken} = poolGroups[indexKey]
+        const {token0, token1} = currentDisplayUni3Position
+        const posTokens = [token0, token1]
+        const includeBaseToken = posTokens.includes(baseToken)
+        const includeQuoteToken = posTokens.includes(quoteToken)
+        if(includeBaseToken && includeQuoteToken){
+          _isHasDerionIndex =  true
+        } 
+      })
+    }
+    return _isHasDerionIndex
+  }, [currentDisplayUni3Position, poolGroups])
   return (
     <React.Fragment>
       <Card className='p-1 plot-chart-box flex flex-col justify-center items-center pb-[80px] pt-[80px] gap-6'>
@@ -275,6 +294,7 @@ export const HedgeUniV3Plot = (props: any) => {
               />
           </label> */}
         {/* </div> */}
+        {isHasDerionIndex ? 
         <GraphingCalculator
           attributes={{ className: 'calculator' }}
           fontSize={14}
@@ -293,7 +313,7 @@ export const HedgeUniV3Plot = (props: any) => {
           ref={calc}
           xAxisArrowMode='POSITIVE'
           yAxisArrowMode='POSITIVE'
-          xAxisLabel={priceIndex}
+          xAxisLabel={`${currentDisplayUni3Position?.token0Data.symbol} / ${currentDisplayUni3Position?.token1Data.symbol}`}
           yAxisLabel='Value'
         >
            {/* DERION */}
@@ -359,7 +379,7 @@ export const HedgeUniV3Plot = (props: any) => {
           <Expression id='IL-vx-function' latex={'v_{0}(x)=\\frac{V}{2}(\\frac{x}{X}+1) \\{x>0\\}'} lineStyle='DASHED' color="#6042a6" lineWidth='1' hidden />
           <Expression id='IL-ix-function' latex={'i\\left(x\\right)=u\\left(x\\right)-v_{0}\\left(x\\right)'} color={'#34495E'} lineStyle='DASHED' />
 
-        </GraphingCalculator>
+        </GraphingCalculator> : ((!currentDisplayUni3Position?.token0Data.symbol || !currentDisplayUni3Position?.token1Data.symbol) ? '' : ` No Derion Pool for ${currentDisplayUni3Position?.token0Data.symbol}/${currentDisplayUni3Position?.token1Data.symbol}` )}
       </Card>
     </React.Fragment>
   )

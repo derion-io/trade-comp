@@ -133,12 +133,15 @@ export const useFetchUni3Position = () => {
   const { provider, chainId,account } = useWeb3React()
   const {tokens} = useListTokens()
   const dispatch = useDispatch()
-  const { currentUni3Position } = useSelector((state: State) => {
+  const { currentUni3Position, } = useSelector((state: State) => {
     return {
       currentUni3Position: state.uni3Positions.currentUni3Position,
     }
   })
-  const {setCurrentUni3Position, setAllUni3Positions} = useUni3Position()
+  const { tradeType, updateCurrentPoolGroup, } = useCurrentPoolGroup()
+  const {poolGroups} = useResource()
+
+  const {setCurrentUni3Position, setAllUni3Positions, uni3Positions, currentDisplayUni3Position} = useUni3Position()
   const fetchUni3Pos = async (): Promise<{[key: string]: IUniPosV3}>  => {
     let accountUni3Pos:{[key: string]: IUniPosV3} = {}
     if(ddlEngine && account){
@@ -156,7 +159,20 @@ export const useFetchUni3Position = () => {
     }
     return accountUni3Pos
   }
- 
+  useEffect(() => {
+    if(currentDisplayUni3Position) {
+      Object.keys(poolGroups).map(indexKey => {
+        const {baseToken, quoteToken} = poolGroups[indexKey]
+        const {token0, token1} = currentDisplayUni3Position
+        const posTokens = [token0, token1]
+        const includeBaseToken = posTokens.includes(baseToken)
+        const includeQuoteToken = posTokens.includes(quoteToken)
+        if(includeBaseToken && includeQuoteToken){
+          updateCurrentPoolGroup(indexKey)
+        } 
+      })
+    }
+  }, [currentDisplayUni3Position, poolGroups])
   useEffect(() => {
     if(Object.keys(tokens).length > 0) fetchUni3Pos()
   }, [ddlEngine, chainId, tokens, configs.name])
