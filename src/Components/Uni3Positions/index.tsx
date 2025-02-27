@@ -573,7 +573,6 @@ export const Uni3Positions = ({
               <th>Size</th>
               <th className='no-wrap'>
                 Price Range {' '}
-                {positions?.length > 0 && (
                   <Text
                     className='text-link'
                     onClick={()=> {setRevertRange(!revertRange)}}
@@ -581,7 +580,6 @@ export const Uni3Positions = ({
                   >
                    ⇄ 
                   </Text>
-                )}
               </th>
               <th>Fee</th>
               {/* {showSize && <th>Size</th>}
@@ -681,9 +679,9 @@ export const Uni3Positions = ({
                     <React.Fragment>
                       {revertRange ? 
                       <TextGrey className='d-flex align-item-center'>
-                        {zerofy(1/position.pxUpper)}
+                        {zerofy(1/position.pxLower)}
                         {'<-->'}
-                        {zerofy(1 / position.pxLower)} (<TokenIcon
+                        {zerofy(1 / position.pxUpper)} (<TokenIcon
                           tokenAddress={position?.token0}
                           size={16}
                           iconSize='1.4ex'
@@ -694,9 +692,9 @@ export const Uni3Positions = ({
                           iconSize='1.4ex'
                         />)
                       </TextGrey> :  <TextGrey className='d-flex align-item-center'>
-                        {zerofy(position.pxUpper)}
+                        {zerofy(position.pxLower)}
                         {'<-->'}
-                        {zerofy(position.pxLower)} (<TokenIcon
+                        {zerofy(position.pxUpper)} (<TokenIcon
                           tokenAddress={position?.token1}
                           size={16}
                           iconSize='1.4ex'

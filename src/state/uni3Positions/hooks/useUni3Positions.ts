@@ -74,10 +74,10 @@ export const useUni3Position = () => {
       const tokenB = token1Data || tokens[token1]
       if(!tokenA || !tokenB|| !slot0) return;
 
-      const diffDecimals = tokenA?.decimals === tokenB?.decimals ? tokenA?.decimals : Math.abs(tokenA?.decimals - tokenB?.decimals)
-      const pxLower = calculatePx(tickLower) * 10 ** diffDecimals
-      const pxUpper = calculatePx(tickUpper) * 10 ** diffDecimals
-      const px = calculatePx(slot0.tick) * 10 ** diffDecimals
+      const diffDecimals = tokenA?.decimals === tokenB?.decimals ? 1 : 10 ** Math.abs(tokenA?.decimals - tokenB?.decimals)
+      const pxLower = calculatePx(tickLower)
+      const pxUpper = calculatePx(tickUpper)
+      const px = calculatePx(slot0.tick)
       const pxUpperPerc = pxUpper / px 
       const pxLowerPerc = pxLower / px
       const sqrtPx = Math.sqrt(px);
@@ -85,15 +85,15 @@ export const useUni3Position = () => {
       const sqrtPxUpper = Math.sqrt(pxUpper);
   
       const posLiquidityToken0 =
-        (Number(liquidity) * (sqrtPxUpper - sqrtPx) / (sqrtPx * sqrtPxUpper)) / 10 ** diffDecimals;
-      const posLiquidityToken1 = Number(liquidity) * (sqrtPx - sqrtPxLower) / 10 ** diffDecimals;
+        (Number(liquidity) * (sqrtPxUpper - sqrtPx) / (sqrtPx * sqrtPxUpper)) / 10 ** tokenA.decimals;
+      const posLiquidityToken1 = Number(liquidity) * (sqrtPx - sqrtPxLower) / 10 ** tokenB?.decimals;
       const totalPositionByToken1 = posLiquidityToken1 + posLiquidityToken0 * px
       const totalPositionByUSD = Number(getTokenValue(token1, String(totalPositionByToken1), true))
 
       displayUni3Poss[uni3PosKey] = {
-        pxLower,
-        pxUpper,
-        px,
+        pxLower: pxLower * diffDecimals,
+        pxUpper: pxUpper * diffDecimals,
+        px: px * diffDecimals,
         pxLowerPerc,
         pxUpperPerc,
         posLiquidityToken0,
