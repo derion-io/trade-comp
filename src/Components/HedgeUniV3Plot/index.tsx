@@ -1,20 +1,190 @@
-import {GraphingCalculator} from 'desmos-react'
-import React,{useEffect,useMemo, useState} from 'react'
-import {Card} from '../ui/Card'
-import {useHedgeUniV3} from './hook/useUniV3'
+import React, { useEffect, useMemo, useState } from 'react'
+import { Expression, GraphingCalculator } from 'desmos-react'
 import './style.scss'
-import {zerofy} from '../../utils/helpers'
+import { Card } from '../ui/Card'
+import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
+import { formatFloat, zerofy, isUSD, WEI, IEW, calcPoolSide, div, NUM } from '../../utils/helpers'
+import { CandleChartLoader } from '../ChartLoaders'
+import { useListTokens } from '../../state/token/hook'
+import { useHelper } from '../../state/config/useHelper'
+import { POOL_IDS } from '../../utils/constant'
+import { BigNumber } from 'ethers'
+import {useConfigs} from '../../state/config/useConfigs'
+import {useHedgeUniV3} from '../HedgeUniV3Plot-old/hook/useUniV3'
 
+const FX = 'f(P,x,v,R)=\\{2vx^P<R:vx^P,R-R^2/(4vx^P)\\}'
+const GX = 'g(P,x,v,R)=\\{2vx^{-P}<R:R-vx^{-P},R^2/(4vx^{-P})\\}'
 const calculatePx = (tick: number) => {
   return Math.pow(1.0001, tick);
 }
+function _r(xk: number, v: number, R: number): number {
+  const r = v * xk
+  if (r <= R / 2) {
+    return r
+  }
+  const denominator = v * xk * 4
+  const minuend = (R * R) / denominator
+  return R - minuend
+}
 
-export const HedgeUniV3Plot = () => {
+function _v(xk: number, r: number, R: number): number {
+  if (r <= R / 2) {
+    return r / xk
+  }
+  const denominator = (R - r) * xk * 4
+  return (R * R) / denominator
+}
+
+function _x(k: number, r: number, v: number): number {
+  return Math.pow(r / v, 1 / k)
+}
+
+// function _k(k: number, x: number, v: number, R: number): number {
+//   return (k * R) / Math.abs(4 * v * x ** k - R)
+// }
+
+function pX(x: number, mark: number): string {
+  return zerofy(x * mark)
+}
+
+export const HedgeUniV3Plot = (props: any) => {
+  const { tokens } = useListTokens()
+  const cp = useCurrentPool()
+  const { currentPool } = cp
+  const { wrapToNativeAddress } = useHelper()
   const calc = React.useRef() as React.MutableRefObject<Desmos.Calculator>
+
+  const {
+    PX,
+    a,
+    b,
+    priceIndex,
+    R,
+    P,
+    K,
+    X,
+    mark,
+    R1,
+    a1,
+    b1,
+    drAChange,
+    drBChange,
+    AD,
+    BD
+  } = useMemo(() => {
+    const { baseToken, quoteToken, states, MARK, TOKEN_R, k } = currentPool ?? {}
+    const {
+      exp,
+      mark,
+      leverage: P
+    } = calcPoolSide(currentPool, POOL_IDS.C, tokens)
+
+    const normalize = (as: BigNumber[]): number[] => {
+      const ls = as.map(b => b.toString().length)
+      const maxL = Math.max(...ls)
+      const minL = Math.min(...ls)
+      const avgL = (maxL + minL) >> 1
+      return as.map(a => formatFloat(IEW(a, avgL)))
+    }
+
+    const [R, a, b, drA, drB, drC] = normalize([
+      states.R,
+      states.a,
+      states.b,
+      WEI(cp.drA, tokens[TOKEN_R].decimals),
+      WEI(cp.drB, tokens[TOKEN_R].decimals),
+      WEI(cp.drC, tokens[TOKEN_R].decimals),
+    ])
+
+    const x = !states?.spot || !MARK ? 1 : NUM(div(states?.spot, MARK))
+    const X = x**exp
+
+    let priceIndex = tokens[wrapToNativeAddress(baseToken)]?.symbol
+    if (!isUSD(tokens[quoteToken]?.symbol)) {
+      priceIndex += '/' + tokens[wrapToNativeAddress(quoteToken)]?.symbol
+    }
+    const PX = X * 0.01
+    const R1 = R + drA + drB + drC
+
+    const xk = X ** P
+    const rA = _r(xk, a, R)
+    const rB = _r(1 / xk, b, R)
+    const rA1 = rA + drA
+    const rB1 = rB + drB
+    const a1 = _v(xk, rA1, R1)
+    const b1 = _v(1 / xk, rB1, R1)
+
+    const drAChange =
+      rA1 !== rA
+        ? `x=${X}\\{${Math.min(rA, rA1)}<y<${Math.max(rA, rA1)}\\}`
+        : null
+    const drBChange =
+      R1 - rB1 !== R - rB
+        ? `x=${X}\\{${Math.min(R - rB, R1 - rB1)}<y<${Math.max(
+            R - rB,
+            R1 - rB1
+          )}\\}`
+        : null
+
+    const AD = _x(P, R1 / 2, a1)
+    const BD = _x(-P, R1 / 2, b1)
+
+    return {
+      PX,
+      a: 0.776,
+      b: 0.36,
+      priceIndex,
+      R: 3,
+      P,
+      X: 0.94,
+      mark,
+      R1 : 3,
+      a1: 0.776,
+      b1: 0.36,
+      K: currentPool.K,
+      drAChange,
+      drBChange,
+      AD,
+      BD
+    }
+  }, [cp])
+
+  React.useEffect(() => {
+    if (calc && calc.current) {
+      const TM = Math.max(R, R1)
+      const RM = Math.max(AD, X)
+      // calc.current.setMathBounds({
+      //   bottom: -0.05 * TM,
+      //   top: 1.05 * TM,
+      //   left: -0.03 * RM,
+      //   right: 1.2 * RM,
+      // })
+    }
+  }, [calc, R, R1, X, AD])
+
+  if (!currentPool.states) {
+    return (
+      <Card className='p-1'>
+        <CandleChartLoader />
+      </Card>
+    )
+  }
+
+  const { configs } = useConfigs()
+  const dollar = useMemo(() => {
+    if (!currentPool) {
+      return ''
+    }
+    const { quoteToken } = currentPool
+    if(configs.stablecoins.includes(quoteToken)) {
+      return '$'
+    }
+    return ''
+  }, [currentPool])
   const uniV3Data = useHedgeUniV3()
   const [p, setP] = useState(5);
-  const [d, setD] = useState(0.95);
-  const [n, setN] = useState(11);
+  const [d, setD] = useState(0.306);
+  const [n, setN] = useState(1.7);
 
   const hedgeData = useMemo(() => {
     const {
@@ -41,40 +211,9 @@ export const HedgeUniV3Plot = () => {
       px: px * 10 ** diffDecimals
     }
   }, [uniV3Data])
-  useEffect(() => {
-    if(calc.current)
-      calc.current.setMathBounds({
-      bottom: -0.2,
-      top: 0.2,
-      left: 0.8,
-      right: 1.2,
-    })
-  },[calc])
-  useEffect(() => {
-    if (calc.current && hedgeData?.a && hedgeData?.b) {
-      calc.current.setExpression({ id: 'a-slider', latex: `a=${hedgeData?.a}` });
-      calc.current.setExpression({ id: 'b-slider', latex: `b=${hedgeData?.b}` });
-      calc.current.setExpression({ id: 'cxk', latex: 'c(k)=\\frac{1}{1 - \\frac{( \\sqrt{a} + k \\sqrt{\\frac{1}{b}})}{1 + k}}', hidden: true });
-      calc.current.setExpression({ id: 'ik', latex: 'i(k) = (\\frac{2\\sqrt{k}}{1 + k} - 1) \\{ k > 0 \\}', hidden: true });
-      calc.current.setExpression({ id: 'gk', latex: 'g(k)= (i(k)*c(k)) ', color: 'RED', lineStyle: 'DASHED' });
-      calc.current.setExpression({ id: 'fx', latex: 'f(x) = (\\{ x < a : g(a) + 1 - \\frac{a}{x}, a < x < b : g(x), x > b : g(b) \\}) \\{x>0\\}', color: 'RED' });
-      calc.current.setExpression({ id: 'wk', latex: 'w(k) = (\\frac{\\frac{(k^{p} - 1)}{ad} + (k^{-p} - 1)bd}{\\frac{d}{a} + bd}) \\{ k > 0 \\}', lineStyle: 'DASHED', color: 'ORANGE', hidden: true });
-      calc.current.setExpression({ id: 'zk', latex: `z(k) = -\\frac{w(k)}{${n}}`, color: 'GREEN', lineStyle: 'DASHED', hidden: true });
-      calc.current.setExpression({ id: 'p-slider', latex: `p=${p}` });
-      calc.current.setExpression({ id: 'd-slider', latex: `d=${d}` });
-      calc.current.setExpression({ id: 'n-slider', latex: `n=${n}` });
-      calc.current.setExpression({ id: 'h', latex: 'h = f(x) - z(x)', color: 'BLUE' });
-    }
-  }, [hedgeData, p, d, n]);
-
+  
   return (
     <React.Fragment>
-      {uniV3Data?.uni3PosLoading ? "loading..." : 
-      <div className="pool--pos-info">
-        <p><strong>Pool:</strong> {uniV3Data.poolAddress} ({uniV3Data.uni3PosData?.fee ? `${Number(uniV3Data.uni3PosData?.fee) / 1e4}%` : 'N/A'}) ({uniV3Data.token0Data?.symbol}/{uniV3Data.token1Data?.symbol})</p>
-        <p><strong>Position ID:</strong> {uniV3Data.uni3PosAddress}-{uniV3Data.uni3PosId}</p>
-        <p><strong>Lower/Current/Upper Price:</strong> {zerofy(hedgeData?.pxa || 'N/A')} / {zerofy(hedgeData?.px || 'N/A')} / {zerofy(hedgeData?.pxb || 'N/A')}</p>
-      </div> }
       <Card className='p-1 plot-chart-box flex flex-col justify-center items-center pb-[80px] pt-[80px] gap-6'>
       <div className="controls">
           <label>
@@ -108,9 +247,55 @@ export const HedgeUniV3Plot = () => {
           ref={calc}
           xAxisArrowMode='POSITIVE'
           yAxisArrowMode='POSITIVE'
-          xAxisLabel={'PoolV3'}
+          xAxisLabel={priceIndex}
           yAxisLabel='Value'
-        />
+        >
+           {/* DERION */}
+          <Expression id='f' latex={FX} hidden />
+          <Expression id='g' latex={GX} hidden />
+          <Expression id='lR' latex={`(${X * 0.01},${R * 0.97})`} color='RED' hidden showLabel label='Pool Reserve' labelOrientation={Desmos.LabelOrientations.RIGHT} />
+          <Expression id='R' latex={`y=${R}\\{${PX}<x\\}`} color='RED' lineWidth={1.5} />
+          <Expression id='R1' latex={`y=${R1}\\{${PX}<x\\}`} color='RED' hidden={R === R1} lineWidth={1.5} lineStyle='DASHED' />
+          <Expression id='short' latex={`g(${P},x,${b},${R})\\{${PX}<x\\}`} color='GREEN' />
+          <Expression id='long' latex={`f(${P},x,${a},${R})\\{${PX}<x\\}`} color='PURPLE' />
+          <Expression id='short1' latex={`g(${P},x,${b1},${R1})\\{${PX}<x\\}`} color='GREEN' lineStyle='DASHED' hidden={!drBChange && R1 === R} />
+          <Expression id='long1' latex={`f(${P},x,${a1},${R1})\\{${PX}<x\\}`} color='PURPLE' lineStyle='DASHED' hidden={!drAChange && R1 === R} />
+          <Expression id='Price' latex={`(${X},0)`} color='BLACK' hidden showLabel label={`${dollar}${pX(X, mark)}`} labelOrientation={Desmos.LabelOrientations.BELOW} />
+          <Expression id='AD' latex={`(${AD},${R1 / 2})`} color='PURPLE' pointSize={20} pointOpacity={0.5} showLabel label={`${dollar}${pX(AD, mark)}`} labelOrientation={Desmos.LabelOrientations.RIGHT} />
+          <Expression id='BD' latex={`(${BD},${R1 / 2})`} color='GREEN' pointSize={20} pointOpacity={0.5} showLabel label={`${dollar}${pX(BD, mark)}`} labelOrientation={Desmos.LabelOrientations.LEFT} />
+          <Expression id='S' latex={`(${X},g(${P},${X},${b},${R}))`} color='GREEN' />
+          <Expression id='L' latex={`(${X},f(${P},${X},${a},${R}))`} color='PURPLE' />
+          <Expression id='S1' latex={`(${X},g(${P},${X},${b1},${R1}))`} color='GREEN' hidden={drBChange == null} />
+          <Expression id='L1' latex={`(${X},f(${P},${X},${a1},${R1}))`} color='PURPLE' hidden={drAChange == null} />
+          <Expression id='lC' latex={`(${AD+BD}/2,${Math.min(R, R1)}/2)`} color='BLACK' hidden showLabel label='LP' labelOrientation={Desmos.LabelOrientations.DEFAULT} />
+          <Expression id='lB' latex={`(${BD}/2,${Math.max(R, R1)}*3/4)`} color='GREEN' hidden showLabel label='SHORT' labelOrientation={Desmos.LabelOrientations.DEFAULT} />
+          <Expression id='lA' latex={`(${AD}*1.1,${Math.min(R, R1)}/4)`} color='PURPLE' hidden showLabel label='LONG' labelOrientation={Desmos.LabelOrientations.DEFAULT} />
+
+          <Expression id='derion-a0' latex={`a_{0}=${a}`} />
+          <Expression id='derion-b0' latex={`b_{0}=${b}`} />
+          <Expression id='derion-r0' latex={`R_{0}=${R}`} />
+          <Expression id='derion-r' latex={`X=${X}`} />
+          <Expression id='derion-K' latex={`K=${K}`} />
+
+          <Expression id='common-r' latex={'r(k, x, v, R) = \\left\\{ v x^{k} \\le \\frac{R}{2} : v x^{k}, R - \\frac{R^{2}}{4 v x^{k}} \\right\\} \\{ 0 \\le x \\}'} />
+
+          <Expression id='hedge-ix' latex={'i(x) = \\frac{2\\sqrt{x}}{1+x} - 1'} color={'GREEN'} lineStyle={'DASHED'} hidden={true} />
+          <Expression id='hedge-xa' latex={'x_{a}=0.8'} />
+          <Expression id='hedge-xb' latex={'x_{b}=1.2'} />
+          <Expression id='hedge-c(x)' latex={'c(x) = \\frac{1}{1 - \\frac{( \\sqrt{x_a} + x \\sqrt{\\frac{1}{x_b}})}{1 + x}}'} hidden={true} />
+          <Expression id='hedge-i_c(x)' latex={'i_{c}(x)=i(x)c(x)'} hidden={true} color={'ORANGE'} lineStyle={'DASHED'} />
+          <Expression id='hedge-i_a(x)' latex={'i_{a}(x)=i_{c}(x_{a})+1-\\frac{x_{a}}{x}'} hidden={true} color={'BLACK'} lineStyle={'DASHED'} />
+          <Expression id='hedge-i_b(x)' latex={'i_{b}(x)=i_{c}(x_{b})'} hidden={true} />
+          <Expression id='hedge-i_3(x)' latex={'i_{3}(x) = \\left\\{x < x_{a}: i_{a}(x), x > x_{b}: i_{b}(x), i_{c}(x)\\right\\}'} hidden={true} color={'ORANGE'} />
+
+          <Expression id='hedge-l(x)' latex={'l(x) = \\frac{r(K, x, a_{0}, R_{0})}{r(K, X, a_{0}, R_{0})} - 1'} color={'ORANGE'} hidden={true} />
+          <Expression id='hedge-s(x)' latex={'s(x) = \\frac{r(-K, x, b_{0}, R_{0})}{r(-K, X, b_{0}, R_{0})} - 1'} color={'BLUE'} hidden={true} />
+
+          <Expression id='hedge-d-slider' latex={`d=${d}`} />
+          <Expression id='hedge-n-slider' latex={`n=${n}`} />
+          <Expression id='hedge-H(x)' latex={'H(x) = \\frac{l(x) d + s(x) (1 - d)}{n}'} color={'RED'} lineStyle='DASHED' />
+
+        </GraphingCalculator>
       </Card>
     </React.Fragment>
   )
