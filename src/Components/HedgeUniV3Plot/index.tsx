@@ -79,16 +79,16 @@ export const HedgeUniV3Plot = () => {
         <p><strong>Upper Price:</strong> {zerofy(hedgeData?.pxb || 'N/A')}</p>
       </div> }
       <Card className='p-1 plot-chart-box flex flex-col justify-center items-center pb-[80px] pt-[80px] gap-6'>
-      <div className="controls" style={{padding: '0.5rem'}}>
+      <div className="controls">
           <label>
             p: {' '}
             <input value={p} onChange={(e) => setP(Number(e.target.value))} />
           </label>
-          <br/> <label>
+           {' '} <label>
             d: {' '}
             <input value={d} onChange={(e) => setD(Number(e.target.value))} />
           </label>
-          <br/> <label>
+           {' '} <label>
             n: {' '}
             <input value={n} onChange={(e) => setN(Number(e.target.value))} />
           </label>
@@ -113,9 +113,7 @@ export const HedgeUniV3Plot = () => {
           yAxisArrowMode='POSITIVE'
           xAxisLabel={'PoolV3'}
           yAxisLabel='Value'
-        >
-      
-        </GraphingCalculator>
+        />
       </Card>
     </React.Fragment>
   )
