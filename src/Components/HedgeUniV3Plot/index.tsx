@@ -11,6 +11,7 @@ import { POOL_IDS } from '../../utils/constant'
 import { BigNumber } from 'ethers'
 import {useConfigs} from '../../state/config/useConfigs'
 import {useHedgeUniV3} from '../HedgeUniV3Plot-old/hook/useUniV3'
+import { Slider } from 'antd';
 
 const FX = 'f(P,x,v,R)=\\{2vx^P<R:vx^P,R-R^2/(4vx^P)\\}'
 const GX = 'g(P,x,v,R)=\\{2vx^{-P}<R:R-vx^{-P},R^2/(4vx^{-P})\\}'
@@ -189,9 +190,9 @@ export const HedgeUniV3Plot = (props: any) => {
     return ''
   }, [currentPool])
   const uniV3Data = useHedgeUniV3()
-  const [p, setP] = useState(5);
-  const [d, setD] = useState(0.306);
-  const [n, setN] = useState(1.7);
+  // const [p, setP] = useState('5');
+  const [L, setL] = useState('0.00005');
+  const [D, setD] = useState('0.00005');
 
   const hedgeData = useMemo(() => {
     const {
@@ -223,17 +224,32 @@ export const HedgeUniV3Plot = (props: any) => {
     <React.Fragment>
       <Card className='p-1 plot-chart-box flex flex-col justify-center items-center pb-[80px] pt-[80px] gap-6'>
       <div className="controls">
-          <label>
+          {/* <label>
             p: {' '}
-            <input value={p} onChange={(e) => setP(Number(e.target.value))} />
-          </label>
+            <input value={p} onChange={(e) => setP(e.target.value)} />
+          </label> */}
            {' '} <label>
-            d: {' '}
-            <input value={d} onChange={(e) => setD(Number(e.target.value))} />
-          </label>
-           {' '} <label>
-            n: {' '}
-            <input value={n} onChange={(e) => setN(Number(e.target.value))} />
+            L:  <input value={L} onChange={(e) => setL(String(e.target.value))} /> {' '}
+              <Slider
+                min={0}
+                max={0.0001}
+                step={0.000001}
+                value={Number(L)}
+                onChange={(value: number) => setL(String(value))}
+                style={{ width: 300, margin: '10px 0' }}
+              />
+              
+                </label>
+                {' '} <label>
+                  D: <input value={D} onChange={(e) => setD(String(e.target.value))} /> {' '} {' '}
+                  <Slider
+                min={0}
+                max={0.0001}
+                step={0.000001}
+                value={Number(D)}
+                onChange={(value: number) => setD(String(value))}
+                style={{ width: 300, margin: '10px 0' }}
+              />
           </label>
         </div>
         <GraphingCalculator
@@ -298,9 +314,9 @@ export const HedgeUniV3Plot = (props: any) => {
           <Expression id='hedge-l(x)' latex={'l(x) = \\frac{r(K, x, a_{0}, R_{0})}{r(K, X, a_{0}, R_{0})} - 1'} color={'ORANGE'} hidden={true} />
           <Expression id='hedge-s(x)' latex={'s(x) = \\frac{r(-K, x, b_{0}, R_{0})}{r(-K, X, b_{0}, R_{0})} - 1'} color={'BLUE'} hidden={true} />
 
-          <Expression id='hedge-d-slider' latex={`d=${d}`} />
-          <Expression id='hedge-n-slider' latex={`n=${n}`} />
-          <Expression id='hedge-H(x)' latex={'H(x) = \\frac{l(x) d + s(x) (1 - d)}{n}'} color={'RED'} lineStyle='DASHED' />
+          <Expression id='hedge-L-slider' latex={`L=${L}`} />
+          <Expression id='hedge-D-slider' latex={`D=${D}`} />
+          <Expression id='hedge-H(x)' latex={'H(x) = \\frac{l(x) L + s(x) (1 - L)}{D}'} color={'RED'} lineStyle='DASHED' />
 
         </GraphingCalculator>
       </Card>
