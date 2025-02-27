@@ -131,16 +131,23 @@ export const HedgeUniV3Plot = (props: any) => {
 
     return {
       PX,
-      a: 0.776,
-      b: 0.36,
+      a,
+      //  0.776,
+      b,
+      // 0.36,
       priceIndex,
-      R: 3,
+      R,
+      // : 3,
       P,
-      X: 0.94,
+      X,
+      // : 0.94,
       mark,
-      R1 : 3,
-      a1: 0.776,
-      b1: 0.36,
+      R1,
+      // : 3,
+      a1,
+      // : 0.776,
+      b1,
+      // : 0.36,
       K: currentPool.K,
       drAChange,
       drBChange,
@@ -153,12 +160,12 @@ export const HedgeUniV3Plot = (props: any) => {
     if (calc && calc.current) {
       const TM = Math.max(R, R1)
       const RM = Math.max(AD, X)
-      // calc.current.setMathBounds({
-      //   bottom: -0.05 * TM,
-      //   top: 1.05 * TM,
-      //   left: -0.03 * RM,
-      //   right: 1.2 * RM,
-      // })
+      calc.current.setMathBounds({
+        bottom: -0.05 * TM,
+        top: 1.05 * TM,
+        left: -0.03 * RM,
+        right: 1.2 * RM,
+      })
     }
   }, [calc, R, R1, X, AD])
 
