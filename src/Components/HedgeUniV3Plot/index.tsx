@@ -25,7 +25,6 @@ import { error } from 'console'
 
 const FX = 'f(x)=\\{y=x^2}'
 const GX = 'g(P,x,v,R)=\\{2vx^{-P}<R:R-vx^{-P},R^2/(4vx^{-P})\\}'
-const vX = 'v(k)=\\{ \\}'
 const calculatePx = (tick: number) => {
   return Math.pow(1.0001, tick);
 }
@@ -55,20 +54,39 @@ export const HedgeUniV3Plot = (props: any) => {
     }
     const diffDecimals = Math.abs(token0Data.decimals - token1Data.decimals)
     const px = calculatePx(tick)
-    const a = calculatePx(tickLower) / px
-    const b = calculatePx(tickUpper) / px
-    console.log('#px', a,b, px * (10 ** diffDecimals))
+    const pxa = calculatePx(tickLower)
+    const pxb = calculatePx(tickUpper)
+    let a = pxa / px
+    let b = pxb / px
+    // if(pxb >= px && pxa <= px) {
+    //   b = 1 / b
+    // }
+    console.log('#lower, current, upper', pxa * (10 ** diffDecimals), px * (10 ** diffDecimals), pxb * (10 ** diffDecimals))
+    console.log('#a,b', a,b)
     return {px, a,b}
   }, [uniV3Data])
-
+  useEffect(() => {
+    if(calc.current)
+      calc.current.setMathBounds({
+      bottom: -0.2,
+      top: 0.2,
+      left: 0.8,
+      right: 1.2,
+    })
+  },[calc])
   useEffect(() => {
     // if(hedgeData?.a && hedgeData?.b){
-    if(calc.current){
-      calc.current.setExpression({ id: 'a-slider', latex: 'a=0.8' });
-      calc.current.setExpression({ id: 'b-slider', latex: 'b=1.2' });
-      calc.current.setExpression({ id: 'yx2', latex: 'c(k) = \\frac{1}{1 - \\frac{\\left( \\sqrt{a} + k \\sqrt{\\frac{1}{b}} \\right)}{1 + k}}', color: 'PURPLE'});
-      calc.current.setExpression({ id: 'yx2', latex: 'y=x^2', color: 'BLUE'});
-      calc.current.setExpression({ id: 'yx3', latex: 'y=x^3', color: 'RED' });
+    if(calc.current && hedgeData?.a && hedgeData?.b){
+      calc.current.setExpression({ id: 'a-slider', latex: `a=${hedgeData?.a}` });
+      calc.current.setExpression({ id: 'b-slider', latex: `b=${hedgeData?.b}` });
+      calc.current.setExpression({ id: 'cxk', latex: 'c(k)=\\frac{1}{1 - \\frac{( \\sqrt{a} + k \\sqrt{\\frac{1}{b}})}{1 + k}}', hidden: true});
+      calc.current.setExpression({ id: 'ik', latex: 'i(k) = (\\frac{2\\sqrt{k}}{1 + k} - 1) \\{ k > 0 \\}', hidden: true});
+      calc.current.setExpression({ id: 'gk', latex: 'g(k)= (i(k)*c(k)) ', color: 'PURPLE', lineStyle: 'DASHED'});
+      const functionLatex = `f(x) = (\\{ x < a : g(a) + 1 - \\frac{a}{x}, a < x < b : g(x), x > b : g(b) \\}) \\{x>0\\}`;
+
+      calc.current.setExpression({ id: 'fxx', latex:functionLatex, color: 'RED'});
+      // calc.current.setExpression({ id: 'yx2', latex: 'y=x^2', color: 'BLUE'});
+      // calc.current.setExpression({ id: 'yx3', latex: 'y=x^3', color: 'RED' });
 
       // var a = calc.current.HelperExpression({ latex: 'a' });
     }
@@ -108,9 +126,9 @@ export const HedgeUniV3Plot = (props: any) => {
               lineWidth={2}
             />
           )} */}
-          <Expression id="slider" latex="y=x^2" />
+          {/* <Expression id="slider" latex="y=x^2" />
           <Expression id="slider" latex="a=3" />
-          <Expression id="abc" latex='`c(k) = (1 / (1 - ((sqrt(0.8) + k * sqrt(1/1.2)) / (1 + k)))) * 0.8' color='RED'/>
+          <Expression id="abc" latex='`c(k) = (1 / (1 - ((sqrt(0.8) + k * sqrt(1/1.2)) / (1 + k)))) * 0.8' color='RED'/> */}
           {/* <Expression id='f' latex={FX} color='RED' />
           <Expression id='g' latex={GX} /> */}
           {/* <Expression
