@@ -13,9 +13,7 @@ import { useListTokens } from '../../state/token/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 import { POOL_IDS, POSITION_STATUS, TRADE_TYPE } from '../../utils/constant'
-import {
-  formatLocalisedCompactNumber
-} from '../../utils/formatBalance'
+import { formatLocalisedCompactNumber } from '../../utils/formatBalance'
 import {
   IEW,
   mul,
@@ -38,7 +36,7 @@ import {
   ABS,
   poolToIndexID,
   bn,
-  calculatePx,
+  calculatePx
 } from '../../utils/helpers'
 import { ClosingFeeCalculator, Position } from '../../utils/type'
 import { ClosePosition } from '../ClosePositionModal'
@@ -67,7 +65,8 @@ import { Checkbox } from 'antd'
 import { useWeb3React } from '../../state/customWeb3React/hook'
 import { Q128 } from 'derivable-engine/dist/services/resource'
 import { PositionLoadingComponent } from '../BuyPositionBox/components/PositionLoading'
-import {useUni3Position} from '../../state/uni3Positions/hooks/useUni3Positions'
+import { useUni3Position } from '../../state/uni3Positions/hooks/useUni3Positions'
+import { CurrencyGroupLogo } from '../ui/CurrencyGroupLogo'
 
 const mdp = require('move-decimal-point')
 
@@ -80,7 +79,7 @@ export enum VALUE_IN_USD_STATUS {
 export const Uni3Positions = ({
   setOutputTokenAddressToBuy,
   tokenOutMaturity,
-  isLoadingIndex,
+  isLoadingIndex
 }: {
   setOutputTokenAddressToBuy: any
   tokenOutMaturity: BigNumber
@@ -89,11 +88,12 @@ export const Uni3Positions = ({
   const { tradeType, updateCurrentPoolGroup } = useCurrentPoolGroup()
   const { setCurrentPoolAddress } = useCurrentPool()
   const { pools, poolGroups } = useResource()
-  const { balances, maturities, swapLogs, swapPendingTxs, positionsWithEntry } = useWalletBalance()
+  const { balances, maturities, swapLogs, swapPendingTxs, positionsWithEntry } =
+    useWalletBalance()
   const { tokens } = useListTokens()
   const { getTokenValue } = useTokenValue({})
   const { wrapToNativeAddress } = useHelper()
-  const {prices} = useTokenPrice()
+  const { prices } = useTokenPrice()
   const { settings } = useSettings()
   const [valueInUsdStatus, setValueInUsdStatus] = useState<VALUE_IN_USD_STATUS>(
     VALUE_IN_USD_STATUS.USD
@@ -139,11 +139,9 @@ export const Uni3Positions = ({
       pendingTxData ? Number(pendingTxPool.id) : side
     )
     // check for position with entry
-    if ((
-      pendingTxData?.token ||
-      positionsWithEntry[token]?.avgPrice
-    )
-      && positionsWithEntry[token]?.entryPrice !== -1
+    if (
+      (pendingTxData?.token || positionsWithEntry[token]?.avgPrice) &&
+      positionsWithEntry[token]?.entryPrice !== -1
     ) {
       const pool =
         pools[pendingTxData?.token ? pendingTxPool.address : poolAddress]
@@ -173,7 +171,11 @@ export const Uni3Positions = ({
       if (!(prices[pool.TOKEN_R] ?? 0)) {
         return null
       }
-      if (!isLoadingIndex && Number(valueU) < settings.minPositionValueUSD && !pendingTxData) {
+      if (
+        !isLoadingIndex &&
+        Number(valueU) < settings.minPositionValueUSD &&
+        !pendingTxData
+      ) {
         return null
       }
 
@@ -208,8 +210,8 @@ export const Uni3Positions = ({
         side == POOL_IDS.A
           ? NUM(leverage)
           : side == POOL_IDS.B
-            ? -NUM(leverage)
-            : 0
+          ? -NUM(leverage)
+          : 0
       let valueRLinear
       let valueRCompound
       if (L != 0) {
@@ -224,7 +226,7 @@ export const Uni3Positions = ({
         // if (leveragedPriceRate.startsWith('-')) {
         //   valueRLinear = '0'
         // } else {
-          valueRLinear = mul(entryValueR, leveragedPriceRate)
+        valueRLinear = mul(entryValueR, leveragedPriceRate)
         // }
         valueRCompound = mul(entryValueR, pow(priceRate, L))
       }
@@ -347,70 +349,133 @@ export const Uni3Positions = ({
     )
     return [displayPositions, hasClosingFee]
   }, [positions, tradeType, swapPendingTxs])
-  const isShowAllPosition = useMemo(() => settings.minPositionValueUSD === 0, [settings.minPositionValueUSD])
-  const [isBatchTransferModalVisible, setBatchTransferModalVisible] = useState<boolean>(false)
+  const isShowAllPosition = useMemo(
+    () => settings.minPositionValueUSD === 0,
+    [settings.minPositionValueUSD]
+  )
+  const [isBatchTransferModalVisible, setBatchTransferModalVisible] =
+    useState<boolean>(false)
   const showSize = tradeType !== TRADE_TYPE.LIQUIDITY
 
   const isFetchingPosition = useMemo(() => {
-    if(displayPositions.length > 0) return false
-    return account && isLoadingIndex 
-  }, [account, isLoadingIndex, displayPositions]);
+    if (displayPositions.length > 0) return false
+    return account && isLoadingIndex
+  }, [account, isLoadingIndex, displayPositions])
 
-  const {currentUni3Position, uni3Positions} = useUni3Position()
-
+  const { currentUni3Position, uni3Positions, displayUni3Positions, setCurrentUni3Position} =
+    useUni3Position()
+  useEffect(() => {
+    console.log('#uni3', displayUni3Positions)
+  }, [displayUni3Positions])
+  const [revertRange, setRevertRange] = useState<boolean>(false)
   return (
     <div className='positions-box'>
-      {isBatchTransferModalVisible &&
+      {isBatchTransferModalVisible && (
         <BatchTransferModal
           visible={isBatchTransferModalVisible}
           setVisible={setBatchTransferModalVisible}
           selections={selections}
         />
-      }
+      )}
       {/* {JSON.stringify(displayUni3Positions)} */}
       {isPhone ? (
-        isFetchingPosition ? <PositionLoadingComponent/> :
-        <div className='positions-list'>
-          {displayPositions.map((position, key: number) => {
-            return (
-              <div className='positions-list__item' key={key}>
-                <InfoRow>
-                  <Token token={position.token} />
-                  <ButtonSell
-                    size='small'
-                    className='share-position'
-                    style={{ border: 'none' }}
-                    onClick={(e) => {
-                      setSharedPosition(position)
-                      e.stopPropagation()
-                    }}
-                  >
-                    <SharedIcon />
-                  </ButtonSell>
-                </InfoRow>
-                {!settings.showBalance || (
+        isFetchingPosition ? (
+          <PositionLoadingComponent />
+        ) : (
+          <div className='positions-list'>
+            {Object.keys(displayUni3Positions).map((posKey, key: number) => {
+              const position = displayUni3Positions[posKey]
+              return (
+                <div className='positions-list__item' key={key}>
                   <InfoRow>
-                    <Text>Balance</Text>
-                    <Text>
-                      {zerofy(formatFloat(IEW(position.balance ?? bn(0), tokens[position.token]?.decimals)))}
-                    </Text>
+                    <TextGrey className='d-flex align-item-center'>
+                      <TokenIcon
+                        tokenAddress={position?.token0}
+                        size={16}
+                        iconSize='1.4ex'
+                      />{' '}
+                      {position.token0Data.symbol}/{' '}
+                      <TokenIcon
+                        tokenAddress={position?.token1}
+                        size={16}
+                        iconSize='1.4ex'
+                      />{' '}
+                      {position.token1Data.symbol}
+                    </TextGrey>
                   </InfoRow>
-                )}
-
-                {Number?.(position?.entryPrice) > 0 ? (
                   <InfoRow>
-                    <TextGrey>Entry Price</TextGrey>
-                    <EntryPrice
-                      position={position}
-                      loading={position.status === POSITION_STATUS.OPENING}
-                      isPhone
-                    />
-                  </InfoRow>
-                ) : (
-                  ''
-                )}
+                    <TextGrey>Liquidity</TextGrey>
+                    <div>
+                      {/* <Text className='d-flex align-item-center'>
+                        {zerofy(position.posLiquidityByBaseToken ?? bn(0))}{' '}
+                        <TokenIcon
+                          tokenAddress={position?.token0}
+                          size={16}
+                          iconSize='1.4ex'
+                        />
+                      </Text> */}
 
-                <InfoRow>
+                      <Text className='d-flex align-item-center'>
+                        ${zerofy(position.totalPositionByUSD ?? bn(0))}{' '}
+                        <TokenIcon
+                          tokenAddress={position?.token1}
+                          size={16}
+                          iconSize='1.4ex'
+                        />
+                      </Text>
+                    </div>
+                  </InfoRow>
+
+                  <InfoRow >
+                    <TextGrey>Price Range <Text
+                      className='text-link'
+                      onClick={()=> {setRevertRange(!revertRange)}}
+                    >
+                      ⇄
+                    </Text></TextGrey>
+                    <React.Fragment>
+                      {revertRange ? 
+                      <TextGrey className='d-flex align-item-center'>
+                        {zerofy(1/position.pxUpper)}
+                        {'<-->'}
+                        {zerofy(1 / position.pxLower)} (<TokenIcon
+                          tokenAddress={position?.token1}
+                          size={16}
+                          iconSize='1.4ex'
+                        />{' '}
+                        /  <TokenIcon
+                          tokenAddress={position?.token0}
+                          size={16}
+                          iconSize='1.4ex'
+                        />)
+                      </TextGrey> :  <TextGrey className='d-flex align-item-center'>
+                        {zerofy(position.pxUpper)}
+                        {'<-->'}
+                        {zerofy(position.pxLower)} (<TokenIcon
+                          tokenAddress={position?.token0}
+                          size={16}
+                          iconSize='1.4ex'
+                        />{' '}
+                        /  <TokenIcon
+                          tokenAddress={position?.token1}
+                          size={16}
+                          iconSize='1.4ex'
+                        />)
+                  
+                      </TextGrey>}
+                    </React.Fragment>
+                  </InfoRow>
+
+                  {position.fee ? (
+                    <InfoRow>
+                      <TextGrey>Fee</TextGrey>
+                      <Text>{Number(position.fee) / 1e4}%</Text>
+                    </InfoRow>
+                  ) : (
+                    ''
+                  )}
+
+                  {/* <InfoRow>
                   <TextGrey>
                     Net Value
                     <Text
@@ -437,8 +502,8 @@ export const Uni3Positions = ({
                     loading={position.status === POSITION_STATUS.OPENING}
                     isPhone
                   />
-                </InfoRow>
-                {Number(position.entryPrice) > 0 ? (
+                </InfoRow> */}
+                  {/* {Number(position.entryPrice) > 0 ? (
                   position.valueRCompound ? (
                     <React.Fragment>
                       <InfoRow>
@@ -484,9 +549,9 @@ export const Uni3Positions = ({
                   )
                 ) : (
                   ''
-                )}
+                )} */}
 
-                {!position.funding || (
+                  {/* {!position.funding || (
                   <InfoRow>
                     <TextGrey>
                       {position.side === POOL_IDS.C
@@ -495,20 +560,14 @@ export const Uni3Positions = ({
                     </TextGrey>
                     <FundingRate position={position} />
                   </InfoRow>
-                )}
+                )} */}
 
-                {!showSize || !position.sizeDisplay || (
-                  <InfoRow>
-                    <TextGrey>Size</TextGrey>
-                    <Size position={position} isPhone />
-                  </InfoRow>
-                )}
-                <InfoRow>
+                  {/* <InfoRow>
                   <TextGrey>Deleverage Price</TextGrey>
                   <DeleveragePrice position={position} isPhone />
-                </InfoRow>
+                </InfoRow> */}
 
-                {!position?.calulateClosingFee?.(now)?.fee || (
+                  {/* {!position?.calulateClosingFee?.(now)?.fee || (
                   <InfoRow>
                     <TextGrey>Anti-Bot Fee</TextGrey>
                     <ClosingFee
@@ -517,78 +576,53 @@ export const Uni3Positions = ({
                       isPhone={isPhone}
                     />
                   </InfoRow>
-                )}
-                {/* <InfoRow>
+                )} */}
+                  {/* <InfoRow>
                   <Text>Reserve</Text>
                   <Reserve pool={position.pool}/>
                 </InfoRow> */}
-                {/* <InfoRow>
+                  {/* <InfoRow>
                   <Text>Pool</Text>
                   <ExplorerLink poolAddress={position.poolAddress}/>
                 </InfoRow> */}
 
-                <InfoRow>
-                  {position.status === POSITION_STATUS.OPENING ? (
-                    <ButtonSell
-                      className='btn-close'
-                      size='small'
-                      style={{ opacity: 0.5 }}
-                      disabled
-                    >
-                      Pending...
-                    </ButtonSell>
-                  ) : (
-                    <ButtonSell
-                      className='btn-close'
-                      size='small'
-                      onClick={() => {
-                        setClosingPosition(position)
-                        setOutputTokenAddress(
-                          wrapToNativeAddress(position?.pool?.TOKEN_R)
-                        )
-                        setVisible(true)
-                      }}
-                    >
-                      {position.side === POOL_IDS.C ? 'Remove' : 'Close'}
-                    </ButtonSell>
-                  )}
+                  <InfoRow>
+                  <ButtonSell
+                        size='small'
+                        onClick={(e) => {
+                          window.open(`https://app.uniswap.org/pool/${posKey}`, '_blank');
+                        }}
+                      >
+                        Open
+                      </ButtonSell>
                 </InfoRow>
-              </div>
-            )
-          })}
-        </div>
+                </div>
+              )
+            })}
+          </div>
+        )
       ) : (
         isFetchingPosition ? <PositionLoadingComponent/> :
         <table className='positions-table'>
           <thead>
             <tr>
-              <th>Position</th>
-              <th>Entry Price</th>
+              <th>Pool</th>
+              <th>Reserves</th>
+              <th>Position Size</th>
               <th className='no-wrap'>
-                Net Value
+                Price Range {' '}
                 {positions?.length > 0 && (
                   <Text
                     className='text-link'
-                    onClick={() => {
-                      setValueInUsdStatus(
-                        valueInUsdStatus === VALUE_IN_USD_STATUS.USD
-                          ? VALUE_IN_USD_STATUS.TOKEN_R
-                          : VALUE_IN_USD_STATUS.USD
-                      )
-                    }}
+                    onClick={()=> {setRevertRange(!revertRange)}}
+
                   >
-                    {valueInUsdStatus === VALUE_IN_USD_STATUS.USD
-                      ? ` ⇄ ${
-                          tokens[
-                            wrapToNativeAddress(positions?.[0].pool.TOKEN_R)
-                          ]?.symbol
-                        }`
-                      : ' ⇄ USD'}
+                   ⇄ 
                   </Text>
                 )}
               </th>
-              <th>Funding</th>
-              {showSize && <th>Size</th>}
+              <th>Fee</th>
+              {/* {showSize && <th>Size</th>}
               <th>Delev. Price</th>
               {!hasClosingFee || <th>Anti-Bot Fee</th>}
               {isShowAllPosition && <th style={{ textAlign: 'right' }}>
@@ -601,68 +635,119 @@ export const Uni3Positions = ({
                 >
                   Transfer
                 </ButtonSell>
-              </th>}
+              </th>} */}
               {/* <th>Reserve</th> */}
               {/* <th>Pool</th> */}
               <th />
             </tr>
           </thead>
           <tbody>
-            {displayPositions.map((position, key: number) => {
+            {Object.keys(displayUni3Positions).map((posKey, key: number) => {
+              const position = displayUni3Positions[posKey]
               return (
                 <tr
                   className='position-row'
                   onClick={() => {
-                    const pool = pools[position.poolAddress]
-                    if (pool?.ORACLE?.length) {
-                      updateCurrentPoolGroup(poolToIndexID(pool))
-                    }
-                    if (tradeType === TRADE_TYPE.SWAP) {
-                      setOutputTokenAddressToBuy(position.token)
-                    } else {
-                      const { address } = decodeErc1155Address(position.token)
-                      const side =
-                        tradeType === TRADE_TYPE.LONG
-                          ? POOL_IDS.A
-                          : tradeType === TRADE_TYPE.SHORT
-                            ? POOL_IDS.B
-                            : POOL_IDS.C
-                      setCurrentPoolAddress(address)
-                      setOutputTokenAddressToBuy(
-                        encodeErc1155Address(address, side)
-                      )
-                    }
+                    setCurrentUni3Position(posKey)
+                    // const pool = pools[position.poolAddress]
+                    // if (pool?.ORACLE?.length) {
+                    //   updateCurrentPoolGroup(poolToIndexID(pool))
+                    // }
+                    // if (tradeType === TRADE_TYPE.SWAP) {
+                    //   setOutputTokenAddressToBuy(position.token)
+                    // } else {
+                    //   const { address } = decodeErc1155Address(position.token)
+                    //   const side =
+                    //     tradeType === TRADE_TYPE.LONG
+                    //       ? POOL_IDS.A
+                    //       : tradeType === TRADE_TYPE.SHORT
+                    //         ? POOL_IDS.B
+                    //         : POOL_IDS.C
+                    //   setCurrentPoolAddress(address)
+                    //   setOutputTokenAddressToBuy(
+                    //     encodeErc1155Address(address, side)
+                    //   )
+                    // }
                   }}
                   key={key}
                 >
                   <td>
-                    <Token
-                      token={position.token}
-                      doubleLines
-                      balance={
-                        !settings.showBalance
-                          ? undefined
-                          : zerofy(formatFloat(IEW(position.balance ?? bn(0), tokens[position.token]?.decimals)))
-                      }
-                    />
+                  <TextGrey className='d-flex align-item-center'>
+                      <TokenIcon
+                        tokenAddress={position?.token0}
+                        size={16}
+                        iconSize='1.4ex'
+                      />{' '}
+                      {position.token0Data.symbol}/{' '}
+                      <TokenIcon
+                        tokenAddress={position?.token1}
+                        size={16}
+                        iconSize='1.4ex'
+                      />{' '}
+                      {position.token1Data.symbol}
+                    </TextGrey>
                   </td>
                   <td>
-                    <SkeletonLoader
-                      loading={position.status === POSITION_STATUS.OPENING}
-                    >
-                      {Number?.(position?.entryPrice) > 0 ? (
+                  <TextGrey className='d-flex align-item-center'>
+                      <TokenIcon
+                        tokenAddress={position?.token0}
+                        size={16}
+                        iconSize='1.4ex'
+                      />
+                      {zerofy(position.posLiquidityToken0)}
+                      {' '} + {' '}<TokenIcon
+                        tokenAddress={position?.token1}
+                        size={16}
+                        iconSize='1.4ex'
+                      />
+                      {zerofy(position.posLiquidityToken1)}
+                    </TextGrey>
+                  </td>
+                  <td>
+                      {/* {Number?.(position?.entryPrice) > 0 ? (
                         <EntryPrice
                           position={position}
                           loading={position.status === POSITION_STATUS.OPENING}
-                        />
-                      ) : (
-                        ''
-                      )}
-                    </SkeletonLoader>
+                        /> */}
+
+                      <Text className='d-flex align-item-center'>
+                        ${zerofy(position.totalPositionByUSD ?? 0)}{' '}
+                      </Text>
                   </td>
                   <td>
                     <div className='net-value-and-pnl'>
-                      <NetValue
+                    <React.Fragment>
+                      {revertRange ? 
+                      <TextGrey className='d-flex align-item-center'>
+                        {zerofy(1/position.pxUpper)}
+                        {'<-->'}
+                        {zerofy(1 / position.pxLower)} (<TokenIcon
+                          tokenAddress={position?.token1}
+                          size={16}
+                          iconSize='1.4ex'
+                        />{' '}
+                        /  <TokenIcon
+                          tokenAddress={position?.token0}
+                          size={16}
+                          iconSize='1.4ex'
+                        />)
+                      </TextGrey> :  <TextGrey className='d-flex align-item-center'>
+                        {zerofy(position.pxUpper)}
+                        {'<-->'}
+                        {zerofy(position.pxLower)} (<TokenIcon
+                          tokenAddress={position?.token0}
+                          size={16}
+                          iconSize='1.4ex'
+                        />{' '}
+                        /  <TokenIcon
+                          tokenAddress={position?.token1}
+                          size={16}
+                          iconSize='1.4ex'
+                        />)
+                  
+                      </TextGrey>}
+                    </React.Fragment>
+                      {/* <NetValue
                         position={position}
                         valueInUsdStatus={valueInUsdStatus}
                         loading={position.status === POSITION_STATUS.OPENING}
@@ -687,10 +772,13 @@ export const Uni3Positions = ({
                         )
                       ) : (
                         ''
-                      )}
+                      )} */}
                     </div>
                   </td>
                   <td>
+                       <Text>{Number(position.fee) / 1e4}%</Text>
+                  </td>
+                  {/* <td>
                     <FundingRate position={position} />
                     {!position.valueRCompound || (
                       <Funding
@@ -713,75 +801,18 @@ export const Uni3Positions = ({
                     <td>
                       <ClosingFee now={now} position={position} />
                     </td>
-                  )}
+                  )} */}
                   {/* <td><Reserve pool={position.pool}/></td> */}
                   {/* <td><ExplorerLink poolAddress={position.poolAddress}/></td> */}
                   <td className='text-right'>
-                    {isShowAllPosition ?
-                        <ButtonSell
-                        className='share-position'
-                        size='small'
-                        style={{ border: 'none' }}>
-                        <Checkbox onChange={() => {
-                          const id = `${position.poolAddress}-${position.side}`
-                          const ss = {...selections}
-                          if (!ss[id]) {
-                            ss[id] = position
-                          } else {
-                            delete ss[id]
-                          }
-                          setSelections(ss)
-                        }}
-                        /></ButtonSell>
-                      : <ButtonSell
-                        size='small'
-                        className='share-position'
-                        style={{ border: 'none' }}
-                        onClick={(e) => {
-                          setSharedPosition(position)
-                          e.stopPropagation()
-                        }}
-                      ><SharedIcon /></ButtonSell>
-                    }
-                    {(position.status === POSITION_STATUS.OPENING ? (
-                      <ButtonSell
-                        disabled
-                        size='small'
-                        style={{ opacity: 0.5 }}
-                      >
-                        Pending
-                      </ButtonSell>
-                    ) : position.status === POSITION_STATUS.CLOSING ? (
-                      <ButtonSell
-                        size='small'
-                        disabled
-                        style={{ opacity: 0.5 }}
-                      >
-                        <SkeletonLoader
-                          textLoading={
-                            position.side === POOL_IDS.C
-                              ? 'Removing'
-                              : 'Closing'
-                          }
-                          loading={position.status === POSITION_STATUS.CLOSING}
-                        />
-                      </ButtonSell>
-                    ) : (
-                      <ButtonSell
+                  <ButtonSell
                         size='small'
                         onClick={(e) => {
-                          setClosingPosition(position)
-                          setOutputTokenAddress(
-                            wrapToNativeAddress(position?.pool?.TOKEN_R)
-                          )
-                          setVisible(true)
-                          e.stopPropagation() // stop the index from being changed
+                          window.open(`https://app.uniswap.org/pool/${posKey}`, '_blank');
                         }}
                       >
-                        {position.side === POOL_IDS.C ? 'Remove' : 'Close'}
+                        Open
                       </ButtonSell>
-                    ))
-                    }
                   </td>
                 </tr>
               )
@@ -813,563 +844,21 @@ export const Uni3Positions = ({
           title={
             Number(decodeErc1155Address(closingPosition.token).id) ===
             POOL_IDS.C ? (
-                <Text>
+              <Text>
                 Remove{' '}
-                  <TokenSymbol token={closingPosition.token} textWrap={Text} />{' '}
-                </Text>
-              ) : (
-                <Text>
+                <TokenSymbol token={closingPosition.token} textWrap={Text} />{' '}
+              </Text>
+            ) : (
+              <Text>
                 Close{' '}
-                  <TokenSymbol token={closingPosition.token} textWrap={Text} />{' '}
-                </Text>
-              )
+                <TokenSymbol token={closingPosition.token} textWrap={Text} />{' '}
+              </Text>
+            )
           }
         />
       ) : (
         ''
       )}
     </div>
-  )
-}
-
-export const EntryPrice = ({
-  position,
-  isPhone,
-  loading
-}: {
-  position: Position
-  isPhone?: boolean
-  loading?: boolean
-}) => {
-  if (loading || !position.entryPrice) return <SkeletonLoader loading/>
-
-  const { entryPrice, currentPrice } = position
-  const priceRate = div(sub(currentPrice, entryPrice), entryPrice)
-  const rateDisplay = priceRate > 0
-    ? <TextBuy>+{formatFloat(mdp(priceRate, 2), undefined, 3, true)}%</TextBuy>
-    : <TextSell>{formatFloat(mdp(priceRate, 2), undefined, 3, true)}%</TextSell>
-
-  if (isPhone) {
-    return <Text>
-      <TextGrey>{zerofy(formatFloat(entryPrice))}</TextGrey>
-      &nbsp;
-      {rateDisplay}
-    </Text>
-  }
-
-  return <React.Fragment>
-    <div><TextGrey>{zerofy(formatFloat(entryPrice))}</TextGrey></div>
-    <div>{rateDisplay}</div>
-  </React.Fragment>
-}
-
-export const NetValue = ({
-  position,
-  valueInUsdStatus,
-  isPhone,
-  loading
-}: {
-  position: {
-    pool: PoolType,
-    valueR: string,
-    valueU: string,
-    entryValueR?: string,
-    entryValueU?: string,
-  }
-  loading?: boolean
-  valueInUsdStatus: VALUE_IN_USD_STATUS
-  isPhone?: boolean
-}) => {
-  if (loading) return <SkeletonLoader loading/>
-  const { pool, valueR, valueU, entryValueR, entryValueU } = position
-  const [from, to] = isShowValueInUsd(valueInUsdStatus, pool)
-    ? [entryValueU, valueU]
-    : [entryValueR, valueR]
-
-  const fromCurrency = isShowValueInUsd(valueInUsdStatus, pool)
-    ? <TextGrey>$</TextGrey>
-    : <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex'/>
-
-  const toCurrency = isShowValueInUsd(valueInUsdStatus, pool)
-    ? <Text>$</Text>
-    : <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex'/>
-
-  return (
-    <div className='d-flex align-item-center'>
-      {from && <React.Fragment>
-        {fromCurrency}
-        <TextGrey>{zerofy(NUM(from))}</TextGrey>
-        <TextGrey className='mr-05 ml-05'>→</TextGrey>
-      </React.Fragment>}
-      {toCurrency}
-      <Text>{zerofy(NUM(to))}</Text>
-    </div>
-  )
-}
-
-export const LinearPnL = ({
-  position,
-  isPhone,
-  valueInUsdStatus,
-  loading
-}: {
-  position: Position
-  isPhone?: boolean
-  loading?:boolean
-  valueInUsdStatus: VALUE_IN_USD_STATUS
-}) => {
-  if (loading) return <SkeletonLoader loading/>
-  const { pool, valueRLinear, entryValueU, entryValueR } = position
-  const { prices } = useTokenPrice()
-  const priceR = prices[pool.TOKEN_R] ?? 1
-  const valueULinear = mul(valueRLinear, priceR)
-  const [value, entryValue] = isShowValueInUsd(valueInUsdStatus, pool)
-    ? [valueULinear, entryValueU]
-    : [valueRLinear, entryValueR]
-  if (!entryValue || !Number(entryValue)) {
-    return <React.Fragment />
-  }
-  const valueChange = sub(value, entryValue)
-  const valueChangeDisplay =
-    <Text className='d-flex align-item-center'>
-      {IS_NEG(valueChange) ? '-' : '+'}
-      {isShowValueInUsd(valueInUsdStatus, pool) ? '$' : <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex' />}
-      {zerofy(ABS(valueChange))}
-    </Text>
-  const rate = formatPercent(div(valueChange, entryValue), undefined, true)
-  if (rate == 0) {
-    return <React.Fragment />
-  }
-  const rateDisplay = rate <= -99.9 ? 'LIQUIDATED' : ((rate >= 0 ? '+' : '') + STR(rate) + '%')
-  const TextComp = rate >= 0 ? TextBuy : TextSell
-  if (isPhone) {
-    return <TextComp className='pnl'>
-      ({rateDisplay})&nbsp;{valueChangeDisplay}
-    </TextComp>
-  }
-  return <TextComp className='pnl'>
-    {valueChangeDisplay}&nbsp;({rateDisplay})
-  </TextComp>
-}
-
-export const CompoundToLinearPnL = ({
-  position,
-  isPhone,
-  valueInUsdStatus,
-  loading
-}: {
-  position: Position
-  isPhone?: boolean
-  loading?:boolean
-  valueInUsdStatus: VALUE_IN_USD_STATUS
-}) => {
-  if (loading) return <SkeletonLoader loading/>
-  const { pool, valueRCompound, valueRLinear } = position
-  const { prices } = useTokenPrice()
-  const priceR = prices[pool.TOKEN_R] ?? 1
-  const valueUCompound = mul(valueRCompound, priceR)
-  const valueULinear = mul(valueRLinear, priceR)
-  const [value, entryValue] = isShowValueInUsd(valueInUsdStatus, pool)
-    ? [valueUCompound, valueULinear]
-    : [valueRCompound, valueRLinear]
-  const valueChange = sub(value, entryValue)
-  const valueChangeDisplay =
-    <Text className='d-flex align-item-center'>
-      {IS_NEG(valueChange) ? '-' : '+'}
-      {isShowValueInUsd(valueInUsdStatus, pool) ? '$' : <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex' />}
-      {zerofy(ABS(valueChange))}
-    </Text>
-  const maxValue = Math.max(NUM(value ?? 0), NUM(entryValue ?? 0))
-  if (maxValue == 0) {
-    return <React.Fragment/>
-  }
-  const rate = formatPercent(div(valueChange, maxValue), undefined, true)
-  const rateDisplay = (rate >= 0 ? '+' : '') + STR(rate)
-  const TextComp = rate >= 0 ? TextBuy : TextSell
-  if (isPhone) {
-    return <TextComp className='pnl'>
-      ({rateDisplay}%)&nbsp;{valueChangeDisplay}
-    </TextComp>
-  }
-  return <TextComp className='pnl'>
-    {valueChangeDisplay}&nbsp;({rateDisplay}%)
-  </TextComp>
-}
-
-export const CompoundPnL = ({
-  position,
-  isPhone,
-  valueInUsdStatus,
-  loading
-}: {
-  position: Position
-  isPhone?: boolean
-  loading?:boolean
-  valueInUsdStatus: VALUE_IN_USD_STATUS
-}) => {
-  if (loading) return <SkeletonLoader loading/>
-  const { pool, valueRCompound, entryValueU, entryValueR } = position
-  const { prices } = useTokenPrice()
-  const priceR = prices[pool.TOKEN_R] ?? 1
-  const valueUCompound = mul(valueRCompound, priceR)
-  const [value, entryValue] = isShowValueInUsd(valueInUsdStatus, pool)
-    ? [valueUCompound, entryValueU]
-    : [valueRCompound, entryValueR]
-  const valueChange = sub(value, entryValue)
-  const valueChangeDisplay =
-    <Text className='d-flex align-item-center'>
-      {IS_NEG(valueChange) ? '-' : '+'}
-      {isShowValueInUsd(valueInUsdStatus, pool) ? '$' : <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex' />}
-      {zerofy(ABS(valueChange))}
-    </Text>
-  const rate = formatPercent(div(valueChange, entryValue), undefined, true)
-  const rateDisplay = (rate >= 0 ? '+' : '') + STR(rate)
-  const TextComp = rate >= 0 ? TextBuy : TextSell
-  if (isPhone) {
-    return <TextComp className='pnl'>
-      ({rateDisplay}%)&nbsp;{valueChangeDisplay}
-    </TextComp>
-  }
-  return <TextComp className='pnl'>
-    {valueChangeDisplay}&nbsp;({rateDisplay}%)
-  </TextComp>
-}
-
-export const PnL = ({
-  position,
-  isPhone,
-  valueInUsdStatus,
-  loading
-}: {
-  position: Position
-  isPhone?: boolean
-  loading?:boolean
-  valueInUsdStatus: VALUE_IN_USD_STATUS
-}) => {
-  if (loading) return <SkeletonLoader loading/>
-  const { pool, entryValueU, entryValueR, valueR, valueU } = position
-  const [value, entryValue] = isShowValueInUsd(valueInUsdStatus, pool)
-    ? [valueU, entryValueU]
-    : [valueR, entryValueR]
-  const valueChange = sub(value, entryValue)
-  const valueChangeDisplay =
-    <Text className='d-flex align-item-center'>
-      {IS_NEG(valueChange) ? '-' : '+'}
-      {isShowValueInUsd(valueInUsdStatus, pool) ? '$' : <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex' />}
-      {zerofy(ABS(valueChange))}
-    </Text>
-  const maxValue = Math.max(NUM(value ?? 0), NUM(entryValue ?? 0))
-  if (maxValue == 0) {
-    return <React.Fragment/>
-  }
-  const rate = formatPercent(div(valueChange, NUM(entryValue ?? 0) || NUM(value ?? 0)), undefined, true)
-  const rateDisplay = (rate >= 0 ? '+' : '') + STR(rate)
-  const TextComp = rate >= 0 ? TextBuy : TextSell
-  if (isPhone) {
-    return <TextComp className='pnl'>
-      ({rateDisplay}%)&nbsp;{valueChangeDisplay}
-    </TextComp>
-  }
-  return <TextComp className='pnl'>
-    {valueChangeDisplay}&nbsp;({rateDisplay}%)
-  </TextComp>
-}
-
-export const Funding = ({
-  position,
-  isPhone,
-  valueInUsdStatus,
-  loading
-}: {
-  position: Position
-  isPhone?: boolean
-  loading?:boolean
-  valueInUsdStatus: VALUE_IN_USD_STATUS
-}) => {
-  if (loading) return <SkeletonLoader loading/>
-  const { pool, valueR, valueRCompound, valueU, entryValueU, entryValueR } = position
-  const { prices } = useTokenPrice()
-  const priceR = prices[pool.TOKEN_R] ?? 1
-  const paidR = NUM(sub(valueR, valueRCompound))
-
-  let valueChangeDisplay
-  let rate
-
-  if (isShowValueInUsd(valueInUsdStatus, pool)) {
-    const compoundValueU = mul(valueRCompound, priceR)
-    const paidU = NUM(sub(valueU, compoundValueU))
-    valueChangeDisplay = <Text className='d-flex align-item-center'>
-      {paidU >= 0 ? '+$' : '-$'}
-      {zerofy(Math.abs(paidU))}
-    </Text>
-    rate = div(paidU, div(add(entryValueU, compoundValueU), 2))
-  } else {
-    valueChangeDisplay = <Text className='d-flex align-item-center'>
-      {paidR > 0 ? '+' : '-'}
-      <TokenIcon tokenAddress={pool?.TOKEN_R} size={16} iconSize='1.4ex' />
-      {zerofy(Math.abs(paidR))}
-    </Text>
-    rate = div(paidR, div(add(entryValueR, valueRCompound), 2))
-  }
-
-  if (paidR == 0) {
-    return <React.Fragment />
-  }
-
-  if (!isPhone) {
-    return paidR >= 0 ? (
-      <TextBuy>
-        {valueChangeDisplay}
-      </TextBuy>
-    ) : (
-      <TextSell>
-        {valueChangeDisplay}
-      </TextSell>
-    )
-  }
-
-  const rateDisplay = formatPercent(rate)
-  return paidR >= 0 ? (
-    <TextBuy className='pnl'>
-      (+{rateDisplay}%)&nbsp;{valueChangeDisplay}
-    </TextBuy>
-  ) : (
-    <TextSell className='pnl'>
-      ({rateDisplay}%)&nbsp;{valueChangeDisplay}
-    </TextSell>
-  )
-}
-
-export const DeleveragePrice = ({
-  position,
-  isPhone
-}: {
-  position: {
-    dgA: number
-    dgB: number
-    currentPrice?: string
-    side: number
-    effectiveLeverage: number
-    leverage: number
-  }
-  isPhone?: boolean
-}) => {
-  const { dgA, dgB, currentPrice, side, effectiveLeverage, leverage } = position
-
-  const deltas = [dgA, dgB].map(dg => {
-    if (currentPrice == null) {
-      return ''
-    }
-    const rate = NUM(div(dg, currentPrice))
-    if (rate >= 2) {
-      return `(×${formatFloat(rate, undefined, 2, true)})`
-    }
-    if (rate <= 0.5) {
-      return `(1/${formatFloat(1 / rate, undefined, 2, true)})`
-    }
-    const delta = formatFloat(mdp(div(sub(dg, currentPrice), currentPrice), 2), undefined, 3, true)
-    return `(${delta >= 0 ? '+' : ''}${delta}%)`
-  })
-
-  const TextComp =
-    effectiveLeverage < leverage / 2 ? TextSell
-      : effectiveLeverage < leverage ? TextWarning
-        : TextGrey
-
-  if (isPhone) {
-    return side === POOL_IDS.A
-      ? <TextComp>{deltas[0]} {zerofy(dgA)}</TextComp>
-      : side === POOL_IDS.B ? <TextComp>{deltas[1]} {zerofy(dgB)}</TextComp>
-        : <TextComp>{zerofy(dgB)}-{zerofy(dgA)}</TextComp>
-  }
-
-  return side === POOL_IDS.A
-    ? <React.Fragment>
-      <div><TextComp>{zerofy(dgA)}</TextComp></div>
-      <TextComp>{deltas[0]}</TextComp>
-    </React.Fragment>
-    : side === POOL_IDS.B ? <React.Fragment>
-      <div><TextComp>{zerofy(dgB)}</TextComp></div>
-      <TextComp>{deltas[1]}</TextComp>
-    </React.Fragment>
-      : <React.Fragment>
-        <div><TextComp>{zerofy(dgA)}</TextComp></div>
-        <TextComp>{zerofy(dgB)}</TextComp>
-      </React.Fragment>
-}
-
-export const FundingRate = ({
-  position
-}: {
-  position: Position
-}) => {
-  const { side, funding } = position
-  const TextComp = funding < 0 || side === POOL_IDS.C ? TextGreen : TextWarning
-  const fundingFormat = zerofy(formatFloat(funding * 100, undefined, 3, true))
-  if (fundingFormat == '0') {
-    return <React.Fragment />
-  }
-  return <TextComp>
-    {fundingFormat}%
-    <TextGrey>/24h</TextGrey>
-  </TextComp>
-}
-
-export const Size = ({
-  position,
-  isPhone,
-}: {
-  position: Position
-  isPhone?: boolean
-}) => {
-  const { status, leverage, effectiveLeverage, sizeDisplay } = position
-  if (!sizeDisplay) {
-    return <React.Fragment/>
-  }
-  if (!isPhone) {
-    return <SkeletonLoader loading={!sizeDisplay || status === POSITION_STATUS.OPENING}>
-      {effectiveLeverage < leverage / 2
-        ? <TextError>{sizeDisplay}
-          <div><TextGrey>({leverage}x)</TextGrey></div>
-        </TextError>
-        : effectiveLeverage < leverage
-          ? <TextWarning>{sizeDisplay}
-            <div><TextGrey>({leverage}x)</TextGrey></div>
-          </TextWarning>
-          : <TextGrey>{sizeDisplay}
-            <div><TextGrey>({leverage}x)</TextGrey></div>
-          </TextGrey>
-      }
-    </SkeletonLoader>
-  }
-  return <SkeletonLoader loading={status === POSITION_STATUS.OPENING}>
-    {effectiveLeverage < leverage / 2 ? (
-      <TextError>
-        ({leverage}x) {sizeDisplay}
-      </TextError>
-    ) : effectiveLeverage < leverage ? (
-      <TextWarning>
-        ({leverage}x) {sizeDisplay}
-      </TextWarning>
-    ) : (
-      <TextGrey>
-        ({leverage}x) {sizeDisplay}
-      </TextGrey>
-    )}
-  </SkeletonLoader>
-}
-
-export const ClosingFee = ({
-  now,
-  position,
-  isPhone
-}: {
-  now: number
-  position: Position
-  isPhone?: boolean
-}) => {
-  if (!position?.calulateClosingFee?.()) return <React.Fragment />
-  const res: any = position.calulateClosingFee(now)
-
-  if (!res?.fee) {
-    return <React.Fragment />
-  }
-
-  const TextComp = res?.isVesting ? TextSell : TextWarning
-  const feeFormat = formatPercent(Math.min(1, res.fee ?? 0), 2, true)
-  const timeFormat = formatMaturity(res.remain)
-  const { status } = position
-  if (isPhone) {
-    return (
-      <div>
-        <SkeletonLoader loading={status !== POSITION_STATUS.OPENED} >
-          <TextComp>
-            {feeFormat}% for {timeFormat}
-          </TextComp>
-        </SkeletonLoader>
-      </div>
-    )
-  }
-  return (
-    <div>
-      {status !== POSITION_STATUS.UPDATING
-        ? <div>
-          <SkeletonLoader loading={status === POSITION_STATUS.OPENING} >
-            <div>
-              <TextComp>{feeFormat}%</TextComp>
-            </div>
-          </SkeletonLoader>
-          <SkeletonLoader loading={status === POSITION_STATUS.OPENING} >
-            <div>
-              <TextComp>{`for ${timeFormat}`}</TextComp>
-            </div>
-          </SkeletonLoader>
-        </div>
-        : <SkeletonLoader height='26px' textLoading='Updating' loading={status === POSITION_STATUS.UPDATING} >
-          <TextComp>{`for ${timeFormat}`}</TextComp>
-        </SkeletonLoader>
-      }
-    </div>
-  )
-}
-
-export const Reserve = ({ pool }: { pool: any }) => {
-  const { tokens } = useListTokens()
-  const { width } = useWindowSize()
-  const isPhone = width && width < 992
-
-  return (
-    <div className='d-flex gap-05 align-items-center'>
-      <TokenIcon size={isPhone ? 18 : 24} tokenAddress={pool.TOKEN_R} />
-      <Text>{tokens[pool.TOKEN_R]?.symbol}</Text>
-    </div>
-  )
-}
-
-export const ExplorerLink = ({ poolAddress }: { poolAddress: string }) => {
-  const { configs } = useConfigs()
-
-  return (
-    <TextLink href={configs.explorer + '/address/' + poolAddress}>
-      {shortenAddressString(poolAddress)}
-    </TextLink>
-  )
-}
-
-export const Token = ({
-  token,
-  balance,
-  doubleLines,
-}: {
-  token: string
-  balance?: string
-  doubleLines?: boolean
-}) => {
-  const { width } = useWindowSize()
-  const isPhone = width && width < 992
-  doubleLines = !!doubleLines && !balance && !isPhone
-
-  return (
-    <div className='d-flex gap-05 align-items-center'>
-      <TokenIcon size={isPhone ? 18 : 24} tokenAddress={token} />
-      <div>
-        <div>
-          <TokenSymbol token={token} only={doubleLines ? 'type' : undefined} />
-        </div>
-        {!doubleLines || <div><TokenSymbol token={token} only='index' /></div>}
-        {!balance || <div><Text>{balance}</Text></div>}
-      </div>
-    </div>
-  )
-}
-
-export const isShowValueInUsd = (
-  valueInUsdStatus: VALUE_IN_USD_STATUS,
-  pool: PoolType
-) => {
-  return (
-    valueInUsdStatus === VALUE_IN_USD_STATUS.USD ||
-    (valueInUsdStatus === VALUE_IN_USD_STATUS.AUTO &&
-      pool?.baseToken === pool?.TOKEN_R)
   )
 }

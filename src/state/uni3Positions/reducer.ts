@@ -22,7 +22,9 @@ export const tokens = createSlice({
         uni3Positions: {[key:string]: IUniPosV3}
       }>
     ) => {
-      state.uni3Positions = action.payload.uni3Positions
+      Object.keys(action.payload.uni3Positions).map(key => {
+        state.uni3Positions[key] = action.payload.uni3Positions[key]
+      })
     },
     setCurrentUni3Pos: (
       state,
