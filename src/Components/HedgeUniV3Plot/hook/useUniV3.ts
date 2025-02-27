@@ -21,7 +21,7 @@ interface IUniPosV3 {
     token1: string
 }
 export const useHedgeUniV3 = () => {
-  const { ddlEngine, configs } = useConfigs()
+  const { configs } = useConfigs()
   const { provider, chainId } = useWeb3React()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string>('')
@@ -129,7 +129,7 @@ export const useHedgeUniV3 = () => {
       setError('Uni3 positions path invalid')
       setLoading(false)
     }
-  }, [ddlEngine, provider])
+  }, [provider])
   useEffect(() => {
     if(uni3PosState?.uni3PosData){
         const {token0, token1, fee} = uni3PosState?.uni3PosData
