@@ -194,31 +194,31 @@ export const HedgeUniV3Plot = (props: any) => {
   const [L, setL] = useState('1.105');
   const [D, setD] = useState('0.726');
 
-  const hedgeData = useMemo(() => {
-    const {
-      tick,
-      uni3PosData,
-      token0Data,
-      token1Data,
-    } = uniV3Data
-    if (!uni3PosData || !tick || !token0Data || !token1Data) return;
-    const { tickLower, tickUpper } = uni3PosData
-    const diffDecimals = Math.abs(token0Data.decimals - token1Data.decimals)
-    const px = calculatePx(tick)
-    const pxa = calculatePx(tickLower)
-    const pxb = calculatePx(tickUpper)
-    let a = pxa / px
-    let b = pxb / px
-    console.log('#lower, current, upper', pxa * (10 ** diffDecimals), px * (10 ** diffDecimals), pxb * (10 ** diffDecimals))
-    console.log('#a,b', a,b)
-    return {
-      a,
-      b,
-      pxa: pxa * 10 ** diffDecimals,
-      pxb: pxb * 10 ** diffDecimals,
-      px: px * 10 ** diffDecimals
-    }
-  }, [uniV3Data])
+  // const hedgeData = useMemo(() => {
+  //   const {
+  //     tick,
+  //     uni3PosData,
+  //     token0Data,
+  //     token1Data,
+  //   } = uniV3Data
+  //   if (!uni3PosData || !tick || !token0Data || !token1Data) return;
+  //   const { tickLower, tickUpper } = uni3PosData
+  //   const diffDecimals = Math.abs(token0Data.decimals - token1Data.decimals)
+  //   const px = calculatePx(tick)
+  //   const pxa = calculatePx(tickLower)
+  //   const pxb = calculatePx(tickUpper)
+  //   let a = pxa / px
+  //   let b = pxb / px
+  //   console.log('#lower, current, upper', pxa * (10 ** diffDecimals), px * (10 ** diffDecimals), pxb * (10 ** diffDecimals))
+  //   console.log('#a,b', a,b)
+  //   return {
+  //     a,
+  //     b,
+  //     pxa: pxa * 10 ** diffDecimals,
+  //     pxb: pxb * 10 ** diffDecimals,
+  //     px: px * 10 ** diffDecimals
+  //   }
+  // }, [uniV3Data])
   
   return (
     <React.Fragment>
