@@ -52,17 +52,19 @@ export const HedgeUniV3Plot = (props: any) => {
   const { currentPool } = cp
   const { wrapToNativeAddress } = useHelper()
   const calc = React.useRef() as React.MutableRefObject<Desmos.Calculator>
-  const {uni3PosAddress, uni3PosData, uni3PosError,uni3PosId,uni3PosLoading} = useHedgeUniV3()
-
+  const uniV3Data = useHedgeUniV3()
+  useEffect(() => {
+    console.log('#uniV3Data', uniV3Data)
+  }, [uniV3Data])
   return <div>
-    {uni3PosLoading ? 'loading...' : <div>
+    {JSON.stringify(uniV3Data)}
+    {/* {uni3PosLoading ? 'loading...' : <div>
     Pool Address: {uni3PosAddress} <br/>
     Position Id: {uni3PosId} <br/>
     Positions Data: {JSON.stringify(uni3PosData, null , 2)} <br/>
-    Error: {uni3PosError}
+    Error: {uni3PosError} */}
     </div>
-  }
-  </div>
+  // }
   // const {
   //   PX,
   //   a,
