@@ -39,6 +39,15 @@ function _x(k: number, r: number, v: number): number {
   return Math.pow(r / v, 1 / k)
 }
 
+function xTop(X: number, xb: number, xa: number): number {
+  const term1 = 1 / Math.sqrt(X);
+  const term2 = 1 / (2 * Math.sqrt(xb));
+  const term3 = Math.sqrt(xa) / (2 * X);
+
+  const result = Math.pow(term1 + term2 - term3, -2);
+
+  return result;
+}
 // function _k(k: number, x: number, v: number, R: number): number {
 //   return (k * R) / Math.abs(4 * v * x ** k - R)
 // }
@@ -218,58 +227,48 @@ export const HedgeUniV3Plot = (props: any) => {
     //   px: px * 10 ** diffDecimals
     // }
   // }, [currentDisplayUni3Position])
+  const [observeA, setObserveA] = useState<number>(0);
+  const [observeB, setObserveB] = useState<number>(0);
+  const [observeTop, setObserveTop] = useState<number>(0);
+  
   const hedgeData = useMemo(() => {
-    if(!currentDisplayUni3Position || !mark) return;
+    if(!currentDisplayUni3Position || !mark || !calc.current) return;
     const pxa = NUM(currentDisplayUni3Position?.pxLower / mark)
     const px = NUM(currentDisplayUni3Position?.px / mark)
     const pxb = NUM(currentDisplayUni3Position?.pxUpper / mark)
+
+    const xT = xTop(px, pxb, pxa);
+    const helpers = {
+      top: calc.current.HelperExpression({ latex: `i(${xT})` }),
+      a: calc.current.HelperExpression({ latex: `i(${pxa})` }),
+      b: calc.current.HelperExpression({ latex: `i(${pxb})` }),
+    };
+
+    helpers.a?.observe('numericValue', () => setObserveA(helpers.a.numericValue));
+    helpers.b?.observe('numericValue', () => setObserveB(helpers.b.numericValue));
+    helpers.top?.observe('numericValue', () => setObserveTop(helpers.top.numericValue));
+
     return {
       pxa,
       px,
       pxb,
     }
-    // console.log('#derion => X, a,b, R', X, a,b,R)
-    // console.log('#hedge => px_a, px, px_b', currentDisplayUni3Position?.pxLower, currentDisplayUni3Position?.px, currentDisplayUni3Position?.pxUpper)
-  },[currentDisplayUni3Position, mark])
-
-
-
-  // React.useEffect(() => {
-  //   if (calc && calc.current) {
-  //     const V = Math.max([0, uc(A), uc(B)]) - Math.min([0, uc(A), uc(B)])
-  //     const H = Math.max([A, B, X]) - Math.min([A, B, X])
-  //     calc.current.setMathBounds({
-  //       bottom: -0.1 * TM,
-  //       top: 1.5 * TM,
-  //       left: -0.1 * H,
-  //       right: 1.1 * H,
-  //     })
-  //   }
-  // }, [calc, R, R1, X, AD])
-  React.useEffect(() => {
-    if (calc && calc.current && hedgeData) {
-      const {px, pxa, pxb} = hedgeData
-      const minX = Math.min(px, pxa, pxb);
-      const maxX = Math.max(px, pxa, pxb);
-      const xPadding = maxX - minX
-      const uc = (x: number, ) => {
-        const _k = (currentDisplayUni3Position?.totalPositionByUSD||0)/(2/ Math.sqrt(X))
-        return _k*(2*Math.sqrt(x)-x/Math.sqrt(hedgeData?.pxb || 0) - Math.sqrt(hedgeData?.pxb || 0))
-      }
-      
-      const maxY = Math.max(0, uc(hedgeData?.pxa), uc(hedgeData?.pxb)); 
-      const minY = Math.min(0, uc(hedgeData?.pxa), uc(hedgeData?.pxb));
-      const yPadding = (maxY - minY); 
-
-      calc.current.setMathBounds({
-        left: minX - xPadding * 0.1,
-        right: maxX + xPadding * 0.1,
-        bottom: minY - yPadding * 1.05,
-        top: maxY + yPadding * 1.05,
-      });
+  },[calc, currentDisplayUni3Position, mark])
+  
+  useEffect(() => {
+    if (calc?.current && hedgeData && observeA !== 0 && observeB !== 0 && observeTop !== 0) {
+      const { px, pxa, pxb } = hedgeData;
+  
+      const bounds = {
+        left: Math.min(px, pxa, pxb) * 0.9,
+        right: Math.max(px, pxa, pxb) * 1.1,
+        bottom: Math.min(0, observeA, observeB) * 1.1,
+        top: Math.max(0, observeTop, observeA, observeB) * 1.5,
+      };
+  
+      calc.current.setMathBounds(bounds);
     }
-  }, [hedgeData, calc, currentDisplayUni3Position])
-
+  }, [hedgeData, observeA, observeB, observeTop]);
 
   const {poolGroups} = useResource()
 
@@ -394,8 +393,8 @@ export const HedgeUniV3Plot = (props: any) => {
           <Expression id='IL-A-function' latex={'\\left(x_{a},i\\left(x_{a}\\right)\\right)'} dragMode={'NONE'} color={'#34495E'} showLabel={true} label='A' />
           <Expression id='IL-B-function' latex={'\\left(x_{b},i\\left(x_{b}\\right)\\right)'} dragMode={'NONE'} color={'#34495E'} showLabel={true} label='B' />
           <Expression id='IL-X-function' latex={'\\left(X,i\\left(X\\right)\\right)'} color={'#34495E'} dragMode={'NONE'} showLabel={true} label='X' />
-          <Expression id='IL-iHxa-function' latex={'\\left(x_{a},i_{H}\\left(x_{a}\\right)\\right)'} />
-          <Expression id='IL-iHxb-function' latex={'\\left(x_{b},i_{H}\\left(x_{b}\\right)\\right)'} />
+          <Expression id='IL-iHxa-function' latex={'\\left(x_{a},i_{H}\\left(x_{a}\\right)\\right)'} dragMode={'NONE'} />
+          <Expression id='IL-iHxb-function' latex={'\\left(x_{b},i_{H}\\left(x_{b}\\right)\\right)'} dragMode={'NONE'} />
           <Expression id='IL-iH-line-function' latex={'i_{H}\\left(x_{a}\\right)-s_{iH}x_{a}+s_{iH}x \\{x_{a}<x<x_{b}\\}'} color={'#34495E'} lineStyle='DASHED'/>
           <Expression id='IL-siH-function' latex={'s_{iH}=\\frac{\\left(i_{H}\\left(x_{b}\\right)-i_{H}\\left(x_{a}\\right)\\right)}{x_{b}-x_{a}}'} />
           <Expression id='IL-ka-function' latex={'k_{a}=\\frac{V}{2\\sqrt{X}}'}/>
