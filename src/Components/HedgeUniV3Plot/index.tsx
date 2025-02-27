@@ -161,23 +161,6 @@ export const HedgeUniV3Plot = (props: any) => {
     }
   }, [cp])
 
-  const uc = (x) => {
-    k = V/2/sqrt(X)
-    return k*(2*sqrt(x)-x/sqrt(xb)-sqrt(xa))
-  }
-
-  React.useEffect(() => {
-    if (calc && calc.current) {
-      const V = Math.max([0, uc(A), uc(B)]) - Math.min([0, uc(A), uc(B)])
-      const H = Math.max([A, B, X]) - Math.min([A, B, X])
-      calc.current.setMathBounds({
-        bottom: -0.1 * TM,
-        top: 1.5 * TM,
-        left: -0.1 * H,
-        right: 1.1 * H,
-      })
-    }
-  }, [calc, R, R1, X, AD])
 
   if (!currentPool.states) {
     return (
@@ -248,6 +231,46 @@ export const HedgeUniV3Plot = (props: any) => {
     // console.log('#derion => X, a,b, R', X, a,b,R)
     // console.log('#hedge => px_a, px, px_b', currentDisplayUni3Position?.pxLower, currentDisplayUni3Position?.px, currentDisplayUni3Position?.pxUpper)
   },[currentDisplayUni3Position, mark])
+
+
+
+  // React.useEffect(() => {
+  //   if (calc && calc.current) {
+  //     const V = Math.max([0, uc(A), uc(B)]) - Math.min([0, uc(A), uc(B)])
+  //     const H = Math.max([A, B, X]) - Math.min([A, B, X])
+  //     calc.current.setMathBounds({
+  //       bottom: -0.1 * TM,
+  //       top: 1.5 * TM,
+  //       left: -0.1 * H,
+  //       right: 1.1 * H,
+  //     })
+  //   }
+  // }, [calc, R, R1, X, AD])
+  React.useEffect(() => {
+    if (calc && calc.current && hedgeData) {
+      const {px, pxa, pxb} = hedgeData
+      const minX = Math.min(px, pxa, pxb);
+      const maxX = Math.max(px, pxa, pxb);
+      const xPadding = maxX - minX
+      const uc = (x: number, ) => {
+        const _k = (currentDisplayUni3Position?.totalPositionByUSD||0)/(2/ Math.sqrt(X))
+        return _k*(2*Math.sqrt(x)-x/Math.sqrt(hedgeData?.pxb || 0) - Math.sqrt(hedgeData?.pxb || 0))
+      }
+      
+      const maxY = Math.max(0, uc(hedgeData?.pxa), uc(hedgeData?.pxb)); 
+      const minY = Math.min(0, uc(hedgeData?.pxa), uc(hedgeData?.pxb));
+      const yPadding = (maxY - minY); 
+
+      calc.current.setMathBounds({
+        left: minX - xPadding * 0.1,
+        right: maxX + xPadding * 0.1,
+        bottom: minY - yPadding * 1.05,
+        top: maxY + yPadding * 1.05,
+      });
+    }
+  }, [hedgeData, calc, currentDisplayUni3Position])
+
+
   const {poolGroups} = useResource()
 
   const isHasDerionIndex = useMemo(() => {
@@ -369,7 +392,7 @@ export const HedgeUniV3Plot = (props: any) => {
 
           {/* <Expression id='IL-V-function' latex={'\\left(\\sqrt{x_{a}x_{b}},V_{i}\\right)'} color={'RED'} showLabel={true} label='V' /> */}
           <Expression id='IL-A-function' latex={'\\left(x_{a},i\\left(x_{a}\\right)\\right)'} dragMode={'NONE'} color={'#34495E'} showLabel={true} label='A' />
-          // <Expression id='IL-B-function' latex={'\\left(x_{b},i\\left(x_{b}\\right)\\right)'} dragMode={'NONE'} color={'#34495E'} showLabel={true} label='B' />
+          <Expression id='IL-B-function' latex={'\\left(x_{b},i\\left(x_{b}\\right)\\right)'} dragMode={'NONE'} color={'#34495E'} showLabel={true} label='B' />
           <Expression id='IL-X-function' latex={'\\left(X,i\\left(X\\right)\\right)'} color={'#34495E'} dragMode={'NONE'} showLabel={true} label='X' />
           <Expression id='IL-iHxa-function' latex={'\\left(x_{a},i_{H}\\left(x_{a}\\right)\\right)'} />
           <Expression id='IL-iHxb-function' latex={'\\left(x_{b},i_{H}\\left(x_{b}\\right)\\right)'} />
