@@ -80,6 +80,7 @@ export const HedgeUniV3Plot = (props: any) => {
   const [yA, setyA] = useState<number>(0);
   const [yB, setyB] = useState<number>(0);
   const [yTop, setYTop] = useState<number>(0);
+  const [xT, setxTop] = useState<number>(0);
 
   const hedgeData = useMemo(() => {
     if(!currentDisplayUni3Position || !mark) return;
@@ -96,9 +97,10 @@ export const HedgeUniV3Plot = (props: any) => {
   useEffect(() => {
     if (hedgeData && calc.current) {
       const { px, pxa, pxb } = hedgeData
-      const xT = xTop(px, pxb, pxa)
+      const _xT = xTop(px, pxb, pxa)
+      setxTop(_xT)
       const helpers = {
-        top: calc.current.HelperExpression({ latex: `i(${xT})` }),
+        top: calc.current.HelperExpression({ latex: `i(${_xT})` }),
         a: calc.current.HelperExpression({ latex: `i(${pxa})` }),
         b: calc.current.HelperExpression({ latex: `i(${pxb})` })
       }
@@ -205,20 +207,27 @@ export const HedgeUniV3Plot = (props: any) => {
           <Expression id='common-f(x)' latex={'f(x) = \\left\\{ a_{0}x^{K} \\leq \\frac{R_{0}}{2} : a_{0}x^{K}, R_{0} - \\frac{R_{0}^{2}}{4a_{0}x^{K}} \\right\\} \\quad \\left\\{ 0 < x \\right\\}'} hidden />
           <Expression id='Hedge-xa' latex={`x_{a}=${hedgeData?.pxa}`} />
           <Expression id='Hedge-xb' latex={`x_{b}=${hedgeData?.pxb}`} />
+          <Expression id='Hedge-xT' latex={"x_{T}=\\left(\\frac{1}{\\sqrt{X}}+\\frac{1}{2\\sqrt{x_{b}}}-\\frac{\\sqrt{x_{a}}}{2X}\\right)^{-2}"} />
+
           <Expression id='IL-V' latex={`V=${currentDisplayUni3Position?.totalPositionByUSD}`} />
           <Expression id='Hedge-l-function' latex={'l(x) = \\frac{r(K,x,a_{0},R_{0})}{r(K,X,a_{0},R_{0})} - 1'} color="RED"  hidden/>
           <Expression id='Hedge-s-function' latex={'s(x) = \\frac{r(-K,x,b_{0},R_{0})}{r(-K,X,b_{0},R_{0})} - 1'} hidden color="BLUE" />
-          <Expression id='Hedge-Ls-function' sliderBounds={{
-            min:'x_{a}',
-            max:'x_{b}',
+          <Expression id='Hedge-c-function' latex={'c\\left(x\\right)=\\frac{V}{\\left\\{x<x_{a}:xm_{B},x_{b}<x:m_{Q},u_{c}\\left(x\\right)\\right\\}}'} hidden/>
+          
+          <Expression id='Hedge-D_0-slider-function' latex={'D_{0}=\\max\\left(i\\left(x_{T}\\right),-i\\left(x_{a}\\right),-i\\left(x_{b}\\right)\\right)'} />
+          <Expression id='Hedge-D-slider-function' latex={'D=\\frac{Vc\\left(X\\right)}{4K^{2}}\\cdot\\frac{D_{s}}{D_{0}}'} />
+          <Expression id='Hedge-L-slider-function' latex={'L=\\frac{2x_{b}-x_{a}-L_{s}}{3\\left(x_{b}-x_{a}\\right)}'} />
+          {/* <Expression id='Hedge-L-slider-function' latex={'L=\\frac{2x_{b}-x_{a}-L_{s}}{3\\left(x_{b}-x_{a}\\right)}'} /> */}
+          <Expression id='Hedge-Ls-function' 
+          sliderBounds={{
+            min:'2*x_{a} - x_{b}',
+            max:'2*x_{b} - x_{a}',
             step: 1e-6,
           }} 
-          latex={`L_{s} = ${((hedgeData?.pxa ?? 0) + (hedgeData?.pxb ?? 0)) / 2}`} />
-          <Expression id='Hedge-Ds-function' sliderBounds={{min: '0' , max: 'V', step: 1e-6}} latex={`D_{s} = ${(yTop ?? 0) * 2}`} />
-          <Expression id='Hedge-D-slider-function' latex={'D = \\frac{D_{s}}{\\left|u_{c}\\left(x_{b}\\right)\\right| - D_{s}}'} />
-          <Expression id='Hedge-L-slider-function' latex={'L = 1 - \\frac{L_{s} - x_{a}}{x_{b} - x_{a}}'} />
+          latex={`L_{s}=${xT}`} />
+          <Expression id='Hedge-Ds-function' latex={`D_{s} = D_{0}`} />
           <Expression id='Hedge-544' latex={'(L_{s}, D_{s})'} showLabel color="RED" label='H' pointOpacity={2} pointSize={20} />
-          <Expression id='Hedge-H-function' latex={'H(x) = \\frac{D}{V} \\left( l(x) L + s(x) (1 - L) \\right)'} color="RED" lineStyle='DASHED' hidden lineWidth={1} />
+          <Expression id='Hedge-H-function' latex={'H\\left(x\\right)=D\\left(l\\left(x\\right)L+s\\left(x\\right)\\left(1-L\\right)\\right)'} color="RED" lineStyle='DASHED' hidden lineWidth={1} />
           <Expression id='Hedge-iH-function' latex={'i_{H}(x) = i(x) + H(x)'} color="RED" />
           <Expression id='IL-A-function' latex={'\\left(x_{a},i\\left(x_{a}\\right)\\right)'} dragMode={'NONE'} color={'BLUE'} showLabel={true} label='A' />
           <Expression id='IL-B-function' latex={'\\left(x_{b},i\\left(x_{b}\\right)\\right)'} dragMode={'NONE'} color={'BLUE'} showLabel={true} label='B' />
