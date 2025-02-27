@@ -78,19 +78,19 @@ const Component = ({
   // useEffect(() => {
   //   setUseDexTool(false)
   // }, [chainId])
-  const [showHedgeBeta, setShowHedgeBeta] = useState(false)
-  useEffect(() => {
-    const url = window.location.href
-    console.log('#urls', window.location)
-    if (url) {
-      const urlSearchParams = new URL(`https://1.com?${url?.split('?')[1]}`)
-        .searchParams
-      if (urlSearchParams.get('hedge')) {
-        setShowHedgeBeta(true)
-        setChartTab(CHART_TABS.HEDGE_CHART)
-      }
-    }
-  }, [location])
+  const [showHedgeBeta, setShowHedgeBeta] = useState(true)
+  // useEffect(() => {
+  //   const url = window.location.href
+  //   console.log('#urls', window.location)
+  //   if (url) {
+  //     const urlSearchParams = new URL(`https://1.com?${url?.split('?')[1]}`)
+  //       .searchParams
+  //     if (urlSearchParams.get('hedge')) {
+  //       setShowHedgeBeta(true)
+  //       setChartTab(CHART_TABS.HEDGE_CHART)
+  //     }
+  //   }
+  // }, [location])
   return (
     <div className='chart-box'>
       <div className='chart__head'>

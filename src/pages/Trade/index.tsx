@@ -143,15 +143,15 @@ export const Trade = ({
       }).catch(e => setIsLoadingIndex(false))
     }
   }, [id])
-  const [showBetaUni, setShowBetaUni] = useState(false)
-  useEffect(() => {
-    const url = location.href
-    const urlSearchParams = new URL(`https://1.com?${url.split('?')[1]}`)
-      .searchParams
-    if (urlSearchParams.get('hedge')) {
-      setShowBetaUni(true)
-    }
-  })
+  const [showBetaUni, setShowBetaUni] = useState(true)
+  // useEffect(() => {
+  //   const url = location.href
+  //   const urlSearchParams = new URL(`https://1.com?${url.split('?')[1]}`)
+  //     .searchParams
+  //   if (urlSearchParams.get('hedge')) {
+  //     setShowBetaUni(true)
+  //   }
+  // })
   return (
     <div className={`exposure-page ${loadingData && 'blur-3'}`}>
       <div className='exposure-page__content'>
