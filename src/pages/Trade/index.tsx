@@ -24,7 +24,8 @@ import { Uni3Positions } from '../../Components/Uni3Positions'
 
 const TAB_2 = {
   POSITION: Symbol('position'),
-  HISTORY: Symbol('history')
+  HISTORY: Symbol('history'),
+  HEDGE: Symbol('hedge'),
 }
 
 const TAB_INDEX_TO_PATH: { [key: number]: string } = {
@@ -164,13 +165,12 @@ export const Trade = ({
         </ErrorBoundary>
         <Tabs
           className='exposure-page__content--position-and-history'
-          selectedIndex={tab2 === TAB_2.POSITION ? 0 : 1}
+          selectedIndex={tab2 === TAB_2.HEDGE ? 2 : tab2 === TAB_2.POSITION ? 0 : 1}
           onSelect={(index) => {
-            setTab2(index === 0 ? TAB_2.POSITION : TAB_2.HISTORY)
+            setTab2(index === 2 ? TAB_2.HEDGE : index === 0 ? TAB_2.POSITION : TAB_2.HISTORY)
           }}
         >
           <TabList>
-            {showBetaUni ? <Tab>UniswapV3</Tab> : ''}
             <Tab>
               {tab === TRADE_TYPE.SWAP
                 ? 'Positions and LPs'
@@ -179,23 +179,8 @@ export const Trade = ({
                   : 'Positions'}
             </Tab>
             <Tab>History</Tab>
+            {showBetaUni ? <Tab>CFMM</Tab> : ''}
           </TabList>
-          {showBetaUni ? <TabPanel>
-            <Card className='card-in-tab'>
-              {/* @ts-ignore */}
-              <ErrorBoundary>
-                <Uni3Positions
-                  setOutputTokenAddressToBuy={
-                    tab === TRADE_TYPE.SWAP
-                      ? setInputTokenAddress
-                      : setOutputTokenAddress
-                  }
-                  tokenOutMaturity={tokenOutMaturity}
-                  isLoadingIndex={isLoadingIndex}
-                />
-              </ErrorBoundary>
-            </Card>
-          </TabPanel> : ''}
           <TabPanel>
             <Card className='card-in-tab'>
               {/* @ts-ignore */}
@@ -220,6 +205,22 @@ export const Trade = ({
               </ErrorBoundary>
             </Card>
           </TabPanel>
+          {showBetaUni ? <TabPanel>
+            <Card className='card-in-tab'>
+              {/* @ts-ignore */}
+              <ErrorBoundary>
+                <Uni3Positions
+                  setOutputTokenAddressToBuy={
+                    tab === TRADE_TYPE.SWAP
+                      ? setInputTokenAddress
+                      : setOutputTokenAddress
+                  }
+                  tokenOutMaturity={tokenOutMaturity}
+                  isLoadingIndex={isLoadingIndex}
+                />
+              </ErrorBoundary>
+            </Card>
+          </TabPanel> : ''}
         </Tabs>
         {/* </div> */}
         <div className='exposure-page__content--trade-box'>
