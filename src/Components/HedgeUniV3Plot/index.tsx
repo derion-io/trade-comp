@@ -220,8 +220,8 @@ export const HedgeUniV3Plot = (props: any) => {
           {/* <Expression id='Hedge-L-slider-function' latex={'L=\\frac{2x_{b}-x_{a}-L_{s}}{3\\left(x_{b}-x_{a}\\right)}'} /> */}
           <Expression id='Hedge-Ls-function' 
           sliderBounds={{
-            min:'2*x_{a} - x_{b}',
-            max:'2*x_{b} - x_{a}',
+            min:'2x_{a}-x_{b}',
+            max:'2x_{b}-x_{a}',
             step: 1e-6,
           }} 
           latex={`L_{s}=${xT}`} />
