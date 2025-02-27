@@ -170,6 +170,7 @@ export const Trade = ({
           }}
         >
           <TabList>
+            {showBetaUni ? <Tab>UniswapV3</Tab> : ''}
             <Tab>
               {tab === TRADE_TYPE.SWAP
                 ? 'Positions and LPs'
@@ -177,26 +178,8 @@ export const Trade = ({
                   ? 'LPs'
                   : 'Positions'}
             </Tab>
-
-            {showBetaUni ? <Tab>Uni3 Positions</Tab> : ''}
             <Tab>History</Tab>
           </TabList>
-          <TabPanel>
-            <Card className='card-in-tab'>
-              {/* @ts-ignore */}
-              <ErrorBoundary>
-                <Positions
-                  setOutputTokenAddressToBuy={
-                    tab === TRADE_TYPE.SWAP
-                      ? setInputTokenAddress
-                      : setOutputTokenAddress
-                  }
-                  tokenOutMaturity={tokenOutMaturity}
-                  isLoadingIndex={isLoadingIndex}
-                />
-              </ErrorBoundary>
-            </Card>
-          </TabPanel>
           {showBetaUni ? <TabPanel>
             <Card className='card-in-tab'>
               {/* @ts-ignore */}
@@ -213,6 +196,22 @@ export const Trade = ({
               </ErrorBoundary>
             </Card>
           </TabPanel> : ''}
+          <TabPanel>
+            <Card className='card-in-tab'>
+              {/* @ts-ignore */}
+              <ErrorBoundary>
+                <Positions
+                  setOutputTokenAddressToBuy={
+                    tab === TRADE_TYPE.SWAP
+                      ? setInputTokenAddress
+                      : setOutputTokenAddress
+                  }
+                  tokenOutMaturity={tokenOutMaturity}
+                  isLoadingIndex={isLoadingIndex}
+                />
+              </ErrorBoundary>
+            </Card>
+          </TabPanel>
           <TabPanel>
             <Card className='card-in-tab'>
               {/* @ts-ignore */}
