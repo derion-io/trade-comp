@@ -80,7 +80,8 @@ export const HedgeUniV3Plot = (props: any) => {
   const [yA, setyA] = useState<number>(0);
   const [yB, setyB] = useState<number>(0);
   const [yTop, setYTop] = useState<number>(0);
-  const [xT, setxTop] = useState<number>(0);
+  // const [xT, setxTop] = useState<number>(0);
+  const [D0, setD0] = useState<number>(0);
 
   const hedgeData = useMemo(() => {
     if(!currentDisplayUni3Position || !mark) return;
@@ -94,13 +95,19 @@ export const HedgeUniV3Plot = (props: any) => {
     }
   },[currentDisplayUni3Position, mark])
 
+  const plotState = useMemo(() => {
+    if(!hedgeData) return;
+    const { px, pxa, pxb } = hedgeData
+    const xT = xTop(px, pxb, pxa)
+    const D0 = Math.max(...[-yA, -yB, yTop])
+    return {xT, D0}
+  },[hedgeData, yA, yB, yTop])
+
   useEffect(() => {
-    if (hedgeData && calc.current) {
+    if (hedgeData && calc.current && plotState) {
       const { px, pxa, pxb } = hedgeData
-      const _xT = xTop(px, pxb, pxa)
-      setxTop(_xT)
       const helpers = {
-        top: calc.current.HelperExpression({ latex: `i(${_xT})` }),
+        top: calc.current.HelperExpression({ latex: `i(${plotState?.xT})` }),
         a: calc.current.HelperExpression({ latex: `i(${pxa})` }),
         b: calc.current.HelperExpression({ latex: `i(${pxb})` })
       }
@@ -111,7 +118,7 @@ export const HedgeUniV3Plot = (props: any) => {
         setYTop(helpers.top.numericValue)
       )
     }
-  }, [hedgeData, calc])
+  }, [hedgeData, calc, plotState])
 
   useEffect(() => {
     if (!calc?.current || !hedgeData) {
@@ -224,8 +231,8 @@ export const HedgeUniV3Plot = (props: any) => {
             max:'2x_{b}-x_{a}',
             step: 1e-6,
           }} 
-          latex={`L_{s}=${xT}`} />
-          <Expression id='Hedge-Ds-function' latex={`D_{s} = D_{0}`} />
+          latex={`L_{s}=${plotState?.xT}`} />
+          <Expression id='Hedge-Ds-function' latex={`D_{s} = ${plotState?.D0}`} />
           <Expression id='Hedge-544' latex={'(L_{s}, D_{s})'} showLabel color="RED" label='H' pointOpacity={2} pointSize={20} />
           <Expression id='Hedge-H-function' latex={'H\\left(x\\right)=D\\left(l\\left(x\\right)L+s\\left(x\\right)\\left(1-L\\right)\\right)'} color="RED" lineStyle='DASHED' hidden lineWidth={1} />
           <Expression id='Hedge-iH-function' latex={'i_{H}(x) = i(x) + H(x)'} color="RED" />
