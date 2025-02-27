@@ -22,7 +22,7 @@ export interface IDisplayUniPosV3 {
   liquidity: string,
   posLiquidityToken0: number,
   posLiquidityToken1: number,
-  totalPositionByToken1: number,
+  totalPositionByQuoteToken: number,
   totalPositionByUSD: number,
   feeGrowthInside0LastX128: string,
   feeGrowthInside1LastX128: string,
@@ -74,7 +74,7 @@ export const useUni3Position = () => {
       const tokenB = token1Data || tokens[token1]
       if(!tokenA || !tokenB|| !slot0) return;
 
-      const diffDecimals = tokenA?.decimals === tokenB?.decimals ? 1 : 10 ** Math.abs(tokenA?.decimals - tokenB?.decimals)
+      const diffDecimals = tokenA?.decimals === tokenB?.decimals ? tokenA?.decimals : 10 ** Math.abs(tokenA?.decimals - tokenB?.decimals)
       const pxLower = calculatePx(tickLower)
       const pxUpper = calculatePx(tickUpper)
       const px = calculatePx(slot0.tick)
@@ -87,8 +87,10 @@ export const useUni3Position = () => {
       const posLiquidityToken0 =
         (Number(liquidity) * (sqrtPxUpper - sqrtPx) / (sqrtPx * sqrtPxUpper)) / 10 ** tokenA.decimals;
       const posLiquidityToken1 = Number(liquidity) * (sqrtPx - sqrtPxLower) / 10 ** tokenB?.decimals;
-      const totalPositionByToken1 = posLiquidityToken1 + posLiquidityToken0 * px
-      const totalPositionByUSD = Number(getTokenValue(token1, String(totalPositionByToken1), true))
+      const isToken0Quote = configs.stablecoins.includes(token0)
+      const totalPositionByQuoteToken = isToken0Quote ? posLiquidityToken0 + posLiquidityToken1 * 1/px  : posLiquidityToken1 + posLiquidityToken0 * px  
+
+      const totalPositionByUSD = Number(getTokenValue(token1, String(totalPositionByQuoteToken), true))
 
       displayUni3Poss[uni3PosKey] = {
         pxLower: pxLower * diffDecimals,
@@ -98,7 +100,7 @@ export const useUni3Position = () => {
         pxUpperPerc,
         posLiquidityToken0,
         posLiquidityToken1,
-        totalPositionByToken1,
+        totalPositionByQuoteToken,
         totalPositionByUSD,
         ...uni3Positions[uni3PosKey]
       }
