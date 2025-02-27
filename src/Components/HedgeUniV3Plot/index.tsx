@@ -132,7 +132,7 @@ export const HedgeUniV3Plot = (props: any) => {
       left: xMin - (xMax - xMin) * 1,
       right: xMax + (xMax - xMin) * 1,
       bottom: yMin - (yMax - yMin) * 1,
-      top: yMax + (yMax - yMin) * 2,
+      top: yMax + (yMax - yMin) * 1.5,
     }
     calc.current.setMathBounds(bounds)
   }, [hedgeData, yA, yB, yTop])
