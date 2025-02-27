@@ -14,15 +14,18 @@ import { resourcesState } from './resources/type'
 import { BigNumber } from 'ethers'
 // eslint-disable-next-line no-unused-vars
 import { settingsState } from './setting/type'
+// eslint-disable-next-line no-unused-vars
+import { Uni3PositionsType } from './uni3Positions/type'
 
 export interface State {
   resources: resourcesState
   configs: configsState
   web3react: web3ReactState
   currentPool: currentPoolState
+  settings: settingsState
   wallet: walletState
   tokens: tokensState
-  settings: settingsState
+  uni3Positions: Uni3PositionsType
 }
 
 export interface PoolType {

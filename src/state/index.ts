@@ -7,6 +7,7 @@ import walletsReduce from './wallet/reducer'
 import tokenReduce from './token/reducer'
 import poolsReduce from './resources/reducer'
 import settingsReduce from './setting/reducer'
+import uni3PositionsReducer from './uni3Positions/reducer'
 
 export const store = createStore(
   combineReducers({
@@ -16,7 +17,9 @@ export const store = createStore(
     currentPool: currentPoolReduce,
     wallet: walletsReduce,
     tokens: tokenReduce,
-    settings: settingsReduce
+    settings: settingsReduce,
+    uni3Positions: uni3PositionsReducer
+
   }),
   applyMiddleware(thunk)
 )

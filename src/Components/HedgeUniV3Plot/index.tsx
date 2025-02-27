@@ -10,8 +10,8 @@ import { useHelper } from '../../state/config/useHelper'
 import { POOL_IDS } from '../../utils/constant'
 import { BigNumber } from 'ethers'
 import {useConfigs} from '../../state/config/useConfigs'
-import {useHedgeUniV3} from './hook/useUniV3'
 import { Slider } from 'antd';
+import {useCurrentUni3Position} from '../../state/uni3Positions/hooks/useUni3Positions'
 
 const FX = 'f(P,x,v,R)=\\{2vx^P<R:vx^P,R-R^2/(4vx^P)\\}'
 const GX = 'g(P,x,v,R)=\\{2vx^{-P}<R:R-vx^{-P},R^2/(4vx^{-P})\\}'
@@ -51,6 +51,7 @@ function pX(x: number, mark: number): string {
 export const HedgeUniV3Plot = (props: any) => {
   const { tokens } = useListTokens()
   const cp = useCurrentPool()
+  const {currentUni3Position, uni3Positions} = useCurrentUni3Position()
   const { currentPool } = cp
   const { wrapToNativeAddress } = useHelper()
   const calc = React.useRef() as React.MutableRefObject<Desmos.Calculator>
@@ -189,40 +190,48 @@ export const HedgeUniV3Plot = (props: any) => {
     }
     return ''
   }, [currentPool])
-  const uniV3Data = useHedgeUniV3()
+  // const uniV3Data = useHedgeUniV3()
   // const [p, setP] = useState('5');
-  const [L, setL] = useState('1.105');
-  const [D, setD] = useState('0.726');
+  // const [L, setL] = useState('1.105');
+  // const [D, setD] = useState('0.726');
 
-  // const hedgeData = useMemo(() => {
-  //   const {
-  //     tick,
-  //     uni3PosData,
-  //     token0Data,
-  //     token1Data,
-  //   } = uniV3Data
-  //   if (!uni3PosData || !tick || !token0Data || !token1Data) return;
-  //   const { tickLower, tickUpper } = uni3PosData
-  //   const diffDecimals = Math.abs(token0Data.decimals - token1Data.decimals)
-  //   const px = calculatePx(tick)
-  //   const pxa = calculatePx(tickLower)
-  //   const pxb = calculatePx(tickUpper)
-  //   let a = pxa / px
-  //   let b = pxb / px
-  //   console.log('#lower, current, upper', pxa * (10 ** diffDecimals), px * (10 ** diffDecimals), pxb * (10 ** diffDecimals))
-  //   console.log('#a,b', a,b)
-  //   return {
-  //     a,
-  //     b,
-  //     pxa: pxa * 10 ** diffDecimals,
-  //     pxb: pxb * 10 ** diffDecimals,
-  //     px: px * 10 ** diffDecimals
-  //   }
-  // }, [uniV3Data])
+  const hedgeData = useMemo(() => {
+    // console.log(price)
+    // const {
+    //   tick,
+    //   uni3PosData,
+    //   token0Data,
+    //   token1Data,
+    // } = currentUni3Position
+    // if (!uni3PosData || !tick || !token0Data || !token1Data) return;
+    if(!currentUni3Position) return;
+    const { tickLower, tickUpper, liquidity, fee, feeGrowthInside1LastX128, feeGrowthInside0LastX128 } = currentUni3Position
+    // const diffDecimals = Math.abs(token0Data.decimals - token1Data.decimals)
+    // const px = calculatePx(tick)
+    const pxa = calculatePx(tickLower)
+    const pxb = calculatePx(tickUpper)
+    console.log(currentUni3Position)
+    return {
+      pxa,
+      pxb
+    }
+    // let a = pxa / px
+    // let b = pxb / px
+    // console.log('#lower, current, upper', pxa * (10 ** diffDecimals), px * (10 ** diffDecimals), pxb * (10 ** diffDecimals))
+    // console.log('#a,b', a,b)
+    // return {
+    //   a,
+    //   b,
+    //   pxa: pxa * 10 ** diffDecimals,
+    //   pxb: pxb * 10 ** diffDecimals,
+    //   px: px * 10 ** diffDecimals
+    // }
+  }, [currentUni3Position])
   
   return (
     <React.Fragment>
       <Card className='p-1 plot-chart-box flex flex-col justify-center items-center pb-[80px] pt-[80px] gap-6'>
+        {JSON.stringify(hedgeData || {})}
       {/* <div className="controls"> */}
           {/* <label>
             p: {' '}
