@@ -28,9 +28,12 @@ export const App = () => {
   const { account } = useWeb3React()
   const { ddlEngine, chainId, location, configs } = useConfigs()
   const chainIdRef = useRef(null)
-  const { initResource } = useResource()
+  const { initResource } = useResource() 
+  const {fetchUni3Pos} = useFetchUni3Position()
   
-  useFetchUni3Position()
+  useEffect(() => {
+    if(Object.keys(tokens).length > 0) fetchUni3Pos()
+  }, [ddlEngine, chainId, tokens, configs.name])
   useFetchFeeData()
   useFetchTokenPrice()
   useSwapHistoryFormated()

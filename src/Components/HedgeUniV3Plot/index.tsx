@@ -5,12 +5,13 @@ import {useHelper} from '../../state/config/useHelper'
 import {useCurrentPool} from '../../state/currentPool/hooks/useCurrentPool'
 import {useResource} from '../../state/resources/hooks/useResource'
 import {useListTokens} from '../../state/token/hook'
-import {useUni3Position} from '../../state/uni3Positions/hooks/useUni3Positions'
+import {useFetchUni3Position, useFindMatchingPoolIndex, useUni3Position} from '../../state/uni3Positions/hooks/useUni3Positions'
 import {POOL_IDS} from '../../utils/constant'
 import {calcPoolSide,div,formatFloat,IEW,isUSD,NUM,WEI} from '../../utils/helpers'
 import {CandleChartLoader} from '../ChartLoaders'
 import {Card} from '../ui/Card'
 import './style.scss'
+import {useCurrentPoolGroup} from '../../state/currentPool/hooks/useCurrentPoolGroup'
 
 function xTop(X: number, xb: number, xa: number): number {
   const term1 = 1 / Math.sqrt(X);
@@ -25,11 +26,10 @@ function xTop(X: number, xb: number, xa: number): number {
 export const HedgeUniV3Plot = (props: any) => {
   const { tokens } = useListTokens()
   const cp = useCurrentPool()
-  const {currentDisplayUni3Position, uni3Positions} = useUni3Position()
   const { currentPool } = cp
+  const {currentDisplayUni3Position, displayUni3Positions} = useUni3Position()
   const { wrapToNativeAddress } = useHelper()
   const calc = React.useRef() as React.MutableRefObject<Desmos.Calculator>
-
   const {
     a,
     b,
@@ -76,19 +76,10 @@ export const HedgeUniV3Plot = (props: any) => {
     }
   }, [cp])
 
-
-  if (!currentPool.states) {
-    return (
-      <Card className='p-1'>
-        <CandleChartLoader />
-      </Card>
-    )
-  }
-
   const [yA, setyA] = useState<number>(0);
   const [yB, setyB] = useState<number>(0);
   const [yTop, setYTop] = useState<number>(0);
-  
+
   const hedgeData = useMemo(() => {
     if(!currentDisplayUni3Position || !mark) return;
     const pxa = NUM(currentDisplayUni3Position?.pxLower / mark)
@@ -143,44 +134,28 @@ export const HedgeUniV3Plot = (props: any) => {
     calc.current.setMathBounds(bounds)
   }, [hedgeData, yA, yB, yTop])
 
-  const {poolGroups} = useResource()
+  const {uni3Loading} = useFetchUni3Position()
 
-  const { isHasDerionIndex, isLoadingCurrentPoolState } = useMemo(() => {
-    let _isHasDerionIndex = false;
-    let _isLoadingCurrentPoolState = false;
-  
-    if (currentDisplayUni3Position) {
-      const { token0, token1, token0Data, token1Data } = currentDisplayUni3Position;
-      const posTokens = [token0, token1, token0Data.symbol, token1Data.symbol];
-  
-      const { baseToken, quoteToken } = currentPool;
-      const baseTokenSymbol = tokens[baseToken]?.symbol || tokens[baseToken]?.name;
-      const quoteTokenSymbol = tokens[quoteToken]?.symbol || tokens[quoteToken]?.name;
-  
-      _isHasDerionIndex = Object.values(poolGroups).some(({ baseToken, quoteToken }) => {
-        const baseSymbol = tokens[baseToken]?.symbol || tokens[baseToken]?.name;
-        const quoteSymbol = tokens[quoteToken]?.symbol || tokens[quoteToken]?.name;
-        return (
-          (posTokens.includes(baseToken) && posTokens.includes(quoteToken)) ||
-          (posTokens.includes(baseSymbol) && posTokens.includes(quoteSymbol))
-        );
-      });
-  
-      if (_isHasDerionIndex) {
-        _isLoadingCurrentPoolState =
-          !(posTokens.includes(baseToken) && posTokens.includes(quoteToken)) &&
-          !(posTokens.includes(baseTokenSymbol) && posTokens.includes(quoteTokenSymbol));
-      }
+  const {poolGroups} = useResource()
+  const {findMatchingPoolIndex} = useFindMatchingPoolIndex()
+  const { updateCurrentPoolGroup } = useCurrentPoolGroup()
+
+  useEffect(() => {
+    const matchingIndexKey = findMatchingPoolIndex();
+    if(matchingIndexKey) {
+      console.log('#matchingIndexKey', matchingIndexKey)
+      updateCurrentPoolGroup(matchingIndexKey);
     }
-  
-    return { isHasDerionIndex: _isHasDerionIndex, isLoadingCurrentPoolState: _isLoadingCurrentPoolState };
-  }, [currentDisplayUni3Position, poolGroups, currentPool, tokens]);
+  }, [findMatchingPoolIndex]);
+  const isUni3Loading = useMemo(() => {
+    if( Object.keys(displayUni3Positions).length > 0) return false
+    return uni3Loading
+  },[uni3Loading, displayUni3Positions])
 
   return (
     <React.Fragment>
       <Card className='p-1 plot-chart-box flex flex-col justify-center items-center pb-[80px] pt-[80px] gap-6'>
-        {isLoadingCurrentPoolState ? '' : 
-        isHasDerionIndex ? 
+      {isUni3Loading ? 'loading...' : 
         <GraphingCalculator
           attributes={{ className: 'calculator' }}
           fontSize={14}
@@ -243,8 +218,7 @@ export const HedgeUniV3Plot = (props: any) => {
           <Expression id='IL-vx-function' latex={'v_{0}(x)=\\frac{V}{2}(\\frac{x}{X}+1) \\{x>0\\}'} lineStyle='DASHED' color="#6042a6" lineWidth='1' hidden />
           <Expression id='IL-ix-function' latex={'i\\left(x\\right)=u\\left(x\\right)-v_{0}\\left(x\\right)'} color={'BLUE'} lineStyle='DASHED' />
 
-        </GraphingCalculator> :
-         ((!currentDisplayUni3Position?.token0Data.symbol || !currentDisplayUni3Position?.token1Data.symbol) ? '' : ` No Derion Pool for ${currentDisplayUni3Position?.token0Data.symbol}/${currentDisplayUni3Position?.token1Data.symbol}` )}
+        </GraphingCalculator>}
       </Card>
     </React.Fragment>
   )

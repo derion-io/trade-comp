@@ -1,16 +1,18 @@
 import {IUniPoolV3,IUniPosV3} from 'derivable-engine/dist/services/balanceAndAllowance'
 import {TokenType} from 'derivable-engine/dist/types'
-import {useEffect,useMemo,useState} from 'react'
+import {useCallback, useEffect,useMemo,useState} from 'react'
 import {useDispatch,useSelector} from 'react-redux'
 import {useTokenValue} from '../../../Components/SwapBox/hooks/useTokenValue'
-import {calculatePx} from '../../../utils/helpers'
+import {calculatePx, unwrap} from '../../../utils/helpers'
 import {useConfigs} from '../../config/useConfigs'
 import {useCurrentPoolGroup} from '../../currentPool/hooks/useCurrentPoolGroup'
 import {useWeb3React} from '../../customWeb3React/hook'
 import {useResource} from '../../resources/hooks/useResource'
 import {useListTokens} from '../../token/hook'
 import {State} from '../../types'
-import {setAllUni3Pos,setCurrentUni3Pos,setUni3Pos} from '../reducer'
+import {setAllUni3Pos,setCurrentUni3Pos,setUni3Loading,setUni3Pos} from '../reducer'
+import {useHelper} from '../../config/useHelper'
+import {uniq} from 'lodash'
 export interface IDisplayUniPosV3 {
   tickLower: number,
   pxLower: number,
@@ -37,28 +39,34 @@ export interface IDisplayUniPosV3 {
   poolState?: IUniPoolV3,
 }
 export const useUni3Position = () => {
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string>('')
   const { tokens } = useListTokens()
   const { getTokenValue } = useTokenValue({})
-  const {poolGroups} = useResource()
-  const { currentUni3Position, uni3Positions } = useSelector((state: State) => {
+  const { currentUni3Position, uni3Positions, uni3Loading } = useSelector((state: State) => {
     return {
       currentUni3Position: state.uni3Positions.currentUni3Position,
       uni3Positions: state.uni3Positions.uni3Positions,
+      uni3Loading: state.uni3Positions.uni3Loading
     }
   })
   const dispatch = useDispatch()
 
   const setCurrentUni3Position = (posKey: string) => {
-    dispatch(setCurrentUni3Pos({ uni3Pos: posKey }))
+    if(posKey) {
+      dispatch(setCurrentUni3Pos({ uni3Pos: posKey }))
+    }
   }
 
   const setAllUni3Positions = (uni3Positions: {[key: string]: IUniPosV3}) => {
-    dispatch(setAllUni3Pos({ uni3Positions: uni3Positions}))
+
+    if(Object.keys(uni3Positions).length > 0) {
+      dispatch(setAllUni3Pos({ uni3Positions: uni3Positions}))
+    }
   }
   const setUni3Position = (uni3Position: IUniPosV3, key:string) => {
     dispatch(setUni3Pos({ key ,uni3Pos: uni3Position}))
+  }
+  const setUni3Status = (loading: boolean) => {
+    dispatch(setUni3Loading({loading}))
   }
   
   const displayUni3Positions = useMemo(() => {
@@ -103,10 +111,10 @@ export const useUni3Position = () => {
     return displayUni3Poss
   },[uni3Positions])
   return {
-    loading,
     useFetchUni3Position,
     displayUni3Positions,
-    error,
+    setUni3Status,
+    uni3Loading,
     uni3Positions,
     currentUni3Position: currentUni3Position ? uni3Positions?.[currentUni3Position] : undefined,
     currentDisplayUni3Position: currentUni3Position ? displayUni3Positions?.[currentUni3Position] : undefined,
@@ -117,54 +125,95 @@ export const useUni3Position = () => {
 }
 
 export const useFetchUni3Position = () => {
-  const { configs, ddlEngine } = useConfigs()
-  const { provider, chainId,account } = useWeb3React()
-  const {tokens} = useListTokens()
-  const dispatch = useDispatch()
-  const { currentUni3Position, } = useSelector((state: State) => {
-    return {
-      currentUni3Position: state.uni3Positions.currentUni3Position,
-    }
-  })
-  const { tradeType, updateCurrentPoolGroup, } = useCurrentPoolGroup()
-  const {poolGroups} = useResource()
-
-  const {setCurrentUni3Position, setAllUni3Positions, uni3Positions, currentDisplayUni3Position} = useUni3Position()
+  const { ddlEngine } = useConfigs()
+  const { account } = useWeb3React()
+  const {setCurrentUni3Position, setAllUni3Positions, currentUni3Position, setUni3Status, uni3Loading} = useUni3Position()
   const fetchUni3Pos = async (): Promise<{[key: string]: IUniPosV3}>  => {
     let accountUni3Pos:{[key: string]: IUniPosV3} = {}
-    if(ddlEngine && account){
-      // const cacheLogs = ddlEngine.RESOURCE.getCachedLogs(account)
+    if(ddlEngine && account && ddlEngine.RESOURCE.allLogs.length > 0){
       const accountAssets = ddlEngine.RESOURCE.updateAssets({account, logs: ddlEngine.RESOURCE.allLogs})
+      console.log('#logs', ddlEngine.RESOURCE.allLogs.length)
       try {
-        accountUni3Pos = await ddlEngine.BNA.loadUniswapV3Position({assetsOverride: accountAssets})
+        setUni3Status(true)
+        const _accountUni3Pos = await ddlEngine.BNA.loadUniswapV3Position({assetsOverride: accountAssets})
+        Object.keys(_accountUni3Pos).map(key => {
+          if(_accountUni3Pos[key].liquidity === '0') return;
+          accountUni3Pos[key] = _accountUni3Pos[key]
+        })
+        setUni3Status(false)
       } catch (error) {
+        setUni3Status(false)
         console.log(error)
       }
       setAllUni3Positions( accountUni3Pos)
-      if(!currentUni3Position) {
+      console.log('#accountUni3Pos', accountUni3Pos, accountAssets)
+      if(Object.keys(accountUni3Pos)[0]) {
         setCurrentUni3Position(Object.keys(accountUni3Pos)[0])
       }
     }
     return accountUni3Pos
   }
-  useEffect(() => {
-    if(currentDisplayUni3Position) {
-      Object.keys(poolGroups).map(indexKey => {
-        const {baseToken, quoteToken} = poolGroups[indexKey]
-        const baseTokenSymbol = tokens[baseToken]?.symbol || tokens[baseToken]?.name
-        const quoteTokenSymbol = tokens[quoteToken]?.symbol || tokens[quoteToken]?.name
-        const {token0, token1, token0Data, token1Data} = currentDisplayUni3Position
-        const posTokens = [token0, token1, token0Data.symbol, token1Data.symbol]
-        if(posTokens.includes(baseToken) && posTokens.includes(quoteToken)){
-          updateCurrentPoolGroup(indexKey)
-        } else if (posTokens.includes(baseTokenSymbol) && posTokens.includes(quoteTokenSymbol)) {
-          updateCurrentPoolGroup(indexKey)
-        } 
-      })
-    }
-  }, [currentDisplayUni3Position, poolGroups, tokens])
-  useEffect(() => {
-    if(Object.keys(tokens).length > 0) fetchUni3Pos()
-  }, [ddlEngine, chainId, tokens, configs.name])
+  return {
+    fetchUni3Pos,
+    uni3Loading
+  }
+}
+export const APPROXIMATELY_PX_PERCENT = 2
+export const useFindMatchingPoolIndex = () => {
+  const { configs } = useConfigs()
+  const { convertNativeAddressToWrapAddress } = useHelper()
+  const { displayUni3Positions,currentDisplayUni3Position} = useUni3Position()
 
+  const {tokens} = useListTokens()
+
+  const {poolGroups} = useResource()
+  const getTokenIdentifier = useCallback((token: string) => tokens[token]?.symbol || tokens[token]?.name, [tokens]);
+
+  const findMatchingPoolIndex = useCallback(() => {
+    if (!currentDisplayUni3Position) return null;
+
+    const { token0, token1, token0Data, token1Data, px} = currentDisplayUni3Position;
+
+    const sameStableCoin = ((configs.stablecoins.includes(token0) || configs.stablecoins.includes(token1))
+      ? configs.stablecoins
+      : []
+    ).map((sbCoin) => tokens[sbCoin]);
+
+    const posTokens = uniq([
+      token0,
+      token1,
+      convertNativeAddressToWrapAddress(token0),
+      convertNativeAddressToWrapAddress(token1),
+      token0Data.symbol,
+      token1Data.symbol,
+      ...sameStableCoin.map((sbToken) => sbToken.address),
+      ...sameStableCoin.map((sbToken) => sbToken.symbol),
+    ]);
+    for (const indexKey of Object.keys(poolGroups)) {
+      const { baseToken, quoteToken, basePrice} = poolGroups[indexKey];
+      const baseTokenSymbol = getTokenIdentifier(baseToken);
+      const quoteTokenSymbol = getTokenIdentifier(quoteToken);
+
+      if (
+        posTokens.includes(convertNativeAddressToWrapAddress(baseToken)) &&
+        posTokens.includes(convertNativeAddressToWrapAddress(quoteToken))
+      ) {
+        return indexKey;
+      } 
+      if (
+        posTokens.includes(baseTokenSymbol) &&
+        posTokens.includes(quoteTokenSymbol)
+      ) {
+        return indexKey;
+      }
+      if(px * (1 - APPROXIMATELY_PX_PERCENT / 100) <= Number(basePrice) && Number(basePrice) <= px * (1 + APPROXIMATELY_PX_PERCENT / 100)) {
+        return indexKey;
+      }
+    }
+
+    return null;
+  }, [currentDisplayUni3Position, poolGroups, configs.stablecoins, tokens]);
+  return {
+    findMatchingPoolIndex
+  }
 }

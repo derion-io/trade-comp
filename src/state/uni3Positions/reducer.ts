@@ -32,8 +32,15 @@ export const tokens = createSlice({
         uni3Pos: string
       }>
     ) => {
-      if(state.uni3Positions[action.payload.uni3Pos])
         state.currentUni3Position = action.payload.uni3Pos
+    },
+    setUni3Loading: (
+      state,
+      action: PayloadAction<{
+        loading: boolean
+      }>
+    ) => {
+        state.uni3Loading = action.payload.loading
     },
   }
 })
@@ -42,6 +49,7 @@ export const tokens = createSlice({
 export const {
   setUni3Pos,
   setAllUni3Pos,
+  setUni3Loading,
   setCurrentUni3Pos
 } = tokens.actions
 
