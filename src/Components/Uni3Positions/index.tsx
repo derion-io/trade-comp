@@ -9,6 +9,8 @@ import {InfoRow} from '../ui/InfoRow'
 import {Text,TextGrey} from '../ui/Text'
 import {TokenIcon} from '../ui/TokenIcon'
 import './style.scss'
+import {useCurrentPoolGroup} from '../../state/currentPool/hooks/useCurrentPoolGroup'
+import {CHART_TABS} from '../../state/currentPool/type'
 
 const mdp = require('move-decimal-point')
 
@@ -29,7 +31,8 @@ export const Uni3Positions = ({
 }) => {
   const { width } = useWindowSize()
   const isPhone = width && width < 992
-
+  const { chartTab, setChartTab, basePrice, id, chartIsOutDate } =
+    useCurrentPoolGroup()
   const [now, setNow] = React.useState(Math.floor(new Date().getTime() / 1000))
 
   // TODO: put this to App, and pass down to each comp
@@ -58,6 +61,7 @@ export const Uni3Positions = ({
               return (
                 <div className='positions-list__item' key={key} style={{cursor: "pointer"}}
                 onClick={() => {
+                  setChartTab(CHART_TABS.HEDGE_CHART)
                   setCurrentUni3Position(posKey)
                 }}>
                   <InfoRow>
@@ -226,6 +230,7 @@ export const Uni3Positions = ({
                 <tr
                   className='position-row'
                   onClick={() => {
+                    setChartTab(CHART_TABS.HEDGE_CHART)
                     setCurrentUni3Position(posKey)
                   }}
                   key={key}
