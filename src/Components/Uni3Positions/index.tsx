@@ -56,7 +56,10 @@ export const Uni3Positions = ({
             {Object.keys(displayUni3Positions).map((posKey, key: number) => {
               const position = displayUni3Positions[posKey]
               return (
-                <div className='positions-list__item' key={key}>
+                <div className='positions-list__item' key={key} style={{cursor: "pointer"}}
+                onClick={() => {
+                  setCurrentUni3Position(posKey)
+                }}>
                   <InfoRow>
                     <TextGrey className='d-flex align-item-center'>
                       <TokenIcon
