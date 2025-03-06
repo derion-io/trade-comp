@@ -1,6 +1,7 @@
 .blur-background {
   position: relative;
-  overflow: hidden;
+  width: auto;
+  overflow: clip;
 
   &__content {
     position: relative;
