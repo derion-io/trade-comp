@@ -67,34 +67,56 @@ export const Uni3Positions = ({
                   <InfoRow>
                     <TextGrey className='d-flex align-item-center'>
                       <TokenIcon
+                        tokenAddress={revertRange ? position?.token1 : position?.token0}
+                        size={16}
+                        iconSize='1.4ex'
+                      />
+                      {'\u00A0'}
+                      {revertRange ? position.token1Data.symbol : position.token0Data.symbol}
+                      {'\u00A0/\u00A0'}
+                      {revertRange ? position.token0Data.symbol : position.token1Data.symbol}
+                      {'\u00A0'}
+                      <TokenIcon
+                        tokenAddress={revertRange ? position?.token0 : position?.token1}
+                        size={16}
+                        iconSize='1.4ex'
+                      />
+                    </TextGrey>
+                    <Text
+                      className='text-link'
+                      onClick={() => {
+                        setRevertRange(!revertRange)
+                      }}
+                    >
+                      ⇄
+                    </Text>
+                  </InfoRow>
+                  <InfoRow>
+                    <TextGrey>
+                      Reserve
+                    </TextGrey>
+                    <TextGrey className='d-flex align-item-center'>
+                      {zerofy(position.posLiquidityToken0)}
+                      {'\u00A0'}
+                      <TokenIcon
                         tokenAddress={position?.token0}
                         size={16}
                         iconSize='1.4ex'
-                      />{' '}
-                      {position.token0Data.symbol}/{' '}
-                      <TokenIcon
-                        tokenAddress={position?.token1}
-                        size={16}
-                        iconSize='1.4ex'
-                      />{' '}
-                      {position.token1Data.symbol}
+                      />
                     </TextGrey>
                   </InfoRow>
                   <InfoRow>
-                    <TextGrey>Reserves</TextGrey>
+                    <TextGrey>
+                      Reserve
+                    </TextGrey>
                     <TextGrey className='d-flex align-item-center'>
-                      <TokenIcon
-                        tokenAddress={position?.token0}
-                        size={16}
-                        iconSize='1.4ex'
-                      />
-                      {zerofy(position.posLiquidityToken0)} +{' '}
+                      {zerofy(position.posLiquidityToken1)}
+                      {'\u00A0'}
                       <TokenIcon
                         tokenAddress={position?.token1}
                         size={16}
                         iconSize='1.4ex'
                       />
-                      {zerofy(position.posLiquidityToken1)}
                     </TextGrey>
                   </InfoRow>
                   <InfoRow>
@@ -117,52 +139,20 @@ export const Uni3Positions = ({
 
                   <InfoRow>
                     <TextGrey>
-                      Price Range{' '}
-                      <Text
-                        className='text-link'
-                        onClick={() => {
-                          setRevertRange(!revertRange)
-                        }}
-                      >
-                        ⇄
-                      </Text>
+                      Price Range
                     </TextGrey>
                     <React.Fragment>
                       {revertRange ? (
-                        <TextGrey className='d-flex align-item-center'>
+                        <TextGrey className='d-flex align-item-center m-100rem'>
                           {zerofy(1 / position.pxUpper)}
                           {'<-->'}
-                          {zerofy(1 / position.pxLower)} (
-                          <TokenIcon
-                            tokenAddress={position?.token0}
-                            size={16}
-                            iconSize='1.4ex'
-                          />{' '}
-                          /{' '}
-                          <TokenIcon
-                            tokenAddress={position?.token1}
-                            size={16}
-                            iconSize='1.4ex'
-                          />
-                          )
+                          {zerofy(1 / position.pxLower)}
                         </TextGrey>
                       ) : (
-                        <TextGrey className='d-flex align-item-center'>
+                        <TextGrey className='d-flex align-item-center m-100rem'>
                           {zerofy(position.pxUpper)}
                           {'<-->'}
-                          {zerofy(position.pxLower)} (
-                          <TokenIcon
-                            tokenAddress={position?.token1}
-                            size={16}
-                            iconSize='1.4ex'
-                          />{' '}
-                          /{' '}
-                          <TokenIcon
-                            tokenAddress={position?.token0}
-                            size={16}
-                            iconSize='1.4ex'
-                          />
-                          )
+                          {zerofy(position.pxLower)}
                         </TextGrey>
                       )}
                     </React.Fragment>
@@ -204,11 +194,8 @@ export const Uni3Positions = ({
         <table className='positions-table'>
           <thead>
             <tr>
-              <th>Pool</th>
-              <th>Reserves</th>
-              <th>Size</th>
-              <th className='no-wrap'>
-                Price Range{' '}
+              <th>
+                Pool{' '}
                 <Text
                   className='text-link'
                   onClick={() => {
@@ -217,6 +204,11 @@ export const Uni3Positions = ({
                 >
                   ⇄
                 </Text>
+              </th>
+              <th>Reserves</th>
+              <th>Size</th>
+              <th className='no-wrap'>
+                Price Range
               </th>
               <th>Fee</th>
 
@@ -238,17 +230,20 @@ export const Uni3Positions = ({
                   <td>
                     <TextGrey className='d-flex align-item-center'>
                       <TokenIcon
-                        tokenAddress={position?.token0}
+                        tokenAddress={revertRange ? position?.token1 : position?.token0}
                         size={16}
                         iconSize='1.4ex'
-                      />{' '}
-                      {position.token0Data.symbol}/{' '}
+                      />
+                      {'\u00A0'}
+                      {revertRange ? position.token1Data.symbol : position.token0Data.symbol}
+                      {'\u00A0/\u00A0'}
+                      {revertRange ? position.token0Data.symbol : position.token1Data.symbol}
+                      {'\u00A0'}
                       <TokenIcon
-                        tokenAddress={position?.token1}
+                        tokenAddress={revertRange ? position?.token0 : position?.token1}
                         size={16}
                         iconSize='1.4ex'
-                      />{' '}
-                      {position.token1Data.symbol}
+                      />
                     </TextGrey>
                   </td>
                   <td>
@@ -258,7 +253,8 @@ export const Uni3Positions = ({
                         size={16}
                         iconSize='1.4ex'
                       />
-                      {zerofy(position.posLiquidityToken0)} +{' '}
+                      {zerofy(position.posLiquidityToken0)}
+                      {'\u00A0+\u00A0'}
                       <TokenIcon
                         tokenAddress={position?.token1}
                         size={16}
@@ -279,37 +275,13 @@ export const Uni3Positions = ({
                           <TextGrey className='d-flex align-item-center'>
                             {zerofy(1 / position.pxUpper)}
                             {'<-->'}
-                            {zerofy(1 / position.pxLower)} (
-                            <TokenIcon
-                              tokenAddress={position?.token1}
-                              size={16}
-                              iconSize='1.4ex'
-                            />{' '}
-                            /{' '}
-                            <TokenIcon
-                              tokenAddress={position?.token0}
-                              size={16}
-                              iconSize='1.4ex'
-                            />
-                            )
+                            {zerofy(1 / position.pxLower)}
                           </TextGrey>
                         ) : (
                           <TextGrey className='d-flex align-item-center'>
                             {zerofy(position.pxLower)}
                             {'<-->'}
-                            {zerofy(position.pxUpper)} (
-                            <TokenIcon
-                              tokenAddress={position?.token0}
-                              size={16}
-                              iconSize='1.4ex'
-                            />{' '}
-                            /{' '}
-                            <TokenIcon
-                              tokenAddress={position?.token1}
-                              size={16}
-                              iconSize='1.4ex'
-                            />
-                            )
+                            {zerofy(position.pxUpper)}
                           </TextGrey>
                         )}
                       </React.Fragment>

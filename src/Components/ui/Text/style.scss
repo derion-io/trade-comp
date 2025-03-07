@@ -9,6 +9,10 @@
   overflow-x: hidden;
   white-space: nowrap;
 
+  &.m-100rem {
+    max-width: 100rem;
+  }
+
   &.text-buy {
     color: $color-buy;
     &>* {
