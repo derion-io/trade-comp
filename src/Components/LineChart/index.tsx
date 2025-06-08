@@ -27,12 +27,14 @@ import { useConfigs } from '../../state/config/useConfigs'
 import { formatFloat, zerofy } from '../../utils/helpers'
 import { ReloadIcon } from '../../Components/ui/Icon'
 import { useWindowSize } from '../../hooks/useWindowSize'
+import { BigNumber, ethers } from 'ethers'
 
 const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const { getLineChartData } = useExchangeData()
   const { baseToken, id, basePrice } = useCurrentPoolGroup()
   const [hoverValue, setHoverValue] = useState<string>()
   const [chartData, setChartData] = useState<{ [key: string]: any[] }>({})
+  const [priceFeedData, setPriceFeedData] = useState<{ [key: string]: any[] }>({})
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [hoverDate, setHoverDate] = useState<number>()
   const [interval, setInterval] = useState<LineChartIntervalType>(I_1D)
@@ -63,17 +65,85 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
     return changedIn24h > 0 ? COLORS.BUY : COLORS.SELL
   }, [changedIn24h])
 
-  const loadData = () => {
+  const loadData = (action: 'PREV' | 'NEXT' | 'NONE' = 'NONE') => {
     setIsLoading(true)
-    getLineChartData({ pair: cToken.split('-')[0].toLowerCase(), baseToken, interval }).then(
-      (data) => {
+    const oldPriceFeedData = priceFeedData[chainId + interval + cToken] || []
+    let from = BigNumber.from(0)
+
+    if (action === 'PREV') {
+      const firstItem = oldPriceFeedData[0]
+      if (firstItem) {
+        from = firstItem.roundId
+      }
+    } else if (action === 'NEXT') {
+      const lastItem = oldPriceFeedData[oldPriceFeedData.length - 1]
+      if (lastItem) {
+        from = lastItem.roundId
+      }
+    } else {
+      from = BigNumber.from(0)
+    }
+    if (from) {
+      getLineChartData({
+        pair: cToken.split('-')[0].toLowerCase(),
+        baseToken,
+        interval,
+        action,
+        from
+      }).then((data) => {
+        const seen = new Set<string>()
+        ;[...oldPriceFeedData, ...data].forEach((item) => {
+          seen.add(item.roundId)
+        })
+        const newPriceFeedData = [...oldPriceFeedData, ...data]
+          .filter((item) => !seen.has(item.id) && item)
+          .sort((a, b) => a.updatedAt - b.updatedAt)
+
+        setPriceFeedData({
+          ...priceFeedData,
+          [chainId + interval + cToken]: newPriceFeedData
+        })
+
+        const chartDatas = newPriceFeedData.map((item) => ({
+          time: item.updatedAt * 1000,
+          value: ethers.utils.formatEther(item.answer)
+        }))
+
+        const start = chartDatas[0].time
+        const end = chartDatas[chartDatas.length - 1].time
+
+        let lastValue = null
+        let i = 0
+
+        const intervalMsMap = {
+          '1m': 60 * 1000,
+          '6m': 6 * 60 * 1000,
+          '1d': 24 * 60 * 60 * 1000,
+          '1w': 7 * 24 * 60 * 60 * 1000
+        }
+
+        const msInterval = intervalMsMap[interval]
+
+        const result = []
+        for (let t = start; t <= end; t += msInterval) {
+          while (i < chartDatas.length && chartDatas[i].time <= t) {
+            lastValue = chartDatas[i].value
+            i++
+          }
+
+          result.push({
+            time: t,
+            value: lastValue
+          })
+        }
+
         setChartData({
           ...chartData,
-          [chainId + interval + cToken]: data
+          [chainId + interval + cToken]: result
         })
         setIsLoading(false)
-      }
-    )
+      })
+    }
   }
   // useEffect() {
   //   if (this.divRef.current) {
@@ -104,6 +174,14 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
             <TextGrey>{moment(hoverDate).format(DATE_FORMATS.FULL)}</TextGrey>
           </div>
         </div>
+        <div className='line-chart__head--center'>
+          <span className='scroll-button' onClick={() => loadData('PREV')}>
+            Prev
+          </span>
+          <span className='scroll-button' onClick={() => loadData('NEXT')}>
+            Next
+          </span>
+        </div>
         <div className='line-chart__head--right'>
           <Tabs tab={interval} setTab={setInterval} tabs={INTERVALS_TAB} />
         </div>
@@ -123,7 +201,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
         ) : (
           <div
             className='line-chart__reload-icon'
-            onClick={loadData}
+            onClick={() => loadData('NONE')}
             style={{
               display:
                 chartData[chainId + interval + cToken].length > 0 ? 'none' : ''
