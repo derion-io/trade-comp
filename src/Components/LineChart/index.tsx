@@ -17,7 +17,9 @@ import { Text, TextGrey } from '../ui/Text'
 import {
   DATE_FORMATS,
   I_1D,
+  I_5M,
   INTERVALS_TAB,
+  LINE_CHART_CONFIG,
   LineChartIntervalType
 } from '../../utils/lineChartConstant'
 import { Tabs } from '../ui/Tabs'
@@ -37,7 +39,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const [priceFeedData, setPriceFeedData] = useState<{ [key: string]: any[] }>({})
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [hoverDate, setHoverDate] = useState<number>()
-  const [interval, setInterval] = useState<LineChartIntervalType>(I_1D)
+  const [interval, setInterval] = useState<LineChartIntervalType>(I_5M)
   const { chainId } = useConfigs()
   const headRef = useRef<HTMLDivElement>(null)
   const cToken = id
@@ -106,36 +108,31 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
 
         const chartDatas = newPriceFeedData.map((item) => ({
           time: item.updatedAt * 1000,
-          value: ethers.utils.formatEther(item.answer)
+          value: ethers.utils.formatUnits(item.answer, 8),
         }))
 
-        const start = chartDatas[0].time
-        const end = chartDatas[chartDatas.length - 1].time
+        const msInterval = LINE_CHART_CONFIG[interval].interval || 60 * 1000
 
-        let lastValue = null
-        let i = 0
+        let lastData = chartDatas[0]
 
-        const intervalMsMap = {
-          '1m': 60 * 1000,
-          '6m': 6 * 60 * 1000,
-          '1d': 24 * 60 * 60 * 1000,
-          '1w': 7 * 24 * 60 * 60 * 1000
-        }
+        const start = lastData.time
+        const end = start + LINE_CHART_CONFIG[interval].range
 
-        const msInterval = intervalMsMap[interval]
-
-        const result = []
-        for (let t = start; t <= end; t += msInterval) {
-          while (i < chartDatas.length && chartDatas[i].time <= t) {
-            lastValue = chartDatas[i].value
-            i++
+        const result = [lastData]
+        for (let i = 1; i < chartDatas.length; i++) {
+          if (chartDatas[i].time < start) {
+            continue
           }
-
-          result.push({
-            time: t,
-            value: lastValue
-          })
+          if (chartDatas[i].time < lastData.time + msInterval) {
+            continue;
+          }
+          result.push(lastData = chartDatas[i])
+          if (lastData.time >= end) {
+            break
+          }
         }
+
+        console.log('Line chart data:', result.slice(0, 100))
 
         setChartData({
           ...chartData,

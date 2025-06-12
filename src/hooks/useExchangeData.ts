@@ -37,7 +37,8 @@ type InputTokens = {
 
 const RPC_URL = 'https://arb1.arbitrum.io/rpc'
 
-const PRICE_FEED_CONTRACT_ADDRESS = '0x4bC735Ef24bf286983024CAd5D03f0738865Aaef'
+const PRICE_FEED_CONTRACT_ADDRESS = '0x6ce185860a4963106506C203335A2910413708e9'
+const PRICE_FEED_MULTICALL_SIZE = 5000
 
 const MULTICAL_CONTRACT_ADDRESS = '0xca11bde05977b3631167028862be2a173976ca11'
 
@@ -250,18 +251,18 @@ export const useExchangeData = () => {
 
       if (action === 'PREV') {
         roundId = BigNumber.from(from)
-        multiCallSize = 3000
+        multiCallSize = PRICE_FEED_MULTICALL_SIZE
       } else if (action === 'NEXT') {
-        if (BigNumber.from(latestRoundId).sub(from).gt(3000)) {
-          roundId = BigNumber.from(from).add(3000)
-          multiCallSize = 3000
+        if (BigNumber.from(latestRoundId).sub(from).gt(PRICE_FEED_MULTICALL_SIZE)) {
+          roundId = BigNumber.from(from).add(PRICE_FEED_MULTICALL_SIZE)
+          multiCallSize = PRICE_FEED_MULTICALL_SIZE
         } else {
           roundId = BigNumber.from(latestRoundId)
           multiCallSize = BigNumber.from(latestRoundId).sub(from).toNumber()
         }
       } else {
         roundId = BigNumber.from(latestRoundId)
-        multiCallSize = 3000
+        multiCallSize = PRICE_FEED_MULTICALL_SIZE
       }
 
       console.log(`Latest round ID: ${latestRoundId}`)
@@ -288,7 +289,7 @@ export const useExchangeData = () => {
 
       const [, returnData] = await multicalContract.callStatic.aggregate(calls)
 
-      return returnData
+      const decodedData = returnData
         .map((data: string) => {
           const decodedData = priceFeedInterface.decodeFunctionResult(
             'getRoundData',
@@ -304,7 +305,12 @@ export const useExchangeData = () => {
           }
         })
         .sort((a: any, b: any) => a.time - b.time)
+      
+      console.log(`Fetched ${decodedData.length} historical price feed data points.`)
+      console.log(decodedData.slice(0, 100))
+      return decodedData
     } catch (error) {
+      console.error('Error fetching historical price feed data:', error)
       return []
     }
   }
