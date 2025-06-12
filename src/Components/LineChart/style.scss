@@ -21,6 +21,28 @@
       align-items: center;
     }
 
+    &--center {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+
+      .scroll-button {
+        width: max-content;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 5px;
+        padding: 5px;
+        cursor: pointer;
+
+        &:hover {
+          background-color: $color-overlay;
+        }
+      }
+    }
+
     @include respond(phone) {
       flex-direction: row;
 

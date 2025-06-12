@@ -192,24 +192,24 @@ export const useExchangeData = () => {
             item.pool.inputTokens[0]?.id.toLowerCase() ===
             baseToken.toLowerCase()
               ? [
-                item.dailyVolumeByTokenAmount[0],
-                item.dailyVolumeByTokenAmount[1]
-              ]
+                  item.dailyVolumeByTokenAmount[0],
+                  item.dailyVolumeByTokenAmount[1]
+                ]
               : [
-                item.dailyVolumeByTokenAmount[1],
-                item.dailyVolumeByTokenAmount[0]
-              ]
+                  item.dailyVolumeByTokenAmount[1],
+                  item.dailyVolumeByTokenAmount[0]
+                ]
           const [baseDecimal, quoteDecimal] =
             item.pool.inputTokens[0]?.id.toLowerCase() ===
             baseToken.toLowerCase()
               ? [
                   item.pool.inputTokens[0]?.decimals,
                   item.pool.inputTokens[1]?.decimals
-              ]
+                ]
               : [
                   item.pool.inputTokens[1]?.decimals,
                   item.pool.inputTokens[0]?.decimals
-              ]
+                ]
           const baseConverted = parseFloat(
             ethers.utils.formatUnits(baseAmount, baseDecimal)
           )
@@ -229,111 +229,104 @@ export const useExchangeData = () => {
     }
   }
 
-  const chainLinkHistoricalPriceFeedDatas = async ({
-    interval,
-    pair,
-    baseToken
-  }: {
-    interval: LineChartIntervalType
-    pair: string
-    baseToken: string
-  }) => {
-    console.log('Fetching historical price feed data...')
+  const chainLinkHistoricalPriceFeedDatas = async (
+    action: 'PREV' | 'NEXT' | 'NONE' = 'NONE',
+    from: string | BigNumber = BigNumber.from(0)
+  ) => {
+    try {
+      console.log('Fetching historical price feed data...')
 
-    const intervalMsMap = {
-      '1m': 60 * 1000,
-      '6m': 6 * 60 * 1000,
-      '1d': 24 * 60 * 60 * 1000,
-      '1w': 7 * 24 * 60 * 60 * 1000
-    }
+      const provider = new ethers.providers.JsonRpcProvider(RPC_URL)
+      const priceFeedContract = new ethers.Contract(
+        PRICE_FEED_CONTRACT_ADDRESS,
+        priceFeedContractAbi,
+        provider
+      )
 
-    const msInterval = intervalMsMap[interval]
+      const latestRoundId = await priceFeedContract.latestRound()
 
-    const provider = new ethers.providers.JsonRpcProvider(RPC_URL)
-    const priceFeedContract = new ethers.Contract(
-      PRICE_FEED_CONTRACT_ADDRESS,
-      priceFeedContractAbi,
-      provider
-    )
+      let roundId = BigNumber.from(0)
+      let multiCallSize = 0
 
-    let latestRoundId = await priceFeedContract.latestRound()
-
-    console.log(`Latest round ID: ${latestRoundId}`)
-
-    const multicalContract = new ethers.Contract(
-      MULTICAL_CONTRACT_ADDRESS,
-      multicalAggregateABI,
-      provider
-    )
-
-    const calls = []
-    const priceFeedInterface = new Interface(priceFeedContractAbi)
-
-    for (let i = 0; i < 3000; i++) {
-      calls.push({
-        target: PRICE_FEED_CONTRACT_ADDRESS,
-        callData: priceFeedInterface.encodeFunctionData('getRoundData', [
-          BigNumber.from(latestRoundId)
-        ])
-      })
-
-      latestRoundId = BigNumber.from(latestRoundId).sub(1)
-    }
-
-    const [, returnData] = await multicalContract.callStatic.aggregate(calls)
-
-    const datas = returnData
-      .map((data: string) => {
-        const decodedData = priceFeedInterface.decodeFunctionResult(
-          'getRoundData',
-          data
-        )
-
-        const answer = decodedData[1]
-        const updatedAt = decodedData[3]
-
-        return {
-          time: updatedAt * 1000,
-          value: ethers.utils.formatEther(answer)
+      if (action === 'PREV') {
+        roundId = BigNumber.from(from)
+        multiCallSize = 3000
+      } else if (action === 'NEXT') {
+        if (BigNumber.from(latestRoundId).sub(from).gt(3000)) {
+          roundId = BigNumber.from(from).add(3000)
+          multiCallSize = 3000
+        } else {
+          roundId = BigNumber.from(latestRoundId)
+          multiCallSize = BigNumber.from(latestRoundId).sub(from).toNumber()
         }
-      })
-      .sort((a: any, b: any) => a.time - b.time)
-
-    const start = datas[0].time
-    const end = datas[datas.length - 1].time
-
-    let lastValue = null
-    let i = 0
-
-    const result=[]
-    for (let t = start; t <= end; t += msInterval) {
-      while (i < datas.length && datas[i].time <= t) {
-        lastValue = datas[i].value
-        i++
+      } else {
+        roundId = BigNumber.from(latestRoundId)
+        multiCallSize = 3000
       }
 
-      result.push({
-        time: t,
-        value: lastValue
-      })
+      console.log(`Latest round ID: ${latestRoundId}`)
+
+      const multicalContract = new ethers.Contract(
+        MULTICAL_CONTRACT_ADDRESS,
+        multicalAggregateABI,
+        provider
+      )
+
+      const calls = []
+      const priceFeedInterface = new Interface(priceFeedContractAbi)
+
+      for (let i = 0; i < multiCallSize; i++) {
+        calls.push({
+          target: PRICE_FEED_CONTRACT_ADDRESS,
+          callData: priceFeedInterface.encodeFunctionData('getRoundData', [
+            BigNumber.from(roundId)
+          ])
+        })
+
+        roundId = BigNumber.from(roundId).sub(1)
+      }
+
+      const [, returnData] = await multicalContract.callStatic.aggregate(calls)
+
+      return returnData
+        .map((data: string) => {
+          const decodedData = priceFeedInterface.decodeFunctionResult(
+            'getRoundData',
+            data
+          )
+
+          return {
+            roundId: decodedData[0],
+            answer: decodedData[1],
+            startedAt: decodedData[2],
+            updatedAt: decodedData[3],
+            answeredInRound: decodedData[4]
+          }
+        })
+        .sort((a: any, b: any) => a.time - b.time)
+    } catch (error) {
+      return []
     }
-    return result
   }
 
   const getLineChartData = async ({
     interval,
     pair,
-    baseToken
+    baseToken,
+    action,
+    from
   }: {
     interval: LineChartIntervalType
     pair: string
     baseToken: string
+    action?: 'PREV' | 'NEXT' | 'NONE'
+    from?: string | BigNumber
   }) => {
     // return LINE_CHART_CONFIG[interval].type === 'hourlySnapshots'
     //   ? await getPairHourData({ interval, pair, baseToken })
     //   : await getPairDayData({ interval, pair, baseToken })
 
-    return await chainLinkHistoricalPriceFeedDatas({ interval, pair, baseToken })
+    return await chainLinkHistoricalPriceFeedDatas(action, from)
   }
 
   return {
