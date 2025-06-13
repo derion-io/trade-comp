@@ -94,7 +94,7 @@ export const Positions = ({
   const {prices} = useTokenPrice()
   const { settings } = useSettings()
   const [valueInUsdStatus, setValueInUsdStatus] = useState<VALUE_IN_USD_STATUS>(
-    VALUE_IN_USD_STATUS.USD
+    VALUE_IN_USD_STATUS.TOKEN_R
   )
   const [visible, setVisible] = useState<boolean>(false)
   const [closingPosition, setClosingPosition] = useState<Position | undefined>(
