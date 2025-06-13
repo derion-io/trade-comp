@@ -49,12 +49,12 @@ export const SwapInfoBox = ({
         </SkeletonLoader>
       </InfoRow>
 
-      <InfoRow>
+      {/* <InfoRow>
         <TextGrey>{leverageKey ?? 'Leverage'}</TextGrey>
         <SkeletonLoader loading={!poolToShow || !leverageValue}>
           {leverageValue}
         </SkeletonLoader>
-      </InfoRow>
+      </InfoRow> */}
 
       {tradeType === TRADE_TYPE.LIQUIDITY ? (
         <InfoRow>

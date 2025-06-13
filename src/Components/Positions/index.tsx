@@ -347,7 +347,7 @@ export const Positions = ({
   }, [positions, tradeType, swapPendingTxs])
   const isShowAllPosition = useMemo(() => settings.minPositionValueUSD === 0, [settings.minPositionValueUSD])
   const [isBatchTransferModalVisible, setBatchTransferModalVisible] = useState<boolean>(false)
-  const showSize = tradeType !== TRADE_TYPE.LIQUIDITY
+  const showSize = false && tradeType !== TRADE_TYPE.LIQUIDITY
 
   const isFetchingPosition = useMemo(() => {
     if(displayPositions.length > 0) return false
@@ -497,10 +497,10 @@ export const Positions = ({
                     <Size position={position} isPhone />
                   </InfoRow>
                 )}
-                <InfoRow>
+                {/* <InfoRow>
                   <TextGrey>Deleverage Price</TextGrey>
                   <DeleveragePrice position={position} isPhone />
-                </InfoRow>
+                </InfoRow> */}
 
                 {!position?.calulateClosingFee?.(now)?.fee || (
                   <InfoRow>
@@ -583,7 +583,7 @@ export const Positions = ({
               </th>
               <th>Funding</th>
               {showSize && <th>Size</th>}
-              <th>Delev. Price</th>
+              {/* <th>Delev. Price</th> */}
               {!hasClosingFee || <th>Anti-Bot Fee</th>}
               {isShowAllPosition && <th style={{ textAlign: 'right' }}>
                 <ButtonSell
@@ -699,9 +699,9 @@ export const Positions = ({
                       <Size position={position} />
                     </td>
                   )}
-                  <td>
+                  {/* <td>
                     <DeleveragePrice position={position} />
-                  </td>
+                  </td> */}
 
                   {!hasClosingFee || (
                     <td>

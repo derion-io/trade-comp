@@ -48,8 +48,8 @@ export const EstimateBox = ({
   const { ddlEngine } = useConfigs()
   const { pools } = useResource()
   const { swapLogs } = useSwapHistory()
-  const showSize =
-  tradeType === TRADE_TYPE.LONG || tradeType === TRADE_TYPE.SHORT
+  const showSize = false
+    // tradeType === TRADE_TYPE.LONG || tradeType === TRADE_TYPE.SHORT
   const { value: valueOutBefore } = useTokenValue({
     amount: IEW(
       balances[outputTokenAddress],
