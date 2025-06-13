@@ -56,7 +56,7 @@ export const PositionInfo = ({
           isPhone
         />
       </InfoRow>
-      {!!position.valueRCompound ? <React.Fragment>
+      {false && !!position.valueRCompound ? <React.Fragment>
         <InfoRow>
           <TextGrey>PnL</TextGrey>
           <LinearPnL

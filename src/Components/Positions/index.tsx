@@ -433,7 +433,7 @@ export const Positions = ({
                   />
                 </InfoRow>
                 {Number(position.entryPrice) > 0 ? (
-                  position.valueRCompound ? (
+                  false && position.valueRCompound ? (
                     <React.Fragment>
                       <InfoRow>
                         <TextGrey>PnL</TextGrey>
@@ -480,7 +480,7 @@ export const Positions = ({
                   ''
                 )}
 
-                {!position.funding || (
+                {/* {!position.funding || (
                   <InfoRow>
                     <TextGrey>
                       {position.side === POOL_IDS.C
@@ -496,7 +496,7 @@ export const Positions = ({
                     <TextGrey>Size</TextGrey>
                     <Size position={position} isPhone />
                   </InfoRow>
-                )}
+                )} */}
                 {/* <InfoRow>
                   <TextGrey>Deleverage Price</TextGrey>
                   <DeleveragePrice position={position} isPhone />
@@ -581,8 +581,8 @@ export const Positions = ({
                   </Text>
                 )}
               </th>
-              <th>Funding</th>
-              {showSize && <th>Size</th>}
+              {/* <th>Funding</th> */}
+              {/* {showSize && <th>Size</th>} */}
               {/* <th>Delev. Price</th> */}
               {!hasClosingFee || <th>Anti-Bot Fee</th>}
               {isShowAllPosition && <th style={{ textAlign: 'right' }}>
@@ -662,7 +662,7 @@ export const Positions = ({
                         loading={position.status === POSITION_STATUS.OPENING}
                       />
                       {Number?.(position.entryPrice) > 0 ? (
-                        position.valueRCompound ? (
+                        false && position.valueRCompound ? (
                           <CompoundPnL
                             loading={
                               position.status === POSITION_STATUS.OPENING
@@ -684,7 +684,7 @@ export const Positions = ({
                       )}
                     </div>
                   </td>
-                  <td>
+                  {/* <td>
                     <FundingRate position={position} />
                     {!position.valueRCompound || (
                       <Funding
@@ -698,7 +698,7 @@ export const Positions = ({
                     <td>
                       <Size position={position} />
                     </td>
-                  )}
+                  )} */}
                   {/* <td>
                     <DeleveragePrice position={position} />
                   </td> */}
