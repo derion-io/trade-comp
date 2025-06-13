@@ -88,8 +88,9 @@ const Component = ({
     if (!pool) {
       return [null, 1]
     }
-    const power = Number(id) === POOL_IDS.C ? 1 : pool.k.toNumber() / 2
-    return [pool, power]
+    // const power = Number(id) === POOL_IDS.C ? 1 : pool.k.toNumber() / 2
+    // return power = 1 to disable position value
+    return [pool, 1]
   }, [inputTokenAddress, pools])
 
   const [balance, balanceWithLeverage]: [string, string] = useMemo(() => {
