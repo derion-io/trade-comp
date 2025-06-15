@@ -14,6 +14,10 @@ const Q128 = BigNumber.from(1).shl(128)
 type Props = {
   poolToShow: any
   tradeType: TRADE_TYPE
+  effectiveLeverage: number
+  baseRate: number
+  sideRate: number
+  cRate: number
   interest: any
   premium: number
   interestRate: any
@@ -25,6 +29,10 @@ type Props = {
 export const SwapInfoBox = ({
   tradeType,
   poolToShow,
+  effectiveLeverage,
+  baseRate,
+  sideRate,
+  cRate,
   interest,
   premium,
   interestRate,
@@ -64,20 +72,19 @@ export const SwapInfoBox = ({
               position='right-bottom'
               handle={
                 <Text
-                  className={fundingRate > 0 ? 'text-green' : ''}
+                  className={cRate > 0 ? 'text-green' : ''}
                 >
-                  {zerofy(formatFloat(fundingRate * 100, undefined, 3, true))}%
+                  {zerofy(formatFloat(cRate * 100, undefined, 3, true))}%
                 </Text>
               }
               renderContent={() => (
                 <div>
-                  <div>
+                  {/* <div>
                     <TextGrey>LP Interest:&nbsp;</TextGrey>
                     <Text>
                       {zerofy(formatFloat(interest * 100, undefined, 3, true))}%
                     </Text>
                   </div>
-{/* 
                   <div>
                     <TextGrey>LP Premium:&nbsp;</TextGrey>
                     <Text
@@ -86,7 +93,6 @@ export const SwapInfoBox = ({
                       {zerofy(formatFloat(premium * 100, undefined, 2, true))}%
                     </Text>
                   </div>
- */}
                   <div>
                     <TextGrey>Trader Interest:&nbsp;</TextGrey>
                     <Text>
@@ -104,7 +110,7 @@ export const SwapInfoBox = ({
                       )}
                       %
                     </Text>
-                  </div>
+                  </div> */}
                 </div>
               )}
             />
@@ -118,9 +124,9 @@ export const SwapInfoBox = ({
               position='right-bottom'
               handle={
                 <Text
-                  className={fundingRate < 0 ? 'text-green' : 'text-warning'}
+                  className={sideRate < 0 ? 'text-green' : 'text-warning'}
                 >
-                  {zerofy(formatFloat(fundingRate * 100, undefined, 3, true))}%
+                  {zerofy(formatFloat(sideRate * 100, undefined, 3, true))}%
                 </Text>
               }
               renderContent={() => (
@@ -128,9 +134,16 @@ export const SwapInfoBox = ({
                   <div>
                     <TextGrey>Interest:&nbsp;</TextGrey>
                     <Text>
-                      {zerofy(formatFloat(interest * 100, undefined, 3, true))}%
+                      {zerofy(formatFloat(baseRate * 100, undefined, 3, true))}%
                     </Text>
                   </div>
+                  <div>
+                    <TextGrey>Leverage:&nbsp;</TextGrey>
+                    <Text>
+                      {zerofy(effectiveLeverage)}
+                    </Text>
+                  </div>
+                  {/* 
                   <div>
                     <TextGrey>Premium:&nbsp;</TextGrey>
                     <Text
@@ -148,6 +161,7 @@ export const SwapInfoBox = ({
                       %
                     </Text>
                   </div>
+                  */}
                 </div>
               )}
             />

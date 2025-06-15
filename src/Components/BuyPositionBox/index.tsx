@@ -16,8 +16,12 @@ import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { NATIVE_ADDRESS, POOL_IDS, TRADE_TYPE } from '../../utils/constant'
 import formatLocalisedCompactNumber from '../../utils/formatBalance'
 import {
+  DIV,
   IEW,
   NUM,
+  WEI,
+  baseRateFromHL,
+  bn,
   calcPoolSide,
   decodeErc1155Address,
   div,
@@ -43,6 +47,7 @@ import { DeleveragePrice } from '../Positions'
 import './style.scss'
 import { Spin } from 'antd'
 import { useCalculatePara } from '../SwapBox/hooks/useCalculatePara'
+import { parseEther } from 'ethers/lib/utils'
 
 const Component = ({
   searchIndexCache,
@@ -232,9 +237,9 @@ const Component = ({
     [inputTokenAddress, outputTokenAddress]
   )
 
-  const [leverageKey, leverageValue] = useMemo(() => {
+  const [effectiveLeverage, leverageKey, leverageValue] = useMemo(() => {
     if (!poolToShow || sideToShow == null) {
-      return ['', null]
+      return [0, '', null]
     }
 
     const {
@@ -247,6 +252,7 @@ const Component = ({
     if (sideToShow != POOL_IDS.C && effectiveLeverage < leverage) {
       const CompText = effectiveLeverage < leverage / 2 ? TextSell : TextWarning
       return [
+        effectiveLeverage,
         'Effective Leverage',
         <CompText>{zerofy(effectiveLeverage)}x</CompText>
       ]
@@ -254,6 +260,7 @@ const Component = ({
 
     const title = sideToShow == POOL_IDS.C ? 'Full Leverage Range' : 'Deleverage Price'
     return [
+      effectiveLeverage,
       title,
       <DeleveragePrice
         position={{
@@ -275,7 +282,7 @@ const Component = ({
     return getPoolPower(poolToShow)
   }, [poolToShow])
 
-  const [interest, premium, fundingRate, interestRate, maxPremiumRate] = useMemo(() => {
+  const [baseRate, sideRate, cRate, interest, premium, fundingRate, interestRate, maxPremiumRate] = useMemo(() => {
     const tokenAddress =
       isErc1155Address(outputTokenAddress) ? outputTokenAddress
         : isErc1155Address(inputTokenAddress) ? inputTokenAddress : undefined
@@ -287,11 +294,17 @@ const Component = ({
     if (!pool) {
       return [0, 0, 0, 0, 0]
     }
-    const { sides, interestRate, maxPremiumRate } = pool
+    const { sides, interestRate, maxPremiumRate, INTEREST_HL, states: { rA, rB, rC } } = pool
+    const K = pool.K.toNumber()
+    const baseRate = baseRateFromHL(INTEREST_HL)
+    const sideRate = baseRate * sides[id].k / K
+    const rAInterest = rA.mul(WEI(baseRate * sides[POOL_IDS.A].k / K))
+    const rBInterest = rB.mul(WEI(baseRate * sides[POOL_IDS.B].k / K))
+    const cRate = NUM(DIV(rAInterest.add(rBInterest), rC.mul(bn(10).pow(18)), 4))
     const interest = sides[id].interest ?? 0
     const premium = NUM(sides[id].premium)
     const fundingRate = interest + premium
-    return [interest, premium, fundingRate, interestRate, maxPremiumRate]
+    return [baseRate, sideRate, cRate, interest, premium, fundingRate, interestRate, maxPremiumRate]
   }, [inputTokenAddress, outputTokenAddress, pools, poolToShow])
   useEffect(() => {
     if (tokensToSelect.length > 0 && !tokensToSelect.includes(inputTokenAddress)) {
@@ -421,6 +434,10 @@ const Component = ({
       <SwapInfoBox
         tradeType={tradeType}
         poolToShow={poolToShow}
+        effectiveLeverage={effectiveLeverage}
+        baseRate={baseRate}
+        sideRate={sideRate}
+        cRate={cRate}
         interest={interest}
         premium={premium}
         maxPremiumRate={maxPremiumRate}

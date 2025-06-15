@@ -741,3 +741,13 @@ export const formatMaturity = (duration: number | BigNumber, removeSingularPatic
 export const calculatePx = (tick: number) => {
   return Math.pow(1.0001, tick);
 }
+
+export const SECONDS_PER_DAY = 24*60*60
+
+export const baseRateToHL = (r: number, DURATION = SECONDS_PER_DAY): number => {
+  return Math.ceil((DURATION * Math.LN2) / r)
+}
+
+export const baseRateFromHL = (HL: number, DURATION = SECONDS_PER_DAY): number => {
+  return (DURATION * Math.LN2) / HL
+}
