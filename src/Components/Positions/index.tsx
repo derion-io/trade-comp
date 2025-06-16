@@ -303,12 +303,12 @@ export const Positions = ({
     let displayPositions: Position[] = []
     if (positions && positions.length > 0) {
       displayPositions = positions.filter((p) => {
-        if (tradeType === TRADE_TYPE.LIQUIDITY) {
-          return p.side === POOL_IDS.C
-        }
-        if (tradeType === TRADE_TYPE.LONG || tradeType === TRADE_TYPE.SHORT) {
-          return p.side === POOL_IDS.A || p.side === POOL_IDS.B
-        }
+        // if (tradeType === TRADE_TYPE.LIQUIDITY) {
+        //   return p.side === POOL_IDS.C
+        // }
+        // if (tradeType === TRADE_TYPE.LONG || tradeType === TRADE_TYPE.SHORT) {
+        //   return p.side === POOL_IDS.A || p.side === POOL_IDS.B
+        // }
         return true
       })
       const pendingPosition = swapPendingTxs
