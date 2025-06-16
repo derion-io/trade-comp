@@ -55,7 +55,7 @@ export const LINE_CHART_CONFIG = {
   },
   [I_1W]: {
     type: 'hourlySnapshots',
-    range: 30 * 24 * 60 * 60 * 1000, // 24 hours
+    range: 90 * 24 * 60 * 60 * 1000, // 24 hours
     limit: 100,
     interval: 7 * 24 * 60 * 60 * 1000,
   },

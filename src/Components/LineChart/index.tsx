@@ -123,9 +123,9 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
           if (chartDatas[i].time < start) {
             continue
           }
-          if (chartDatas[i].time < lastData.time + msInterval) {
-            continue;
-          }
+          // if (chartDatas[i].time < lastData.time + msInterval) {
+          //   continue;
+          // }
           result.push(lastData = chartDatas[i])
           if (lastData.time >= end) {
             break

@@ -47,7 +47,8 @@ type PriceFeedData = {
 
 const RPC_URL = 'https://arb1.arbitrum.io/rpc'
 const PRICE_FEED_CONTRACT_ADDRESS = '0x6ce185860a4963106506C203335A2910413708e9'
-const PRICE_FEED_MULTICALL_SIZE = 5000
+const PRICE_FEED_MULTICALL_SIZE = 300
+const INITIAL_ROUND_LIMIT = 300
 const MULTICAL_CONTRACT_ADDRESS = '0xca11bde05977b3631167028862be2a173976ca11'
 
 const TIME_INTERVALS = {
@@ -121,6 +122,30 @@ export const priceFeedContractAbi = [
     type: 'function'
   }
 ]
+
+const calculateAverageTimePerRound = (data: PriceFeedData[]): number => {
+  if (data.length < 2) {
+    return 0
+  } else {
+    const totalDiff = data
+      .slice(1)
+      .reduce((sum, t, i) => sum + Math.abs(Number(t.updatedAt) - Number(data[i].updatedAt)), 0);
+  
+    const avgDiff = totalDiff / (data.length - 1);
+    return avgDiff
+  }
+
+}
+
+const calculateStepSize = (interval: string, averageTime: number): number => {
+  const targetTimespan = TIME_INTERVALS[interval as keyof typeof TIME_INTERVALS]
+  if (!targetTimespan || averageTime <= 0) return 1
+  
+  const totalRoundsNeeded = Math.ceil(targetTimespan / averageTime)
+  const stepSize = Math.max(1, Math.ceil(totalRoundsNeeded / PRICE_FEED_MULTICALL_SIZE))
+  
+  return stepSize
+}
 
 export const useExchangeData = () => {
   const { configs } = useConfigs()
@@ -249,46 +274,10 @@ export const useExchangeData = () => {
     }
   }
 
-  const calculateAverageTimePerRound = (data: PriceFeedData[]): number => {
-    if (data.length < 2) return 0
-    
-    const validData = data
-      .filter(item => item.updatedAt && item.updatedAt.gt(0))
-      .sort((a, b) => a.updatedAt.toNumber() - b.updatedAt.toNumber())
-    
-    if (validData.length < 2) return 0
-    
-    let totalTimeDiff = 0
-    let validDiffs = 0
-    
-    for (let i = 1; i < validData.length; i++) {
-      const timeDiff = validData[i].updatedAt.toNumber() - validData[i-1].updatedAt.toNumber()
-      if (timeDiff > 0 && timeDiff < 86400) { // Filter out unrealistic time differences (> 1 day)
-        totalTimeDiff += timeDiff
-        validDiffs++
-      }
-    }
-    
-    const average = validDiffs > 0 ? totalTimeDiff / validDiffs : 0
-    console.log(`Calculated average time per round: ${average} seconds`)
-    return average
-  }
-
-  const calculateStepSize = (interval: string, averageTime: number): number => {
-
-    const targetTimespan = TIME_INTERVALS[interval as keyof typeof TIME_INTERVALS]
-    if (!targetTimespan || averageTime <= 0) return 1
-    
-    const totalRoundsNeeded = Math.ceil(targetTimespan / averageTime)
-    const stepSize = Math.max(1, Math.ceil(totalRoundsNeeded / PRICE_FEED_MULTICALL_SIZE))
-    
-    console.log(`For ${interval}: target=${targetTimespan}s, avgTime=${averageTime}s, totalRounds=${totalRoundsNeeded}, step=${stepSize}`)
-    return stepSize
-  }
-
   const chainLinkHistoricalPriceFeedDatas = async (
     action: 'PREV' | 'NEXT' | 'NONE' = 'NONE',
-    from: string | BigNumber = BigNumber.from(0)
+    from: string | BigNumber = BigNumber.from(0),
+    interval: LineChartIntervalType
   ) => {
     try {
       console.log('Fetching historical price feed data...')
@@ -331,7 +320,9 @@ export const useExchangeData = () => {
 
       const calls = []
       const priceFeedInterface = new Interface(priceFeedContractAbi)
-
+      const totalRound = avgRoundInSecond == 0 ? 1 : Math.round((LINE_CHART_CONFIG[interval].range / 1000) / (avgRoundInSecond))
+      const stepRound = Math.round(totalRound / INITIAL_ROUND_LIMIT) == 0 ? 1 : Math.round(totalRound / INITIAL_ROUND_LIMIT)
+      console.log("#stepRound", stepRound)
       for (let i = 0; i < multiCallSize; i++) {
         calls.push({
           target: PRICE_FEED_CONTRACT_ADDRESS,
@@ -339,8 +330,7 @@ export const useExchangeData = () => {
             BigNumber.from(roundId)
           ])
         })
-
-        roundId = BigNumber.from(roundId).sub(1)
+        roundId = BigNumber.from(roundId).sub(stepRound)
       }
 
       const [, returnData] = await multicalContract.callStatic.aggregate(calls)
@@ -360,10 +350,15 @@ export const useExchangeData = () => {
             answeredInRound: decodedData[4]
           }
         })
-        .sort((a: any, b: any) => a.time - b.time)
-      
       console.log(`Fetched ${decodedData.length} historical price feed data points.`)
       console.log(decodedData.slice(0, 100))
+      // Calculate average time per round on initial load
+      if (action === 'NONE' && avgRoundInSecond == 0 ) {
+        const avgTime = calculateAverageTimePerRound(decodedData)
+        setAvgRoundInSecond(avgTime)
+        console.log(`Average time per round: ${avgTime} seconds`)
+      }
+      console.log(`##Avg: ${avgRoundInSecond}, Step ${stepRound}, totalRound: ${calls.length}`)
       return decodedData
     } catch (error) {
       console.error('Error fetching historical price feed data:', error)
@@ -384,11 +379,11 @@ export const useExchangeData = () => {
     action?: 'PREV' | 'NEXT' | 'NONE'
     from?: string | BigNumber
   }) => {
-    // return LINE_CHART_CONFIG[interval].type === 'hourlySnapshots'
-    //   ? await getPairHourData({ interval, pair, baseToken })
-    //   : await getPairDayData({ interval, pair, baseToken })
+    // Calculate step size based on interval and average round time
+    const stepSize = calculateStepSize(interval, avgRoundInSecond)
+    console.log(`Step size for ${interval}: ${stepSize}`)
 
-    return await chainLinkHistoricalPriceFeedDatas(action, from)
+    return await chainLinkHistoricalPriceFeedDatas(action, from, interval)
   }
 
   return {
