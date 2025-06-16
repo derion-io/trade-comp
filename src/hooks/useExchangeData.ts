@@ -8,6 +8,7 @@ import {
   LineChartIntervalType
 } from '../utils/lineChartConstant'
 import { Interface } from 'ethers/lib/utils'
+import {useState} from 'react'
 
 type LiquidityPool = {
   hourlySnapshots: Array<HourlySnapshots>
@@ -35,12 +36,29 @@ type InputTokens = {
   decimals: number
 }
 
-const RPC_URL = 'https://arb1.arbitrum.io/rpc'
+type PriceFeedData = {
+  roundId: BigNumber
+  answer: BigNumber
+  startedAt: BigNumber
+  updatedAt: BigNumber
+  answeredInRound: BigNumber
+  time?: number
+}
 
+const RPC_URL = 'https://arb1.arbitrum.io/rpc'
 const PRICE_FEED_CONTRACT_ADDRESS = '0x6ce185860a4963106506C203335A2910413708e9'
 const PRICE_FEED_MULTICALL_SIZE = 5000
-
 const MULTICAL_CONTRACT_ADDRESS = '0xca11bde05977b3631167028862be2a173976ca11'
+
+const TIME_INTERVALS = {
+  '1h': 3600,
+  '4h': 14400,
+  '1d': 86400,
+  '1w': 604800,
+  '1m': 2592000,
+  '3m': 7776000,
+  '1y': 31536000
+}
 
 export const multicalAggregateABI = [
   {
@@ -106,6 +124,7 @@ export const priceFeedContractAbi = [
 
 export const useExchangeData = () => {
   const { configs } = useConfigs()
+  const [avgRoundInSecond, setAvgRoundInSecond] = useState<number>(0)
 
   const getPairHourData = async ({
     interval,
@@ -228,6 +247,43 @@ export const useExchangeData = () => {
       console.error(error)
       return []
     }
+  }
+
+  const calculateAverageTimePerRound = (data: PriceFeedData[]): number => {
+    if (data.length < 2) return 0
+    
+    const validData = data
+      .filter(item => item.updatedAt && item.updatedAt.gt(0))
+      .sort((a, b) => a.updatedAt.toNumber() - b.updatedAt.toNumber())
+    
+    if (validData.length < 2) return 0
+    
+    let totalTimeDiff = 0
+    let validDiffs = 0
+    
+    for (let i = 1; i < validData.length; i++) {
+      const timeDiff = validData[i].updatedAt.toNumber() - validData[i-1].updatedAt.toNumber()
+      if (timeDiff > 0 && timeDiff < 86400) { // Filter out unrealistic time differences (> 1 day)
+        totalTimeDiff += timeDiff
+        validDiffs++
+      }
+    }
+    
+    const average = validDiffs > 0 ? totalTimeDiff / validDiffs : 0
+    console.log(`Calculated average time per round: ${average} seconds`)
+    return average
+  }
+
+  const calculateStepSize = (interval: string, averageTime: number): number => {
+
+    const targetTimespan = TIME_INTERVALS[interval as keyof typeof TIME_INTERVALS]
+    if (!targetTimespan || averageTime <= 0) return 1
+    
+    const totalRoundsNeeded = Math.ceil(targetTimespan / averageTime)
+    const stepSize = Math.max(1, Math.ceil(totalRoundsNeeded / PRICE_FEED_MULTICALL_SIZE))
+    
+    console.log(`For ${interval}: target=${targetTimespan}s, avgTime=${averageTime}s, totalRounds=${totalRoundsNeeded}, step=${stepSize}`)
+    return stepSize
   }
 
   const chainLinkHistoricalPriceFeedDatas = async (
