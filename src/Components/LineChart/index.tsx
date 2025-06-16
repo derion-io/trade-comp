@@ -218,23 +218,13 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
     <div className='line-chart-wrap'>
       <div className='line-chart__head' ref={headRef}>
         <div className='line-chart__head--left'>
-          <div>
-            <Text fontSize={18} fontWeight={700} className='mr-05'>
+          <div className='price-display'>
+            <Text fontSize={24} fontWeight={700} className='mr-05 price-value'>
               {hoverValue}
             </Text>
-            {/*
-          <TextGrey className='mr-05' fontWeight={700}>
-            {tokens[baseToken]?.symbol}/{tokens[quoteToken]?.symbol}
-          </TextGrey>
-          {
-            changedIn24h >= 0
-              ? <TextBuy>(+{changedIn24h}%)</TextBuy>
-              : <TextSell>({changedIn24h}%)</TextSell>
-          }
-          */}
-          </div>
-          <div>
-            <TextGrey>{moment(hoverDate).format(DATE_FORMATS.FULL)}</TextGrey>
+            <TextGrey className='price-date' fontSize={14}>
+              {moment(hoverDate).format(DATE_FORMATS.FULL)}
+            </TextGrey>
           </div>
         </div>
         <div className='line-chart__head--center'>
@@ -279,10 +269,10 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
             <AreaChart
               data={finalData}
               margin={{
-                top: 5,
-                right: 0,
+                top: 10,
+                right: 20,
                 left: 10,
-                bottom: 5
+                bottom: 20
               }}
             >
               <defs>
@@ -298,7 +288,10 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
                 tickFormatter={(time) =>
                   moment(time).format(interval === I_1D ? 'HH:mm' : 'DD/MM')
                 }
-                minTickGap={8}
+                minTickGap={60}
+                interval="preserveEnd"
+                tick={{ fill: '#a0a0a0', fontSize: 12 }}
+                // padding={{ left: 20, right: 20 }}
               />
               <YAxis
                 dataKey='value'
@@ -308,8 +301,11 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
                 axisLine={false}
                 tickLine={false}
                 domain={yAxisDomain}
-                minTickGap={8}
+                minTickGap={40}
+                tickCount={8}
                 orientation='right'
+                tick={{ fill: '#a0a0a0', fontSize: 12 }}
+                padding={{ top: 10, bottom: 10 }}
               />
               <Tooltip
                 cursor={{ stroke: '#a6a6a6' }}
@@ -323,12 +319,20 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
                   />
                 )}
               />
+
               <Area
                 dataKey='value'
-                type='linear'
+                type='monotone'
                 stroke={color}
                 fill='url(#gradient)'
                 strokeWidth={2}
+                dot={false}
+                activeDot={{
+                  r: 6,
+                  fill: color,
+                  stroke: '#fff',
+                  strokeWidth: 2
+                }}
               />
             </AreaChart>
           </ResponsiveContainer>

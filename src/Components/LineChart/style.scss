@@ -8,37 +8,47 @@
     overflow: hidden;
     position: relative;
     max-width: 100%;
+    box-shadow: none;
   }
 
   &__head {
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
     padding: 10px;
 
     &--left {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      .price-display {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+
+        .price-value {
+          color: #f0f0f0;
+          line-height: 1.2;
+        }
+
+        .price-date {
+          color: #a0a0a0;
+        }
+      }
     }
 
     &--center {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-
       .scroll-button {
-        width: max-content;
-        height: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border-radius: 5px;
-        padding: 5px;
+        background: $color-overlay;
+        padding: 6px 12px;
+        border-radius: 6px;
+        margin: 0 4px;
         cursor: pointer;
+        font-size: 14px;
+        color: #a0a0a0;
+        transition: all 0.2s ease;
 
         &:hover {
-          background-color: $color-overlay;
+          background: darken($color-overlay, 5%);
+          color: #f0f0f0;
         }
       }
     }
@@ -54,25 +64,56 @@
 
   &__loading {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    // height: 100%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: auto;
   }
 
   &__reload-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     cursor: pointer;
+    padding: 12px;
+    border-radius: 50%;
+    background: $color-overlay;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: darken($color-overlay, 5%);
+    }
   }
 
   &-box {
     width: 100%;
-    // height: 450px;
+    background: $color-card-bg;
+    border-radius: 12px;
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+}
 
-    // @include respond(phone) {
-    //   height: 320px;
-    // }
+.recharts-tooltip-wrapper {
+  .recharts-default-tooltip {
+    background-color: rgba(30, 30, 30, 0.95) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+    padding: 12px !important;
+
+    .recharts-tooltip-label {
+      color: #a0a0a0 !important;
+      font-size: 12px !important;
+      margin-bottom: 4px !important;
+    }
+
+    .recharts-tooltip-item {
+      color: #f0f0f0 !important;
+      font-size: 14px !important;
+      font-weight: 500 !important;
+    }
   }
 }

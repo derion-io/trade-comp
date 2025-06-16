@@ -7,7 +7,7 @@ export const LineChartLoader: React.FC<React.PropsWithChildren<any>> =
   React.memo(() => {
     return (
       <div className='loading-indicator'>
-        <LineChartLoaderSVG />
+        <div style={{opacity: 0}}>        <LineChartLoaderSVG /> </div>
         <span className='loading-text'>Loading chart data...</span>
       </div>
     )
