@@ -5520,7 +5520,7 @@ depd@~1.1.2:
 
 "derivable-engine@git+ssh://git@github.com:derion-io/engine.git#v2-build":
   version "1.0.0"
-  resolved "git+ssh://git@github.com:derion-io/engine.git#f94953582f9706c00e929cf0a98fd4c484393409"
+  resolved "git+ssh://git@github.com:derion-io/engine.git#61b765112862be0699ed03520efc494dbc0a9550"
   dependencies:
     "@ethersproject/providers" "https://gitpkg.now.sh/derion-io/ethers.js/packages/providers?v5.3.5.0"
     "@zoltu/ethereum-crypto" "^2.3.0"
