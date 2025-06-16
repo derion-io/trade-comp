@@ -254,8 +254,8 @@ export const Trade = ({
             <TabList>
               <Tab>Long</Tab>
               <Tab>Short</Tab>
-              <Tab>Swap</Tab>
               <Tab>LP</Tab>
+              <Tab>Swap</Tab>
             </TabList>
             <TabPanel>
               <Card className='trade-box card-in-tab'>
@@ -298,21 +298,6 @@ export const Trade = ({
               <Card className='trade-box card-in-tab'>
                 {/* @ts-ignore */}
                 <ErrorBoundary>
-                  <SwapBox
-                    inputTokenAddress={inputTokenAddress}
-                    setInputTokenAddress={setInputTokenAddress}
-                    outputTokenAddress={outputTokenAddress}
-                    setOutputTokenAddress={setOutputTokenAddress}
-                    tokenOutMaturity={tokenOutMaturity}
-                    setVisibleSettingModal={setVisibleSettingModal}
-                  />
-                </ErrorBoundary>
-              </Card>
-            </TabPanel>
-            <TabPanel>
-              <Card className='trade-box card-in-tab'>
-                {/* @ts-ignore */}
-                <ErrorBoundary>
                   <BuyPositionBox
                     searchIndexCache={searchIndexCache}
                     showAllPool={showAllPool}
@@ -323,6 +308,21 @@ export const Trade = ({
                     outputTokenAddress={outputTokenAddress}
                     setOutputTokenAddress={setOutputTokenAddress}
                     tradeType={TRADE_TYPE.LIQUIDITY}
+                    tokenOutMaturity={tokenOutMaturity}
+                    setVisibleSettingModal={setVisibleSettingModal}
+                  />
+                </ErrorBoundary>
+              </Card>
+            </TabPanel>
+            <TabPanel>
+              <Card className='trade-box card-in-tab'>
+                {/* @ts-ignore */}
+                <ErrorBoundary>
+                  <SwapBox
+                    inputTokenAddress={inputTokenAddress}
+                    setInputTokenAddress={setInputTokenAddress}
+                    outputTokenAddress={outputTokenAddress}
+                    setOutputTokenAddress={setOutputTokenAddress}
                     tokenOutMaturity={tokenOutMaturity}
                     setVisibleSettingModal={setVisibleSettingModal}
                   />
