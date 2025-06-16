@@ -58,10 +58,60 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
     }
   }, [basePrice])
 
+  const yAxisDomain = useMemo(() => {
+    const data = chartData[chainId + interval + cToken] || []
+    if (data.length === 0) return ['auto', 'auto']
+    
+    const values = data.map(item => parseFloat(item.value)).filter(v => !isNaN(v))
+    if (values.length === 0) return ['auto', 'auto']
+    
+    const minValue = Math.min(...values)
+    const maxValue = Math.max(...values)
+    
+    const padding = (maxValue - minValue) * 0.1 // 10% padding
+    const adjustedMin = Math.max(0, minValue - padding)
+    const adjustedMax = maxValue + padding
+    
+    if (Math.abs(maxValue - minValue) < 0.0001) {
+      return [adjustedMin * 0.95, adjustedMax * 1.05]
+    }
+    
+    return [adjustedMin, adjustedMax]
+  }, [chartData, interval, chainId, cToken])
+
   const finalData = useMemo(() => {
-    const data = [...chartData[chainId + interval + cToken]]
-    return data
-  }, [chartData, interval, chainId])
+    const data = [...(chartData[chainId + interval + cToken] || [])]
+    // if (data.length === 0) return []
+    
+    const smoothedData = []
+    for (let i = 0; i < data.length; i++) {
+      const current = data[i]
+      const currentValue = parseFloat(current.value)
+      
+      if (i === 0) {
+        smoothedData.push(current)
+        continue
+      }
+      
+      const previous = smoothedData[smoothedData.length - 1]
+      const previousValue = parseFloat(previous.value)
+      
+      const percentChange = Math.abs((currentValue - previousValue) / previousValue)
+      
+      if (percentChange > 0.5) {
+        // Use interpolated value
+        const interpolatedValue = (currentValue + previousValue) / 2
+        smoothedData.push({
+          ...current,
+          value: interpolatedValue.toString()
+        })
+      } else {
+        smoothedData.push(current)
+      }
+    }
+    
+    return smoothedData
+  }, [chartData, interval, chainId, cToken])
 
   const color = useMemo(() => {
     return changedIn24h > 0 ? COLORS.BUY : COLORS.SELL
@@ -94,27 +144,40 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
         from
       }).then((data) => {
         const seen = new Set<string>()
-        ;[...oldPriceFeedData, ...data].forEach((item) => {
+        const allData = [...oldPriceFeedData, ...data]
+        
+        // Remove duplicates more effectively
+        const uniqueData = allData.filter((item) => {
+          if (seen.has(item.roundId)) {
+            return false
+          }
           seen.add(item.roundId)
-        })
-        const newPriceFeedData = [...oldPriceFeedData, ...data]
-          .filter((item) => !seen.has(item.id) && item)
-          .sort((a, b) => a.updatedAt - b.updatedAt)
+          return true
+        }).sort((a, b) => a.updatedAt - b.updatedAt)
 
         setPriceFeedData({
           ...priceFeedData,
-          [chainId + interval + cToken]: newPriceFeedData
+          [chainId + interval + cToken]: uniqueData
         })
 
-        const chartDatas = newPriceFeedData.map((item) => ({
+        const chartDatas = uniqueData.map((item) => ({
           time: item.updatedAt * 1000,
           value: ethers.utils.formatUnits(item.answer, 8),
         }))
 
-        const msInterval = LINE_CHART_CONFIG[interval].interval || 60 * 1000
+
+        // const msInterval = LINE_CHART_CONFIG[interval].interval || 60 * 1000
+        
+        if (chartDatas.length === 0) {
+          setChartData({
+            ...chartData,
+            [chainId + interval + cToken]: []
+          })
+          setIsLoading(false)
+          return
+        }
 
         let lastData = chartDatas[0]
-
         const start = lastData.time
         const end = start + LINE_CHART_CONFIG[interval].range
 
@@ -138,6 +201,9 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
           ...chartData,
           [chainId + interval + cToken]: result
         })
+        setIsLoading(false)
+      }).catch((error) => {
+        console.error('Error loading chart data:', error)
         setIsLoading(false)
       })
     }
@@ -241,7 +307,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
                 }}
                 axisLine={false}
                 tickLine={false}
-                domain={['auto', 'auto']}
+                domain={yAxisDomain}
                 minTickGap={8}
                 orientation='right'
               />
@@ -274,9 +340,11 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
 
 const HoverUpdater = ({ payload, setHoverValue, setHoverDate }: any) => {
   useEffect(() => {
-    setHoverValue(zerofy(payload.value))
-    setHoverDate(payload.time)
-  }, [payload.value, payload.time, setHoverValue, setHoverDate])
+    if (payload && payload.value !== undefined && payload.time !== undefined) {
+      setHoverValue(zerofy(payload.value))
+      setHoverDate(payload.time)
+    }
+  }, [payload?.value, payload?.time, setHoverValue, setHoverDate])
 
   return null
 }
