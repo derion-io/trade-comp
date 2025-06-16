@@ -43,11 +43,13 @@ export const useResource = () => {
 
       await Promise.all([
         ddlEngine.RESOURCE.getResourceCached(account, playMode).then((data) => {
+          console.log('Cached resources loaded')
           if (data?.tokens?.length === 0) return
           addNewResource(data, account)
           updateSwapTxsHandle(account, data.swapLogs, data.transferLogs)
         }),
         ddlEngine.RESOURCE.getWhiteListResource(pool ? [pool] : []).then((data) => {
+          console.log('Static resources loaded')
           if (data?.tokens?.length === 0) return
           addNewResource(data, account)
           // updateSwapTxsHandle(account, data.swapLogs, data.transferLogs)
@@ -55,6 +57,7 @@ export const useResource = () => {
       ])
 
       ddlEngine.RESOURCE.getNewResource(account, playMode).then((data) => {
+        console.log('New resources loaded', data)
         if (data?.tokens?.length === 0) return
         addNewResource(data, account)
         updateSwapTxsHandle(account, data.swapLogs, data.transferLogs)
