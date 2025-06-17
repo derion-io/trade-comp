@@ -8,6 +8,7 @@ import tokenReduce from './token/reducer'
 import poolsReduce from './resources/reducer'
 import settingsReduce from './setting/reducer'
 import uni3PositionsReducer from './uni3Positions/reducer'
+import linechartReducer from './linechart/reducer'
 
 export const store = createStore(
   combineReducers({
@@ -18,8 +19,8 @@ export const store = createStore(
     wallet: walletsReduce,
     tokens: tokenReduce,
     settings: settingsReduce,
-    uni3Positions: uni3PositionsReducer
-
+    uni3Positions: uni3PositionsReducer,
+    linechart: linechartReducer
   }),
   applyMiddleware(thunk)
 )

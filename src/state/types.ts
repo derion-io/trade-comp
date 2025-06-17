@@ -16,6 +16,7 @@ import { BigNumber } from 'ethers'
 import { settingsState } from './setting/type'
 // eslint-disable-next-line no-unused-vars
 import { Uni3PositionsType } from './uni3Positions/type'
+import { LineChartType } from './linechart/type'
 
 export interface State {
   resources: resourcesState
@@ -26,6 +27,7 @@ export interface State {
   wallet: walletState
   tokens: tokensState
   uni3Positions: Uni3PositionsType
+  linechart: LineChartType
 }
 
 export interface PoolType {

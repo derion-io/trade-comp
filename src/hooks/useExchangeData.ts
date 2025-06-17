@@ -8,7 +8,11 @@ import {
   LineChartIntervalType
 } from '../utils/lineChartConstant'
 import { Interface } from 'ethers/lib/utils'
-import {useState} from 'react'
+import {useEffect, useLayoutEffect, useState} from 'react'
+import {PriceFeedData} from '../state/linechart/type'
+import {useDispatch, useSelector} from 'react-redux'
+import {State} from '../state/types'
+import {setRoundCache} from '../state/linechart/reducer'
 
 type LiquidityPool = {
   hourlySnapshots: Array<HourlySnapshots>
@@ -34,15 +38,6 @@ type DailySnapshots = {
 type InputTokens = {
   id: string
   decimals: number
-}
-
-type PriceFeedData = {
-  roundId: BigNumber
-  answer: BigNumber
-  startedAt: BigNumber
-  updatedAt: BigNumber
-  answeredInRound: BigNumber
-  time?: number
 }
 
 const RPC_URL = 'https://arb1.arbitrum.io/rpc'
@@ -148,9 +143,18 @@ const calculateStepSize = (interval: string, averageTime: number): number => {
 }
 
 export const useExchangeData = () => {
-  const { configs } = useConfigs()
   const [avgRoundInSecond, setAvgRoundInSecond] = useState<number>(0)
-
+  const { roundCache } = useSelector((state: State) => {
+    return {
+      roundCache: state.linechart.roundCache,
+    }
+  })
+  const { chainId, ddlEngine, configs } = useConfigs()
+  useEffect(()=>{
+    console.log("#roundCache",Object.keys(roundCache).length)
+  },[roundCache])
+  const dispatch = useDispatch()
+  // const [roundCache, setRoundCache] = useState<{[roundId: string]: PriceFeedData}>({})
   const getPairHourData = async ({
     interval,
     pair,
@@ -319,47 +323,107 @@ export const useExchangeData = () => {
       )
 
       const calls = []
+      const roundsToFetch:any[] = []
       const priceFeedInterface = new Interface(priceFeedContractAbi)
       const totalRound = avgRoundInSecond == 0 ? 1 : Math.round((LINE_CHART_CONFIG[interval].range / 1000) / (avgRoundInSecond))
       const stepRound = Math.round(totalRound / INITIAL_ROUND_LIMIT) == 0 ? 1 : Math.round(totalRound / INITIAL_ROUND_LIMIT)
       console.log("#stepRound", stepRound)
+      
+      let currentRoundId = BigNumber.from(roundId)
       for (let i = 0; i < multiCallSize; i++) {
-        calls.push({
-          target: PRICE_FEED_CONTRACT_ADDRESS,
-          callData: priceFeedInterface.encodeFunctionData('getRoundData', [
-            BigNumber.from(roundId)
-          ])
-        })
-        roundId = BigNumber.from(roundId).sub(stepRound)
+        const roundIdStr = currentRoundId.toString()
+        
+        // Check if this round is already cached
+        if (!roundCache[roundIdStr]) {
+          calls.push({
+            target: PRICE_FEED_CONTRACT_ADDRESS,
+            callData: priceFeedInterface.encodeFunctionData('getRoundData', [
+              currentRoundId
+            ])
+          })
+          roundsToFetch.push(currentRoundId.toString())
+        }
+        
+        currentRoundId = currentRoundId.sub(stepRound)
       }
 
-      const [, returnData] = await multicalContract.callStatic.aggregate(calls)
+      console.log(`Found ${Object.keys(roundCache).length} cached rounds, fetching ${calls.length} new rounds`)
 
-      const decodedData = returnData
-        .map((data: string) => {
-          const decodedData = priceFeedInterface.decodeFunctionResult(
-            'getRoundData',
-            data
-          )
+      let decodedData: PriceFeedData[] = []
+      
+      // Only make multicall if there are rounds to fetch
+      if (calls.length > 0) {
+        const [, returnData] = await multicalContract.callStatic.aggregate(calls)
 
-          return {
-            roundId: decodedData[0],
-            answer: decodedData[1],
-            startedAt: decodedData[2],
-            updatedAt: decodedData[3],
-            answeredInRound: decodedData[4]
-          }
+        decodedData = returnData
+          .map((data: string) => {
+            const decodedData = priceFeedInterface.decodeFunctionResult(
+              'getRoundData',
+              data
+            )
+
+            return {
+              roundId: decodedData[0],
+              answer: decodedData[1],
+              startedAt: decodedData[2],
+              updatedAt: decodedData[3],
+              answeredInRound: decodedData[4]
+            }
+          })
+
+        // Update cache with new data
+        const newCacheEntries: {[roundId: string]: PriceFeedData} = {}
+        decodedData.forEach((data, index) => {
+          const roundIdStr = roundsToFetch[index]
+          newCacheEntries[roundIdStr] = data
         })
-      console.log(`Fetched ${decodedData.length} historical price feed data points.`)
-      console.log(decodedData.slice(0, 100))
+        dispatch(setRoundCache({
+          cacheData: {
+            ...newCacheEntries,
+            ...roundCache
+          }
+        }))
+
+        // setRoundCache(prevCache => ({
+        //   ...prevCache,
+        //   ...newCacheEntries
+        // }))
+        
+        console.log(`Fetched ${decodedData.length} historical price feed data points.`)
+      }
+
+      // Combine cached and new data for the requested rounds
+      const allRequestedData: PriceFeedData[] = []
+      currentRoundId = BigNumber.from(roundId)
+      
+      for (let i = 0; i < multiCallSize; i++) {
+        const roundIdStr = currentRoundId.toString()
+        const cachedData = roundCache[roundIdStr]
+        
+        if (cachedData) {
+          allRequestedData.push(cachedData)
+        } else {
+          // Find in newly fetched data
+          const newData = decodedData.find(data => data.roundId.toString() === roundIdStr)
+          if (newData) {
+            allRequestedData.push(newData)
+          }
+        }
+        
+        currentRoundId = currentRoundId.sub(stepRound)
+      }
+
+      console.log(allRequestedData.slice(0, 100))
+      
       // Calculate average time per round on initial load
       if (action === 'NONE' && avgRoundInSecond == 0 ) {
-        const avgTime = calculateAverageTimePerRound(decodedData)
+        const avgTime = calculateAverageTimePerRound(allRequestedData)
         setAvgRoundInSecond(avgTime)
         console.log(`Average time per round: ${avgTime} seconds`)
       }
-      console.log(`##Avg: ${avgRoundInSecond}, Step ${stepRound}, totalRound: ${calls.length}`)
-      return decodedData
+      console.log(`##Avg: ${avgRoundInSecond}, Step ${stepRound}, totalRound: ${allRequestedData.length}, cached: ${Object.keys(roundCache).length}`)
+      
+      return allRequestedData
     } catch (error) {
       console.error('Error fetching historical price feed data:', error)
       return []
