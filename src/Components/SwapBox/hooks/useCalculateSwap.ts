@@ -47,7 +47,7 @@ export const useCalculateSwap = ({
   const [gasUsed, setGasUsed] = useState<BigNumber>(bn(0))
   const [amountOutWei, setAmountOutWei] = useState<BigNumber>(bn(0))
   const [loading, setLoading] = useState<boolean>(false)
-  const { ddlEngine } = useConfigs()
+  const { ddlEngine,configs} = useConfigs()
   const { balances, routerAllowances } = useWalletBalance()
   const [fetcherData, setFetcherData] = useState<any>()
   const [submitFetcherV2, setSubmitFetcherV2] = useState<boolean>(false)
@@ -55,7 +55,7 @@ export const useCalculateSwap = ({
   const currentPool = useDetectPool({ inputTokenAddress, outputTokenAddress })
 
   const refreshFetcherData = useCallback(() => {
-    if (ddlEngine && currentPool && currentPool.FETCHER !== ZERO_ADDRESS) {
+    if (ddlEngine && currentPool && currentPool.FETCHER !== ZERO_ADDRESS && currentPool.FETCHER !== configs.derivable.chainlinkFetcher) {
       ddlEngine.SWAP.fetchPriceMockTx(currentPool).then((e) => {
         setFetcherData(e)
       })
