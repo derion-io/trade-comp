@@ -66,7 +66,7 @@ export const useCalculateSwap = ({
         setSubmitFetcherV2(status)
       })
     }
-  }, [ddlEngine, currentPool])
+  }, [ddlEngine, currentPool,configs])
 
   useEffect(() => {
     refreshFetcherData()

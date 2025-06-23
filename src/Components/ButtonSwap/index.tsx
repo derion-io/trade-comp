@@ -71,7 +71,7 @@ export const ButtonSwap = ({
   const { account, showConnectModal } = useWeb3React()
   const { balances, fetchBalanceAndAllowance, routerAllowances } =
     useWalletBalance()
-  const { ddlEngine } = useConfigs()
+  const { ddlEngine, configs} = useConfigs()
   const { settings } = useSettings()
   const { chainId } = useWeb3React()
   const { initResource, pools } = useResource()
@@ -86,13 +86,13 @@ export const ButtonSwap = ({
   const sideOut = Number(decodeErc1155Address(outputTokenAddress)?.id ?? 0)
 
   const refreshFetcherData = useCallback(async () => {
-    if ((!confirmModal || isClosePosition) && ddlEngine && currentPool && currentPool.FETCHER !== ZERO_ADDRESS) {
+    if ((!confirmModal || isClosePosition) && ddlEngine && currentPool && currentPool.FETCHER !== ZERO_ADDRESS && currentPool.FETCHER !== configs.derivable.chainlinkFetcher) {
       const data = await ddlEngine.SWAP.fetchPriceTx(currentPool)
       setFetcherData(data)
       return data
     }
     return null
-  }, [ddlEngine, currentPool, confirmModal, isClosePosition])
+  }, [ddlEngine, currentPool, confirmModal, isClosePosition,configs])
 
   useEffect(() => {
     if (visibleConfirmPosition) {

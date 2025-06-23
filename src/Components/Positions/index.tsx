@@ -343,6 +343,7 @@ export const Positions = ({
     const hasClosingFee = displayPositions.some(
       (p) => p?.calulateClosingFee?.(now)?.fee > 0
     )
+    console.log("#displayPositions",displayPositions)
     return [displayPositions, hasClosingFee]
   }, [positions, tradeType, swapPendingTxs])
   const isShowAllPosition = useMemo(() => settings.minPositionValueUSD === 0, [settings.minPositionValueUSD])
