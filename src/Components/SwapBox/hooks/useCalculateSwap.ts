@@ -53,7 +53,10 @@ export const useCalculateSwap = ({
   const [submitFetcherV2, setSubmitFetcherV2] = useState<boolean>(false)
   const { pools } = useResource()
   const currentPool = useDetectPool({ inputTokenAddress, outputTokenAddress })
-
+  useEffect(()=>{
+    console.log("#currentPool",currentPool)
+    console.log("#pools", pools)
+  },[currentPool,pools])
   const refreshFetcherData = useCallback(() => {
     if (ddlEngine && currentPool && currentPool.FETCHER !== ZERO_ADDRESS && currentPool.FETCHER !== configs.derivable.chainlinkFetcher) {
       ddlEngine.SWAP.fetchPriceMockTx(currentPool).then((e) => {
