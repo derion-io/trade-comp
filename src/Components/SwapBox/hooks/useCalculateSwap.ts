@@ -115,6 +115,8 @@ export const useCalculateSwap = ({
       setAmountOutWei(bn(0))
     }
   }, [
+    currentPool,
+    configs,
     tokens[inputTokenAddress]?.address,
     tokens[outputTokenAddress]?.address,
     tokenOutMaturity.toString(),
@@ -162,6 +164,8 @@ export const useCalculateSwap = ({
           payloadAmount: _payloadAmountIn.toString()
         })
       }
+      console.log("#fetcherData", {   fetcherData,
+        fetcherV2: submitFetcherV2})
       // @ts-ignore
       const res = await ddlEngine.SWAP.calculateAmountOuts({
         fetcherData,
