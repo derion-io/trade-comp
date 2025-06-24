@@ -1,5 +1,5 @@
 import { BigNumber, ethers } from 'ethers'
-import { POOL_IDS, TRADE_TYPE, UNWRAP } from './constant'
+import { POOL_IDS, TRADE_TYPE, UNWRAP, ZERO_ADDRESS } from './constant'
 import _ from 'lodash'
 import { ListTokensType } from '../state/token/type'
 import { Q128 } from './type'
@@ -750,4 +750,16 @@ export const baseRateToHL = (r: number, DURATION = SECONDS_PER_DAY): number => {
 
 export const baseRateFromHL = (HL: number, DURATION = SECONDS_PER_DAY): number => {
   return (DURATION * Math.LN2) / HL
+}
+
+export const isUniv2 = (pool: PoolType): boolean => {
+  return !isChainlink(pool) && pool?.FETCHER !== ZERO_ADDRESS
+}
+
+export const isChainlink = (pool: PoolType): boolean => {
+  return chainlinkDecimals(pool?.ORACLE) > 0
+}
+
+export const chainlinkDecimals = (ORACLE: string): number => {
+  return parseInt(ORACLE.substring(18, 26), 16)
 }

@@ -3,10 +3,20 @@ import React, { Fragment, useMemo } from 'react'
 
 import './index.scss'
 import { PoolGroupType } from '../../../state/resources/type'
-import { ZERO_ADDRESS } from '../../../utils/constant'
+import { isChainlink, isUniv2 } from '../../../utils/helpers'
+
 export const Marker = ({ index }: {index: PoolGroupType}) => {
   const markerText = useMemo(() => {
-    return index?.pools?.[0]?.FETCHER === ZERO_ADDRESS ? '' : 'V2'
+    const pool = index?.pools?.[0]
+    if (pool) {
+      if (isChainlink(pool)) {
+        return 'CL'
+      }
+      if (isUniv2(pool)) {
+        return 'V2'
+      }
+    }
+    return ''
   }, [index])
   return (
     markerText !== '' ? <span className='marker-text' >

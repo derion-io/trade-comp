@@ -5,6 +5,7 @@ import {
   decodeErc1155Address,
   WEI,
   parseCallStaticError,
+  isUniv2,
   IEW
 } from '../../../utils/helpers'
 import { useCallback, useEffect, useState } from 'react'
@@ -58,7 +59,7 @@ export const useCalculateSwap = ({
     console.log("#pools", pools)
   },[currentPool,pools])
   const refreshFetcherData = useCallback(() => {
-    if (ddlEngine && currentPool && currentPool.FETCHER !== ZERO_ADDRESS && currentPool.FETCHER !== configs.derivable.chainlinkFetcher) {
+    if (ddlEngine && currentPool && isUniv2(currentPool)) {
       ddlEngine.SWAP.fetchPriceMockTx(currentPool).then((e) => {
         setFetcherData(e)
       })

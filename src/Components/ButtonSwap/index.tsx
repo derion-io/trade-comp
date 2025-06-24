@@ -3,6 +3,7 @@ import {
   bn,
   decodeErc1155Address,
   isErc1155Address,
+  isUniv2,
   mul,
   WEI
 } from '../../utils/helpers'
@@ -86,7 +87,7 @@ export const ButtonSwap = ({
   const sideOut = Number(decodeErc1155Address(outputTokenAddress)?.id ?? 0)
 
   const refreshFetcherData = useCallback(async () => {
-    if ((!confirmModal || isClosePosition) && ddlEngine && currentPool && currentPool.FETCHER !== ZERO_ADDRESS && currentPool.FETCHER !== configs.derivable.chainlinkFetcher) {
+    if ((!confirmModal || isClosePosition) && ddlEngine && currentPool && isUniv2(currentPool)) {
       const data = await ddlEngine.SWAP.fetchPriceTx(currentPool)
       setFetcherData(data)
       return data
