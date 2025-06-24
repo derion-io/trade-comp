@@ -10,6 +10,7 @@ import { useResource } from '../../../state/resources/hooks/useResource'
 import { POOL_IDS } from '../../../utils/constant'
 import { useHelper } from '../../../state/config/useHelper'
 import { Text, TextBlue, TextBuy, TextPink, TextSell } from '../Text'
+import {isChainlink} from 'derivable-engine/dist/utils/helper'
 
 type Props = {
   token: string
@@ -71,8 +72,9 @@ export const TokenSymbol = ({
         )
       }
 
-      const base = tokens[wrapToNativeAddress(baseToken)]?.symbol
-      const quote = tokens[wrapToNativeAddress(quoteToken)]?.symbol
+      const base = isChainlink(pool) ? pool.pair?.token0?.symbol : tokens[wrapToNativeAddress(baseToken)]?.symbol
+      const quote = isChainlink(pool) ? pool.pair?.token1?.symbol : tokens[wrapToNativeAddress(quoteToken)]?.symbol
+      
       const indexPrefix = isUSD(quote ?? '') ? '' : `/${quote}`
 
       if (only == 'index') {

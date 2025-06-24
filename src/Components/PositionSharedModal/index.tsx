@@ -26,6 +26,7 @@ import { CopyIcon, DerionIconSmall, DownloadIcon, TwitterIcon } from '../ui/Icon
 import { Modal } from '../ui/Modal'
 import { Text, TextGrey } from '../ui/Text'
 import './style.scss'
+import {isChainlink} from 'derivable-engine/dist/utils/helper'
 const imgConfig = { quality: 0.95, canvasWidth: 1024, canvasHeight: 600 }
 
 interface ClipboardItem {
@@ -77,9 +78,11 @@ const Component = ({
       const _pnl = NUM(div(sub(position.valueR, position.entryValueR), position.entryValueR))
       const _pnlDisplay = formatPercent(_pnl)
       const _power = getPoolPower(pool)
-      const _base = tokens[wrapToNativeAddress(baseToken)]?.symbol
-      const quote = tokens[wrapToNativeAddress(quoteToken)]?.symbol
-      const _indexPrefix = isUSD(quote ?? '') ? '' : `/${quote}`
+
+      const _base = isChainlink(pool) ? pool.pair?.token0?.symbol : tokens[wrapToNativeAddress(baseToken)]?.symbol
+      const _quote = isChainlink(pool) ? pool.pair?.token1?.symbol : tokens[wrapToNativeAddress(quoteToken)]?.symbol
+      
+      const _indexPrefix = isUSD(_quote ?? '') ? '' : `/${_quote}`
       const _entryPrice = position.entryPrice
       return [_side, _power, _base, _indexPrefix, _pnl, _pnlDisplay, _entryPrice]
     }

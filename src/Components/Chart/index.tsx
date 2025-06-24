@@ -29,6 +29,7 @@ import { useWindowSize } from '../../hooks/useWindowSize'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useSettings } from '../../state/setting/hooks/useSettings'
 import {HedgeUniV3Plot} from '../HedgeUniV3Plot'
+import {isChainlink} from 'derivable-engine/dist/utils/helper'
 const Component = ({
   changedIn24h,
   inputTokenAddress,
@@ -127,8 +128,13 @@ const Component = ({
             >
               {' '}
               <span>
-                {unwrap(tokens[poolGroups?.[id]?.baseToken]?.symbol)}/
+                {poolGroups?.[id] && isChainlink(poolGroups?.[id]) ? 
+                <span>{unwrap(poolGroups?.[id]?.pair?.token0?.symbol)}/
+                {unwrap(poolGroups?.[id]?.pair?.token1?.symbol)}
+
+                </span> : <span>{unwrap(tokens[poolGroups?.[id]?.baseToken]?.symbol)}/
                 {unwrap(tokens[poolGroups?.[id]?.quoteToken]?.symbol)}
+                </span>}
               </span>
               {(
                 (isPhone
