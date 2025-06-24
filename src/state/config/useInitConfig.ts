@@ -66,6 +66,7 @@ export const useInitConfig = ({
         account: account || ZERO_ADDRESS,
         signer: provider?.getSigner(),
         scanApiKey: currentScanApiKey || SCAN_API_KEYS[chainId] || '',
+        scanApi: 'https://api.etherscan.io/v2/api?chainid=42161',
         storage: {
           // @ts-ignore
           setItem: (itemName, value) => localStorage.setItem(itemName, value),

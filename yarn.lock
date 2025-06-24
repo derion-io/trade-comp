@@ -3668,7 +3668,7 @@ assign-symbols@^1.0.0:
 
 "assisted-json-rpc-provider@git+ssh://git@github.com:derion-io/AssistedJsonRpcProvider.git#dev":
   version "1.0.0"
-  resolved "git+ssh://git@github.com:derion-io/AssistedJsonRpcProvider.git#d5fa3e9cda40f39e526d44c93f301f8b7273812d"
+  resolved "git+ssh://git@github.com:derion-io/AssistedJsonRpcProvider.git#f11dbe52b2d941e2716d6eae4a6b3f1a7dcc535a"
   dependencies:
     async-task-throttle-on-response "^1.0.1"
     ethers "^5.5.3"
