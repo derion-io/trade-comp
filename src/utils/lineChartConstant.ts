@@ -4,59 +4,71 @@ export const DATE_FORMATS = {
   FULL: 'YYYY-MM-DD, HH:mm'
 }
 
-export const I_5M = '5m'
-export const I_30M = '30m'
+export const I_5m = '5m'
+export const I_30m = '30m'
+export const I_1H = '1H'
+export const I_4H = '4H'
 export const I_1D = '1d'
-export const I_1W = '1w'
 
 export type LineChartIntervalType =
-  | typeof I_5M
-  | typeof I_30M
+  | typeof I_5m
+  | typeof I_30m
+  | typeof I_1H
+  | typeof I_4H
   | typeof I_1D
-  | typeof I_1W
 
 export const INTERVALS_TAB = [
   {
-    name: '5M',
-    value: I_5M
+    name: '5m',
+    value: I_5m
   },
   {
-    name: '30M',
-    value: I_30M
+    name: '30m',
+    value: I_30m
+  },
+  {
+    name: '1H',
+    value: I_1H
+  },
+  {
+    name: '4H',
+    value: I_4H
   },
   {
     name: '1D',
     value: I_1D
   },
-  {
-    name: '1W',
-    value: I_1W
-  },
 ]
 
 export const LINE_CHART_CONFIG = {
-  [I_5M]: {
+  [I_5m]: {
     type: 'hourlySnapshots',
-    range: 24 * 60 * 60 * 1000, // 24 hours
+    range: 100 * 5 * 60 * 1000,
     limit: 100,
     interval: 5 * 60 * 1000,
   },
-  [I_30M]: {
+  [I_30m]: {
     type: 'dailySnapshots',
-    range: 7 * 24 * 60 * 60 * 1000, // 24 hours
+    range: 100 * 30 * 60 * 1000,
     limit: 100,
     interval: 30 * 60 * 1000,
   },
+  [I_1H]: {
+    type: 'hourlySnapshots',
+    range: 100 * 60 * 60 * 1000,
+    limit: 100,
+    interval: 60 * 60 * 1000,
+  },
+  [I_4H]: {
+    type: 'hourlySnapshots',
+    range: 100 * 4 * 60 * 60 * 1000,
+    limit: 100,
+    interval: 4 * 60 * 60 * 1000,
+  },
   [I_1D]: {
     type: 'hourlySnapshots',
-    range: 30 * 24 * 60 * 60 * 1000, // 24 hours
+    range: 100 * 24 * 60 * 60 * 1000,
     limit: 100,
     interval: 24 * 60 * 60 * 1000,
-  },
-  [I_1W]: {
-    type: 'hourlySnapshots',
-    range: 90 * 24 * 60 * 60 * 1000, // 24 hours
-    limit: 100,
-    interval: 7 * 24 * 60 * 60 * 1000,
   },
 }

@@ -17,7 +17,7 @@ import { Text, TextGrey } from '../ui/Text'
 import {
   DATE_FORMATS,
   I_1D,
-  I_5M,
+  I_5m,
   INTERVALS_TAB,
   LINE_CHART_CONFIG,
   LineChartIntervalType
@@ -39,7 +39,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const [priceFeedData, setPriceFeedData] = useState<{ [key: string]: any[] }>({})
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [hoverDate, setHoverDate] = useState<number>()
-  const [interval, setInterval] = useState<LineChartIntervalType>(I_5M)
+  const [interval, setInterval] = useState<LineChartIntervalType>(I_5m)
   const { chainId } = useConfigs()
   const headRef = useRef<HTMLDivElement>(null)
   const cToken = id
