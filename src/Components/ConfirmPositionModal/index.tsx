@@ -8,8 +8,11 @@ import { useListTokens } from '../../state/token/hook'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { POOL_IDS, TRADE_TYPE } from '../../utils/constant'
 import {
+  DIV,
   IEW,
   NUM,
+  WEI,
+  baseRateFromHL,
   bn,
   decodeErc1155Address,
   div,
@@ -118,7 +121,7 @@ const Component = ({
         poolToShow?.TOKEN_R,
         IEW(poolToShow?.states?.R, tokens[poolToShow?.TOKEN_R]?.decimals)
       )
-      const [interest, premium, fundingRate, interestRate, maxPremiumRate] = useMemo(() => {
+      const [baseRate, sideRate, cRate, interest, premium, fundingRate, interestRate, maxPremiumRate] = useMemo(() => {
         const tokenAddress =
           isErc1155Address(outputTokenAddress) ? outputTokenAddress
             : isErc1155Address(inputTokenAddress) ? inputTokenAddress : undefined
@@ -130,21 +133,28 @@ const Component = ({
         if (!pool) {
           return [0, 0, 0, 0, 0]
         }
-        const { sides, interestRate, maxPremiumRate } = pool
+        const { sides, interestRate, maxPremiumRate, INTEREST_HL, states: { rA, rB, rC } } = pool
+        const K = pool.K.toNumber()
+        const baseRate = baseRateFromHL(INTEREST_HL)
+        const sideRate = baseRate * sides[id].k / K
+        const rAInterest = rA.mul(WEI(baseRate * sides[POOL_IDS.A].k / K))
+        const rBInterest = rB.mul(WEI(baseRate * sides[POOL_IDS.B].k / K))
+        const cRate = NUM(DIV(rAInterest.add(rBInterest), rC.mul(bn(10).pow(18)), 4))
         const interest = sides[id].interest ?? 0
         const premium = NUM(sides[id].premium)
         const fundingRate = interest + premium
-        return [interest, premium, fundingRate, interestRate, maxPremiumRate]
+        return [baseRate, sideRate, cRate, interest, premium, fundingRate, interestRate, maxPremiumRate]
       }, [inputTokenAddress, outputTokenAddress, pools, poolToShow])
 
-      const [leverageKey, leverageValue] = useMemo(() => {
+      const [effectiveLeverage, leverageKey, leverageValue] = useMemo(() => {
         if (!poolToShow) {
-          return ['', null]
+          return [1, '', null]
         }
 
         const {
           states: { a, b, R, spot },
           MARK,
+          exp,
           baseToken,
           quoteToken
         } = poolToShow
@@ -153,10 +163,13 @@ const Component = ({
         const kB = kx(-k, R, b, spot, MARK)
         const ek =
           sideToShow === POOL_IDS.A ? kA : sideToShow === POOL_IDS.B ? kB : k
+        
+        const effectiveLeverage = Math.min(ek, k) / exp
 
         if (ek < k) {
           const power = formatFloat(ek / 2, 2)
           return [
+            effectiveLeverage,
             'Effective Leverage',
             ek < k / 2 ? (
               <TextError>{power}x</TextError>
@@ -187,12 +200,13 @@ const Component = ({
         const dgB = xB * xB * mark
 
         if (sideToShow === POOL_IDS.A) {
-          return ['Deleverage Price', <Text key={0}>{zerofy(dgA)}</Text>]
+          return [effectiveLeverage, 'Deleverage Price', <Text key={0}>{zerofy(dgA)}</Text>]
         }
         if (sideToShow === POOL_IDS.B) {
-          return ['Deleverage Price', <Text key={0}>{zerofy(dgB)}</Text>]
+          return [effectiveLeverage, 'Deleverage Price', <Text key={0}>{zerofy(dgB)}</Text>]
         }
         return [
+          effectiveLeverage,
           'Full Leverage Range',
           <Text key={0}>
             {zerofy(dgB)}-{zerofy(dgA)}
@@ -225,10 +239,10 @@ const Component = ({
                 poolToShow={poolToShow}
                 interest={interest}
                 premium={premium}
-                effectiveLeverage={1}
-                baseRate={1}
-                sideRate={1}
-                cRate={1}
+                effectiveLeverage={effectiveLeverage}
+                baseRate={baseRate}
+                sideRate={sideRate}
+                cRate={cRate}
                 maxPremiumRate={maxPremiumRate}
                 interestRate={interestRate}
                 fundingRate={fundingRate}
