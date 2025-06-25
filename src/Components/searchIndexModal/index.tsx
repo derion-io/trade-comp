@@ -21,6 +21,7 @@ import { TextGrey } from '../ui/Text'
 import { ButtonGrey } from '../ui/Button'
 import { Box } from '../ui/Box'
 import { CurrencyGroupLogo } from '../ui/CurrencyGroupLogo'
+import {isChainlink} from 'derivable-engine/dist/utils/helper'
 const Component = ({
   visible,
   setVisible,
@@ -54,8 +55,17 @@ const Component = ({
     await Promise.all(
       Object.keys(poolGroups).map(async (key) => {
         const isOracleZero = poolGroups[key]?.ORACLE?.[2] === '0'
-        const baseTokenIndex = isOracleZero ? 1 : 0
-        const quoteTokenIndex = isOracleZero ? 0 : 1
+        const isChainLink = isChainlink(poolGroups[key])
+        let baseTokenIndex = 0
+        let quoteTokenIndex = 1
+        if(isOracleZero) {
+          baseTokenIndex = 1
+          quoteTokenIndex = 0
+        } 
+        if(isChainLink) {
+          baseTokenIndex = 0
+          quoteTokenIndex = 1
+        }
 
         const getTokenInfo = async (index: number) => ({
           address: poolGroups[key]?.pair?.[`token${index}`]?.address,
