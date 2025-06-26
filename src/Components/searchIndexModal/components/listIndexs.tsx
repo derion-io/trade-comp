@@ -15,6 +15,8 @@ import { useSettings } from '../../../state/setting/hooks/useSettings'
 import { Marker } from './marker'
 import { WarningIcon } from '../../ui/Icon'
 import { useConfigs } from '../../../state/config/useConfigs'
+import {isChainlink} from 'derivable-engine/dist/utils/helper'
+import {CHAINLINK_ICON_BASE, USDC_LOGO} from '../../../utils/constant'
 type Props = {
   poolsFilterSearch: { [key: string]: PoolSearch }
   handlePoolSelect: (pool: PoolSearch, hasWarning?: boolean) => void
@@ -63,13 +65,18 @@ export const ListIndexs = ({
               >
                 <div className='token-item'>
                   <span className='chart-token-selector--current inline-items-center'>
+                    {isChainlink(index.pools[0]) ?    <CurrencyGroupLogo
+        currencyURIs={[`${CHAINLINK_ICON_BASE}${index?.baseToken.symbol.toLowerCase()}.webp`, USDC_LOGO]}
+        size={[48, 36]}
+      />
+                    :
                     <CurrencyGroupLogo
                       currencyURIs={[
                         index?.baseToken.logoURI,
                         index?.quoteToken.logoURI
                       ]}
                       size={[48, 36]}
-                    />
+                    />}
                     <div className='chart-token-symbol'>
                       <Text>
                         <Marker index={index}/>

@@ -22,6 +22,7 @@ import { ButtonGrey } from '../ui/Button'
 import { Box } from '../ui/Box'
 import { CurrencyGroupLogo } from '../ui/CurrencyGroupLogo'
 import {isChainlink} from 'derivable-engine/dist/utils/helper'
+import {CHAINLINK_ICON_BASE, USDC_LOGO} from '../../utils/constant'
 const Component = ({
   visible,
   setVisible,
@@ -270,10 +271,13 @@ const WarningContent = ({
   if (!indexWarning?.baseToken && !indexWarning?.quoteToken) return <Fragment/>
   return <Box className='index-warning__wrapped'>
     <Box className='index-warning__wrapped-logo'>
-      <CurrencyGroupLogo
-        currencyURIs={[indexWarning?.baseToken.logoURI || '', indexWarning?.quoteToken.logoURI || '']}
+      {isChainlink(indexWarning.pools[0]) ?  <CurrencyGroupLogo
+        currencyURIs={[`${CHAINLINK_ICON_BASE}${indexWarning?.baseToken.symbol.toLowerCase()}.webp`, USDC_LOGO]}
         size={[48, 36]}
-      />
+      /> :  <CurrencyGroupLogo
+      currencyURIs={[indexWarning?.baseToken.logoURI || '', indexWarning?.quoteToken.logoURI || '']}
+      size={[48, 36]}/>
+     }
     </Box>
     <TextGrey className='index-warning__body'>
       This index and its pools are not verified by Derion Labs.
