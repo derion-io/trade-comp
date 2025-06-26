@@ -4,6 +4,8 @@ import { BigNumber, ethers } from 'ethers'
 import { formatFloat } from '../utils/helpers'
 // eslint-disable-next-line no-unused-vars
 import {
+  decodeCLFeedCacheKey,
+  encodeCLFeedCacheKey,
   LINE_CHART_CONFIG,
   LineChartIntervalType
 } from '../utils/lineChartConstant'
@@ -153,7 +155,7 @@ export const useExchangeData = () => {
   const { chainId, ddlEngine, configs } = useConfigs()
   const {currentPool} = useCurrentPool()
   useEffect(()=>{
-    console.log("#roundCache",Object.keys(roundCache).length)
+    console.log("#roundCache",roundCache)
   },[roundCache])
   const dispatch = useDispatch()
   // const [roundCache, setRoundCache] = useState<{[roundId: string]: PriceFeedData}>({})
@@ -339,7 +341,7 @@ export const useExchangeData = () => {
         const roundIdStr = currentRoundId.toString()
         
         // Check if this round is already cached
-        if (!roundCache[roundIdStr]) {
+        if (!roundCache[encodeCLFeedCacheKey(feedAdress,roundIdStr)]) {
           calls.push({
             target: feedAdress,
             callData: priceFeedInterface.encodeFunctionData('getRoundData', [
@@ -377,9 +379,9 @@ export const useExchangeData = () => {
           })
 
         // Update cache with new data
-        const newCacheEntries: {[roundId: string]: PriceFeedData} = {}
+        const newCacheEntries: {[key: string]: PriceFeedData} = {}
         decodedData.forEach((data, index) => {
-          const roundIdStr = roundsToFetch[index]
+          const roundIdStr = encodeCLFeedCacheKey(feedAdress, roundsToFetch[index])
           newCacheEntries[roundIdStr] = data
         })
         dispatch(setRoundCache({
@@ -403,7 +405,7 @@ export const useExchangeData = () => {
       
       for (let i = 0; i < multiCallSize; i++) {
         const roundIdStr = currentRoundId.toString()
-        const cachedData = roundCache[roundIdStr]
+        const cachedData = roundCache[encodeCLFeedCacheKey(feedAdress, roundIdStr)]
         
         if (cachedData) {
           allRequestedData.push(cachedData)

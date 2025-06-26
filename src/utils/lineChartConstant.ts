@@ -72,3 +72,16 @@ export const LINE_CHART_CONFIG = {
     interval: 24 * 60 * 60 * 1000,
   },
 }
+export function encodeCLFeedCacheKey(feedAddress: string, roundId: string | number): string {
+  return `${feedAddress}-${roundId}`;
+}
+export function decodeCLFeedCacheKey(key: string): { feedAddress: string; roundId: string } {
+  const lastDashIndex = key.lastIndexOf('-');
+  if (lastDashIndex === -1) {
+    throw new Error('Invalid cache key format');
+  }
+  return {
+    feedAddress: key.slice(0, lastDashIndex),
+    roundId: key.slice(lastDashIndex + 1),
+  };
+}
