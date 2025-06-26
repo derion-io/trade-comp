@@ -13,6 +13,7 @@ import {PriceFeedData} from '../state/linechart/type'
 import {useDispatch, useSelector} from 'react-redux'
 import {State} from '../state/types'
 import {setRoundCache} from '../state/linechart/reducer'
+import {useCurrentPool} from '../state/currentPool/hooks/useCurrentPool'
 
 type LiquidityPool = {
   hourlySnapshots: Array<HourlySnapshots>
@@ -41,7 +42,7 @@ type InputTokens = {
 }
 
 const RPC_URL = 'https://arb1.arbitrum.io/rpc'
-const PRICE_FEED_CONTRACT_ADDRESS = '0x6ce185860a4963106506C203335A2910413708e9'
+// const PRICE_FEED_CONTRACT_ADDRESS = '0x6ce185860a4963106506C203335A2910413708e9'
 const PRICE_FEED_MULTICALL_SIZE = 300
 const INITIAL_ROUND_LIMIT = 300
 const MULTICAL_CONTRACT_ADDRESS = '0xca11bde05977b3631167028862be2a173976ca11'
@@ -150,6 +151,7 @@ export const useExchangeData = () => {
     }
   })
   const { chainId, ddlEngine, configs } = useConfigs()
+  const {currentPool} = useCurrentPool()
   useEffect(()=>{
     console.log("#roundCache",Object.keys(roundCache).length)
   },[roundCache])
@@ -281,14 +283,17 @@ export const useExchangeData = () => {
   const chainLinkHistoricalPriceFeedDatas = async (
     action: 'PREV' | 'NEXT' | 'NONE' = 'NONE',
     from: string | BigNumber = BigNumber.from(0),
+    feedAdress: string,
     interval: LineChartIntervalType
   ) => {
     try {
+      if(!currentPool?.ORACLE) return [];
       console.log('Fetching historical price feed data...')
 
       const provider = new ethers.providers.JsonRpcProvider(RPC_URL)
+      console.log("kk: ",feedAdress)
       const priceFeedContract = new ethers.Contract(
-        PRICE_FEED_CONTRACT_ADDRESS,
+        feedAdress,
         priceFeedContractAbi,
         provider
       )
@@ -336,7 +341,7 @@ export const useExchangeData = () => {
         // Check if this round is already cached
         if (!roundCache[roundIdStr]) {
           calls.push({
-            target: PRICE_FEED_CONTRACT_ADDRESS,
+            target: feedAdress,
             callData: priceFeedInterface.encodeFunctionData('getRoundData', [
               currentRoundId
             ])
@@ -447,7 +452,7 @@ export const useExchangeData = () => {
     const stepSize = calculateStepSize(interval, avgRoundInSecond)
     console.log(`Step size for ${interval}: ${stepSize}`)
 
-    return await chainLinkHistoricalPriceFeedDatas(action, from, interval)
+    return await chainLinkHistoricalPriceFeedDatas(action, from,pair, interval)
   }
 
   return {

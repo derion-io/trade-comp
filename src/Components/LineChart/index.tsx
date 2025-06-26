@@ -30,10 +30,13 @@ import { formatFloat, zerofy } from '../../utils/helpers'
 import { ReloadIcon } from '../../Components/ui/Icon'
 import { useWindowSize } from '../../hooks/useWindowSize'
 import { BigNumber, ethers } from 'ethers'
+import {useCurrentPool} from '../../state/currentPool/hooks/useCurrentPool'
 
 const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const { getLineChartData } = useExchangeData()
   const { baseToken, id, basePrice } = useCurrentPoolGroup()
+  const { currentPool } = useCurrentPool()
+
   const [hoverValue, setHoverValue] = useState<string>()
   const [chartData, setChartData] = useState<{ [key: string]: any[] }>({})
   const [priceFeedData, setPriceFeedData] = useState<{ [key: string]: any[] }>({})
@@ -49,7 +52,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
     if (!chartData[chainId + interval + cToken] || cToken) {
       loadData()
     }
-  }, [cToken, chainId, interval])
+  }, [cToken, chainId, interval,currentPool])
 
   useEffect(() => {
     if (basePrice) {
@@ -137,7 +140,8 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
     }
     if (from) {
       getLineChartData({
-        pair: cToken.split('-')[0].toLowerCase(),
+        pair: "0x"+ currentPool?.ORACLE?.slice(26),
+        //  cToken.split('-')[0].toLowerCase(),
         baseToken,
         interval,
         action,
