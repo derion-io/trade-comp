@@ -83,4 +83,4 @@ export const SCAN_API_KEYS: { [chainId: number]: string } = {
 }
 
 export const CHAINLINK_ICON_BASE = "https://d2f70xi62kby8n.cloudfront.net/tokens/"
-export const USDC_LOGO= "https://s2.coinmarketcap.com/static/img/coins/200x200/3408.png"
+export const USD_ICON= CHAINLINK_ICON_BASE + "usdc.webp"

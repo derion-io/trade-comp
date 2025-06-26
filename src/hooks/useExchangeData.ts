@@ -4,7 +4,6 @@ import { BigNumber, ethers } from 'ethers'
 import { formatFloat } from '../utils/helpers'
 // eslint-disable-next-line no-unused-vars
 import {
-  decodeCLFeedCacheKey,
   encodeCLFeedCacheKey,
   LINE_CHART_CONFIG,
   LineChartIntervalType
@@ -44,7 +43,6 @@ type InputTokens = {
 }
 
 const RPC_URL = 'https://arb1.arbitrum.io/rpc'
-// const PRICE_FEED_CONTRACT_ADDRESS = '0x6ce185860a4963106506C203335A2910413708e9'
 const PRICE_FEED_MULTICALL_SIZE = 300
 const INITIAL_ROUND_LIMIT = 300
 const MULTICAL_CONTRACT_ADDRESS = '0xca11bde05977b3631167028862be2a173976ca11'
@@ -293,7 +291,6 @@ export const useExchangeData = () => {
       console.log('Fetching historical price feed data...')
 
       const provider = new ethers.providers.JsonRpcProvider(RPC_URL)
-      console.log("kk: ",feedAdress)
       const priceFeedContract = new ethers.Contract(
         feedAdress,
         priceFeedContractAbi,
@@ -454,7 +451,7 @@ export const useExchangeData = () => {
     const stepSize = calculateStepSize(interval, avgRoundInSecond)
     console.log(`Step size for ${interval}: ${stepSize}`)
 
-    return await chainLinkHistoricalPriceFeedDatas(action, from,pair, interval)
+    return await chainLinkHistoricalPriceFeedDatas(action, from, pair, interval)
   }
 
   return {

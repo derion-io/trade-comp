@@ -30,7 +30,7 @@ import { formatFloat, zerofy } from '../../utils/helpers'
 import { ReloadIcon } from '../../Components/ui/Icon'
 import { useWindowSize } from '../../hooks/useWindowSize'
 import { BigNumber, ethers } from 'ethers'
-import {useCurrentPool} from '../../state/currentPool/hooks/useCurrentPool'
+import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 
 const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const { getLineChartData } = useExchangeData()

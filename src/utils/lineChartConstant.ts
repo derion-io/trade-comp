@@ -75,6 +75,7 @@ export const LINE_CHART_CONFIG = {
 export function encodeCLFeedCacheKey(feedAddress: string, roundId: string | number): string {
   return `${feedAddress}-${roundId}`;
 }
+
 export function decodeCLFeedCacheKey(key: string): { feedAddress: string; roundId: string } {
   const lastDashIndex = key.lastIndexOf('-');
   if (lastDashIndex === -1) {
