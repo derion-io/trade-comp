@@ -72,7 +72,7 @@ export const AppLayout = (props: any) => {
   const switchNetwork = async (chainId: number) => {
     const chainIdHex = '0x' + chainId.toString(16)
     //@ts-ignore
-    await window.ethereum.request({
+    await window?.ethereum?.request({
       method: 'wallet_switchEthereumChain',
       params: [{chainId: chainIdHex}]
     })
