@@ -79,6 +79,7 @@ const Component = ({
 
         const baseToken = await getTokenInfo(baseTokenIndex)
         const quoteToken = await getTokenInfo(quoteTokenIndex)
+
         const pools = Object.keys(poolGroups[key].pools)
           .map((poolKey) => poolGroups[key]?.pools?.[poolKey])
           .map((pool: any, _) => {
@@ -159,18 +160,8 @@ const Component = ({
     await Promise.all(
       Object.keys(searchResults).map(async (key) => {
         const poolSearch = searchResults[key]
-        const isOracleZero = poolSearch?.pools?.[0]?.ORACLE?.[2] === '0'
-        const isChainLink = isChainlink(poolSearch?.pools?.[0])
-        let baseTokenIndex = 0
-        let quoteTokenIndex = 1
-        if(isOracleZero) {
-          baseTokenIndex = 1
-          quoteTokenIndex = 0
-        } 
-        if(isChainLink) {
-          baseTokenIndex = 0
-          quoteTokenIndex = 1
-        }
+        const qti = isChainlink(poolSearch?.pools?.[0]) ? 1 : Number(poolSearch?.pools?.[0]?.ORACLE?.[2])
+        const [baseTokenIndex, quoteTokenIndex] = qti === 0 ? [1, 0] : [0, 1]
         const getTokenInfo = async (index: number) => ({
           address: poolSearch?.pairInfo?.[`token${index}`]?.address,
           name: poolSearch?.pairInfo?.[`token${index}`]?.name,

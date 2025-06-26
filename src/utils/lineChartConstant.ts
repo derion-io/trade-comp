@@ -46,30 +46,35 @@ export const LINE_CHART_CONFIG = {
     range: 100 * 5 * 60 * 1000,
     limit: 100,
     interval: 5 * 60 * 1000,
+    format: 'HH:mm',
   },
   [I_30m]: {
     type: 'dailySnapshots',
     range: 100 * 30 * 60 * 1000,
     limit: 100,
     interval: 30 * 60 * 1000,
+    format: 'MM-DD HH:mm',
   },
   [I_1H]: {
     type: 'hourlySnapshots',
     range: 100 * 60 * 60 * 1000,
     limit: 100,
     interval: 60 * 60 * 1000,
+    format: 'MM-DD HH:mm',
   },
   [I_4H]: {
     type: 'hourlySnapshots',
     range: 100 * 4 * 60 * 60 * 1000,
     limit: 100,
     interval: 4 * 60 * 60 * 1000,
+    format: 'MM-DD',
   },
   [I_1D]: {
     type: 'hourlySnapshots',
     range: 100 * 24 * 60 * 60 * 1000,
     limit: 100,
     interval: 24 * 60 * 60 * 1000,
+    format: 'MM-DD',
   },
 }
 export function encodeCLFeedCacheKey(feedAddress: string, roundId: string | number): string {
