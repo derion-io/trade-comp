@@ -12,6 +12,7 @@ import {
   bn,
   detectTradeTab,
   formatFloat,
+  isChainlink,
   unwrap,
   zerofy,
 } from '../../utils/helpers'
@@ -29,7 +30,6 @@ import { useWindowSize } from '../../hooks/useWindowSize'
 import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useSettings } from '../../state/setting/hooks/useSettings'
 import {HedgeUniV3Plot} from '../HedgeUniV3Plot'
-import {isChainlink} from 'derivable-engine/dist/utils/helper'
 const Component = ({
   changedIn24h,
   inputTokenAddress,
@@ -92,6 +92,17 @@ const Component = ({
   //     }
   //   }
   // }, [location])
+  useEffect(()=> {
+    if (isChainlink(currentPool)) {
+      if (chartTab == CHART_TABS.CANDLE_CHART) {
+        setChartTab(CHART_TABS.LINE_CHART)
+      }
+    } else {
+      if (chartTab == CHART_TABS.LINE_CHART) {
+        setChartTab(CHART_TABS.CANDLE_CHART)
+      }
+    }
+  }, [currentPool, chainId])
   return (
     <div className='chart-box'>
       <div className='chart__head'>
