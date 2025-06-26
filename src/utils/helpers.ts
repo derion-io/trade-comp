@@ -757,7 +757,7 @@ export const isUniv2 = (pool: PoolType): boolean => {
 }
 
 export const isChainlink = (pool: PoolType): boolean => {
-  return chainlinkDecimals(pool?.ORACLE) > 0
+  return !!pool?.ORACLE && chainlinkDecimals(pool?.ORACLE) > 0
 }
 
 export const chainlinkDecimals = (ORACLE: string): number => {
