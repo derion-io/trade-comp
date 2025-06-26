@@ -92,6 +92,11 @@ const Component = ({
   //     }
   //   }
   // }, [location])
+  useEffect(()=> {
+    if(currentPool?.ORACLE && isChainlink(currentPool) && chainId !== 1337) {
+      setChartTab(CHART_TABS.LINE_CHART)
+    }
+  },[currentPool,chainId])
   return (
     <div className='chart-box'>
       <div className='chart__head'>
@@ -183,7 +188,7 @@ const Component = ({
             tab={chartTab}
             setTab={setChartTab}
             tabs={[
-              { name: 'Candles', value: CHART_TABS.CANDLE_CHART },
+              ...(currentPool?.ORACLE && isChainlink(currentPool) ? [] : [{ name: 'Candles', value: CHART_TABS.CANDLE_CHART }]),
               { name: 'Lines', value: CHART_TABS.LINE_CHART },
               { name: 'Curves', value: CHART_TABS.FUNC_PLOT },
               ...(showHedgeBeta ? [{ name: 'Hedge', value: CHART_TABS.HEDGE_CHART }] : [])

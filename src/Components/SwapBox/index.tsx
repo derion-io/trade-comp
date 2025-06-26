@@ -35,6 +35,8 @@ import { useCalculateSwap } from './hooks/useCalculateSwap'
 import { useTokenValue } from './hooks/useTokenValue'
 import './style.scss'
 import {BigNumber} from 'ethers'
+import {useResource} from '../../state/resources/hooks/useResource'
+import {isChainlink} from 'derivable-engine/dist/utils/helper'
 
 const Component = ({
   inputTokenAddress,
@@ -53,7 +55,7 @@ const Component = ({
 }) => {
   const { account } = useWeb3React()
   const { configs } = useConfigs()
-  const { dTokens, allTokens, id, pools, setTradeType, setChartTab } =
+  const { dTokens, allTokens, id, pools, setTradeType, setChartTab} =
     useCurrentPoolGroup()
   const [visibleSelectTokenModal, setVisibleSelectTokenModal] =
     useState<boolean>(false)
@@ -62,6 +64,7 @@ const Component = ({
   >('input')
   const [amountIn, setAmountIn] = useState<string>('')
   const { setCurrentPoolAddress } = useCurrentPool()
+  const {poolGroups} = useResource()
   const { balances, accFetchBalance } = useWalletBalance()
   const { tokens } = useListTokens()
   const { submitFetcherV2, callError, gasUsed, amountOut, payloadAmountIn } = useCalculateSwap({
@@ -83,7 +86,7 @@ const Component = ({
 
   useEffect(() => {
     setTradeType(TRADE_TYPE.SWAP)
-    setChartTab(CHART_TABS.LAST_TRADE_CHART)
+    // setChartTab(CHART_TABS.LAST_TRADE_CHART)
   }, [])
 
   useEffect(() => {

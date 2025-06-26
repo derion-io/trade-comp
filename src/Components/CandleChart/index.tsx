@@ -144,7 +144,7 @@ const Component = ({
         })
       }
     }
-
+    if(!chartContainerRef.current) return;
     const widgetOptions: any = {
       symbol: [
         baseToken,

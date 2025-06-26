@@ -13,6 +13,7 @@ import { useResource } from '../../resources/hooks/useResource'
 import { CHART_TABS } from '../type'
 import { TRADE_TYPE } from '../../../utils/constant'
 import { useWeb3React } from '../../customWeb3React/hook'
+import {isChainlink} from 'derivable-engine/dist/utils/helper'
 
 export const useCurrentPoolGroup = () => {
   const { poolGroups, addNewResource } = useResource()
@@ -43,6 +44,9 @@ export const useCurrentPoolGroup = () => {
       // eslint-disable-next-line no-unused-expressions
       ddlEngine?.RESOURCE.generateData({ poolAddresses, transferLogs: [] }).then(data => {
         poolGroup = data?.poolGroups[uniPoolAddress]
+        if(isChainlink(poolGroup)) {
+          setChartTab(CHART_TABS.LINE_CHART)
+        } 
         addNewResource(data, account)
         dispatch(
           setCurrentPoolInfo({

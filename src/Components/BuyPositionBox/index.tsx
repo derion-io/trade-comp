@@ -48,6 +48,7 @@ import './style.scss'
 import { Spin } from 'antd'
 import { useCalculatePara } from '../SwapBox/hooks/useCalculatePara'
 import { parseEther } from 'ethers/lib/utils'
+import {isChainlink} from 'derivable-engine/dist/utils/helper'
 
 const Component = ({
   searchIndexCache,
@@ -85,7 +86,7 @@ const Component = ({
   const [visibleApproveModal, setVisibleApproveModal] = useState<boolean>(false)
   const { tokens } = useListTokens()
   const { wrapToNativeAddress } = useHelper()
-  const { setCurrentPoolAddress, setDr } = useCurrentPool()
+  const { setCurrentPoolAddress, setDr} = useCurrentPool()
   const { convertTokenValue } = useTokenValue({})
   const { leverageData, totalHiddenPools } = useGenerateLeverageData(tradeType, showAllPool)
   const { pools } = useResource()
@@ -100,11 +101,15 @@ const Component = ({
       tradeType !== TRADE_TYPE.LIQUIDITY &&
       chartTab === CHART_TABS.FUNC_PLOT
     ) {
-      setChartTab(CHART_TABS.LAST_TRADE_CHART)
+      if(isChainlink(pools[id])) {
+       setChartTab(CHART_TABS.LINE_CHART)
+      } else {
+        setChartTab(CHART_TABS.LAST_TRADE_CHART)
+      }
     }
 
     setTradeType(tradeType)
-  }, [tradeType])
+  }, [tradeType,id])
 
   useEffect(() => {
     if (barData.token) {
