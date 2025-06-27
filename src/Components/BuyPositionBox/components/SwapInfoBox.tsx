@@ -169,7 +169,7 @@ export const SwapInfoBox = ({
         </InfoRow>
       )}
 
-      {poolToShow?.OPEN_RATE?.gt(0) && !poolToShow.OPEN_RATE.eq(Q128) && (
+      {tradeType != TRADE_TYPE.LIQUIDITY && poolToShow?.OPEN_RATE?.gt(0) && !poolToShow.OPEN_RATE.eq(Q128) && (
         <InfoRow>
           <TextGrey>Opening Fee</TextGrey>
           <TextWarning>{

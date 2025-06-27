@@ -147,7 +147,7 @@ export const Positions = ({
         pools[pendingTxData?.token ? pendingTxPool.address : poolAddress]
       const posWithEntry = positionsWithEntry[token]
       let { avgPrice, avgPriceR, amountR } = posWithEntry ?? {}
-      if (!pool.OPEN_RATE.eq(Q128)) {
+      if (side != POOL_IDS.C && !pool.OPEN_RATE.eq(Q128)) {
         // reduce the input value by the open rate
         amountR = amountR?.mul(pool.OPEN_RATE).div(Q128)
       }
