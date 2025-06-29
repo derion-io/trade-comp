@@ -17,7 +17,7 @@ import { useWalletBalance } from '../../state/wallet/hooks/useBalances'
 import { useSwapHistory } from '../../state/wallet/hooks/useSwapHistory'
 import { POOL_IDS, TRADE_TYPE } from '../../utils/constant'
 import { fetch24hChange } from '../../utils/fetch24hChange'
-import { bn, decodeErc1155Address, isErc1155Address } from '../../utils/helpers'
+import { bn, decodeErc1155Address, isChainlink, isErc1155Address } from '../../utils/helpers'
 import './style.scss'
 import { PoolSearch } from '../../utils/type'
 import { Uni3Positions } from '../../Components/Uni3Positions'
@@ -122,10 +122,17 @@ export const Trade = ({
   const [isLoadingIndex, setIsLoadingIndex] = useState<boolean>(true)
   const [showAllPool, setShowAllPool] = useState<boolean>(false)
   useMemo(() => {
-    if (id && ddlEngine && ddlEngine?.RESOURCE && poolGroups[id]?.baseToken && !searchIndexCache[poolGroups[id]?.baseToken]) {
+    if (id && ddlEngine && ddlEngine?.RESOURCE && (poolGroups[id]?.baseToken || isChainlink(poolGroups[id]))) {
+      let topic0 = poolGroups[id]?.baseToken
+      if (isChainlink(poolGroups[id]?.pools[0])) {
+        topic0 = poolGroups[id]?.pools[0]?.pairAddress
+      }
+      if (searchIndexCache[topic0]) {
+        return
+      }
       setShowAllPool(false)
       setIsLoadingIndex(true)
-      ddlEngine.RESOURCE.searchIndex(poolGroups[id]?.baseToken).then((res) => {
+      ddlEngine.RESOURCE.searchIndex(topic0).then((res) => {
         const poolAddresses = (res[id] as PoolSearch)?.pools?.map((pool) => pool?.poolAddress) || []
         if (poolAddresses.length === 0) {
           setIsLoadingIndex(false)
@@ -135,7 +142,7 @@ export const Trade = ({
           .then((data) => {
             setSearchIndexCache({
               ...searchIndexCache,
-              ...{ [poolGroups[id]?.baseToken]: data?.poolGroups[id] }
+              ...{ [topic0]: data?.poolGroups[id] }
             })
             addNewResource(data)
             setIsLoadingIndex(false)
