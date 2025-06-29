@@ -68,7 +68,7 @@ export const FunctionPlot = (props: any) => {
     AD,
     BD
   } = useMemo(() => {
-    const { baseToken, quoteToken, states, MARK, TOKEN_R } = currentPool ?? {}
+    const { pair, baseToken, quoteToken, states, MARK, TOKEN_R } = currentPool ?? {}
     const {
       exp,
       mark,
@@ -95,9 +95,11 @@ export const FunctionPlot = (props: any) => {
     const x = !states?.spot || !MARK ? 1 : NUM(div(states?.spot, MARK))
     const X = x**exp
 
-    let priceIndex = tokens[wrapToNativeAddress(baseToken)]?.symbol
-    if (!isUSD(tokens[quoteToken]?.symbol)) {
-      priceIndex += '/' + tokens[wrapToNativeAddress(quoteToken)]?.symbol
+    const baseSymbol = baseToken ? tokens[wrapToNativeAddress(baseToken)]?.symbol : pair.token0.symbol
+    const quoteSymbol = quoteToken ? tokens[wrapToNativeAddress(quoteToken)]?.symbol : pair.token1.symbol
+    let priceIndex = baseSymbol
+    if (!isUSD(quoteSymbol)) {
+      priceIndex += '/' + quoteSymbol
     }
     const PX = X * 0.01
     const R1 = R + drA + drB + drC
