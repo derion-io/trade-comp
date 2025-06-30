@@ -512,11 +512,50 @@ export const zerofy = (value: number | string, opts?: {
   minimumSignificantDigits?: number,
   maxExtraDigits?: number,
 }): string => {
-  let zeros = 0
+  if (value == null) {
+    return '0'
+  }
+  let isNegative = false
   if (typeof value === 'number') {
     if (value < 0) {
-      return '-' + zerofy(-value, opts)
+      isNegative = true
+      value = -value
     }
+  } else {
+    value = STR(value)
+    if (IS_NEG(value)) {
+      isNegative = true
+      value = NEG(value)
+    }
+  }
+
+  const numValue = NUM(value)
+
+  const format = (val: number, divisor: number, suffix: string) => {
+    let result = (val / divisor).toLocaleString(['en-US', 'fullwide'], {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 1,
+      useGrouping: false
+    });
+    if (result.endsWith('.0')) {
+      result = result.slice(0, -2);
+    }
+    return (isNegative ? '-' : '') + result + suffix;
+  }
+
+  if (numValue >= 1_000_000_000) {
+    return format(numValue, 1_000_000_000, 'b');
+  }
+  if (numValue >= 1_000_000) {
+    return format(numValue, 1_000_000, 'm');
+  }
+  if (numValue >= 1_000) {
+    return format(numValue, 1_000, 'k');
+  }
+  
+  // existing zerofy logic for smaller numbers
+  let zeros = 0
+  if (typeof value === 'number') {
     zeros = -Math.floor(Math.log10(value) + 1)
     if (!Number.isFinite(zeros)) {
       zeros = 0
@@ -524,9 +563,6 @@ export const zerofy = (value: number | string, opts?: {
     value = precisionize(value, opts)
   } else {
     value = STR(value)
-    if (IS_NEG(value)) {
-      return '-' + zerofy(NEG(value), opts)
-    }
     let [int, dec] = value.split('.')
     if (dec?.length > 0) {
       const fake = int.substring(Math.max(0, int.length - 2)) + '.' + dec
@@ -552,7 +588,7 @@ export const zerofy = (value: number | string, opts?: {
     }
     value = value.replace(/[.,]{1}0+/, `${whatDecimalSeparator()}0${ucZeros}`)
   }
-  return value
+  return (isNegative ? '-' : '') + value
 }
 
 export const xr = (k: number, r: BigNumber, v: BigNumber): number => {
