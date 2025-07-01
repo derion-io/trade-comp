@@ -114,7 +114,7 @@ const Component = ({
   }
 
   const tweetLink = getTwitterIntentURL(
-    `Long/Short $${base} on the first ever Perpetuals AMM Protocol @DerivableLabs`,
+    `Up/Down $${base} on the first ever Perpetuals AMM Protocol @DerivableLabs`,
     'https://app.derion.io/'
   )
   return (
@@ -127,7 +127,7 @@ const Component = ({
         <div className='position-share long' ref={cardRef}>
           <DerionIconSmall width={200} className='logo'/>
           <p className='info' >
-            <span>{base}{indexPrefix}</span> {' '} <span className={`side ${side?.toLowerCase()}`}> {side}</span>
+            <span>{base}{indexPrefix}</span> {' '} <span className={`side ${side?.toLowerCase()}`}> {side === 'Long' ? 'Up' : side === 'Short' ? 'Down' : side}</span>
           </p>
           <h3 className='pnl'>{
             pnl && pnl < 0

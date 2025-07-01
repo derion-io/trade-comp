@@ -415,9 +415,9 @@ const getMarkPosition = (address: string, tokens: { [key: string]: TokenType; })
   if (Number(id) === POOL_IDS.C) {
     return 'Liquidity'
   } else if (Number(id) === POOL_IDS.B) {
-    return 'Short'
+    return 'Down'
   } else if (Number(id) === POOL_IDS.A) {
-    return 'Long'
+    return 'Up'
   } else {
     return '-'
   }

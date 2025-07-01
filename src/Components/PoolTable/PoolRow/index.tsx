@@ -74,7 +74,7 @@ const Component = ({ pool, id }: { pool: PoolType; id: string }) => {
         <td className='text-left'>
           <TdText>
             <TokenSymbol token={pool.TOKEN_R} /> {pool.baseSymbol} (
-            {leverage >= 0 ? 'Long' : 'Short'})
+            {leverage >= 0 ? 'Up' : 'Down'})
           </TdText>
         </td>
         <td className='text-left'>

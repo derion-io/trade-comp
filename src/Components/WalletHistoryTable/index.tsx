@@ -179,9 +179,9 @@ export const ActionTag = React.memo(
         return POOL_IDS.C === swapTx.sideOut.toNumber() ? (
           <TextBlue>Add</TextBlue>
         ) : POOL_IDS.A === swapTx.sideOut.toNumber() ? (
-          <TextBuy>Long</TextBuy>
+          <TextBuy>Up</TextBuy>
         ) : (
-          <TextSell>Short</TextSell>
+          <TextSell>Down</TextSell>
         )
       } else {
         return POOL_IDS.C === swapTx.sideIn.toNumber() ? (

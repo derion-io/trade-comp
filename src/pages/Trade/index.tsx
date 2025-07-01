@@ -259,8 +259,8 @@ export const Trade = ({
             }}
           >
             <TabList>
-              <Tab>Long</Tab>
-              <Tab>Short</Tab>
+              <Tab>Up</Tab>
+              <Tab>Down</Tab>
               <Tab>LP</Tab>
               <Tab>Swap</Tab>
             </TabList>

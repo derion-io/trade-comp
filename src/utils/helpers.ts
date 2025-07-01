@@ -452,9 +452,9 @@ export const getPoolPower = (pool: any): number => {
 export const getTitleBuyTradeType = (type: TRADE_TYPE): string => {
   switch (type) {
     case TRADE_TYPE.LONG:
-      return 'Long'
+      return 'Up'
     case TRADE_TYPE.SHORT:
-      return 'Short'
+      return 'Down'
     default:
       return 'Liquidity'
   }

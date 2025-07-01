@@ -197,7 +197,7 @@ const Leverage = ({ leverage }: { leverage: number }) => {
   const Text = leverage > 0 ? TextBuy : TextSell
   return (
     <Text>
-      {leverage > 0 ? 'Long ' : 'Short '} {formatFloat(leverage, 1)}
+      {leverage > 0 ? 'Up ' : 'Down '} {formatFloat(leverage, 1)}
     </Text>
   )
 }
