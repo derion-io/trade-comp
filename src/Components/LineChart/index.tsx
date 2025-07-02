@@ -147,6 +147,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
         action,
         from
       }).then((data) => {
+        console.log("#dataget", data[0].updatedAt.toString() , data[data.length - 1].updatedAt.toString() )
         const seen = new Set<string>()
         const allData = [...oldPriceFeedData, ...data]
         
@@ -290,8 +291,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
                 axisLine={false}
                 tickLine={false}
                 tickFormatter={(time) =>
-                  time
-                  // .format(LINE_CHART_CONFIG[interval].format || 'MM-DD HH:mm:ss')
+                  moment(time).format(LINE_CHART_CONFIG[interval].format || 'DD/MM HH:mm:ss')
                 }
                 minTickGap={60}
                 interval="preserveEnd"

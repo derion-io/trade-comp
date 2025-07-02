@@ -10,7 +10,7 @@ import {
 } from '../utils/lineChartConstant'
 import { Interface } from 'ethers/lib/utils'
 import {useEffect, useLayoutEffect, useState} from 'react'
-import {PriceFeedData} from '../state/linechart/type'
+import {PriceFeedData, PriceFeedDataCache} from '../state/linechart/type'
 import {useDispatch, useSelector} from 'react-redux'
 import {State} from '../state/types'
 import {setRoundCache} from '../state/linechart/reducer'
@@ -356,6 +356,7 @@ export const useExchangeData = () => {
       let decodedData: PriceFeedData[] = []
       
       // Only make multicall if there are rounds to fetch
+      let cache:PriceFeedDataCache = {}
       if (calls.length > 0) {
         const [, returnData] = await multicalContract.callStatic.aggregate(calls)
 
@@ -381,11 +382,12 @@ export const useExchangeData = () => {
           const roundIdStr = encodeCLFeedCacheKey(feedAdress, roundsToFetch[index])
           newCacheEntries[roundIdStr] = data
         })
+        cache = {
+          ...newCacheEntries,
+          ...roundCache
+        }
         dispatch(setRoundCache({
-          cacheData: {
-            ...newCacheEntries,
-            ...roundCache
-          }
+          cacheData: cache
         }))
 
         // setRoundCache(prevCache => ({
@@ -402,18 +404,8 @@ export const useExchangeData = () => {
       
       for (let i = 0; i < multiCallSize; i++) {
         const roundIdStr = currentRoundId.toString()
-        const cachedData = roundCache[encodeCLFeedCacheKey(feedAdress, roundIdStr)]
-        
-        if (cachedData) {
-          allRequestedData.push(cachedData)
-        } else {
-          // Find in newly fetched data
-          const newData = decodedData.find(data => data.roundId.toString() === roundIdStr)
-          if (newData) {
-            allRequestedData.push(newData)
-          }
-        }
-        
+        const cachedData = cache[encodeCLFeedCacheKey(feedAdress, roundIdStr)]
+        allRequestedData.push(cachedData)
         currentRoundId = currentRoundId.sub(stepRound)
       }
 
