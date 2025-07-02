@@ -143,25 +143,6 @@ export const SwapInfoBox = ({
                       {zerofy(effectiveLeverage)}
                     </Text>
                   </div>
-                  {/* 
-                  <div>
-                    <TextGrey>Premium:&nbsp;</TextGrey>
-                    <Text
-                      className={premium < 0 ? 'text-green' : 'text-warning'}
-                    >
-                      {zerofy(formatFloat(premium * 100, undefined, 2, true))}%
-                    </Text>
-                  </div>
-                  <div>
-                    <TextGrey>Max Premium:&nbsp;</TextGrey>
-                    <Text>
-                      {zerofy(
-                        formatFloat(maxPremiumRate * 100, undefined, 2, true)
-                      )}
-                      %
-                    </Text>
-                  </div>
-                  */}
                 </div>
               )}
             />
@@ -244,3 +225,6 @@ export const SwapInfoBox = ({
     </Box>
   )
 }
+
+
+

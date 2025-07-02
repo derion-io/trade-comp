@@ -38,6 +38,7 @@ import {
   ABS,
   poolToIndexID,
   bn,
+  baseRateFromHL,
 } from '../../utils/helpers'
 import { ClosingFeeCalculator, Position } from '../../utils/type'
 import { ClosePosition } from '../ClosePositionModal'
@@ -66,6 +67,8 @@ import { Checkbox } from 'antd'
 import { useWeb3React } from '../../state/customWeb3React/hook'
 import { Q128 } from 'derivable-engine/dist/services/resource'
 import { PositionLoadingComponent } from '../BuyPositionBox/components/PositionLoading'
+import {calculatePoolRate} from '../../hooks/usePoolRate'
+import Tooltip from '../Tooltip/Tooltip'
 
 const mdp = require('move-decimal-point')
 
@@ -226,10 +229,13 @@ export const Positions = ({
         // }
         valueRCompound = mul(entryValueR, pow(priceRate, L))
       }
-
+      const {cRate, baseRate, sideRate } = calculatePoolRate(encodeErc1155Address(poolAddress, side),encodeErc1155Address(poolAddress, side), pools, pool)
       return {
         poolAddress,
         currentPrice,
+        cRate,
+        baseRate,
+        sideRate,
         pool,
         token,
         side,
@@ -387,7 +393,14 @@ export const Positions = ({
                   <InfoRow>
                     <Text>Balance</Text>
                     <Text>
-                      {zerofy(formatFloat(IEW(position.balance ?? bn(0), tokens[position.token]?.decimals)))}
+                      {zerofy(
+                        formatFloat(
+                          IEW(
+                            position.balance ?? bn(0),
+                            tokens[position.token]?.decimals
+                          )
+                        )
+                      )}
                     </Text>
                   </InfoRow>
                 )}
@@ -481,7 +494,7 @@ export const Positions = ({
                   ''
                 )}
 
-                {/* {!position.funding || (
+                {!position.funding || (
                   <InfoRow>
                     <TextGrey>
                       {position.side === POOL_IDS.C
@@ -491,13 +504,23 @@ export const Positions = ({
                     <FundingRate position={position} />
                   </InfoRow>
                 )}
+                {!position.cRate || (
+                  <InfoRow>
+                    <TextGrey>
+                      {position.side === POOL_IDS.C
+                        ? 'Funding Yield'
+                        : 'Funding Rate'}
+                    </TextGrey>
+                    <FundingRatePercentage position={position} isShowLeverageE={false}/>
+                  </InfoRow>
+                )}
 
                 {!showSize || !position.sizeDisplay || (
                   <InfoRow>
                     <TextGrey>Size</TextGrey>
                     <Size position={position} isPhone />
                   </InfoRow>
-                )} */}
+                )}
                 {/* <InfoRow>
                   <TextGrey>Deleverage Price</TextGrey>
                   <DeleveragePrice position={position} isPhone />
@@ -582,7 +605,7 @@ export const Positions = ({
                   </Text>
                 )}
               </th>
-              {/* <th>Funding</th> */}
+              <th>Funding</th>
               {/* {showSize && <th>Size</th>} */}
               {/* <th>Delev. Price</th> */}
               {!hasClosingFee || <th>Anti-Bot Fee</th>}
@@ -685,21 +708,22 @@ export const Positions = ({
                       )}
                     </div>
                   </td>
-                  {/* <td>
-                    <FundingRate position={position} />
-                    {!position.valueRCompound || (
+                  <td>
+                    {/* <FundingRate position={position} /> */}
+                    <FundingRatePercentage position={position} loading={isLoadingIndex} isShowLeverageE={true}/>
+                    {/* {!position.valueRCompound || (
                       <Funding
                         valueInUsdStatus={valueInUsdStatus}
                         position={position}
                         loading={position.status === POSITION_STATUS.OPENING}
                       />
-                    )}
+                    )} */}
                   </td>
                   {!showSize || (
                     <td>
                       <Size position={position} />
                     </td>
-                  )} */}
+                  )}
                   {/* <td>
                     <DeleveragePrice position={position} />
                   </td> */}
@@ -1133,6 +1157,67 @@ export const Funding = ({
       ({rateDisplay}%)&nbsp;{valueChangeDisplay}
     </TextSell>
   )
+}
+
+export const FundingRatePercentage = ({
+  position,
+  isPhone,
+  loading,
+  isShowLeverageE
+}: {
+  position: Position
+  isPhone?: boolean
+  loading?: boolean
+  isShowLeverageE?:boolean
+}) => {
+  if (loading) return <SkeletonLoader loading />
+  const { cRate, baseRate, sideRate, side, effectiveLeverage } = position
+
+  if (!isPhone) {
+    return side == POOL_IDS.A || side == POOL_IDS.B ? (
+      <div>
+        <Text className={sideRate < 0 ? 'text-green' : 'text-warning'}>
+          {zerofy(formatFloat(sideRate * 100, undefined, 3, true))}%
+        </Text>
+        <br />
+        {isShowLeverageE ? (<Text>{effectiveLeverage}</Text>) : ""}
+      </div>
+    ) : (
+      <div>
+        <Text className={cRate > 0 ? 'text-green' : ''}>
+          {zerofy(formatFloat(cRate * 100, undefined, 3, true))}%
+        </Text>
+        <br />
+
+        {isShowLeverageE ? (<Text>{effectiveLeverage}</Text>) : ""}
+      </div>
+    )
+  }
+
+  // const rateDisplay = formatPercent(rate)
+  if (side == POOL_IDS.A || side == POOL_IDS.B) {
+    return (
+      <div>
+        <Text className={sideRate < 0 ? 'text-green' : 'text-warning'}>
+          {zerofy(formatFloat(sideRate * 100, undefined, 3, true))}%
+        </Text>
+        <br />
+
+        {isShowLeverageE ? (<Text>{effectiveLeverage}</Text>) : ""}
+      </div>
+    )
+  } else {
+    return (
+      <div>
+        <Text className={cRate > 0 ? 'text-green' : ''}>
+          {zerofy(formatFloat(cRate * 100, undefined, 3, true))}%
+        </Text>
+        <br />
+
+        {isShowLeverageE ? (<Text>{effectiveLeverage}</Text>) : ""}
+      </div>
+    )
+  }
 }
 
 export const DeleveragePrice = ({
