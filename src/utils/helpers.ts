@@ -549,7 +549,7 @@ export const zerofy = (value: number | string, opts?: {
   if (numValue >= 1_000_000) {
     return format(numValue, 1_000_000, 'm');
   }
-  if (numValue >= 1_000) {
+  if (numValue >= 10_000) {
     return format(numValue, 1_000, 'k');
   }
   

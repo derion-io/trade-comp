@@ -112,7 +112,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
         smoothedData.push(current)
       }
     }
-    
+    console.log("#finalData",smoothedData)
     return smoothedData
   }, [chartData, interval, chainId, cToken])
 
@@ -290,7 +290,8 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
                 axisLine={false}
                 tickLine={false}
                 tickFormatter={(time) =>
-                  moment(time).format(LINE_CHART_CONFIG[interval].format || 'MM-DD HH:mm')
+                  time
+                  // .format(LINE_CHART_CONFIG[interval].format || 'MM-DD HH:mm:ss')
                 }
                 minTickGap={60}
                 interval="preserveEnd"
