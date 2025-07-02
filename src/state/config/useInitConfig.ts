@@ -6,7 +6,6 @@ import { Engine } from 'derivable-engine/dist/engine'
 import {
   DEFAULT_CHAIN,
   NATIVE_ADDRESS,
-  SCAN_API_KEYS,
   ZERO_ADDRESS
 } from '../../utils/constant'
 import { useSettings } from '../setting/hooks/useSettings'
@@ -65,8 +64,7 @@ export const useInitConfig = ({
         chainId,
         account: account || ZERO_ADDRESS,
         signer: provider?.getSigner(),
-        scanApiKey: currentScanApiKey || SCAN_API_KEYS[chainId] || '',
-        scanApi: 'https://api.etherscan.io/v2/api?chainid=42161',
+        scanApiKey: currentScanApiKey || process.env.REACT_APP_SCAN_API_KEYS,
         storage: {
           // @ts-ignore
           setItem: (itemName, value) => localStorage.setItem(itemName, value),
