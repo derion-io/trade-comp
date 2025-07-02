@@ -26,11 +26,20 @@ import { Tabs } from '../ui/Tabs'
 import { COLORS } from '../../utils/constant'
 import isEqual from 'react-fast-compare'
 import { useConfigs } from '../../state/config/useConfigs'
-import { formatFloat, zerofy } from '../../utils/helpers'
+import { formatFloat, zerofyWithUnit } from '../../utils/helpers'
 import { ReloadIcon } from '../../Components/ui/Icon'
 import { useWindowSize } from '../../hooks/useWindowSize'
 import { BigNumber, ethers } from 'ethers'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
+import {isChainlink} from 'derivable-engine/dist/utils/helper'
+
+const INTERVAL_TO_GECKO = {
+  '5m': { timeframe: 'minute', aggregate: 5 },
+  '30m': { timeframe: 'minute', aggregate: 30 },
+  '1H': { timeframe: 'hour', aggregate: 1 },
+  '4H': { timeframe: 'hour', aggregate: 4 },
+  '1d': { timeframe: 'day', aggregate: 1 },
+};
 
 const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const { getLineChartData } = useExchangeData()
@@ -43,7 +52,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [hoverDate, setHoverDate] = useState<number>()
   const [interval, setInterval] = useState<LineChartIntervalType>(I_5m)
-  const { chainId } = useConfigs()
+  const { chainId, configs} = useConfigs()
   const headRef = useRef<HTMLDivElement>(null)
   const cToken = id
   const { width } = useWindowSize()
@@ -51,12 +60,13 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   useEffect(() => {
     if (!chartData[chainId + interval + cToken] || cToken) {
       loadData()
+      loadDataFromGecko()
     }
   }, [cToken, chainId, interval,currentPool])
 
   useEffect(() => {
     if (basePrice) {
-      setHoverValue(zerofy(formatFloat(basePrice)))
+      setHoverValue(zerofyWithUnit(formatFloat(basePrice)))
       setHoverDate(new Date().getTime())
     }
   }, [basePrice])
@@ -138,7 +148,9 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
     } else {
       from = BigNumber.from(0)
     }
+
     if (from) {
+      if(isChainlink(currentPool)) {
       getLineChartData({
         pair: "0x"+ currentPool?.ORACLE?.slice(26),
         //  cToken.split('-')[0].toLowerCase(),
@@ -211,6 +223,40 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
         console.error('Error loading chart data:', error)
         setIsLoading(false)
       })
+    } else {
+      loadDataFromGecko(action)
+    }
+    }
+  }
+  const loadDataFromGecko = async (action: 'PREV' | 'NEXT' | 'NONE' = 'NONE') => {
+    setIsLoading(true);
+    try {
+      const poolAddress =  "0x"+ currentPool?.ORACLE?.slice(26);
+      const intervalConf = INTERVAL_TO_GECKO[interval];
+      if (!poolAddress || !intervalConf) {
+        setIsLoading(false);
+        return;
+      }
+      let url = `https://api.geckoterminal.com/api/v2/networks/${configs.gtID}/pools/${poolAddress}/ohlcv/${intervalConf.timeframe}?aggregate=${intervalConf.aggregate}&include_empty_intervals=false&limit=100`;
+      const res = await fetch(url);
+      const json = await res.json();
+      const ohlcvList:[number, number, number, number,number][] = json?.data?.attributes?.ohlcv_list || [];
+      const chartDatas = ohlcvList.reverse().map((item: number[]) => ({
+        time: item[0] * 1000, // timestamp in ms
+        value: item[4]?.toString() // close price as string
+      }));
+      if(ohlcvList.length === 0) {
+        throw "No gecko data"
+      }
+      console.log("#chartDatas", chartDatas)
+      setChartData({
+        ...chartData,
+        [chainId + interval + cToken]: chartDatas
+      });
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Error loading GeckoTerminal chart data:', error);
+      setIsLoading(false);
     }
   }
   // useEffect() {
@@ -301,7 +347,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
               <YAxis
                 dataKey='value'
                 tickFormatter={(tick) => {
-                  return zerofy(tick)
+                  return zerofyWithUnit(tick)
                 }}
                 axisLine={false}
                 tickLine={false}
@@ -350,7 +396,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
 const HoverUpdater = ({ payload, setHoverValue, setHoverDate }: any) => {
   useEffect(() => {
     if (payload && payload.value !== undefined && payload.time !== undefined) {
-      setHoverValue(zerofy(payload.value))
+      setHoverValue(zerofyWithUnit(payload.value))
       setHoverDate(payload.time)
     }
   }, [payload?.value, payload?.time, setHoverValue, setHoverDate])
@@ -361,3 +407,4 @@ const HoverUpdater = ({ payload, setHoverValue, setHoverDate }: any) => {
 export const LineChart = React.memo(Component, (prevProps, nextProps) =>
   isEqual(prevProps, nextProps)
 )
+
