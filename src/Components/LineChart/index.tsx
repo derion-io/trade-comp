@@ -35,7 +35,7 @@ import {isChainlink} from 'derivable-engine/dist/utils/helper'
 
 const INTERVAL_TO_GECKO = {
   '5m': { timeframe: 'minute', aggregate: 5 },
-  '30m': { timeframe: 'minute', aggregate: 30 },
+  '30m': { timeframe: 'minute', aggregate: 15 },
   '1H': { timeframe: 'hour', aggregate: 1 },
   '4H': { timeframe: 'hour', aggregate: 4 },
   '1d': { timeframe: 'day', aggregate: 1 },
@@ -231,24 +231,36 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const loadDataFromGecko = async (action: 'PREV' | 'NEXT' | 'NONE' = 'NONE') => {
     setIsLoading(true);
     try {
-      const poolAddress =  "0x"+ currentPool?.ORACLE?.slice(26);
+      const poolAddress =  "0x" + currentPool?.ORACLE?.slice(26);
       const intervalConf = INTERVAL_TO_GECKO[interval];
       if (!poolAddress || !intervalConf) {
         setIsLoading(false);
         return;
       }
-      let url = `https://api.geckoterminal.com/api/v2/networks/${configs.gtID}/pools/${poolAddress}/ohlcv/${intervalConf.timeframe}?aggregate=${intervalConf.aggregate}&include_empty_intervals=false&limit=100`;
+      let url = `https://api.geckoterminal.com/api/v2/networks/${configs.gtID}/pools/${poolAddress}/ohlcv/${intervalConf.timeframe}?aggregate=${intervalConf.aggregate}&include_empty_intervals=false&limit=300`;
+      // Add before_timestamp if action is PREV or NEXT
+      const currentKey = chainId + interval + cToken;
+      const currentData = chartData[currentKey] || [];
+      let beforeTimestamp = undefined;
+      if (action === 'PREV' && currentData.length > 0) {
+        beforeTimestamp = Math.floor(currentData[0].time / 1000); // first data point
+      } else if (action === 'NEXT' && currentData.length > 0) {
+        beforeTimestamp = Math.floor(currentData[currentData.length - 1].time / 1000); // last data point
+      }
+      if (beforeTimestamp) {
+        url += `&before_timestamp=${beforeTimestamp}`;
+      }
       const res = await fetch(url);
       const json = await res.json();
-      const ohlcvList:[number, number, number, number,number][] = json?.data?.attributes?.ohlcv_list || [];
+      const ohlcvList: [number, number, number, number, number][] = json?.data?.attributes?.ohlcv_list || [];
       const chartDatas = ohlcvList.reverse().map((item: number[]) => ({
         time: item[0] * 1000, // timestamp in ms
         value: item[4]?.toString() // close price as string
       }));
-      if(ohlcvList.length === 0) {
-        throw "No gecko data"
+      if (ohlcvList.length === 0) {
+        throw "No gecko data";
       }
-      console.log("#chartDatas", chartDatas)
+      console.log("#chartDatas", chartDatas);
       setChartData({
         ...chartData,
         [chainId + interval + cToken]: chartDatas
