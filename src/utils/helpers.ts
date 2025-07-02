@@ -506,7 +506,7 @@ export const precisionize = (value: number, opts?: {
   return value.toLocaleString(['en-US', 'fullwide'], stringOpts)
 }
 
-export const zerofy = (value: number | string, opts?: {
+export const zerofyWithUnit = (value: number | string, opts?: {
   maxZeros?: number,
   maximumSignificantDigits?: number,
   minimumSignificantDigits?: number,
@@ -589,6 +589,55 @@ export const zerofy = (value: number | string, opts?: {
     value = value.replace(/[.,]{1}0+/, `${whatDecimalSeparator()}0${ucZeros}`)
   }
   return (isNegative ? '-' : '') + value
+}
+
+export const zerofy = (value: number | string, opts?: {
+  maxZeros?: number,
+  maximumSignificantDigits?: number,
+  minimumSignificantDigits?: number,
+  maxExtraDigits?: number,
+}): string => {
+  let zeros = 0
+  if (typeof value === 'number') {
+    if (value < 0) {
+      return '-' + zerofy(-value, opts)
+    }
+    zeros = -Math.floor(Math.log10(value) + 1)
+    if (!Number.isFinite(zeros)) {
+      zeros = 0
+    }
+    value = precisionize(value, opts)
+  } else {
+    value = STR(value)
+    if (IS_NEG(value)) {
+      return '-' + zerofy(NEG(value), opts)
+    }
+    let [int, dec] = value.split('.')
+    if (dec?.length > 0) {
+      const fake = int.substring(Math.max(0, int.length - 2)) + '.' + dec
+      dec = precisionize(NUM(fake), opts)
+      dec = dec.split('.')[1]
+      int = thousandsInt(int)
+      if (dec?.length > 0) {
+        value = int + '.' + dec
+        zeros = dec.match(/^0+/)?.[0]?.length ?? 0
+      } else {
+        value = int
+      }
+    } else {
+      value = thousandsInt(value)
+    }
+  }
+  const maxZeros = opts?.maxZeros ?? 3
+  if (zeros > maxZeros) {
+    const zs = zeros.toString()
+    let ucZeros = ''
+    for (let i = 0; i < zs.length; ++i) {
+      ucZeros += String.fromCharCode(parseInt(`+208${zs[i]}`, 16))
+    }
+    value = value.replace(/[.,]{1}0+/, `${whatDecimalSeparator()}0${ucZeros}`)
+  }
+  return value
 }
 
 export const xr = (k: number, r: BigNumber, v: BigNumber): number => {
