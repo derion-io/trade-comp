@@ -2,7 +2,7 @@ import { BigNumber } from 'ethers'
 import LeverageSlider from 'leverage-slider/dist/component'
 import _ from 'lodash'
 import 'rc-slider/assets/index.css'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react'
 import isEqual from 'react-fast-compare'
 import { useGenerateLeverageData } from '../../hooks/useGenerateLeverageData'
 import { useConfigs } from '../../state/config/useConfigs'
@@ -48,6 +48,9 @@ import './style.scss'
 import { Spin } from 'antd'
 import { useCalculatePara } from '../SwapBox/hooks/useCalculatePara'
 import { parseEther } from 'ethers/lib/utils'
+import { useSettings } from '../../state/setting/hooks/useSettings'
+import { DownOutlined, SettingOutlined } from '@ant-design/icons'
+import { usePoolRate } from '../../hooks/usePoolRate'
 
 const Component = ({
   searchIndexCache,
@@ -89,6 +92,13 @@ const Component = ({
   const { convertTokenValue } = useTokenValue({})
   const { leverageData, totalHiddenPools } = useGenerateLeverageData(tradeType, showAllPool)
   const { pools } = useResource()
+  const { baseRate, sideRate, cRate, interest, premium, fundingRate, interestRate, maxPremiumRate } = usePoolRate(inputTokenAddress, outputTokenAddress, pools, pools[outputTokenAddress])
+  const { rateData, loading: rateDataLoading, error: rateDataError } = useCalculatePara({
+    inputTokenAddress,
+    outputTokenAddress: pools[outputTokenAddress]?.TOKEN_R,
+    amountIn: amountIn
+  })
+
   useEffect(() => {
     if (
       tradeType === TRADE_TYPE.LIQUIDITY &&
@@ -173,11 +183,6 @@ const Component = ({
     }
     return [null, null]
   }, [pools, inputTokenAddress, outputTokenAddress])
-  const { rateData, loading: rateDataLoading, error: rateDataError } = useCalculatePara({
-    inputTokenAddress,
-    outputTokenAddress: poolToShow?.TOKEN_R,
-    amountIn: amountIn
-  })
 
   const payoffRate = useMemo(() => {
     const _valueIn = Number(valueIn) === 0 ? rateData?.priceRoute?.srcUSD || 0 : valueIn
@@ -205,21 +210,11 @@ const Component = ({
     }
   }, [amountIn, tradeType, inputTokenAddress, poolToShow?.TOKEN_R])
 
-  // const { erc20TokenSupported } = useListTokenHasUniPool(poolToShow)
-
   const tokensToSelect = useMemo(() => {
     if (!id || !poolToShow?.TOKEN_R) return []
     const tokenRs = Object.keys(tokens).filter((address) => !isErc1155Address(address))
-    // [poolToShow.TOKEN_R]
-
-    // if (poolToShow.TOKEN_R === configs.wrappedTokenAddress || erc20TokenSupported.includes(configs.wrappedTokenAddress)) {
-    //   tokenRs.push(NATIVE_ADDRESS)
-    //   tokenRs.push(configs.wrappedTokenAddress)
-    // }
-
     return _.uniq(
       tokenRs.filter((address) => {
-        // if (tokenRs.includes(address)) return true
         return balances[address]?.gt(0)
       })
     )
@@ -282,37 +277,15 @@ const Component = ({
     return getPoolPower(poolToShow)
   }, [poolToShow])
 
-  const [baseRate, sideRate, cRate, interest, premium, fundingRate, interestRate, maxPremiumRate] = useMemo(() => {
-    const tokenAddress =
-      isErc1155Address(outputTokenAddress) ? outputTokenAddress
-        : isErc1155Address(inputTokenAddress) ? inputTokenAddress : undefined
-    if (!tokenAddress) {
-      return [0, 0, 0, 0, 0]
-    }
-    const { address, id } = decodeErc1155Address(tokenAddress)
-    const pool = pools[address] ?? poolToShow
-    if (!pool) {
-      return [0, 0, 0, 0, 0]
-    }
-    const { sides, interestRate, maxPremiumRate, INTEREST_HL, states: { rA, rB, rC } } = pool
-    const K = pool.K.toNumber()
-    const baseRate = baseRateFromHL(INTEREST_HL)
-    const sideRate = baseRate * sides[id].k / K
-    const rAInterest = rA.mul(WEI(baseRate * sides[POOL_IDS.A].k / K))
-    const rBInterest = rB.mul(WEI(baseRate * sides[POOL_IDS.B].k / K))
-    const cRate = NUM(DIV(rAInterest.add(rBInterest), rC.mul(bn(10).pow(18)), 4))
-    const interest = sides[id].interest ?? 0
-    const premium = NUM(sides[id].premium)
-    const fundingRate = interest + premium
-    return [baseRate, sideRate, cRate, interest, premium, fundingRate, interestRate, maxPremiumRate]
-  }, [inputTokenAddress, outputTokenAddress, pools, poolToShow])
+  const interestRef = useRef(interest)
+  interestRef.current = interest
+  const premiumRef = useRef(premium)
+
   useEffect(() => {
     if (tokensToSelect.length > 0 && !tokensToSelect.includes(inputTokenAddress)) {
       setInputTokenAddress(tokensToSelect.includes(NATIVE_ADDRESS) ? NATIVE_ADDRESS : tokensToSelect[0])
     }
   }, [tokensToSelect, inputTokenAddress])
-
-  // Hook: Load and Cache all pool of Index
 
   const shouldShowLevelMap = useMemo(() => {
     const nBars = leverageData.reduce((acc: number, l:any) => acc + l.bars.length as number, 0) as number || 0
@@ -408,8 +381,6 @@ const Component = ({
         power={power}/>
       <div style={{ width: '100%', textAlign: 'center', height: 'auto', overflow: 'hidden' }}>
         <span >
-          {/* Show 3 hidden pools */}
-
           {isLoadingIndex ? <SvgSpinners12DotsScaleRotate className='text-blue'/> : <TextLink className='show-all-pool-text' onClick={() => {
             if (setShowAllPool)setShowAllPool(!showAllPool)
           }}>{
@@ -453,25 +424,6 @@ const Component = ({
         loading={loading && Number(amountIn) > 0}
       />
       }
-
-      {/* <Box borderColor='default' className='swap-info-box mt-1 mb-1'> */}
-      {/*  <InfoRow> */}
-      {/*    <TextGrey>Gas Used</TextGrey> */}
-      {/*    <span> */}
-      {/*      <Text>{formatWeiToDisplayNumber(gasUsed, 0, 0)}</Text> */}
-      {/*    </span> */}
-      {/*  </InfoRow> */}
-      {/*  <InfoRow> */}
-      {/*    <TextGrey>Transaction Fee</TextGrey> */}
-      {/*    <span> */}
-      {/*      <Text> */}
-      {/*        {weiToNumber(txFee, 18, 4)} */}
-      {/*        <TextGrey> {chainId === 56 ? 'BNB' : 'ETH'} </TextGrey> */}
-      {/*        (${weiToNumber(txFee.mul(numberToWei(nativePrice)), 36, 2)}) */}
-      {/*      </Text> */}
-      {/*    </span> */}
-      {/*  </InfoRow> */}
-      {/* </Box> */}
 
       <div className='actions'>
         <ButtonSwap

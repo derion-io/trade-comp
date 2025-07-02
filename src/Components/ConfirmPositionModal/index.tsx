@@ -34,6 +34,9 @@ import { SwapModalHeaderAmount } from './components/SwapModalHeaderAmount'
 import './style.scss'
 import { SwapInfoBox } from '../BuyPositionBox/components/SwapInfoBox'
 import { Q256 } from '../../utils/type'
+import { useConfigs } from '../../state/config/useConfigs'
+import { usePoolRate } from '../../hooks/usePoolRate'
+import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 
 const Component = ({
   submitFetcherV2,
@@ -79,6 +82,19 @@ const Component = ({
   const { basePrice } = useCurrentPoolGroup()
   const { getTokenValue } = useTokenValue({})
   const { balances } = useWalletBalance()
+  const { currentPool: poolToShow } = useCurrentPool()
+
+  const {
+    baseRate,
+    sideRate,
+    cRate,
+    interest,
+    premium,
+    fundingRate,
+    interestRate,
+    maxPremiumRate
+  } = usePoolRate(inputTokenAddress, outputTokenAddress, pools, poolToShow)
+
   const ConfirmInfo = () => {
     if (tradeType === TRADE_TYPE.SWAP) {
       const valueIn = getTokenValue(inputTokenAddress, amountIn)
@@ -121,30 +137,6 @@ const Component = ({
         poolToShow?.TOKEN_R,
         IEW(poolToShow?.states?.R, tokens[poolToShow?.TOKEN_R]?.decimals)
       )
-      const [baseRate, sideRate, cRate, interest, premium, fundingRate, interestRate, maxPremiumRate] = useMemo(() => {
-        const tokenAddress =
-          isErc1155Address(outputTokenAddress) ? outputTokenAddress
-            : isErc1155Address(inputTokenAddress) ? inputTokenAddress : undefined
-        if (!tokenAddress) {
-          return [0, 0, 0, 0, 0]
-        }
-        const { address, id } = decodeErc1155Address(tokenAddress)
-        const pool = pools[address] ?? poolToShow
-        if (!pool) {
-          return [0, 0, 0, 0, 0]
-        }
-        const { sides, interestRate, maxPremiumRate, INTEREST_HL, states: { rA, rB, rC } } = pool
-        const K = pool.K.toNumber()
-        const baseRate = baseRateFromHL(INTEREST_HL)
-        const sideRate = baseRate * sides[id].k / K
-        const rAInterest = rA.mul(WEI(baseRate * sides[POOL_IDS.A].k / K))
-        const rBInterest = rB.mul(WEI(baseRate * sides[POOL_IDS.B].k / K))
-        const cRate = NUM(DIV(rAInterest.add(rBInterest), rC.mul(bn(10).pow(18)), 4))
-        const interest = sides[id].interest ?? 0
-        const premium = NUM(sides[id].premium)
-        const fundingRate = interest + premium
-        return [baseRate, sideRate, cRate, interest, premium, fundingRate, interestRate, maxPremiumRate]
-      }, [inputTokenAddress, outputTokenAddress, pools, poolToShow])
 
       const [effectiveLeverage, leverageKey, leverageValue] = useMemo(() => {
         if (!poolToShow) {
