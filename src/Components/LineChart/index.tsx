@@ -126,19 +126,19 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
     const oldPriceFeedData = priceFeedData[chainId + interval + cToken] || []
     let from = BigNumber.from(0)
 
-    if (action === 'PREV') {
-      const firstItem = oldPriceFeedData[0]
-      if (firstItem) {
-        from = firstItem.roundId
-      }
-    } else if (action === 'NEXT') {
-      const lastItem = oldPriceFeedData[oldPriceFeedData.length - 1]
-      if (lastItem) {
-        from = lastItem.roundId
-      }
-    } else {
-      from = BigNumber.from(0)
-    }
+    // if (action === 'PREV') {
+    //   const firstItem = oldPriceFeedData[0]
+    //   if (firstItem) {
+    //     from = firstItem.roundId
+    //   }
+    // } else if (action === 'NEXT') {
+    //   const lastItem = oldPriceFeedData[oldPriceFeedData.length - 1]
+    //   if (lastItem) {
+    //     from = lastItem.roundId
+    //   }
+    // } else {
+    //   from = BigNumber.from(0)
+    // }
 
     if (from) {
       if(isChainlink(currentPool)) {
@@ -198,9 +198,9 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
           //   continue;
           // }
           result.push(lastData = chartDatas[i])
-          if (lastData.time >= end) {
-            break
-          }
+          // if (lastData.time >= end) {
+          //   break
+          // }
         }
 
         console.log('Line chart data:', result.slice(0, 100))
@@ -220,6 +220,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
     }
   }
   const loadDataFromGecko = async (action: 'PREV' | 'NEXT' | 'NONE' = 'NONE') => {
+    if(!currentPool?.ORACLE || currentPool?.ORACLE == "") return;
     setIsLoading(true);
     try {
       const poolAddress =  "0x" + currentPool?.ORACLE?.slice(26);
