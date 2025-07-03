@@ -97,10 +97,10 @@ const Component = ({
       if (chartTab == CHART_TABS.CANDLE_CHART) {
         setChartTab(CHART_TABS.LINE_CHART)
       }
-    } else {
-      if (chartTab == CHART_TABS.LINE_CHART) {
-        setChartTab(CHART_TABS.CANDLE_CHART)
-      }
+    // } else {
+    //   if (chartTab == CHART_TABS.LINE_CHART) {
+    //     setChartTab(CHART_TABS.CANDLE_CHART)
+    //   }
     }
   }, [currentPool, chainId])
   return (
