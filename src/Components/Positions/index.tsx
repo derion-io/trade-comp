@@ -38,7 +38,6 @@ import {
   ABS,
   poolToIndexID,
   bn,
-  baseRateFromHL,
 } from '../../utils/helpers'
 import { ClosingFeeCalculator, Position } from '../../utils/type'
 import { ClosePosition } from '../ClosePositionModal'
@@ -67,8 +66,7 @@ import { Checkbox } from 'antd'
 import { useWeb3React } from '../../state/customWeb3React/hook'
 import { Q128 } from 'derivable-engine/dist/services/resource'
 import { PositionLoadingComponent } from '../BuyPositionBox/components/PositionLoading'
-import {calculatePoolRate} from '../../hooks/usePoolRate'
-import Tooltip from '../Tooltip/Tooltip'
+import { calculatePoolRate } from '../../hooks/usePoolRate'
 
 const mdp = require('move-decimal-point')
 
@@ -229,6 +227,7 @@ export const Positions = ({
         // }
         valueRCompound = mul(entryValueR, pow(priceRate, L))
       }
+
       const {cRate, baseRate, sideRate } = calculatePoolRate(encodeErc1155Address(poolAddress, side),encodeErc1155Address(poolAddress, side), pools, pool)
       return {
         poolAddress,
@@ -468,7 +467,7 @@ export const Positions = ({
                         />
                       </InfoRow>
                       <InfoRow>
-                        <TextGrey>Funding</TextGrey>
+                        <TextGrey>Funding Rate</TextGrey>
                         <Funding
                           valueInUsdStatus={valueInUsdStatus}
                           position={position}
@@ -605,7 +604,7 @@ export const Positions = ({
                   </Text>
                 )}
               </th>
-              <th>Funding</th>
+              <th>Funding Rate</th>
               {/* {showSize && <th>Size</th>} */}
               {/* <th>Delev. Price</th> */}
               {!hasClosingFee || <th>Anti-Bot Fee</th>}
@@ -710,7 +709,7 @@ export const Positions = ({
                   </td>
                   <td>
                     {/* <FundingRate position={position} /> */}
-                    <FundingRatePercentage position={position} loading={isLoadingIndex} isShowLeverageE={true}/>
+                    <FundingRatePercentage position={position} loading={isLoadingIndex} isShowLeverageE={false}/>
                     {/* {!position.valueRCompound || (
                       <Funding
                         valueInUsdStatus={valueInUsdStatus}

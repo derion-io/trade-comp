@@ -53,30 +53,39 @@ export const LINE_CHART_CONFIG = {
     range: 100 * 30 * 60 * 1000,
     limit: 100,
     interval: 30 * 60 * 1000,
-    format: 'DD/MM HH:mm',
+    format: 'MMM-DD HH:mm',
   },
   [I_1H]: {
     type: 'hourlySnapshots',
     range: 100 * 60 * 60 * 1000,
     limit: 100,
     interval: 60 * 60 * 1000,
-    format: 'DD/MM HH:mm',
+    format: 'MMM-DD HH:mm',
   },
   [I_4H]: {
     type: 'hourlySnapshots',
     range: 100 * 4 * 60 * 60 * 1000,
     limit: 100,
     interval: 4 * 60 * 60 * 1000,
-    format: 'DD/MM HH:mm',
+    format: 'MMM-DD HH:mm',
   },
   [I_1D]: {
     type: 'hourlySnapshots',
     range: 100 * 24 * 60 * 60 * 1000,
     limit: 100,
     interval: 24 * 60 * 60 * 1000,
-    format: 'MM-DD',
+    format: 'MMM-DD',
   },
 }
+
+export const INTERVAL_TO_GECKO = {
+  '5m': { timeframe: 'minute', aggregate: 5 },
+  '30m': { timeframe: 'minute', aggregate: 15 },
+  '1H': { timeframe: 'hour', aggregate: 1 },
+  '4H': { timeframe: 'hour', aggregate: 4 },
+  '1d': { timeframe: 'day', aggregate: 1 },
+};
+
 export function encodeCLFeedCacheKey(feedAddress: string, roundId: string | number): string {
   return `${feedAddress}-${roundId}`;
 }

@@ -18,6 +18,7 @@ import {
   DATE_FORMATS,
   I_1D,
   I_5m,
+  INTERVAL_TO_GECKO,
   INTERVALS_TAB,
   LINE_CHART_CONFIG,
   LineChartIntervalType
@@ -26,20 +27,11 @@ import { Tabs } from '../ui/Tabs'
 import { COLORS } from '../../utils/constant'
 import isEqual from 'react-fast-compare'
 import { useConfigs } from '../../state/config/useConfigs'
-import { formatFloat, zerofyWithUnit } from '../../utils/helpers'
+import { formatFloat, isChainlink, zerofyWithUnit } from '../../utils/helpers'
 import { ReloadIcon } from '../../Components/ui/Icon'
 import { useWindowSize } from '../../hooks/useWindowSize'
 import { BigNumber, ethers } from 'ethers'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
-import {isChainlink} from 'derivable-engine/dist/utils/helper'
-
-const INTERVAL_TO_GECKO = {
-  '5m': { timeframe: 'minute', aggregate: 5 },
-  '30m': { timeframe: 'minute', aggregate: 15 },
-  '1H': { timeframe: 'hour', aggregate: 1 },
-  '4H': { timeframe: 'hour', aggregate: 4 },
-  '1d': { timeframe: 'day', aggregate: 1 },
-};
 
 const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const { getLineChartData } = useExchangeData()
@@ -52,7 +44,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [hoverDate, setHoverDate] = useState<number>()
   const [interval, setInterval] = useState<LineChartIntervalType>(I_5m)
-  const { chainId, configs} = useConfigs()
+  const { chainId, configs } = useConfigs()
   const headRef = useRef<HTMLDivElement>(null)
   const cToken = id
   const { width } = useWindowSize()
@@ -419,4 +411,3 @@ const HoverUpdater = ({ payload, setHoverValue, setHoverDate }: any) => {
 export const LineChart = React.memo(Component, (prevProps, nextProps) =>
   isEqual(prevProps, nextProps)
 )
-

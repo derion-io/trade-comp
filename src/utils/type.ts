@@ -117,6 +117,6 @@ export type Position = {
   funding: number
   cRate:number
   baseRate:number,
-   sideRate:number,
+  sideRate:number,
   calulateClosingFee: (now?: number) => any
 }
