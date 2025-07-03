@@ -52,7 +52,6 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   useEffect(() => {
     if (!chartData[chainId + interval + cToken] || cToken) {
       loadData()
-      loadDataFromGecko()
     }
   }, [cToken, chainId, interval,currentPool])
 
