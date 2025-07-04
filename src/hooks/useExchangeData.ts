@@ -409,7 +409,7 @@ export const useExchangeData = () => {
         currentRoundId = currentRoundId.sub(stepRound)
       }
 
-      console.log(allRequestedData.slice(0, 100))
+      console.log("#allRequestedData", allRequestedData)
       
       // Calculate average time per round on initial load
       if (action === 'NONE' && avgRoundInSecond == 0 ) {

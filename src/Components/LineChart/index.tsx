@@ -125,20 +125,19 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
     setIsLoading(true)
     const oldPriceFeedData = priceFeedData[chainId + interval + cToken] || []
     let from = BigNumber.from(0)
-
-    // if (action === 'PREV') {
-    //   const firstItem = oldPriceFeedData[0]
-    //   if (firstItem) {
-    //     from = firstItem.roundId
-    //   }
-    // } else if (action === 'NEXT') {
-    //   const lastItem = oldPriceFeedData[oldPriceFeedData.length - 1]
-    //   if (lastItem) {
-    //     from = lastItem.roundId
-    //   }
-    // } else {
-    //   from = BigNumber.from(0)
-    // }
+    if (action === 'PREV') {
+      const firstItem = oldPriceFeedData[0]
+      if (firstItem) {
+        from = firstItem.roundId
+      }
+    } else if (action === 'NEXT') {
+      const lastItem = oldPriceFeedData[oldPriceFeedData.length - 1]
+      if (lastItem) {
+        from = lastItem.roundId
+      }
+    } else {
+      from = BigNumber.from(0)
+    }
 
     if (from) {
       if(isChainlink(currentPool)) {
@@ -152,7 +151,17 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
       }).then((data) => {
         console.log("#dataget", data[0].updatedAt.toString() , data[data.length - 1].updatedAt.toString() )
         const seen = new Set<string>()
-        const allData = [...oldPriceFeedData, ...data]
+        const allData = data.map(d => {
+          return {
+           roundId: d.roundId.toString(),
+           updatedAt: d.updatedAt.toNumber(),
+           startAt: d.startedAt.toNumber(),
+           time: new Date(d.updatedAt.toNumber()).toISOString(),
+           answer: d.answer.toString(),
+           answeredInRound: d.answeredInRound.toString()
+          }
+        })
+        console.log("#allRequestedData",allData)
         
         // Remove duplicates more effectively
         const uniqueData = allData.filter((item) => {
