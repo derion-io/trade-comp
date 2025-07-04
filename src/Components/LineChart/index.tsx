@@ -350,7 +350,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
                 axisLine={false}
                 tickLine={false}
                 tickFormatter={(time) =>
-                  moment(time).format(LINE_CHART_CONFIG[interval].format || 'DD/MM HH:mm:ss')
+                  moment(time).format(LINE_CHART_CONFIG[interval].format || 'MMM-DD HH:mm')
                 }
                 minTickGap={60}
                 interval="preserveEnd"
