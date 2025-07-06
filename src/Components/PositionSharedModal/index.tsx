@@ -114,7 +114,7 @@ const Component = ({
   }
 
   const tweetLink = getTwitterIntentURL(
-    `Long/Short $${base} on the first ever Perpetuals AMM Protocol @DerivableLabs`,
+    `Long/Short $${base} on the first ever Decentralized Speculation Protocol @DerionLabs`,
     'https://app.derion.io/'
   )
   return (
