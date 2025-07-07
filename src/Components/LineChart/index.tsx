@@ -17,6 +17,7 @@ import { Text, TextGrey } from '../ui/Text'
 import {
   DATE_FORMATS,
   I_1D,
+  I_30m,
   I_5m,
   INTERVAL_TO_GECKO,
   INTERVALS_TAB,
@@ -43,7 +44,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const [priceFeedData, setPriceFeedData] = useState<{ [key: string]: any[] }>({})
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [hoverDate, setHoverDate] = useState<number>()
-  const [interval, setInterval] = useState<LineChartIntervalType>(I_5m)
+  const [interval, setInterval] = useState<LineChartIntervalType>(I_30m)
   const { chainId, configs } = useConfigs()
   const headRef = useRef<HTMLDivElement>(null)
   const cToken = id
