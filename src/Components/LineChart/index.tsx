@@ -114,7 +114,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
         smoothedData.push(current)
       }
     }
-    console.log("#finalData",smoothedData)
+    //console.log("#finalData",smoothedData)
     return smoothedData
   }, [chartData, interval, chainId, cToken])
 
@@ -148,78 +148,82 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
         baseToken,
         interval,
         action,
-        from
-      }).then((data) => {
-        console.log("#dataget", data[0].updatedAt.toString() , data[data.length - 1].updatedAt.toString() )
-        const seen = new Set<string>()
-        const allData = data.map(d => {
-          return {
-           roundId: d.roundId.toString(),
-           updatedAt: d.updatedAt.toNumber(),
-           startAt: d.startedAt.toNumber(),
-           time: new Date(d.updatedAt.toNumber()).toISOString(),
-           answer: d.answer.toString(),
-           answeredInRound: d.answeredInRound.toString()
+        from,
+        onUpdate: (data) =>  {
+          setIsLoading(false)
+          //console.log("#dataget", data[0].updatedAt.toString() , data[data.length - 1].updatedAt.toString() )
+          const seen = new Set<string>()
+          const allData = data.map(d => {
+            return {
+             roundId: d.roundId.toString(),
+             updatedAt: d.updatedAt.toNumber(),
+             startAt: d.startedAt.toNumber(),
+             time: new Date(d.updatedAt.toNumber()).toISOString(),
+             answer: d.answer.toString(),
+             answeredInRound: d.answeredInRound.toString()
+            }
+          })
+          //console.log("#allRequestedData",allData)
+          
+          // Remove duplicates more effectively
+          const uniqueData = allData.filter((item) => {
+            if (seen.has(item.roundId)) {
+              return false
+            }
+            seen.add(item.roundId)
+            return true
+          }).sort((a, b) => a.updatedAt - b.updatedAt)
+  
+          setPriceFeedData({
+            ...priceFeedData,
+            [chainId + interval + cToken]: uniqueData
+          })
+  
+          const chartDatas = uniqueData.map((item) => ({
+            time: item.updatedAt * 1000,
+            value: ethers.utils.formatUnits(item.answer, 8),
+          }))
+  
+  
+          // const msInterval = LINE_CHART_CONFIG[interval].interval || 60 * 1000
+          
+          if (chartDatas.length === 0) {
+            setChartData({
+              ...chartData,
+              [chainId + interval + cToken]: []
+            })
+            setIsLoading(false)
+            return
           }
-        })
-        console.log("#allRequestedData",allData)
-        
-        // Remove duplicates more effectively
-        const uniqueData = allData.filter((item) => {
-          if (seen.has(item.roundId)) {
-            return false
+  
+          let lastData = chartDatas[0]
+          const start = lastData.time
+          const end = start + LINE_CHART_CONFIG[interval].range
+  
+          const result = [lastData]
+          for (let i = 1; i < chartDatas.length; i++) {
+            if (chartDatas[i].time < start) {
+              continue
+            }
+            // if (chartDatas[i].time < lastData.time + msInterval) {
+            //   continue;
+            // }
+            result.push(lastData = chartDatas[i])
+            // if (lastData.time >= end) {
+            //   break
+            // }
           }
-          seen.add(item.roundId)
-          return true
-        }).sort((a, b) => a.updatedAt - b.updatedAt)
-
-        setPriceFeedData({
-          ...priceFeedData,
-          [chainId + interval + cToken]: uniqueData
-        })
-
-        const chartDatas = uniqueData.map((item) => ({
-          time: item.updatedAt * 1000,
-          value: ethers.utils.formatUnits(item.answer, 8),
-        }))
-
-
-        // const msInterval = LINE_CHART_CONFIG[interval].interval || 60 * 1000
-        
-        if (chartDatas.length === 0) {
+  
+          //console.log('Line chart data:', result.slice(0, 100))
+  
           setChartData({
             ...chartData,
-            [chainId + interval + cToken]: []
+            [chainId + interval + cToken]: result
           })
           setIsLoading(false)
-          return
         }
-
-        let lastData = chartDatas[0]
-        const start = lastData.time
-        const end = start + LINE_CHART_CONFIG[interval].range
-
-        const result = [lastData]
-        for (let i = 1; i < chartDatas.length; i++) {
-          if (chartDatas[i].time < start) {
-            continue
-          }
-          // if (chartDatas[i].time < lastData.time + msInterval) {
-          //   continue;
-          // }
-          result.push(lastData = chartDatas[i])
-          // if (lastData.time >= end) {
-          //   break
-          // }
-        }
-
-        console.log('Line chart data:', result.slice(0, 100))
-
-        setChartData({
-          ...chartData,
-          [chainId + interval + cToken]: result
-        })
-        setIsLoading(false)
+      }).then((data) => {
+       setIsLoading(false)
       }).catch((error) => {
         console.error('Error loading chart data:', error)
         setIsLoading(false)
@@ -262,7 +266,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
       if (ohlcvList.length === 0) {
         throw "No gecko data";
       }
-      console.log("#chartDatas", chartDatas);
+      //console.log("#chartDatas", chartDatas);
       setChartData({
         ...chartData,
         [chainId + interval + cToken]: chartDatas
@@ -276,7 +280,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   // useEffect() {
   //   if (this.divRef.current) {
   //     const height = this.divRef.current.offsetHeight;
-  //     console.log('Height of the div:', height);
+  //     //console.log('Height of the div:', height);
   //   }
   // }
   return (

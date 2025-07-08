@@ -153,7 +153,7 @@ export const useExchangeData = () => {
   const { chainId, ddlEngine, configs } = useConfigs()
   const {currentPool} = useCurrentPool()
   useEffect(()=>{
-    console.log("#roundCache",roundCache)
+    //console.log("#roundCache",roundCache)
   },[roundCache])
   const dispatch = useDispatch()
   // const [roundCache, setRoundCache] = useState<{[roundId: string]: PriceFeedData}>({})
@@ -284,11 +284,12 @@ export const useExchangeData = () => {
     action: 'PREV' | 'NEXT' | 'NONE' = 'NONE',
     from: string | BigNumber = BigNumber.from(0),
     feedAdress: string,
-    interval: LineChartIntervalType
+    interval: LineChartIntervalType,
+    onUpdate?: (data: PriceFeedData[]) => void // callback for fresh data
   ) => {
     try {
       if(!currentPool?.ORACLE) return [];
-      console.log('Fetching historical price feed data...')
+      //console.log('Fetching historical price feed data...')
 
       const provider = new ethers.providers.JsonRpcProvider(RPC_URL)
       const priceFeedContract = new ethers.Contract(
@@ -297,8 +298,7 @@ export const useExchangeData = () => {
         provider
       )
 
-      const latestRoundId = await priceFeedContract.latestRound()
-
+      let latestRoundId = await priceFeedContract.latestRound()
       let roundId = BigNumber.from(0)
       let multiCallSize = 0
 
@@ -318,7 +318,7 @@ export const useExchangeData = () => {
         multiCallSize = PRICE_FEED_MULTICALL_SIZE
       }
 
-      console.log(`Latest round ID: ${latestRoundId}`)
+      //console.log(`Latest round ID: ${latestRoundId}`)
 
       const multicalContract = new ethers.Contract(
         MULTICAL_CONTRACT_ADDRESS,
@@ -333,14 +333,15 @@ export const useExchangeData = () => {
       const stepRound = avgRoundInSecond  === 0 ?
                           LINE_CHART_CONFIG[interval].stepRound : 
                           (Math.round(totalRound / INITIAL_ROUND_LIMIT) == 0 ? 1 : Math.round(totalRound / INITIAL_ROUND_LIMIT))
-      console.log("#stepRound", stepRound)
+      //console.log("#stepRound", stepRound)
       
       let currentRoundId = BigNumber.from(roundId)
+      // --- Collect cached data first ---
+      const allRequestedData: PriceFeedData[] = []
       for (let i = 0; i < multiCallSize; i++) {
         const roundIdStr = currentRoundId.toString()
-        
-        // Check if this round is already cached
-        if (!roundCache[encodeCLFeedCacheKey(feedAdress,roundIdStr)]) {
+        const cachedData = roundCache[encodeCLFeedCacheKey(feedAdress, roundIdStr)]
+        if (!cachedData?.updatedAt) {
           calls.push({
             target: feedAdress,
             callData: priceFeedInterface.encodeFunctionData('getRoundData', [
@@ -348,17 +349,20 @@ export const useExchangeData = () => {
             ])
           })
           roundsToFetch.push(currentRoundId.toString())
+        } else { 
+          allRequestedData.push(cachedData)
         }
-        
         currentRoundId = currentRoundId.sub(stepRound)
       }
 
-      console.log(`Found ${Object.keys(roundCache).length} cached rounds, fetching ${calls.length} new rounds`)
+      const hasCached = allRequestedData.some(Boolean)
+      console.log("#allRequestedData",allRequestedData,roundCache, feedAdress)
+      if (hasCached && allRequestedData[0] ) {
+        if (onUpdate) onUpdate(allRequestedData)
+      }
 
       let decodedData: PriceFeedData[] = []
-      
-      // Only make multicall if there are rounds to fetch
-      let cache:PriceFeedDataCache = {}
+      let cache:PriceFeedDataCache = { ...roundCache }
       if (calls.length > 0) {
         const [, returnData] = await multicalContract.callStatic.aggregate(calls)
 
@@ -391,37 +395,33 @@ export const useExchangeData = () => {
         dispatch(setRoundCache({
           cacheData: cache
         }))
-
-        // setRoundCache(prevCache => ({
-        //   ...prevCache,
-        //   ...newCacheEntries
-        // }))
-        
-        console.log(`Fetched ${decodedData.length} historical price feed data points.`)
+        // //console.log(`Fetched ${decodedData.length} historical price feed data points.`)
       }
 
-      // Combine cached and new data for the requested rounds
-      const allRequestedData: PriceFeedData[] = []
+      // --- Combine cached and new data for the requested rounds ---
+      // (rebuild allRequestedData with updated cache)
       currentRoundId = BigNumber.from(roundId)
-      
+      const allRequestedDataFresh: PriceFeedData[] = []
       for (let i = 0; i < multiCallSize; i++) {
         const roundIdStr = currentRoundId.toString()
         const cachedData = cache[encodeCLFeedCacheKey(feedAdress, roundIdStr)]
-        allRequestedData.push(cachedData)
+        allRequestedDataFresh.push(cachedData)
         currentRoundId = currentRoundId.sub(stepRound)
       }
 
-      console.log("#allRequestedData", allRequestedData)
-      
+      // --- Notify chart with fresh data if callback provided ---
+      if (onUpdate) onUpdate(allRequestedDataFresh)
+
       // Calculate average time per round on initial load
       if (action === 'NONE' && avgRoundInSecond == 0 ) {
-        const avgTime = calculateAverageTimePerRound(allRequestedData)
+        const avgTime = calculateAverageTimePerRound(allRequestedDataFresh)
         setAvgRoundInSecond(avgTime)
-        console.log(`Average time per round: ${avgTime} seconds`)
+        //console.log(`Average time per round: ${avgTime} seconds`)
       }
-      console.log(`##Avg: ${avgRoundInSecond}, Step ${stepRound}, totalRound: ${allRequestedData.length}, cached: ${Object.keys(roundCache).length}`)
+      //console.log(`##Avg: ${avgRoundInSecond}, Step ${stepRound}, totalRound: ${allRequestedDataFresh.length}, cached: ${Object.keys(roundCache).length}`)
       
-      return allRequestedData
+      // Return the freshest data
+      return allRequestedDataFresh
     } catch (error) {
       console.error('Error fetching historical price feed data:', error)
       return []
@@ -433,19 +433,21 @@ export const useExchangeData = () => {
     pair,
     baseToken,
     action,
-    from
+    from,
+    onUpdate // pass through
   }: {
     interval: LineChartIntervalType
     pair: string
     baseToken: string
     action?: 'PREV' | 'NEXT' | 'NONE'
     from?: string | BigNumber
+    onUpdate?: (data: PriceFeedData[]) => void
   }) => {
     // Calculate step size based on interval and average round time
     const stepSize = calculateStepSize(interval, avgRoundInSecond)
-    console.log(`Step size for ${interval}: ${stepSize}`)
+    //console.log(`Step size for ${interval}: ${stepSize}`)
 
-    return await chainLinkHistoricalPriceFeedDatas(action, from, pair, interval)
+    return await chainLinkHistoricalPriceFeedDatas(action, from, pair, interval, onUpdate)
   }
 
   return {
