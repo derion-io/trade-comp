@@ -330,7 +330,9 @@ export const useExchangeData = () => {
       const roundsToFetch:any[] = []
       const priceFeedInterface = new Interface(priceFeedContractAbi)
       const totalRound = avgRoundInSecond == 0 ? 1 : Math.round((LINE_CHART_CONFIG[interval].range / 1000) / (avgRoundInSecond))
-      const stepRound = Math.round(totalRound / INITIAL_ROUND_LIMIT) == 0 ? 1 : Math.round(totalRound / INITIAL_ROUND_LIMIT)
+      const stepRound = avgRoundInSecond  === 0 ?
+                          LINE_CHART_CONFIG[interval].stepRound : 
+                          (Math.round(totalRound / INITIAL_ROUND_LIMIT) == 0 ? 1 : Math.round(totalRound / INITIAL_ROUND_LIMIT))
       console.log("#stepRound", stepRound)
       
       let currentRoundId = BigNumber.from(roundId)
