@@ -10,7 +10,13 @@ export type PriceFeedData = {
   time?: number
 }
 export type PriceFeedDataCache = { [roundId: string]: PriceFeedData }
-export type LineChartType={roundCache: PriceFeedDataCache}
+export type LastRoundCache = {[key:string]:  {
+  cacheTime: Number
+  cacheOutdateTime: Number
+  round: BigNumber
+}}
+export type LineChartType={roundCache: PriceFeedDataCache;  lastestRoundCache: LastRoundCache }
 export const initialState: LineChartType = {
-  roundCache: {} as PriceFeedDataCache
+  roundCache: {} as PriceFeedDataCache,
+  lastestRoundCache: {} as LastRoundCache
 }
