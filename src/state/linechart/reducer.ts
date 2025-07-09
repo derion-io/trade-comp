@@ -30,6 +30,7 @@ export const tokens = createSlice({
 // Actions
 export const {
     setRoundCache,
+    setLatestRoundCache,
 } = tokens.actions
 
 export default tokens.reducer

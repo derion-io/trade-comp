@@ -82,7 +82,7 @@ export const LINE_CHART_CONFIG = {
     format: 'MMM-DD',
   },
 }
-
+export const CACHE_LATEST_ROUND_TIME  = 5 * 60 * 1000
 export const INTERVAL_TO_GECKO = {
   '5m': { timeframe: 'minute', aggregate: 5 },
   '30m': { timeframe: 'minute', aggregate: 15 },

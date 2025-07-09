@@ -4,6 +4,7 @@ import { BigNumber, ethers } from 'ethers'
 import { formatFloat } from '../utils/helpers'
 // eslint-disable-next-line no-unused-vars
 import {
+  CACHE_LATEST_ROUND_TIME,
   encodeCLFeedCacheKey,
   LINE_CHART_CONFIG,
   LineChartIntervalType
@@ -13,9 +14,8 @@ import {useEffect, useLayoutEffect, useState} from 'react'
 import {PriceFeedData, PriceFeedDataCache} from '../state/linechart/type'
 import {useDispatch, useSelector} from 'react-redux'
 import {State} from '../state/types'
-import {setRoundCache} from '../state/linechart/reducer'
+import {setLatestRoundCache, setRoundCache} from '../state/linechart/reducer'
 import {useCurrentPool} from '../state/currentPool/hooks/useCurrentPool'
-
 type LiquidityPool = {
   hourlySnapshots: Array<HourlySnapshots>
   dailySnapshots: Array<DailySnapshots>
@@ -119,7 +119,7 @@ export const priceFeedContractAbi = [
   }
 ]
 
-const calculateAverageTimePerRound = (data: PriceFeedData[]): number => {
+const calculateAverageTimePerRound = (data: PriceFeedData[],  stepRound:  number): number => {
   if (data.length < 2) {
     return 0
   } else {
@@ -128,7 +128,7 @@ const calculateAverageTimePerRound = (data: PriceFeedData[]): number => {
       .reduce((sum, t, i) => sum + Math.abs(Number(t.updatedAt) - Number(data[i].updatedAt)), 0);
   
     const avgDiff = totalDiff / (data.length - 1);
-    return avgDiff
+    return avgDiff  / stepRound
   }
 
 }
@@ -145,9 +145,10 @@ const calculateStepSize = (interval: string, averageTime: number): number => {
 
 export const useExchangeData = () => {
   const [avgRoundInSecond, setAvgRoundInSecond] = useState<number>(0)
-  const { roundCache } = useSelector((state: State) => {
+  const { roundCache, latestRoundCache} = useSelector((state: State) => {
     return {
       roundCache: state.linechart.roundCache,
+      latestRoundCache: state.linechart.lastestRoundCache
     }
   })
   const { chainId, ddlEngine, configs } = useConfigs()
@@ -297,8 +298,29 @@ export const useExchangeData = () => {
         priceFeedContractAbi,
         provider
       )
+      let latestRoundId = BigNumber.from(0)
+      const now = Date.now()
 
-      let latestRoundId = await priceFeedContract.latestRound()
+      // if(latestRoundCache[feedAdress])  {
+      //   latestRoundId = latestRoundCache[feedAdress].round
+      // } 
+      if(!latestRoundCache[feedAdress] || (now >= (latestRoundCache[feedAdress]?.cacheOutdateTime ||  0)))  {
+        latestRoundId = await priceFeedContract.latestRound()
+        dispatch(setLatestRoundCache({
+          cacheData:  {
+            ...latestRoundCache,
+          [feedAdress]: {
+            cacheOutdateTime: now + CACHE_LATEST_ROUND_TIME,
+            cacheTime: now,
+            round: latestRoundId
+          }
+          }
+        }))
+      } else {
+        latestRoundId = latestRoundCache[feedAdress].round
+      }
+    
+      console.log("#latestRoundCache" ,latestRoundCache)
       let roundId = BigNumber.from(0)
       let multiCallSize = 0
 
@@ -329,7 +351,7 @@ export const useExchangeData = () => {
       const calls = []
       const roundsToFetch:any[] = []
       const priceFeedInterface = new Interface(priceFeedContractAbi)
-      const totalRound = avgRoundInSecond == 0 ? 1 : Math.round((LINE_CHART_CONFIG[interval].range / 1000) / (avgRoundInSecond))
+      const totalRound = avgRoundInSecond == 0 ? LINE_CHART_CONFIG[interval].stepRound : Math.round((LINE_CHART_CONFIG[interval].range / 1000) / (avgRoundInSecond))
       const stepRound = avgRoundInSecond  === 0 ?
                           LINE_CHART_CONFIG[interval].stepRound : 
                           (Math.round(totalRound / INITIAL_ROUND_LIMIT) == 0 ? 1 : Math.round(totalRound / INITIAL_ROUND_LIMIT))
@@ -356,7 +378,7 @@ export const useExchangeData = () => {
       }
 
       const hasCached = allRequestedData.some(Boolean)
-      console.log("#allRequestedData",allRequestedData,roundCache, feedAdress)
+      console.log("#allRequestedData",allRequestedData,roundCache, feedAdress,avgRoundInSecond)
       if (hasCached && allRequestedData[0] ) {
         if (onUpdate) onUpdate(allRequestedData)
       }
@@ -414,7 +436,7 @@ export const useExchangeData = () => {
 
       // Calculate average time per round on initial load
       if (action === 'NONE' && avgRoundInSecond == 0 ) {
-        const avgTime = calculateAverageTimePerRound(allRequestedDataFresh)
+        const avgTime = calculateAverageTimePerRound(allRequestedDataFresh, LINE_CHART_CONFIG[interval].stepRound)
         setAvgRoundInSecond(avgTime)
         //console.log(`Average time per round: ${avgTime} seconds`)
       }
