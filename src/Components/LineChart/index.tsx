@@ -165,7 +165,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
              answeredInRound: d.answeredInRound.toString()
             }
           })
-          //console.log("#allRequestedData",allData)
+          console.log("#allRequestedData",allData)
           
           // Remove duplicates more effectively
           const uniqueData = allData.filter((item) => {
@@ -198,11 +198,11 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
             return
           }
   
-          let lastData = chartDatas[0]
-          const start = lastData.time
-          const end = start + LINE_CHART_CONFIG[interval].range
+          let lastData = chartDatas[chartDatas.length - 1]
+          const start = lastData.time - LINE_CHART_CONFIG[interval].range
+          const end = lastData.time 
   
-          const result = [lastData]
+          const result = []
           for (let i = 1; i < chartDatas.length; i++) {
             if (chartDatas[i].time < start) {
               continue
