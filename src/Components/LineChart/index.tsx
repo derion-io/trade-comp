@@ -17,8 +17,10 @@ import { Text, TextGrey } from '../ui/Text'
 import {
   DATE_FORMATS,
   I_1D,
-  I_30m,
-  I_5m,
+  I_1W,
+  I_1M,
+  I_6M,
+  I_1Y,
   INTERVAL_TO_GECKO,
   INTERVALS_TAB,
   LINE_CHART_CONFIG,
@@ -44,7 +46,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const [priceFeedData, setPriceFeedData] = useState<{ [key: string]: any[] }>({})
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [hoverDate, setHoverDate] = useState<number>()
-  const [interval, setInterval] = useState<LineChartIntervalType>(I_30m)
+  const [interval, setInterval] = useState<LineChartIntervalType>(I_1D)
   const { chainId, configs } = useConfigs()
   const headRef = useRef<HTMLDivElement>(null)
   const cToken = id
@@ -209,9 +211,9 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
             //   continue;
             // }
             result.push(lastData = chartDatas[i])
-            // if (lastData.time >= end) {
-            //   break
-            // }
+            if (lastData.time >= end) {
+              break
+            }
           }
   
           //console.log('Line chart data:', result.slice(0, 100))
