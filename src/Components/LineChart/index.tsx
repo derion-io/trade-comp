@@ -61,8 +61,8 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   useEffect(() => {
     if (basePrice) {
       setHoverValue(zerofyWithUnit(formatFloat(basePrice)))
-      setHoverDate(new Date().getTime())
     }
+    setHoverDate(new Date().getTime())
   }, [basePrice])
 
   const yAxisDomain = useMemo(() => {
@@ -89,7 +89,6 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const finalData = useMemo(() => {
     const data = [...(chartData[chainId + interval + cToken] || [])]
     // if (data.length === 0) return []
-    
     const smoothedData = []
     for (let i = 0; i < data.length; i++) {
       const current = data[i]
@@ -116,7 +115,6 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
         smoothedData.push(current)
       }
     }
-    //console.log("#finalData",smoothedData)
     return smoothedData
   }, [chartData, interval, chainId, cToken])
 
@@ -175,7 +173,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
             seen.add(item.roundId)
             return true
           }).sort((a, b) => a.updatedAt - b.updatedAt)
-  
+          console.log("#uniqueData",uniqueData)
           setPriceFeedData({
             ...priceFeedData,
             [chainId + interval + cToken]: uniqueData
@@ -215,8 +213,25 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
               break
             }
           }
-  
-          //console.log('Line chart data:', result.slice(0, 100))
+          if(result.length == 0) {
+            setChartData({
+              ...chartData,
+              [chainId + interval + cToken]: []
+            })
+            setIsLoading(false)
+            return
+          }
+          if(result[0].time > result[result.length -1].time - LINE_CHART_CONFIG[interval].range) {
+            const additionalElements = []
+            for (let i = 0; i < 5; i++) {
+              additionalElements.push({
+                time: result[result.length -1].time - LINE_CHART_CONFIG[interval].range + i,
+                value: result[0].value
+              })
+            }
+            result.unshift(...additionalElements)
+          }
+          console.log('#Line:', result)
   
           setChartData({
             ...chartData,
@@ -395,6 +410,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
                 dataKey='value'
                 type='monotone'
                 stroke={color}
+                connectNulls
                 fill='url(#gradient)'
                 strokeWidth={2}
                 dot={false}
@@ -415,8 +431,11 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
 
 const HoverUpdater = ({ payload, setHoverValue, setHoverDate }: any) => {
   useEffect(() => {
-    if (payload && payload.value !== undefined && payload.time !== undefined) {
+    console.log("#payload", payload)
+    if (payload && payload.value !== undefined ) {
       setHoverValue(zerofyWithUnit(payload.value))
+    }
+    if(payload && payload.time !== undefined) {
       setHoverDate(payload.time)
     }
   }, [payload?.value, payload?.time, setHoverValue, setHoverDate])

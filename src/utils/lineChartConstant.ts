@@ -67,7 +67,7 @@ export const LINE_CHART_CONFIG = {
   },
   [I_6M]: {
     type: 'hourlySnapshots',
-    range: 6 * 30 * 24 * 60 * 60 * 1000,
+    range: 183 * 24 * 60 * 60 * 1000,
     limit: 100,
     stepRound: 40,
     interval: 4 * 60 * 60 * 1000,
@@ -75,7 +75,7 @@ export const LINE_CHART_CONFIG = {
   },
   [I_1Y]: {
     type: 'hourlySnapshots',
-    range: 12 * 30 * 24 * 60 * 60 * 1000,
+    range: 365 * 24 * 60 * 60 * 1000,
     limit: 100,
     stepRound: 240,
     interval: 24 * 60 * 60 * 1000,
