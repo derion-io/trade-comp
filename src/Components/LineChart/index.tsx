@@ -54,14 +54,14 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const { width } = useWindowSize()
   const isPhone = width && width < 768
   const currentPool = useMemo(() => poolGroups[id], [id, poolGroups])
-  useEffect(() => {
-    setIsLoading(true)
-  },[id])
+  // useEffect(() => {
+  //   setIsLoading(true)
+  // },[id])
   useEffect(() => {
     if (!chartData[chainId + interval + id] || id) {
       loadData()
     }
-  }, [id, chainId, interval,poolGroups])
+  }, [id, chainId, interval,currentPool])
 
   useEffect(() => {
     if (basePrice) {
@@ -155,10 +155,10 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
           action,
           from,
           onUpdate: (data) => {
-            if (data.length == 0) {
-              setIsLoading(true)
-              return
-            }
+            // if (data.length == 0) {
+            //   setIsLoading(true) 
+            //   return
+            // }
             // setIsLoading(false)
             //console.log("#dataget", data[0].updatedAt.toString() , data[data.length - 1].updatedAt.toString() )
             const seen = new Set<string>()

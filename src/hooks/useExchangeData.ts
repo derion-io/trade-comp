@@ -288,7 +288,7 @@ export const useExchangeData = () => {
     onUpdate?: (data: PriceFeedData[]) => void // callback for fresh data
   ) => {
     try {
-      if(!currentPool?.ORACLE) return [];
+      if((currentPool?.ORACLE || '').length == 0) return [];
       //console.log('Fetching historical price feed data...')
 
       const provider = new ethers.providers.JsonRpcProvider(RPC_URL)
