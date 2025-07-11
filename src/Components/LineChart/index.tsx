@@ -35,11 +35,13 @@ import { ReloadIcon } from '../../Components/ui/Icon'
 import { useWindowSize } from '../../hooks/useWindowSize'
 import { BigNumber, ethers } from 'ethers'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
+import {useResource} from '../../state/resources/hooks/useResource'
 
 const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const { getLineChartData } = useExchangeData()
   const { baseToken, id, basePrice } = useCurrentPoolGroup()
-  const { currentPool } = useCurrentPool()
+  const {poolGroups} = useResource()
+  // const { currentPool } = useCurrentPool()
 
   const [hoverValue, setHoverValue] = useState<string>()
   const [chartData, setChartData] = useState<{ [key: string]: any[] }>({})
@@ -49,14 +51,17 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const [interval, setInterval] = useState<LineChartIntervalType>(I_1D)
   const { chainId, configs } = useConfigs()
   const headRef = useRef<HTMLDivElement>(null)
-  const cToken = id
   const { width } = useWindowSize()
   const isPhone = width && width < 768
+  const currentPool = useMemo(() => poolGroups[id], [id, poolGroups])
   useEffect(() => {
-    if (!chartData[chainId + interval + cToken] || cToken) {
+    setIsLoading(true)
+  },[id])
+  useEffect(() => {
+    if (!chartData[chainId + interval + id] || id) {
       loadData()
     }
-  }, [cToken, chainId, interval,currentPool])
+  }, [id, chainId, interval,poolGroups])
 
   useEffect(() => {
     if (basePrice) {
@@ -66,7 +71,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   }, [basePrice])
 
   const yAxisDomain = useMemo(() => {
-    const data = chartData[chainId + interval + cToken] || []
+    const data = chartData[chainId + interval + id] || []
     if (data.length === 0) return ['auto', 'auto']
     
     const values = data.map(item => parseFloat(item.value)).filter(v => !isNaN(v))
@@ -84,10 +89,10 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
     }
     
     return [adjustedMin, adjustedMax]
-  }, [chartData, interval, chainId, cToken])
+  }, [chartData, interval, chainId, id])
 
   const finalData = useMemo(() => {
-    const data = [...(chartData[chainId + interval + cToken] || [])]
+    const data = [...(chartData[chainId + interval + id] || [])]
     // if (data.length === 0) return []
     const smoothedData = []
     for (let i = 0; i < data.length; i++) {
@@ -116,7 +121,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
       }
     }
     return smoothedData
-  }, [chartData, interval, chainId, cToken])
+  }, [chartData, interval, chainId, id])
 
   const color = useMemo(() => {
     return changedIn24h > 0 ? COLORS.BUY : COLORS.SELL
@@ -124,7 +129,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
 
   const loadData = (action: 'PREV' | 'NEXT' | 'NONE' = 'NONE') => {
     setIsLoading(true)
-    const oldPriceFeedData = priceFeedData[chainId + interval + cToken] || []
+    const oldPriceFeedData = priceFeedData[chainId + interval + id] || []
     let from = BigNumber.from(0)
     if (action === 'PREV') {
       const firstItem = oldPriceFeedData[0]
@@ -140,115 +145,124 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
       from = BigNumber.from(0)
     }
 
-    if (from) {
-      if(isChainlink(currentPool)) {
-      getLineChartData({
-        pair: "0x"+ currentPool?.ORACLE?.slice(26),
-        //  cToken.split('-')[0].toLowerCase(),
-        baseToken,
-        interval,
-        action,
-        from,
-        onUpdate: (data) =>  {
-          if(data.length == 0) return;
-          setIsLoading(false)
-          //console.log("#dataget", data[0].updatedAt.toString() , data[data.length - 1].updatedAt.toString() )
-          const seen = new Set<string>()
-          const allData = data.map(d => {
-            return {
-             roundId: d.roundId.toString(),
-             updatedAt: d.updatedAt.toNumber(),
-             startAt: d.startedAt.toNumber(),
-             time: new Date(d.updatedAt.toNumber()).toISOString(),
-             answer: d.answer.toString(),
-             answeredInRound: d.answeredInRound.toString()
-            }
-          })
-          console.log("#allRequestedData",allData)
-          
-          // Remove duplicates more effectively
-          const uniqueData = allData.filter((item) => {
-            if (seen.has(item.roundId)) {
-              return false
-            }
-            seen.add(item.roundId)
-            return true
-          }).sort((a, b) => a.updatedAt - b.updatedAt)
-          console.log("#uniqueData",uniqueData)
-          setPriceFeedData({
-            ...priceFeedData,
-            [chainId + interval + cToken]: uniqueData
-          })
-  
-          const chartDatas = uniqueData.map((item) => ({
-            time: item.updatedAt * 1000,
-            value: ethers.utils.formatUnits(item.answer, 8),
-          }))
-  
-  
-          // const msInterval = LINE_CHART_CONFIG[interval].interval || 60 * 1000
-          
-          if (chartDatas.length === 0) {
-            setChartData({
-              ...chartData,
-              [chainId + interval + cToken]: []
-            })
+    if (from && currentPool?.ORACLE) {
+      if (isChainlink(currentPool)) {
+        getLineChartData({
+          pair: '0x' + currentPool?.ORACLE?.slice(26),
+          //  id.split('-')[0].toLowerCase(),
+          baseToken,
+          interval,
+          action,
+          from,
+          onUpdate: (data) => {
+            if (data.length == 0) return
             setIsLoading(false)
-            return
-          }
-  
-          let lastData = chartDatas[chartDatas.length - 1]
-          const start = lastData.time - LINE_CHART_CONFIG[interval].range
-          const end = lastData.time 
-  
-          const result = []
-          for (let i = 1; i < chartDatas.length; i++) {
-            if (chartDatas[i].time < start) {
-              continue
-            }
-            // if (chartDatas[i].time < lastData.time + msInterval) {
-            //   continue;
-            // }
-            result.push(lastData = chartDatas[i])
-            if (lastData.time >= end) {
-              break
-            }
-          }
-          if(result.length == 0) {
-            setChartData({
-              ...chartData,
-              [chainId + interval + cToken]: []
+            //console.log("#dataget", data[0].updatedAt.toString() , data[data.length - 1].updatedAt.toString() )
+            const seen = new Set<string>()
+            const allData = data.map((d) => {
+              return {
+                roundId: d.roundId.toString(),
+                updatedAt: d.updatedAt.toNumber(),
+                startAt: d.startedAt.toNumber(),
+                time: new Date(d.updatedAt.toNumber()).toISOString(),
+                answer: d.answer.toString(),
+                answeredInRound: d.answeredInRound.toString()
+              }
             })
-            setIsLoading(false)
-            return
-          }
-          if(result[0].time > result[result.length -1].time - LINE_CHART_CONFIG[interval].range) {
-            const additionalElements = []
-            for (let i = 0; i < 5; i++) {
-              additionalElements.push({
-                time: result[result.length -1].time - LINE_CHART_CONFIG[interval].range + i,
-                value: result[0].value
+            console.log('#allRequestedData', allData)
+
+            // Remove duplicates more effectively
+            const uniqueData = allData
+              .filter((item) => {
+                if (seen.has(item.roundId)) {
+                  return false
+                }
+                seen.add(item.roundId)
+                return true
               })
+              .sort((a, b) => a.updatedAt - b.updatedAt)
+            console.log('#uniqueData', uniqueData)
+            setPriceFeedData({
+              ...priceFeedData,
+              [chainId + interval + id]: uniqueData
+            })
+
+            const chartDatas = uniqueData.map((item) => ({
+              time: item.updatedAt * 1000,
+              value: ethers.utils.formatUnits(item.answer, 8)
+            }))
+
+            // const msInterval = LINE_CHART_CONFIG[interval].interval || 60 * 1000
+
+            if (chartDatas.length === 0) {
+              setChartData({
+                ...chartData,
+                [chainId + interval + id]: []
+              })
+              setIsLoading(false)
+              return
             }
-            result.unshift(...additionalElements)
+
+            let lastData = chartDatas[chartDatas.length - 1]
+            const start = lastData.time - LINE_CHART_CONFIG[interval].range
+            const end = lastData.time
+
+            const result = []
+            for (let i = 1; i < chartDatas.length; i++) {
+              if (chartDatas[i].time < start) {
+                continue
+              }
+              // if (chartDatas[i].time < lastData.time + msInterval) {
+              //   continue;
+              // }
+              result.push((lastData = chartDatas[i]))
+              if (lastData.time >= end) {
+                break
+              }
+            }
+            if (result.length == 0) {
+              setChartData({
+                ...chartData,
+                [chainId + interval + id]: []
+              })
+              setIsLoading(false)
+              return
+            }
+            if (
+              result[0].time >
+              result[result.length - 1].time - LINE_CHART_CONFIG[interval].range
+            ) {
+              const additionalElements = []
+              for (let i = 0; i < 5; i++) {
+                additionalElements.push({
+                  time:
+                    result[result.length - 1].time -
+                    LINE_CHART_CONFIG[interval].range +
+                    i,
+                  value: result[0].value
+                })
+              }
+              result.unshift(...additionalElements)
+            }
+            console.log('#Line:', result)
+
+            setChartData({
+              ...chartData,
+              [chainId + interval + id]: result
+            })
+            setIsLoading(false)
           }
-          console.log('#Line:', result)
-  
-          setChartData({
-            ...chartData,
-            [chainId + interval + cToken]: result
+        })
+          .then((data) => {
+            setIsLoading(false)
           })
-          setIsLoading(false)
-        }
-      }).then((data) => {
-       setIsLoading(false)
-      }).catch((error) => {
-        console.error('Error loading chart data:', error)
-        setIsLoading(false)
-      })
-    } else {
-      loadDataFromGecko(action)
-    }
+          .catch((error) => {
+            console.error('Error loading chart data:', error)
+            setIsLoading(false)
+          })
+      } else {
+        loadDataFromGecko(action)
+      }
     }
   }
   const loadDataFromGecko = async (action: 'PREV' | 'NEXT' | 'NONE' = 'NONE') => {
@@ -263,7 +277,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
       }
       let url = `https://api.geckoterminal.com/api/v2/networks/${configs.gtID}/pools/${poolAddress}/ohlcv/${intervalConf.timeframe}?aggregate=${intervalConf.aggregate}&include_empty_intervals=false&limit=300`;
       // Add before_timestamp if action is PREV or NEXT
-      const currentKey = chainId + interval + cToken;
+      const currentKey = chainId + interval + id;
       const currentData = chartData[currentKey] || [];
       let beforeTimestamp = undefined;
       if (action === 'PREV' && currentData.length > 0) {
@@ -287,7 +301,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
       //console.log("#chartDatas", chartDatas);
       setChartData({
         ...chartData,
-        [chainId + interval + cToken]: chartDatas
+        [chainId + interval + id]: chartDatas
       });
       setIsLoading(false);
     } catch (error) {
@@ -334,7 +348,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
           }px`
         }}
       >
-        {isLoading || !chartData[chainId + interval + cToken] ? (
+        {isLoading || !chartData[chainId + interval + id] ? (
           <div className='line-chart__loading'>
             <LineChartLoader />
           </div>
@@ -344,14 +358,14 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
             onClick={() => loadData('NONE')}
             style={{
               display:
-                chartData[chainId + interval + cToken].length > 0 ? 'none' : ''
+                chartData[chainId + interval + id].length > 0 ? 'none' : ''
             }}
           >
             <ReloadIcon />
           </div>
         )}
-        {chartData[chainId + interval + cToken] &&
-          chartData[chainId + interval + cToken].length > 0 && (
+        {chartData[chainId + interval + id] &&
+          chartData[chainId + interval + id].length > 0 && (
           <ResponsiveContainer>
             <AreaChart
               data={finalData}
