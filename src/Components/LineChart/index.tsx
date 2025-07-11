@@ -150,6 +150,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
         action,
         from,
         onUpdate: (data) =>  {
+          if(data.length == 0) return;
           setIsLoading(false)
           //console.log("#dataget", data[0].updatedAt.toString() , data[data.length - 1].updatedAt.toString() )
           const seen = new Set<string>()

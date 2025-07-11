@@ -44,7 +44,6 @@ type InputTokens = {
 
 const RPC_URL = 'https://arb1.arbitrum.io/rpc'
 const PRICE_FEED_MULTICALL_SIZE = 300
-const INITIAL_ROUND_LIMIT = 300
 const MULTICAL_CONTRACT_ADDRESS = '0xca11bde05977b3631167028862be2a173976ca11'
 
 const TIME_INTERVALS = {
@@ -354,7 +353,7 @@ export const useExchangeData = () => {
       const totalRound = avgRoundInSecond == 0 ? LINE_CHART_CONFIG[interval].stepRound : Math.round((LINE_CHART_CONFIG[interval].range / 1000) / (avgRoundInSecond))
       const stepRound = avgRoundInSecond  === 0 ?
                           LINE_CHART_CONFIG[interval].stepRound : 
-                          (Math.round(totalRound / INITIAL_ROUND_LIMIT) == 0 ? 1 : Math.round(totalRound / INITIAL_ROUND_LIMIT))
+                          (Math.round(totalRound / PRICE_FEED_MULTICALL_SIZE) == 0 ? 1 : Math.round(totalRound / PRICE_FEED_MULTICALL_SIZE))
       //console.log("#stepRound", stepRound)
       
       let currentRoundId = BigNumber.from(roundId)
