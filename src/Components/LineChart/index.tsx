@@ -431,7 +431,6 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
 
 const HoverUpdater = ({ payload, setHoverValue, setHoverDate }: any) => {
   useEffect(() => {
-    console.log("#payload", payload)
     if (payload && payload.value !== undefined ) {
       setHoverValue(zerofyWithUnit(payload.value))
     }
