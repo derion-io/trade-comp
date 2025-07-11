@@ -143,7 +143,7 @@ const calculateStepSize = (interval: string, averageTime: number): number => {
 }
 
 export const useExchangeData = () => {
-  const [avgRoundInSecond, setAvgRoundInSecond] = useState<number>(0)
+  const [avgRoundInSecond, setAvgRoundInSecond] = useState<{[key:string]: number}>({})
   const { roundCache, latestRoundCache} = useSelector((state: State) => {
     return {
       roundCache: state.linechart.roundCache,
@@ -288,9 +288,9 @@ export const useExchangeData = () => {
     onUpdate?: (data: PriceFeedData[]) => void // callback for fresh data
   ) => {
     try {
-      if((currentPool?.ORACLE || '').length == 0) return [];
+      // if((currentPool?.ORACLE || '').length == 0) return [];
       //console.log('Fetching historical price feed data...')
-
+      const roundSecond = avgRoundInSecond[feedAdress] || 0
       const provider = new ethers.providers.JsonRpcProvider(RPC_URL)
       const priceFeedContract = new ethers.Contract(
         feedAdress,
@@ -319,7 +319,6 @@ export const useExchangeData = () => {
         latestRoundId = latestRoundCache[feedAdress].round
       }
     
-      console.log("#latestRoundCache" ,latestRoundCache)
       let roundId = BigNumber.from(0)
       let multiCallSize = 0
 
@@ -350,10 +349,10 @@ export const useExchangeData = () => {
       const calls = []
       const roundsToFetch:any[] = []
       const priceFeedInterface = new Interface(priceFeedContractAbi)
-      const totalRound = avgRoundInSecond == 0 ? LINE_CHART_CONFIG[interval].stepRound : Math.round((LINE_CHART_CONFIG[interval].range / 1000) / (avgRoundInSecond))
-      const stepRound = avgRoundInSecond  === 0 ?
+      const totalRound = roundSecond === 0 ? LINE_CHART_CONFIG[interval].stepRound : Math.round((LINE_CHART_CONFIG[interval].range / 1000) / (roundSecond))
+      const stepRound = roundSecond === 0 ?
                           LINE_CHART_CONFIG[interval].stepRound : 
-                          (Math.round(totalRound / PRICE_FEED_MULTICALL_SIZE) == 0 ? 1 : Math.round(totalRound / PRICE_FEED_MULTICALL_SIZE))
+                          (Math.round(totalRound / PRICE_FEED_MULTICALL_SIZE) == 0 ? 1 : Math.round(totalRound / PRICE_FEED_MULTICALL_SIZE) + 1)
       //console.log("#stepRound", stepRound)
       
       let currentRoundId = BigNumber.from(roundId)
@@ -377,7 +376,12 @@ export const useExchangeData = () => {
       }
 
       const hasCached = allRequestedData.some(Boolean)
-      console.log("#allRequestedData",allRequestedData,roundCache, feedAdress,avgRoundInSecond)
+      console.log("#updateData", allRequestedData ,roundCache, feedAdress)
+      console.log("#roundCache", roundCache)
+      console.log("#feedAddres", feedAdress)
+      console.log("#avgRoundInSecond", avgRoundInSecond)
+      console.log("#roundstep", stepRound)
+
       if (hasCached && allRequestedData[0] ) {
         if (onUpdate) onUpdate(allRequestedData)
       }
@@ -434,9 +438,14 @@ export const useExchangeData = () => {
       if (onUpdate) onUpdate(allRequestedDataFresh)
 
       // Calculate average time per round on initial load
-      if (action === 'NONE' && avgRoundInSecond == 0 ) {
-        const avgTime = calculateAverageTimePerRound(allRequestedDataFresh, LINE_CHART_CONFIG[interval].stepRound)
-        setAvgRoundInSecond(avgTime)
+      if (action === 'NONE' && roundSecond == 0 ) {
+        const avgTime = calculateAverageTimePerRound(allRequestedDataFresh, LINE_CHART_CONFIG[interval].stepRound) / 2
+        setAvgRoundInSecond((data => {
+          return {
+            ...data,
+            ...{[feedAdress]: avgTime}
+          }
+        }))
         //console.log(`Average time per round: ${avgTime} seconds`)
       }
       //console.log(`##Avg: ${avgRoundInSecond}, Step ${stepRound}, totalRound: ${allRequestedDataFresh.length}, cached: ${Object.keys(roundCache).length}`)
@@ -465,7 +474,7 @@ export const useExchangeData = () => {
     onUpdate?: (data: PriceFeedData[]) => void
   }) => {
     // Calculate step size based on interval and average round time
-    const stepSize = calculateStepSize(interval, avgRoundInSecond)
+    // const stepSize = calculateStepSize(interval, avgRoundInSecond[pair] || )
     //console.log(`Step size for ${interval}: ${stepSize}`)
 
     return await chainLinkHistoricalPriceFeedDatas(action, from, pair, interval, onUpdate)

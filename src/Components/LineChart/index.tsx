@@ -172,7 +172,6 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
                 answeredInRound: d.answeredInRound.toString()
               }
             })
-            console.log('#allRequestedData', allData)
 
             // Remove duplicates more effectively
             const uniqueData = allData
