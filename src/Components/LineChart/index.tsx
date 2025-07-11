@@ -155,8 +155,11 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
           action,
           from,
           onUpdate: (data) => {
-            if (data.length == 0) return
-            setIsLoading(false)
+            if (data.length == 0) {
+              setIsLoading(true)
+              return
+            }
+            // setIsLoading(false)
             //console.log("#dataget", data[0].updatedAt.toString() , data[data.length - 1].updatedAt.toString() )
             const seen = new Set<string>()
             const allData = data.map((d) => {
@@ -194,15 +197,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
 
             // const msInterval = LINE_CHART_CONFIG[interval].interval || 60 * 1000
 
-            if (chartDatas.length === 0) {
-              setChartData({
-                ...chartData,
-                [chainId + interval + id]: []
-              })
-              setIsLoading(false)
-              return
-            }
-
+     
             let lastData = chartDatas[chartDatas.length - 1]
             const start = lastData.time - LINE_CHART_CONFIG[interval].range
             const end = lastData.time
@@ -220,15 +215,16 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
                 break
               }
             }
-            if (result.length == 0) {
-              setChartData({
-                ...chartData,
-                [chainId + interval + id]: []
-              })
-              setIsLoading(false)
-              return
-            }
+            // if (result.length == 0) {
+            //   setChartData({
+            //     ...chartData,
+            //     [chainId + interval + id]: []
+            //   })
+            //   setIsLoading(false)
+            //   return
+            // }
             if (
+              result.length > 0 && 
               result[0].time >
               result[result.length - 1].time - LINE_CHART_CONFIG[interval].range
             ) {
@@ -245,7 +241,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
               result.unshift(...additionalElements)
             }
             console.log('#Line:', result)
-
+            if (result.length == 0) return;
             setChartData({
               ...chartData,
               [chainId + interval + id]: result
@@ -255,6 +251,14 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
         })
           .then((data) => {
             setIsLoading(false)
+            if (data.length === 0) {
+              setChartData({
+                ...chartData,
+                [chainId + interval + id]: []
+              })
+              return
+            }
+
           })
           .catch((error) => {
             console.error('Error loading chart data:', error)
