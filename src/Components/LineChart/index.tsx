@@ -124,8 +124,11 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   }, [chartData, interval, chainId, id])
 
   const color = useMemo(() => {
-    return changedIn24h > 0 ? COLORS.BUY : COLORS.SELL
-  }, [changedIn24h])
+    if(!finalData[0] || !finalData[finalData.length - 1]) {
+      return COLORS.BUY
+    }
+    return Number(finalData[0].value) < Number(finalData[finalData?.length - 1].value) ? COLORS.BUY : COLORS.SELL
+  }, [finalData])
 
   const loadData = (action: 'PREV' | 'NEXT' | 'NONE' = 'NONE') => {
     setIsLoading(true)
