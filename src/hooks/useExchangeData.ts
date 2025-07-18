@@ -285,7 +285,7 @@ export const useExchangeData = () => {
     from: string | BigNumber = BigNumber.from(0),
     feedAdress: string,
     interval: LineChartIntervalType,
-    onUpdate?: (data: PriceFeedData[]) => void // callback for fresh data
+    onUpdate?: (data: PriceFeedData[], preLoad: boolean) => void // callback for fresh data
   ) => {
     try {
       // if((currentPool?.ORACLE || '').length == 0) return [];
@@ -383,7 +383,7 @@ export const useExchangeData = () => {
       console.log("#roundstep", stepRound)
 
       if (hasCached && allRequestedData[0] ) {
-        if (onUpdate) onUpdate(allRequestedData)
+        if (onUpdate) onUpdate(allRequestedData, true)
       }
 
       let decodedData: PriceFeedData[] = []
@@ -435,7 +435,7 @@ export const useExchangeData = () => {
       }
 
       // --- Notify chart with fresh data if callback provided ---
-      if (onUpdate) onUpdate(allRequestedDataFresh)
+      if (onUpdate) onUpdate(allRequestedDataFresh, false)
 
       // Calculate average time per round on initial load
       if (action === 'NONE' && roundSecond == 0 ) {
@@ -471,7 +471,7 @@ export const useExchangeData = () => {
     baseToken: string
     action?: 'PREV' | 'NEXT' | 'NONE'
     from?: string | BigNumber
-    onUpdate?: (data: PriceFeedData[]) => void
+    onUpdate?: (data: PriceFeedData[], preLoad: boolean) => void // callback for fresh data
   }) => {
     // Calculate step size based on interval and average round time
     // const stepSize = calculateStepSize(interval, avgRoundInSecond[pair] || )

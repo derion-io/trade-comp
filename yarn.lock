@@ -2554,6 +2554,33 @@
   resolved "https://registry.yarnpkg.com/@sheerun/mutationobserver-shim/-/mutationobserver-shim-0.3.3.tgz#5405ee8e444ed212db44e79351f0c70a582aae25"
   integrity sha512-DetpxZw1fzPD5xUBrIAoplLChO2VB8DlL5Gg+I1IR9b2wPqYIca2WSUxL5g1vLeR4MsQq1NeWriXAVffV+U1Fw==
 
+"@svgdotjs/svg.draggable.js@^3.0.4":
+  version "3.0.6"
+  resolved "https://registry.yarnpkg.com/@svgdotjs/svg.draggable.js/-/svg.draggable.js-3.0.6.tgz#bca1065ec27b1dbae5a92a0558777ed964a395cb"
+  integrity sha512-7iJFm9lL3C40HQcqzEfezK2l+dW2CpoVY3b77KQGqc8GXWa6LhhmX5Ckv7alQfUXBuZbjpICZ+Dvq1czlGx7gA==
+
+"@svgdotjs/svg.filter.js@^3.0.8":
+  version "3.0.9"
+  resolved "https://registry.yarnpkg.com/@svgdotjs/svg.filter.js/-/svg.filter.js-3.0.9.tgz#758e336b79e73a6797358d655b60842131a9a52b"
+  integrity sha512-/69XMRCDoam2HgC4ldHIaDgeQf1ViHIsa0Ld4uWgiXtZ+E24DWHe/9Ib6kbNiZ7WRIdlVokUDR1Fg0kjIpkfbw==
+  dependencies:
+    "@svgdotjs/svg.js" "^3.2.4"
+
+"@svgdotjs/svg.js@^3.2.4":
+  version "3.2.4"
+  resolved "https://registry.yarnpkg.com/@svgdotjs/svg.js/-/svg.js-3.2.4.tgz#4716be92a64c66b29921b63f7235fcfb953fb13a"
+  integrity sha512-BjJ/7vWNowlX3Z8O4ywT58DqbNRyYlkk6Yz/D13aB7hGmfQTvGX4Tkgtm/ApYlu9M7lCQi15xUEidqMUmdMYwg==
+
+"@svgdotjs/svg.resize.js@^2.0.2":
+  version "2.0.5"
+  resolved "https://registry.yarnpkg.com/@svgdotjs/svg.resize.js/-/svg.resize.js-2.0.5.tgz#732e4cae15d09ad3021adeac63bc9fad0dc7255a"
+  integrity sha512-4heRW4B1QrJeENfi7326lUPYBCevj78FJs8kfeDxn5st0IYPIRXoTtOSYvTzFWgaWWXd3YCDE6ao4fmv91RthA==
+
+"@svgdotjs/svg.select.js@^4.0.1":
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/@svgdotjs/svg.select.js/-/svg.select.js-4.0.3.tgz#6af12755fd71caf703825d4f490fdf02a001cbfc"
+  integrity sha512-qkMgso1sd2hXKd1FZ1weO7ANq12sNmQJeGDjs46QwDVsxSRcHmvWKL2NDF7Yimpwf3sl5esOLkPqtV2bQ3v/Jg==
+
 "@svgr/babel-plugin-add-jsx-attribute@^4.2.0":
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/@svgr/babel-plugin-add-jsx-attribute/-/babel-plugin-add-jsx-attribute-4.2.0.tgz#dadcb6218503532d6884b210e7f3c502caaa44b1"
@@ -3036,11 +3063,9 @@
     "@types/react" "*"
 
 "@types/react-dom@^16.9.7":
-  version "16.9.24"
-  resolved "https://registry.yarnpkg.com/@types/react-dom/-/react-dom-16.9.24.tgz#4d193d7d011267fca842e8a10a2d738f92ec5c30"
-  integrity sha512-Gcmq2JTDheyWn/1eteqyzzWKSqDjYU6KYsIvH7thb7CR5OYInAWOX+7WnKf6PaU/cbdOc4szJItcDEJO7UGmfA==
-  dependencies:
-    "@types/react" "^16"
+  version "16.9.25"
+  resolved "https://registry.yarnpkg.com/@types/react-dom/-/react-dom-16.9.25.tgz#fc6440aaae3d2d3aa10f6afeb7f1b0c4a55d5e31"
+  integrity sha512-ZK//eAPhwft9Ul2/Zj+6O11YR6L4JX0J2sVeBC9Ft7x7HFN7xk7yUV/zDxqV6rjvqgl6r8Dq7oQImxtyf/Mzcw==
 
 "@types/react-redux@^7.1.20":
   version "7.1.31"
@@ -3078,13 +3103,13 @@
     "@types/scheduler" "*"
     csstype "^3.0.2"
 
-"@types/react@^16", "@types/react@^16.9.27":
-  version "16.14.52"
-  resolved "https://registry.yarnpkg.com/@types/react/-/react-16.14.52.tgz#d6c31c3f69cf6ae10718d0a07a2ef6f2ebafc490"
-  integrity sha512-4+ZN73hgRW3Gang3QMqWjrqPPkf+lWZYiyG4uXtUbpd+7eiBDw6Gemila6rXDd8DorADupTiIERL6Mb5BQTF2w==
+"@types/react@^16.9.27":
+  version "16.14.65"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-16.14.65.tgz#e7e4c1f7e90c3c615105c22e6e5cf43766663716"
+  integrity sha512-Guc3kE+W8LrQB9I3bF3blvNH15dXFIVIHIJTqrF8cp5XI/3IJcHGo4C3sJNPb8Zx49aofXKnAGIKyonE4f7XWg==
   dependencies:
     "@types/prop-types" "*"
-    "@types/scheduler" "*"
+    "@types/scheduler" "^0.16"
     csstype "^3.0.2"
 
 "@types/resolve@0.0.8":
@@ -3094,7 +3119,7 @@
   dependencies:
     "@types/node" "*"
 
-"@types/scheduler@*":
+"@types/scheduler@*", "@types/scheduler@^0.16":
   version "0.16.8"
   resolved "https://registry.yarnpkg.com/@types/scheduler/-/scheduler-0.16.8.tgz#ce5ace04cfeabe7ef87c0091e50752e36707deff"
   integrity sha512-WZLiwShhwLRmeV6zH+GkbOFT6Z6VklCItrDioxUnv+u4Ll+8vKeFySoFyK/0ctcRpOmwAicELfmys1sDc/Rw+A==
@@ -3521,6 +3546,11 @@
   resolved "https://registry.yarnpkg.com/@xtuc/long/-/long-4.2.2.tgz#d291c6a4e97989b5c61d9acf396ae4fe133a718d"
   integrity sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==
 
+"@yr/monotone-cubic-spline@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@yr/monotone-cubic-spline/-/monotone-cubic-spline-1.0.3.tgz#7272d89f8e4f6fb7a1600c28c378cc18d3b577b9"
+  integrity sha512-FQXkOta0XBSUPHndIKON2Y9JeQz5ZeMqLYZVVK93FliNBFm7LNMIZmY6FrMEB9XPcDbE2bekMbZD6kzDkxwYjA==
+
 "@zoltu/ethereum-crypto@^2.3.0":
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/@zoltu/ethereum-crypto/-/ethereum-crypto-2.3.0.tgz#1b202e0caf78eb62199a6e0b936fe72146ad427d"
@@ -3780,6 +3810,18 @@ anymatch@~3.1.2:
   dependencies:
     normalize-path "^3.0.0"
     picomatch "^2.0.4"
+
+apexcharts@^5.2.0:
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/apexcharts/-/apexcharts-5.2.0.tgz#317b793ed60da1b72adffea03e2dd40c21073245"
+  integrity sha512-BZ+v4Wqf4BKVRKBatVghDVu9vu2SXhl/F7ujT2awnf7Zv6RT39FQWtAAV3bpH+G5c8IADw0PyOKG00+rN1UoNg==
+  dependencies:
+    "@svgdotjs/svg.draggable.js" "^3.0.4"
+    "@svgdotjs/svg.filter.js" "^3.0.8"
+    "@svgdotjs/svg.js" "^3.2.4"
+    "@svgdotjs/svg.resize.js" "^2.0.2"
+    "@svgdotjs/svg.select.js" "^4.0.1"
+    "@yr/monotone-cubic-spline" "^1.0.3"
 
 aproba@^1.1.1:
   version "1.2.0"
@@ -12286,6 +12328,13 @@ rc-virtual-list@^3.11.1, rc-virtual-list@^3.5.1, rc-virtual-list@^3.5.2:
     classnames "^2.2.6"
     rc-resize-observer "^1.0.0"
     rc-util "^5.36.0"
+
+react-apexcharts@^1.7.0:
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/react-apexcharts/-/react-apexcharts-1.7.0.tgz#bbd08425674224adb27c9f2c62477d43bd5de539"
+  integrity sha512-03oScKJyNLRf0Oe+ihJxFZliBQM9vW3UWwomVn4YVRTN1jsIR58dLWt0v1sb8RwJVHDMbeHiKQueM0KGpn7nOA==
+  dependencies:
+    prop-types "^15.8.1"
 
 react-app-polyfill@^1.0.6:
   version "1.0.6"

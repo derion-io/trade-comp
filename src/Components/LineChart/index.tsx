@@ -1,19 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useExchangeData } from '../../hooks/useExchangeData'
 import { LineChartLoader } from '../ChartLoaders'
-import {
-  ResponsiveContainer,
-  XAxis,
-  YAxis,
-  Tooltip,
-  AreaChart,
-  Area
-} from 'recharts'
+import { ApexOptions } from 'apexcharts'
 import './style.scss'
 import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
 import moment from 'moment'
 import { Text, TextGrey } from '../ui/Text'
-// eslint-disable-next-line no-unused-vars
 import {
   DATE_FORMATS,
   I_1D,
@@ -35,13 +27,13 @@ import { ReloadIcon } from '../../Components/ui/Icon'
 import { useWindowSize } from '../../hooks/useWindowSize'
 import { BigNumber, ethers } from 'ethers'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
-import {useResource} from '../../state/resources/hooks/useResource'
+import { useResource } from '../../state/resources/hooks/useResource'
+import ReactApexChart from 'react-apexcharts'
 
 const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const { getLineChartData } = useExchangeData()
   const { baseToken, id, basePrice } = useCurrentPoolGroup()
-  const {poolGroups} = useResource()
-  // const { currentPool } = useCurrentPool()
+  const { poolGroups } = useResource()
 
   const [hoverValue, setHoverValue] = useState<string>()
   const [chartData, setChartData] = useState<{ [key: string]: any[] }>({})
@@ -54,14 +46,12 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const { width } = useWindowSize()
   const isPhone = width && width < 768
   const currentPool = useMemo(() => poolGroups[id], [id, poolGroups])
-  // useEffect(() => {
-  //   setIsLoading(true)
-  // },[id])
+  const [ApexOptions, setApexOptions] = useState<ApexOptions | undefined>()
   useEffect(() => {
     if (!chartData[chainId + interval + id] || id) {
       loadData()
     }
-  }, [id, chainId, interval,currentPool])
+  }, [id, chainId, interval, currentPool])
 
   useEffect(() => {
     if (basePrice) {
@@ -70,30 +60,8 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
     setHoverDate(new Date().getTime())
   }, [basePrice])
 
-  const yAxisDomain = useMemo(() => {
-    const data = chartData[chainId + interval + id] || []
-    if (data.length === 0) return ['auto', 'auto']
-    
-    const values = data.map(item => parseFloat(item.value)).filter(v => !isNaN(v))
-    if (values.length === 0) return ['auto', 'auto']
-    
-    const minValue = Math.min(...values)
-    const maxValue = Math.max(...values)
-    
-    const padding = (maxValue - minValue) * 0.1 // 10% padding
-    const adjustedMin = Math.max(0, minValue - padding)
-    const adjustedMax = maxValue + padding
-    
-    if (Math.abs(maxValue - minValue) < 0.0001) {
-      return [adjustedMin * 0.95, adjustedMax * 1.05]
-    }
-    
-    return [adjustedMin, adjustedMax]
-  }, [chartData, interval, chainId, id])
-
   const finalData = useMemo(() => {
     const data = [...(chartData[chainId + interval + id] || [])]
-    // if (data.length === 0) return []
     const smoothedData = []
     for (let i = 0; i < data.length; i++) {
       const current = data[i]
@@ -110,7 +78,6 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
       const percentChange = Math.abs((currentValue - previousValue) / previousValue)
       
       if (percentChange > 0.5) {
-        // Use interpolated value
         const interpolatedValue = (currentValue + previousValue) / 2
         smoothedData.push({
           ...current,
@@ -124,11 +91,299 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   }, [chartData, interval, chainId, id])
 
   const color = useMemo(() => {
-    if(!finalData[0] || !finalData[finalData.length - 1]) {
+    if (!finalData[0] || !finalData[finalData.length - 1]) {
       return COLORS.BUY
     }
     return Number(finalData[0].value) < Number(finalData[finalData?.length - 1].value) ? COLORS.BUY : COLORS.SELL
   }, [finalData])
+
+  // ApexCharts series data
+  const series = useMemo(() => {
+    const seriesData = finalData.map(item => [
+      item.time,
+      parseFloat(item.value)
+    ])
+    
+    return [{
+      name: 'Price',
+      data: seriesData
+    }]
+  }, [finalData])
+
+  // ApexCharts options
+  // const options: ApexOpt/ions =
+  useEffect(() => {
+    setApexOptions({
+      chart: {
+        type: 'area',
+        height: (isPhone ? 320 : 450) - (headRef.current?.offsetHeight || 53),
+        width: "100%",
+        background: 'transparent',
+        toolbar: {
+          show: false
+        },
+        zoom: {
+          enabled: false
+        },
+        animations: {
+          enabled: true,
+          easing: 'easeinout',
+          speed: 800,
+          animateGradually: {
+            enabled: true,
+            delay: 150
+          },
+          dynamicAnimation: {
+            enabled: true,
+            speed: 350
+          }
+        },
+        events: {
+          dataPointMouseEnter: function(event:any, chartContext:any, config:any) {
+            if (config.dataPointIndex >= 0 && finalData[config.dataPointIndex]) {
+              const dataPoint = finalData[config.dataPointIndex]
+              setHoverValue(zerofyWithUnit(dataPoint.value))
+              setHoverDate(dataPoint.time)
+            }
+          },
+          mouseMove: function(event:any, chartContext:any, config:any) {
+            if (config.dataPointIndex >= 0 && finalData[config.dataPointIndex]) {
+              const dataPoint = finalData[config.dataPointIndex]
+              setHoverValue(zerofyWithUnit(dataPoint.value))
+              setHoverDate(dataPoint.time)
+            }
+          },
+          mouseLeave: function() {
+            if (basePrice) {
+              setHoverValue(zerofyWithUnit(formatFloat(basePrice)))
+              setHoverDate(new Date().getTime())
+            }
+          }
+        },
+        sparkline: {
+          enabled: false
+        },
+        parentHeightOffset: 0,
+        redrawOnParentResize: true,
+        redrawOnWindowResize: true
+      },
+      stroke: {
+        curve: 'smooth',
+        width: 3,
+        colors: [color],
+        lineCap: 'round'
+      },
+      fill: {
+        type: 'gradient',
+        gradient: {
+          shade: 'dark',
+          gradientToColors: [color],
+          shadeIntensity: 1,
+          type: 'vertical',
+          opacityFrom: 0.4,
+          opacityTo: 0.05,
+          stops: [0, 100],
+          colorStops: [
+            {
+              offset: 0,
+              color: color,
+              opacity: 0.4
+            },
+            {
+              offset: 100,
+              color: color,
+              opacity: 0.05
+            }
+          ]
+        }
+      },
+      colors: [color],
+      dataLabels: {
+        enabled: false
+      },
+      markers: {
+        size: 0,
+        strokeWidth: 3,
+        strokeOpacity: 0.9,
+        strokeColors: [color],
+        fillOpacity: 1,
+        discrete: [],
+        shape: 'circle',
+        radius: 2,
+        hover: {
+          size: 8,
+          sizeOffset: 3
+        },
+        colors: [color]
+      },
+      xaxis: {
+        type: 'datetime',
+        range: undefined,
+        axisBorder: {
+          show: false
+        },
+        axisTicks: {
+          show: false
+        },
+        labels: {
+          show: true,
+          style: {
+            colors: '#8B8B8B',
+            fontSize: '11px',
+            fontFamily: 'Inter, sans-serif',
+            fontWeight: 400
+          },
+          datetimeUTC: false,
+          format: 'HH:mm',
+          datetimeFormatter: {
+            year: 'yyyy',
+            month: 'MMM \'yy',
+            day: 'dd MMM',
+            hour: 'HH:mm'
+          }
+        },
+        crosshairs: {
+          show: true,
+          width: 1,
+          position: 'back',
+          opacity: 0.6,
+          stroke: {
+            color: '#8B8B8B',
+            width: 1,
+            dashArray: 0
+          }
+        },
+        tooltip: {
+          enabled: false
+        }
+      },
+      yaxis: {
+        show: true,
+        opposite: true,
+        axisBorder: {
+          show: false
+        },
+        axisTicks: {
+          show: false
+        },
+        labels: {
+          show: true,
+          align: 'right',
+          minWidth: 0,
+          maxWidth: 160,
+          style: {
+            colors: '#8B8B8B',
+            fontSize: '11px',
+            fontFamily: 'Inter, sans-serif',
+            fontWeight: 400
+          },
+          formatter: function(value: any) {
+            return zerofyWithUnit(value)
+          }
+        },
+        crosshairs: {
+          show: true,
+          position: 'back',
+          stroke: {
+            color: '#8B8B8B',
+            width: 1,
+            dashArray: 0
+          }
+        }
+      },
+      grid: {
+        show: true,
+        borderColor: '#2A2A2A',
+        strokeDashArray: 0,
+        position: 'back',
+        xaxis: {
+          lines: {
+            show: false
+          }
+        },
+        yaxis: {
+          lines: {
+            show: true
+          }
+        },
+        row: {
+          colors: undefined,
+          opacity: 0.5
+        },
+        column: {
+          colors: undefined,
+          opacity: 0.5
+        },
+        padding: {
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0
+        }
+      },
+      tooltip: {
+        enabled: true,
+        theme: 'dark',
+        style: {
+          fontSize: '12px',
+          fontFamily: 'Inter, sans-serif'
+        },
+        custom: function({ series, seriesIndex, dataPointIndex, w }: any) {
+          const dataPoint = finalData[dataPointIndex]
+          if (!dataPoint) return ''
+          
+          return `
+            <div style="
+              background: linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(20,20,20,0.95) 100%);
+              border: 1px solid ${color};
+              border-radius: 8px;
+              padding: 12px 16px;
+              box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+              backdrop-filter: blur(10px);
+              min-width: 160px;
+            ">
+              <div style="
+                color: ${color};
+                font-weight: 600;
+                font-size: 14px;
+                margin-bottom: 4px;
+              ">
+                ${zerofyWithUnit(dataPoint.value)}
+              </div>
+              <div style="
+                color: #8B8B8B;
+                font-size: 11px;
+                font-weight: 400;
+              ">
+                ${moment(dataPoint.time).format('MMM DD, YYYY HH:mm')}
+              </div>
+            </div>
+          `
+        }
+      },
+      legend: {
+        show: false
+      },
+      responsive: [
+        {
+          breakpoint: 768,
+          options: {
+            chart: {
+              height: 320 - (headRef.current?.offsetHeight || 53),
+            },
+            stroke: {
+              width: 2
+            },
+            markers: {
+              hover: {
+                size: 6
+              }
+            }
+          }
+        }
+      ]
+    } as any)
+  }, [color, finalData, interval, isPhone, basePrice, headRef.current?.offsetHeight])
 
   const loadData = (action: 'PREV' | 'NEXT' | 'NONE' = 'NONE') => {
     setIsLoading(true)
@@ -147,23 +402,38 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
     } else {
       from = BigNumber.from(0)
     }
-
+    console.log("#chartData", chartData)
     if (from && currentPool?.ORACLE) {
       if (isChainlink(currentPool)) {
         getLineChartData({
           pair: '0x' + currentPool?.ORACLE?.slice(26),
-          //  id.split('-')[0].toLowerCase(),
           baseToken,
           interval,
           action,
           from,
-          onUpdate: (data) => {
-            // if (data.length == 0) {
-            //   setIsLoading(true) 
-            //   return
+          onUpdate: (data, isPreLoad) => {
+            // const res = chartData[chainId + "1D" + id]
+            // console.log("#chartData", chartData)
+            // console.log("#res", chainId + "1D" + id, res)
+
+            // if (isPreLoad && res && res.length > 0) {
+            //   res.unshift({
+            //     time: res[res.length - 1].time -
+            //       LINE_CHART_CONFIG[interval].range,
+            //     value: res[0].value
+            //   })
+            //   setChartData({
+            //     ...chartData,
+            //     [chainId + interval + id]: res
+            //   })
+            //   console.log("#preload", res)
+            //   return;
             // }
-            // setIsLoading(false)
-            //console.log("#dataget", data[0].updatedAt.toString() , data[data.length - 1].updatedAt.toString() )
+            if (data.length == 0) {
+              setIsLoading(true)
+              return
+            }
+            setIsLoading(false)
             const seen = new Set<string>()
             const allData = data.map((d) => {
               return {
@@ -176,7 +446,6 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
               }
             })
 
-            // Remove duplicates more effectively
             const uniqueData = allData
               .filter((item) => {
                 if (seen.has(item.roundId)) {
@@ -197,9 +466,6 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
               value: ethers.utils.formatUnits(item.answer, 8)
             }))
 
-            // const msInterval = LINE_CHART_CONFIG[interval].interval || 60 * 1000
-
-     
             let lastData = chartDatas[chartDatas.length - 1]
             const start = lastData.time - LINE_CHART_CONFIG[interval].range
             const end = lastData.time
@@ -209,37 +475,23 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
               if (chartDatas[i].time < start) {
                 continue
               }
-              // if (chartDatas[i].time < lastData.time + msInterval) {
-              //   continue;
-              // }
               result.push((lastData = chartDatas[i]))
               if (lastData.time >= end) {
                 break
               }
             }
-            // if (result.length == 0) {
-            //   setChartData({
-            //     ...chartData,
-            //     [chainId + interval + id]: []
-            //   })
-            //   setIsLoading(false)
-            //   return
-            // }
             if (
-              result.length > 0 && 
+              result.length > 0 &&
               result[0].time >
               result[result.length - 1].time - LINE_CHART_CONFIG[interval].range
             ) {
               const additionalElements = []
-              for (let i = 0; i < 5; i++) {
-                additionalElements.push({
-                  time:
-                    result[result.length - 1].time -
-                    LINE_CHART_CONFIG[interval].range +
-                    i,
-                  value: result[0].value
-                })
-              }
+              additionalElements.push({
+                time:
+                  result[result.length - 1].time -
+                  LINE_CHART_CONFIG[interval].range,
+                value: result[0].value
+              })
               result.unshift(...additionalElements)
             }
             console.log('#Line:', result)
@@ -260,7 +512,6 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
               })
               return
             }
-
           })
           .catch((error) => {
             console.error('Error loading chart data:', error)
@@ -271,25 +522,26 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
       }
     }
   }
+
   const loadDataFromGecko = async (action: 'PREV' | 'NEXT' | 'NONE' = 'NONE') => {
-    if(!currentPool?.ORACLE || currentPool?.ORACLE == "") return;
+    if (!currentPool?.ORACLE || currentPool?.ORACLE == "") return;
     setIsLoading(true);
     try {
-      const poolAddress =  "0x" + currentPool?.ORACLE?.slice(26);
+      const poolAddress = "0x" + currentPool?.ORACLE?.slice(26);
       const intervalConf = INTERVAL_TO_GECKO[interval];
       if (!poolAddress || !intervalConf) {
         setIsLoading(false);
         return;
       }
       let url = `https://api.geckoterminal.com/api/v2/networks/${configs.gtID}/pools/${poolAddress}/ohlcv/${intervalConf.timeframe}?aggregate=${intervalConf.aggregate}&include_empty_intervals=false&limit=300`;
-      // Add before_timestamp if action is PREV or NEXT
+      
       const currentKey = chainId + interval + id;
       const currentData = chartData[currentKey] || [];
       let beforeTimestamp = undefined;
       if (action === 'PREV' && currentData.length > 0) {
-        beforeTimestamp = Math.floor(currentData[0].time / 1000); // first data point
+        beforeTimestamp = Math.floor(currentData[0].time / 1000);
       } else if (action === 'NEXT' && currentData.length > 0) {
-        beforeTimestamp = Math.floor(currentData[currentData.length - 1].time / 1000); // last data point
+        beforeTimestamp = Math.floor(currentData[currentData.length - 1].time / 1000);
       }
       if (beforeTimestamp) {
         url += `&before_timestamp=${beforeTimestamp}`;
@@ -298,13 +550,12 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
       const json = await res.json();
       const ohlcvList: [number, number, number, number, number][] = json?.data?.attributes?.ohlcv_list || [];
       const chartDatas = ohlcvList.reverse().map((item: number[]) => ({
-        time: item[0] * 1000, // timestamp in ms
-        value: item[4]?.toString() // close price as string
+        time: item[0] * 1000,
+        value: item[4]?.toString()
       }));
       if (ohlcvList.length === 0) {
         throw "No gecko data";
       }
-      //console.log("#chartDatas", chartDatas);
       setChartData({
         ...chartData,
         [chainId + interval + id]: chartDatas
@@ -315,12 +566,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
       setIsLoading(false);
     }
   }
-  // useEffect() {
-  //   if (this.divRef.current) {
-  //     const height = this.divRef.current.offsetHeight;
-  //     //console.log('Height of the div:', height);
-  //   }
-  // }
+
   return (
     <div className='line-chart-wrap'>
       <div className='line-chart__head' ref={headRef}>
@@ -349,9 +595,15 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
       <div
         className='line-chart-box'
         style={{
-          height: `${
-            (isPhone ? 320 : 450) - (headRef.current?.offsetHeight || 53)
-          }px`
+          height: "100%",
+          // `${
+          //   (isPhone ? 320 : 450) - (headRef.current?.offsetHeight || 53)
+          // }px`,
+          width: "100%",
+          minWidth: "100%",
+          position: 'relative',
+          display: "flex",
+          flexDirection: "column"
         }}
       >
         {isLoading || !chartData[chainId + interval + id] ? (
@@ -364,103 +616,33 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
             onClick={() => loadData('NONE')}
             style={{
               display:
-                chartData[chainId + interval + id].length > 0 ? 'none' : ''
+                chartData[chainId + interval + id].length > 0 ? 'none' : 'flex',
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              zIndex: 10
             }}
           >
             <ReloadIcon />
           </div>
         )}
         {chartData[chainId + interval + id] &&
-          chartData[chainId + interval + id].length > 0 && (
-          <ResponsiveContainer>
-            <AreaChart
-              data={finalData}
-              margin={{
-                top: 10,
-                right: 20,
-                left: 10,
-                bottom: 20
-              }}
-            >
-              <defs>
-                <linearGradient id='gradient' x1='0' y1='0' x2='0' y2='1'>
-                  <stop offset='5%' stopColor={color} stopOpacity={0.34} />
-                  <stop offset='100%' stopColor={color} stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <XAxis
-                dataKey='time'
-                axisLine={false}
-                tickLine={false}
-                tickFormatter={(time) =>
-                  moment(time).format(LINE_CHART_CONFIG[interval].format || 'MMM-DD HH:mm')
-                }
-                minTickGap={60}
-                interval="preserveEnd"
-                tick={{ fill: '#a0a0a0', fontSize: 12 }}
-                // padding={{ left: 20, right: 20 }}
-              />
-              <YAxis
-                dataKey='value'
-                tickFormatter={(tick) => {
-                  return zerofyWithUnit(tick)
-                }}
-                axisLine={false}
-                tickLine={false}
-                domain={yAxisDomain}
-                minTickGap={40}
-                tickCount={8}
-                orientation='right'
-                tick={{ fill: '#a0a0a0', fontSize: 12 }}
-                padding={{ top: 10, bottom: 10 }}
-              />
-              <Tooltip
-                cursor={{ stroke: '#a6a6a6' }}
-                contentStyle={{ display: 'none' }}
-                // @ts-ignore
-                formatter={(tooltipValue, name, props) => (
-                  <HoverUpdater
-                    payload={props.payload}
-                    setHoverValue={setHoverValue}
-                    setHoverDate={setHoverDate}
-                  />
-                )}
-              />
-
-              <Area
-                dataKey='value'
-                type='monotone'
-                stroke={color}
-                connectNulls
-                fill='url(#gradient)'
-                strokeWidth={2}
-                dot={false}
-                activeDot={{
-                  r: 6,
-                  fill: color,
-                  stroke: '#fff',
-                  strokeWidth: 2
-                }}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+          chartData[chainId + interval + id].length > 0 &&
+           ApexOptions &&
+           series[0]?.data?.length > 0 && (
+        // @ts-ignore
+          <ReactApexChart
+            options={ApexOptions}
+            series={series}
+            type="area"
+             width="100%"
+            height={ApexOptions.chart?.height}
+          />
         )}
       </div>
     </div>
   )
-}
-
-const HoverUpdater = ({ payload, setHoverValue, setHoverDate }: any) => {
-  useEffect(() => {
-    if (payload && payload.value !== undefined ) {
-      setHoverValue(zerofyWithUnit(payload.value))
-    }
-    if(payload && payload.time !== undefined) {
-      setHoverDate(payload.time)
-    }
-  }, [payload?.value, payload?.time, setHoverValue, setHoverDate])
-
-  return null
 }
 
 export const LineChart = React.memo(Component, (prevProps, nextProps) =>
