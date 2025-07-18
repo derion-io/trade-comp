@@ -103,7 +103,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const series = useMemo(() => {
     const seriesData = finalData.map(item => [
       item.time,
-      parseFloat(item.value)
+      item.value
     ])
     
     return [{
@@ -116,8 +116,8 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const options: ApexOptions = useMemo(() => ({
     chart: {
       type: 'area',
-      height: (isPhone ? 320 : 450) - (headRef.current?.offsetHeight || 53),
-      width: (wrapRef.current?.offsetWidth || 1000) -   (isPhone ? 60 : 50),
+      height: (isPhone ? 340 : 450) - (headRef.current?.offsetHeight || 53),
+      width: (wrapRef.current?.offsetWidth || 1000) -   (isPhone ? 10 : 20),
       background: 'transparent',
       toolbar: {
         show: false
@@ -126,7 +126,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
         enabled: false
       },
       animations: {
-        enabled: true,
+        enabled: false,
         easing: 'easeinout',
         speed: 800,
         animateGradually: {
@@ -343,7 +343,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
         breakpoint: 768,
         options: {
           chart: {
-            height: 320 - (headRef.current?.offsetHeight || 53),
+            height: 340 - (headRef.current?.offsetHeight || 53),
           },
           stroke: {
             width: 2
@@ -526,14 +526,15 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
           from,
           onUpdate: (data, isPreLoad) => {
             // const res = chartData[chainId + "1D" + id]
-            // console.log("#chartData", chartData)
-            // console.log("#res", chainId + "1D" + id, res)
+            // // console.log("#chartData", chartData)
+            // // console.log("#res", chainId + "1D" + id, res)
 
             // if (isPreLoad && res && res.length > 0) {
             //   res.unshift({
             //     time: res[res.length - 1].time -
-            //       LINE_CHART_CONFIG[interval].range,
-            //     value: res[0].value
+            //       LINE_CHART_CONFIG[interval].range + 1,
+            //     value: null
+            //     // res[0].value
             //   })
             //   setChartData({
             //     ...chartData,
@@ -542,10 +543,10 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
             //   console.log("#preload", res)
             //   return;
             // }
-            if (data.length == 0) {
-              setIsLoading(true)
-              return
-            }
+            // if (data.length == 0) {
+            //   setIsLoading(true)
+            //   return
+            // }
             setIsLoading(false)
             const seen = new Set<string>()
             const allData = data.map((d) => {
@@ -710,7 +711,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
         ref={wrapRef}
         style={{
           height: `${
-            (isPhone ? 320 : 450) - (headRef.current?.offsetHeight || 53)
+            (isPhone ? 340 : 450) - (headRef.current?.offsetHeight || 53)
           }px`,
           width: "100%",
           position: 'relative',
