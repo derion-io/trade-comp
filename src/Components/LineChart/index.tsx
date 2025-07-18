@@ -238,12 +238,12 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
         formatter: function(value) {
           return moment(value).format(LINE_CHART_CONFIG[interval].format || 'MMM-DD HH:mm')
         },
-        offsetY: -8 // Add vertical space between x-axis and chart
+        offsetY: 0 // Add vertical space between x-axis and chart
       },
       tooltip: {
         enabled: false
       },
-      offsetY: -8 // Add space between x-axis and chart
+      offsetY: 0 // Add space between x-axis and chart
     },
     yaxis: {
       opposite: true,
