@@ -43,10 +43,12 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const [interval, setInterval] = useState<LineChartIntervalType>(I_1D)
   const { chainId, configs } = useConfigs()
   const headRef = useRef<HTMLDivElement>(null)
+  const wrapRef = useRef<HTMLDivElement>(null)
+
   const { width } = useWindowSize()
   const isPhone = width && width < 768
   const currentPool = useMemo(() => poolGroups[id], [id, poolGroups])
-  const [ApexOptions, setApexOptions] = useState<ApexOptions | undefined>()
+
   useEffect(() => {
     if (!chartData[chainId + interval + id] || id) {
       loadData()
@@ -111,279 +113,390 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   }, [finalData])
 
   // ApexCharts options
-  // const options: ApexOpt/ions =
-  useEffect(() => {
-    setApexOptions({
-      chart: {
-        type: 'area',
-        height: (isPhone ? 320 : 450) - (headRef.current?.offsetHeight || 53),
-        width: "100%",
-        background: 'transparent',
-        toolbar: {
-          show: false
-        },
-        zoom: {
-          enabled: false
-        },
-        animations: {
-          enabled: true,
-          easing: 'easeinout',
-          speed: 800,
-          animateGradually: {
-            enabled: true,
-            delay: 150
-          },
-          dynamicAnimation: {
-            enabled: true,
-            speed: 350
-          }
-        },
-        events: {
-          dataPointMouseEnter: function(event:any, chartContext:any, config:any) {
-            if (config.dataPointIndex >= 0 && finalData[config.dataPointIndex]) {
-              const dataPoint = finalData[config.dataPointIndex]
-              setHoverValue(zerofyWithUnit(dataPoint.value))
-              setHoverDate(dataPoint.time)
-            }
-          },
-          mouseMove: function(event:any, chartContext:any, config:any) {
-            if (config.dataPointIndex >= 0 && finalData[config.dataPointIndex]) {
-              const dataPoint = finalData[config.dataPointIndex]
-              setHoverValue(zerofyWithUnit(dataPoint.value))
-              setHoverDate(dataPoint.time)
-            }
-          },
-          mouseLeave: function() {
-            if (basePrice) {
-              setHoverValue(zerofyWithUnit(formatFloat(basePrice)))
-              setHoverDate(new Date().getTime())
-            }
-          }
-        },
-        sparkline: {
-          enabled: false
-        },
-        parentHeightOffset: 0,
-        redrawOnParentResize: true,
-        redrawOnWindowResize: true
+  const options: ApexOptions = useMemo(() => ({
+    chart: {
+      type: 'area',
+      height: (isPhone ? 320 : 450) - (headRef.current?.offsetHeight || 53),
+      width: (wrapRef.current?.offsetWidth || 1000) -   (isPhone ? 60 : 50),
+      background: 'transparent',
+      toolbar: {
+        show: false
       },
-      stroke: {
-        curve: 'smooth',
-        width: 3,
-        colors: [color],
-        lineCap: 'round'
-      },
-      fill: {
-        type: 'gradient',
-        gradient: {
-          shade: 'dark',
-          gradientToColors: [color],
-          shadeIntensity: 1,
-          type: 'vertical',
-          opacityFrom: 0.4,
-          opacityTo: 0.05,
-          stops: [0, 100],
-          colorStops: [
-            {
-              offset: 0,
-              color: color,
-              opacity: 0.4
-            },
-            {
-              offset: 100,
-              color: color,
-              opacity: 0.05
-            }
-          ]
-        }
-      },
-      colors: [color],
-      dataLabels: {
+      zoom: {
         enabled: false
       },
-      markers: {
-        size: 0,
-        strokeWidth: 3,
-        strokeOpacity: 0.9,
-        strokeColors: [color],
-        fillOpacity: 1,
-        discrete: [],
-        shape: 'circle',
-        radius: 2,
-        hover: {
-          size: 8,
-          sizeOffset: 3
+      animations: {
+        enabled: true,
+        easing: 'easeinout',
+        speed: 800,
+        animateGradually: {
+          enabled: true,
+          delay: 150
         },
-        colors: [color]
+        dynamicAnimation: {
+          enabled: true,
+          speed: 350
+        }
       },
-      xaxis: {
-        type: 'datetime',
-        range: undefined,
-        axisBorder: {
-          show: false
+      events: {
+        dataPointMouseEnter: function(event, chartContext, config) {
+          if (config.dataPointIndex >= 0 && finalData[config.dataPointIndex]) {
+            const dataPoint = finalData[config.dataPointIndex]
+            setHoverValue(zerofyWithUnit(dataPoint.value))
+            setHoverDate(dataPoint.time)
+          }
         },
-        axisTicks: {
-          show: false
+        mouseMove: function(event, chartContext, config) {
+          if (config.dataPointIndex >= 0 && finalData[config.dataPointIndex]) {
+            const dataPoint = finalData[config.dataPointIndex]
+            setHoverValue(zerofyWithUnit(dataPoint.value))
+            setHoverDate(dataPoint.time)
+          }
         },
-        labels: {
-          show: true,
-          style: {
-            colors: '#8B8B8B',
-            fontSize: '11px',
-            fontFamily: 'Inter, sans-serif',
-            fontWeight: 400
+        mouseLeave: function() {
+          if (basePrice) {
+            setHoverValue(zerofyWithUnit(formatFloat(basePrice)))
+            setHoverDate(new Date().getTime())
+          }
+        }
+      },
+      sparkline: {
+        enabled: false
+      },
+      parentHeightOffset: 0,
+      redrawOnParentResize: true,
+      redrawOnWindowResize: true
+    },
+    stroke: {
+      curve: 'smooth',
+      width: 3,
+      colors: [color],
+      lineCap: 'round'
+    },
+    fill: {
+      type: 'gradient',
+      gradient: {
+        shade: 'dark',
+        gradientToColors: [color],
+        shadeIntensity: 1,
+        type: 'vertical',
+        opacityFrom: 0.4,
+        opacityTo: 0.05,
+        stops: [0, 100],
+        colorStops: [
+          {
+            offset: 0,
+            color: color,
+            opacity: 0.4
           },
-          datetimeUTC: false,
-          format: 'HH:mm',
-          datetimeFormatter: {
-            year: 'yyyy',
-            month: 'MMM \'yy',
-            day: 'dd MMM',
-            hour: 'HH:mm'
+          {
+            offset: 100,
+            color: color,
+            opacity: 0.05
           }
+        ]
+      }
+    },
+    colors: [color],
+    dataLabels: {
+      enabled: false
+    },
+    markers: {
+      size: 0,
+      strokeWidth: 3,
+      strokeOpacity: 0.9,
+      strokeColors: [color],
+      fillOpacity: 1,
+      discrete: [],
+      shape: 'circle',
+      radius: 2,
+      hover: {
+        size: 8,
+        sizeOffset: 3
+      },
+      colors: [color]
+    },
+    xaxis: {
+      type: 'datetime',
+      axisBorder: {
+        show: false
+      },
+      axisTicks: {
+        show: false
+      },
+      labels: {
+        style: {
+          colors: '#a0a0a0',
+          fontSize: '12px'
         },
-        crosshairs: {
-          show: true,
-          width: 1,
-          position: 'back',
-          opacity: 0.6,
-          stroke: {
-            color: '#8B8B8B',
-            width: 1,
-            dashArray: 0
-          }
+        datetimeFormatter: {
+          year: 'yyyy',
+          month: 'MMM \'yy',
+          day: 'dd MMM',
+          hour: 'HH:mm'
         },
-        tooltip: {
-          enabled: false
+        formatter: function(value) {
+          return moment(value).format(LINE_CHART_CONFIG[interval].format || 'MMM-DD HH:mm')
+        },
+        offsetY: -8 // Add vertical space between x-axis and chart
+      },
+      tooltip: {
+        enabled: false
+      },
+      offsetY: -8 // Add space between x-axis and chart
+    },
+    yaxis: {
+      opposite: true,
+      axisBorder: {
+        show: false
+      },
+      axisTicks: {
+        show: false
+      },
+      labels: {
+        style: {
+          colors: '#a0a0a0',
+          fontSize: '12px'
+        },
+        formatter: function(value) {
+          return zerofyWithUnit(value)
+        },
+        offsetX: 2 // Add horizontal space between y-axis and chart
+      },
+      offsetX: 2 // Add space between y-axis and chart
+    },
+    grid: {
+      show: true,
+      borderColor: '#2A2A2A',
+      strokeDashArray: 0,
+      position: 'back',
+      xaxis: {
+        lines: {
+          show: false
         }
       },
       yaxis: {
-        show: true,
-        opposite: true,
-        axisBorder: {
-          show: false
-        },
-        axisTicks: {
-          show: false
-        },
-        labels: {
-          show: true,
-          align: 'right',
-          minWidth: 0,
-          maxWidth: 160,
-          style: {
-            colors: '#8B8B8B',
-            fontSize: '11px',
-            fontFamily: 'Inter, sans-serif',
-            fontWeight: 400
-          },
-          formatter: function(value: any) {
-            return zerofyWithUnit(value)
-          }
-        },
-        crosshairs: {
-          show: true,
-          position: 'back',
-          stroke: {
-            color: '#8B8B8B',
-            width: 1,
-            dashArray: 0
-          }
+        lines: {
+          show: true
         }
       },
-      grid: {
-        show: true,
-        borderColor: '#2A2A2A',
-        strokeDashArray: 0,
-        position: 'back',
-        xaxis: {
-          lines: {
-            show: false
-          }
-        },
-        yaxis: {
-          lines: {
-            show: true
-          }
-        },
-        row: {
-          colors: undefined,
-          opacity: 0.5
-        },
-        column: {
-          colors: undefined,
-          opacity: 0.5
-        },
-        padding: {
-          top: 0,
-          right: 0,
-          bottom: 0,
-          left: 0
-        }
+      row: {
+        colors: undefined,
+        opacity: 0.5
       },
-      tooltip: {
-        enabled: true,
-        theme: 'dark',
-        style: {
-          fontSize: '12px',
-          fontFamily: 'Inter, sans-serif'
-        },
-        custom: function({ series, seriesIndex, dataPointIndex, w }: any) {
-          const dataPoint = finalData[dataPointIndex]
-          if (!dataPoint) return ''
-          
-          return `
+      column: {
+        colors: undefined,
+        opacity: 0.5
+      },
+      padding: {
+        top: 0,
+        right: 16, // Add right padding for y-axis
+        bottom: 32, // Add bottom padding for x-axis
+        left: 16 // Add left padding for y-axis
+      }
+    },
+    tooltip: {
+      enabled: true,
+      theme: 'dark',
+      style: {
+        fontSize: '12px',
+        fontFamily: 'Inter, sans-serif'
+      },
+      custom: function({ series, seriesIndex, dataPointIndex, w }) {
+        const dataPoint = finalData[dataPointIndex]
+        if (!dataPoint) return ''
+        
+        return `
+          <div style="
+            background: linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(20,20,20,0.95) 100%);
+            border: 1px solid ${color};
+            border-radius: 8px;
+            padding: 12px 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            min-width: 160px;
+          ">
             <div style="
-              background: linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(20,20,20,0.95) 100%);
-              border: 1px solid ${color};
-              border-radius: 8px;
-              padding: 12px 16px;
-              box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-              backdrop-filter: blur(10px);
-              min-width: 160px;
+              color: ${color};
+              font-weight: 600;
+              font-size: 14px;
+              margin-bottom: 4px;
             ">
-              <div style="
-                color: ${color};
-                font-weight: 600;
-                font-size: 14px;
-                margin-bottom: 4px;
-              ">
-                ${zerofyWithUnit(dataPoint.value)}
-              </div>
-              <div style="
-                color: #8B8B8B;
-                font-size: 11px;
-                font-weight: 400;
-              ">
-                ${moment(dataPoint.time).format('MMM DD, YYYY HH:mm')}
-              </div>
+              ${zerofyWithUnit(dataPoint.value)}
             </div>
-          `
-        }
-      },
-      legend: {
-        show: false
-      },
-      responsive: [
-        {
-          breakpoint: 768,
-          options: {
-            chart: {
-              height: 320 - (headRef.current?.offsetHeight || 53),
-            },
-            stroke: {
-              width: 2
-            },
-            markers: {
-              hover: {
-                size: 6
-              }
+            <div style="
+              color: #8B8B8B;
+              font-size: 11px;
+              font-weight: 400;
+            ">
+              ${moment(dataPoint.time).format('MMM DD, YYYY HH:mm')}
+            </div>
+          </div>
+        `
+      }
+    },
+    legend: {
+      show: false
+    },
+    responsive: [
+      {
+        breakpoint: 768,
+        options: {
+          chart: {
+            height: 320 - (headRef.current?.offsetHeight || 53),
+          },
+          stroke: {
+            width: 2
+          },
+          markers: {
+            hover: {
+              size: 6
             }
           }
         }
-      ]
-    } as any)
-  }, [color, finalData, interval, isPhone, basePrice, headRef.current?.offsetHeight])
+      }
+    ]
+  }), [color, finalData, interval, isPhone, basePrice, wrapRef?.current ,headRef.current?.offsetHeight])
+  // const options: ApexOptions = useMemo(() => ({
+  //   chart: {
+  //     type: 'area',
+  //     height: (isPhone ? 320 : 450) - (headRef.current?.offsetHeight || 53),
+  //     background: 'transparent',
+  //     toolbar: {
+  //       show: false
+  //     },
+  //     zoom: {
+  //       enabled: false
+  //     },
+  //     animations: {
+  //       enabled: false
+  //     },
+  //     events: {
+  //       mouseMove: function(event, chartContext, config) {
+  //         if (config.dataPointIndex >= 0) {
+  //           const dataPoint = finalData[config.dataPointIndex]
+  //           if (dataPoint) {
+  //             setHoverValue(zerofyWithUnit(dataPoint.value))
+  //             setHoverDate(dataPoint.time)
+  //           }
+  //         }
+  //       },
+  //       mouseLeave: function() {
+  //         if (basePrice) {
+  //           setHoverValue(zerofyWithUnit(formatFloat(basePrice)))
+  //           setHoverDate(new Date().getTime())
+  //         }
+  //       }
+  //     }
+  //   },
+  //   stroke: {
+  //     curve: 'smooth',
+  //     width: 2,
+  //     colors: [color]
+  //   },
+  //   fill: {
+  //     type: 'gradient',
+  //     gradient: {
+  //       shadeIntensity: 1,
+  //       opacityFrom: 0.34,
+  //       opacityTo: 0,
+  //       stops: [0, 100],
+  //       colorStops: [
+  //         {
+  //           offset: 0,
+  //           color: color,
+  //           opacity: 0.34
+  //         },
+  //         {
+  //           offset: 100,
+  //           color: color,
+  //           opacity: 0
+  //         }
+  //       ]
+  //     }
+  //   },
+  //   colors: [color],
+  //   dataLabels: {
+  //     enabled: false
+  //   },
+  //   markers: {
+  //     size: 0,
+  //     hover: {
+  //       size: 6,
+  //       sizeOffset: 2
+  //     },
+  //     colors: [color],
+  //     strokeColors: '#fff',
+  //     strokeWidth: 2
+  //   },
+  //   xaxis: {
+  //     type: 'datetime',
+  //     axisBorder: {
+  //       show: false
+  //     },
+  //     axisTicks: {
+  //       show: false
+  //     },
+  //     labels: {
+  //       style: {
+  //         colors: '#a0a0a0',
+  //         fontSize: '12px'
+  //       },
+  //       datetimeFormatter: {
+  //         year: 'yyyy',
+  //         month: 'MMM \'yy',
+  //         day: 'dd MMM',
+  //         hour: 'HH:mm'
+  //       },
+  //       formatter: function(value) {
+  //         return moment(value).format(LINE_CHART_CONFIG[interval].format || 'MMM-DD HH:mm')
+  //       }
+  //     },
+  //     tooltip: {
+  //       enabled: false
+  //     }
+  //   },
+  //   yaxis: {
+  //     opposite: true,
+  //     axisBorder: {
+  //       show: false
+  //     },
+  //     axisTicks: {
+  //       show: false
+  //     },
+  //     labels: {
+  //       style: {
+  //         colors: '#a0a0a0',
+  //         fontSize: '12px'
+  //       },
+  //       formatter: function(value) {
+  //         return zerofyWithUnit(value)
+  //       }
+  //     }
+  //   },
+  //   grid: {
+  //     show: true,
+  //     borderColor: '#2a2a2a',
+  //     strokeDashArray: 0,
+  //     position: 'back',
+  //     xaxis: {
+  //       lines: {
+  //         show: false
+  //       }
+  //     },
+  //     yaxis: {
+  //       lines: {
+  //         show: true
+  //       }
+  //     }
+  //   },
+  //   tooltip: {
+  //     enabled: false
+  //   },
+  //   legend: {
+  //     show: false
+  //   }
+  // }), [color, finalData, interval, isPhone, basePrice])
 
   const loadData = (action: 'PREV' | 'NEXT' | 'NONE' = 'NONE') => {
     setIsLoading(true)
@@ -594,13 +707,12 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
       </div>
       <div
         className='line-chart-box'
+        ref={wrapRef}
         style={{
-          height: "100%",
-          // `${
-          //   (isPhone ? 320 : 450) - (headRef.current?.offsetHeight || 53)
-          // }px`,
+          height: `${
+            (isPhone ? 320 : 450) - (headRef.current?.offsetHeight || 53)
+          }px`,
           width: "100%",
-          minWidth: "100%",
           position: 'relative',
           display: "flex",
           flexDirection: "column"
@@ -629,15 +741,15 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
         )}
         {chartData[chainId + interval + id] &&
           chartData[chainId + interval + id].length > 0 &&
-           ApexOptions &&
+           options &&
            series[0]?.data?.length > 0 && (
         // @ts-ignore
           <ReactApexChart
-            options={ApexOptions}
+            options={options}
             series={series}
             type="area"
-             width="100%"
-            height={ApexOptions.chart?.height}
+            height={options.chart?.height}
+            width={options.chart?.width}
           />
         )}
       </div>
