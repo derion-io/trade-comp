@@ -29,6 +29,7 @@ import { BigNumber, ethers } from 'ethers'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { useResource } from '../../state/resources/hooks/useResource'
 import ReactApexChart from 'react-apexcharts'
+import {preload} from 'swr/_internal'
 
 const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const { getLineChartData } = useExchangeData()
@@ -500,7 +501,13 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
 
   const loadData = (action: 'PREV' | 'NEXT' | 'NONE' = 'NONE') => {
     setIsLoading(true)
-    const oldPriceFeedData = priceFeedData[chainId + interval + id] || []
+    let oldPriceFeedData = priceFeedData[chainId + interval + id] || []
+    const last = oldPriceFeedData?.[oldPriceFeedData.length - 1]
+    const start = last?.updatedAt ? last?.updatedAt - (LINE_CHART_CONFIG[interval].range / 1000) : 0
+// /    console.log("#oldPriceFeedData", oldPriceFeedData, start)
+    oldPriceFeedData = oldPriceFeedData.filter(d => d.updatedAt >= start)
+    // console.log("#oldPriceFeedData", oldPriceFeedData)
+
     let from = BigNumber.from(0)
     if (action === 'PREV') {
       const firstItem = oldPriceFeedData[0]
@@ -525,24 +532,29 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
           action,
           from,
           onUpdate: (data, isPreLoad) => {
-            // const res = chartData[chainId + "1D" + id]
-            // // console.log("#chartData", chartData)
+            // if(isPreLoad) return;
+            let preLoadChart = chartData[chainId + LINE_CHART_CONFIG[interval]?.preLoadInterval + id] || []
+            if(isPreLoad && preLoadChart.length == 0) return;
+            const lastPre = preLoadChart[preLoadChart.length - 1]
+            const startPre = lastPre?.time - LINE_CHART_CONFIG[interval].range
+            preLoadChart = preLoadChart.filter(c => c.time >= startPre )
+            // console.log("#chartData", chartData, chainId + LINE_CHART_CONFIG[interval]?.preLoadInterval + id)
             // // console.log("#res", chainId + "1D" + id, res)
-
-            // if (isPreLoad && res && res.length > 0) {
-            //   res.unshift({
-            //     time: res[res.length - 1].time -
-            //       LINE_CHART_CONFIG[interval].range + 1,
-            //     value: null
-            //     // res[0].value
-            //   })
-            //   setChartData({
-            //     ...chartData,
-            //     [chainId + interval + id]: res
-            //   })
-            //   console.log("#preload", res)
-            //   return;
-            // }
+            if (isPreLoad && preLoadChart && preLoadChart.length > 0) {
+              preLoadChart.unshift({
+                time: preLoadChart[preLoadChart.length - 1].time -
+                  LINE_CHART_CONFIG[interval].range + 1,
+                value: null
+                // res[0].value
+              })
+              setChartData({
+                ...chartData,
+                [chainId + interval + id]: preLoadChart
+              })
+              console.log("#preload", preLoadChart)
+              return;
+            }
+            // if(isPreLoad && preLoadChart.length == 0) return;
             // if (data.length == 0) {
             //   setIsLoading(true)
             //   return
@@ -604,7 +616,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
                 time:
                   result[result.length - 1].time -
                   LINE_CHART_CONFIG[interval].range,
-                value: result[0].value
+                value: null
               })
               result.unshift(...additionalElements)
             }

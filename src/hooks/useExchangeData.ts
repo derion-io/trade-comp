@@ -321,17 +321,22 @@ export const useExchangeData = () => {
     
       let roundId = BigNumber.from(0)
       let multiCallSize = 0
+      const totalRound = roundSecond === 0 ? LINE_CHART_CONFIG[interval].stepRound : Math.round((LINE_CHART_CONFIG[interval].range / 1000) / (roundSecond))
+      const stepRound = roundSecond === 0 ?
+                          LINE_CHART_CONFIG[interval].stepRound : 
+                          (Math.round(totalRound / PRICE_FEED_MULTICALL_SIZE) == 0 ? 1 : Math.round(totalRound / PRICE_FEED_MULTICALL_SIZE) + 1)
 
       if (action === 'PREV') {
         roundId = BigNumber.from(from)
         multiCallSize = PRICE_FEED_MULTICALL_SIZE
       } else if (action === 'NEXT') {
-        if (BigNumber.from(latestRoundId).sub(from).gt(PRICE_FEED_MULTICALL_SIZE)) {
-          roundId = BigNumber.from(from).add(PRICE_FEED_MULTICALL_SIZE)
+        if (BigNumber.from(latestRoundId).sub(from).gt(PRICE_FEED_MULTICALL_SIZE * stepRound)) {
+          roundId = BigNumber.from(from).add(PRICE_FEED_MULTICALL_SIZE * stepRound)
           multiCallSize = PRICE_FEED_MULTICALL_SIZE
         } else {
           roundId = BigNumber.from(latestRoundId)
-          multiCallSize = BigNumber.from(latestRoundId).sub(from).toNumber()
+          multiCallSize = PRICE_FEED_MULTICALL_SIZE
+          // Math.round(BigNumber.from(latestRoundId).sub(from).toNumber() / stepRound)
         }
       } else {
         roundId = BigNumber.from(latestRoundId)
@@ -349,10 +354,7 @@ export const useExchangeData = () => {
       const calls = []
       const roundsToFetch:any[] = []
       const priceFeedInterface = new Interface(priceFeedContractAbi)
-      const totalRound = roundSecond === 0 ? LINE_CHART_CONFIG[interval].stepRound : Math.round((LINE_CHART_CONFIG[interval].range / 1000) / (roundSecond))
-      const stepRound = roundSecond === 0 ?
-                          LINE_CHART_CONFIG[interval].stepRound : 
-                          (Math.round(totalRound / PRICE_FEED_MULTICALL_SIZE) == 0 ? 1 : Math.round(totalRound / PRICE_FEED_MULTICALL_SIZE) + 1)
+
       //console.log("#stepRound", stepRound)
       
       let currentRoundId = BigNumber.from(roundId)
@@ -427,6 +429,11 @@ export const useExchangeData = () => {
       // (rebuild allRequestedData with updated cache)
       currentRoundId = BigNumber.from(roundId)
       const allRequestedDataFresh: PriceFeedData[] = []
+      // const roundCacheKeys = Object.keys(cache).filter(a => a.startsWith(feedAdress))
+      // roundCacheKeys.map((key) => {
+      //   const cachedData = cache[key]
+      //   allRequestedDataFresh.push(cachedData)
+      // })
       for (let i = 0; i < multiCallSize; i++) {
         const roundIdStr = currentRoundId.toString()
         const cachedData = cache[encodeCLFeedCacheKey(feedAdress, roundIdStr)]
@@ -439,7 +446,7 @@ export const useExchangeData = () => {
 
       // Calculate average time per round on initial load
       if (action === 'NONE' && roundSecond == 0 ) {
-        const avgTime = calculateAverageTimePerRound(allRequestedDataFresh, LINE_CHART_CONFIG[interval].stepRound) / 2
+        const avgTime = calculateAverageTimePerRound(allRequestedDataFresh, LINE_CHART_CONFIG[interval].stepRound)
         setAvgRoundInSecond((data => {
           return {
             ...data,
