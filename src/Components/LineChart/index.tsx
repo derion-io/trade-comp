@@ -22,7 +22,7 @@ import { Tabs } from '../ui/Tabs'
 import { COLORS } from '../../utils/constant'
 import isEqual from 'react-fast-compare'
 import { useConfigs } from '../../state/config/useConfigs'
-import { formatFloat, isChainlink, zerofyWithUnit } from '../../utils/helpers'
+import { bn, formatFloat, isChainlink, zerofyWithUnit } from '../../utils/helpers'
 import { ReloadIcon } from '../../Components/ui/Icon'
 import { useWindowSize } from '../../hooks/useWindowSize'
 import { BigNumber, ethers } from 'ethers'
@@ -30,6 +30,8 @@ import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { useResource } from '../../state/resources/hooks/useResource'
 import ReactApexChart from 'react-apexcharts'
 import {preload} from 'swr/_internal'
+import {LineChartData, PriceFeedData} from '../../state/linechart/type'
+import {unionBy, uniqWith} from 'lodash'
 
 const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const { getLineChartData } = useExchangeData()
@@ -37,8 +39,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const { poolGroups } = useResource()
 
   const [hoverValue, setHoverValue] = useState<string>()
-  const [chartData, setChartData] = useState<{ [key: string]: any[] }>({})
-  const [priceFeedData, setPriceFeedData] = useState<{ [key: string]: any[] }>({})
+  const [chartData, setChartData] = useState<LineChartData[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [hoverDate, setHoverDate] = useState<number>()
   const [interval, setInterval] = useState<LineChartIntervalType>(I_1D)
@@ -51,7 +52,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const currentPool = useMemo(() => poolGroups[id], [id, poolGroups])
 
   useEffect(() => {
-    if (!chartData[chainId + interval + id] || id) {
+    if (!chartData || id) {
       loadData()
     }
   }, [id, chainId, interval, currentPool])
@@ -64,7 +65,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   }, [basePrice])
 
   const finalData = useMemo(() => {
-    const data = [...(chartData[chainId + interval + id] || [])]
+    const data = [...(chartData || [])]
     const smoothedData = []
     for (let i = 0; i < data.length; i++) {
       const current = data[i]
@@ -103,8 +104,8 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   // ApexCharts series data
   const series = useMemo(() => {
     const seriesData = finalData.map(item => [
-      item.time,
-      item.value
+      Number(item.updatedAt),
+      (item.value),
     ])
     
     return [{
@@ -144,14 +145,14 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
           if (config.dataPointIndex >= 0 && finalData[config.dataPointIndex]) {
             const dataPoint = finalData[config.dataPointIndex]
             setHoverValue(zerofyWithUnit(dataPoint.value))
-            setHoverDate(dataPoint.time)
+            setHoverDate(dataPoint.updatedAt)
           }
         },
         mouseMove: function(event, chartContext, config) {
           if (config.dataPointIndex >= 0 && finalData[config.dataPointIndex]) {
             const dataPoint = finalData[config.dataPointIndex]
             setHoverValue(zerofyWithUnit(dataPoint.value))
-            setHoverDate(dataPoint.time)
+            setHoverDate(dataPoint.updatedAt)
           }
         },
         mouseLeave: function() {
@@ -330,7 +331,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
               font-size: 11px;
               font-weight: 400;
             ">
-              ${moment(dataPoint.time).format('MMM DD, YYYY HH:mm')}
+              ${moment(dataPoint.updatedAt).format('MMM DD, YYYY HH:mm')}
             </div>
           </div>
         `
@@ -358,164 +359,25 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
       }
     ]
   }), [color, finalData, interval, isPhone, basePrice, wrapRef?.current ,headRef.current?.offsetHeight])
-  // const options: ApexOptions = useMemo(() => ({
-  //   chart: {
-  //     type: 'area',
-  //     height: (isPhone ? 320 : 450) - (headRef.current?.offsetHeight || 53),
-  //     background: 'transparent',
-  //     toolbar: {
-  //       show: false
-  //     },
-  //     zoom: {
-  //       enabled: false
-  //     },
-  //     animations: {
-  //       enabled: false
-  //     },
-  //     events: {
-  //       mouseMove: function(event, chartContext, config) {
-  //         if (config.dataPointIndex >= 0) {
-  //           const dataPoint = finalData[config.dataPointIndex]
-  //           if (dataPoint) {
-  //             setHoverValue(zerofyWithUnit(dataPoint.value))
-  //             setHoverDate(dataPoint.time)
-  //           }
-  //         }
-  //       },
-  //       mouseLeave: function() {
-  //         if (basePrice) {
-  //           setHoverValue(zerofyWithUnit(formatFloat(basePrice)))
-  //           setHoverDate(new Date().getTime())
-  //         }
-  //       }
-  //     }
-  //   },
-  //   stroke: {
-  //     curve: 'smooth',
-  //     width: 2,
-  //     colors: [color]
-  //   },
-  //   fill: {
-  //     type: 'gradient',
-  //     gradient: {
-  //       shadeIntensity: 1,
-  //       opacityFrom: 0.34,
-  //       opacityTo: 0,
-  //       stops: [0, 100],
-  //       colorStops: [
-  //         {
-  //           offset: 0,
-  //           color: color,
-  //           opacity: 0.34
-  //         },
-  //         {
-  //           offset: 100,
-  //           color: color,
-  //           opacity: 0
-  //         }
-  //       ]
-  //     }
-  //   },
-  //   colors: [color],
-  //   dataLabels: {
-  //     enabled: false
-  //   },
-  //   markers: {
-  //     size: 0,
-  //     hover: {
-  //       size: 6,
-  //       sizeOffset: 2
-  //     },
-  //     colors: [color],
-  //     strokeColors: '#fff',
-  //     strokeWidth: 2
-  //   },
-  //   xaxis: {
-  //     type: 'datetime',
-  //     axisBorder: {
-  //       show: false
-  //     },
-  //     axisTicks: {
-  //       show: false
-  //     },
-  //     labels: {
-  //       style: {
-  //         colors: '#a0a0a0',
-  //         fontSize: '12px'
-  //       },
-  //       datetimeFormatter: {
-  //         year: 'yyyy',
-  //         month: 'MMM \'yy',
-  //         day: 'dd MMM',
-  //         hour: 'HH:mm'
-  //       },
-  //       formatter: function(value) {
-  //         return moment(value).format(LINE_CHART_CONFIG[interval].format || 'MMM-DD HH:mm')
-  //       }
-  //     },
-  //     tooltip: {
-  //       enabled: false
-  //     }
-  //   },
-  //   yaxis: {
-  //     opposite: true,
-  //     axisBorder: {
-  //       show: false
-  //     },
-  //     axisTicks: {
-  //       show: false
-  //     },
-  //     labels: {
-  //       style: {
-  //         colors: '#a0a0a0',
-  //         fontSize: '12px'
-  //       },
-  //       formatter: function(value) {
-  //         return zerofyWithUnit(value)
-  //       }
-  //     }
-  //   },
-  //   grid: {
-  //     show: true,
-  //     borderColor: '#2a2a2a',
-  //     strokeDashArray: 0,
-  //     position: 'back',
-  //     xaxis: {
-  //       lines: {
-  //         show: false
-  //       }
-  //     },
-  //     yaxis: {
-  //       lines: {
-  //         show: true
-  //       }
-  //     }
-  //   },
-  //   tooltip: {
-  //     enabled: false
-  //   },
-  //   legend: {
-  //     show: false
-  //   }
-  // }), [color, finalData, interval, isPhone, basePrice])
 
   const loadData = (action: 'PREV' | 'NEXT' | 'NONE' = 'NONE') => {
     setIsLoading(true)
-    let oldPriceFeedData = priceFeedData[chainId + interval + id] || []
-    const last = oldPriceFeedData?.[oldPriceFeedData.length - 1]
+    //  priceFeedData[chainId + interval + id] || []
+    let _chartData = chartData
+    _chartData = chartData?.filter(d => d.updatedAt >= start)
+    const last = _chartData?.[_chartData.length - 1]
     const start = last?.updatedAt ? last?.updatedAt - (LINE_CHART_CONFIG[interval].range / 1000) : 0
-// /    console.log("#oldPriceFeedData", oldPriceFeedData, start)
-    oldPriceFeedData = oldPriceFeedData.filter(d => d.updatedAt >= start)
-    // console.log("#oldPriceFeedData", oldPriceFeedData)
+    // /    console.log("#chartData", chartData, start)
+    // console.log("#chartData", chartData)
 
     let from = BigNumber.from(0)
     if (action === 'PREV') {
-      const firstItem = oldPriceFeedData[0]
+      const firstItem = chartData[0]
       if (firstItem) {
         from = firstItem.roundId
       }
     } else if (action === 'NEXT') {
-      const lastItem = oldPriceFeedData[oldPriceFeedData.length - 1]
+      const lastItem = chartData?.[chartData?.length - 1]
       if (lastItem) {
         from = lastItem.roundId
       }
@@ -532,110 +394,140 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
           action,
           from,
           onUpdate: (data, isPreLoad) => {
-            // if(isPreLoad) return;
-            let preLoadChart = chartData[chainId + LINE_CHART_CONFIG[interval]?.preLoadInterval + id] || []
-            if(isPreLoad && preLoadChart.length == 0) return;
-            const lastPre = preLoadChart[preLoadChart.length - 1]
-            const startPre = lastPre?.time - LINE_CHART_CONFIG[interval].range
-            preLoadChart = preLoadChart.filter(c => c.time >= startPre )
-            // console.log("#chartData", chartData, chainId + LINE_CHART_CONFIG[interval]?.preLoadInterval + id)
-            // // console.log("#res", chainId + "1D" + id, res)
-            if (isPreLoad && preLoadChart && preLoadChart.length > 0) {
-              preLoadChart.unshift({
-                time: preLoadChart[preLoadChart.length - 1].time -
-                  LINE_CHART_CONFIG[interval].range + 1,
-                value: null
-                // res[0].value
-              })
-              setChartData({
-                ...chartData,
-                [chainId + interval + id]: preLoadChart
-              })
-              console.log("#preload", preLoadChart)
-              return;
-            }
-            // if(isPreLoad && preLoadChart.length == 0) return;
-            // if (data.length == 0) {
-            //   setIsLoading(true)
-            //   return
-            // }
-            setIsLoading(false)
-            const seen = new Set<string>()
-            const allData = data.map((d) => {
-              return {
-                roundId: d.roundId.toString(),
-                updatedAt: d.updatedAt.toNumber(),
-                startAt: d.startedAt.toNumber(),
-                time: new Date(d.updatedAt.toNumber()).toISOString(),
-                answer: d.answer.toString(),
-                answeredInRound: d.answeredInRound.toString()
-              }
-            })
+            // setChartData(data)
+            const chartFinalData: LineChartData[] = []
+            console.log("#data", data)
+            const _data = data.sort((a, b) => a.updatedAt - b.updatedAt)
 
-            const uniqueData = allData
-              .filter((item) => {
-                if (seen.has(item.roundId)) {
-                  return false
-                }
-                seen.add(item.roundId)
-                return true
-              })
-              .sort((a, b) => a.updatedAt - b.updatedAt)
-            console.log('#uniqueData', uniqueData)
-            setPriceFeedData({
-              ...priceFeedData,
-              [chainId + interval + id]: uniqueData
-            })
+            let lastData = _data[_data.length - 1]
+            const start = lastData.updatedAt - LINE_CHART_CONFIG[interval].range
+            const end = lastData.updatedAt
 
-            const chartDatas = uniqueData.map((item) => ({
-              time: item.updatedAt * 1000,
-              value: ethers.utils.formatUnits(item.answer, 8)
-            }))
-
-            let lastData = chartDatas[chartDatas.length - 1]
-            const start = lastData.time - LINE_CHART_CONFIG[interval].range
-            const end = lastData.time
-
-            const result = []
-            for (let i = 1; i < chartDatas.length; i++) {
-              if (chartDatas[i].time < start) {
+            for (let i = 1; i < _data.length; i++) {
+              if (_data[i].updatedAt < start) {
                 continue
               }
-              result.push((lastData = chartDatas[i]))
-              if (lastData.time >= end) {
+              chartFinalData.push((lastData = _data[i]))
+              if (lastData.updatedAt >= end) {
                 break
               }
             }
             if (
-              result.length > 0 &&
-              result[0].time >
-              result[result.length - 1].time - LINE_CHART_CONFIG[interval].range
+              chartFinalData.length > 0 &&
+              chartFinalData[0].updatedAt >
+              chartFinalData[chartFinalData.length - 1].updatedAt - LINE_CHART_CONFIG[interval].range
             ) {
-              const additionalElements = []
-              additionalElements.push({
-                time:
-                  result[result.length - 1].time -
+              chartFinalData.unshift({
+                updatedAt:
+                  chartFinalData[chartFinalData.length - 1].updatedAt -
                   LINE_CHART_CONFIG[interval].range,
-                value: null
-              })
-              result.unshift(...additionalElements)
+                value: null,
+                roundId: bn(0),
+                answer: null
+              } as any)
             }
-            console.log('#Line:', result)
-            if (result.length == 0) return;
-            setChartData({
-              ...chartData,
-              [chainId + interval + id]: result
-            })
-            setIsLoading(false)
+          setChartData(chartFinalData)
+            // if(isPreLoad) return;
+          //   let preLoadChart = chartData[chainId + LINE_CHART_CONFIG[interval]?.preLoadInterval + id] || []
+          //   if(isPreLoad && preLoadChart.length == 0) return;
+          //   const lastPre = preLoadChart[preLoadChart.length - 1]
+          //   const startPre = lastPre?.time - LINE_CHART_CONFIG[interval].range
+          //   preLoadChart = preLoadChart.filter(c => c.time >= startPre)
+          //   // console.log("#chartData", chartData, chainId + LINE_CHART_CONFIG[interval]?.preLoadInterval + id)
+          //   // // console.log("#res", chainId + "1D" + id, res)
+          //   if (isPreLoad && preLoadChart && preLoadChart.length > 0) {
+          //     preLoadChart.unshift({
+          //       time: preLoadChart[preLoadChart.length - 1].time -
+          //         LINE_CHART_CONFIG[interval].range + 1,
+          //       value: null
+          //       // res[0].value
+          //     })
+          //     setChartData({
+          //       ...chartData,
+          //       [chainId + interval + id]: preLoadChart
+          //     })
+          //     console.log("#preload", preLoadChart)
+          //     return;
+          //   }
+          //   // if(isPreLoad && preLoadChart.length == 0) return;
+          //   // if (data.length == 0) {
+          //   //   setIsLoading(true)
+          //   //   return
+          //   // }
+          //   setIsLoading(false)
+          //   // const seen = new Set<string>()
+          //   const allData = data.map((d) => {
+          //     return {
+          //       // roundId: d.roundId.toString(),
+          //       updatedAt: d.updatedAt,
+          //       // startAt: d.startedAt.toNumber(),
+          //       // time: new Date(d.updatedAt.toNumber()).toISOString(),
+          //       answer: d.answer.toString(),
+          //       // answeredInRound: d.answeredInRound.toString()
+          //     }
+          //   })
+
+            // const uniqueData = allData
+            //   .filter((item) => {
+            //     if (seen.has(item.roundId)) {
+            //       return false
+            //     }
+            //     seen.add(item.roundId)
+            //     return true
+            //   })
+            //   .sort((a, b) => a.updatedAt - b.updatedAt)
+            // console.log('#uniqueData', uniqueData)
+            // setPriceFeedData({
+            //   ...priceFeedData,
+            //   [chainId + interval + id]: uniqueData
+            // })
+
+          //   const chartDatas = uniqueData.map((item) => ({
+          //     time: item.updatedAt * 1000,
+          //     value: ethers.utils.formatUnits(item.answer, 8)
+          //   }))
+
+            // let lastData = chartDatas[chartDatas.length - 1]
+            // const start = lastData.time - LINE_CHART_CONFIG[interval].range
+            // const end = lastData.time
+
+            // const result = []
+            // for (let i = 1; i < chartDatas.length; i++) {
+            //   if (chartDatas[i].time < start) {
+            //     continue
+            //   }
+            //   result.push((lastData = chartDatas[i]))
+            //   if (lastData.time >= end) {
+            //     break
+            //   }
+            // }
+            // if (
+            //   result.length > 0 &&
+            //   result[0].time >
+            //   result[result.length - 1].time - LINE_CHART_CONFIG[interval].range
+            // ) {
+            //   const additionalElements = []
+            //   additionalElements.push({
+            //     time:
+            //       result[result.length - 1].time -
+            //       LINE_CHART_CONFIG[interval].range,
+            //     value: null
+            //   })
+            //   result.unshift(...additionalElements)
+            // }
+          //   console.log('#Line:', result)
+          //   if (result.length == 0) return;
+          //   setChartData({
+          //     ...chartData,
+          //     [chainId + interval + id]: result
+          //   })
+          //   setIsLoading(false)
           }
         })
           .then((data) => {
             setIsLoading(false)
             if (data.length === 0) {
-              setChartData({
-                ...chartData,
-                [chainId + interval + id]: []
-              })
+              setChartData([])
               return
             }
           })
@@ -661,13 +553,13 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
       }
       let url = `https://api.geckoterminal.com/api/v2/networks/${configs.gtID}/pools/${poolAddress}/ohlcv/${intervalConf.timeframe}?aggregate=${intervalConf.aggregate}&include_empty_intervals=false&limit=300`;
       
-      const currentKey = chainId + interval + id;
-      const currentData = chartData[currentKey] || [];
+      // const currentKey = chainId + interval + id;
+      const currentData = chartData || [];
       let beforeTimestamp = undefined;
       if (action === 'PREV' && currentData.length > 0) {
-        beforeTimestamp = Math.floor(currentData[0].time / 1000);
+        beforeTimestamp = Math.floor(currentData[0].updatedAt / 1000);
       } else if (action === 'NEXT' && currentData.length > 0) {
-        beforeTimestamp = Math.floor(currentData[currentData.length - 1].time / 1000);
+        beforeTimestamp = Math.floor(currentData[currentData.length - 1].updatedAt / 1000);
       }
       if (beforeTimestamp) {
         url += `&before_timestamp=${beforeTimestamp}`;
@@ -731,7 +623,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
           flexDirection: "column"
         }}
       >
-        {isLoading || !chartData[chainId + interval + id] ? (
+        {isLoading || !chartData ? (
           <div className='line-chart__loading'>
             <LineChartLoader />
           </div>
@@ -741,7 +633,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
             onClick={() => loadData('NONE')}
             style={{
               display:
-                chartData[chainId + interval + id].length > 0 ? 'none' : 'flex',
+                chartData.length > 0 ? 'none' : 'flex',
               position: 'absolute',
               top: '50%',
               left: '50%',
@@ -752,14 +644,14 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
             <ReloadIcon />
           </div>
         )}
-        {chartData[chainId + interval + id] &&
-          chartData[chainId + interval + id].length > 0 &&
+        {chartData &&
+          chartData.length > 0 &&
            options &&
            series[0]?.data?.length > 0 && (
         // @ts-ignore
           <ReactApexChart
             options={options}
-            series={series}
+            series={series as any}
             type="area"
             height={options.chart?.height}
             width={options.chart?.width}
