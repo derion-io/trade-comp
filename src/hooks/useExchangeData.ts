@@ -14,7 +14,7 @@ import {useEffect, useLayoutEffect, useState} from 'react'
 import {PriceFeedData, PriceFeedDataCache} from '../state/linechart/type'
 import {useDispatch, useSelector} from 'react-redux'
 import {State} from '../state/types'
-import {setLatestRoundCache, setRoundCache} from '../state/linechart/reducer'
+import {setLatestRoundCache, setPriceData} from '../state/linechart/reducer'
 import {useCurrentPool} from '../state/currentPool/hooks/useCurrentPool'
 type LiquidityPool = {
   hourlySnapshots: Array<HourlySnapshots>
@@ -144,9 +144,9 @@ const calculateStepSize = (interval: string, averageTime: number): number => {
 
 export const useExchangeData = () => {
   const [avgRoundInSecond, setAvgRoundInSecond] = useState<{[key:string]: number}>({})
-  const { roundCache, latestRoundCache} = useSelector((state: State) => {
+  const { priceData, latestRoundCache} = useSelector((state: State) => {
     return {
-      roundCache: state.linechart.roundCache,
+      priceData: state.linechart.priceData,
       latestRoundCache: state.linechart.lastestRoundCache
     }
   })
@@ -154,9 +154,9 @@ export const useExchangeData = () => {
   const {currentPool} = useCurrentPool()
   useEffect(()=>{
     //console.log("#roundCache",roundCache)
-  },[roundCache])
+  },[priceData])
   const dispatch = useDispatch()
-  // const [roundCache, setRoundCache] = useState<{[roundId: string]: PriceFeedData}>({})
+  // const [roundCache, setPriceData] = useState<{[roundId: string]: PriceFeedData}>({})
   const getPairHourData = async ({
     interval,
     pair,
@@ -362,7 +362,7 @@ export const useExchangeData = () => {
       const allRequestedData: PriceFeedData[] = []
       for (let i = 0; i < multiCallSize; i++) {
         const roundIdStr = currentRoundId.toString()
-        const cachedData = roundCache[encodeCLFeedCacheKey(feedAdress, roundIdStr)]
+        const cachedData = priceData[encodeCLFeedCacheKey(feedAdress, roundIdStr)]
         if (!cachedData?.updatedAt) {
           calls.push({
             target: feedAdress,
@@ -378,8 +378,8 @@ export const useExchangeData = () => {
       }
 
       const hasCached = allRequestedData.some(Boolean)
-      console.log("#updateData", allRequestedData ,roundCache, feedAdress)
-      console.log("#roundCache", roundCache)
+      console.log("#updateData", allRequestedData ,priceData, feedAdress)
+      console.log("#priceData", priceData)
       console.log("#feedAddres", feedAdress)
       console.log("#avgRoundInSecond", avgRoundInSecond)
       console.log("#roundstep", stepRound)
@@ -389,7 +389,7 @@ export const useExchangeData = () => {
       }
 
       let decodedData: PriceFeedData[] = []
-      let cache:PriceFeedDataCache = { ...roundCache }
+      let cache:PriceFeedDataCache = { ...priceData }
       if (calls.length > 0) {
         const [, returnData] = await multicalContract.callStatic.aggregate(calls)
 
@@ -417,9 +417,9 @@ export const useExchangeData = () => {
         })
         cache = {
           ...newCacheEntries,
-          ...roundCache
+          ...priceData
         }
-        dispatch(setRoundCache({
+        dispatch(setPriceData({
           cacheData: cache
         }))
         // //console.log(`Fetched ${decodedData.length} historical price feed data points.`)

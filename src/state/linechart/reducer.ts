@@ -6,14 +6,14 @@ export const tokens = createSlice({
   name: 'linechart',
   initialState,
   reducers: {
-    setRoundCache: (
+    setPriceData: (
       state,
       action: PayloadAction<{
-        cacheData: PriceFeedDataCache
+        priceData: PriceFeedDataCache
       }>
     ) => {
-      if (Object.keys(action.payload.cacheData ?? {}).length === 0) return
-      state.roundCache = action.payload.cacheData
+      if (Object.keys(action.payload.priceData ?? {}).length === 0) return
+      state.priceData = action.payload.priceData
     },
     setLatestRoundCache: (
       state,
@@ -29,7 +29,7 @@ export const tokens = createSlice({
 
 // Actions
 export const {
-    setRoundCache,
+    setPriceData,
     setLatestRoundCache,
 } = tokens.actions
 

@@ -61,9 +61,9 @@ export const Trade = ({
   const [visibleSettingModal, setVisibleSettingModal] = useState<boolean>(false)
   const { maturities } = useWalletBalance()
   const tokenOutMaturity = maturities?.[outputTokenAddress] || bn(0)
-  const { roundCache } = useSelector((state: State) => {
+  const { priceData } = useSelector((state: State) => {
     return {
-      roundCache: state.linechart.roundCache,
+      priceData: state.linechart.priceData,
     }
   })
   useEffect(() => {
@@ -103,12 +103,12 @@ export const Trade = ({
       if (!feedAddress) return
       const now = Math.floor(Date.now() / 1000)
       const DAY = 24 * 60 * 60
-      const priceFeedDataList = Object.entries(roundCache)
+      const priceFeedDataList = Object.entries(priceData)
         .filter(([key, value]) => key.startsWith(feedAddress))
         .map(([key, value]) => value)
         .filter((data) => data && data.updatedAt && (now - Number(data.updatedAt)) <= DAY)
 
-      console.log("#24", priceFeedDataList,roundCache)
+      console.log("#24", priceFeedDataList,priceData)
       if (priceFeedDataList.length < 2) {
         setChangedIn24h(0)
         return
@@ -122,7 +122,7 @@ export const Trade = ({
       const change = earliestPrice > 0 ? ((latestPrice - earliestPrice) / earliestPrice) * 100 : 0
       setChangedIn24h(Number(change.toFixed(2)))
     }
-  }, [id, configs, roundCache, poolGroups])
+  }, [id, configs, priceData, poolGroups])
 
   useEffect(() => {
     if (poolGroups && Object.keys(poolGroups).length > 0) {

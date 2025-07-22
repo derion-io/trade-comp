@@ -15,8 +15,8 @@ export type LastRoundCache = {[key:string]:  {
   cacheOutdateTime: number
   round: BigNumber
 }}
-export type LineChartType={roundCache: PriceFeedDataCache;  lastestRoundCache: LastRoundCache }
+export type LineChartType={priceData: PriceFeedDataCache;  lastestRoundCache: LastRoundCache }
 export const initialState: LineChartType = {
-  roundCache: {} as PriceFeedDataCache,
+  priceData: {} as PriceFeedDataCache,
   lastestRoundCache: {} as LastRoundCache
 }
