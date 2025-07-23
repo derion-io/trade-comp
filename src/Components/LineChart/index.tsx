@@ -1,37 +1,30 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { useExchangeData } from '../../hooks/useExchangeData'
-import { LineChartLoader } from '../ChartLoaders'
-import { ApexOptions } from 'apexcharts'
-import './style.scss'
-import { useCurrentPoolGroup } from '../../state/currentPool/hooks/useCurrentPoolGroup'
+import {ApexOptions} from 'apexcharts'
+import {BigNumber} from 'ethers'
 import moment from 'moment'
-import { Text, TextGrey } from '../ui/Text'
+import React,{useEffect,useMemo,useRef,useState} from 'react'
+import ReactApexChart from 'react-apexcharts'
+import isEqual from 'react-fast-compare'
+import {ReloadIcon} from '../../Components/ui/Icon'
+import {useExchangeData} from '../../hooks/useExchangeData'
+import {useWindowSize} from '../../hooks/useWindowSize'
+import {useConfigs} from '../../state/config/useConfigs'
+import {useCurrentPoolGroup} from '../../state/currentPool/hooks/useCurrentPoolGroup'
+import {LineChartData,PriceFeedDataCache} from '../../state/linechart/type'
+import {useResource} from '../../state/resources/hooks/useResource'
+import {COLORS} from '../../utils/constant'
+import {bn,formatFloat,isChainlink,zerofyWithUnit} from '../../utils/helpers'
 import {
   DATE_FORMATS,
   I_1D,
-  I_1W,
-  I_1M,
-  I_6M,
-  I_1Y,
   INTERVAL_TO_GECKO,
   INTERVALS_TAB,
   LINE_CHART_CONFIG,
   LineChartIntervalType
 } from '../../utils/lineChartConstant'
-import { Tabs } from '../ui/Tabs'
-import { COLORS } from '../../utils/constant'
-import isEqual from 'react-fast-compare'
-import { useConfigs } from '../../state/config/useConfigs'
-import { bn, formatFloat, isChainlink, zerofyWithUnit } from '../../utils/helpers'
-import { ReloadIcon } from '../../Components/ui/Icon'
-import { useWindowSize } from '../../hooks/useWindowSize'
-import { BigNumber, ethers } from 'ethers'
-import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
-import { useResource } from '../../state/resources/hooks/useResource'
-import ReactApexChart from 'react-apexcharts'
-import {preload} from 'swr/_internal'
-import {LineChartData, PriceFeedData, PriceFeedDataCache} from '../../state/linechart/type'
-import {chain, unionBy, uniqWith} from 'lodash'
+import {LineChartLoader} from '../ChartLoaders'
+import {Tabs} from '../ui/Tabs'
+import {Text,TextGrey} from '../ui/Text'
+import './style.scss'
 
 const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const { getLineChartData } = useExchangeData()
@@ -365,7 +358,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
           interval,
           action,
           from,
-          onUpdate: (priceData, isPreLoad) => {
+          onUpdate: (priceData) => {
             const chainIdStr = chainId.toString()
             if (!priceData?.[chainId.toString()] || !priceData?.[chainId.toString()][feedAddress] || Object.keys(priceData?.[chainId.toString()]?.[feedAddress])?.length === 0) {
               return;

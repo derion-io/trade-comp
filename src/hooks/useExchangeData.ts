@@ -163,7 +163,7 @@ export const useExchangeData = () => {
     from: string | BigNumber = BigNumber.from(0),
     feedAdress: string,
     interval: LineChartIntervalType,
-    onUpdate?: (PriceFeedDataCache: PriceFeedDataCache, preLoad: boolean) => void // callback for fresh data
+    onUpdate?: (PriceFeedDataCache: PriceFeedDataCache) => void // callback for fresh data
   ) => {
     try {
       const chainIdStr= chainId.toString()
@@ -247,7 +247,7 @@ export const useExchangeData = () => {
       console.log("#avgRoundInSecond", avgRoundInSecond)
       console.log("#roundstep", stepRound)
 
-      if (onUpdate) onUpdate(priceData, true)
+      if (onUpdate) onUpdate(priceData)
 
       let decodedData: PriceFeedData[] = []
       const newPriceDatas: PriceFeedDataCache = cloneDeep(priceData)
@@ -281,7 +281,7 @@ export const useExchangeData = () => {
           priceData: newPriceDatas
         }))
       }
-      if (onUpdate) onUpdate(newPriceDatas, false)
+      if (onUpdate) onUpdate(newPriceDatas)
 
       if (action === 'NONE' && roundSecond == 0 ) {
         const avgTime = calculateAverageTimePerRound(Object.keys(newPriceDatas[chainId][feedAdress]).map(r => newPriceDatas[chainId][feedAdress][r]), LINE_CHART_CONFIG[interval].stepRound)
@@ -312,7 +312,7 @@ export const useExchangeData = () => {
     baseToken: string
     action?: 'PREV' | 'NEXT' | 'NONE'
     from?: string | BigNumber
-    onUpdate?: (priceData: PriceFeedDataCache, preLoad: boolean) => void // callback for fresh data
+    onUpdate?: (priceData: PriceFeedDataCache) => void // callback for fresh data
   }) => {
     return await chainLinkHistoricalPriceFeedDatas(action, from, pair, interval, onUpdate)
   }
