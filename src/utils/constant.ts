@@ -68,7 +68,8 @@ export const POOL_IDS = {
 
 export const COLORS = {
   BUY: '#3DBAA2',
-  SELL: '#FF7A68'
+  SELL: '#FF7A68',
+  GRAY: "gray"
 }
 
 export const UNWRAP = {

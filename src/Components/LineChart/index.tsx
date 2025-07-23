@@ -59,11 +59,16 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
 
 
   const color = useMemo(() => {
-    if (!chartData[0] || !chartData[chartData.length - 1]) {
-      return COLORS.BUY
+    if(isLoading) {
+      return COLORS.GRAY
     }
-    return Number(chartData[0].answer) < Number(chartData[chartData?.length - 1].answer) ? COLORS.BUY : COLORS.SELL
-  }, [chartData])
+    const firstData = chartData[0]?.answer ? chartData[0] : chartData[1]
+    const lastData = chartData[chartData.length - 1]
+    if(!firstData || !lastData) {
+      return COLORS.GRAY
+    }
+    return Number(firstData.answer) < Number(lastData.answer) ? COLORS.BUY : COLORS.SELL
+  }, [chartData, isLoading])
 
   // ApexCharts series data
   const series = useMemo(() => {
