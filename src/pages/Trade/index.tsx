@@ -21,6 +21,8 @@ import { bn, decodeErc1155Address, isChainlink, isErc1155Address } from '../../u
 import './style.scss'
 import { PoolSearch } from '../../utils/type'
 import { Uni3Positions } from '../../Components/Uni3Positions'
+import {useSelector} from 'react-redux'
+import {State} from '../../state/types'
 
 const TAB_2 = {
   POSITION: Symbol('position'),
@@ -56,7 +58,11 @@ export const Trade = ({
   const [visibleSettingModal, setVisibleSettingModal] = useState<boolean>(false)
   const { maturities } = useWalletBalance()
   const tokenOutMaturity = maturities?.[outputTokenAddress] || bn(0)
-
+  const { priceData } = useSelector((state: State) => {
+    return {
+      priceData: state.linechart.priceData,
+    }
+  })
   useEffect(() => {
     const url =
       location.href.split('?').length > 1
@@ -78,15 +84,44 @@ export const Trade = ({
   }, [outputTokenAddress, id])
 
   useEffect(() => {
-    if (id && configs) {
-      fetch24hChange({
-        pairAddress: configs?.chartReplacements?.[id] ?? id.split('-')?.[0],
-        gtID: configs.gtID
-      }).then((res) => {
-        setChangedIn24h(Number(res?.h24 || 0))
-      })
+    if (id && configs && !isChainlink(poolGroups[id])) {
+        fetch24hChange({
+          pairAddress: configs?.chartReplacements?.[id] ?? id.split('-')?.[0],
+          gtID: configs.gtID
+        }).then((res) => {
+          setChangedIn24h(Number(res?.h24 || 0))
+        })
     }
-  }, [id, configs])
+  }, [id, configs,poolGroups])
+
+  useEffect(() => {
+    if (id && configs && isChainlink(poolGroups[id])) {
+      const feedAddress = "0x" + poolGroups[id]?.ORACLE.slice(26)
+      if (!priceData?.[chainId.toString()] || !priceData?.[chainId.toString()][feedAddress] || Object.keys(priceData?.[chainId.toString()]?.[feedAddress])?.length === 0) {
+        return;
+      }
+      if (!feedAddress) return
+      const now = Date.now()
+      const DAY = 24 * 60 * 60 * 1000
+      const priceFeedDataList = Object.entries(priceData?.[chainId.toString()]?.[feedAddress])
+        .map(([key, value]) => value)
+        .filter((data) => data && data.updatedAt && (now - Number(data.updatedAt)) <= DAY)
+
+      console.log("#24", priceFeedDataList,priceData)
+      if (priceFeedDataList.length < 2) {
+        setChangedIn24h(0)
+        return
+      }
+
+      const earliest = priceFeedDataList[priceFeedDataList.length - 1]
+      const latest = priceFeedDataList[0]
+      // console.log("#24h", new Date(earliest.updatedAt.toNumber() * 1000).toUTCString(), new Date(latest.updatedAt?.toNumber() * 1000).toUTCString())
+      const earliestPrice = Number(earliest.answer)
+      const latestPrice = Number(latest.answer)
+      const change = earliestPrice > 0 ? ((latestPrice - earliestPrice) / earliestPrice) * 100 : 0
+      setChangedIn24h(Number(change.toFixed(2)))
+    }
+  }, [id, configs, priceData, chainId, poolGroups])
 
   useEffect(() => {
     if (poolGroups && Object.keys(poolGroups).length > 0) {

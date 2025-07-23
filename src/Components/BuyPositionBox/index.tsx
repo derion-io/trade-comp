@@ -2,7 +2,7 @@ import { BigNumber } from 'ethers'
 import LeverageSlider from 'leverage-slider/dist/component'
 import _ from 'lodash'
 import 'rc-slider/assets/index.css'
-import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import isEqual from 'react-fast-compare'
 import { useGenerateLeverageData } from '../../hooks/useGenerateLeverageData'
 import { useConfigs } from '../../state/config/useConfigs'
@@ -48,8 +48,6 @@ import './style.scss'
 import { Spin } from 'antd'
 import { useCalculatePara } from '../SwapBox/hooks/useCalculatePara'
 import { parseEther } from 'ethers/lib/utils'
-import { useSettings } from '../../state/setting/hooks/useSettings'
-import { DownOutlined, SettingOutlined } from '@ant-design/icons'
 import { usePoolRate } from '../../hooks/usePoolRate'
 
 const Component = ({
@@ -276,10 +274,6 @@ const Component = ({
     }
     return getPoolPower(poolToShow)
   }, [poolToShow])
-
-  const interestRef = useRef(interest)
-  interestRef.current = interest
-  const premiumRef = useRef(premium)
 
   useEffect(() => {
     if (tokensToSelect.length > 0 && !tokensToSelect.includes(inputTokenAddress)) {

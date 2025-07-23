@@ -69,8 +69,8 @@ export const initialState: currentPoolState = {
   drB: 0,
   drC: 0,
   currentPoolAddress: '',
-  chartTab: CHART_TABS.CANDLE_CHART,
-  lastTradeChart: CHART_TABS.CANDLE_CHART,
+  chartTab: CHART_TABS.LINE_CHART,
+  lastTradeChart: CHART_TABS.LINE_CHART,
   tradeType: TRADE_TYPE.LONG,
   pair: {
     token0: undefined,

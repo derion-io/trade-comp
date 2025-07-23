@@ -1,26 +1,35 @@
 // eslint-disable-next-line no-unused-vars
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { BigNumber } from 'ethers'
-import {initialState, PriceFeedDataCache} from "./type"
+import {initialState, LastRoundCache, PriceFeedDataCache} from "./type"
 export const tokens = createSlice({
   name: 'linechart',
   initialState,
   reducers: {
-    setRoundCache: (
+    setPriceData: (
       state,
       action: PayloadAction<{
-        cacheData: PriceFeedDataCache
+        priceData: PriceFeedDataCache
+      }>
+    ) => {
+      if (Object.keys(action.payload.priceData ?? {}).length === 0) return
+      state.priceData = action.payload.priceData
+    },
+    setLatestRoundCache: (
+      state,
+      action: PayloadAction<{
+        cacheData: LastRoundCache
       }>
     ) => {
       if (Object.keys(action.payload.cacheData ?? {}).length === 0) return
-      state.roundCache = action.payload.cacheData
+      state.lastestRoundCache = action.payload.cacheData
     },
   }
 })
 
 // Actions
 export const {
-    setRoundCache,
+    setPriceData,
+    setLatestRoundCache,
 } = tokens.actions
 
 export default tokens.reducer

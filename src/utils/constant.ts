@@ -67,6 +67,7 @@ export const POOL_IDS = {
 }
 
 export const COLORS = {
+  GRAY: "gray",
   BUY: '#3DBAA2',
   SELL: '#FF7A68'
 }

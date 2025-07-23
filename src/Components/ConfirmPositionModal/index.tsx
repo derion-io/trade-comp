@@ -34,7 +34,6 @@ import { SwapModalHeaderAmount } from './components/SwapModalHeaderAmount'
 import './style.scss'
 import { SwapInfoBox } from '../BuyPositionBox/components/SwapInfoBox'
 import { Q256 } from '../../utils/type'
-import { useConfigs } from '../../state/config/useConfigs'
 import { usePoolRate } from '../../hooks/usePoolRate'
 import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 
