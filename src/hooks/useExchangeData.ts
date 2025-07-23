@@ -322,7 +322,8 @@ export const useExchangeData = () => {
             }
           })
         decodedData.forEach((data, index) => {
-          newPriceDatas[chainIdStr][feedAdress][roundsToFetch[index]] = data
+          if(data)
+            newPriceDatas[chainIdStr][feedAdress][roundsToFetch[index]] = data
         })
         dispatch(setPriceData({
           priceData: newPriceDatas
