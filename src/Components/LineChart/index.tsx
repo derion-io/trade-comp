@@ -336,7 +336,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
 
     let from = BigNumber.from(0)
     if (action === 'PREV') {
-      const firstItem = chartData[0]
+      const firstItem = chartData[0].answer ? chartData[0] : chartData[1]
       if (firstItem) {
         from = firstItem.roundId
       }
@@ -370,7 +370,12 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
                 roundId: bn(round)
               }
             }).sort((a,b) => a.updatedAt - b.updatedAt)
-
+            if(action === "PREV") {
+              chartFinalData = chartFinalData.filter(c => c?.updatedAt <= chartData[0]?.updatedAt && c?.updatedAt >= chartData[0]?.updatedAt - LINE_CHART_CONFIG[interval].range)
+            } else if (action == "NEXT")(
+              chartFinalData = chartFinalData.filter(c => c?.updatedAt >= chartData[chartData.length - 1]?.updatedAt && c?.updatedAt <= chartData[chartData.length - 1]?.updatedAt + LINE_CHART_CONFIG[interval].range)
+            )
+            if(chartFinalData.length === 0) return;
             const [firstData, lastData] = [chartFinalData[0], chartFinalData[chartFinalData.length - 1]]
             
             const start = lastData.updatedAt - LINE_CHART_CONFIG[interval].range

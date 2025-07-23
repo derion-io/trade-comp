@@ -1,7 +1,7 @@
 import { gql, GraphQLClient } from 'graphql-request'
 import { useConfigs } from '../state/config/useConfigs'
 import { BigNumber, ethers } from 'ethers'
-import { formatFloat } from '../utils/helpers'
+import { bn, formatFloat } from '../utils/helpers'
 // eslint-disable-next-line no-unused-vars
 import {
   CACHE_LATEST_ROUND_TIME,
@@ -198,12 +198,11 @@ export const useExchangeData = () => {
       const stepRound = roundSecond === 0 ?
                           LINE_CHART_CONFIG[interval].stepRound : 
                           (Math.round(totalRound / PRICE_FEED_MULTICALL_SIZE) == 0 ? 1 : Math.round(totalRound / PRICE_FEED_MULTICALL_SIZE) + 1)
-
       if (action === 'PREV') {
         roundId = BigNumber.from(from)
         multiCallSize = PRICE_FEED_MULTICALL_SIZE
       } else if (action === 'NEXT') {
-        if (BigNumber.from(latestRoundId).sub(from).gt(PRICE_FEED_MULTICALL_SIZE * stepRound)) {
+        if (bn(PRICE_FEED_MULTICALL_SIZE * stepRound).add(from).lt(latestRoundId)) {
           roundId = BigNumber.from(from).add(PRICE_FEED_MULTICALL_SIZE * stepRound)
           multiCallSize = PRICE_FEED_MULTICALL_SIZE
         } else {
