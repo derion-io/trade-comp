@@ -30,8 +30,8 @@ import { useCurrentPool } from '../../state/currentPool/hooks/useCurrentPool'
 import { useResource } from '../../state/resources/hooks/useResource'
 import ReactApexChart from 'react-apexcharts'
 import {preload} from 'swr/_internal'
-import {LineChartData, PriceFeedData} from '../../state/linechart/type'
-import {unionBy, uniqWith} from 'lodash'
+import {LineChartData, PriceFeedData, PriceFeedDataCache} from '../../state/linechart/type'
+import {chain, unionBy, uniqWith} from 'lodash'
 
 const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const { getLineChartData } = useExchangeData()
@@ -64,55 +64,26 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
     setHoverDate(new Date().getTime())
   }, [basePrice])
 
-  const finalData = useMemo(() => {
-    const data = [...(chartData || [])]
-    const smoothedData = []
-    for (let i = 0; i < data.length; i++) {
-      const current = data[i]
-      const currentValue = parseFloat(current.value)
-      
-      if (i === 0) {
-        smoothedData.push(current)
-        continue
-      }
-      
-      const previous = smoothedData[smoothedData.length - 1]
-      const previousValue = parseFloat(previous.value)
-      
-      const percentChange = Math.abs((currentValue - previousValue) / previousValue)
-      
-      if (percentChange > 0.5) {
-        const interpolatedValue = (currentValue + previousValue) / 2
-        smoothedData.push({
-          ...current,
-          value: interpolatedValue.toString()
-        })
-      } else {
-        smoothedData.push(current)
-      }
-    }
-    return smoothedData
-  }, [chartData, interval, chainId, id])
 
   const color = useMemo(() => {
-    if (!finalData[0] || !finalData[finalData.length - 1]) {
+    if (!chartData[0] || !chartData[chartData.length - 1]) {
       return COLORS.BUY
     }
-    return Number(finalData[0].value) < Number(finalData[finalData?.length - 1].value) ? COLORS.BUY : COLORS.SELL
-  }, [finalData])
+    return Number(chartData[0].answer) < Number(chartData[chartData?.length - 1].answer) ? COLORS.BUY : COLORS.SELL
+  }, [chartData])
 
   // ApexCharts series data
   const series = useMemo(() => {
-    const seriesData = finalData.map(item => [
+    const seriesData = chartData.map(item => [
       Number(item.updatedAt),
-      (item.value),
+      (item.answer),
     ])
     
     return [{
       name: 'Price',
       data: seriesData
     }]
-  }, [finalData])
+  }, [chartData])
 
   // ApexCharts options
   const options: ApexOptions = useMemo(() => ({
@@ -142,16 +113,16 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
       },
       events: {
         dataPointMouseEnter: function(event, chartContext, config) {
-          if (config.dataPointIndex >= 0 && finalData[config.dataPointIndex]) {
-            const dataPoint = finalData[config.dataPointIndex]
-            setHoverValue(zerofyWithUnit(dataPoint.value))
+          if (config.dataPointIndex >= 0 && chartData[config.dataPointIndex]) {
+            const dataPoint = chartData[config.dataPointIndex]
+            setHoverValue(zerofyWithUnit(dataPoint.answer))
             setHoverDate(dataPoint.updatedAt)
           }
         },
         mouseMove: function(event, chartContext, config) {
-          if (config.dataPointIndex >= 0 && finalData[config.dataPointIndex]) {
-            const dataPoint = finalData[config.dataPointIndex]
-            setHoverValue(zerofyWithUnit(dataPoint.value))
+          if (config.dataPointIndex >= 0 && chartData[config.dataPointIndex]) {
+            const dataPoint = chartData[config.dataPointIndex]
+            setHoverValue(zerofyWithUnit(dataPoint.answer))
             setHoverDate(dataPoint.updatedAt)
           }
         },
@@ -305,7 +276,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
         fontFamily: 'Inter, sans-serif'
       },
       custom: function({ series, seriesIndex, dataPointIndex, w }) {
-        const dataPoint = finalData[dataPointIndex]
+        const dataPoint = chartData[dataPointIndex]
         if (!dataPoint) return ''
         
         return `
@@ -324,7 +295,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
               font-size: 14px;
               margin-bottom: 4px;
             ">
-              ${zerofyWithUnit(dataPoint.value)}
+              ${zerofyWithUnit(dataPoint.answer)}
             </div>
             <div style="
               color: #8B8B8B;
@@ -358,7 +329,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
         }
       }
     ]
-  }), [color, finalData, interval, isPhone, basePrice, wrapRef?.current ,headRef.current?.offsetHeight])
+  }), [color, chartData, interval, isPhone, basePrice, wrapRef?.current ,headRef.current?.offsetHeight])
 
   const loadData = (action: 'PREV' | 'NEXT' | 'NONE' = 'NONE') => {
     setIsLoading(true)
@@ -387,146 +358,50 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
     console.log("#chartData", chartData)
     if (from && currentPool?.ORACLE) {
       if (isChainlink(currentPool)) {
+        const feedAddress = '0x' + currentPool?.ORACLE?.slice(26)
         getLineChartData({
-          pair: '0x' + currentPool?.ORACLE?.slice(26),
+          pair: feedAddress,
           baseToken,
           interval,
           action,
           from,
-          onUpdate: (data, isPreLoad) => {
-            // setChartData(data)
-            const chartFinalData: LineChartData[] = []
-            console.log("#data", data)
-            const _data = data.sort((a, b) => a.updatedAt - b.updatedAt)
+          onUpdate: (priceData, isPreLoad) => {
+            const chainIdStr = chainId.toString()
+            if (!priceData?.[chainId.toString()] || !priceData?.[chainId.toString()][feedAddress] || Object.keys(priceData?.[chainId.toString()]?.[feedAddress])?.length === 0) {
+              return;
+            }
 
-            let lastData = _data[_data.length - 1]
+            let chartFinalData: LineChartData[] = Object.keys(priceData[chainIdStr][feedAddress]).map(round => {
+              return {
+                ...priceData[chainIdStr][feedAddress][round],
+                roundId: bn(round)
+              }
+            }).sort((a,b) => a.updatedAt - b.updatedAt)
+
+            const [firstData, lastData] = [chartFinalData[0], chartFinalData[chartFinalData.length - 1]]
+            
             const start = lastData.updatedAt - LINE_CHART_CONFIG[interval].range
             const end = lastData.updatedAt
-
-            for (let i = 1; i < _data.length; i++) {
-              if (_data[i].updatedAt < start) {
-                continue
-              }
-              chartFinalData.push((lastData = _data[i]))
-              if (lastData.updatedAt >= end) {
-                break
-              }
-            }
+            chartFinalData = chartFinalData.filter(c => c.updatedAt >= start && c.updatedAt <= end)
             if (
               chartFinalData.length > 0 &&
-              chartFinalData[0].updatedAt >
-              chartFinalData[chartFinalData.length - 1].updatedAt - LINE_CHART_CONFIG[interval].range
+              firstData.updatedAt >
+              lastData.updatedAt - LINE_CHART_CONFIG[interval].range
             ) {
               chartFinalData.unshift({
                 updatedAt:
-                  chartFinalData[chartFinalData.length - 1].updatedAt -
-                  LINE_CHART_CONFIG[interval].range,
+                  lastData.updatedAt - LINE_CHART_CONFIG[interval].range,
                 value: null,
                 roundId: bn(0),
                 answer: null
               } as any)
             }
           setChartData(chartFinalData)
-            // if(isPreLoad) return;
-          //   let preLoadChart = chartData[chainId + LINE_CHART_CONFIG[interval]?.preLoadInterval + id] || []
-          //   if(isPreLoad && preLoadChart.length == 0) return;
-          //   const lastPre = preLoadChart[preLoadChart.length - 1]
-          //   const startPre = lastPre?.time - LINE_CHART_CONFIG[interval].range
-          //   preLoadChart = preLoadChart.filter(c => c.time >= startPre)
-          //   // console.log("#chartData", chartData, chainId + LINE_CHART_CONFIG[interval]?.preLoadInterval + id)
-          //   // // console.log("#res", chainId + "1D" + id, res)
-          //   if (isPreLoad && preLoadChart && preLoadChart.length > 0) {
-          //     preLoadChart.unshift({
-          //       time: preLoadChart[preLoadChart.length - 1].time -
-          //         LINE_CHART_CONFIG[interval].range + 1,
-          //       value: null
-          //       // res[0].value
-          //     })
-          //     setChartData({
-          //       ...chartData,
-          //       [chainId + interval + id]: preLoadChart
-          //     })
-          //     console.log("#preload", preLoadChart)
-          //     return;
-          //   }
-          //   // if(isPreLoad && preLoadChart.length == 0) return;
-          //   // if (data.length == 0) {
-          //   //   setIsLoading(true)
-          //   //   return
-          //   // }
-          //   setIsLoading(false)
-          //   // const seen = new Set<string>()
-          //   const allData = data.map((d) => {
-          //     return {
-          //       // roundId: d.roundId.toString(),
-          //       updatedAt: d.updatedAt,
-          //       // startAt: d.startedAt.toNumber(),
-          //       // time: new Date(d.updatedAt.toNumber()).toISOString(),
-          //       answer: d.answer.toString(),
-          //       // answeredInRound: d.answeredInRound.toString()
-          //     }
-          //   })
-
-            // const uniqueData = allData
-            //   .filter((item) => {
-            //     if (seen.has(item.roundId)) {
-            //       return false
-            //     }
-            //     seen.add(item.roundId)
-            //     return true
-            //   })
-            //   .sort((a, b) => a.updatedAt - b.updatedAt)
-            // console.log('#uniqueData', uniqueData)
-            // setPriceFeedData({
-            //   ...priceFeedData,
-            //   [chainId + interval + id]: uniqueData
-            // })
-
-          //   const chartDatas = uniqueData.map((item) => ({
-          //     time: item.updatedAt * 1000,
-          //     value: ethers.utils.formatUnits(item.answer, 8)
-          //   }))
-
-            // let lastData = chartDatas[chartDatas.length - 1]
-            // const start = lastData.time - LINE_CHART_CONFIG[interval].range
-            // const end = lastData.time
-
-            // const result = []
-            // for (let i = 1; i < chartDatas.length; i++) {
-            //   if (chartDatas[i].time < start) {
-            //     continue
-            //   }
-            //   result.push((lastData = chartDatas[i]))
-            //   if (lastData.time >= end) {
-            //     break
-            //   }
-            // }
-            // if (
-            //   result.length > 0 &&
-            //   result[0].time >
-            //   result[result.length - 1].time - LINE_CHART_CONFIG[interval].range
-            // ) {
-            //   const additionalElements = []
-            //   additionalElements.push({
-            //     time:
-            //       result[result.length - 1].time -
-            //       LINE_CHART_CONFIG[interval].range,
-            //     value: null
-            //   })
-            //   result.unshift(...additionalElements)
-            // }
-          //   console.log('#Line:', result)
-          //   if (result.length == 0) return;
-          //   setChartData({
-          //     ...chartData,
-          //     [chainId + interval + id]: result
-          //   })
-          //   setIsLoading(false)
           }
         })
-          .then((data) => {
+          .then((data: PriceFeedDataCache) => {
             setIsLoading(false)
-            if (data.length === 0) {
+            if (!data?.[chainId.toString()] || !data?.[chainId.toString()][feedAddress] || Object.keys(data?.[chainId.toString()]?.[feedAddress])?.length === 0) {
               setChartData([])
               return
             }

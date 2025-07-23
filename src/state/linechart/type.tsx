@@ -3,7 +3,7 @@ import { BigNumber } from 'ethers'
 // import { SUPPORTED_CHAINS } from '../../utils/constant'
 
 export type PriceFeedData = {
-  answer: BigNumber
+  answer: string
   // startedAt: BigNumber
   updatedAt: number
   // answeredInRound: BigNumber
@@ -11,7 +11,6 @@ export type PriceFeedData = {
 }
 
 export type LineChartData = PriceFeedData & {
-  value: string
   roundId: BigNumber
 }
 export type PriceFeedDataCache = { [chainId: string]: {[feed: string]:{[roundId: string]: PriceFeedData} }}
