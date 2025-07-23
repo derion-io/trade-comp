@@ -382,7 +382,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
             chartFinalData = chartFinalData.sort((a,b) => a.updatedAt - b.updatedAt)
       
             const [firstData, lastData] = [chartFinalData[0], chartFinalData[chartFinalData.length - 1]]
-            
+            if(!firstData || !lastData) return;
             const start = lastData.updatedAt - LINE_CHART_CONFIG[interval].range
             const end = lastData.updatedAt
             chartFinalData = chartFinalData.filter(c => c.updatedAt >= start && c.updatedAt <= end)

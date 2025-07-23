@@ -227,8 +227,8 @@ export const useExchangeData = () => {
       let currentRoundId = BigNumber.from(roundId)
       for (let i = 0; i < multiCallSize; i++) {
         const roundIdStr = currentRoundId.toString()
-        const cachedData = priceData?.[chainIdStr]?.[feedAdress]?.[roundIdStr]
-        if (!cachedData?.updatedAt) {
+        const pxData = priceData?.[chainIdStr]?.[feedAdress]?.[roundIdStr]
+        if (!pxData?.updatedAt) {
           calls.push({
             target: feedAdress,
             callData: priceFeedInterface.encodeFunctionData('getRoundData', [
