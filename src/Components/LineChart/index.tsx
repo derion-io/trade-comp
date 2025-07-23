@@ -378,7 +378,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
             if(action === "PREV") {
               chartFinalData = chartFinalData.filter(c => c?.updatedAt <= chartData[0]?.updatedAt && c?.updatedAt >= chartData[0]?.updatedAt - LINE_CHART_CONFIG[interval].range)
             } else if (action == "NEXT"){
-              chartFinalData = chartFinalData.filter(c => c?.updatedAt > chartData[chartData.length - 1]?.updatedAt && c?.updatedAt <= chartData[chartData.length - 1]?.updatedAt + LINE_CHART_CONFIG[interval].range)
+              chartFinalData = chartFinalData.filter(c => c?.updatedAt > chartData[chartData.length - 1]?.updatedAt && c?.updatedAt < chartData[chartData.length - 1]?.updatedAt + LINE_CHART_CONFIG[interval].range)
               if(chartFinalData.length === 0 ) {
                 setIsLoading(false)
                 return
