@@ -46,6 +46,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const currentPool = useMemo(() => poolGroups[id], [id, poolGroups])
   useEffect(() => {
     if (!chartData || id) {
+      setChartData([])
       loadData()
     }
   }, [id, chainId, interval, currentPool])
