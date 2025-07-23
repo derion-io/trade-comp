@@ -100,11 +100,13 @@ export const Trade = ({
   useEffect(() => {
     if (id && configs && isChainlink(poolGroups[id])) {
       const feedAddress = "0x" + poolGroups[id]?.ORACLE.slice(26)
+      if (!priceData?.[chainId.toString()] || !priceData?.[chainId.toString()][feedAddress] || Object.keys(priceData?.[chainId.toString()]?.[feedAddress])?.length === 0) {
+        return;
+      }
       if (!feedAddress) return
-      const now = Math.floor(Date.now() / 1000)
-      const DAY = 24 * 60 * 60
-      const priceFeedDataList = Object.entries(priceData)
-        .filter(([key, value]) => key.startsWith(feedAddress))
+      const now = Date.now()
+      const DAY = 24 * 60 * 60 * 1000
+      const priceFeedDataList = Object.entries(priceData?.[chainId.toString()]?.[feedAddress])
         .map(([key, value]) => value)
         .filter((data) => data && data.updatedAt && (now - Number(data.updatedAt)) <= DAY)
 
@@ -122,7 +124,7 @@ export const Trade = ({
       const change = earliestPrice > 0 ? ((latestPrice - earliestPrice) / earliestPrice) * 100 : 0
       setChangedIn24h(Number(change.toFixed(2)))
     }
-  }, [id, configs, priceData, poolGroups])
+  }, [id, configs, priceData, chainId, poolGroups])
 
   useEffect(() => {
     if (poolGroups && Object.keys(poolGroups).length > 0) {
