@@ -369,13 +369,18 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
                 ...priceData[chainIdStr][feedAddress][round],
                 roundId: bn(round)
               }
-            }).sort((a,b) => a.updatedAt - b.updatedAt)
+            })
             if(action === "PREV") {
               chartFinalData = chartFinalData.filter(c => c?.updatedAt <= chartData[0]?.updatedAt && c?.updatedAt >= chartData[0]?.updatedAt - LINE_CHART_CONFIG[interval].range)
-            } else if (action == "NEXT")(
-              chartFinalData = chartFinalData.filter(c => c?.updatedAt >= chartData[chartData.length - 1]?.updatedAt && c?.updatedAt <= chartData[chartData.length - 1]?.updatedAt + LINE_CHART_CONFIG[interval].range)
-            )
-            if(chartFinalData.length === 0) return;
+            } else if (action == "NEXT"){
+              chartFinalData = chartFinalData.filter(c => c?.updatedAt > chartData[chartData.length - 1]?.updatedAt && c?.updatedAt <= chartData[chartData.length - 1]?.updatedAt + LINE_CHART_CONFIG[interval].range)
+              if(chartFinalData.length === 0 ) {
+                setIsLoading(false)
+                return
+              }; 
+            }
+            chartFinalData = chartFinalData.sort((a,b) => a.updatedAt - b.updatedAt)
+      
             const [firstData, lastData] = [chartFinalData[0], chartFinalData[chartFinalData.length - 1]]
             
             const start = lastData.updatedAt - LINE_CHART_CONFIG[interval].range
