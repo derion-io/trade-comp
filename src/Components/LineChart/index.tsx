@@ -25,6 +25,7 @@ import {LineChartLoader} from '../ChartLoaders'
 import {Tabs} from '../ui/Tabs'
 import {Text,TextGrey} from '../ui/Text'
 import './style.scss'
+import {uniqBy} from 'lodash'
 
 const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const { getLineChartData } = useExchangeData()
@@ -43,7 +44,6 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const { width } = useWindowSize()
   const isPhone = width && width < 768
   const currentPool = useMemo(() => poolGroups[id], [id, poolGroups])
-
   useEffect(() => {
     if (!chartData || id) {
       loadData()
@@ -384,6 +384,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
                 return
               }; 
             }
+            chartFinalData = uniqBy(chartFinalData, "updatedAt")
             chartFinalData = chartFinalData.sort((a,b) => a.updatedAt - b.updatedAt)
       
             const [firstData, lastData] = [chartFinalData[0], chartFinalData[chartFinalData.length - 1]]

@@ -173,7 +173,7 @@ const calculateAverageTimePerRound = (data: PriceFeedData[],  stepRound:  number
   } else {
     const totalDiff = data
       .slice(1)
-      .reduce((sum, t, i) => sum + Math.abs(Number(t.updatedAt) - Number(data[i].updatedAt)), 0);
+      .reduce((sum, t, i) => sum + Math.abs(Number(t?.updatedAt) - Number(data[i]?.updatedAt)), 0);
   
     const avgDiff = totalDiff / (data.length - 1);
     return (avgDiff /1000 )  / stepRound
@@ -331,8 +331,8 @@ export const useExchangeData = () => {
       }
       if (onUpdate) onUpdate(newPriceDatas)
 
-      if (action === 'NONE' && roundSecond == 0 ) {
-        const avgTime = calculateAverageTimePerRound(Object.keys(newPriceDatas[chainId][feedAdress]).map(r => newPriceDatas[chainId][feedAdress][r]), LINE_CHART_CONFIG[interval].stepRound)
+      if (action === 'NONE' && roundSecond == 0 && Object.keys(newPriceDatas[chainId][feedAdress]).length > 1) {
+        const avgTime = calculateAverageTimePerRound(Object.keys(newPriceDatas[chainId][feedAdress]).map(r => newPriceDatas[chainId][feedAdress][r]).filter(a => a?.updatedAt), LINE_CHART_CONFIG[interval].stepRound)
         setAvgRoundInSecond((data => {
           return {
             ...data,
