@@ -72,9 +72,9 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
 
   // ApexCharts series data
   const series = useMemo(() => {
-    const seriesData = chartData.map(item => [
+    const seriesData: [number, number | null][] = chartData.map(item => [
       Number(item.updatedAt),
-      (item.answer),
+      item.answer ? Number(item.answer) : null,
     ])
     
     return [{
@@ -83,7 +83,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
     }]
   }, [chartData])
 
-  // ApexCharts options
+  // ApexCharts option
   const options: ApexOptions = useMemo(() => ({
     chart: {
       type: 'area',
@@ -533,7 +533,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
         // @ts-ignore
           <ReactApexChart
             options={options}
-            series={series as any}
+            series={series}
             type="area"
             height={options.chart?.height}
             width={options.chart?.width}
