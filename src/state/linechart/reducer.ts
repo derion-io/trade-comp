@@ -1,6 +1,5 @@
 // eslint-disable-next-line no-unused-vars
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { BigNumber } from 'ethers'
 import {initialState, LastRoundCache, PriceFeedDataCache} from "./type"
 export const tokens = createSlice({
   name: 'linechart',

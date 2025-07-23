@@ -21,11 +21,8 @@ import { bn, decodeErc1155Address, isChainlink, isErc1155Address } from '../../u
 import './style.scss'
 import { PoolSearch } from '../../utils/type'
 import { Uni3Positions } from '../../Components/Uni3Positions'
-import {useExchangeData} from '../../hooks/useExchangeData'
 import {useSelector} from 'react-redux'
 import {State} from '../../state/types'
-import { encodeCLFeedCacheKey } from '../../utils/lineChartConstant'
-import { ethers } from 'ethers'
 
 const TAB_2 = {
   POSITION: Symbol('position'),

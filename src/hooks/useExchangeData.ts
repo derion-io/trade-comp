@@ -1,22 +1,21 @@
-import { gql, GraphQLClient } from 'graphql-request'
+import { gql } from 'graphql-request'
 import { useConfigs } from '../state/config/useConfigs'
 import { BigNumber, ethers } from 'ethers'
-import { bn, formatFloat } from '../utils/helpers'
+import { bn } from '../utils/helpers'
 // eslint-disable-next-line no-unused-vars
 import {
   CACHE_LATEST_ROUND_TIME,
-  encodeCLFeedCacheKey,
   LINE_CHART_CONFIG,
   LineChartIntervalType
 } from '../utils/lineChartConstant'
 import { Interface } from 'ethers/lib/utils'
 import {useEffect, useLayoutEffect, useState} from 'react'
-import {LineChartData, PriceFeedData, PriceFeedDataCache} from '../state/linechart/type'
+import {PriceFeedData, PriceFeedDataCache} from '../state/linechart/type'
 import {useDispatch, useSelector} from 'react-redux'
 import {State} from '../state/types'
 import {setLatestRoundCache, setPriceData} from '../state/linechart/reducer'
 import {useCurrentPool} from '../state/currentPool/hooks/useCurrentPool'
-import {chain, clone, cloneDeep} from 'lodash'
+import {cloneDeep} from 'lodash'
 type LiquidityPool = {
   hourlySnapshots: Array<HourlySnapshots>
   dailySnapshots: Array<DailySnapshots>
