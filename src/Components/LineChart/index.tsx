@@ -15,7 +15,7 @@ import {COLORS} from '../../utils/constant'
 import {bn,formatFloat,isChainlink,zerofyWithUnit} from '../../utils/helpers'
 import {
   DATE_FORMATS,
-  I_1D,
+  I_1Y,
   INTERVAL_TO_GECKO,
   INTERVALS_TAB,
   LINE_CHART_CONFIG,
@@ -36,7 +36,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const [chartData, setChartData] = useState<LineChartData[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [hoverDate, setHoverDate] = useState<number>()
-  const [interval, setInterval] = useState<LineChartIntervalType>(I_1D)
+  const [interval, setInterval] = useState<LineChartIntervalType>(I_1Y)
   const { chainId, configs } = useConfigs()
   const headRef = useRef<HTMLDivElement>(null)
   const wrapRef = useRef<HTMLDivElement>(null)
