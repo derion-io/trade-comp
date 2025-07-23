@@ -442,17 +442,15 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
       const res = await fetch(url);
       const json = await res.json();
       const ohlcvList: [number, number, number, number, number][] = json?.data?.attributes?.ohlcv_list || [];
-      const chartDatas = ohlcvList.reverse().map((item: number[]) => ({
-        time: item[0] * 1000,
-        value: item[4]?.toString()
+      const chartDatas: LineChartData[] = ohlcvList.reverse().map((item: number[]) => ({
+        updatedAt: item[0] * 1000,
+        answer: item[4]?.toString(),
+        roundId: bn(0)
       }));
       if (ohlcvList.length === 0) {
         throw "No gecko data";
       }
-      setChartData({
-        ...chartData,
-        [chainId + interval + id]: chartDatas
-      });
+      setChartData(chartDatas);
       setIsLoading(false);
     } catch (error) {
       console.error('Error loading GeckoTerminal chart data:', error);
