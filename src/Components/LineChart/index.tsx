@@ -364,13 +364,13 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
           interval,
           action,
           from,
-          onUpdate: (priceData) => {
+          onUpdate: (priceData, roundsToShow) => {
             const chainIdStr = chainId.toString()
             if (!priceData?.[chainId.toString()] || !priceData?.[chainId.toString()][feedAddress] || Object.keys(priceData?.[chainId.toString()]?.[feedAddress])?.length === 0) {
               return;
             }
-
-            let chartFinalData: LineChartData[] = Object.keys(priceData[chainIdStr][feedAddress]).map(round => {
+            console.log("#roundsToShow", roundsToShow)
+            let chartFinalData: LineChartData[] = roundsToShow.map(round => {
               return {
                 ...priceData[chainIdStr][feedAddress][round],
                 roundId: bn(round)

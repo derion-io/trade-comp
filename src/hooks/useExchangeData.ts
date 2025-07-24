@@ -210,12 +210,13 @@ export const useExchangeData = () => {
     from: string | BigNumber = BigNumber.from(0),
     feedAdress: string,
     interval: LineChartIntervalType,
-    onUpdate?: (PriceFeedDataCache: PriceFeedDataCache) => void // callback for fresh data
+    onUpdate?: (PriceFeedDataCache: PriceFeedDataCache, roundsToShow: string[]) => void // callback for fresh data
   ) => {
     try {
       const chainIdStr= chainId.toString()
       const roundSecond = avgRoundInSecond[feedAdress] || 0
       const provider = new ethers.providers.JsonRpcProvider(RPC_URL)
+      const roundsToShow: string[] = [] 
       const priceFeedContract = new ethers.Contract(
         feedAdress,
         priceFeedContractAbi,
@@ -284,6 +285,7 @@ export const useExchangeData = () => {
           })
           roundsToFetch.push(currentRoundId.toString())
         }
+        roundsToShow.push(String(currentRoundId))
         currentRoundId = currentRoundId.sub(stepRound)
       }
 
@@ -293,7 +295,7 @@ export const useExchangeData = () => {
       console.log("#avgRoundInSecond", avgRoundInSecond)
       console.log("#roundstep", stepRound)
 
-      if (onUpdate) onUpdate(priceData)
+      if (onUpdate) onUpdate(priceData, roundsToShow)
 
       let decodedData: PriceFeedData[] = []
       const newPriceDatas: PriceFeedDataCache = cloneDeep(priceData)
@@ -329,7 +331,7 @@ export const useExchangeData = () => {
           priceData: newPriceDatas
         }))
       }
-      if (onUpdate) onUpdate(newPriceDatas)
+      if (onUpdate) onUpdate(newPriceDatas, roundsToShow)
 
       if (action === 'NONE' && roundSecond == 0 && Object.keys(newPriceDatas[chainId][feedAdress]).length > 1) {
         const avgTime = calculateAverageTimePerRound(Object.keys(newPriceDatas[chainId][feedAdress]).map(r => newPriceDatas[chainId][feedAdress][r]).filter(a => a?.updatedAt), LINE_CHART_CONFIG[interval].stepRound)
@@ -360,7 +362,7 @@ export const useExchangeData = () => {
     baseToken: string
     action?: 'PREV' | 'NEXT' | 'NONE'
     from?: string | BigNumber
-    onUpdate?: (priceData: PriceFeedDataCache) => void // callback for fresh data
+    onUpdate?: (priceData: PriceFeedDataCache, roundsToShow: string[]) => void // callback for fresh data
   }) => {
     return await chainLinkHistoricalPriceFeedDatas(action, from, pair, interval, onUpdate)
   }
