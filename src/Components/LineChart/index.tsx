@@ -393,6 +393,9 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
             const start = lastData.updatedAt - LINE_CHART_CONFIG[interval].range
             const end = lastData.updatedAt
             chartFinalData = chartFinalData.filter(c => c.updatedAt >= start && c.updatedAt <= end)
+            console.log("#chartFinalData.length", chartFinalData.length)
+            chartFinalData = limitChartData(chartFinalData, LINE_CHART_CONFIG[interval].limit)
+
             if (
               chartFinalData.length > 0 &&
               firstData.updatedAt >
@@ -548,3 +551,25 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
 export const LineChart = React.memo(Component, (prevProps, nextProps) =>
   isEqual(prevProps, nextProps)
 )
+
+function limitChartData(data: LineChartData[], limit: number): LineChartData[] {
+  if (limit < 2) return data;
+  if (data.length <= limit) return data;
+
+  const t0 = data[0].updatedAt;
+  const tn = data[data.length - 1].updatedAt;
+
+  const result: LineChartData[] = [data[0]];
+
+  const spacing = (tn - t0) / (limit - 1);
+
+  for (let i = 1; i < data.length-1; ++i) {
+    if (data[i].updatedAt >= t0 + result.length*spacing) {
+      result.push(data[i]);
+    }
+  }
+
+  result.push(data[data.length - 1]);
+
+  return result;
+}
