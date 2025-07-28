@@ -34,6 +34,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
 
   const [hoverValue, setHoverValue] = useState<string>()
   const [chartData, setChartData] = useState<LineChartData[]>([])
+  const [currentView, setCurrentView] = useState<number>(Date.now())
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [hoverDate, setHoverDate] = useState<number>()
   const [interval, setInterval] = useState<LineChartIntervalType>(I_1Y)
@@ -331,27 +332,33 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   }), [color, chartData, interval, isPhone, basePrice, wrapRef?.current ,headRef.current?.offsetHeight])
 
   const loadData = (action: 'PREV' | 'NEXT' | 'NONE' = 'NONE') => {
+    let _currentView = currentView
+    const intervalRange = LINE_CHART_CONFIG[interval].range
+
     setIsLoading(true)
     //  priceFeedData[chainId + interval + id] || []
-    let _chartData = chartData
-    _chartData = chartData?.filter(d => d.updatedAt >= start)
-    const last = _chartData?.[_chartData.length - 1]
-    const start = last?.updatedAt ? last?.updatedAt - (LINE_CHART_CONFIG[interval].range / 1000) : 0
+    // let _chartData = chartData
+    // _chartData = chartData?.filter(d => d.updatedAt >= start)
+    // const last = _chartData?.[_chartData.length - 1]
+    // const start = last?.updatedAt ? last?.updatedAt - (intervalRange / 1000) : 0
     // /    console.log("#chartData", chartData, start)
     // console.log("#chartData", chartData)
 
     let from = BigNumber.from(0)
     if (action === 'PREV') {
+      _currentView -= intervalRange
       const firstItem = chartData[0].answer ? chartData[0] : chartData[1]
       if (firstItem) {
         from = firstItem.roundId
       }
     } else if (action === 'NEXT') {
+      _currentView += intervalRange
       const lastItem = chartData?.[chartData?.length - 1]
       if (lastItem) {
         from = lastItem.roundId
       }
     } else {
+      _currentView = Date.now()
       from = BigNumber.from(0)
     }
     console.log("#chartData", chartData)
@@ -376,39 +383,45 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
                 roundId: bn(round)
               }
             })
-            if(action === "PREV") {
-              chartFinalData = chartFinalData.filter(c => c?.updatedAt <= chartData[0]?.updatedAt && c?.updatedAt >= chartData[0]?.updatedAt - LINE_CHART_CONFIG[interval].range)
-            } else if (action == "NEXT"){
-              chartFinalData = chartFinalData.filter(c => c?.updatedAt > chartData[chartData.length - 1]?.updatedAt && c?.updatedAt < chartData[chartData.length - 1]?.updatedAt + LINE_CHART_CONFIG[interval].range)
-              if(chartFinalData.length === 0 ) {
-                setIsLoading(false)
-                return
-              }; 
-            }
+            const minTs = _currentView - intervalRange
+            const maxTs = _currentView
+
+            // if(action === "PREV") {
+            //   // chartFinalData = chartFinalData.filter(c => c?.updatedAt <= chartData[0]?.updatedAt && c?.updatedAt >= chartData[0]?.updatedAt - intervalRange)
+            //   chartFinalData = chartFinalData.filter(c => c?.updatedAt <= maxTs && c?.updatedAt >= minTs)
+            // } else if (action == "NEXT"){
+            //   chartFinalData = chartFinalData.filter(c => c?.updatedAt > minTs && c?.updatedAt < maxTs)
+            //   if(chartFinalData.length === 0 ) {
+            //     setIsLoading(false)
+            //     return
+            //   }; 
+            // }
+            chartFinalData = chartFinalData.filter(c => c?.updatedAt >= minTs && c?.updatedAt <= maxTs)
             chartFinalData = uniqBy(chartFinalData, "updatedAt")
             chartFinalData = chartFinalData.sort((a,b) => a.updatedAt - b.updatedAt)
       
             const [firstData, lastData] = [chartFinalData[0], chartFinalData[chartFinalData.length - 1]]
             if(!firstData || !lastData) return;
-            const start = lastData.updatedAt - LINE_CHART_CONFIG[interval].range
-            const end = lastData.updatedAt
-            chartFinalData = chartFinalData.filter(c => c.updatedAt >= start && c.updatedAt <= end)
-            console.log("#chartFinalData.length", chartFinalData.length)
+            // const start = lastData.updatedAt - intervalRange
+            // const end = lastData.updatedAt
+            // chartFinalData = chartFinalData.filter(c => c.updatedAt >= start && c.updatedAt <= end)
+            // console.log("#chartFinalData.length", chartFinalData.length)
             chartFinalData = limitChartData(chartFinalData, LINE_CHART_CONFIG[interval].limit)
 
             if (
               chartFinalData.length > 0 &&
               firstData.updatedAt >
-              lastData.updatedAt - LINE_CHART_CONFIG[interval].range
+              lastData.updatedAt - intervalRange
             ) {
               chartFinalData.unshift({
                 updatedAt:
-                  lastData.updatedAt - LINE_CHART_CONFIG[interval].range,
+                  lastData.updatedAt - intervalRange,
                 value: null,
                 roundId: bn(0),
                 answer: null
               } as any)
             }
+          setCurrentView(_currentView)
           setChartData(chartFinalData)
           }
         })
@@ -485,11 +498,19 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
           </div>
         </div>
         <div className='line-chart__head--center'>
-          <span className='scroll-button' onClick={() => loadData('PREV')}>
+          <span className='scroll-button' onClick={() => {
+              if (!isLoading) loadData('PREV')
+            }}>
             Prev
           </span>
-          <span className='scroll-button' onClick={() => loadData('NEXT')}>
+          <span className='scroll-button' onClick={() => {
+             if (!isLoading) loadData('NEXT')
+            }}>
             Next
+          </span>
+          <span className='scroll-button'>
+           {new Date(currentView + 7 * 60 * 60 * 1000).toISOString()}
+
           </span>
         </div>
         <div className='line-chart__head--right'>
