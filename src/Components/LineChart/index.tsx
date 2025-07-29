@@ -1,7 +1,7 @@
 import {ApexOptions} from 'apexcharts'
 import {BigNumber} from 'ethers'
 import moment from 'moment'
-import React,{useEffect,useMemo,useRef,useState} from 'react'
+import React,{useCallback, useEffect,useMemo,useRef,useState} from 'react'
 import ReactApexChart from 'react-apexcharts'
 import isEqual from 'react-fast-compare'
 import {ReloadIcon} from '../../Components/ui/Icon'
@@ -26,9 +26,16 @@ import {Tabs} from '../ui/Tabs'
 import {Text,TextGrey} from '../ui/Text'
 import './style.scss'
 import {uniqBy} from 'lodash'
+import {State} from '../../state/types'
+import {useSelector} from 'react-redux'
 
 const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const { getLineChartData } = useExchangeData()
+  const { priceDataState} = useSelector((state: State) => {
+    return {
+      priceDataState: state.linechart.priceData,
+    }
+  })
   const { baseToken, id, basePrice } = useCurrentPoolGroup()
   const { poolGroups } = useResource()
 
@@ -48,6 +55,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   useEffect(() => {
     if (!chartData || id) {
       setChartData([])
+      setCurrentView(Date.now())
       loadData()
     }
   }, [id, chainId, interval, currentPool])
@@ -331,9 +339,10 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
     ]
   }), [color, chartData, interval, isPhone, basePrice, wrapRef?.current ,headRef.current?.offsetHeight])
 
-  const loadData = (action: 'PREV' | 'NEXT' | 'NONE' = 'NONE') => {
+  const loadData = useCallback((action: 'PREV' | 'NEXT' | 'NONE' = 'NONE') => {
     let _currentView = currentView
     const intervalRange = LINE_CHART_CONFIG[interval].range
+    const feedAddress = '0x' + currentPool?.ORACLE?.slice?.(26)
 
     setIsLoading(true)
     //  priceFeedData[chainId + interval + id] || []
@@ -358,13 +367,17 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
         from = lastItem.roundId
       }
     } else {
-      _currentView = Date.now()
-      from = BigNumber.from(0)
+      const roundIds = Object.keys(priceDataState[chainId]?.[feedAddress] || {}).filter(k => priceDataState[chainId]?.[feedAddress]?.[k]?.updatedAt <= currentView).map( e => Number(e))
+      const lastRoundId = roundIds?.length == 0 ? undefined : Math.max(...roundIds)
+      if (lastRoundId) {
+        from = bn(String(lastRoundId))
+      } else {
+        from = BigNumber.from(0)
+      }
     }
     console.log("#chartData", chartData)
     if (from && currentPool?.ORACLE) {
       if (isChainlink(currentPool)) {
-        const feedAddress = '0x' + currentPool?.ORACLE?.slice(26)
         getLineChartData({
           pair: feedAddress,
           baseToken,
@@ -385,7 +398,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
             })
             const minTs = _currentView - intervalRange
             const maxTs = _currentView
-
+            // console.log("#mm", new Date(minTs).toISOString(),new Date(maxTs).toISOString(), Object.keys(priceData[chainIdStr][feedAddress]).length)
             // if(action === "PREV") {
             //   // chartFinalData = chartFinalData.filter(c => c?.updatedAt <= chartData[0]?.updatedAt && c?.updatedAt >= chartData[0]?.updatedAt - intervalRange)
             //   chartFinalData = chartFinalData.filter(c => c?.updatedAt <= maxTs && c?.updatedAt >= minTs)
@@ -440,7 +453,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
         loadDataFromGecko(action)
       }
     }
-  }
+  }, [currentView, interval, currentPool, chartData, baseToken, chainId, getLineChartData])
 
   const loadDataFromGecko = async (action: 'PREV' | 'NEXT' | 'NONE' = 'NONE') => {
     if (!currentPool?.ORACLE || currentPool?.ORACLE == "") return;
