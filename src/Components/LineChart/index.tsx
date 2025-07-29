@@ -343,7 +343,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
     let _currentView = currentView
     const intervalRange = LINE_CHART_CONFIG[interval].range
     const feedAddress = '0x' + currentPool?.ORACLE?.slice?.(26)
-
+    const priceDataRoundIds = Object.keys(priceDataState[chainId]?.[feedAddress] || {})
     setIsLoading(true)
     //  priceFeedData[chainId + interval + id] || []
     // let _chartData = chartData
@@ -356,19 +356,32 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
     let from = BigNumber.from(0)
     if (action === 'PREV') {
       _currentView -= intervalRange
-      const firstItem = chartData[0].answer ? chartData[0] : chartData[1]
-      if (firstItem) {
-        from = firstItem.roundId
+      // const firstItem = chartData[0].answer ? chartData[0] : chartData[1]
+      const roundIds = priceDataRoundIds.filter(k => 
+        priceDataState[chainId]?.[feedAddress]?.[k]?.updatedAt >= _currentView &&
+        priceDataState[chainId]?.[feedAddress]?.[k]?.updatedAt <= currentView
+      ).map( e => Number(e))
+      const firstRoundId = roundIds?.length == 0 ? undefined : Math.min(...roundIds)
+      if (firstRoundId) {
+        from = bn(String(firstRoundId)) 
       }
     } else if (action === 'NEXT') {
       _currentView += intervalRange
-      const lastItem = chartData?.[chartData?.length - 1]
-      if (lastItem) {
-        from = lastItem.roundId
+      if(_currentView > Date.now())
+          _currentView = Date.now()
+      const roundIds = priceDataRoundIds.filter(k =>
+         priceDataState[chainId]?.[feedAddress]?.[k]?.updatedAt >= currentView &&
+         priceDataState[chainId]?.[feedAddress]?.[k]?.updatedAt <= _currentView).map( e => Number(e))
+      const lastRoundId = roundIds?.length == 0 ? undefined : Math.min(...roundIds)
+      if (lastRoundId) {
+        from = bn(String(lastRoundId)) 
       }
     } else {
-      const roundIds = Object.keys(priceDataState[chainId]?.[feedAddress] || {}).filter(k => priceDataState[chainId]?.[feedAddress]?.[k]?.updatedAt <= currentView).map( e => Number(e))
-      const lastRoundId = roundIds?.length == 0 ? undefined : Math.max(...roundIds)
+      const roundIds = priceDataRoundIds.filter(k => 
+        priceDataState[chainId]?.[feedAddress]?.[k]?.updatedAt <= _currentView).map( e => Number(e))
+      const lastRoundId = roundIds?.length == 0 ? 
+        chartData[0]?.answer ? chartData[0]?.roundId : chartData[1]?.roundId
+       : Math.max(...roundIds)
       if (lastRoundId) {
         from = bn(String(lastRoundId))
       } else {
@@ -428,7 +441,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
             ) {
               chartFinalData.unshift({
                 updatedAt:
-                  lastData.updatedAt - intervalRange,
+                  _currentView - intervalRange,
                 value: null,
                 roundId: bn(0),
                 answer: null
@@ -453,7 +466,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
         loadDataFromGecko(action)
       }
     }
-  }, [currentView, interval, currentPool, chartData, baseToken, chainId, getLineChartData])
+  }, [currentView, interval, currentPool, chartData, baseToken, chainId, getLineChartData, priceDataState])
 
   const loadDataFromGecko = async (action: 'PREV' | 'NEXT' | 'NONE' = 'NONE') => {
     if (!currentPool?.ORACLE || currentPool?.ORACLE == "") return;
