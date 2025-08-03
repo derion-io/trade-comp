@@ -41,7 +41,11 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
 
   const [hoverValue, setHoverValue] = useState<string>()
   const [chartData, setChartData] = useState<LineChartData[]>([])
-  const [currentView, setCurrentView] = useState<number>(Date.now())
+  const [currentView, setCurrentView] = useState<{ts:number,firstRound:BigNumber, lastRound: BigNumber}>({
+    ts: Date.now(),
+    lastRound: bn(0),
+    firstRound:bn(0),
+  })
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [hoverDate, setHoverDate] = useState<number>()
   const [interval, setInterval] = useState<LineChartIntervalType>(I_1Y)
@@ -53,13 +57,19 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const isPhone = width && width < 768
   const currentPool = useMemo(() => poolGroups[id], [id, poolGroups])
   useEffect(() => {
-    if (!chartData || currentPool) {
-      // console.log("#id",poolGroups[id]?.ORACLE)
-      setChartData([])
-      setCurrentView(Date.now())
       loadData()
+  }, [interval])
+
+  useEffect(() => {
+    setChartData([])
+    const defaultCurrentV = {
+      ts: Date.now(),
+      firstRound: bn(0),
+      lastRound: bn(0)
     }
-  }, [chainId, interval, currentPool])
+    setCurrentView(defaultCurrentV)
+    loadData("NONE", defaultCurrentV)
+  },[currentPool, chainId])
 
   useEffect(() => {
     if (basePrice) {
@@ -340,11 +350,10 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
     ]
   }), [color, chartData, interval, isPhone, basePrice, wrapRef?.current ,headRef.current?.offsetHeight])
 
-  const loadData = useCallback((action: 'PREV' | 'NEXT' | 'NONE' = 'NONE') => {
-    let _currentView = currentView
+  const loadData = useCallback((action: 'PREV' | 'NEXT' | 'NONE' = 'NONE', currentViewOverride?: any) => {
+    let _currentView = currentViewOverride || currentView
     const intervalRange = LINE_CHART_CONFIG[interval].range
     const feedAddress = '0x' + currentPool?.ORACLE?.slice?.(26)
-    const priceDataRoundIds = Object.keys(priceDataState[chainId]?.[feedAddress] || {})
     setIsLoading(true)
     //  priceFeedData[chainId + interval + id] || []
     // let _chartData = chartData
@@ -356,37 +365,40 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
 
     let from = BigNumber.from(0)
 
-    console.log("#chartData", chartData)
+    // console.log("#chartData", chartData)
     if (currentPool?.ORACLE) {
       if (isChainlink(currentPool)) {
+        console.log("#crv", _currentView.ts, _currentView.firstRound.toString(), _currentView.lastRound.toString())
         if (action === 'PREV') {
-          _currentView -= intervalRange
+          _currentView.ts -= intervalRange
           // const firstItem = chartData[0].answer ? chartData[0] : chartData[1]
-          const roundIds = priceDataRoundIds.filter(k => 
-            priceDataState[chainId]?.[feedAddress]?.[k]?.updatedAt >= _currentView &&
-            priceDataState[chainId]?.[feedAddress]?.[k]?.updatedAt <= currentView
-          ).map( e => Number(e))
-          const firstRoundId = roundIds?.length == 0 ? undefined : Math.min(...roundIds)
-          if (firstRoundId) {
-            from = bn(String(firstRoundId)) 
-          }
+          // const roundIds = priceDataRoundIds.filter(k => 
+          //   priceDataState[chainId]?.[feedAddress]?.[k]?.updatedAt >= _currentView.ts &&
+          //   priceDataState[chainId]?.[feedAddress]?.[k]?.updatedAt <= currentView.ts
+          // ).map( e => Number(e))
+          // const firstRoundId = roundIds?.length == 0 ? undefined : Math.min(...roundIds)
+          // if (firstRoundId) {
+            // from = bn(String(firstRoundId)) 
+          // }
+          from = _currentView.firstRound
         } else if (action === 'NEXT') {
-          _currentView += intervalRange
-          if(_currentView > Date.now())
-              _currentView = Date.now()
-          const roundIds = priceDataRoundIds.filter(k =>
-             priceDataState[chainId]?.[feedAddress]?.[k]?.updatedAt >= currentView &&
-             priceDataState[chainId]?.[feedAddress]?.[k]?.updatedAt <= _currentView).map( e => Number(e))
-          const lastRoundId = roundIds?.length == 0 ? undefined : Math.min(...roundIds)
-          if (lastRoundId) {
-            from = bn(String(lastRoundId)) 
-          }
+          _currentView.ts += intervalRange
+          // if(_currentView.ts > Date.now())
+          //     _currentView.ts = Date.now()
+          // const roundIds = priceDataRoundIds.filter(k =>
+          //    priceDataState[chainId]?.[feedAddress]?.[k]?.updatedAt >= currentView.ts &&
+          //    priceDataState[chainId]?.[feedAddress]?.[k]?.updatedAt <= _currentView.ts).map( e => Number(e))
+          // const lastRoundId = roundIds?.length == 0 ? undefined : Math.min(...roundIds)
+          // if (lastRoundId) {
+          //   from = bn(String(lastRoundId)) 
+          // }
+          from = _currentView.lastRound
         } else {
-          const roundIds = priceDataRoundIds.filter(k => 
-            priceDataState[chainId]?.[feedAddress]?.[k]?.updatedAt <= _currentView).map( e => Number(e))
-          const lastRoundId = roundIds?.length == 0 ? 
-            chartData[0]?.answer ? chartData[0]?.roundId : chartData[1]?.roundId
-           : Math.max(...roundIds)
+          // const roundIds = priceDataRoundIds.filter(k => 
+          //   priceDataState[chainId]?.[feedAddress]?.[k]?.updatedAt <= _currentView.ts).map( e => Number(e))
+          const lastRoundId = _currentView?.lastRound
+          // roundIds?.length == 0 ? bn(0) ? chartData[0]?.roundId : chartData[1]?.roundId
+          //  : Math.max(...roundIds)
           if (lastRoundId) {
             from = bn(String(lastRoundId))
           } else {
@@ -411,8 +423,8 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
                 roundId: bn(round)
               }
             })
-            const minTs = _currentView - intervalRange
-            const maxTs = _currentView
+            const minTs = _currentView.ts - intervalRange
+            const maxTs = _currentView.ts
             // console.log("#mm", new Date(minTs).toISOString(),new Date(maxTs).toISOString(), Object.keys(priceData[chainIdStr][feedAddress]).length)
             // if(action === "PREV") {
             //   // chartFinalData = chartFinalData.filter(c => c?.updatedAt <= chartData[0]?.updatedAt && c?.updatedAt >= chartData[0]?.updatedAt - intervalRange)
@@ -434,8 +446,9 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
             // const end = lastData.updatedAt
             // chartFinalData = chartFinalData.filter(c => c.updatedAt >= start && c.updatedAt <= end)
             // console.log("#chartFinalData.length", chartFinalData.length)
+            _currentView.firstRound = bn(String(firstData?.roundId))
+            _currentView.lastRound = bn(String(lastData?.roundId))
             chartFinalData = limitChartData(chartFinalData, LINE_CHART_CONFIG[interval].limit)
-
             if (
               chartFinalData.length > 0 &&
               firstData.updatedAt >
@@ -443,15 +456,17 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
             ) {
               chartFinalData.unshift({
                 updatedAt:
-                  _currentView - intervalRange,
+                  _currentView.ts - intervalRange,
                 value: null,
                 roundId: bn(0),
                 answer: null
               } as any)
+            } else {
             }
           setCurrentView(_currentView)
           setChartData(chartFinalData)
           }
+          
         })
           .then((data: PriceFeedDataCache) => {
             setIsLoading(false)
@@ -488,11 +503,11 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
       // const currentKey = chainId + interval + id;
       let _currentView = currentView;
       if (action === 'PREV') {
-        _currentView -= intervalRange;
+        _currentView.ts -= intervalRange;
       } else if (action === 'NEXT') {
-        _currentView += intervalRange;
+        _currentView.ts += intervalRange;
       }
-      url += `&before_timestamp=${Math.round(_currentView / 1000)}`;
+      url += `&before_timestamp=${Math.round(_currentView.ts / 1000)}`;
       const res = await fetch(url);
       const json = await res.json();
       const ohlcvList: [number, number, number, number, number][] = json?.data?.attributes?.ohlcv_list || [];
@@ -503,11 +518,11 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
         updatedAt: item[0] * 1000,
         answer: item[4]?.toString(),
         roundId: bn(0)
-      })).filter(e => e.updatedAt >= _currentView - intervalRange && e.updatedAt <= _currentView);
+      })).filter(e => e.updatedAt >= _currentView.ts - intervalRange && e.updatedAt <= _currentView.ts);
   
-      if(chartDatas?.length > 0 && chartDatas[0]?.updatedAt < currentView - intervalRange) {
+      if(chartDatas?.length > 0 && chartDatas[0]?.updatedAt < currentView.ts - intervalRange) {
         chartDatas.unshift({
-          updatedAt: currentView - intervalRange,
+          updatedAt: currentView.ts - intervalRange,
           answer: null,
           roundId: bn(0)
         } as any)
@@ -542,12 +557,12 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
             Prev
           </span>
           <span className='scroll-button' onClick={() => {
-             if (!isLoading) loadData('NEXT')
+             if (!isLoading) loadData( 'NEXT')
             }}>
             Next
           </span>
           <span className='scroll-button'>
-           {new Date(currentView + 7 * 60 * 60 * 1000).toISOString()}
+           {new Date(currentView.ts + 7 * 60 * 60 * 1000).toISOString()}
 
           </span>
         </div>

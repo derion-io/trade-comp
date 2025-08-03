@@ -257,11 +257,11 @@ export const useExchangeData = () => {
           multiCallSize = PRICE_FEED_MULTICALL_SIZE
         }
       } else {
+        console.log("#from2", from.toString())
         if(from.toString() === "0") {
           roundId = BigNumber.from(latestRoundId)
         } else {
           roundId = BigNumber.from(from)
-          console.log("#from2", from.toString(), roundId.toString())
         }
         multiCallSize = PRICE_FEED_MULTICALL_SIZE
       }
@@ -291,12 +291,12 @@ export const useExchangeData = () => {
         currentRoundId = currentRoundId.sub(stepRound)
       }
 
-      console.log("#updateData" ,priceData, feedAdress)
-      console.log("#priceData", priceData)
-      console.log("#feedAddres", feedAdress)
-      console.log("#avgRoundInSecond", avgRoundInSecond)
-      console.log("#roundstep", stepRound)
-      console.log("#calls",calls.length)
+      // console.log("#updateData" ,priceData, feedAdress)
+      // console.log("#priceData", priceData)
+      // console.log("#feedAddres", feedAdress)
+      // console.log("#avgRoundInSecond", avgRoundInSecond)
+      // console.log("#roundstep", stepRound)
+      // console.log("#calls",calls.length)
 
       if (onUpdate) onUpdate(priceData)
 
@@ -325,10 +325,10 @@ export const useExchangeData = () => {
               // answeredInRound: decodedData[4]
             }
           })
-        // console.log("#decodeData", decodedData.map(e => ({
-        //   ...e,
-        //   ts: new Date(e.updatedAt).toISOString()
-        // })))
+        console.log("#decodeData", decodedData.map(e => ({
+          ...e,
+          ts: new Date(e.updatedAt).toISOString()
+        })))
         decodedData.forEach((data, index) => {
           if(data)
             newPriceDatas[chainIdStr][feedAdress][roundsToFetch[index]] = data
