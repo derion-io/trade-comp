@@ -368,7 +368,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
     // console.log("#chartData", chartData)
     if (currentPool?.ORACLE) {
       if (isChainlink(currentPool)) {
-        console.log("#crv", _currentView.ts, _currentView.firstRound.toString(), _currentView.lastRound.toString())
+        // console.log("#crv", _currentView.ts, _currentView.firstRound.toString(), _currentView.lastRound.toString())
         if (action === 'PREV') {
           _currentView.ts -= intervalRange
           // const firstItem = chartData[0].answer ? chartData[0] : chartData[1]
@@ -527,7 +527,7 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
           roundId: bn(0)
         } as any)
       }
-      console.log("#chartDatas", chartDatas)
+      // console.log("#chartDatas", chartDatas)
       setCurrentView(_currentView)
       setChartData(chartDatas);
       setIsLoading(false);

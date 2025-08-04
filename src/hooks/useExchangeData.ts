@@ -257,7 +257,7 @@ export const useExchangeData = () => {
           multiCallSize = PRICE_FEED_MULTICALL_SIZE
         }
       } else {
-        console.log("#from2", from.toString())
+        // console.log("#from2", from.toString())
         if(from.toString() === "0") {
           roundId = BigNumber.from(latestRoundId)
         } else {
