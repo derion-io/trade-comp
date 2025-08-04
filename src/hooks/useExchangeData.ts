@@ -325,10 +325,10 @@ export const useExchangeData = () => {
               // answeredInRound: decodedData[4]
             }
           })
-        console.log("#decodeData", decodedData.map(e => ({
-          ...e,
-          ts: new Date(e.updatedAt).toISOString()
-        })))
+        // console.log("#decodeData", decodedData.map(e => ({
+        //   ...e,
+        //   ts: new Date(e.updatedAt).toISOString()
+        // })))
         decodedData.forEach((data, index) => {
           if(data)
             newPriceDatas[chainIdStr][feedAdress][roundsToFetch[index]] = data
