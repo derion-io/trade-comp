@@ -1,7 +1,7 @@
 import {ApexOptions} from 'apexcharts'
 import {BigNumber} from 'ethers'
 import moment from 'moment'
-import React,{useEffect,useMemo,useRef,useState} from 'react'
+import React,{useCallback, useEffect,useMemo,useRef,useState} from 'react'
 import ReactApexChart from 'react-apexcharts'
 import isEqual from 'react-fast-compare'
 import {ReloadIcon} from '../../Components/ui/Icon'
@@ -26,14 +26,26 @@ import {Tabs} from '../ui/Tabs'
 import {Text,TextGrey} from '../ui/Text'
 import './style.scss'
 import {uniqBy} from 'lodash'
+import {State} from '../../state/types'
+import {useSelector} from 'react-redux'
 
 const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const { getLineChartData } = useExchangeData()
+  const { priceDataState} = useSelector((state: State) => {
+    return {
+      priceDataState: state.linechart.priceData,
+    }
+  })
   const { baseToken, id, basePrice } = useCurrentPoolGroup()
   const { poolGroups } = useResource()
 
   const [hoverValue, setHoverValue] = useState<string>()
   const [chartData, setChartData] = useState<LineChartData[]>([])
+  const [currentView, setCurrentView] = useState<{ts:number,firstRound:BigNumber, lastRound: BigNumber}>({
+    ts: Date.now(),
+    lastRound: bn(0),
+    firstRound:bn(0),
+  })
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [hoverDate, setHoverDate] = useState<number>()
   const [interval, setInterval] = useState<LineChartIntervalType>(I_1Y)
@@ -45,11 +57,19 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
   const isPhone = width && width < 768
   const currentPool = useMemo(() => poolGroups[id], [id, poolGroups])
   useEffect(() => {
-    if (!chartData || id) {
-      setChartData([])
       loadData()
+  }, [interval])
+
+  useEffect(() => {
+    setChartData([])
+    const defaultCurrentV = {
+      ts: Date.now(),
+      firstRound: bn(0),
+      lastRound: bn(0)
     }
-  }, [id, chainId, interval, currentPool])
+    setCurrentView(defaultCurrentV)
+    loadData("NONE", defaultCurrentV)
+  },[currentPool, chainId])
 
   useEffect(() => {
     if (basePrice) {
@@ -330,34 +350,61 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
     ]
   }), [color, chartData, interval, isPhone, basePrice, wrapRef?.current ,headRef.current?.offsetHeight])
 
-  const loadData = (action: 'PREV' | 'NEXT' | 'NONE' = 'NONE') => {
+  const loadData = useCallback((action: 'PREV' | 'NEXT' | 'NONE' = 'NONE', currentViewOverride?: any) => {
+    let _currentView = currentViewOverride || currentView
+    const intervalRange = LINE_CHART_CONFIG[interval].range
+    const feedAddress = '0x' + currentPool?.ORACLE?.slice?.(26)
     setIsLoading(true)
     //  priceFeedData[chainId + interval + id] || []
-    let _chartData = chartData
-    _chartData = chartData?.filter(d => d.updatedAt >= start)
-    const last = _chartData?.[_chartData.length - 1]
-    const start = last?.updatedAt ? last?.updatedAt - (LINE_CHART_CONFIG[interval].range / 1000) : 0
+    // let _chartData = chartData
+    // _chartData = chartData?.filter(d => d.updatedAt >= start)
+    // const last = _chartData?.[_chartData.length - 1]
+    // const start = last?.updatedAt ? last?.updatedAt - (intervalRange / 1000) : 0
     // /    console.log("#chartData", chartData, start)
     // console.log("#chartData", chartData)
 
     let from = BigNumber.from(0)
-    if (action === 'PREV') {
-      const firstItem = chartData[0].answer ? chartData[0] : chartData[1]
-      if (firstItem) {
-        from = firstItem.roundId
-      }
-    } else if (action === 'NEXT') {
-      const lastItem = chartData?.[chartData?.length - 1]
-      if (lastItem) {
-        from = lastItem.roundId
-      }
-    } else {
-      from = BigNumber.from(0)
-    }
-    console.log("#chartData", chartData)
-    if (from && currentPool?.ORACLE) {
+
+    // console.log("#chartData", chartData)
+    if (currentPool?.ORACLE) {
       if (isChainlink(currentPool)) {
-        const feedAddress = '0x' + currentPool?.ORACLE?.slice(26)
+        // console.log("#crv", _currentView.ts, _currentView.firstRound.toString(), _currentView.lastRound.toString())
+        if (action === 'PREV') {
+          _currentView.ts -= intervalRange
+          // const firstItem = chartData[0].answer ? chartData[0] : chartData[1]
+          // const roundIds = priceDataRoundIds.filter(k => 
+          //   priceDataState[chainId]?.[feedAddress]?.[k]?.updatedAt >= _currentView.ts &&
+          //   priceDataState[chainId]?.[feedAddress]?.[k]?.updatedAt <= currentView.ts
+          // ).map( e => Number(e))
+          // const firstRoundId = roundIds?.length == 0 ? undefined : Math.min(...roundIds)
+          // if (firstRoundId) {
+            // from = bn(String(firstRoundId)) 
+          // }
+          from = _currentView.firstRound
+        } else if (action === 'NEXT') {
+          _currentView.ts += intervalRange
+          // if(_currentView.ts > Date.now())
+          //     _currentView.ts = Date.now()
+          // const roundIds = priceDataRoundIds.filter(k =>
+          //    priceDataState[chainId]?.[feedAddress]?.[k]?.updatedAt >= currentView.ts &&
+          //    priceDataState[chainId]?.[feedAddress]?.[k]?.updatedAt <= _currentView.ts).map( e => Number(e))
+          // const lastRoundId = roundIds?.length == 0 ? undefined : Math.min(...roundIds)
+          // if (lastRoundId) {
+          //   from = bn(String(lastRoundId)) 
+          // }
+          from = _currentView.lastRound
+        } else {
+          // const roundIds = priceDataRoundIds.filter(k => 
+          //   priceDataState[chainId]?.[feedAddress]?.[k]?.updatedAt <= _currentView.ts).map( e => Number(e))
+          const lastRoundId = _currentView?.lastRound
+          // roundIds?.length == 0 ? bn(0) ? chartData[0]?.roundId : chartData[1]?.roundId
+          //  : Math.max(...roundIds)
+          if (lastRoundId) {
+            from = bn(String(lastRoundId))
+          } else {
+            from = BigNumber.from(0)
+          }
+        }
         getLineChartData({
           pair: feedAddress,
           baseToken,
@@ -376,38 +423,50 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
                 roundId: bn(round)
               }
             })
-            if(action === "PREV") {
-              chartFinalData = chartFinalData.filter(c => c?.updatedAt <= chartData[0]?.updatedAt && c?.updatedAt >= chartData[0]?.updatedAt - LINE_CHART_CONFIG[interval].range)
-            } else if (action == "NEXT"){
-              chartFinalData = chartFinalData.filter(c => c?.updatedAt > chartData[chartData.length - 1]?.updatedAt && c?.updatedAt < chartData[chartData.length - 1]?.updatedAt + LINE_CHART_CONFIG[interval].range)
-              if(chartFinalData.length === 0 ) {
-                setIsLoading(false)
-                return
-              }; 
-            }
+            const minTs = _currentView.ts - intervalRange
+            const maxTs = _currentView.ts
+            // console.log("#mm", new Date(minTs).toISOString(),new Date(maxTs).toISOString(), Object.keys(priceData[chainIdStr][feedAddress]).length)
+            // if(action === "PREV") {
+            //   // chartFinalData = chartFinalData.filter(c => c?.updatedAt <= chartData[0]?.updatedAt && c?.updatedAt >= chartData[0]?.updatedAt - intervalRange)
+            //   chartFinalData = chartFinalData.filter(c => c?.updatedAt <= maxTs && c?.updatedAt >= minTs)
+            // } else if (action == "NEXT"){
+            //   chartFinalData = chartFinalData.filter(c => c?.updatedAt > minTs && c?.updatedAt < maxTs)
+            //   if(chartFinalData.length === 0 ) {
+            //     setIsLoading(false)
+            //     return
+            //   }; 
+            // }
+            chartFinalData = chartFinalData.filter(c => c?.updatedAt >= minTs && c?.updatedAt <= maxTs)
             chartFinalData = uniqBy(chartFinalData, "updatedAt")
             chartFinalData = chartFinalData.sort((a,b) => a.updatedAt - b.updatedAt)
       
             const [firstData, lastData] = [chartFinalData[0], chartFinalData[chartFinalData.length - 1]]
             if(!firstData || !lastData) return;
-            const start = lastData.updatedAt - LINE_CHART_CONFIG[interval].range
-            const end = lastData.updatedAt
-            chartFinalData = chartFinalData.filter(c => c.updatedAt >= start && c.updatedAt <= end)
+            // const start = lastData.updatedAt - intervalRange
+            // const end = lastData.updatedAt
+            // chartFinalData = chartFinalData.filter(c => c.updatedAt >= start && c.updatedAt <= end)
+            // console.log("#chartFinalData.length", chartFinalData.length)
+            _currentView.firstRound = bn(String(firstData?.roundId))
+            _currentView.lastRound = bn(String(lastData?.roundId))
+            chartFinalData = limitChartData(chartFinalData, LINE_CHART_CONFIG[interval].limit)
             if (
               chartFinalData.length > 0 &&
               firstData.updatedAt >
-              lastData.updatedAt - LINE_CHART_CONFIG[interval].range
+              lastData.updatedAt - intervalRange
             ) {
               chartFinalData.unshift({
                 updatedAt:
-                  lastData.updatedAt - LINE_CHART_CONFIG[interval].range,
+                  _currentView.ts - intervalRange,
                 value: null,
                 roundId: bn(0),
                 answer: null
               } as any)
+            } else {
             }
+          setCurrentView(_currentView)
           setChartData(chartFinalData)
           }
+          
         })
           .then((data: PriceFeedDataCache) => {
             setIsLoading(false)
@@ -421,15 +480,18 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
             setIsLoading(false)
           })
       } else {
-        loadDataFromGecko(action)
+        loadDataFromGecko(action).then(e => {
+          setIsLoading(false)
+        })
       }
     }
-  }
+  }, [currentView, interval, currentPool, chartData, baseToken, chainId, getLineChartData, priceDataState])
 
-  const loadDataFromGecko = async (action: 'PREV' | 'NEXT' | 'NONE' = 'NONE') => {
+  const loadDataFromGecko = useCallback(async (action: 'PREV' | 'NEXT' | 'NONE' = 'NONE') => {
     if (!currentPool?.ORACLE || currentPool?.ORACLE == "") return;
     setIsLoading(true);
     try {
+      const intervalRange = LINE_CHART_CONFIG[interval].range
       const poolAddress = "0x" + currentPool?.ORACLE?.slice(26);
       const intervalConf = INTERVAL_TO_GECKO[interval];
       if (!poolAddress || !intervalConf) {
@@ -439,34 +501,41 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
       let url = `https://api.geckoterminal.com/api/v2/networks/${configs.gtID}/pools/${poolAddress}/ohlcv/${intervalConf.timeframe}?aggregate=${intervalConf.aggregate}&include_empty_intervals=false&limit=300`;
       
       // const currentKey = chainId + interval + id;
-      const currentData = chartData || [];
-      let beforeTimestamp = undefined;
-      if (action === 'PREV' && currentData.length > 0) {
-        beforeTimestamp = Math.floor(currentData[0].updatedAt / 1000);
-      } else if (action === 'NEXT' && currentData.length > 0) {
-        beforeTimestamp = Math.floor(currentData[currentData.length - 1].updatedAt / 1000);
+      let _currentView = currentView;
+      if (action === 'PREV') {
+        _currentView.ts -= intervalRange;
+      } else if (action === 'NEXT') {
+        _currentView.ts += intervalRange;
       }
-      if (beforeTimestamp) {
-        url += `&before_timestamp=${beforeTimestamp}`;
-      }
+      url += `&before_timestamp=${Math.round(_currentView.ts / 1000)}`;
       const res = await fetch(url);
       const json = await res.json();
       const ohlcvList: [number, number, number, number, number][] = json?.data?.attributes?.ohlcv_list || [];
+      if (ohlcvList.length === 0) {
+        throw "No gecko data";
+      }
       const chartDatas: LineChartData[] = ohlcvList.reverse().map((item: number[]) => ({
         updatedAt: item[0] * 1000,
         answer: item[4]?.toString(),
         roundId: bn(0)
-      }));
-      if (ohlcvList.length === 0) {
-        throw "No gecko data";
+      })).filter(e => e.updatedAt >= _currentView.ts - intervalRange && e.updatedAt <= _currentView.ts);
+  
+      if(chartDatas?.length > 0 && chartDatas[0]?.updatedAt < currentView.ts - intervalRange) {
+        chartDatas.unshift({
+          updatedAt: currentView.ts - intervalRange,
+          answer: null,
+          roundId: bn(0)
+        } as any)
       }
+      // console.log("#chartDatas", chartDatas)
+      setCurrentView(_currentView)
       setChartData(chartDatas);
       setIsLoading(false);
     } catch (error) {
       console.error('Error loading GeckoTerminal chart data:', error);
       setIsLoading(false);
     }
-  }
+  }, [currentPool, interval, configs.gtID, currentView])
 
   return (
     <div className='line-chart-wrap'>
@@ -482,11 +551,19 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
           </div>
         </div>
         <div className='line-chart__head--center'>
-          <span className='scroll-button' onClick={() => loadData('PREV')}>
+          <span className='scroll-button' onClick={() => {
+              if (!isLoading) loadData('PREV')
+            }}>
             Prev
           </span>
-          <span className='scroll-button' onClick={() => loadData('NEXT')}>
+          <span className='scroll-button' onClick={() => {
+             if (!isLoading) loadData( 'NEXT')
+            }}>
             Next
+          </span>
+          <span className='scroll-button'>
+           {new Date(currentView.ts + 7 * 60 * 60 * 1000).toISOString()}
+
           </span>
         </div>
         <div className='line-chart__head--right'>
@@ -548,3 +625,25 @@ const Component = ({ changedIn24h }: { changedIn24h: number }) => {
 export const LineChart = React.memo(Component, (prevProps, nextProps) =>
   isEqual(prevProps, nextProps)
 )
+
+function limitChartData(data: LineChartData[], limit: number): LineChartData[] {
+  if (limit < 2) return data;
+  if (data.length <= limit) return data;
+
+  const t0 = data[0].updatedAt;
+  const tn = data[data.length - 1].updatedAt;
+
+  const result: LineChartData[] = [data[0]];
+
+  const spacing = (tn - t0) / (limit - 1);
+
+  for (let i = 1; i < data.length-1; ++i) {
+    if (data[i].updatedAt >= t0 + result.length*spacing) {
+      result.push(data[i]);
+    }
+  }
+
+  result.push(data[data.length - 1]);
+
+  return result;
+}

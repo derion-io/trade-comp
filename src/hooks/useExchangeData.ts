@@ -257,7 +257,12 @@ export const useExchangeData = () => {
           multiCallSize = PRICE_FEED_MULTICALL_SIZE
         }
       } else {
-        roundId = BigNumber.from(latestRoundId)
+        // console.log("#from2", from.toString())
+        if(from.toString() === "0") {
+          roundId = BigNumber.from(latestRoundId)
+        } else {
+          roundId = BigNumber.from(from)
+        }
         multiCallSize = PRICE_FEED_MULTICALL_SIZE
       }
 
@@ -266,7 +271,6 @@ export const useExchangeData = () => {
         multicalAggregateABI,
         provider
       )
-
       const calls = []
       const roundsToFetch:string[] = []
       const priceFeedInterface = new Interface(priceFeedContractAbi)
@@ -287,11 +291,12 @@ export const useExchangeData = () => {
         currentRoundId = currentRoundId.sub(stepRound)
       }
 
-      console.log("#updateData" ,priceData, feedAdress)
-      console.log("#priceData", priceData)
-      console.log("#feedAddres", feedAdress)
-      console.log("#avgRoundInSecond", avgRoundInSecond)
-      console.log("#roundstep", stepRound)
+      // console.log("#updateData" ,priceData, feedAdress)
+      // console.log("#priceData", priceData)
+      // console.log("#feedAddres", feedAdress)
+      // console.log("#avgRoundInSecond", avgRoundInSecond)
+      // console.log("#roundstep", stepRound)
+      // console.log("#calls",calls.length)
 
       if (onUpdate) onUpdate(priceData)
 
@@ -304,7 +309,6 @@ export const useExchangeData = () => {
           newPriceDatas[chainIdStr][feedAdress] = {}
       if (calls.length > 0) {
         const returnData = await multicalContract.callStatic.tryAggregate(false, calls)
-        console.log(returnData)
         decodedData = returnData
           .map((data: [boolean, string]) => {
             if(!data[0]) return;
@@ -321,6 +325,10 @@ export const useExchangeData = () => {
               // answeredInRound: decodedData[4]
             }
           })
+        // console.log("#decodeData", decodedData.map(e => ({
+        //   ...e,
+        //   ts: new Date(e.updatedAt).toISOString()
+        // })))
         decodedData.forEach((data, index) => {
           if(data)
             newPriceDatas[chainIdStr][feedAdress][roundsToFetch[index]] = data

@@ -107,7 +107,7 @@ export const Trade = ({
         .map(([key, value]) => value)
         .filter((data) => data && data.updatedAt && (now - Number(data.updatedAt)) <= DAY)
 
-      console.log("#24", priceFeedDataList,priceData)
+      // console.log("#24", priceFeedDataList,priceData)
       if (priceFeedDataList.length < 2) {
         setChangedIn24h(0)
         return
