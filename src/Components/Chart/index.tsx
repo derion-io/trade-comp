@@ -194,7 +194,7 @@ const Component = ({
             tab={chartTab}
             setTab={setChartTab}
             tabs={[
-              { name: 'Candles', value: CHART_TABS.CANDLE_CHART },
+              // { name: 'Candles', value: CHART_TABS.CANDLE_CHART },
               { name: 'Lines', value: CHART_TABS.LINE_CHART },
               { name: 'Curves', value: CHART_TABS.FUNC_PLOT },
               ...(showHedgeBeta ? [{ name: 'Hedge', value: CHART_TABS.HEDGE_CHART }] : [])
